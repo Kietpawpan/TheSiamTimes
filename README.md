@@ -17,3 +17,4 @@ This modern revival seeks to marry the authoritative weight of the past with the
 Reproduction, modification or commercial use of the page layout, logos, or brand elements is strictly prohibited without prior permission. Images and referenced information remain the copyright of their respective sources as credited within the content.
 
 - [บุรีรัมย์ประกาศก้องลดก๊าซเรือนกระจก ตั้งเป้าบิ๊กโปรเจกต์ฮุบคาร์บอน 2.4 แสนตันภายในปี 70](https://pcdapp.pcd.go.th/s/the-siam-times-no-682722)
+- [Buri Ram Province Sets Ambitious Emissions Target for 2027 in Climate Overhaul](https://kietpawpan.github.io/TheSiamTimes/CLXXV82723.html)
