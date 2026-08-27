@@ -2,7 +2,11 @@
 The Siam Times
 ==============
 Copyright (c) 2026 Monte Kietpawpan(<kietpawpan@gamil.com>)
-Reproduction, modification or commercial use of the page layout, logos, or brand elements is strictly prohibited without prior permission. Images and referenced information remain the copyright of their respective sources as credited within the content.
+
+Reproduction, modification or commercial use of the page layout, 
+logos, or brand elements is strictly prohibited without prior permission. 
+Images and referenced information remain the copyright of their 
+respective sources as credited within the content.
 
 ============
 Chomsky font
