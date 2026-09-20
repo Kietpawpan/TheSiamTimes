@@ -12,9 +12,9 @@ But the newspaper's voice was abruptly silenced. In December 1865, Chandler beca
 Now, that long silence has been broken. The Siam Times has been resurrected, though not on the ink-stained broadsheets of Chandler’s era. Reimagined as an innovative digital media platform, the new iteration is the brainchild of Montri Kiatphaophan, when he was the Director of Environmental and Pollution Control Office 11 (Nakhon Ratchasima). What began as a personal project to develop modern communication tools morphed into a historical mission when Dr. Kiatphaophan discovered the connection to the defunct 19th-century enterprise.
 
 This modern revival seeks to marry the authoritative weight of the past with the urgent challenges of the present. By securing the trademark for the historic name, the project effectively fulfills Chandler’s 160-year-old promise of a return. Today, instead of reporting on the arrival of steamships, the platform focuses its lens on environmental advocacy and sustainable development, aiming to provide local communities with a global voice in an increasingly fragile world.
-
+```
 © 2026 The Siam Times. All rights reserved. 
 Reproduction, modification or commercial use of the page layout, logos, or brand elements is strictly prohibited without prior permission. Images and referenced information remain the copyright of their respective sources as credited within the content.
-
+```
 - [บุรีรัมย์ประกาศก้องลดก๊าซเรือนกระจก ตั้งเป้าบิ๊กโปรเจกต์ฮุบคาร์บอน 2.4 แสนตันภายในปี 70](https://pcdapp.pcd.go.th/s/the-siam-times-no-682722)
 - [Buri Ram Province Sets Ambitious Emissions Target for 2027 in Climate Overhaul](https://kietpawpan.github.io/TheSiamTimes/CLXXV82723.html)
