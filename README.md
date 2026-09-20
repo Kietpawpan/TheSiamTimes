@@ -1,5 +1,5 @@
 # The Siam Times
-A 19th-Century Voice Returns to Siam, Now Advocating for the Earth
+_A 19th-Century Voice Returns to Siam, Now Advocating for the Earth_
 
 After a 160-year silence sparked by a legal dispute, Thailand’s first English-language newspaper has been reborn as a digital hub for environmental sustainability.
 
