@@ -1,7 +1,7 @@
 ==============
 The Siam Times
 ==============
-Copyright (c) 2026 Monte Kietpawpan(<kietpawpan@gamil.com>)
+Copyright (c) 2026 Montri Kiatphaophan (<monte@thesiamtimes.com>)
 
 Reproduction, modification or commercial use of the page layout, 
 logos, or brand elements is strictly prohibited without prior permission. 
