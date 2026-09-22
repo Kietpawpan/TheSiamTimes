@@ -111,9 +111,7 @@
                     <a href="#" class="hover:underline flex items-center gap-1">Climate <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
                     <a href="#" class="hover:underline flex items-center gap-1">Technology <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
                     <a href="#" class="hover:underline flex items-center gap-1"> Management <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-
                    <a href="#" class="hover:underline flex items-center gap-1">Games <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-
                 </nav>
             </div>
             <div class="border-b border-gray-300 mb-6"></div>
@@ -125,7 +123,10 @@
             <div class="lg:col-span-9 grid grid-cols-1 md:grid-cols-12 gap-6 lg:pr-6 lg:border-r border-gray-300">
                 
                 <!-- Left Column: Main Headline & Synopsis -->
-                <section class="md:col-span-4 flex flex-col pr-0 md:pr-6 md:border-r border-gray-300">
+                <!--section class="md:col-span-4 flex flex-col pr-0 md:pr-6 md:border-r border-gray-300"-->
+
+                <section class="md:col-span-4 flex flex-col px-4 md:px md:border-r border-gray-300">
+
                     <article class="mb-6 border-b border-gray-300 md:border-0 pb-6 md:pb-0">
                         <div class="text-[10px] font-bold tracking-widest text-black uppercase font-sans mb-3">History</div>
                         <h2 class="text-3xl lg:text-[32px] font-bold font-title leading-[1.1] mb-3 hover:text-gray-600 cursor-pointer italic"><a href="https://thesiamtimes.com/6909221005.html">
@@ -182,7 +183,7 @@
                     <div class="text-[9px] text-right text-gray-500 mt-1 uppercase font-sans tracking-wide">Photo: Timelapse Studio</div>
                 </section>
 
-                <section class="col-span-1 md:col-span-12 border-t border-black mt-8 pt-4">
+                <section class="col-span-4 flex flex-col px-4 md:col-span-12 border-t border-black mt-8 pt-4">
                     <h3 class="font-sans font-bold text-sm mb-4">More to read <strong class="text-black">for free.</strong></h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -218,9 +219,10 @@ New Technologies in Wastewater Treatment for Local Shops and Small Buildings
                 </section>
             </div>
 
-            <aside class="lg:col-span-3 flex flex-col gap-6 pl-0 lg:pl-2">
+            <aside class="lg:col-span-3 flex flex-col gap-6 px-4 lg:px-4 lg:pl-2">
                 
                 <article class="border-t border-gray-300 pt-6 lg:border-0 lg:pt-0">
+
                     <!-- Layered Image Effect matching reference -->
                     <div class="relative mb-3 pt-2 pl-2">
                         <div class="absolute top-0 left-0 w-[95%] h-[95%] bg-gray-200 shadow-sm border border-gray-300 transform -rotate-3"></div>
@@ -261,6 +263,7 @@ New Technologies in Wastewater Treatment for Local Shops and Small Buildings
             <p>&copy; 2026 The Siam Times. All rights reserved.</p>
         </footer>
     </div>
+
   <script>
         // 1. Replace this with your actual Google Apps Script Web App URL
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyfoFishbabfNLqqyv9nOIkk8XipSlFD4kSaa8BfYw-ckF4fq7UZiRdfJMjqXqff8BQZg/exec'; 
@@ -279,7 +282,7 @@ New Technologies in Wastewater Treatment for Local Shops and Small Buildings
                                 +<span class="data-val">${data.temperature}°C</span>
                     `;
                 } else {
-                    container.innerHTML = `<p class="error">Script Error: ${data.message}</p>`;
+                    container.innerHTML = `<p class="error">No Data</p>`;
                 }
             } catch (error) {
                 // Catches network errors or invalid URLs
