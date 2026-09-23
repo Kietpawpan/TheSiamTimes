@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Siam Times</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    
+    <!-- Updated Favicon for .ico format -->
     <link rel="icon" type="image/x-icon" href="https://thesiamtimes.com/IMG_6425.ico">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
     <style>
@@ -84,22 +87,21 @@
             
             <div class="flex flex-col md:flex-row justify-between items-end mb-4">
                 <div class="w-full md:w-1/4 text-[11px] sm:text-xs text-gray-800 font-sans hidden md:block">
-                    <span class="font-bold">Tuesday, September 22, 2026</span><br>
+                    <!-- Added id="desktop-date" -->
+                    <span class="font-bold" id="desktop-date">Tuesday, September 22, 2026</span><br>
                     <a href="https://thesiamtimes.com/690923Nene" class="hover:underline hover:text-black">Today's Paper</a>
                 </div>
                 
                 <div class="w-full md:w-1/2 text-center mb-4 md:mb-0">
-                    <!-- Mobile Date -->
-                    <div class="md:hidden mb-2 text-[11px] text-gray-800 font-sans font-bold">
+                    <!-- Added id="mobile-date" -->
+                    <div class="md:hidden mb-2 text-[11px] text-gray-800 font-sans font-bold" id="mobile-date">
                         Monday, September 21, 2026
                     </div>
                     
-                    <!-- Modernized Subtitle for Mobile & Desktop -->
                     <div class="text-[10px] text-gray-500 font-sans tracking-[0.2em] uppercase mb-1">
                         THAILAND &nbsp;&nbsp;&nbsp; INTERNATIONAL
                     </div>
 
-                    <!-- Responsive Masthead Scaling (text-5xl on base mobile) -->
                     <h1 class="font-masthead text-5xl sm:text-6xl md:text-7xl lg:text-[6rem] font-normal tracking-normal leading-none py-2 text-center" style="letter-spacing: 0.02em;">
                         The Siam Times
                     </h1>
@@ -110,7 +112,6 @@
                 </div>
             </div>
 
-            <!-- Navigation with better touch targets (py-2) -->
             <div class="border-double-thick py-1 mb-1">
                 <nav class="flex justify-start md:justify-center overflow-x-auto no-scrollbar space-x-6 md:space-x-8 text-[12px] font-sans font-normal text-gray-900 whitespace-nowrap px-2 py-1">
                     <a href="https://thesiamtimes.com/690922policyen.html" class="hover:underline flex items-center gap-1 py-1">Policy <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
@@ -127,7 +128,6 @@
             <div class="border-b border-gray-300 mb-6"></div>
         </header>
 
-        <!-- Adjusted bottom margin for mobile -->
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10 md:mb-20">
             
             <div class="lg:col-span-9 grid grid-cols-1 md:grid-cols-12 gap-6 lg:pr-6 lg:border-r border-gray-300">
@@ -162,7 +162,6 @@
                     <div class="relative group cursor-pointer border border-gray-200 mt-2">
                         <img src="IMG_6390.jpeg" class="w-full h-auto object-cover" alt="Far Right Rally in Europe">
                         
-                        <!-- Adjusted responsive positioning and padding for the mobile overlay -->
                         <div class="absolute bottom-2 left-2 md:bottom-6 md:left-6 bg-white/90 px-2 py-1 md:px-3 md:py-2 max-w-[80%] md:max-w-[65%] shadow-sm">
                             <p class="text-xs md:text-base font-serif text-black leading-snug">
                                 Bangkok 1914<br>Kingdom of Thailand
@@ -244,11 +243,29 @@
         </main>
         
         <footer class="border-t border-double-thin py-6 text-center text-xs font-sans text-gray-500 mt-10">
-            <p>&copy; 2026 The Siam Times. All rights reserved.</p>
+            <!-- Added id="footer-year" -->
+            <p>&copy; <span id="footer-year">2026</span> The Siam Times. All rights reserved.</p>
         </footer>
     </div>
     
     <script>
+        // ฟังก์ชันสำหรับอัปเดตวันที่ให้เป็นปัจจุบัน
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString('en-US', options);
+            
+            // อัปเดตวันที่บนเดสก์ท็อปและมือถือ
+            document.getElementById('desktop-date').textContent = formattedDate;
+            document.getElementById('mobile-date').textContent = formattedDate;
+            
+            // อัปเดตปีใน footer ด้วย
+            document.getElementById('footer-year').textContent = today.getFullYear();
+        }
+
+        // เรียกใช้งานฟังก์ชันเมื่อโหลดหน้าเว็บ
+        updateDate();
+
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyfoFishbabfNLqqyv9nOIkk8XipSlFD4kSaa8BfYw-ckF4fq7UZiRdfJMjqXqff8BQZg/exec'; 
 
         async function fetchTemperatureData() {
