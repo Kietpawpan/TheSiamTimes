@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1280">
     <title>The Siam Times</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,6 +44,8 @@
         body {
             background-color: #ffffff;
             color: #121212;
+            width: 1280px;
+            margin: 0 auto;
         }
         .border-double-thick {
             border-top: 1px solid #121212;
@@ -54,16 +56,11 @@
             border-bottom: 1px solid #121212;
         }
         .text-justify-newspaper {
-            text-align: left;
-        }
-        @media (min-width: 768px) {
-            .text-justify-newspaper {
-                width: 100% !important;
-                box-sizing: border-box;
-                float: none;
-                text-align: justify;
-                text-justify: inter-word;
-            }
+            width: 100% !important;
+            box-sizing: border-box;
+            float: none;
+            text-align: justify;
+            text-justify: inter-word;
         }
         /* Hide scrollbar for top navigation */
         .no-scrollbar::-webkit-scrollbar {
@@ -73,86 +70,70 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        img{
-            max-width: 100%;
-            height:auto;
+        /* Lock image sizes to prevent auto resizing */
+        img {
+            max-width: none !important;
+            height: auto;
             display: block;
         }
     </style>
 </head>
 <body class="antialiased min-h-screen">
-    <div class="max-w-[1280px] mx-auto px-4 sm:px-6">
+    <div class="w-[1280px] mx-auto px-6">
         <header class="pt-4 pb-2">
             <!-- Top bar: Date, Masthead, Stocks -->
-            <div class="flex flex-col md:flex-row justify-between items-end mb-4">
-                <div class="w-full md:w-1/4 text-[11px] sm:text-xs text-gray-800 font-sans hidden md:block">
+            <div class="flex justify-between items-end mb-4">
+                <div class="w-1/4 text-xs text-gray-800 font-sans">
                     <span class="font-bold">Tuesday, September 22, 2026</span><br>
                     <a href="https://thesiamtimes.com/690923Nene" class="hover:underline hover:text-black">Today's Paper</a>
                 </div>
                 
-                <div class="w-full md:w-1/2 text-center mb-4 md:mb-0">
-
-<!-- Mobile Date (Hidden on Desktop) -->
-                    <div class="md:hidden mb-2 text-[11px] text-gray-800 font-sans font-bold">
-                        Monday, September 21, 2026
-                    </div>
-                    <!-- Masthead Title -->
-<font size="-3"; color="grey" style="letter-spacing: 0.2em;">THAILAND &nbsp;&nbsp;&nbsp; INTERNATIONAL</font>
-
-                    <h1 class="font-masthead text-6xl md:text-7xl lg:text-[6rem] font-normal tracking-normal leading-none py-2 text-center" style="letter-spacing: 0.02em;">
+                <div class="w-1/2 text-center">
+                    <font size="-3" color="grey" style="letter-spacing: 0.2em;">THAILAND &nbsp;&nbsp;&nbsp; INTERNATIONAL</font>
+                    <h1 class="font-masthead text-[6rem] font-normal tracking-normal leading-none py-2 text-center" style="letter-spacing: 0.02em;">
                         The Siam Times
                     </h1>
                 </div>
 
-                <div class="w-full md:w-1/4 text-[11px] sm:text-xs text-gray-800 font-sans text-right hidden md:flex justify-end items-end pb-2">
+                <div class="w-1/4 text-xs text-gray-800 font-sans text-right flex justify-end items-end pb-2">
                     <span>Global <span id="result-box" class="text-green-700 font-bold ml-1">+0.7°C to 0.85°C</span></span>
-        </div>
                 </div>
             </div>
 
             <!-- Navigation & Double Horizontal Line -->
             <div class="border-double-thick py-1 mb-1">
-                <nav class="flex justify-start md:justify-center overflow-x-auto no-scrollbar space-x-6 md:space-x-8 text-[12px] font-sans font-normal text-gray-900 whitespace-nowrap px-2">
-                    <a href="https://thesiamtimes.com/690922policyen.html" class="hover:underline flex items-center gap-1">Policy
-<svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                    <a href="#" class="hover:underline flex items-center gap-1">Water<svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
+                <nav class="flex justify-center overflow-x-auto no-scrollbar space-x-8 text-[12px] font-sans font-normal text-gray-900 whitespace-nowrap px-2">
+                    <a href="https://thesiamtimes.com/690922policyen.html" class="hover:underline flex items-center gap-1">Policy <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
+                    <a href="#" class="hover:underline flex items-center gap-1">Water <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
                     <a href="#" class="hover:underline flex items-center gap-1">Air <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
                     <a href="#" class="hover:underline flex items-center gap-1">Wastes <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                     <a href="#" class="hover:underline flex items-center gap-1">Laws <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
+                    <a href="#" class="hover:underline flex items-center gap-1">Laws <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
                     <a href="#" class="hover:underline flex items-center gap-1">Climate <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
                     <a href="#" class="hover:underline flex items-center gap-1">Technology <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                    <a href="#" class="hover:underline flex items-center gap-1"> Management <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                   <a href="#" class="hover:underline flex items-center gap-1">Games <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
+                    <a href="#" class="hover:underline flex items-center gap-1">Management <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
+                    <a href="#" class="hover:underline flex items-center gap-1">Games <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
                 </nav>
             </div>
             <div class="border-b border-gray-300 mb-6"></div>
         </header>
 
-        <main class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
-            
-            <!-- Left and Center Container (Separated by border on desktop) -->
-            <div class="lg:col-span-9 grid grid-cols-1 md:grid-cols-12 gap-6 lg:pr-6 lg:border-r border-gray-300">
-                
-                <!-- Left Column: Main Headline & Synopsis -->
-                <!--section class="md:col-span-4 flex flex-col pr-0 md:pr-6 md:border-r border-gray-300"-->
-
-                <section class="md:col-span-4 flex flex-col px-4 md:px md:border-r border-gray-300">
-
-                    <article class="mb-6 border-b border-gray-300 md:border-0 pb-6 md:pb-0">
+        <main class="grid grid-cols-12 gap-8 mb-20">
+            <!-- Left and Center Container -->
+            <div class="col-span-9 grid grid-cols-12 gap-6 pr-6 border-r border-gray-300">
+                <!-- Left Column -->
+                <section class="col-span-4 flex flex-col pr-6 border-r border-gray-300">
+                    <article class="mb-6">
                         <div class="text-[10px] font-bold tracking-widest text-black uppercase font-sans mb-3">History</div>
-                        <h2 class="text-3xl lg:text-[32px] font-bold font-title leading-[1.1] mb-3 hover:text-gray-600 cursor-pointer italic"><a href="https://thesiamtimes.com/6909221005.html">
-                            The Siam Times Enters a New Era
-                        </a></h2>
+                        <h2 class="text-[32px] font-bold font-title leading-[1.1] mb-3 hover:text-gray-600 cursor-pointer italic">
+                            <a href="https://thesiamtimes.com/6909221005.html">The Siam Times Enters a New Era</a>
+                        </h2>
                         <p class="text-[15px] text-gray-800 font-serif leading-relaxed mb-4 text-justify-newspaper">
                             Our publication returns with a renewed commitment to classic journalism, pairing in-depth reporting with a timeless, elegant design crafted for the modern reader.
-
-
                         </p>
                         <div class="text-[10px] text-gray-500 uppercase font-sans font-medium tracking-wide">6 Min Read</div>
                     </article>
 
-                    <!-- Additional Left Column Story -->
-                    <article class="hidden md:block mt-6 pt-6 border-t border-gray-300">
+                    <article class="mt-6 pt-6 border-t border-gray-300">
                         <h3 class="text-xl font-bold font-title leading-tight mb-2 hover:text-gray-600 cursor-pointer">
                             A Wealth of Knowledge: From the Environment to Modern Gaming
                         </h3>
@@ -162,82 +143,64 @@
                     </article>
                 </section>
 
-                <!-- Center Column: Main Featured Image -->
-                <section class="md:col-span-8 flex flex-col">
+                <!-- Center Column -->
+                <section class="col-span-8 flex flex-col">
                     <div class="text-center mb-3">
                         <span class="text-[13px] font-sans border-b border-nyt-link text-gray-800 pb-[2px]">All stories are <strong class="font-bold">free to read</strong>.</span>
                     </div>
 
                     <div class="relative group cursor-pointer border border-gray-200 mt-2">
-                        <!-- EXACT IMAGE REQUIRED BY USER -->
-                        <img src="IMG_6390.jpeg" class="w-full h-auto object-cover" alt="Far Right Rally in Europe">
-                        
-                        <!-- Video overlay styling from reference -->
+                        <img src="IMG_6390.jpeg" style="width: 760px; height: auto;" alt="Far Right Rally in Europe">
                         <div class="absolute bottom-6 left-6 bg-white/90 px-3 py-2 max-w-[65%]">
-                            <p class="text-sm md:text-base font-serif text-black leading-snug">
+                            <p class="text-base font-serif text-black leading-snug">
                                 Bangkok 1914<br>Kingdom of Thailand
                             </p>
                         </div>
-
-                        <!-- Mock Controls -->
-<!--
-                        <div class="absolute right-4 bottom-4 flex flex-col gap-2">
-                            <div class="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-                            </div>
-                            <div class="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
-                            </div>
-                        </div>
--->
                     </div>
                     <div class="text-[9px] text-right text-gray-500 mt-1 uppercase font-sans tracking-wide">Photo: Timelapse Studio</div>
                 </section>
 
-                <section class="col-span-4 flex flex-col px-4 md:col-span-12 border-t border-black mt-8 pt-4">
+                <section class="col-span-12 border-t border-black mt-8 pt-4">
                     <h3 class="font-sans font-bold text-sm mb-4">More to read <strong class="text-black">for free.</strong></h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <article class="flex gap-4 border-t border-gray-200 pt-4 lg:border-t-0 lg:pt-0">
+                    <div class="grid grid-cols-3 gap-6">
+                        <article class="flex gap-4">
                             <div class="flex-1">
                                 <div class="text-[10px] font-bold tracking-widest text-black uppercase font-sans mb-1">The Great Read</div>
                                 <h4 class="text-[17px] font-bold font-title leading-snug hover:text-gray-600 cursor-pointer">
-<a href="https://thesiamtimes.com/6909221712watch.html">I Made a Hard Choice to Skip the Luxury Watch for a Thoughtfully Chosen Casio
-</a>
-</h4>
+                                    <a href="https://thesiamtimes.com/6909221712watch.html">I Made a Hard Choice to Skip the Luxury Watch for a Thoughtfully Chosen Casio</a>
+                                </h4>
                             </div>
-                            <img src="https://placehold.co/150x150/e2e8f0/475569?text=Family" class="w-20 h-20 object-cover" alt="Thumbnail">
+                            <img src="https://placehold.co/150x150/e2e8f0/475569?text=Family" style="width: 80px; height: 80px;" alt="Thumbnail">
                         </article>
-                        <article class="flex gap-4 border-t border-gray-200 pt-4 lg:border-t-0 lg:pt-0">
+                        <article class="flex gap-4">
                             <div class="flex-1">
                                 <div class="text-[10px] font-bold tracking-widest text-black uppercase font-sans mb-1">Opinion</div>
-                                <h4 class="text-[17px] font-bold font-title leading-snug hover:text-gray-600 cursor-pointer"><a href="https://thesiamtimes.com/6909221832Nene.html">
-The Thai Renaissance: A Year of Grit and Global Dominance</a></h4>
+                                <h4 class="text-[17px] font-bold font-title leading-snug hover:text-gray-600 cursor-pointer">
+                                    <a href="https://thesiamtimes.com/6909221832Nene.html">The Thai Renaissance: A Year of Grit and Global Dominance</a>
+                                </h4>
                             </div>
-                            <img src="https://placehold.co/150x150/e2e8f0/475569?text=Fans" class="w-20 h-20 object-cover" alt="Thumbnail">
+                            <img src="https://placehold.co/150x150/e2e8f0/475569?text=Fans" style="width: 80px; height: 80px;" alt="Thumbnail">
                         </article>
-                        <article class="flex gap-4 border-t border-gray-200 pt-4 lg:border-t-0 lg:pt-0 hidden lg:flex">
+                        <article class="flex gap-4">
                             <div class="flex-1">
                                 <div class="text-[10px] font-bold tracking-widest text-black uppercase font-sans mb-1">Science</div>
                                 <h4 class="text-[17px] font-bold font-title leading-snug hover:text-gray-600 cursor-pointer">
-
-New Technologies in Wastewater Treatment for Local Shops and Small Buildings
-</h4>
+                                    New Technologies in Wastewater Treatment for Local Shops and Small Buildings
+                                </h4>
                             </div>
-                            <img src="https://placehold.co/150x150/e2e8f0/475569?text=Science" class="w-20 h-20 object-cover" alt="Thumbnail">
+                            <img src="https://placehold.co/150x150/e2e8f0/475569?text=Science" style="width: 80px; height: 80px;" alt="Thumbnail">
                         </article>
                     </div>
                 </section>
             </div>
 
-            <aside class="lg:col-span-3 flex flex-col gap-6 px-4 lg:px-4 lg:pl-2">
-                
-                <article class="border-t border-gray-300 pt-6 lg:border-0 lg:pt-0">
-
-                    <!-- Layered Image Effect matching reference -->
+            <!-- Right Sidebar -->
+            <aside class="col-span-3 flex flex-col gap-6 pl-2">
+                <article>
                     <div class="relative mb-3 pt-2 pl-2">
                         <div class="absolute top-0 left-0 w-[95%] h-[95%] bg-gray-200 shadow-sm border border-gray-300 transform -rotate-3"></div>
-                        <img src="https://placehold.co/500x350/dddddd/555555?text=NetZero" class="relative w-full h-auto object-cover border border-gray-200 shadow-sm" alt="Lenox Hill Building">
+                        <img src="https://placehold.co/500x350/dddddd/555555?text=NetZero" style="width: 270px; height: auto;" class="relative border border-gray-200 shadow-sm" alt="NetZero">
                     </div>
                     <div class="text-[9px] text-right text-gray-500 uppercase font-sans mb-3 tracking-wide">By 2050</div>
                     
@@ -251,7 +214,6 @@ New Technologies in Wastewater Treatment for Local Shops and Small Buildings
 
                 <div class="border-b border-gray-300 my-2"></div>
 
-                <!-- Secondary Right Column Modules (e.g. Games, Cooking) -->
                 <div class="grid grid-cols-2 gap-4 mt-2">
                     <a href="#" class="block group text-center">
                         <div class="aspect-square bg-[#E3F2FD] flex items-center justify-center relative overflow-hidden mb-2">
@@ -267,7 +229,6 @@ New Technologies in Wastewater Treatment for Local Shops and Small Buildings
                     </a>
                 </div>
             </aside>
-
         </main>
         
         <footer class="border-t border-double-thin py-6 text-center text-xs font-sans text-gray-500 mt-10">
@@ -275,37 +236,25 @@ New Technologies in Wastewater Treatment for Local Shops and Small Buildings
         </footer>
     </div>
 
-  <script>
-        // 1. Replace this with your actual Google Apps Script Web App URL
+    <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyfoFishbabfNLqqyv9nOIkk8XipSlFD4kSaa8BfYw-ckF4fq7UZiRdfJMjqXqff8BQZg/exec'; 
 
         async function fetchTemperatureData() {
             const container = document.getElementById('result-box');
-            
             try {
-                // 2. Fetch the data from the GAS deployment
                 const response = await fetch(WEB_APP_URL);
                 const data = await response.json();
-                
-                // 3. Check if the script executed successfully
                 if (data.status === 'success') {
-                    container.innerHTML = `
-                                +<span class="data-val">${data.temperature}°C</span>
-                    `;
+                    container.innerHTML = `+<span class="data-val">${data.temperature}°C</span>`;
                 } else {
                     container.innerHTML = `<p class="error">No Data</p>`;
                 }
             } catch (error) {
-                // Catches network errors or invalid URLs
-                container.innerHTML = `<p class="error">Network Error: Failed to connect to the script.</p>`;
+                container.innerHTML = `<p class="error">Network Error</p>`;
                 console.error(error);
             }
         }
-
-        // Run the function as soon as the page loads
         fetchTemperatureData();
     </script>
-
-
 </body>
 </html>
