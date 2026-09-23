@@ -6,7 +6,7 @@
     <title>The Siam Times</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Updated Favicon for .ico format -->
+    <!-- Updated Favicon to IMG_6425.ico -->
     <link rel="icon" type="image/x-icon" href="https://thesiamtimes.com/IMG_6425.ico">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -85,15 +85,14 @@
     <div class="max-w-[1280px] mx-auto px-4 sm:px-6">
         <header class="pt-4 pb-2">
             
+            <!-- ปรับโครงสร้าง Layout ส่วนหัวให้ยืดหยุ่นขึ้น (ใช้ md:flex-1 และ md:w-auto) เพื่อไม่ให้บีบข้อความตรงกลาง -->
             <div class="flex flex-col md:flex-row justify-between items-end mb-4">
-                <div class="w-full md:w-1/4 text-[11px] sm:text-xs text-gray-800 font-sans hidden md:block">
-                    <!-- Added id="desktop-date" -->
+                <div class="w-full md:flex-1 text-[11px] sm:text-xs text-gray-800 font-sans hidden md:block">
                     <span class="font-bold" id="desktop-date">Tuesday, September 22, 2026</span><br>
                     <a href="https://thesiamtimes.com/690923Nene" class="hover:underline hover:text-black">Today's Paper</a>
                 </div>
                 
-                <div class="w-full md:w-1/2 text-center mb-4 md:mb-0">
-                    <!-- Added id="mobile-date" -->
+                <div class="w-full md:w-auto px-2 text-center mb-4 md:mb-0">
                     <div class="md:hidden mb-2 text-[11px] text-gray-800 font-sans font-bold" id="mobile-date">
                         Monday, September 21, 2026
                     </div>
@@ -102,12 +101,13 @@
                         THAILAND &nbsp;&nbsp;&nbsp; INTERNATIONAL
                     </div>
 
-                    <h1 class="font-masthead text-5xl sm:text-6xl md:text-7xl lg:text-[6rem] font-normal tracking-normal leading-none py-2 text-center" style="letter-spacing: 0.02em;">
+                    <!-- เพิ่ม whitespace-nowrap และ text-[clamp(...)] เพื่อให้ฟอนต์ขยาย/หดตามความกว้างจออัตโนมัติ ไม่ตกบรรทัด -->
+                    <h1 class="font-masthead whitespace-nowrap text-[clamp(2.75rem,9vw,6rem)] font-normal tracking-normal leading-none py-2 text-center" style="letter-spacing: 0.02em;">
                         The Siam Times
                     </h1>
                 </div>
 
-                <div class="w-full md:w-1/4 text-[11px] sm:text-xs text-gray-800 font-sans text-right hidden md:flex justify-end items-end pb-2">
+                <div class="w-full md:flex-1 text-[11px] sm:text-xs text-gray-800 font-sans text-right hidden md:flex justify-end items-end pb-2">
                     <span>Global <span id="result-box" class="text-green-700 font-bold ml-1">+0.7°C to 0.85°C</span></span>
                 </div>
             </div>
@@ -243,7 +243,6 @@
         </main>
         
         <footer class="border-t border-double-thin py-6 text-center text-xs font-sans text-gray-500 mt-10">
-            <!-- Added id="footer-year" -->
             <p>&copy; <span id="footer-year">2026</span> The Siam Times. All rights reserved.</p>
         </footer>
     </div>
@@ -255,15 +254,10 @@
             const today = new Date();
             const formattedDate = today.toLocaleDateString('en-US', options);
             
-            // อัปเดตวันที่บนเดสก์ท็อปและมือถือ
             document.getElementById('desktop-date').textContent = formattedDate;
             document.getElementById('mobile-date').textContent = formattedDate;
-            
-            // อัปเดตปีใน footer ด้วย
             document.getElementById('footer-year').textContent = today.getFullYear();
         }
-
-        // เรียกใช้งานฟังก์ชันเมื่อโหลดหน้าเว็บ
         updateDate();
 
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyfoFishbabfNLqqyv9nOIkk8XipSlFD4kSaa8BfYw-ckF4fq7UZiRdfJMjqXqff8BQZg/exec'; 
