@@ -1,7 +1,7 @@
 # The Siam Times
 _A 19th-Century Voice Returns to Siam, Now Advocating for the Earth_\
-![IMG](IMG_0032.jpeg)\
-Photo: Timelapse Studio
+![IMG](IMG_0046.jpeg)\
+Facebook | SEA HERITAGE & HISTORY
 
 After a 160-year silence sparked by a legal dispute, Thailand’s first English-language newspaper has been reborn as a digital hub for environmental sustainability. The masthead of **The Siam Times**, once a relic of 19th-century journalism, has been reimagined as a digital production platform for the climate era.
 
