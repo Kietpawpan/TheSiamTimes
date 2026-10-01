@@ -6,15 +6,11 @@
     <title>The Siam Times</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Updated Favicon to IMG_6425.ico -->
     <link rel="icon" type="image/png" href="/Fav48.png?v=1">
-    
     <link rel="apple-touch-icon" href="/Fav48.png?v=1">
 
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- นำเข้าฟอนต์ Newsreader -->
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
     <style>
         @font-face {
@@ -87,9 +83,8 @@
 </head>
 <body class="antialiased min-h-screen">
     <div class="max-w-[1280px] mx-auto px-4 sm:px-6">
-        <header class="pt-4 pb-2">
+        <header class="pt-4 pb-2 relative">
             
-            <!-- ปรับโครงสร้าง Layout ส่วนหัวให้ยืดหยุ่นขึ้น (ใช้ md:flex-1 และ md:w-auto) เพื่อไม่ให้บีบข้อความตรงกลาง -->
             <div class="flex flex-col md:flex-row justify-between items-end mb-4">
                 <div class="w-full md:flex-1 text-[11px] sm:text-xs text-gray-800 font-sans hidden md:block">
                     <span class="font-bold" id="desktop-date">Tuesday, September 22, 2026</span><br>
@@ -105,7 +100,6 @@
                         THAILAND &nbsp;&nbsp;&nbsp; INTERNATIONAL
                     </div>
 
-                    <!-- เพิ่ม whitespace-nowrap และ text-[clamp(...)] เพื่อให้ฟอนต์ขยาย/หดตามความกว้างจออัตโนมัติ ไม่ตกบรรทัด -->
                     <h1 class="font-masthead whitespace-nowrap text-[clamp(2.75rem,9vw,6rem)] font-normal tracking-normal leading-none py-2 text-center" style="letter-spacing: 0.02em;">
                         The Siam Times
                     </h1>
@@ -116,19 +110,377 @@
                 </div>
             </div>
 
-            <div class="border-double-thick py-1 mb-1">
+            <div class="border-double-thick py-1 mb-1 relative">
+                <!-- แถบเมนูหลัก -->
                 <nav class="flex justify-start md:justify-center overflow-x-auto no-scrollbar space-x-6 md:space-x-8 text-[12px] font-sans font-normal text-gray-900 whitespace-nowrap px-2 py-1">
-                    <a href="https://thesiamtimes.com/690922policyen.html" class="hover:underline flex items-center gap-1 py-1">Policy <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                    <a href="https://thesiamtimes.com/690930flood.html" class="hover:underline flex items-center gap-1 py-1">Water <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                    <a href="#" class="hover:underline flex items-center gap-1 py-1">Air <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                    <a href="#" class="hover:underline flex items-center gap-1 py-1">Wastes <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                    <a href="690927lawsEng.html" class="hover:underline flex items-center gap-1 py-1">Laws <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                    <a href="#" class="hover:underline flex items-center gap-1 py-1">Climate <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                    <a href="#" class="hover:underline flex items-center gap-1 py-1">Technology <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                    <a href="690926Puripon.html" class="hover:underline flex items-center gap-1 py-1">Sport <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
-                    <a href="#" class="hover:underline flex items-center gap-1 py-1">Games <svg class="w-2 h-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></a>
+                    <button data-target="policy-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Policy <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="water-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Water <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="air-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Air <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="wastes-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Wastes <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="laws-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Laws <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="climate-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Climate <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="tech-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Technology <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="sport-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Sport <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="games-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Games <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
                 </nav>
             </div>
+
+            <!-- กล่องรวม Mega Menu ทั้งหมด -->
+            <div id="mega-menus-container" class="absolute left-0 right-0 top-full z-50 mt-1">
+                
+                <!-- Mega Menu: Policy -->
+                <div id="policy-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="https://thesiamtimes.com/690922policyen.html" class="hover:underline">National Policy</a></li>
+                                <li><a href="#" class="hover:underline">International Treaties</a></li>
+                                <li><a href="#" class="hover:underline">Local Governance</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Asia Pacific</a></li>
+                                <li><a href="#" class="hover:underline">European Union</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">New Environmental Regulations 2026</a></li>
+                                <li><a href="#" class="hover:underline">Global Summit on Carbon Pricing</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-gray-200 flex items-center justify-center text-gray-700 font-bold rounded-sm">P</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Policy Brief</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Weekly updates on crucial policy shifts</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Water -->
+                <div id="water-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="https://thesiamtimes.com/690930flood.html" class="hover:underline">Floods Management</a></li>
+                                <li><a href="#" class="hover:underline">Drought Crisis</a></li>
+                                <li><a href="#" class="hover:underline">Water Quality</a></li>
+                                <li><a href="#" class="hover:underline">Wastewater</a></li>
+                                <li><a href="#" class="hover:underline">Marine Life</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Chao Phraya River</a></li>
+                                <li><a href="#" class="hover:underline">Mekong River</a></li>
+                                <li><a href="#" class="hover:underline">Gulf of Thailand</a></li>
+                                <li><a href="#" class="hover:underline">Andaman Sea</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">Bangkok Prepares for Heavy Monsoon</a></li>
+                                <li><a href="#" class="hover:underline">New Technologies in Wastewater Treatment</a></li>
+                                <li><a href="#" class="hover:underline">El Niño Effects on Thai Agriculture</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-blue-100 flex items-center justify-center text-blue-700 font-bold rounded-sm">W</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">The Water Guide</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">A guide to understanding water management</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Air -->
+                <div id="air-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">PM2.5 Monitoring</a></li>
+                                <li><a href="#" class="hover:underline">Industrial Emissions</a></li>
+                                <li><a href="#" class="hover:underline">Clean Air Act</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Northern Thailand</a></li>
+                                <li><a href="#" class="hover:underline">Bangkok Metro</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">How PM2.5 Impacts Long-Term Health</a></li>
+                                <li><a href="#" class="hover:underline">Transitioning to EV Transportation</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-gray-100 flex items-center justify-center text-gray-600 font-bold rounded-sm">A</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Air Quality Alert</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Daily reports on breathing safe</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Wastes -->
+                <div id="wastes-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Solid Waste</a></li>
+                                <li><a href="#" class="hover:underline">Hazardous Materials</a></li>
+                                <li><a href="#" class="hover:underline">E-Waste</a></li>
+                                <li><a href="#" class="hover:underline">Circular Economy</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Industrial Zones</a></li>
+                                <li><a href="#" class="hover:underline">Urban Centers</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">The Rise of E-Waste Recycling Hubs</a></li>
+                                <li><a href="#" class="hover:underline">Zero Waste Communities in Action</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-green-100 flex items-center justify-center text-green-700 font-bold rounded-sm">W</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Zero Waste Weekly</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Tips and news on sustainable living</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Laws -->
+                <div id="laws-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="690927lawsEng.html" class="hover:underline">Environmental Acts</a></li>
+                                <li><a href="#" class="hover:underline">Compliance</a></li>
+                                <li><a href="#" class="hover:underline">Enforcement</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Supreme Court</a></li>
+                                <li><a href="#" class="hover:underline">Administrative Court</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">Landmark Ruling on Factory Emissions</a></li>
+                                <li><a href="#" class="hover:underline">Understanding the New Carbon Tax</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-amber-100 flex items-center justify-center text-amber-700 font-bold rounded-sm">L</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Legal Insider</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Deep dive into environmental jurisprudence</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Climate -->
+                <div id="climate-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Global Warming</a></li>
+                                <li><a href="#" class="hover:underline">Net Zero Goals</a></li>
+                                <li><a href="#" class="hover:underline">Carbon Credit</a></li>
+                                <li><a href="#" class="hover:underline">Adaptation</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Global</a></li>
+                                <li><a href="#" class="hover:underline">Southeast Asia</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">2026 Set to Break Temperature Records</a></li>
+                                <li><a href="#" class="hover:underline">The Economics of Carbon Trading</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-orange-100 flex items-center justify-center text-orange-700 font-bold rounded-sm">C</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Climate Watch</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Tracking the changing planet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Technology -->
+                <div id="tech-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Green Tech</a></li>
+                                <li><a href="#" class="hover:underline">AI for Environment</a></li>
+                                <li><a href="#" class="hover:underline">Renewable Energy</a></li>
+                                <li><a href="#" class="hover:underline">Smart Cities</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Silicon Valley</a></li>
+                                <li><a href="#" class="hover:underline">Tech Hub Asia</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">How AI is Predicting Climate Disasters</a></li>
+                                <li><a href="#" class="hover:underline">Next-Gen Solar Panels Hit the Market</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-purple-100 flex items-center justify-center text-purple-700 font-bold rounded-sm">T</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Future Tech</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Innovations saving our ecosystem</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Sport -->
+                <div id="sport-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="690926Puripon.html" class="hover:underline">Athletics</a></li>
+                                <li><a href="#" class="hover:underline">Football</a></li>
+                                <li><a href="#" class="hover:underline">Olympics</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">National</a></li>
+                                <li><a href="#" class="hover:underline">International</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">Puripon Breaks National Sprint Record</a></li>
+                                <li><a href="#" class="hover:underline">Sustainable Stadiums in 2026</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-red-100 flex items-center justify-center text-red-700 font-bold rounded-sm">S</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">The Athletic Brief</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Sports news and analyses</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Games -->
+                <div id="games-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">PC Games</a></li>
+                                <li><a href="#" class="hover:underline">Console</a></li>
+                                <li><a href="#" class="hover:underline">Mobile</a></li>
+                                <li><a href="#" class="hover:underline">E-Sports</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Reviews</a></li>
+                                <li><a href="#" class="hover:underline">Hardware</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">The Environmental Cost of Cloud Gaming</a></li>
+                                <li><a href="#" class="hover:underline">Top 10 Indie Games of the Year</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold rounded-sm">G</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Game On</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">The latest in gaming culture</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
             <div class="border-b border-gray-300 mb-6"></div>
         </header>
 
@@ -252,7 +604,6 @@
     </div>
     
     <script>
-        // ฟังก์ชันสำหรับอัปเดตวันที่ให้เป็นปัจจุบัน
         function updateDate() {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const today = new Date();
@@ -282,6 +633,48 @@
             }
         }
         fetchTemperatureData();
+
+        // สคริปต์สำหรับจัดการการทำงานของ Mega Menu ทั้งหมด
+        document.addEventListener('DOMContentLoaded', function() {
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const megaMenus = document.querySelectorAll('.mega-menu');
+
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    const targetMenu = document.getElementById(targetId);
+                    const icon = this.querySelector('svg');
+
+                    // ตรวจสอบสถานะว่าเมนูนี้ถูกซ่อนอยู่หรือไม่
+                    const isHidden = targetMenu.classList.contains('hidden');
+
+                    // ซ่อนเมนูทั้งหมดและหมุนไอคอนกลับก่อน
+                    megaMenus.forEach(menu => menu.classList.add('hidden'));
+                    navBtns.forEach(b => {
+                        const ic = b.querySelector('svg');
+                        if (ic) ic.classList.remove('rotate-180');
+                    });
+
+                    // ถ้าเมนูเป้าหมายซ่อนอยู่ ให้เปิดขึ้นมาและหมุนไอคอน
+                    if (isHidden) {
+                        targetMenu.classList.remove('hidden');
+                        if (icon) icon.classList.add('rotate-180');
+                    }
+                });
+            });
+
+            // ปิดเมนูเมื่อคลิกพื้นที่อื่นๆ นอกเหนือจากปุ่มและกล่องเมนู
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.nav-btn') && !e.target.closest('.mega-menu')) {
+                    megaMenus.forEach(menu => menu.classList.add('hidden'));
+                    navBtns.forEach(b => {
+                        const ic = b.querySelector('svg');
+                        if (ic) ic.classList.remove('rotate-180');
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>
