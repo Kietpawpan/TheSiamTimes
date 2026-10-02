@@ -1,7 +1,7 @@
 ==============
 The Siam Times
 ==============
-Copyright (c) 2026 Montri Kiatphaophan (<monte@thesiamtimes.com>)
+Copyright (c) 2026 The Siam Times (<monte@thesiamtimes.com>)
 All rights reserved.
 
 Reproduction, modification or commercial use of the page layout, 
@@ -118,3 +118,21 @@ UnifrakturMaguntia
 Copyright (c) 2010 j. 'mach' wust
 Licensed under the SIL Open Font License Version 1.1
 The full text of the SIL Open Font License (OFL) can be found at: https://scripts.sil.org/OFL
+
+======================
+Software and Libraries
+======================
+1. Tailwind CSS
+Copyright (c) Tailwind Labs Inc.
+Licensed under the MIT License
+https://tailwindcss.com
+
+2. Icons
+Copyright (c) Tailwind Labs Inc.
+Licensed under the MIT License
+
+=================
+Content and Media
+=================
+All articles including original photographs and logos are the exclusive property of The Siam Times. All rights reserved. Any materials cited from other sources remain the property of their respective owners.
+
