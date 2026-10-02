@@ -17,6 +17,16 @@ inspired by The New York Times. The Siam Times is a strictly
 independent entity and is not affiliated with, sponsored by, 
 or endorsed by The New York Times Company.
 
+==================================
+Heritage and Historical Disclaimer
+==================================
+The name "The Siam Times" pays homage to the historical newspaper 
+originally founded in Bangkok in 1864. This modern publication is 
+an entirely independent initiative created to revive the spirit of 
+classic journalism. It has no legal, financial, or historical 
+affiliation with the original founders, owners, or the historical 
+entity of the 19th century.
+
 ============
 Chomsky font
 ============
