@@ -27,6 +27,11 @@ classic journalism. It has no legal, financial, or historical
 affiliation with the original founders, owners, or the historical 
 entity of the 19th century.
 
+====================
+Fonts and Typography
+====================
+This website utilizes open-source typography. Fonts including Lora, Newsreader, Sarabun, Pridi, and Chonburi are provided by Google Fonts. The masthead utilizes the Chomsky font. These fonts are licensed under the SIL Open Font License (OFL)
+
 ============
 Chomsky font
 ============
@@ -152,5 +157,14 @@ Licensed under the MIT License
 =================
 Content and Media
 =================
-All articles including original photographs and logos are the exclusive property of The Siam Times. All rights reserved. Any materials cited from other sources remain the property of their respective owners.
+All articles including original photographs and logos are the exclusive property of The Siam Times. All rights reserved. Any materials cited from other sources remain the property of their respective owners. Certain photographs and graphics featured on this website are sourced from third-party creators and are used under their respective free licenses
 
+==============================
+Open-Source Code and Libraries
+==============================
+Our proofreading tool relies on external JavaScript libraries (specifically ⁠diff.min.js⁠). The text comparison tool incorporates open-source software, specifically the ⁠jsdiff⁠ library, which is used under its respective open-source software license
+
+***************************
+Terms of Use and Disclaimer
+***************************
+The information and tools provided on this website are for educational and informational purposes. The Siam Times makes no warranties regarding the absolute accuracy, completeness, or reliability of the generated content or proofreading results.
