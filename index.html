@@ -79,6 +79,60 @@
             height: auto;
             display: block;
         }
+
+	
+/* Styles for Popup (Dialog) & Info Button */
+        .info-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 6px;
+            color: #6c757d;
+            vertical-align: middle;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        .info-button:hover { 
+            color: #212529; 
+        }
+        .info-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor; 
+        }
+
+
+dialog.credit-popup {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 400px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    color: #212529;
+    text-align: left;
+}
+
+        
+       
+        dialog.credit-popup::backdrop { background: rgba(0, 0, 0, 0.6); }
+        .close-button {
+            margin-top: 15px;
+            padding: 8px 12px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .close-button:hover { background: #555; }
+
+
+
     </style>
 </head>
 <body class="antialiased min-h-screen">
@@ -601,7 +655,19 @@
                             </p>
                         </div>
                     </div>
-                    <div class="text-[9px] text-right text-gray-500 mt-1 uppercase font-sans tracking-wide">FACEBOOK | SEA HERITAGE & HISTORY</div>
+                    <div class="text-[9px] text-right text-gray-500 mt-1 uppercase font-sans tracking-wide">FACEBOOK | SEA HERITAGE & HISTORY<button class="info-button" aria-label="View Image Credit" onclick="document.getElementById('credit-popup').showModal()" title="image attribution’">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"></path>
+            </svg>
+        </button></div>
+                
+        <dialog id="credit-popup" class="credit-popup">
+          <h3 style="margin-top: 0; font-family: 'Playfair Display', 'Sarabun';">Image Attribution</h3>
+          <div style="font-family: 'Lora', 'Sarabun'; margin-bottom: 20px;">&copy; 2026 FACEBOOK | SEA HERITAGE & HISTORY <br> "<i> Bangkok, Chao Phraya River&mdash;1864: A Floating World of Trade and Tradition </i>" <br>by facebook | Sea Heritage & History is copyrighted. <br>Original material available at: <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2FSEAheritagehistory%2Fposts%2Fpfbid02reBuQoHwUWseiT4phA4TLycRwGYXU8e7VE7MDH81YadFnkSJbyMZaBt4VCU15vY6l&show_text=true&width=500" width="500" height="754" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe> </div>
+          <button class="close-button" onclick="document.getElementById('credit-popup').close()">Close</button>
+        </dialog>	
+					
+					</div>
                 </section>
 
                 <section class="col-span-1 md:col-span-12 border-t border-black mt-8 pt-4">
