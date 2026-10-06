@@ -4,28 +4,19 @@ The Siam Times
 Copyright (c) 2026 The Siam Times (<monte@thesiamtimes.com>)
 All rights reserved.
 
-Reproduction, modification or commercial use of the page layout, 
-logos, or brand elements is strictly prohibited without prior permission. 
-Images and referenced information remain the copyright of their 
-respective sources as credited within the content.
+Reproduction, modification or commercial use of the page layout, logos, or brand elements is strictly prohibited without prior permission. Images and referenced information remain the copyright of their respective sources as credited within the content.
 
 ====================
 Design & Inspiration
 ====================
-The user interface and editorial layout of this website were 
-inspired by The New York Times. The Siam Times is a strictly 
-independent entity and is not affiliated with, sponsored by, 
-or endorsed by The New York Times Company.
+The user interface and editorial layout of this website were inspired by The New York Times. The Siam Times is a strictly 
+independent entity and is not affiliated with, sponsored by, or endorsed by The New York Times Company.
 
 ==================================
 Heritage and Historical Disclaimer
 ==================================
-The name "The Siam Times" pays homage to the historical newspaper 
-originally founded in Bangkok in 1864. This modern publication is 
-an entirely independent initiative created to revive the spirit of 
-classic journalism. It has no legal, financial, or historical 
-affiliation with the original founders, owners, or the historical 
-entity of the 19th century.
+The name "The Siam Times" pays homage to the historical newspaper originally founded in Bangkok in 1864. This modern publication is 
+an entirely independent initiative created to revive the spirit of classic journalism. It has no legal, financial, or historical affiliation with the original founders, owners, or the historical entity of the 19th century.
 
 ====================
 Fonts and Typography
@@ -37,9 +28,7 @@ Chomsky font
 ============
 Copyright (c) 2018, Fredrick R. Brennan (<copypaste@kittens.ph>),
 
-This Font Software is licensed under the SIL Open Font License, Version 1.1.
-This license is copied below, and is also available with a FAQ at:
-http://scripts.sil.org/OFL
+This Font Software is licensed under the SIL Open Font License, Version 1.1.This license is copied below, and is also available with a FAQ at: http://scripts.sil.org/OFL
 
 -----------------------------------------------------------
 SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
@@ -131,16 +120,14 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 ==========
 Newsreader
 ==========
-Copyright (c) 2020 The Newsreader Project Authors
-Licensed under the SIL Open Font License Version 1.1
-The full text of the SIL Open Font License (OFL) can be found at: https://scripts.sil.org/OFL
+Copyright (c) 2020 The Newsreader Project Authors 
+Licensed under the SIL Open Font License Version 1. The full text of the SIL Open Font License (OFL) can be found at: https://scripts.sil.org/OFL
 
 ==================
 UnifrakturMaguntia
 ==================
 Copyright (c) 2010 j. 'mach' wust
-Licensed under the SIL Open Font License Version 1.1
-The full text of the SIL Open Font License (OFL) can be found at: https://scripts.sil.org/OFL
+Licensed under the SIL Open Font License Version 1.1. The full text of the SIL Open Font License (OFL) can be found at: https://scripts.sil.org/OFL
 
 ======================
 Software and Libraries
