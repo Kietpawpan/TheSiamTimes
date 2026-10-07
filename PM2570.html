@@ -72,4 +72,280 @@
                             <th class="border p-2">จังหวัด</th>
                             <th class="border p-2">ย้อนหลัง 4 วัน</th>
                             <th class="border p-2">ย้อนหลัง 3 วัน</th>
-                            <th class="border p-2">ย้อนหลัง
+                            <th class="border p-2">ย้อนหลัง 2 วัน</th>
+                            <th class="border p-2">ย้อนหลัง 1 วัน</th>
+                            <th class="border p-2 bg-purple-400 text-white">วันนี้</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table"></tbody>
+                </table>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-2 text-center">เปรียบเทียบค่า PM<sub>2.5</sub> วันปัจจุบัน</h3>
+                <canvas id="aqiChart" height="100"></canvas>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <div class="bg-purple-100 p-4 rounded-xl shadow-md border-2 border-purple-300">
+                <h3 class="text-xl font-bold text-center text-purple-800 mb-4">มาตรฐานคุณภาพอากาศ PM<sub>2.5</sub></h3>
+                <div class="flex flex-col space-y-2">
+                    <div class="p-3 aqi-excellent rounded text-center"><p class="font-bold">0 - 15</p><p>ดีมาก</p></div>
+                    <div class="p-3 aqi-good rounded text-center"><p class="font-bold">15.1 - 25.0</p><p>ดี</p></div>
+                    <div class="p-3 aqi-moderate rounded text-center"><p class="font-bold">25.1 - 37.5</p><p>ปานกลาง</p></div>
+                    <div class="p-3 aqi-unhealthy-sensitive rounded text-center"><p class="font-bold">37.6 - 75.0</p><p>เริ่มมีผลกระทบ</p></div>
+                    <div class="p-3 aqi-unhealthy rounded text-center"><p class="font-bold">75.1 ขึ้นไป</p><p>มีผลกระทบ</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-3 bg-white p-4 rounded-xl shadow-md mt-4">
+            <h3 class="text-xl font-bold mb-2 text-center">แนวโน้มค่าฝุ่น PM<sub>2.5</sub> ย้อนหลัง 4 วัน (4 จังหวัด)</h3>
+            <canvas id="historyLineChart" height="80"></canvas>
+        </div>
+
+        <div class="md:col-span-3 bg-purple-50 p-6 rounded-xl shadow-md border-2 border-purple-400 mt-2">
+            <h3 class="text-xl font-bold mb-3 text-purple-800 flex items-center gap-2">
+                ✨ ผู้ช่วย AI ร่างข้อแนะนำ (สำหรับ ผอ.สคพ.11)
+            </h3>
+
+<p class="text-sm text-purple-600 mb-4">ดึงข้อมูลจุดความร้อน ฝุ่น PM₂.₅ และสภาพอากาศล่าสุดมาประมวลผลด้วย AI</p>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button id="btnAnalyze" class="flex-1 bg-purple-700 hover:bg-purple-800 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg flex justify-center items-center gap-2">
+                    ✨ ร่างข้อความลงกลุ่ม LINE
+                </button>
+		<button id="btnFreeAdvice" class="flex-1 bg-purple-700 hover:bg-purple-800 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg flex justify-center items-center gap-2">
+    💡 วิเคราะห์และขอคำแนะนำเชิงลึก
+</button>           
+
+ </div>
+            
+            <div id="aiResult" class="mt-4 text-sm md:text-base text-gray-800 bg-white p-5 rounded-lg border border-purple-200 shadow-inner hidden">
+            </div>
+
+        </div>
+
+        <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-2 text-center">จำนวนวันค่าฝุ่นเกินมาตรฐานสะสม</h3>
+                <canvas id="daysOverChart" height="150"></canvas>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-2 text-center">จุดความร้อนสะสม</h3>
+                <canvas id="hotspotAccumChart" height="150"></canvas>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-md">
+                <h3 class="text-xl font-bold mb-2 text-center">แผนที่จุดความร้อน (พื้นที่ สคพ.11)</h3>
+                <div class="flex flex-col sm:flex-row justify-center gap-3">
+                    <a href="https://kietpawpan.github.io/hotspot/maps11v3.html" class="btn-clean w-full sm:w-auto justify-center" target="_blank">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16L7 11l1.41-1.41L11 12.17V4h2v8.17l2.59-2.58L17 11l-5 5zm-6 4v-2h12v2H6z"/></svg>
+                        จุดความร้อนล่าสุด
+                    </a>
+                    <a href="https://kietpawpan.github.io/hotspot/mapSum.html" class="btn-clean w-full sm:w-auto justify-center" target="_blank">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16L7 11l1.41-1.41L11 12.17V4h2v8.17l2.59-2.58L17 11l-5 5zm-6 4v-2h12v2H6z"/></svg>
+                        จุดความร้อนย้อนหลัง 30 วัน
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-3 bg-white p-4 rounded-xl shadow-md">
+            <h3 class="text-xl font-bold mb-4 text-center">กราฟอัตราการระบายอากาศ (Ventilation Rate) พื้นที่ สคพ.11</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border rounded-lg p-3 text-center bg-gray-50">
+                    <h4 class="font-bold mb-2 text-purple-800">จ.นครราชสีมา</h4>
+                    <img src="https://ozone.tmd.go.th/PM2.5/weather/Metgram/output/VR_daily/daily_VR_431201.png" alt="อัตราการระบายอากาศ จ.นครราชสีมา" class="w-full h-auto rounded shadow-sm">
+                </div>
+                <div class="border rounded-lg p-3 text-center bg-gray-50">
+                    <h4 class="font-bold mb-2 text-purple-800">จ.ชัยภูมิ</h4>
+                    <img src="https://ozone.tmd.go.th/PM2.5/weather/Metgram/output/VR_daily/daily_VR_403201.png" alt="อัตราการระบายอากาศ จ.ชัยภูมิ" class="w-full h-auto rounded shadow-sm">
+                </div>
+                <div class="border rounded-lg p-3 text-center bg-gray-50">
+                    <h4 class="font-bold mb-2 text-purple-800">จ.บุรีรัมย์</h4>
+                    <img src="https://ozone.tmd.go.th/PM2.5/weather/Metgram/output/VR_daily/daily_VR_436201.png" alt="อัตราการระบายอากาศ จ.บุรีรัมย์" class="w-full h-auto rounded shadow-sm">
+                </div>
+                <div class="border rounded-lg p-3 text-center bg-gray-50">
+                    <h4 class="font-bold mb-2 text-purple-800">จ.สุรินทร์</h4>
+                    <img src="https://ozone.tmd.go.th/PM2.5/weather/Metgram/output/VR_daily/daily_VR_432201.png" alt="อัตราการระบายอากาศ จ.สุรินทร์" class="w-full h-auto rounded shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-3 bg-white p-4 rounded-xl shadow-md mt-4">
+            <h3 class="text-xl font-bold mb-4 text-center">สภาพอากาศที่มีผลต่อการสะสมของฝุ่นละออง (TMD API)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="weather-cards">
+                <div class="col-span-1 md:col-span-4 text-center p-4 text-gray-500">กำลังเชื่อมต่อข้อมูลจากกรมอุตุนิยมวิทยา...</div>
+            </div>
+        </div>
+
+        <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50">
+            <div class="bg-white p-6 rounded-xl shadow-2xl w-11/12 max-w-sm border-t-4 border-purple-600">
+                <h3 class="text-lg font-bold text-purple-800 mb-4 text-center">🔒 กรุณาใส่รหัสผ่าน</h3>
+                <p class="text-sm text-gray-600 mb-4 text-center">เพื่อยืนยันสิทธิ์การใช้งานผู้ช่วย AI</p>
+<input type="password" id="aiPasswordInput" class="w-full border-2 border-purple-300 rounded-lg p-3 text-center text-xl tracking-widest focus:outline-none focus:border-purple-600 mb-2" placeholder="รหัสผ่าน">
+                <div id="passwordError" class="text-red-500 text-sm text-center mb-4 hidden">รหัสผ่านไม่ถูกต้อง โปรดลองอีกครั้ง</div>
+                <div class="flex gap-3 mt-2">
+                    <button id="btnCancelPassword" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-200">ยกเลิก</button>
+                    <button id="btnConfirmPassword" class="flex-1 bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded-lg transition duration-200">ยืนยัน</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ส่วนที่เพิ่มใหม่: ระบบเฝ้าระวังและติดตามสภาพอากาศ ================= -->
+        <div class="md:col-span-3 bg-white p-4 sm:p-6 rounded-xl shadow-md mt-6 border-t-4 border-indigo-500">
+            <h3 class="text-xl font-bold mb-4 text-center text-indigo-800">ระบบเฝ้าระวังและติดตามสภาพอากาศ (Windy + เรดาร์กรมอุตุนิยมวิทยา)</h3>
+            
+            <div class="flex flex-wrap justify-center gap-3 mb-6">
+                <button onclick="updateWeather('14.97','102.10', this)" class="weather-btn px-5 py-2.5 bg-amber-500 text-white font-bold rounded-lg shadow transition-colors duration-200">นครราชสีมา</button>
+                <button onclick="updateWeather('15.80','102.03', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">ชัยภูมิ</button>
+                <button onclick="updateWeather('14.99','103.10', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">บุรีรัมย์</button>
+                <button onclick="updateWeather('14.88','103.49', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">สุรินทร์</button>
+            </div>
+
+            <div class="flex flex-col xl:flex-row gap-4 h-[700px] xl:h-[550px]">
+                <div class="w-full xl:w-1/2 h-full rounded-xl overflow-hidden shadow-inner border border-gray-300 relative">
+                    <iframe id="windyFrame" class="w-full h-full border-0 absolute inset-0" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=14.97&lon=102.10&marker=true&detail=true&detailLat=14.97&detailLon=102.10" title="Windy Forecast"></iframe>
+                </div>
+                
+                <div class="w-full xl:w-1/2 h-full rounded-xl overflow-hidden shadow-inner border border-gray-300 relative">
+                    <iframe class="w-full h-full border-0 absolute inset-0 bg-white" src="https://weather.tmd.go.th/pimai.php" title="TMD Radar"></iframe>
+                </div>
+            </div>
+            
+            <script>
+                function updateWeather(lat, lon, btn) {
+                    const windyUrl = `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=9&overlay=rain&product=ecmwf&level=surface&lat=${lat}&lon=${lon}&marker=true&detail=true&detailLat=${lat}&detailLon=${lon}`;
+                    document.getElementById('windyFrame').src = windyUrl;
+                    
+                    document.querySelectorAll('.weather-btn').forEach(b => {
+                        b.classList.remove('bg-amber-500', 'text-white');
+                        b.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+                    
+                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+                    btn.classList.add('bg-amber-500', 'text-white');
+                }
+            </script>
+        </div>
+        <!-- ================= สิ้นสุดส่วนที่เพิ่มใหม่ ================= -->
+
+        <!--แหล่งข้อมูล--->
+        <div class="md:col-span-3 bg-white p-4 sm:p-6 rounded-xl shadow-md mt-6 border-t-4 border-blue-400">
+            <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                แหล่งที่มาของข้อมูลอ้างอิง (Data Sources)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+                
+                <div class="flex items-start gap-3 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                    <span class="text-xl mt-0.5">☁️</span>
+                    <div>
+                        <p class="font-bold text-blue-900 text-xs sm:text-sm">คุณภาพอากาศ PM<sub>2.5</sub> และ AQI</p>
+                        <p class="text-xs mt-1 text-blue-700">กรมควบคุมมลพิษ (Air4Thai API)</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3 bg-orange-50 p-3 rounded-lg border border-orange-100">
+                    <span class="text-xl mt-0.5">🔥</span>
+                    <div>
+                        <p class="font-bold text-orange-900 text-xs sm:text-sm">จุดความร้อน (Hotspots)</p>
+                        <p class="text-xs mt-1 text-orange-700">NASA FIRMS (ดาวเทียม Suomi NPP ระบบ VIIRS)</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-cyan-50 p-3 rounded-lg border border-cyan-200">
+                    <span class="text-xl mt-0.5">📊</span>
+                    <div>
+                        <p class="font-bold text-cyan-900 text-xs sm:text-sm">จุดความร้อนย้อนหลัง 30 วัน</p>
+                        <p class="text-xs mt-1 text-cyan-700">GISTDA API</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3 bg-teal-50 p-3 rounded-lg border border-teal-100">
+                    <span class="text-xl mt-0.5">🌤️</span>
+                    <div>
+                        <p class="font-bold text-teal-900 text-xs sm:text-sm">สภาพอากาศและอัตราการระบายอากาศ</p>
+                        <p class="text-xs mt-1 text-teal-700">กรมอุตุนิยมวิทยา (TMD API)</p>
+                    </div>
+                </div>
+
+                <!-- ================= ส่วนที่เพิ่มใหม่ในแหล่งข้อมูล ================= -->
+                <div class="flex items-start gap-3 bg-sky-50 p-3 rounded-lg border border-sky-200">
+                    <span class="text-xl mt-0.5">🌪️</span>
+                    <div>
+                        <p class="font-bold text-sky-900 text-xs sm:text-sm">แบบจำลองสภาพอากาศ</p>
+                        <p class="text-xs mt-1 text-sky-700">Windy.com (ECMWF Model)</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-green-50 p-3 rounded-lg border border-green-200">
+                    <span class="text-xl mt-0.5">📡</span>
+                    <div>
+                        <p class="font-bold text-green-900 text-xs sm:text-sm">เรดาร์ตรวจอากาศภาคพื้นดิน</p>
+                        <p class="text-xs mt-1 text-green-700">สถานีพิมาย กรมอุตุนิยมวิทยา</p>
+                    </div>
+                </div>
+                <!-- ================= สิ้นสุดส่วนที่เพิ่มใหม่ในแหล่งข้อมูล ================= -->
+                
+                <div class="flex items-start gap-3 bg-purple-50 p-3 rounded-lg border border-purple-100">
+                    <span class="text-xl mt-0.5">📏</span>
+                    <div>
+                        <p class="font-bold text-purple-900 text-xs sm:text-sm">เพดานการระบายอากาศ (PBLH)</p>
+                        <p class="text-xs mt-1 text-purple-700">แบบจำลอง GFS (Open-Meteo API)</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <span class="text-xl mt-0.5">🗺️</span>
+                    <div>
+                        <p class="font-bold text-slate-900 text-xs sm:text-sm">แผนที่ถนน (Street Map)</p>
+                        <p class="text-xs mt-1 text-slate-700">OpenStreetMap (OSM)</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                    <span class="text-xl mt-0.5">🛰️</span>
+                    <div>
+                        <p class="font-bold text-emerald-900 text-xs sm:text-sm">ภาพถ่ายดาวเทียม (Satellite Imagery)</p>
+                        <p class="text-xs mt-1 text-emerald-700">ESRI World Imagery</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-rose-50 p-3 rounded-lg border border-rose-200">
+                    <span class="text-xl mt-0.5">📍</span>
+                    <div>
+                        <p class="font-bold text-rose-900 text-xs sm:text-sm">เส้นแนวเขตการปกครอง</p>
+                        <p class="text-xs mt-1 text-rose-700">Thailand.province.geojson (Ben Vibhagool)</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                    <span class="text-xl mt-0.5">📌</span>
+                    <div>
+                        <p class="font-bold text-amber-900 text-xs sm:text-sm">ข้อมูลตำแหน่งชื่อตำบลและอำเภอ</p>
+                        <p class="text-xs mt-1 text-amber-700">Longdo Map API</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                    <span class="text-xl mt-0.5">✨</span>
+                    <div>
+                        <p class="font-bold text-indigo-900 text-xs sm:text-sm">ระบบประมวลผลและข้อความอัตโนมัติ</p>
+                        <p class="text-xs mt-1 text-indigo-700">Google Gemini API & Monte Kietpawpan</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="mt-8 mb-4 text-center text-sm text-gray-500 font-medium">
+        &copy; 2570 สำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 11 (นครราชสีมา) epo11@pcd.go.th
+    </footer>
+<script src="js/maps11v70.js"></script>
+</body>
+</html>
