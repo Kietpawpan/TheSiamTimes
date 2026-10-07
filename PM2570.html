@@ -194,7 +194,7 @@
             </div>
         </div>
 
-		<!-- ================= ส่วนที่เพิ่มใหม่: ระบบเฝ้าระวังและติดตามสภาพอากาศ ================= -->
+<!-- ================= ส่วนที่เพิ่มใหม่: ระบบเฝ้าระวังและติดตามสภาพอากาศ ================= -->
         <div class="md:col-span-3 bg-white p-4 sm:p-6 rounded-xl shadow-md mt-6 border-t-4 border-indigo-500">
             <h3 class="text-xl font-bold mb-4 text-center text-indigo-800">ระบบเฝ้าระวังและติดตามสภาพอากาศ</h3>
             
@@ -212,8 +212,8 @@
                 <button onclick="updateWeather('14.88','103.49', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">สุรินทร์</button>
             </div>
 
-            <!-- กรอบแสดงแผนที่ (ปรับความสูงและรองรับ Fullscreen) -->
-            <div id="mapWrapper" class="w-full h-[70vh] min-h-[600px] rounded-xl overflow-hidden shadow-inner border border-gray-300 relative bg-white">
+            <!-- กรอบแสดงแผนที่ (ปรับความสูงเพิ่มขึ้นและรองรับ Fullscreen) -->
+            <div id="mapWrapper" class="w-full h-[85vh] min-h-[800px] rounded-xl overflow-hidden shadow-inner border border-gray-300 relative bg-white">
                 
                 <!-- ปุ่มขยายเต็มจอ -->
                 <button onclick="toggleFullScreen()" class="absolute top-4 right-4 z-50 bg-white p-2 rounded shadow hover:bg-gray-100 text-gray-700 flex items-center gap-2 border border-gray-300 transition-colors">
@@ -224,7 +224,7 @@
 
                 <!-- หน้าจอ Windy -->
                 <div id="windyContainer" class="w-full h-full absolute inset-0">
-                    <iframe id="windyFrame" class="w-full h-full border-0" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=14.97&lon=102.10&marker=true&detail=true&detailLat=14.97&detailLon=102.10" title="Windy Forecast"></iframe>
+                    <iframe id="windyFrame" class="w-full h-full border-0" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=14.97&lon=102.10&marker=true" title="Windy Forecast"></iframe>
                 </div>
                 
                 <!-- หน้าจอ Radar -->
@@ -236,7 +236,7 @@
             
             <script>
                 function updateWeather(lat, lon, btn) {
-                    const windyUrl = `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=9&overlay=rain&product=ecmwf&level=surface&lat=${lat}&lon=${lon}&marker=true&detail=true&detailLat=${lat}&detailLon=${lon}`;
+                    const windyUrl = `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=9&overlay=rain&product=ecmwf&level=surface&lat=${lat}&lon=${lon}&marker=true`;
                     document.getElementById('windyFrame').src = windyUrl;
                     
                     document.querySelectorAll('.weather-btn').forEach(b => {
@@ -294,7 +294,6 @@
                     }
                 }
 
-                // ฟังก์ชันอัปเดตไอคอนและข้อความเมื่อมีการเปลี่ยนสถานะเต็มจอ
                 function updateFsIcons() {
                     const iconExpand = document.getElementById("fsIconExpand");
                     const iconCollapse = document.getElementById("fsIconCollapse");
@@ -317,6 +316,10 @@
             </script>
         </div>
         <!-- ================= สิ้นสุดส่วนที่เพิ่มใหม่ ================= -->
+
+
+		
+		
 
 		
 
