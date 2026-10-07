@@ -193,9 +193,7 @@
                 </div>
             </div>
         </div>
-
-
-		        <!-- ================= ส่วนที่เพิ่มใหม่: ระบบเฝ้าระวังและติดตามสภาพอากาศ ================= -->
+        <!-- ================= ส่วนที่เพิ่มใหม่: ระบบเฝ้าระวังและติดตามสภาพอากาศ ================= -->
         <div class="md:col-span-3 bg-white p-4 sm:p-6 rounded-xl shadow-md mt-6 border-t-4 border-indigo-500">
             <h3 class="text-xl font-bold mb-4 text-center text-indigo-800">ระบบเฝ้าระวังและติดตามสภาพอากาศ</h3>
             
@@ -205,7 +203,7 @@
                 <button onclick="switchMapTab('radar')" id="tabRadar" class="px-4 sm:px-6 py-3 font-bold text-gray-500 border-b-4 border-transparent hover:bg-gray-50 transition-colors">📡 เรดาร์ (TMD)</button>
             </div>
 
-            <!-- ปุ่มเลือกจังหวัด (แสดงเฉพาะตอนอยู่หน้า Windy) -->
+            <!-- ปุ่มเลือกจังหวัด -->
             <div id="windyControls" class="flex flex-wrap justify-center gap-3 mb-6">
                 <button onclick="updateWeather('14.97','102.10', this)" class="weather-btn px-5 py-2.5 bg-amber-500 text-white font-bold rounded-lg shadow transition-colors duration-200">นครราชสีมา</button>
                 <button onclick="updateWeather('15.80','102.03', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">ชัยภูมิ</button>
@@ -213,24 +211,43 @@
                 <button onclick="updateWeather('14.88','103.49', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">สุรินทร์</button>
             </div>
 
-            <!-- กรอบแสดงแผนที่ (ปรับปรุงแก้ปัญหาจอบน Safari/iPad) -->
-            <div id="mapWrapper" class="w-full h-[85vh] min-h-[800px] rounded-xl overflow-hidden shadow-inner border border-gray-300 relative bg-white transition-all duration-300">
+            <!-- สไตล์บังคับแก้บั๊ก Safari iPad เวลากดเต็มจอ -->
+            <style>
+                #mapWrapper:-webkit-full-screen, 
+                #mapWrapper:fullscreen {
+                    width: 100vw !important;
+                    height: 100vh !important;
+                    min-height: 100vh !important;
+                    border-radius: 0 !important;
+                    border: none !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                }
+                #mapWrapper:-webkit-full-screen iframe, 
+                #mapWrapper:fullscreen iframe {
+                    height: 100vh !important;
+                    width: 100vw !important;
+                }
+            </style>
+
+            <!-- กรอบแสดงแผนที่ -->
+            <div id="mapWrapper" class="w-full h-[85vh] min-h-[750px] rounded-xl overflow-hidden shadow-inner border border-gray-300 bg-white relative flex flex-col transition-all duration-300">
                 
                 <!-- ปุ่มขยายเต็มจอ -->
-                <button onclick="toggleFullScreen()" class="absolute top-4 right-4 z-50 bg-white p-2 rounded shadow hover:bg-gray-100 text-gray-700 flex items-center gap-2 border border-gray-300 transition-colors">
-                    <svg id="fsIconExpand" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l-5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                <button onclick="toggleFullScreen()" class="absolute top-4 right-4 z-[9999] bg-white p-2 rounded shadow-lg hover:bg-gray-100 text-gray-700 flex items-center gap-2 border border-gray-300 transition-colors">
+                    <svg id="fsIconExpand" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                     <svg id="fsIconCollapse" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 14h4v4m0-4l-5 5m15-1v-4m0 0h-4m4 0l-5-5M4 10h4V6m0 4l-5-5m15 1v-4m0 0h-4m4 0l-5-5"></path></svg>
                     <span id="fsText" class="font-bold text-sm hidden sm:inline">เต็มจอ</span>
                 </button>
 
-                <!-- หน้าจอ Windy -->
-                <div id="windyContainer" class="w-full h-full absolute inset-0">
-                    <iframe id="windyFrame" class="w-full h-full border-0" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=14.97&lon=102.10&marker=true" title="Windy Forecast"></iframe>
+                <!-- หน้าจอ Windy (ถอด absolute ออก ใช้ flex-grow แทน) -->
+                <div id="windyContainer" class="w-full flex-grow h-full">
+                    <iframe id="windyFrame" class="w-full h-full border-0 block" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=9&overlay=rain&product=ecmwf&level=surface&lat=14.97&lon=102.10&marker=true" title="Windy Forecast" style="width: 100%; height: 100%; min-height: 100%;"></iframe>
                 </div>
                 
                 <!-- หน้าจอ Radar -->
-                <div id="radarContainer" class="w-full h-full absolute inset-0 hidden bg-white">
-                    <iframe class="w-full h-full border-0" src="https://weather.tmd.go.th/pimai.php" title="TMD Radar"></iframe>
+                <div id="radarContainer" class="w-full flex-grow h-full hidden bg-white">
+                    <iframe class="w-full h-full border-0 block" src="https://weather.tmd.go.th/pimai.php" title="TMD Radar" style="width: 100%; height: 100%; min-height: 100%;"></iframe>
                 </div>
 
             </div>
@@ -276,11 +293,11 @@
                 function toggleFullScreen() {
                     const elem = document.getElementById("mapWrapper");
 
-                    if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
                         if (elem.requestFullscreen) {
                             elem.requestFullscreen();
                         } else if (elem.webkitRequestFullscreen) { 
-                            elem.webkitRequestFullscreen();
+                            elem.webkitRequestFullscreen(); // สำหรับ Safari
                         } else if (elem.msRequestFullscreen) { 
                             elem.msRequestFullscreen();
                         }
@@ -299,33 +316,26 @@
                     const iconExpand = document.getElementById("fsIconExpand");
                     const iconCollapse = document.getElementById("fsIconCollapse");
                     const text = document.getElementById("fsText");
-                    const mapWrapper = document.getElementById("mapWrapper");
                     
-                    if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
-                        // เมื่อเต็มจอ ให้เปลี่ยนไอคอนและบังคับคลาสความสูง 100%
+                    if (document.fullscreenElement || document.webkitFullscreenElement) {
                         iconExpand.classList.add('hidden');
                         iconCollapse.classList.remove('hidden');
                         text.innerText = "ย่อจอ";
-                        mapWrapper.classList.remove('h-[85vh]', 'min-h-[800px]', 'rounded-xl');
-                        mapWrapper.classList.add('h-screen', 'w-screen');
                     } else {
-                        // เมื่อย่อจอ ให้คืนค่าคลาสความสูงกลับเป็นแบบเดิม
                         iconCollapse.classList.add('hidden');
                         iconExpand.classList.remove('hidden');
                         text.innerText = "เต็มจอ";
-                        mapWrapper.classList.remove('h-screen', 'w-screen');
-                        mapWrapper.classList.add('h-[85vh]', 'min-h-[800px]', 'rounded-xl');
                     }
                 }
 
-                // ดักจับการเปลี่ยนสถานะเต็มจอทุกรูปแบบเบราว์เซอร์
                 document.addEventListener('fullscreenchange', updateFsIcons);
                 document.addEventListener('webkitfullscreenchange', updateFsIcons);
-                document.addEventListener('msfullscreenchange', updateFsIcons);
             </script>
         </div>
         <!-- ================= สิ้นสุดส่วนที่เพิ่มใหม่ ================= -->
 
+
+		      
 
 
 		
