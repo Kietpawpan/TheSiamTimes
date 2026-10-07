@@ -212,9 +212,16 @@
                 <button onclick="updateWeather('14.88','103.49', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">สุรินทร์</button>
             </div>
 
-            <!-- กรอบแสดงแผนที่ -->
-            <div class="w-full h-[600px] md:h-[750px] rounded-xl overflow-hidden shadow-inner border border-gray-300 relative">
+            <!-- กรอบแสดงแผนที่ (ปรับความสูงและรองรับ Fullscreen) -->
+            <div id="mapWrapper" class="w-full h-[70vh] min-h-[600px] rounded-xl overflow-hidden shadow-inner border border-gray-300 relative bg-white">
                 
+                <!-- ปุ่มขยายเต็มจอ -->
+                <button onclick="toggleFullScreen()" class="absolute top-4 right-4 z-50 bg-white p-2 rounded shadow hover:bg-gray-100 text-gray-700 flex items-center gap-2 border border-gray-300 transition-colors">
+                    <svg id="fsIconExpand" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                    <svg id="fsIconCollapse" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 14h4v4m0-4l-5 5m15-1v-4m0 0h-4m4 0l-5-5M4 10h4V6m0 4l-5-5m15 1v-4m0 0h-4m4 0l-5-5"></path></svg>
+                    <span id="fsText" class="font-bold text-sm hidden sm:inline">เต็มจอ</span>
+                </button>
+
                 <!-- หน้าจอ Windy -->
                 <div id="windyContainer" class="w-full h-full absolute inset-0">
                     <iframe id="windyFrame" class="w-full h-full border-0" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=14.97&lon=102.10&marker=true&detail=true&detailLat=14.97&detailLon=102.10" title="Windy Forecast"></iframe>
@@ -264,11 +271,54 @@
                         tabWindy.className = "px-4 sm:px-6 py-3 font-bold text-gray-500 border-b-4 border-transparent hover:bg-gray-50 transition-colors";
                     }
                 }
+
+                function toggleFullScreen() {
+                    const elem = document.getElementById("mapWrapper");
+
+                    if (!document.fullscreenElement) {
+                        if (elem.requestFullscreen) {
+                            elem.requestFullscreen();
+                        } else if (elem.webkitRequestFullscreen) { 
+                            elem.webkitRequestFullscreen();
+                        } else if (elem.msRequestFullscreen) { 
+                            elem.msRequestFullscreen();
+                        }
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        } else if (document.webkitExitFullscreen) { 
+                            document.webkitExitFullscreen();
+                        } else if (document.msExitFullscreen) { 
+                            document.msExitFullscreen();
+                        }
+                    }
+                }
+
+                // ฟังก์ชันอัปเดตไอคอนและข้อความเมื่อมีการเปลี่ยนสถานะเต็มจอ
+                function updateFsIcons() {
+                    const iconExpand = document.getElementById("fsIconExpand");
+                    const iconCollapse = document.getElementById("fsIconCollapse");
+                    const text = document.getElementById("fsText");
+                    
+                    if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                        iconExpand.classList.add('hidden');
+                        iconCollapse.classList.remove('hidden');
+                        text.innerText = "ย่อจอ";
+                    } else {
+                        iconCollapse.classList.add('hidden');
+                        iconExpand.classList.remove('hidden');
+                        text.innerText = "เต็มจอ";
+                    }
+                }
+
+                document.addEventListener('fullscreenchange', updateFsIcons);
+                document.addEventListener('webkitfullscreenchange', updateFsIcons);
+                document.addEventListener('msfullscreenchange', updateFsIcons);
             </script>
         </div>
         <!-- ================= สิ้นสุดส่วนที่เพิ่มใหม่ ================= -->
 
-        
+		
 
         <!--แหล่งข้อมูล--->
         <div class="md:col-span-3 bg-white p-4 sm:p-6 rounded-xl shadow-md mt-6 border-t-4 border-blue-400">
