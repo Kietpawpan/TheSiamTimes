@@ -194,8 +194,7 @@
             </div>
         </div>
 
-
-		        <!-- ================= ส่วนที่เพิ่มใหม่: ระบบเฝ้าระวังและติดตามสภาพอากาศ ================= -->
+        <!-- ================= ส่วนที่เพิ่มใหม่: ระบบเฝ้าระวังและติดตามสภาพอากาศ ================= -->
         <div class="md:col-span-3 bg-white p-4 sm:p-6 rounded-xl shadow-md mt-6 border-t-4 border-indigo-500">
             <h3 class="text-xl font-bold mb-4 text-center text-indigo-800">ระบบเฝ้าระวังและติดตามสภาพอากาศ</h3>
             
@@ -213,33 +212,13 @@
                 <button onclick="updateWeather('14.88','103.49', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">สุรินทร์</button>
             </div>
 
-            <!-- สไตล์บังคับแก้บั๊ก Safari iPad เวลากดเต็มจอ -->
-            <style>
-                #mapWrapper:-webkit-full-screen, 
-                #mapWrapper:fullscreen {
-                    width: 100vw !important;
-                    height: 100vh !important;
-                    min-height: 100vh !important;
-                    border-radius: 0 !important;
-                    border: none !important;
-                    display: flex !important;
-                    flex-direction: column !important;
-                }
-                #mapWrapper:-webkit-full-screen iframe, 
-                #mapWrapper:fullscreen iframe {
-                    height: 100vh !important;
-                    width: 100vw !important;
-                }
-            </style>
-
             <!-- กรอบแสดงแผนที่ -->
             <div id="mapWrapper" class="w-full h-[85vh] min-h-[750px] rounded-xl overflow-hidden shadow-inner border border-gray-300 bg-white relative flex flex-col transition-all duration-300">
                 
-                <!-- ปุ่มขยายเต็มจอ -->
-                <button onclick="toggleFullScreen()" class="absolute top-4 right-4 z-[9999] bg-white p-2 rounded shadow-lg hover:bg-gray-100 text-gray-700 flex items-center gap-2 border border-gray-300 transition-colors">
-                    <svg id="fsIconExpand" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-                    <svg id="fsIconCollapse" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 14h4v4m0-4l-5 5m15-1v-4m0 0h-4m4 0l-5-5M4 10h4V6m0 4l-5-5m15 1v-4m0 0h-4m4 0l-5-5"></path></svg>
-                    <span id="fsText" class="font-bold text-sm hidden sm:inline">เต็มจอ</span>
+                <!-- ปุ่มขยายเต็มจอ / เปิดหน้าต่างใหม่ -->
+                <button onclick="window.open('airMaps.html', '_blank')" class="absolute top-4 right-4 z-[9999] bg-white p-2 rounded shadow-lg hover:bg-gray-100 text-gray-700 flex items-center gap-2 border border-gray-300 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    <span class="font-bold text-sm hidden sm:inline">เปิดแผนที่</span>
                 </button>
 
                 <!-- หน้าจอ Windy (ถอด absolute ออก ใช้ flex-grow แทน) -->
@@ -291,61 +270,9 @@
                         tabWindy.className = "px-4 sm:px-6 py-3 font-bold text-gray-500 border-b-4 border-transparent hover:bg-gray-50 transition-colors";
                     }
                 }
-
-                function toggleFullScreen() {
-                    const elem = document.getElementById("mapWrapper");
-
-                    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                        if (elem.requestFullscreen) {
-                            elem.requestFullscreen();
-                        } else if (elem.webkitRequestFullscreen) { 
-                            elem.webkitRequestFullscreen(); // สำหรับ Safari
-                        } else if (elem.msRequestFullscreen) { 
-                            elem.msRequestFullscreen();
-                        }
-                    } else {
-                        if (document.exitFullscreen) {
-                            document.exitFullscreen();
-                        } else if (document.webkitExitFullscreen) { 
-                            document.webkitExitFullscreen();
-							/*
-                        } else if (document.msExitFullscreen) { 
-                            document.msExitFullscreen(); */
-                        }
-                    }
-                }
-
-                function updateFsIcons() {
-                    const iconExpand = document.getElementById("fsIconExpand");
-                    const iconCollapse = document.getElementById("fsIconCollapse");
-                    const text = document.getElementById("fsText");
-                    
-                    if (document.fullscreenElement || document.webkitFullscreenElement) {
-                        iconExpand.classList.add('hidden');
-                        iconCollapse.classList.remove('hidden');
-                        text.innerText = "ย่อจอ";
-                    } else {
-                        iconCollapse.classList.add('hidden');
-                        iconExpand.classList.remove('hidden');
-                        text.innerText = "เต็มจอ";
-                    }
-                }
-
-                document.addEventListener('fullscreenchange', updateFsIcons);
-                document.addEventListener('webkitfullscreenchange', updateFsIcons);
             </script>
         </div>
         <!-- ================= สิ้นสุดส่วนที่เพิ่มใหม่ ================= -->
-
-        
-		
-        
-
-
-		      
-
-
-		
 
         <!--แหล่งข้อมูล--->
         <div class="md:col-span-3 bg-white p-4 sm:p-6 rounded-xl shadow-md mt-6 border-t-4 border-blue-400">
