@@ -92,45 +92,22 @@ function updateDateText() {
 
 // --------------------------------------------------
 window.onload = function() {
-    const btnLogin = document.getElementById('btnLogin');
-    const inputUser = document.getElementById('loginUsername');
-    const inputPass = document.getElementById('loginPassword');
-    
-    function attemptLogin() {
-        // ใส่ค่ารหัสผ่าน admin ที่ถูกแปลงเป็น SHA3-512 แล้วลงในเครื่องหมายคำพูดด้านล่าง
-        const validUserHash = "a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a615b2123af1f5f94c11e3e9402c3ac558f500199d95b6d3e301758586281dcd26";
-        
-        // ใส่ค่ารหัสผ่าน 1234 ที่ถูกแปลงเป็น SHA3-512 แล้วลงในเครื่องหมายคำพูดด้านล่าง
-        const validPassHash = "a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a615b2123af1f5f94c11e3e9402c3ac558f500199d95b6d3e301758586281dcd26";
-        
-        // แปลงค่าที่กรอกมาให้เป็น SHA3-512 ก่อนเปรียบเทียบ
-        const hashedInputUser = sha3_512(inputUser.value);
-        const hashedInputPass = sha3_512(inputPass.value);
-        
-        if (hashedInputUser === validUserHash && hashedInputPass === validPassHash) {
-            // ปิดหน้า Login แล้วแสดงหน้ากำลังโหลดข้อมูล
-            document.getElementById('globalLoginModal').style.display = 'none';
-            document.getElementById('loader').style.display = 'flex';
-            
-            // เรียกฟังก์ชันเริ่มดึงข้อมูล
-            startLoadingData();
-        } else {
-            document.getElementById('loginError').classList.remove('hidden');
-        }
+    // ปิดหน้า Login (ถ้ามีค้างอยู่) และแสดงหน้ากำลังโหลดข้อมูลแทน
+    const loginModal = document.getElementById('globalLoginModal');
+    if (loginModal) {
+        loginModal.style.display = 'none';
     }
-
-    btnLogin.addEventListener('click', attemptLogin);
     
-    // รองรับการกดปุ่ม Enter ในช่องรหัสผ่าน
-    inputPass.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') attemptLogin();
-    });
-    inputUser.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') inputPass.focus();
-    });
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.style.display = 'flex';
+    }
+    
+    // เรียกฟังก์ชันเริ่มดึงข้อมูลทันทีเมื่อเปิดหน้าเว็บ
+    startLoadingData();
 };
-
 // --------------------------------------------------
+
 function startLoadingData() {
     updateDateText();
     
@@ -834,21 +811,30 @@ if (btnFreeAdvice) {
     });
 }
 
-document.getElementById('btnCancelPassword').addEventListener('click', function() {
-    document.getElementById('passwordModal').classList.add('hidden');
-});
+const btnCancelPassword = document.getElementById('btnCancelPassword');
+if (btnCancelPassword) {
+    btnCancelPassword.addEventListener('click', function() {
+        document.getElementById('passwordModal').classList.add('hidden');
+    });
+}
 
-document.getElementById('aiPasswordInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        document.getElementById('btnConfirmPassword').click();
-    }
-});
+const aiPasswordInput = document.getElementById('aiPasswordInput');
+if (aiPasswordInput) {
+    aiPasswordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('btnConfirmPassword').click();
+        }
+    });
+}
 
-document.getElementById('btnConfirmPassword').addEventListener('click', async function() {
-    const inputVal = document.getElementById('aiPasswordInput').value;
-    document.getElementById('passwordModal').classList.add('hidden');
-    await runAiAnalysis(inputVal, currentAiMode);
-});
+const btnConfirmPassword = document.getElementById('btnConfirmPassword');
+if (btnConfirmPassword) {
+    btnConfirmPassword.addEventListener('click', async function() {
+        const inputVal = document.getElementById('aiPasswordInput').value;
+        document.getElementById('passwordModal').classList.add('hidden');
+        await runAiAnalysis(inputVal, currentAiMode);
+    });
+}
 
 async function runAiAnalysis(password, mode) {
     const resultDiv = document.getElementById('aiResult');
