@@ -194,25 +194,37 @@
             </div>
         </div>
 
-        <!-- ================= ส่วนที่เพิ่มใหม่: ระบบเฝ้าระวังและติดตามสภาพอากาศ ================= -->
+		<!-- ================= ส่วนที่เพิ่มใหม่: ระบบเฝ้าระวังและติดตามสภาพอากาศ ================= -->
         <div class="md:col-span-3 bg-white p-4 sm:p-6 rounded-xl shadow-md mt-6 border-t-4 border-indigo-500">
-            <h3 class="text-xl font-bold mb-4 text-center text-indigo-800">ระบบเฝ้าระวังและติดตามสภาพอากาศ (Windy + เรดาร์กรมอุตุนิยมวิทยา)</h3>
+            <h3 class="text-xl font-bold mb-4 text-center text-indigo-800">ระบบเฝ้าระวังและติดตามสภาพอากาศ</h3>
             
-            <div class="flex flex-wrap justify-center gap-3 mb-6">
+            <!-- แท็บสลับหน้าจอ -->
+            <div class="flex justify-center mb-4 border-b border-gray-200">
+                <button onclick="switchMapTab('windy')" id="tabWindy" class="px-4 sm:px-6 py-3 font-bold text-indigo-700 border-b-4 border-indigo-500 hover:bg-indigo-50 transition-colors">🌪️ แบบจำลอง (Windy)</button>
+                <button onclick="switchMapTab('radar')" id="tabRadar" class="px-4 sm:px-6 py-3 font-bold text-gray-500 border-b-4 border-transparent hover:bg-gray-50 transition-colors">📡 เรดาร์ (TMD)</button>
+            </div>
+
+            <!-- ปุ่มเลือกจังหวัด (แสดงเฉพาะตอนอยู่หน้า Windy) -->
+            <div id="windyControls" class="flex flex-wrap justify-center gap-3 mb-6">
                 <button onclick="updateWeather('14.97','102.10', this)" class="weather-btn px-5 py-2.5 bg-amber-500 text-white font-bold rounded-lg shadow transition-colors duration-200">นครราชสีมา</button>
                 <button onclick="updateWeather('15.80','102.03', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">ชัยภูมิ</button>
                 <button onclick="updateWeather('14.99','103.10', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">บุรีรัมย์</button>
                 <button onclick="updateWeather('14.88','103.49', this)" class="weather-btn px-5 py-2.5 bg-gray-200 hover:bg-amber-400 hover:text-white text-gray-700 font-bold rounded-lg shadow transition-colors duration-200">สุรินทร์</button>
             </div>
 
-            <div class="flex flex-col xl:flex-row gap-4 h-[700px] xl:h-[550px]">
-                <div class="w-full xl:w-1/2 h-full rounded-xl overflow-hidden shadow-inner border border-gray-300 relative">
-                    <iframe id="windyFrame" class="w-full h-full border-0 absolute inset-0" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=14.97&lon=102.10&marker=true&detail=true&detailLat=14.97&detailLon=102.10" title="Windy Forecast"></iframe>
+            <!-- กรอบแสดงแผนที่ -->
+            <div class="w-full h-[600px] md:h-[750px] rounded-xl overflow-hidden shadow-inner border border-gray-300 relative">
+                
+                <!-- หน้าจอ Windy -->
+                <div id="windyContainer" class="w-full h-full absolute inset-0">
+                    <iframe id="windyFrame" class="w-full h-full border-0" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=8&overlay=rain&product=ecmwf&level=surface&lat=14.97&lon=102.10&marker=true&detail=true&detailLat=14.97&detailLon=102.10" title="Windy Forecast"></iframe>
                 </div>
                 
-                <div class="w-full xl:w-1/2 h-full rounded-xl overflow-hidden shadow-inner border border-gray-300 relative">
-                    <iframe class="w-full h-full border-0 absolute inset-0 bg-white" src="https://weather.tmd.go.th/pimai.php" title="TMD Radar"></iframe>
+                <!-- หน้าจอ Radar -->
+                <div id="radarContainer" class="w-full h-full absolute inset-0 hidden bg-white">
+                    <iframe class="w-full h-full border-0" src="https://weather.tmd.go.th/pimai.php" title="TMD Radar"></iframe>
                 </div>
+
             </div>
             
             <script>
@@ -228,9 +240,35 @@
                     btn.classList.remove('bg-gray-200', 'text-gray-700');
                     btn.classList.add('bg-amber-500', 'text-white');
                 }
+
+                function switchMapTab(tab) {
+                    const tabWindy = document.getElementById('tabWindy');
+                    const tabRadar = document.getElementById('tabRadar');
+                    const windyContainer = document.getElementById('windyContainer');
+                    const radarContainer = document.getElementById('radarContainer');
+                    const windyControls = document.getElementById('windyControls');
+
+                    if (tab === 'windy') {
+                        windyContainer.classList.remove('hidden');
+                        radarContainer.classList.add('hidden');
+                        windyControls.classList.remove('hidden');
+                        
+                        tabWindy.className = "px-4 sm:px-6 py-3 font-bold text-indigo-700 border-b-4 border-indigo-500 hover:bg-indigo-50 transition-colors";
+                        tabRadar.className = "px-4 sm:px-6 py-3 font-bold text-gray-500 border-b-4 border-transparent hover:bg-gray-50 transition-colors";
+                    } else {
+                        radarContainer.classList.remove('hidden');
+                        windyContainer.classList.add('hidden');
+                        windyControls.classList.add('hidden');
+                        
+                        tabRadar.className = "px-4 sm:px-6 py-3 font-bold text-indigo-700 border-b-4 border-indigo-500 hover:bg-indigo-50 transition-colors";
+                        tabWindy.className = "px-4 sm:px-6 py-3 font-bold text-gray-500 border-b-4 border-transparent hover:bg-gray-50 transition-colors";
+                    }
+                }
             </script>
         </div>
         <!-- ================= สิ้นสุดส่วนที่เพิ่มใหม่ ================= -->
+
+        
 
         <!--แหล่งข้อมูล--->
         <div class="md:col-span-3 bg-white p-4 sm:p-6 rounded-xl shadow-md mt-6 border-t-4 border-blue-400">
