@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<!---ให้แสดงฟอนต์ไทยได้---->
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="css/ui.css">
+
+<!---ให้ Safari ตั้งชื่อแอพตามที่เรากำหนด แทนการตั้งชื่อตาม title tag---->
+    <meta name="apple-mobile-web-app-title" content="PM2.5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+<!---ใส่ภาพโมบายแอพ สำหรับ Add to Home Screen---->
+    <link rel="apple-touch-icon" href="https://kietpawpan.github.io/hotspot/img/PMicon.png">
+
+<!---ใส่ชื่อโมบายแอพ---->
+    <title>MAPS 11 Pro 2.0</title>
+
+<!---ใช้สไตล์ที่ถอดมา---->
+    <link rel="stylesheet" href="./dist/output.css">
+
+<!---ใช้ฟอนต์สารบรรณ---->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!---สร้าง chart ควรกำหนดเลขรุ่น เพื่อความเสถียร---->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+ 
+<!---ใช้ js เข้ารหัส SHA3-512 ที่เจาะยากที่สุดในปีที่พัฒนา 2569---->   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha3/0.8.0/sha3.min.js"></script>
+
+  </head>
+
+<body class="bg-gray-100 p-4">
+
+    <div id="loader" style="display: none;">กำลังโหลดข้อมูล...</div>
+
+    <header class="bg-purple-800 text-white p-4 rounded-t-xl shadow-md text-center">
+        <div class="flex justify-center items-center gap-6 mb-4">
+            <img src="img/mnre.PNG" alt="โลโก้กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม" class="w-20 h-20 md:w-28 md:h-28 object-contain drop-shadow-lg">
+            <img src="img/pcd.svg" alt="โลโก้กรมควบคุมมลพิษ" class="w-16 h-16 md:w-24 md:h-24 object-contain drop-shadow-lg">
+        </div>
+
+        <h1 class="text-2xl font-bold">ศูนย์ควบคุมสถานการณ์ PM<sub>2.5</sub></h1>
+        <h2 class="text-lg">สำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 11 (นครราชสีมา)</h2>
+        <p id="report-date" class="mt-2 font-semibold text-yellow-300"></p>
+        
+        <div class="mt-4 flex flex-col md:flex-row justify-center items-center gap-3">
+            <a href="#" id="hazeDownloadBtnClean" class="btn-clean" target="_blank">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16L7 11l1.41-1.41L11 12.17V4h2v8.17l2.59-2.58L17 11l-5 5zm-6 4v-2h12v2H6z"/></svg>
+                ดาวน์โหลดข้อมูลฝุ่น PM<sub>2.5</sub> ประจำวัน
+            </a>
+        </div>
+    </header>
+
+    <main class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4" id="main-content">
+        
+        <div class="md:col-span-2 space-y-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" id="province-cards"></div>
+
+            <div class="bg-white p-4 rounded-xl shadow-md overflow-x-auto">
+                <h3 class="text-xl font-bold mb-2">รายงานสถานการณ์คุณภาพอากาศ PM<sub>2.5</sub> (ย้อนหลัง)</h3>
+                <table class="w-full text-center border-collapse">
+                    <thead>
+                        <tr class="bg-purple-200">
+                            <th class="border p-2">จังหวัด</th>
+                            <th class="border p-2">ย้อนหลัง 4 วัน</th>
+                            <th class="border p-2">ย้อนหลัง 3 วัน</th>
+                            <th class="border p-2">ย้อนหลัง
