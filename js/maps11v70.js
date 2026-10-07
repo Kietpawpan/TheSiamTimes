@@ -196,7 +196,7 @@ function renderDashboard(data) {
         if (remainingDays > 0) {
             quotaHtml = `
                 <div class="mt-2 text-xs p-2 bg-blue-100 text-blue-900 rounded-lg w-full text-left border border-blue-300">
-                    📉 <span class="font-bold">เป้าหมายลดฝุ่น 5% จากปี 68:</span> ต้องไม่เกิน ${target69} วัน<br>
+                    📉 <span class="font-bold">เป้าหมายลดฝุ่น 5% จากปี 69:</span> ต้องไม่เกิน ${target69} วัน<br>
                     ⏳ <span class="font-bold text-green-700">เหลือโควต้าอีก: ${remainingDays} วัน</span>
                 </div>
             `;
