@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thai-Roman Transliteration | MNRE</title>
+    <!-- เรียกใช้ฟอนต์ที่ดูทันสมัยและเป็นสากล -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- เรียกใช้ไอคอนจาก FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Reset และการกำหนดสีแบบทันสมัย */
+        :root {
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #6c757d;
+            --border-color: #e2e8f0;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* ส่วนหัวของแอปพลิเคชัน */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 24px;
+            justify-content: center;
+        }
+
+        .header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        /* กรอบพื้นหลังการทำงาน (Card) */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            background-color: #f8fafc;
+        }
+
+        /* คำแนะนำการใช้งาน */
+        .instructions {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            background: #f8fafc;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .instructions p { margin: 4px 0; }
+
+        /* ปุ่มต่างๆ */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        /* ส่วนอ้างอิง */
+        .references {
+            margin-top: 25px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+        
+        .references b {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .pdf-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .pdf-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+
+    <div class="card">
+        <div class="input-group">
+            <label for="thaiName">Thai Reading (Pronunciation)</label>
+            <input type="text" id="thaiName" placeholder="e.g. แม่-น้ำ เจ้า-พระ-ยา">
+            <div class="instructions">
+                <p>1. Use <strong>dash (-)</strong> to separate syllables</p>
+                <p>2. Use <strong>space</strong> to separate words</p>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="romanize()">
+                <i class="fa-solid fa-language"></i> Romanize
+            </button>
+            <button class="btn btn-secondary" onclick="copy()">
+                <i class="fa-regular fa-copy"></i> Copy
+            </button>
+            <button class="btn btn-secondary" onclick="clearText()">
+                <i class="fa-solid fa-eraser"></i> Clear
+            </button>
+        </div>
+
+        <div class="input-group">
+            <label for="romanize">Romanized Output</label>
+            <!-- เปลี่ยน id จาก romanizeOutput เป็น romanize ให้ตรงกับโค้ด JS เดิมของคุณ -->
+            <textarea id="romanize" readonly placeholder="Result will appear here..."></textarea>
+        </div>
+
+        <div class="references">
+            <b>References:</b><br>
+            1. Announcement of the Office of the Prime Minister on Romanization (2000)<br>
+            2. Announcement of the Royal Institute on Romanization (1999)<br>
+            3. Regulation of the Ministry of Foreign Affairs on Passport Issuance (2005) Clause 39<br>
+            4. United Nations Romanization Systems for Geographical Names (2013)<br>
+            5. ISO 91140-2 Exceptions:<br>
+            &nbsp;&nbsp;&nbsp;- Sound 'จ' uses 'CH-' instead of 'C-'<br>
+            &nbsp;&nbsp;&nbsp;- Do not add prime (') before the sound 'อ'
+        </div>
+
+        <div style="text-align: center;">
+            <a href="https://ratchakitcha.soc.go.th/documents/1714357.pdf" target="_blank" class="pdf-link">
+                <i class="fa-solid fa-file-pdf"></i> Romanization Guidelines (PDF)
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- เรียกใช้งานไฟล์ JS ของคุณจาก GitHub โดยตรง -->
+<script src="https://kietpawpan.github.io/roman/js/roman.js"></script>
+
+<!-- ฟังก์ชันเสริมสำหรับ Copy และ Clear (หากในไฟล์ roman.js ไม่มีฟังก์ชันนี้) -->
+<script>
+    function copy() {
+        var copyText = document.getElementById("romanize");
+        if(copyText.value) {
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            // แสดงแจ้งเตือนเมื่อคัดลอกสำเร็จ
+            alert("Copied: " + copyText.value);
+        }
+    }
+
+    function clearText() {
+        document.getElementById("thaiName").value = "";
+        document.getElementById("romanize").value = "";
+    }
+</script>
+
+</body>
+</html>
