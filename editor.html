@@ -292,14 +292,32 @@
         document.getElementById('runBtnDesktop').addEventListener('click', runCode);
         document.getElementById('runBtnMobile').addEventListener('click', runCode);
 
-        // Download HTML Function
+// Download HTML Function
         document.getElementById('downloadBtn').addEventListener('click', () => {
+            // สร้างวันที่รูปแบบ yymmdd (ปี พ.ศ.)
+            const now = new Date();
+            const yearBE = (now.getFullYear() + 543).toString().slice(-2);
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const defaultName = `${yearBE}${month}${day}.html`;
+
+            // แสดงหน้าต่างให้ตั้งชื่อไฟล์
+            let fileName = prompt("ตั้งชื่อไฟล์ที่ต้องการดาวน์โหลด:", defaultName);
+            
+            // หากผู้ใช้กด Cancel หรือลบชื่อทิ้งให้ยกเลิกการดาวน์โหลด
+            if (!fileName) return; 
+            
+            // ตรวจสอบว่ามีนามสกุล .html หรือไม่ ถ้ายกเลิกเผลอลบไปให้เติมกลับเข้าไป
+            if (!fileName.endsWith('.html')) {
+                fileName += '.html';
+            }
+
             const code = editor.getValue();
             const blob = new Blob([code], { type: "text/html" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "index.html";
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             setTimeout(() => {
