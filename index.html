@@ -80,8 +80,7 @@
             display: block;
         }
 
-	
-/* Styles for Popup (Dialog) & Info Button */
+        /* Styles for Popup (Dialog) & Info Button */
         .info-button {
             background: transparent;
             border: none;
@@ -103,21 +102,18 @@
             fill: currentColor; 
         }
 
+        dialog.credit-popup {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #212529;
+            text-align: left;
+        }
 
-dialog.credit-popup {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 20px;
-    max-width: 400px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    font-family: Arial, sans-serif;
-    line-height: 1.5;
-    color: #212529;
-    text-align: left;
-}
-
-        
-       
         dialog.credit-popup::backdrop { background: rgba(0, 0, 0, 0.6); }
         .close-button {
             margin-top: 15px;
@@ -131,8 +127,320 @@ dialog.credit-popup {
         }
         .close-button:hover { background: #555; }
 
+        /* =========================================
+           ROLEX CLOCK STYLES
+           ========================================= */
+        .rolex-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 190px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
 
+        .dial {
+            width: 290px;
+            height: 290px;
+            min-width: 290px;
+            min-height: 290px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 10px 30px rgb(0 0 0 / 0.3);
+            background-color: #1a5c32;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transform: scale(0.6);
+            transform-origin: center center;
+        }
 
+        .marker {
+            position: absolute;
+            width: 7px;
+            height: 26px;
+            background-color: #fdfdfd;
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            border: 1.5px solid #a0a0a0;
+            box-sizing: border-box;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+        
+        .marker.double {
+            width: 15px;
+            border: none;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            box-shadow: none;
+        }
+        .marker.double div {
+            width: 6px;
+            height: 100%;
+            background-color: #fdfdfd;
+            border: 1.5px solid #a0a0a0;
+            box-sizing: border-box;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .minute-tick {
+            position: absolute;
+            width: 2px;
+            height: 6px; 
+            background-color: rgba(255, 255, 255, 0.9);
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            z-index: 4;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .minute-square {
+            position: absolute;
+            width: 6px; 
+            height: 6px; 
+            background-color: #fdfdfd;
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            z-index: 4;
+            border: 1.5px solid #a0a0a0; 
+            box-sizing: border-box;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+        }
+        
+        .tiny-crown {
+            position: absolute;
+            width: 10px; 
+            height: 10px;
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            z-index: 4;
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.4));
+        }
+        .tiny-crown svg {
+            width: 100%;
+            height: 100%;
+            fill: white;
+        }
+
+        .crown-pos {
+            position: absolute;
+            top: 18px; 
+            left: 50%;
+            transform: translateX(-50%); 
+            width: 32px;
+            height: 32px;
+            z-index: 6;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+        }
+
+        .text-brand {
+            font-family: 'Garamond', 'Baskerville', 'Times New Roman', serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            margin-bottom: 0px;
+            transform: scaleY(0.85);
+            display: inline-block;
+        }
+
+        .text-model {
+            font-family: 'Arial', sans-serif;
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 0.2px;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .text-top {
+            position: absolute;
+            top: 60px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .text-bottom {
+            position: absolute;
+            bottom: 60px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            line-height: 1.2;
+        }
+        
+        .text-cert {
+            font-family: 'Arial Narrow', 'Roboto Condensed', sans-serif;
+            font-size: 8.5px;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            transform: scaleX(0.75);
+            transform-origin: center;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .swiss-text {
+            position: absolute;
+            color: white;
+            font-size: 5px;
+            font-weight: bold;
+            text-align: center;
+            width: 20px;
+            z-index: 5;
+        }
+
+        .date-window {
+            position: absolute;
+            right: 16px; 
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 26px;
+            background-color: #fdfdfd;
+            border: 1px solid #aaa;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3), 2px 2px 5px rgba(0,0,0,0.5);
+            z-index: 4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            font-weight: 900;
+            font-size: 18px;
+            color: #000;
+            border-radius: 2px;
+        }
+
+        .cyclops-lens {
+            position: absolute;
+            right: 12px; 
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 34px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.05) 100%);
+            border-radius: 8px; 
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3), inset 0 1px 3px rgba(255,255,255,0.8);
+            z-index: 5; 
+            backdrop-filter: contrast(1.05);
+            pointer-events: none;
+        }
+
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hand-tail {
+            position: absolute;
+            bottom: -22px;
+            left: 0;
+            width: 100%;
+            height: 22px;
+            background: inherit;
+            border-radius: 0 0 2px 2px;
+            z-index: 1;
+        }
+
+        .hour-hand {
+            width: 10px;
+            height: 90px;
+            background: linear-gradient(to right, #ffffff 50%, #555555 50%);
+            margin-left: -5px;
+            z-index: 11;
+            border-radius: 2px 2px 0 0;
+        }
+        .hour-hand::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 55px; 
+            background-color: #fdfdfd;
+            border-radius: 1px;
+            z-index: 3;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+        }
+
+        .minute-hand {
+            width: 8px;
+            height: 132px; 
+            background: linear-gradient(to right, #ffffff 50%, #555555 50%);
+            margin-left: -4px;
+            z-index: 12;
+            border-radius: 2px 2px 0 0;
+        }
+        .minute-hand::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 90px; 
+            background-color: #fdfdfd;
+            border-radius: 1px;
+            z-index: 3;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+        }
+
+        .second-hand {
+            width: 2px;
+            height: 135px; 
+            background: linear-gradient(to right, #ffffff 50%, #555555 50%);
+            margin-left: -1px;
+            z-index: 13;
+        }
+        .second-hand::after {
+            content: '';
+            position: absolute;
+            bottom: -35px;
+            left: 0;
+            width: 100%;
+            height: 35px;
+            background: linear-gradient(to right, #ffffff 50%, #555555 50%);
+        }
+
+        .pivot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle at center, #ffffff 0%, #999999 70%, #333333 100%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 14;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .pivot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            background-color: #d0d0d0;
+            border-radius: 50%;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen">
@@ -176,13 +484,10 @@ dialog.credit-popup {
                     <button data-target="tech-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Technology <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
                     <button data-target="sport-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Sport <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
                     <button data-target="games-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Games <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
-					<button data-target="culture-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Culture <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
-					<button data-target="about-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">About Us <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
-<button data-target="disclaimer-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Disclaimer <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
-<a href="License.txt" target="_blank" class="hover:underline flex items-center gap-1 py-1 focus:outline-none">License</a>
-
-					
-
+                    <button data-target="culture-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Culture <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="about-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">About Us <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="disclaimer-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Disclaimer <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <a href="License.txt" target="_blank" class="hover:underline flex items-center gap-1 py-1 focus:outline-none">License</a>
                 </nav>
             </div>
 
@@ -278,8 +583,7 @@ dialog.credit-popup {
                                 <li><a href="691003pm25.html" class="hover:underline">PM2.5 Management</a></li>
                                 <li><a href="#" class="hover:underline">Industrial Emissions</a></li>
                                 <li><a href="#" class="hover:underline">Clean Air Act</a></li>
-				    <li><a href="691001clearSky.html" class="hover:underline">CLEAR Sky Strategy</a></li>
-
+                                <li><a href="691001clearSky.html" class="hover:underline">CLEAR Sky Strategy</a></li>
                             </ul>
                         </div>
                         <div>
@@ -540,19 +844,19 @@ dialog.credit-popup {
                         </div>
                     </div>
                 </div>
-<!-- Mega Menu: About Us -->
-<div id="about-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
-    <div class="max-w-[800px] mx-auto">
-        <h3 class="text-xl font-bold font-title mb-4 border-b border-gray-300 pb-2">About The Siam Times</h3>
-        <div class="text-[14px] text-gray-800 font-serif leading-relaxed space-y-3">
-            <p><strong class="font-bold">Heritage and Historical Disclaimer</strong></p>
-            <p>The name "The Siam Times" pays homage to the historical newspaper originally founded in Bangkok in 1864. This modern publication is an entirely independent initiative created to revive the spirit of classic journalism.</p>
-            <p>It has no legal, financial, or historical affiliation with the original founders, owners, or the historical entity of the 19th century.</p>
-        </div>
-    </div>
-</div>
 
-				
+                <!-- Mega Menu: About Us -->
+                <div id="about-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[800px] mx-auto">
+                        <h3 class="text-xl font-bold font-title mb-4 border-b border-gray-300 pb-2">About The Siam Times</h3>
+                        <div class="text-[14px] text-gray-800 font-serif leading-relaxed space-y-3">
+                            <p><strong class="font-bold">Heritage and Historical Disclaimer</strong></p>
+                            <p>The name "The Siam Times" pays homage to the historical newspaper originally founded in Bangkok in 1864. This modern publication is an entirely independent initiative created to revive the spirit of classic journalism.</p>
+                            <p>It has no legal, financial, or historical affiliation with the original founders, owners, or the historical entity of the 19th century.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Mega Menu: Culture -->
                 <div id="culture-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
                     <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -579,8 +883,6 @@ dialog.credit-popup {
                                 <li><a href="691016mental.html" class="hover:underline">The Anatomy of a Quiet Mind</a></li>                    
                                 <li><a href="691016give.html" class="hover:underline">The Anatomy of a Generous Life</a></li>            
                             </ul>
-
-							
                         </div>
                         <div>
                             <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
@@ -595,23 +897,23 @@ dialog.credit-popup {
                     </div>
                 </div>
 
-<!-- Mega Menu: Disclaimer -->
-<div id="disclaimer-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
-    <div class="max-w-[800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4 border-b border-gray-300 pb-2">Design Inspiration</h4>
-            <p class="text-[13px] text-gray-800 font-sans leading-relaxed text-justify-newspaper">
-                The visual design, typography structure, and editorial layout of this website are inspired by the digital edition of The New York Times. The Siam Times is a strictly independent entity and is not affiliated with, sponsored by, or endorsed by The New York Times Company.
-            </p>
-        </div>
-        <div>
-            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4 border-b border-gray-300 pb-2">Copyright & Ownership</h4>
-            <p class="text-[13px] text-gray-800 font-sans leading-relaxed text-justify-newspaper">
-                All original articles, photographs, and logos are the exclusive property of The Siam Times. All rights reserved, except for cited materials which remain the property of their respective sources. The information and tools provided on this website are for educational and informational purposes. The Siam Times makes no warranties regarding the absolute accuracy, completeness, or reliability of the generated content or proofreading results.
-            </p>
-        </div>
-    </div>
-</div>
+                <!-- Mega Menu: Disclaimer -->
+                <div id="disclaimer-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4 border-b border-gray-300 pb-2">Design Inspiration</h4>
+                            <p class="text-[13px] text-gray-800 font-sans leading-relaxed text-justify-newspaper">
+                                The visual design, typography structure, and editorial layout of this website are inspired by the digital edition of The New York Times. The Siam Times is a strictly independent entity and is not affiliated with, sponsored by, or endorsed by The New York Times Company.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4 border-b border-gray-300 pb-2">Copyright & Ownership</h4>
+                            <p class="text-[13px] text-gray-800 font-sans leading-relaxed text-justify-newspaper">
+                                All original articles, photographs, and logos are the exclusive property of The Siam Times. All rights reserved, except for cited materials which remain the property of their respective sources. The information and tools provided on this website are for educational and informational purposes. The Siam Times makes no warranties regarding the absolute accuracy, completeness, or reliability of the generated content or proofreading results.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 
@@ -655,23 +957,21 @@ dialog.credit-popup {
                         <div class="absolute bottom-2 left-2 md:bottom-6 md:left-6 bg-white/90 px-2 py-1 md:px-3 md:py-2 max-w-[80%] md:max-w-[65%] shadow-sm">
                             <p class="text-xs md:text-base font-serif text-black leading-snug">
                                 Bangkok 1864<br>The Kingdom of Siam
-								
                             </p>
                         </div>
                     </div>
-                    <div class="text-[9px] text-right text-gray-500 mt-1 uppercase font-sans tracking-wide">FACEBOOK | SEA HERITAGE & HISTORY<button class="info-button" aria-label="View Image Credit" onclick="document.getElementById('credit-popup').showModal()" title="image attribution’">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"></path>
-            </svg>
-        </button>
-                
-        <dialog id="credit-popup" class="credit-popup">
-          <h3 style="margin-top: 0; font-family: 'Playfair Display', 'Sarabun';">Image Attribution</h3>
-          <div style="font-family: 'Lora', 'Sarabun'; margin-bottom: 20px;">&copy; 2026 FACEBOOK | SEA HERITAGE & HISTORY <br> "<i> Bangkok, Chao Phraya River&mdash;1864: A Floating World of Trade and Tradition </i>" <br>by facebook | Sea Heritage & History is copyrighted. <br>Original material available at: <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2FSEAheritagehistory%2Fposts%2Fpfbid02reBuQoHwUWseiT4phA4TLycRwGYXU8e7VE7MDH81YadFnkSJbyMZaBt4VCU15vY6l&show_text=true&width=500" width="500" height="754" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe> </div>
-          <button class="close-button" onclick="document.getElementById('credit-popup').close()">Close</button>
-        </dialog>	
-					
-					</div>
+                    <div class="text-[9px] text-right text-gray-500 mt-1 uppercase font-sans tracking-wide">FACEBOOK | SEA HERITAGE & HISTORY<button class="info-button" aria-label="View Image Credit" onclick="document.getElementById('credit-popup').showModal()" title="image attribution">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"></path>
+                        </svg>
+                    </button>
+                            
+                    <dialog id="credit-popup" class="credit-popup">
+                        <h3 style="margin-top: 0; font-family: 'Playfair Display', 'Sarabun';">Image Attribution</h3>
+                        <div style="font-family: 'Lora', 'Sarabun'; margin-bottom: 20px;">&copy; 2026 FACEBOOK | SEA HERITAGE & HISTORY <br> "<i> Bangkok, Chao Phraya River&mdash;1864: A Floating World of Trade and Tradition </i>" <br>by facebook | Sea Heritage & History is copyrighted. <br>Original material available at: <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2FSEAheritagehistory%2Fposts%2Fpfbid02reBuQoHwUWseiT4phA4TLycRwGYXU8e7VE7MDH81YadFnkSJbyMZaBt4VCU15vY6l&show_text=true&width=500" width="500" height="754" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe> </div>
+                        <button class="close-button" onclick="document.getElementById('credit-popup').close()">Close</button>
+                    </dialog> 
+                    </div>
                 </section>
 
                 <section class="col-span-1 md:col-span-12 border-t border-black mt-8 pt-4">
@@ -710,6 +1010,71 @@ dialog.credit-popup {
             </div>
 
             <aside class="lg:col-span-3 flex flex-col gap-6 lg:pl-2 mt-4 lg:mt-0">
+                
+                <!-- แสดงนาฬิกาในแถบด้านข้าง (Sidebar) -->
+                <div class="rolex-container pt-6 lg:pt-0">
+                    <div class="dial">
+                        <div class="crown-pos">
+                            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="
+                                    M 30,85 A 20,12 0 1 1 70,85 A 20,12 0 1 1 30,85 Z
+                                    M 62,89 A 12,4 0 1 0 38,89 A 12,4 0 1 0 62,89 Z
+                                " fill="white" />
+                                
+                                <circle cx="50" cy="10" r="5.5" fill="white" />
+                                <path d="M 49,15 L 46,78 L 54,78 L 51,15 Z" fill="white" />
+                                
+                                <circle cx="32" cy="18" r="5" fill="white" />
+                                <path d="M 32,22 L 38,77 L 46,77 L 33,21 Z" fill="white" />
+                                
+                                <circle cx="68" cy="18" r="5" fill="white" />
+                                <path d="M 68,22 L 54,77 L 62,77 L 67,21 Z" fill="white" />
+                                
+                                <circle cx="14" cy="30" r="4.5" fill="white" />
+                                <path d="M 15,32 L 38,82 L 30,82 L 13,31 Z" fill="white" />
+                                
+                                <circle cx="86" cy="30" r="4.5" fill="white" />
+                                <path d="M 85,32 L 62,82 L 70,82 L 87,31 Z" fill="white" />
+                            </svg>
+                        </div>
+                    
+                        <div class="text-top">
+                            <div class="text-brand">ROLEX</div>
+                            <div class="text-model">OYSTER PERPETUAL</div>
+                        </div>
+                        
+                        <div class="text-bottom">
+                            <div class="text-cert">SUPERLATIVE CHRONOMETER<br/>OFFICIALLY CERTIFIED</div>
+                        </div>
+                    
+                        <div id="markers-container"></div>
+                    
+                        <div class="date-window" id="date-display"></div>
+                        <div class="cyclops-lens"></div>
+                    
+                        <div class="hand hour-hand" id="hour">
+                            <div class="hand-tail"></div>
+                        </div>
+                        <div class="hand minute-hand" id="minute">
+                            <div class="hand-tail"></div>
+                        </div>
+                        
+                        <div class="hand second-hand" id="second"></div>
+                        <div class="pivot"></div>
+                    </div>
+                </div>
+                <!-- จบส่วนการแสดงนาฬิกา -->
+
+                <!-- ส่วนแสดงเวลานับตั้งแต่เข้า Waiting List -->
+                <div class="text-center font-sans border-b border-gray-300 pb-4 -mt-2">
+                    <div class="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">
+                        Waiting List Since 2 Nov 2024
+                    </div>
+                    <div id="waitlist-counter" class="text-[13px] font-bold text-[#1a5c32]">
+                        0 ปี 0 เดือน 0 วัน 0 ชม. 0 นาที 0 วินาที
+                    </div>
+                </div>
+
                 <article class="border-t border-gray-300 pt-6 lg:border-0 lg:pt-0">
                     <div class="relative mb-3 pt-2 pl-2">
                         <div class="absolute top-0 left-0 w-[95%] h-[95%] bg-gray-200 shadow-sm border border-gray-300 transform -rotate-3"></div>
@@ -741,13 +1106,12 @@ dialog.credit-popup {
                         <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Coding</h4>
                     </a>
 
-					<a href="roman.html" class="block group text-center">
-    <div class="aspect-square bg-[#F3E5F5] flex items-center justify-center relative overflow-hidden mb-2">
-        <span class="text-4xl font-serif italic text-purple-700 font-bold">ก=K</span>
-    </div>
-    <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Romanization</h4>
-</a>
-					    
+                    <a href="roman.html" class="block group text-center">
+                        <div class="aspect-square bg-[#F3E5F5] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl font-serif italic text-purple-700 font-bold">ก=K</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Romanization</h4>
+                    </a>
                 </div>
             </aside>
 
@@ -759,38 +1123,46 @@ dialog.credit-popup {
     </div>
     
     <script>
-        function updateDate() {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const today = new Date();
-            const formattedDate = today.toLocaleDateString('en-US', options);
-            
-            document.getElementById('desktop-date').textContent = formattedDate;
-            document.getElementById('mobile-date').textContent = formattedDate;
-            document.getElementById('footer-year').textContent = today.getFullYear();
-        }
-        updateDate();
-
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyfoFishbabfNLqqyv9nOIkk8XipSlFD4kSaa8BfYw-ckF4fq7UZiRdfJMjqXqff8BQZg/exec'; 
-
-        async function fetchTemperatureData() {
-            const container = document.getElementById('result-box');
-            try {
-                const response = await fetch(WEB_APP_URL);
-                const data = await response.json();
-                if (data.status === 'success') {
-                    container.innerHTML = `+<span class="data-val">${data.temperature}°C</span>`;
-                } else {
-                    container.innerHTML = `<p class="error">No Data</p>`;
-                }
-            } catch (error) {
-                container.innerHTML = `<p class="error">Network Error</p>`;
-                console.error(error);
-            }
-        }
-        fetchTemperatureData();
-
-        // สคริปต์สำหรับจัดการการทำงานของ Mega Menu ทั้งหมด
         document.addEventListener('DOMContentLoaded', function() {
+            
+            // 1. ส่วนอัปเดตวันที่ของหน้าหนังสือพิมพ์
+            function updateDate() {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const today = new Date();
+                const formattedDate = today.toLocaleDateString('en-US', options);
+                
+                const desktopDate = document.getElementById('desktop-date');
+                const mobileDate = document.getElementById('mobile-date');
+                const footerYear = document.getElementById('footer-year');
+
+                if (desktopDate) desktopDate.textContent = formattedDate;
+                if (mobileDate) mobileDate.textContent = formattedDate;
+                if (footerYear) footerYear.textContent = today.getFullYear();
+            }
+            updateDate();
+
+            // 2. ส่วนดึงข้อมูลอุณหภูมิโลก
+            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyfoFishbabfNLqqyv9nOIkk8XipSlFD4kSaa8BfYw-ckF4fq7UZiRdfJMjqXqff8BQZg/exec'; 
+
+            async function fetchTemperatureData() {
+                const container = document.getElementById('result-box');
+                if (!container) return;
+                try {
+                    const response = await fetch(WEB_APP_URL);
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        container.innerHTML = `+<span class="data-val">${data.temperature}°C</span>`;
+                    } else {
+                        container.innerHTML = `<span class="error">No Data</span>`;
+                    }
+                } catch (error) {
+                    container.innerHTML = `<span class="error">Network Error</span>`;
+                    console.error(error);
+                }
+            }
+            fetchTemperatureData();
+
+            // 3. ส่วนจัดการการทำงานของ Mega Menu
             const navBtns = document.querySelectorAll('.nav-btn');
             const megaMenus = document.querySelectorAll('.mega-menu');
 
@@ -799,19 +1171,17 @@ dialog.credit-popup {
                     e.preventDefault();
                     const targetId = this.getAttribute('data-target');
                     const targetMenu = document.getElementById(targetId);
-                    const icon = this.querySelector('svg');
+                    if (!targetMenu) return;
 
-                    // ตรวจสอบสถานะว่าเมนูนี้ถูกซ่อนอยู่หรือไม่
+                    const icon = this.querySelector('svg');
                     const isHidden = targetMenu.classList.contains('hidden');
 
-                    // ซ่อนเมนูทั้งหมดและหมุนไอคอนกลับก่อน
                     megaMenus.forEach(menu => menu.classList.add('hidden'));
                     navBtns.forEach(b => {
                         const ic = b.querySelector('svg');
                         if (ic) ic.classList.remove('rotate-180');
                     });
 
-                    // ถ้าเมนูเป้าหมายซ่อนอยู่ ให้เปิดขึ้นมาและหมุนไอคอน
                     if (isHidden) {
                         targetMenu.classList.remove('hidden');
                         if (icon) icon.classList.add('rotate-180');
@@ -819,7 +1189,6 @@ dialog.credit-popup {
                 });
             });
 
-            // ปิดเมนูเมื่อคลิกพื้นที่อื่นๆ นอกเหนือจากปุ่มและกล่องเมนู
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.nav-btn') && !e.target.closest('.mega-menu')) {
                     megaMenus.forEach(menu => menu.classList.add('hidden'));
@@ -829,6 +1198,203 @@ dialog.credit-popup {
                     });
                 }
             });
+
+            // 4. ส่วนสร้างรายละเอียดหน้าปัดนาฬิกาและสั่งให้เข็มเดิน
+            const markersContainer = document.getElementById('markers-container');
+            if (markersContainer) {
+                markersContainer.innerHTML = '';
+                const radiusMinute = 138;
+                const radiusHour = 115;
+
+                const crownSVG = `
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="
+                            M 30,85 A 20,12 0 1 1 70,85 A 20,12 0 1 1 30,85 Z
+                            M 62,89 A 12,4 0 1 0 38,89 A 12,4 0 1 0 62,89 Z
+                        " fill="white" />
+                        <circle cx="50" cy="10" r="6" fill="white" />
+                        <path d="M 49,15 L 46,78 L 54,78 L 51,15 Z" fill="white" />
+                        <circle cx="32" cy="18" r="6" fill="white" />
+                        <path d="M 32,22 L 38,77 L 46,77 L 33,21 Z" fill="white" />
+                        <circle cx="68" cy="18" r="6" fill="white" />
+                        <path d="M 68,22 L 54,77 L 62,77 L 67,21 Z" fill="white" />
+                        <circle cx="14" cy="30" r="5" fill="white" />
+                        <path d="M 15,32 L 38,82 L 30,82 L 13,31 Z" fill="white" />
+                        <circle cx="86" cy="30" r="5" fill="white" />
+                        <path d="M 85,32 L 62,82 L 70,82 L 87,31 Z" fill="white" />
+                    </svg>
+                `;
+
+                for (let i = 0; i < 60; i++) {
+                    const angle = i * 6;
+                    const rad = (angle - 90) * (Math.PI / 180);
+                    const xOuter = 145 + radiusMinute * Math.cos(rad);
+                    const yOuter = 145 + radiusMinute * Math.sin(rad);
+
+                    if (i === 29) {
+                        const txt = document.createElement('div');
+                        txt.className = 'swiss-text';
+                        txt.innerText = "MADE";
+                        txt.style.left = xOuter + 'px';
+                        txt.style.top = yOuter + 'px';
+                        txt.style.transform = `translate(-50%, -50%) rotate(${angle - 180}deg)`;
+                        markersContainer.appendChild(txt);
+                        continue;
+                    }
+
+                    if (i === 31) {
+                        const txt = document.createElement('div');
+                        txt.className = 'swiss-text';
+                        txt.innerText = "SWISS";
+                        txt.style.left = xOuter + 'px';
+                        txt.style.top = yOuter + 'px';
+                        txt.style.transform = `translate(-50%, -50%) rotate(${angle - 180}deg)`;
+                        markersContainer.appendChild(txt);
+                        continue;
+                    }
+
+                    if (i === 0) {
+                        const square = document.createElement('div');
+                        square.className = 'minute-square';
+                        square.style.left = xOuter + 'px';
+                        square.style.top = yOuter + 'px';
+                        square.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                        markersContainer.appendChild(square);
+                        continue;
+                    }
+
+                    if (i % 5 === 0) {
+                        if (i === 15) continue;
+
+                        const marker = document.createElement('div');
+                        marker.className = 'marker';
+
+                        if (i === 30 || i === 45) {
+                            marker.classList.add('double');
+                            marker.appendChild(document.createElement('div'));
+                            marker.appendChild(document.createElement('div'));
+                        }
+
+                        const xInner = 145 + radiusHour * Math.cos(rad);
+                        const yInner = 145 + radiusHour * Math.sin(rad);
+                        marker.style.left = xInner + 'px';
+                        marker.style.top = yInner + 'px';
+                        marker.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                        markersContainer.appendChild(marker);
+
+                        if (i === 30) {
+                            const crownRadius = radiusMinute;
+                            const xCrown = 145 + crownRadius * Math.cos(rad);
+                            const yCrown = 145 + crownRadius * Math.sin(rad);
+                            const tCrown = document.createElement('div');
+                            tCrown.className = 'tiny-crown';
+                            tCrown.innerHTML = crownSVG;
+                            tCrown.style.left = xCrown + 'px';
+                            tCrown.style.top = yCrown + 'px';
+                            tCrown.style.transform = `translate(-50%, -50%) rotate(0deg)`;
+                            markersContainer.appendChild(tCrown);
+                        } else {
+                            const square = document.createElement('div');
+                            square.className = 'minute-square';
+                            square.style.left = xOuter + 'px';
+                            square.style.top = yOuter + 'px';
+                            square.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                            markersContainer.appendChild(square);
+                        }
+                    } else {
+                        const tick = document.createElement('div');
+                        tick.className = 'minute-tick';
+                        tick.style.left = xOuter + 'px';
+                        tick.style.top = yOuter + 'px';
+                        tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                        markersContainer.appendChild(tick);
+                    }
+                }
+
+                const waitlistStart = new Date(2024, 10, 2, 0, 0, 0);
+
+                function updateClock() {
+                    const now = new Date();
+                    const dateDisplay = document.getElementById('date-display');
+                    if (dateDisplay) dateDisplay.innerText = now.getDate();
+
+                    const counterEl = document.getElementById('waitlist-counter');
+                    if (counterEl) {
+                        let years = now.getFullYear() - waitlistStart.getFullYear();
+                        let months = now.getMonth() - waitlistStart.getMonth();
+                        let days = now.getDate() - waitlistStart.getDate();
+                        let hours = now.getHours() - waitlistStart.getHours();
+                        let minutes = now.getMinutes() - waitlistStart.getMinutes();
+                        let seconds = now.getSeconds() - waitlistStart.getSeconds();
+
+                        if (seconds < 0) {
+                            seconds += 60;
+                            minutes--;
+                        }
+                        if (minutes < 0) {
+                            minutes += 60;
+                            hours--;
+                        }
+                        if (hours < 0) {
+                            hours += 24;
+                            days--;
+                        }
+                        if (days < 0) {
+                            const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+                            days += prevMonth.getDate();
+                            months--;
+                        }
+                        if (months < 0) {
+                            months += 12;
+                            years--;
+                        }
+
+                        counterEl.innerText = `${years} ปี ${months} เดือน ${days} วัน ${hours} ชม. ${minutes} นาที ${seconds} วินาที`;
+                    }
+
+                    const ms = now.getMilliseconds();
+                    const seconds = now.getSeconds();
+                    const minutes = now.getMinutes();
+                    const hours = now.getHours();
+
+                    const secondsDeg = ((seconds + ms / 1000) / 60) * 360;
+                    const minutesDeg = ((minutes + seconds / 60) / 60) * 360;
+                    const hoursDeg = ((hours % 12 + minutes / 60) / 12) * 360;
+
+                    const shadowDistance = 4;
+
+                    const radM = (minutesDeg + 180) * (Math.PI / 180);
+                    const shadowXM = shadowDistance * Math.sin(radM);
+                    const shadowYM = shadowDistance * -Math.cos(radM);
+
+                    const radH = (hoursDeg + 180) * (Math.PI / 180);
+                    const shadowXH = shadowDistance * Math.sin(radH);
+                    const shadowYH = shadowDistance * -Math.cos(radH);
+
+                    const secondHand = document.getElementById('second');
+                    if (secondHand) {
+                        secondHand.style.transform = `rotate(${secondsDeg}deg)`;
+                        secondHand.style.filter = `drop-shadow(${shadowXM.toFixed(2)}px ${shadowYM.toFixed(2)}px 5px rgba(0,0,0,0.4))`;
+                    }
+
+                    const minuteHand = document.getElementById('minute');
+                    if (minuteHand) {
+                        minuteHand.style.transform = `rotate(${minutesDeg}deg)`;
+                        minuteHand.style.filter = `drop-shadow(${shadowXM.toFixed(2)}px ${shadowYM.toFixed(2)}px 4px rgba(0,0,0,0.6))`;
+                    }
+
+                    const hourHand = document.getElementById('hour');
+                    if (hourHand) {
+                        hourHand.style.transform = `rotate(${hoursDeg}deg)`;
+                        hourHand.style.filter = `drop-shadow(${shadowXH.toFixed(2)}px ${shadowYH.toFixed(2)}px 4px rgba(0,0,0,0.6))`;
+                    }
+
+                    requestAnimationFrame(updateClock);
+                }
+
+                // สั่งให้ฟังก์ชันเริ่มทำงานครั้งแรก
+                requestAnimationFrame(updateClock);
+            }
         });
     </script>
 </body>
