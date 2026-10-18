@@ -130,7 +130,7 @@
         /* =========================================
            ROLEX CLOCK STYLES
            ========================================= */
-      .rolex-container {
+        .rolex-container {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -157,20 +157,21 @@
 
         .marker {
             position: absolute;
-            width: 7px;
-            height: 26px;
+            width: 11px;
+            height: 28px;
             background-color: #fdfdfd;
             left: 50%;
             top: 50%;
             transform-origin: center;
-            border: 1.5px solid #a0a0a0;
+            border: 2px solid #b8b8b8;
+            border-radius: 1px;
             box-sizing: border-box;
             box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
             z-index: 5;
         }
         
         .marker.double {
-            width: 15px;
+            width: 21px;
             border: none;
             background: transparent;
             display: flex;
@@ -178,10 +179,11 @@
             box-shadow: none;
         }
         .marker.double div {
-            width: 6px;
+            width: 9.5px;
             height: 100%;
             background-color: #fdfdfd;
-            border: 1.5px solid #a0a0a0;
+            border: 2px solid #b8b8b8;
+            border-radius: 1px;
             box-sizing: border-box;
             box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
         }
@@ -298,130 +300,106 @@
             z-index: 5;
         }
 
-        .date-window {
-            position: absolute;
-            right: 16px; 
-            top: 50%;
-            transform: translateY(-50%);
-            width: 36px;
-            height: 26px;
-            background-color: #fdfdfd;
-            border: 1px solid #aaa;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3), 2px 2px 5px rgba(0,0,0,0.5);
-            z-index: 4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Arial', sans-serif;
-            font-weight: 900;
-            font-size: 18px;
-            color: #000;
-            border-radius: 2px;
-        }
-
-        .cyclops-lens {
-            position: absolute;
-            right: 12px; 
-            top: 50%;
-            transform: translateY(-50%);
-            width: 44px;
-            height: 34px;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.05) 100%);
-            border-radius: 8px; 
-            box-shadow: 0 3px 8px rgba(0,0,0,0.3), inset 0 1px 3px rgba(255,255,255,0.8);
-            z-index: 5; 
-            backdrop-filter: contrast(1.05);
-            pointer-events: none;
-        }
-
         .hand {
             position: absolute;
-            bottom: 50%;
             left: 50%;
-            transform-origin: bottom center;
             z-index: 10;
             display: flex;
             justify-content: center;
         }
 
         .hand-tail {
-            position: absolute;
-            bottom: -22px;
-            left: 0;
-            width: 100%;
-            height: 22px;
-            background: inherit;
-            border-radius: 0 0 2px 2px;
-            z-index: 1;
+            display: none;
         }
 
         .hour-hand {
-            width: 10px;
-            height: 90px;
-            background: linear-gradient(to right, #ffffff 50%, #555555 50%);
-            margin-left: -5px;
+            width: 14px;
+            height: 112px;
+            bottom: calc(50% - 24px);
+            margin-left: -7px;
+            transform-origin: 50% 88px;
+            background: transparent;
             z-index: 11;
-            border-radius: 2px 2px 0 0;
+        }
+        .hour-hand::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, #ffffff 50%, #6e6e6e 50%);
+            clip-path: polygon(22% 0%, 78% 0%, 100% 100%, 0% 100%);
+            z-index: 2;
         }
         .hour-hand::after {
             content: '';
             position: absolute;
-            bottom: 6px;
+            top: 6px;
             left: 50%;
             transform: translateX(-50%);
-            width: 4px;
-            height: 55px; 
+            width: 6px;
+            height: 52px;
             background-color: #fdfdfd;
-            border-radius: 1px;
+            clip-path: polygon(16% 0%, 84% 0%, 100% 100%, 0% 100%);
             z-index: 3;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .minute-hand {
-            width: 8px;
-            height: 132px; 
-            background: linear-gradient(to right, #ffffff 50%, #555555 50%);
-            margin-left: -4px;
+            width: 11px;
+            height: 158px;
+            bottom: calc(50% - 26px);
+            margin-left: -5.5px;
+            transform-origin: 50% 132px;
+            background: transparent;
             z-index: 12;
-            border-radius: 2px 2px 0 0;
+        }
+        .minute-hand::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, #ffffff 50%, #6e6e6e 50%);
+            clip-path: polygon(22% 0%, 78% 0%, 100% 100%, 0% 100%);
+            z-index: 2;
         }
         .minute-hand::after {
             content: '';
             position: absolute;
-            bottom: 6px;
+            top: 6px;
             left: 50%;
             transform: translateX(-50%);
-            width: 3px;
-            height: 90px; 
+            width: 4.5px;
+            height: 90px;
             background-color: #fdfdfd;
-            border-radius: 1px;
+            clip-path: polygon(16% 0%, 84% 0%, 100% 100%, 0% 100%);
             z-index: 3;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .second-hand {
-            width: 2px;
-            height: 135px; 
-            background: linear-gradient(to right, #ffffff 50%, #555555 50%);
-            margin-left: -1px;
+            width: 5px;
+            height: 170px;
+            bottom: calc(50% - 35px);
+            margin-left: -2.5px;
+            transform-origin: 50% 135px;
+            background: transparent;
             z-index: 13;
         }
-        .second-hand::after {
+        .second-hand::before {
             content: '';
             position: absolute;
-            bottom: -35px;
-            left: 0;
-            width: 100%;
-            height: 35px;
-            background: linear-gradient(to right, #ffffff 50%, #555555 50%);
+            inset: 0;
+            background: linear-gradient(to right, #ffffff 50%, #666666 50%);
+            clip-path: polygon(38% 0%, 62% 0%, 100% 100%, 0% 100%);
+        }
+        .second-hand::after {
+            display: none;
         }
 
         .pivot {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             background: radial-gradient(circle at center, #ffffff 0%, #999999 70%, #333333 100%);
             border-radius: 50%;
             transform: translate(-50%, -50%);
@@ -434,8 +412,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 4px;
-            height: 4px;
+            width: 5px;
+            height: 5px;
             background-color: #d0d0d0;
             border-radius: 50%;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
@@ -1011,7 +989,6 @@
             <aside class="lg:col-span-3 flex flex-col gap-6 lg:pl-2 mt-4 lg:mt-0">
                 
                 <!-- แสดงนาฬิกาในแถบด้านข้าง (Sidebar) -->
-            
                 <div class="rolex-container mt-6 lg:mt-0">
                     <div class="dial">
                         <div class="crown-pos">
@@ -1048,10 +1025,6 @@
                         </div>
                     
                         <div id="markers-container"></div>
-                    <!--
-                        <div class="date-window" id="date-display"></div>
-                        <div class="cyclops-lens"></div>
--->
                     
                         <div class="hand hour-hand" id="hour">
                             <div class="hand-tail"></div>
@@ -1066,13 +1039,10 @@
                 </div>
                 <!-- จบส่วนการแสดงนาฬิกา -->
 
-              
-              <!-- ส่วนแสดงเวลานับตั้งแต่เข้า Waiting List -->
+                <!-- ส่วนแสดงเวลานับตั้งแต่เข้า Waiting List -->
                 <div class="text-center font-sans border-b border-gray-300 pb-4 mt-2">
-              
-                
                     <div class="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">
-                        Waiting List<br>Rolex Oyster Perpetual 36 <br>M126000-0005 Green dial<br>Since 2 Nov 2024
+                        Waiting List for <br>Rolex Oyster Perpetual 36 – <br>M126000-0005, Green dial, <br>Since 2 Nov 2024
                     </div>
                     <div id="waitlist-counter" class="text-[13px] font-bold text-[#1a5c32]">
                         0 y 0 m 0 d 0 h 0 m 0 s
@@ -1267,7 +1237,7 @@
                         continue;
                     }
 
-                  if (i % 5 === 0) {
+                    if (i % 5 === 0) {
                         const marker = document.createElement('div');
                         marker.className = 'marker';
 
@@ -1276,11 +1246,6 @@
                             marker.appendChild(document.createElement('div'));
                             marker.appendChild(document.createElement('div'));
                         }
-                  
-                  
-         
-                    
-                     
 
                         const xInner = 145 + radiusHour * Math.cos(rad);
                         const yInner = 145 + radiusHour * Math.sin(rad);
@@ -1322,8 +1287,6 @@
 
                 function updateClock() {
                     const now = new Date();
-                    const dateDisplay = document.getElementById('date-display');
-                    if (dateDisplay) dateDisplay.innerText = now.getDate();
 
                     const counterEl = document.getElementById('waitlist-counter');
                     if (counterEl) {
