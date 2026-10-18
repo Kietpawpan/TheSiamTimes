@@ -247,9 +247,21 @@
             height: 100%;
             fill: white;
         }
+      
+      <div class="crown-pos">
+                            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <!-- เฉดสีเงินเมทัลลิกสำหรับก้าน กลีบนอก และฐานใบบัว -->
+                                    <linearGradient id="rolex-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#ffffff" />
+                                        <stop offset="28%" stop-color="#dfe3e6" />
+                                        <stop offset="50%" stop-color="#8b9196" />
+                                        <stop offset="72%" stop-color="#f4f6f8" />
+                                        <stop offset="100%" stop-color="#5d6368" />
 
         /* 3. โลโก้มงกุฎ Rolex ที่ 12 นาฬิกา มีเงาและมิติโลหะ */
-        .crown-pos {
+      
+      .crown-pos {
             position: absolute;
             top: 19px; 
             left: 50%;
@@ -259,6 +271,12 @@
             z-index: 6;
             filter: drop-shadow(1px 2px 2.5px rgba(0,0,0,0.5));
         }
+        .crown-pos svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+      
 
         /* 5. ปรับสัดส่วนฟอนต์และระยะห่างตัวอักษรคำว่า ROLEX */
         .text-brand {
@@ -1038,6 +1056,72 @@
                 <div class="rolex-container mt-6 lg:mt-0">
                     <div class="dial">
                       
+               <div class="crown-pos" style="position: absolute; top: 19px; left: 50%; transform: translateX(-50%); width: 31px; height: 31px; z-index: 6;">
+                            <svg width="31" height="31" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 31px; height: 31px; display: block;">
+                                <defs>
+                                    <linearGradient id="rolex-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#ffffff" />
+                                        <stop offset="28%" stop-color="#dfe3e6" />
+                                        <stop offset="50%" stop-color="#8b9196" />
+                                        <stop offset="72%" stop-color="#f4f6f8" />
+                                        <stop offset="100%" stop-color="#5d6368" />
+                                    </linearGradient>
+                                    <radialGradient id="rolex-tip" cx="35%" cy="35%" r="65%">
+                                        <stop offset="0%" stop-color="#ffffff" />
+                                        <stop offset="55%" stop-color="#d8dde0" />
+                                        <stop offset="100%" stop-color="#5a6065" />
+                                    </radialGradient>
+                                    <linearGradient id="leaf-shade" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#7c8288" />
+                                        <stop offset="50%" stop-color="#eef1f3" />
+                                        <stop offset="100%" stop-color="#4e5358" />
+                                    </linearGradient>
+                                    <!-- แม่แบบดอกบัวตูม -->
+                                    <g id="lotus-bud">
+                                        <path d="M 0 3 C -7.5 2 -9.5 -4.5 -5.5 -13 C -2.5 -8.5 -2 -3 0 3 Z" fill="url(#rolex-silver)" />
+                                        <path d="M 0 3 C 7.5 2 9.5 -4.5 5.5 -13 C 2.5 -8.5 2 -3 0 3 Z" fill="url(#rolex-silver)" />
+                                        <path d="M 0 3.5 C -5.2 2.5 -6.5 -6 0 -18.5 C 6.5 -6 5.2 2.5 0 3.5 Z" fill="url(#rolex-tip)" />
+                                        <path d="M -4 2.2 C -2 4.5 2 4.5 4 2.2 C 2 1 -2 1 -4 2.2 Z" fill="url(#leaf-shade)" />
+                                    </g>
+                                </defs>
+
+                                <!-- ก้านดอกบัวทั้ง 5 ก้าน -->
+                                <path d="M 47.5 80 L 48.5 24 L 51.5 24 L 52.5 80 Z" fill="url(#rolex-silver)" />
+                                <path d="M 41 80 Q 37 54 31 29 L 34 28 Q 40 53 45 80 Z" fill="url(#rolex-silver)" />
+                                <path d="M 59 80 Q 63 54 69 29 L 66 28 Q 60 53 55 80 Z" fill="url(#rolex-silver)" />
+                                <path d="M 35 82 Q 26 61 16 40 L 19 38.5 Q 29 60 39 82 Z" fill="url(#rolex-silver)" />
+                                <path d="M 65 82 Q 74 61 84 40 L 81 38.5 Q 71 60 61 82 Z" fill="url(#rolex-silver)" />
+
+                                <!-- ดอกบัวตูม 5 ดอก -->
+                                <use href="#lotus-bud" transform="translate(50 24)" />
+                                <use href="#lotus-bud" transform="translate(32.5 28.5) rotate(-15)" />
+                                <use href="#lotus-bud" transform="translate(67.5 28.5) rotate(15)" />
+                                <use href="#lotus-bud" transform="translate(17.5 39) rotate(-30)" />
+                                <use href="#lotus-bud" transform="translate(82.5 39) rotate(30)" />
+
+                                <!-- ฐานทึบรูปใบบัวขนาดพอดีกับฐานมงกุฎเดิม -->
+                                <path d="M 26 83 C 25 78 31 75 38 77 C 42 74 47 75 50 77.5 C 53 75 58 74 62 77 C 69 75 75 78 74 83 C 73 90 63 94 50 94 C 37 94 27 90 26 83 Z" fill="url(#rolex-silver)" />
+                                <path d="M 29 83.5 C 28.5 80 33 77.5 38.5 79 C 42.5 76.8 47 77 50 79.5 C 53 77 57.5 76.8 61.5 79 C 67 77.5 71.5 80 71 83.5 C 70 88.5 61 92 50 92 C 39 92 30 88.5 29 83.5 Z" fill="url(#leaf-shade)" />
+                            </svg>
+                        </div>       
+                      
+         
+                      
+                      
+                      
+                    <div class="crown-pos">
+                            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <!-- เฉดสีเงินเมทัลลิกสำหรับก้าน กลีบนอก และฐานใบบัว -->
+                                    <linearGradient id="rolex-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#ffffff" />
+                                        <stop offset="28%" stop-color="#dfe3e6" />
+
+                      
+                                      </svg></div>
+                      
+                      
+                    <!--  
                       <div class="crown-pos">
                             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
@@ -1075,18 +1159,42 @@
                                 <path d="M 85,32 L 62,82 L 70,82 L 87,31 Z" fill="url(#rolex-silver)" />
                             </svg>
                         </div>
-                      
-                      
-                      
-                        
-                    
-                        <div class="text-top">
+
+ <div class="text-top">
                             <div class="text-brand">ROLEX</div>
                             <div class="text-model">OYSTER PERPETUAL</div>
                         </div>
                         
                         <div class="text-bottom">
                             <div class="text-cert">SUPERLATIVE CHRONOMETER<br/>OFFICIALLY CERTIFIED</div>
+                        </div>
+                    
+                        <div id="markers-container"></div>
+                    
+                        <div class="hand hour-hand" id="hour">
+                            <div class="hand-tail"></div>
+                        </div>
+                        <div class="hand minute-hand" id="minute">
+                            <div class="hand-tail"></div>
+                        </div>
+                        
+                        <div class="hand second-hand" id="second"></div>
+                        <div class="pivot"></div>
+                    </div>
+                </div>
+                <!-- จบส่วนการแสดงนาฬิกา -->
+
+                      
+               
+                        
+                    
+                        <div class="text-top">
+                            <div class="text-brand">WELCOME</div>
+                            <div class="text-model">THE SIAM TIMES</div>
+                        </div>
+                        
+                        <div class="text-bottom">
+                            <div class="text-cert">SUPERLATIVE NEWSPAPER<br/>WEEKLY UPDATED</div>
                         </div>
                     
                         <div id="markers-container"></div>
@@ -1245,6 +1353,30 @@
                 const radiusMinute = 138;
                 const radiusHour = 115;
 
+              const crownSVG = `
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <g id="tiny-lotus-bud">
+                                <path d="M 0,3 C -6.8,2 -8.5,-4.5 -4.8,-12.5 C -6,-5.5 0,-17.5 0,-17.5 C 0,-17.5 6,-5.5 4.8,-12.5 C 8.5,-4.5 6.8,2 0,3 Z" fill="white" />
+                                <path d="M 0,3 C -5,2.2 -6,-5.5 0,-17.5 C 6,-5.5 5,2.2 0,3 Z" fill="white" />
+                            </g>
+                        </defs>
+                        <path d="M 48,82 L 48.8,24 L 51.2,24 L 52,82 Z" fill="white" />
+                        <path d="M 40.5,82 Q 36,55 31,28.5 L 33.5,27.8 Q 39,54.5 44.5,82 Z" fill="white" />
+                        <path d="M 59.5,82 Q 64,55 69,28.5 L 66.5,27.8 Q 61,54.5 55.5,82 Z" fill="white" />
+                        <path d="M 33.5,84 Q 25,62 15.8,39.5 L 18.2,38.3 Q 28,61 37.5,84 Z" fill="white" />
+                        <path d="M 66.5,84 Q 75,62 84.2,39.5 L 81.8,38.3 Q 72,61 62.5,84 Z" fill="white" />
+                        <use href="#tiny-lotus-bud" transform="translate(50, 24)" />
+                        <use href="#tiny-lotus-bud" transform="translate(32.2, 28.2) rotate(-15)" />
+                        <use href="#tiny-lotus-bud" transform="translate(67.8, 28.2) rotate(15)" />
+                        <use href="#tiny-lotus-bud" transform="translate(17, 39) rotate(-30)" />
+                        <use href="#tiny-lotus-bud" transform="translate(83, 39) rotate(30)" />
+                        <path d="M 20,84 C 19,79 26,75 34,77 C 39,74 46,75 50,78 C 54,75 61,74 66,77 C 74,75 81,79 80,84 C 79,91 66,95 50,95 C 34,95 21,91 20,84 Z" fill="white" />
+                    </svg>
+                `;
+              
+    /*          
+              
                 const crownSVG = `
                     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="
@@ -1263,36 +1395,44 @@
                         <path d="M 85,32 L 62,82 L 70,82 L 87,31 Z" fill="white" />
                     </svg>
                 `;
-
+*/
               for (let i = 0; i < 60; i++) {
                     const angle = i * 6;
                     const rad = (angle - 90) * (Math.PI / 180);
                     const xOuter = 145 + radiusMinute * Math.cos(rad);
                     const yOuter = 145 + radiusMinute * Math.sin(rad);
 
-                    if (i === 29) {
-                        const radText = ((angle + 1.2) - 90) * (Math.PI / 180);
+                if (i === 29) {
+                        // ปรับองศาให้ห่างจาก 180 (ตำแหน่งมงกุฎ) ถอยไปที่ 173 องศา
+                        const textAngle = 173; 
+                        const radText = (textAngle - 90) * (Math.PI / 180);
                         const txt = document.createElement('div');
                         txt.className = 'swiss-text';
                         txt.innerText = "MADE";
                         txt.style.left = (145 + radiusMinute * Math.cos(radText)) + 'px';
                         txt.style.top = (145 + radiusMinute * Math.sin(radText)) + 'px';
-                        txt.style.transform = `translate(-50%, -50%) rotate(${angle - 180}deg)`;
+                        txt.style.transform = `translate(-50%, -50%) rotate(${textAngle - 180}deg)`;
                         markersContainer.appendChild(txt);
                         continue;
                     }
 
                     if (i === 31) {
-                        const radText = ((angle - 1.2) - 90) * (Math.PI / 180);
+                        // ปรับองศาให้ห่างจาก 180 (ตำแหน่งมงกุฎ) เดินหน้าไปที่ 187 องศา
+                        const textAngle = 187; 
+                        const radText = (textAngle - 90) * (Math.PI / 180);
                         const txt = document.createElement('div');
                         txt.className = 'swiss-text';
-                        txt.innerText = "SWISS";
+                        txt.innerText = "SIAM";
                         txt.style.left = (145 + radiusMinute * Math.cos(radText)) + 'px';
                         txt.style.top = (145 + radiusMinute * Math.sin(radText)) + 'px';
-                        txt.style.transform = `translate(-50%, -50%) rotate(${angle - 180}deg)`;
+                        txt.style.transform = `translate(-50%, -50%) rotate(${textAngle - 180}deg)`;
                         markersContainer.appendChild(txt);
                         continue;
                     }
+                
+                
+                
+                    
 
                     if (i === 0) {
                         const square = document.createElement('div');
