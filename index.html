@@ -126,9 +126,9 @@
             width: 100%;
         }
         .close-button:hover { background: #555; }
-
+        
         /* =========================================
-           ROLEX CLOCK STYLES
+           ROLEX CLOCK STYLES (UPDATED)
            ========================================= */
         .rolex-container {
             display: flex;
@@ -138,6 +138,7 @@
             margin-bottom: 5px;
         }
 
+        /* 5. ปรับสีเขียว Lacquer Green พร้อม radial-gradient */
         .dial {
             width: 290px;
             height: 290px;
@@ -146,83 +147,100 @@
             flex-shrink: 0;
             border-radius: 50%;
             position: relative;
-            box-shadow: 0 10px 30px rgb(0 0 0 / 0.3);
-            background-color: #1a5c32;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            box-shadow: 0 10px 30px rgb(0 0 0 / 0.35), inset 0 0 12px rgba(0, 0, 0, 0.35);
+            background: radial-gradient(circle at 50% 45%, #117a43 0%, #0d6e3a 58%, #085029 100%);
             transform: scale(0.6);
             transform-origin: center center;
         }
 
+        /* 2. ขีดบอกชั่วโมงพร้อมขอบโลหะสีเงินลาดเอียง (Beveled Metallic Edge) */
         .marker {
             position: absolute;
-            width: 11px;
-            height: 28px;
-            background-color: #fdfdfd;
+            width: 10.5px;
+            height: 27px;
             left: 50%;
             top: 50%;
             transform-origin: center;
-            border: 2px solid #b8b8b8;
             border-radius: 1px;
             box-sizing: border-box;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #ffffff 0%, #d8dcdf 30%, #73797e 70%, #3e4246 100%);
+            padding: 2px;
+            box-shadow: 1.5px 2px 4px rgba(0,0,0,0.45), inset 0 0 0.5px rgba(255,255,255,0.9);
             z-index: 5;
         }
+
+        .marker::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: #fbfbfb;
+            box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.22);
+        }
         
+        /* 2. ขีดคู่ที่ 3, 6, 9 นาฬิกา ชิดติดกันโดยมีร่องโลหะคั่นกลาง */
         .marker.double {
-            width: 21px;
-            border: none;
-            background: transparent;
+            width: 18px;
+            padding: 2px;
+            background: linear-gradient(135deg, #ffffff 0%, #d8dcdf 30%, #73797e 70%, #3e4246 100%);
             display: flex;
             justify-content: space-between;
-            box-shadow: none;
+            align-items: center;
+            gap: 1.2px;
+            box-shadow: 1.5px 2px 4px rgba(0,0,0,0.45);
         }
+
+        .marker.double::after {
+            display: none;
+        }
+
         .marker.double div {
-            width: 9.5px;
+            width: calc(50% - 0.6px);
             height: 100%;
-            background-color: #fdfdfd;
-            border: 2px solid #b8b8b8;
-            border-radius: 1px;
+            background-color: #fbfbfb;
+            border: 0.5px solid #6c7277;
             box-sizing: border-box;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.22);
         }
 
         .minute-tick {
             position: absolute;
-            width: 2px;
+            width: 1.6px;
             height: 6px; 
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.95);
             left: 50%;
             top: 50%;
             transform-origin: center;
             z-index: 4;
-            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
 
+        /* 5. ขีดนาทีที่ขนาบข้างคำว่า SWISS MADE ยาวกว่าปกติเล็กน้อย */
+        .minute-tick.long-tick {
+            height: 9.5px;
+        }
+
+        /* 2. ขีดสี่เหลี่ยมหลัก 5 นาที สีขาวล้วนขนาดเล็กลงและคมชัด */
         .minute-square {
             position: absolute;
-            width: 6px; 
-            height: 6px; 
-            background-color: #fdfdfd;
+            width: 4.5px; 
+            height: 4.5px; 
+            background-color: #ffffff;
             left: 50%;
             top: 50%;
             transform-origin: center;
             z-index: 4;
-            border: 1.5px solid #a0a0a0; 
-            box-sizing: border-box;
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+            border: none;
+            box-shadow: 0 0.5px 1px rgba(0,0,0,0.25);
         }
         
         .tiny-crown {
             position: absolute;
-            width: 10px; 
-            height: 10px;
+            width: 9px; 
+            height: 9px;
             left: 50%;
             top: 50%;
             transform-origin: center;
             z-index: 4;
-            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.4));
         }
         .tiny-crown svg {
             width: 100%;
@@ -230,45 +248,48 @@
             fill: white;
         }
 
+        /* 3. โลโก้มงกุฎ Rolex ที่ 12 นาฬิกา มีเงาและมิติโลหะ */
         .crown-pos {
             position: absolute;
-            top: 18px; 
+            top: 19px; 
             left: 50%;
             transform: translateX(-50%); 
-            width: 32px;
-            height: 32px;
+            width: 31px;
+            height: 31px;
             z-index: 6;
-            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+            filter: drop-shadow(1px 2px 2.5px rgba(0,0,0,0.5));
         }
 
+        /* 5. ปรับสัดส่วนฟอนต์และระยะห่างตัวอักษรคำว่า ROLEX */
         .text-brand {
             font-family: 'Garamond', 'Baskerville', 'Times New Roman', serif;
-            font-size: 15px;
+            font-size: 14.5px;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 2.2px;
             text-transform: uppercase;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            margin-bottom: 0px;
-            transform: scaleY(0.85);
+            text-shadow: 0 1px 1.5px rgba(0,0,0,0.25);
+            margin-bottom: 1px;
+            transform: scaleX(1.12) scaleY(0.88);
             display: inline-block;
+            padding-left: 2.2px;
         }
 
         .text-model {
             font-family: 'Arial', sans-serif;
-            font-size: 9px;
+            font-size: 8.5px;
             font-weight: bold;
-            letter-spacing: 0.2px;
-            opacity: 0.9;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            letter-spacing: 0.7px;
+            opacity: 0.95;
+            text-shadow: 0 1px 1.5px rgba(0,0,0,0.25);
         }
 
         .text-top {
             position: absolute;
-            top: 60px;
+            top: 59px;
             width: 100%;
             text-align: center;
             color: white;
-            line-height: 1.2;
+            line-height: 1.25;
         }
 
         .text-bottom {
@@ -277,26 +298,28 @@
             width: 100%;
             text-align: center;
             color: white;
-            line-height: 1.2;
+            line-height: 1.25;
         }
         
         .text-cert {
             font-family: 'Arial Narrow', 'Roboto Condensed', sans-serif;
             font-size: 8.5px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
             display: inline-block;
-            transform: scaleX(0.75);
+            transform: scaleX(0.78);
             transform-origin: center;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 1.5px rgba(0,0,0,0.25);
         }
         
         .swiss-text {
             position: absolute;
-            color: white;
-            font-size: 5px;
+            color: rgba(255, 255, 255, 0.95);
+            font-family: 'Arial', sans-serif;
+            font-size: 4.8px;
             font-weight: bold;
+            letter-spacing: 0.3px;
             text-align: center;
-            width: 20px;
+            width: 22px;
             z-index: 5;
         }
 
@@ -312,12 +335,13 @@
             display: none;
         }
 
+        /* 1. เข็มชั่วโมง: โลหะสีเงินแบ่งครึ่งซ้ายขวา โคนถึงหางเป็นสีเงินทึบ พรายน้ำอยู่ครึ่งปลายและสั้นลงไม่ทับขีดชั่วโมง */
         .hour-hand {
-            width: 14px;
-            height: 112px;
-            bottom: calc(50% - 24px);
-            margin-left: -7px;
-            transform-origin: 50% 88px;
+            width: 11.5px;
+            height: 103px;
+            bottom: calc(50% - 21px);
+            margin-left: -5.75px;
+            transform-origin: 50% 82px;
             background: transparent;
             z-index: 11;
         }
@@ -325,30 +349,40 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(to right, #ffffff 50%, #6e6e6e 50%);
-            clip-path: polygon(22% 0%, 78% 0%, 100% 100%, 0% 100%);
+            background: linear-gradient(to right,
+                #92979b 0%,
+                #f2f5f7 18%,
+                #d8dde0 48.5%,
+                #3a3d40 50%,
+                #676c70 82%,
+                #9ea3a8 100%
+            );
+            clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+            box-shadow: inset 0 0 0.5px rgba(255,255,255,0.8);
             z-index: 2;
         }
         .hour-hand::after {
             content: '';
             position: absolute;
-            top: 6px;
+            top: 5px;
             left: 50%;
             transform: translateX(-50%);
-            width: 6px;
-            height: 52px;
-            background-color: #fdfdfd;
-            clip-path: polygon(16% 0%, 84% 0%, 100% 100%, 0% 100%);
+            width: 5px;
+            height: 45px;
+            background-color: #ffffff;
+            border: 1px solid #6c7176;
+            box-sizing: border-box;
+            box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.22), 0 0 0.5px rgba(255,255,255,0.8);
             z-index: 3;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
         }
 
+        /* 1. เข็มนาที: โลหะสีเงินแบ่งครึ่งซ้ายขวา โคนถึงหางเป็นสีเงินทึบ มีกรอบเงินล้อมรอบพรายน้ำชัดเจน */
         .minute-hand {
-            width: 11px;
-            height: 158px;
-            bottom: calc(50% - 26px);
-            margin-left: -5.5px;
-            transform-origin: 50% 132px;
+            width: 9.5px;
+            height: 149px;
+            bottom: calc(50% - 24px);
+            margin-left: -4.75px;
+            transform-origin: 50% 125px;
             background: transparent;
             z-index: 12;
         }
@@ -356,30 +390,39 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(to right, #ffffff 50%, #6e6e6e 50%);
-            clip-path: polygon(22% 0%, 78% 0%, 100% 100%, 0% 100%);
+            background: linear-gradient(to right,
+                #92979b 0%,
+                #f2f5f7 18%,
+                #d8dde0 48.5%,
+                #3a3d40 50%,
+                #676c70 82%,
+                #9ea3a8 100%
+            );
+            clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+            box-shadow: inset 0 0 0.5px rgba(255,255,255,0.8);
             z-index: 2;
         }
         .minute-hand::after {
             content: '';
             position: absolute;
-            top: 6px;
+            top: 5px;
             left: 50%;
             transform: translateX(-50%);
-            width: 4.5px;
-            height: 90px;
-            background-color: #fdfdfd;
-            clip-path: polygon(16% 0%, 84% 0%, 100% 100%, 0% 100%);
+            width: 4px;
+            height: 80px;
+            background-color: #ffffff;
+            border: 1px solid #6c7176;
+            box-sizing: border-box;
+            box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.22), 0 0 0.5px rgba(255,255,255,0.8);
             z-index: 3;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .second-hand {
-            width: 5px;
-            height: 170px;
+            width: 4px;
+            height: 168px;
             bottom: calc(50% - 35px);
-            margin-left: -2.5px;
-            transform-origin: 50% 135px;
+            margin-left: -2px;
+            transform-origin: 50% 133px;
             background: transparent;
             z-index: 13;
         }
@@ -387,24 +430,26 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(to right, #ffffff 50%, #666666 50%);
+            background: linear-gradient(to right, #f0f3f5 50%, #5a5e62 50%);
             clip-path: polygon(38% 0%, 62% 0%, 100% 100%, 0% 100%);
         }
         .second-hand::after {
             display: none;
         }
 
+        /* 4. จุดหมุนตรงกลาง (Center Pivot) ขนาดเล็กลง สีเงินเงาพร้อมวงแหวนด้านใน */
         .pivot {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 14px;
-            height: 14px;
-            background: radial-gradient(circle at center, #ffffff 0%, #999999 70%, #333333 100%);
+            width: 9px;
+            height: 9px;
+            background: conic-gradient(from 135deg, #ffffff, #a5aaae, #55595c, #d8dcdf, #ffffff, #6e7377, #e8ecef, #ffffff);
+            border: 0.5px solid #4a4e52;
             border-radius: 50%;
             transform: translate(-50%, -50%);
             z-index: 14;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            box-shadow: 0 1.5px 3px rgba(0,0,0,0.55);
         }
         .pivot::after {
             content: '';
@@ -412,11 +457,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 5px;
-            height: 5px;
-            background-color: #d0d0d0;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, #b8bdc2 65%, #5c6064 100%);
+            border: 0.6px solid #45494d;
             border-radius: 50%;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -991,29 +1037,48 @@
                 <!-- แสดงนาฬิกาในแถบด้านข้าง (Sidebar) -->
                 <div class="rolex-container mt-6 lg:mt-0">
                     <div class="dial">
-                        <div class="crown-pos">
+                      
+                      <div class="crown-pos">
                             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="rolex-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#ffffff" />
+                                        <stop offset="28%" stop-color="#dfe3e6" />
+                                        <stop offset="50%" stop-color="#8b9196" />
+                                        <stop offset="72%" stop-color="#f4f6f8" />
+                                        <stop offset="100%" stop-color="#5d6368" />
+                                    </linearGradient>
+                                    <radialGradient id="rolex-tip" cx="35%" cy="35%" r="65%">
+                                        <stop offset="0%" stop-color="#ffffff" />
+                                        <stop offset="55%" stop-color="#d0d5d9" />
+                                        <stop offset="100%" stop-color="#5a6065" />
+                                    </radialGradient>
+                                </defs>
                                 <path fill-rule="evenodd" d="
                                     M 30,85 A 20,12 0 1 1 70,85 A 20,12 0 1 1 30,85 Z
                                     M 62,89 A 12,4 0 1 0 38,89 A 12,4 0 1 0 62,89 Z
-                                " fill="white" />
+                                " fill="url(#rolex-silver)" />
                                 
-                                <circle cx="50" cy="10" r="5.5" fill="white" />
-                                <path d="M 49,15 L 46,78 L 54,78 L 51,15 Z" fill="white" />
+                                <circle cx="50" cy="10" r="5.5" fill="url(#rolex-tip)" />
+                                <path d="M 49,15 L 46,78 L 54,78 L 51,15 Z" fill="url(#rolex-silver)" />
                                 
-                                <circle cx="32" cy="18" r="5" fill="white" />
-                                <path d="M 32,22 L 38,77 L 46,77 L 33,21 Z" fill="white" />
+                                <circle cx="32" cy="18" r="5" fill="url(#rolex-tip)" />
+                                <path d="M 32,22 L 38,77 L 46,77 L 33,21 Z" fill="url(#rolex-silver)" />
                                 
-                                <circle cx="68" cy="18" r="5" fill="white" />
-                                <path d="M 68,22 L 54,77 L 62,77 L 67,21 Z" fill="white" />
+                                <circle cx="68" cy="18" r="5" fill="url(#rolex-tip)" />
+                                <path d="M 68,22 L 54,77 L 62,77 L 67,21 Z" fill="url(#rolex-silver)" />
                                 
-                                <circle cx="14" cy="30" r="4.5" fill="white" />
-                                <path d="M 15,32 L 38,82 L 30,82 L 13,31 Z" fill="white" />
+                                <circle cx="14" cy="30" r="4.5" fill="url(#rolex-tip)" />
+                                <path d="M 15,32 L 38,82 L 30,82 L 13,31 Z" fill="url(#rolex-silver)" />
                                 
-                                <circle cx="86" cy="30" r="4.5" fill="white" />
-                                <path d="M 85,32 L 62,82 L 70,82 L 87,31 Z" fill="white" />
+                                <circle cx="86" cy="30" r="4.5" fill="url(#rolex-tip)" />
+                                <path d="M 85,32 L 62,82 L 70,82 L 87,31 Z" fill="url(#rolex-silver)" />
                             </svg>
                         </div>
+                      
+                      
+                      
+                        
                     
                         <div class="text-top">
                             <div class="text-brand">ROLEX</div>
@@ -1199,29 +1264,31 @@
                     </svg>
                 `;
 
-                for (let i = 0; i < 60; i++) {
+              for (let i = 0; i < 60; i++) {
                     const angle = i * 6;
                     const rad = (angle - 90) * (Math.PI / 180);
                     const xOuter = 145 + radiusMinute * Math.cos(rad);
                     const yOuter = 145 + radiusMinute * Math.sin(rad);
 
                     if (i === 29) {
+                        const radText = ((angle + 1.2) - 90) * (Math.PI / 180);
                         const txt = document.createElement('div');
                         txt.className = 'swiss-text';
                         txt.innerText = "MADE";
-                        txt.style.left = xOuter + 'px';
-                        txt.style.top = yOuter + 'px';
+                        txt.style.left = (145 + radiusMinute * Math.cos(radText)) + 'px';
+                        txt.style.top = (145 + radiusMinute * Math.sin(radText)) + 'px';
                         txt.style.transform = `translate(-50%, -50%) rotate(${angle - 180}deg)`;
                         markersContainer.appendChild(txt);
                         continue;
                     }
 
                     if (i === 31) {
+                        const radText = ((angle - 1.2) - 90) * (Math.PI / 180);
                         const txt = document.createElement('div');
                         txt.className = 'swiss-text';
                         txt.innerText = "SWISS";
-                        txt.style.left = xOuter + 'px';
-                        txt.style.top = yOuter + 'px';
+                        txt.style.left = (145 + radiusMinute * Math.cos(radText)) + 'px';
+                        txt.style.top = (145 + radiusMinute * Math.sin(radText)) + 'px';
                         txt.style.transform = `translate(-50%, -50%) rotate(${angle - 180}deg)`;
                         markersContainer.appendChild(txt);
                         continue;
@@ -1275,14 +1342,16 @@
                         }
                     } else {
                         const tick = document.createElement('div');
-                        tick.className = 'minute-tick';
-                        tick.style.left = xOuter + 'px';
-                        tick.style.top = yOuter + 'px';
+                        const isFlankingSwissMade = (i === 28 || i === 32);
+                        tick.className = isFlankingSwissMade ? 'minute-tick long-tick' : 'minute-tick';
+                        
+                        const tickRadius = isFlankingSwissMade ? (radiusMinute - 1.75) : radiusMinute;
+                        tick.style.left = (145 + tickRadius * Math.cos(rad)) + 'px';
+                        tick.style.top = (145 + tickRadius * Math.sin(rad)) + 'px';
                         tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
                         markersContainer.appendChild(tick);
                     }
                 }
-
                 const waitlistStart = new Date(2024, 10, 2, 0, 0, 0);
 
                 function updateClock() {
