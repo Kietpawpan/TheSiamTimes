@@ -146,12 +146,13 @@
 
             <div class="p-5 sm:p-6 space-y-6">
                 <!-- 1.1 Timeframe Selection -->
+
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2.5 flex items-center gap-1.5">
                         <i data-lucide="calendar-clock" class="w-4 h-4 text-emerald-600"></i>
                         <span>เลือกห้วงเวลาที่ต้องการกวาดข่าว (Timeframe):</span>
                     </label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2" id="timeframeButtons">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2" id="timeframeButtons">
                         <button type="button" onclick="selectTimeframe('1d')" data-tf="1d" class="tf-btn active-tf px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
                             <span>รอบ 24 ชม.</span>
                             <span class="text-[11px] font-normal opacity-80">1 วันที่ผ่านมา</span>
@@ -184,8 +185,28 @@
                             <span>รอบเดือน</span>
                             <span class="text-[11px] font-normal opacity-80">30 วันที่ผ่านมา</span>
                         </button>
+                        <button type="button" onclick="selectTimeframe('1y')" data-tf="1y" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span class="text-amber-700">รอบ 1 ปี</span>
+                            <span class="text-[11px] font-normal opacity-80">1 ปีที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('3y')" data-tf="3y" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span class="text-amber-700">รอบ 3 ปี</span>
+                            <span class="text-[11px] font-normal opacity-80">3 ปีที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('5y')" data-tf="5y" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span class="text-amber-700">รอบ 5 ปี</span>
+                            <span class="text-[11px] font-normal opacity-80">5 ปีที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('10y')" data-tf="10y" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span class="text-amber-700">รอบ 10 ปี</span>
+                            <span class="text-[11px] font-normal opacity-80">10 ปีที่ผ่านมา</span>
+                        </button>
                     </div>
                 </div>
+
+
+
+               
 
                 <!-- 1.2 Province Selection -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2 border-t border-slate-100">
@@ -743,7 +764,8 @@
         // ==========================================
         // 1. STATE & CONFIGURATION
         // ==========================================
-        const TIMEFRAMES = {
+
+const TIMEFRAMES = {
             '1d':  { label: 'รอบ 24 ชม. ที่ผ่านมา', tbs: 'qdr:d',  when: 'when:1d',  hours: 24 },
             '2d':  { label: 'รอบ 2 วันที่ผ่านมา',    tbs: 'qdr:d2', when: 'when:2d',  hours: 48 },
             '3d':  { label: 'รอบ 3 วันที่ผ่านมา',    tbs: 'qdr:d3', when: 'when:3d',  hours: 72 },
@@ -751,8 +773,14 @@
             '5d':  { label: 'รอบ 5 วันที่ผ่านมา',    tbs: 'qdr:d5', when: 'when:5d',  hours: 120 },
             '6d':  { label: 'รอบ 6 วันที่ผ่านมา',    tbs: 'qdr:d6', when: 'when:6d',  hours: 144 },
             '7d':  { label: 'รอบสัปดาห์ที่ผ่านมา (7 วัน)', tbs: 'qdr:w',  when: 'when:7d',  hours: 168 },
-            '30d': { label: 'รอบเดือนที่ผ่านมา (30 วัน)',  tbs: 'qdr:m',  when: 'when:30d', hours: 720 }
+            '30d': { label: 'รอบเดือนที่ผ่านมา (30 วัน)',  tbs: 'qdr:m',  when: 'when:30d', hours: 720 },
+            '1y':  { label: 'รอบ 1 ปีที่ผ่านมา',      tbs: 'qdr:y',  when: 'when:1y',  hours: 8760 },
+            '3y':  { label: 'รอบ 3 ปีที่ผ่านมา',      tbs: 'qdr:y3', when: 'when:3y',  hours: 26280 },
+            '5y':  { label: 'รอบ 5 ปีที่ผ่านมา',      tbs: 'qdr:y5', when: 'when:5y',  hours: 43800 },
+            '10y': { label: 'รอบ 10 ปีที่ผ่านมา',     tbs: 'qdr:y10',when: 'when:10y', hours: 87600 }
         };
+
+       
 
         // แยก directKeywords (ชื่อจังหวัดโดยตรง) ออกจาก districtKeywords (ชื่ออำเภอ/สถานที่สำคัญ)
         // เพื่อป้องกันปัญหาชื่ออำเภอซ้ำกัน เช่น อ.เฉลิมพระเกียรติ จ.นครราชสีมา และ อ.เฉลิมพระเกียรติ จ.บุรีรัมย์
@@ -1218,6 +1246,22 @@ async function fetchGoogleNewsAndAnalyze() {
        
 
             try {
+
+// ใช้แนวคิด Broad Fetch: ส่งคำกว้างๆ แต่อยู่ในบริบทสิ่งแวดล้อมไปกวาดข่าวจาก Google ก่อน
+                let broadKeywords = ['มลพิษ', 'สิ่งแวดล้อม', 'น้ำเสีย', 'ขยะ', 'ฝุ่น', 'ไฟป่า', 'เหมือง', 'สารเคมี', 'ร้องเรียน'];
+                
+                // หาก ผอ. พิมพ์คำค้นหาเจาะจงเพิ่มในหน้าเว็บ ให้นำมารวมด้วย
+                const customInput = document.getElementById('customKeywords')?.value.trim() || '';
+                if (customInput) {
+                    broadKeywords.push(...customInput.split(',').map(s => s.trim()).filter(Boolean));
+                }
+                
+                // ตัดให้เหลือสูงสุด 10 คำเพื่อป้องกัน Google บล็อก
+                broadKeywords = [...new Set(broadKeywords)].slice(0, 10);
+                const topicQueryPart = `(${broadKeywords.join(' OR ')})`;
+
+
+/*
                 let topicKeywordsShort = [];
                 currentState.selectedTopics.forEach(tKey => {
                     if (TOPIC_CONFIG[tKey]) {
@@ -1230,6 +1274,7 @@ async function fetchGoogleNewsAndAnalyze() {
                 }
                 topicKeywordsShort = [...new Set(topicKeywordsShort)].slice(0, 10);
                 const topicQueryPart = `(${topicKeywordsShort.join(' OR ')})`;
+*/
 
                 // ดึงข่าวแยกตามจังหวัดพร้อมแนบชื่อจังหวัดต้นทาง (sourceProvince)
                 const fetchPromises = currentState.selectedProvinces.map(async (prov) => {
