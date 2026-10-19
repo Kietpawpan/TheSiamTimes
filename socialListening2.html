@@ -132,7 +132,7 @@
         <!-- Print-Only Report Header -->
         <div class="hidden print:block border-b-2 border-emerald-800 pb-4 mb-6">
             <h1 class="text-2xl font-bold text-emerald-900">รายงานสรุปสถานการณ์ข่าวสิ่งแวดล้อมและมลพิษ (Social Listening)</h1>
-            <p class="text-sm text-slate-600">พื้นที่ติดตาม: นครราชสีมา, ชัยภูมิ, บุรีรัมย์, สุรินทร์ | พิมพ์เมื่อ: <span id="printTimestamp"></span></p>
+            <p class="text-sm text-slate-600">พื้นที่ติดตาม: นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์ | พิมพ์เมื่อ: <span id="printTimestamp"></span></p>
         </div>
 
         <!-- STEP 1: Search & Filter Control Panel -->
@@ -308,7 +308,7 @@
                     <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-heading font-bold text-sm flex items-center justify-center shadow-sm">2</span>
                     <h2 class="text-base sm:text-lg font-bold text-emerald-950">ดึงข่าวจริงอัตโนมัติ หรือก๊อปปี้จาก Google News มาวางเพื่อจัดประเภททันที</h2>
                 </div>
-                <span class="text-xs text-emerald-700 font-semibold">รองรับการดึงอัตโนมัติ (Multi-Proxy) และการวางข้อความอัจฉริยะ (Smart Paste)</span>
+                <span class="text-xs text-emerald-700 font-semibold">รองรับการดึงอัตโนมัติ (GAS) และการวางข้อความอัจฉริยะ (Smart Paste)</span>
             </div>
 
             <div class="p-5 sm:p-6 space-y-5">
@@ -340,7 +340,7 @@
                         </div>
                         <div>
                             <div class="font-heading font-bold text-base text-blue-900">เปิดดู Google News</div>
-                            <div class="text-xs text-blue-700/80 mt-0.5">เปิดหน้าข่าว Google News ตามห้วงเวลา แล้วกด Ctrl+A, Ctrl+C มาวางด้านล่างได้ทันที</div>
+                            <div class="text-xs text-blue-700/80 mt-0.5">เปิดหน้าข่าว Google News ตามห้วงเวลา แล้วกด Ctrl+A Ctrl+C มาวางด้านล่างได้ทันที</div>
                         </div>
                     </button>
 
@@ -416,7 +416,7 @@
                             </span>
                             <div>
                                 <h3 class="text-xs sm:text-sm font-bold text-emerald-950">ช่องวางข่าวด่วนจาก Google News / Google Search / LINE (วางปุ๊บ จัดประเภทปั๊บ)</h3>
-                                <p class="text-[11px] text-emerald-800">ก๊อปปี้ข้อความจากหน้า Google News (Ctrl+A, Ctrl+C หรือลากคลุมข่าว) แล้วกดปุ่มสีเขียวด้านขวา หรือกด Ctrl+V ในช่องด้านล่างได้ทันที</p>
+                                <p class="text-[11px] text-emerald-800">ก๊อปปี้ข้อความจากหน้า Google News (Ctrl+A Ctrl+C หรือลากคลุมข่าว) แล้วกดปุ่มสีเขียวด้านขวา หรือกด Ctrl+V ในช่องด้านล่างได้ทันที</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
@@ -795,8 +795,6 @@
         // ==========================================
         // 1. STATE & CONFIGURATION
         // ==========================================
-        // หมายเหตุสำคัญ: Google News RSS รองรับเฉพาะ when:1d, when:7d, when:1m, when:1y เท่านั้น
-        // ดังนั้น rssWhen จึงถูกแมปให้ตรงมาตรฐาน Google RSS แล้วใช้ hours คัดกรองเวลาจริงในฝั่ง JavaScript
         const TIMEFRAMES = {
             '1d':  { label: 'รอบ 24 ชม. ที่ผ่านมา', tbs: 'qdr:d',   rssWhen: 'when:1d', hours: 24 },
             '2d':  { label: 'รอบ 2 วันที่ผ่านมา',    tbs: 'qdr:d2',  rssWhen: 'when:7d', hours: 48 },
@@ -953,7 +951,6 @@
                 document.getElementById('apiKeyStatusText').textContent = 'ตั้งค่า API Key แล้ว';
             }
 
-            // ดักจับการกดวาง (Paste / Ctrl+V) ในช่องข้อความเพื่อให้จัดประเภทอัตโนมัติทันที
             const manualInput = document.getElementById('manualNewsInput');
             if (manualInput) {
                 manualInput.addEventListener('paste', () => {
@@ -1146,7 +1143,6 @@
             }
             window.open(url, '_blank', 'noopener,noreferrer');
 
-            // ไฮไลต์กล่องวางข่าวเพื่อให้ผู้ใช้กดวางได้ทันทีที่กลับมา
             const pasteBox = document.getElementById('manualNewsInput');
             if (pasteBox) {
                 pasteBox.focus();
@@ -1166,62 +1162,31 @@
             showToast(`เปิดข่าว จ.${provName} แล้ว เมื่อก๊อปปี้เสร็จสามารถวางในช่องด้านล่างได้ทันที`, 'info');
         }
 
-        // ดึงข้อมูล RSS ผ่าน Proxy 5 ช่องทางเพื่อความเสถียรสูงสุด
+        // ดึงข้อมูล RSS ผ่าน Google Apps Script (เสถียรและเร็วที่สุด)
         async function fetchRssXmlWithFallback(rssUrl) {
-            const proxyConfigs = [
-                {
-                    name: 'Codetabs',
-                    buildUrl: (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-                    parse: async (res) => ({ type: 'xml', content: await res.text() })
-                },
-                {
-                    name: 'AllOriginsRaw',
-                    buildUrl: (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-                    parse: async (res) => ({ type: 'xml', content: await res.text() })
-                },
-                {
-                    name: 'AllOriginsGet',
-                    buildUrl: (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
-                    parse: async (res) => {
-                        const data = await res.json();
-                        return data && data.contents ? { type: 'xml', content: data.contents } : null;
-                    }
-                },
-                {
-                    name: 'RSS2JSON',
-                    buildUrl: (u) => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}`,
-                    parse: async (res) => {
-                        const data = await res.json();
-                        return (data && data.status === 'ok' && Array.isArray(data.items))
-                            ? { type: 'json_items', items: data.items }
-                            : null;
-                    }
-                },
-                {
-                    name: 'CorsProxy',
-                    buildUrl: (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-                    parse: async (res) => ({ type: 'xml', content: await res.text() })
+            const gasUrl = 'https://script.google.com/macros/s/AKfycbxcDZLaWUG4JDxs1W7SyKZDQ0IR0N6FDjQlhqkP0P9w3B9lwDhi6AYksNK8Uxvcz9WUmg/exec';
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+                
+                const fetchUrl = `${gasUrl}?url=${encodeURIComponent(rssUrl)}`;
+                const res = await fetch(fetchUrl, { signal: controller.signal });
+                
+                clearTimeout(timeoutId);
+                
+                if (!res.ok) return null;
+                
+                const data = await res.json();
+                
+                if (data && data.status === 'success' && data.content) {
+                    return { type: 'xml', content: data.content };
                 }
-            ];
-
-            for (const proxy of proxyConfigs) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 6500);
-                    const res = await fetch(proxy.buildUrl(rssUrl), { signal: controller.signal });
-                    clearTimeout(timeoutId);
-                    if (!res.ok) continue;
-
-                    const parsed = await proxy.parse(res);
-                    if (!parsed) continue;
-                    if (parsed.type === 'json_items' && parsed.items.length > 0) return parsed;
-                    if (parsed.type === 'xml' && parsed.content && (parsed.content.includes('<item>') || parsed.content.includes('<channel>'))) {
-                        return parsed;
-                    }
-                } catch (e) {
-                    // ข้ามไปใช้ Proxy ตัวถัดไปอัตโนมัติ
-                }
+                
+            } catch (e) {
+                console.error('พบข้อผิดพลาดในการดึงข้อมูลผ่าน GAS:', e);
             }
+            
             return null;
         }
 
@@ -1243,8 +1208,8 @@
         function parseRssResponseToArticles(result, maxHours, sourceProvince = null, ignoreTimeCutoff = false) {
             const articles = [];
             const now = new Date();
-            // ผ่อนปรนเวลาเพิ่มเล็กน้อย (+6 ชม.) เพื่อป้องกันปัญหา Timezone ของสำนักข่าว
-            const cutoffTime = now.getTime() - ((maxHours + 6) * 60 * 60 * 1000);
+            // เผื่อเวลาให้ข่าวตกหล่น 24 ชั่วโมง
+            const cutoffTime = now.getTime() - ((maxHours + 24) * 60 * 60 * 1000);
 
             if (!result) return articles;
 
@@ -1272,7 +1237,6 @@
                 const xmlDoc = parser.parseFromString(result.content, "text/xml");
                 let items = Array.from(xmlDoc.querySelectorAll("item"));
 
-                // Fallback Regex หาก XML มีอักขระพิเศษที่ทำให้ DOMParser อ่านไม่ครบ
                 if (items.length === 0 && result.content.includes('<item>')) {
                     const itemRegex = /<item>([\s\S]*?)<\/item>/g;
                     let match;
@@ -1340,7 +1304,6 @@
             return articles;
         }
 
-        // ตรวจสอบว่าข่าวเกี่ยวข้องกับประเด็นสิ่งแวดล้อม/มลพิษ/ภัยธรรมชาติหรือไม่
         function isEnvironmentalRelevant(article, customKwList = []) {
             const text = `${article.title || ''} ${article.description || ''}`.toLowerCase();
             const envCoreKeywords = [
@@ -1367,44 +1330,39 @@
 
             const tf = TIMEFRAMES[currentState.timeframe];
             titleEl.textContent = `กำลังดึงข่าวจริงจาก Google News (${tf.label})...`;
-            subEl.textContent = `กำลังเชื่อมต่อไปยังพื้นที่: ${currentState.selectedProvinces.join(', ')}`;
+            subEl.textContent = `กำลังเชื่อมต่อไปยังพื้นที่: ${currentState.selectedProvinces.join(' ')}`;
             progBadge.textContent = `เริ่มกวาดข่าว...`;
 
             try {
                 const customInput = document.getElementById('customKeywords')?.value.trim() || '';
                 const customKwList = customInput ? customInput.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-                // สร้างชุดคำค้นหาที่กระชับและทรงพลังที่สุดสำหรับ Google News RSS (ไม่ใส่่วงเล็บซ้อนเกินไปจน Google บล็อก)
+                // สร้างชุดคำค้นหาที่กระชับและทรงพลังที่สุดสำหรับ Google News RSS
                 const coreEnvQuery = customKwList.length > 0
-                    ? `(${customKwList.concat(['น้ำเสีย', 'ขยะ', 'ฝุ่น', 'มลพิษ', 'โรงงาน', 'ร้องเรียน']).slice(0, 8).join(' OR ')})`
-                    : `(น้ำเสีย OR ขยะ OR ฝุ่น OR ไฟป่า OR มลพิษ OR ร้องเรียน OR โรงงาน OR กลิ่นเหม็น OR สิ่งแวดล้อม)`;
+                    ? `(${customKwList.slice(0, 3).join(' OR ')})`
+                    : `(มลพิษ OR ขยะ OR ฝุ่น OR น้ำเสีย OR ร้องเรียน OR สิ่งแวดล้อม)`;
 
                 let allFetchedArticles = [];
                 let completedProvs = 0;
 
-                // ดึงข่าวทีละจังหวัดแบบขนานพร้อมระบบ Retry อัตโนมัติหากห้วงเวลาแคบเกินไป
                 const provPromises = currentState.selectedProvinces.map(async (prov) => {
                     const provQuery = prov === 'นครราชสีมา' ? '(นครราชสีมา OR โคราช)' : prov;
                     
-                    // รอบที่ 1: ค้นหาตามห้วงเวลา มาตรฐาน Google RSS
                     const q1 = `${provQuery} ${coreEnvQuery} ${tf.rssWhen}`.trim();
                     const rssUrl1 = `https://news.google.com/rss/search?q=${encodeURIComponent(q1)}&hl=th&gl=TH&ceid=TH:th`;
                     let res = await fetchRssXmlWithFallback(rssUrl1);
                     let articles = parseRssResponseToArticles(res, tf.hours, prov, false);
 
-                    // รอบที่ 2 (Auto-Fallback): หากห้วงเวลาสั้น (เช่น 24 ชม.) ไม่มีข่าวใน RSS ให้ดึงข่าวสิ่งแวดล้อมล่าสุดของจังหวัดนั้นโดยไม่ล็อก when: เพื่อให้ได้ข่าวจริงมาแสดงผล
                     if (articles.length === 0) {
                         const q2 = `${provQuery} (น้ำเสีย OR ขยะ OR ฝุ่น OR มลพิษ OR ร้องเรียน OR โรงงาน OR สิ่งแวดล้อม)`;
                         const rssUrl2 = `https://news.google.com/rss/search?q=${encodeURIComponent(q2)}&hl=th&gl=TH&ceid=TH:th`;
                         const res2 = await fetchRssXmlWithFallback(rssUrl2);
-                        // ดึงข่าวที่ตรงตามชั่วโมงก่อน ถ้ายังเป็น 0 ให้เอาข่าวสิ่งแวดล้อมล่าสุด 8 อันดับแรกของจังหวัดนั้น
                         articles = parseRssResponseToArticles(res2, tf.hours, prov, false);
                         if (articles.length === 0) {
                             articles = parseRssResponseToArticles(res2, tf.hours, prov, true).slice(0, 8);
                         }
                     }
 
-                    // คัดกรองเฉพาะข่าวที่เกี่ยวข้องกับสิ่งแวดล้อม/มลพิษ/ความเดือดร้อน
                     articles = articles.filter(a => isEnvironmentalRelevant(a, customKwList));
 
                     completedProvs++;
@@ -1415,7 +1373,6 @@
                 const resultsPerProvince = await Promise.all(provPromises);
                 resultsPerProvince.forEach(list => allFetchedArticles.push(...list));
 
-                // ลบข่าวซ้ำ (Deduplicate by normalized title)
                 const uniqueMap = new Map();
                 allFetchedArticles.forEach(art => {
                     const normTitle = art.title.replace(/[\s\-_—:]/g, '').toLowerCase();
@@ -1465,7 +1422,6 @@
             const titleText = (rawItem.title || '').toLowerCase();
             const fullText = `${rawItem.title || ''} ${rawItem.description || ''}`.toLowerCase();
 
-            // 1. ตรวจจับจังหวัดอย่างแม่นยำ
             let directMatches = [];
             for (const [provKey, provData] of Object.entries(PROVINCE_CONFIG)) {
                 const titlePos = findEarliestKeywordPosition(titleText, provData.directKeywords);
@@ -1508,7 +1464,6 @@
                 }
             }
 
-            // 2. จัดหมวดหมู่ 6 ประเภทมลพิษด้วยระบบถ่วงน้ำหนักคำสำคัญ
             let bestCategory = 'other';
             let highestScore = 0;
 
@@ -1525,7 +1480,7 @@
                 rule.keywords.forEach(kw => {
                     const kwLower = kw.toLowerCase();
                     if (titleText.includes(kwLower)) {
-                        score += rule.weight * 1.5; // ให้น้ำหนักพาดหัวข่าวมากกว่าเนื้อหาย่อย
+                        score += rule.weight * 1.5;
                     } else if (fullText.includes(kwLower)) {
                         score += rule.weight;
                     }
@@ -1536,7 +1491,6 @@
                 }
             });
 
-            // 3. ประเมินระดับความเร่งด่วน
             const urgentKeywords = [
                 'ปลาตาย', 'ปลาน็อกน้ำ', 'ลักลอบทิ้ง', 'สารเคมี', 'ไฟไหม้บ่อขยะ', 'กากอุตสาหกรรม', 'กากของเสีย', 'วิกฤต',
                 'ชาวบ้านเดือดร้อน', 'ร้องเรียน', 'ชาวบ้านโวย', 'ชาวบ้านร้อง', 'ส่งกลิ่นเหม็นรุนแรง', 'น้ำเน่าเสีย', 'สั่งปิด',
@@ -1568,7 +1522,6 @@
             };
         }
 
-        // แปลงข้อความเวลาแบบย่อของ Google News (เช่น "3 ชั่วโมงที่ผ่านมา", "2 วันที่แล้ว") เป็นเวลาจริง
         function parseRelativeTimeString(str) {
             const now = Date.now();
             const mMin = str.match(/(\d+)\s*(นาที)/);
@@ -1590,7 +1543,6 @@
             return null;
         }
 
-        // ตัวแยกข่าวอัจฉริยะ รองรับการกด Ctrl+A, Ctrl+C จากหน้า Google News / Google Search โดยตรง
         function smartParseGoogleNewsText(rawText) {
             const ignoreExact = new Set([
                 'ทั้งหมด', 'ข่าวสาร', 'รูปภาพ', 'วิดีโอ', 'แผนที่', 'ช้อปปิ้ง', 'หนังสือ', 'เครื่องมือ',
@@ -1624,7 +1576,6 @@
                 const nextLine = rawLines[i + 1] || '';
                 const thirdLine = rawLines[i + 2] || '';
 
-                // รูปแบบที่ 1: ก๊อปปี้จาก Google News / Google Search (บรรทัด 1 = ชื่อสำนักข่าวสั้นๆ, บรรทัด 2 = พาดหัวข่าว, บรรทัด 3 = เวลา + เนื้อหาย่อ)
                 const isShortSourceLine = line.length >= 3 && line.length <= 42 && !line.includes(' ') || (line.length <= 35 && /ออนไลน์|นิวส์|ข่าว|ทีวี|รัฐ|เดลินิวส์|มติชน|คมชัดลึก|ประชาชาติ|ผู้จัดการ|สคพ|ทสจ|pptv|ch7|ch3|thaipbs|workpoint|amarintv|nation|spring|the standard|the matter|bangkokbiznews|thairath|khaosod|matichon|dailynews|mgronline|posttoday|naewna|siamrath|banmuang|korat/i.test(line));
 
                 if (isShortSourceLine && nextLine.length >= 18) {
@@ -1668,7 +1619,6 @@
                     continue;
                 }
 
-                // รูปแบบที่ 2: พาดหัวข่าวขึ้นก่อน ตามด้วยบรรทัดที่มีเวลาคั่น เช่น "3 ชั่วโมงที่ผ่านมา — เนื้อหาข่าว..."
                 if (line.length >= 16) {
                     const nextInlineMatch = nextLine.match(inlineTimeSplitRegex);
                     if (nextInlineMatch) {
@@ -1684,7 +1634,6 @@
                         continue;
                     }
 
-                    // หรือบรรทัดถัดไปเป็นเวลาล้วนๆ เช่น "4 ชั่วโมงที่แล้ว"
                     if (timeRegex.test(nextLine)) {
                         const pubDate = parseRelativeTimeString(nextLine) || new Date().toISOString();
                         extractedArticles.push({
@@ -1697,9 +1646,7 @@
                         continue;
                     }
 
-                    // รูปแบบที่ 3: ข้อความทั่วไป 1 บรรทัด = 1 ข่าว (เช่น ก๊อปปี้หัวข้อข่าวเรียงลงมา หรือจาก LINE)
                     if (!timeRegex.test(line)) {
-                        // เช็กว่ามี " - ชื่อสำนักข่าว" ต่อท้ายหรือไม่
                         const parts = line.split(' - ');
                         const possibleSource = parts.length > 1 && parts[parts.length - 1].length <= 35 ? parts.pop().trim() : 'Google News / ข้อมูลนำเข้า';
                         const cleanTitle = parts.join(' - ').trim() || line;
@@ -1718,7 +1665,6 @@
             return extractedArticles;
         }
 
-        // ฟังก์ชันดึงข้อความจากคลิปบอร์ดโดยตรงในคลิกเดียวแล้วจัดประเภททันที
         async function pasteFromClipboardAndAnalyze(replaceExisting = false) {
             try {
                 if (!navigator.clipboard || !navigator.clipboard.readText) {
@@ -1736,7 +1682,6 @@
                 document.getElementById('manualNewsInput').value = clipText;
                 parseAndAddManualNews(replaceExisting);
             } catch (err) {
-                // กรณีเบราว์เซอร์ขอสิทธิ์หรือบล็อกการอ่านคลิปบอร์ดอัตโนมัติ ให้โฟกัสไปที่ช่องข้อความเพื่อกด Ctrl+V ทันที
                 const inputBox = document.getElementById('manualNewsInput');
                 inputBox.focus();
                 document.getElementById('quickPasteSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1764,7 +1709,6 @@
             if (replaceExisting) {
                 currentState.newsItems = newItems;
             } else {
-                // ป้องกันการวางข่าวซ้ำกับที่มีอยู่แล้ว
                 const existingTitles = new Set(currentState.newsItems.map(i => i.title.replace(/\s+/g, '').toLowerCase()));
                 const uniqueNew = newItems.filter(item => {
                     const norm = item.title.replace(/\s+/g, '').toLowerCase();
@@ -1781,7 +1725,6 @@
             document.getElementById('dashboardSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // ฟังก์ชันสำหรับเปลี่ยนจังหวัดหรือหมวดหมู่ของข่าวแต่ละชิ้นด้วยตนเอง (Inline Re-classify)
         function updateSingleItemCategory(id, newCategory) {
             const item = currentState.newsItems.find(i => i.id === id);
             if (item) {
@@ -1806,7 +1749,7 @@
         }
 
         // ==========================================
-        // 6. DASHBOARD RENDERING (COUNTS, CHARTS, MATRIX, SUMMARY)
+        // 6. DASHBOARD RENDERING
         // ==========================================
         function computeStatistics(items) {
             const stats = {
@@ -1865,7 +1808,6 @@
 
             document.getElementById('printTimestamp').textContent = new Date().toLocaleString('th-TH');
 
-            // 1. Update Top KPI Cards
             document.getElementById('kpiTotal').textContent = stats.total;
             document.getElementById('kpiTimeframeLabel').textContent = tf.label;
             document.getElementById('kpiUrgent').textContent = stats.urgentCount;
@@ -1885,7 +1827,6 @@
                 document.getElementById(p.barId).style.width = `${pct}%`;
             });
 
-            // 2. Render 6 Pollution Categories Visual Breakdown
             const catContainer = document.getElementById('categoryBreakdownList');
             catContainer.innerHTML = '';
 
@@ -1913,7 +1854,6 @@
                 catContainer.appendChild(row);
             });
 
-            // 3. Render Cross-Tabulation Matrix (Province x Category)
             const matrixBody = document.getElementById('matrixTableBody');
             matrixBody.innerHTML = '';
 
@@ -1945,10 +1885,7 @@
             `;
             matrixBody.appendChild(totalTr);
 
-            // 4. Render Executive Summary
             renderExecutiveSummary(stats);
-
-            // 5. Render Detailed News List
             applyNewsListFilters();
         }
 
@@ -2026,7 +1963,7 @@
                 <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 text-xs sm:text-sm text-slate-700 leading-relaxed">
                     <strong>📊 สรุปภาพรวมสถานการณ์ (${TIMEFRAMES[currentState.timeframe].label}):</strong> 
                     จากการกวาดข้อมูลข่าวสารด้านสิ่งแวดล้อมและมลพิษในเขตพื้นที่ 4 จังหวัด (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์) 
-                    พบข่าวที่เกี่ยวข้องรวมทั้งสิ้น <strong>${stats.total} ข่าว</strong> แบ่งเป็นประเด็นเร่งด่วนสูง <strong>${stats.urgentCount} ข่าว</strong>, 
+                    พบข่าวที่เกี่ยวข้องรวมทั้งสิ้น <strong>${stats.total} ข่าว</strong> แบ่งเป็นประเด็นเร่งด่วนสูง <strong>${stats.urgentCount} ข่าว</strong> 
                     ประเด็นเฝ้าระวัง <strong>${stats.watchCount} ข่าว</strong> และข่าวสารทั่วไป/รณรงค์ <strong>${stats.normalCount} ข่าว</strong> 
                     โดยประเด็นที่พบมากที่สุดคือ <strong>${topCatObj ? topCatObj.name : '-'} (${topCatCount} ข่าว)</strong>
                 </div>
@@ -2110,7 +2047,7 @@
                     return `${i + 1}. [จังหวัด${item.primaryProvince}] ${item.title} (${item.source}) - ${item.description}`;
                 }).join('\n');
 
-                const systemInstruction = `คุณคือผู้เชี่ยวชาญด้านการวิเคราะห์ข่าวสิ่งแวดล้อมและมลพิษ (Environmental Social Listening Analyst) ของสำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 11 (สคพ.11 นครราชสีมา) รับผิดชอบพื้นที่ 4 จังหวัด: นครราชสีมา (โคราช), ชัยภูมิ, บุรีรัมย์, และสุรินทร์ หน้าที่ของคุณคือจัดทำหมวดหมู่ ตรวจสอบระดับความเร่งด่วน และเขียนบทสรุปผู้บริหารจากรายการข่าวที่ได้รับ`;
+                const systemInstruction = `คุณคือผู้เชี่ยวชาญด้านการวิเคราะห์ข่าวสิ่งแวดล้อมและมลพิษ (Environmental Social Listening Analyst) ของสำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 11 (สคพ.11 นครราชสีมา) รับผิดชอบพื้นที่ 4 จังหวัด: นครราชสีมา (โคราช) ชัยภูมิ บุรีรัมย์ และสุรินทร์ หน้าที่ของคุณคือจัดทำหมวดหมู่ ตรวจสอบระดับความเร่งด่วน และเขียนบทสรุปผู้บริหารจากรายการข่าวที่ได้รับ`;
 
                 const userPrompt = `กรุณาวิเคราะห์รายการข่าวสิ่งแวดล้อมและมลพิษต่อไปนี้ (ห้วงเวลา: ${TIMEFRAMES[currentState.timeframe].label}):
 ${newsListText}
@@ -2285,7 +2222,6 @@ ${newsListText}
                         </h4>
                         ${item.description && item.description !== item.title ? `<p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">${escapeHtml(item.description)}</p>` : ''}
                         
-                        <!-- ตัวเปลี่ยนจังหวัดและประเภทมลพิษแบบทันที (Inline Quick Re-Classify) -->
                         <div class="pt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500 no-print">
                             <span>ปรับหมวดหมู่ทันที:</span>
                             <select onchange="updateSingleItemProvince('${item.id}', this.value)" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-700 font-medium outline-none focus:border-emerald-500">
