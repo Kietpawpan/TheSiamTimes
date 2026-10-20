@@ -9,6 +9,11 @@
     <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
     <style>
         body { font-family: 'Inter', 'Sarabun', sans-serif; }
+        /* ทำให้ QR Code ปรับขนาดย่อลงพอดีกับหน้าจอ แต่ดาวน์โหลดด้วยความละเอียดสูง */
+        #qrContainer canvas, #qrContainer svg {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body class="bg-green-50 min-h-screen flex items-center justify-center p-4">
@@ -16,7 +21,7 @@
     <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-600">
         <div class="flex items-center justify-center mb-6">
             <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Emblem_of_the_Pollution_Control_Department.svg/250px-Emblem_of_the_Pollution_Control_Department.svg.png" alt="Pollution Control Department Logo" class="h-16 w-16 mr-3">
-            <h1 class="text-xl font-semibold text-green-800">QR Code Generator<br><span class="text-sm text-green-600">Environmental and Pollution Control Office 11</span></h1>
+            <h1 class="text-xl font-semibold text-green-800">QR Code Generator<br><span class="text-sm text-green-600"> Environmental and Pollution Control Office 11</span></h1>
         </div>
 
         <div class="space-y-4">
@@ -25,22 +30,32 @@
                 <input type="text" id="urlInput" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" placeholder="https://www.pcd.go.th" value="">
             </div>
 
-            <button id="generateBtn" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-300">
+            <div>
+                <label for="descInput" class="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+                <input type="text" id="descInput" maxlength="40" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" placeholder="e.g. PCD Official Website">
+            </div>
+
+            <button id="generateBtn" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-300 font-medium">
                 Generate QR Code
             </button>
 
-            <div id="qrContainer" class="flex justify-center mt-6 p-4 bg-gray-50 rounded-lg min-h-[250px] items-center"></div>
+            <!-- พื้นที่แสดงผล QR Code และคำอธิบาย -->
+            <div id="previewContainer" class="flex flex-col items-center mt-6 p-4 bg-gray-50 rounded-lg min-h-[250px] justify-center hidden">
+                <div id="qrContainer" class="w-full max-w-[220px] flex justify-center"></div>
+                <p id="qrDescriptionText" class="mt-3 text-gray-800 font-medium text-center hidden"></p>
+            </div>
 
-            <button id="downloadBtn" class="w-full bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-900 transition duration-300 hidden">
+            <button id="downloadBtn" class="w-full bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-900 transition duration-300 hidden font-medium">
                 Download Image (PNG)
             </button>
         </div>
     </div>
 
     <script>
+        // ตั้งค่าความละเอียดสูง (400x400) เพื่อความคมชัดตอนดาวน์โหลด
         const qrCode = new QRCodeStyling({
-            width: 250,
-            height: 250,
+            width: 400,
+            height: 400,
             data: "https://www.pcd.go.th",
             image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Emblem_of_the_Pollution_Control_Department.svg/250px-Emblem_of_the_Pollution_Control_Department.svg.png",
             dotsOptions: {
@@ -52,7 +67,7 @@
             },
             imageOptions: {
                 crossOrigin: "anonymous",
-                margin: 5,
+                margin: 10,
                 imageSize: 0.4
             },
             cornersSquareOptions: {
@@ -62,31 +77,107 @@
         });
 
         const urlInput = document.getElementById('urlInput');
+        const descInput = document.getElementById('descInput');
         const generateBtn = document.getElementById('generateBtn');
         const downloadBtn = document.getElementById('downloadBtn');
+        const previewContainer = document.getElementById('previewContainer');
         const qrContainer = document.getElementById('qrContainer');
+        const qrDescriptionText = document.getElementById('qrDescriptionText');
 
         function updateQR() {
             const data = urlInput.value.trim();
+            const descText = descInput.value.trim();
+
             if (data) {
                 qrCode.update({ data: data });
                 qrContainer.innerHTML = '';
                 qrCode.append(qrContainer);
+                
+                if (descText) {
+                    qrDescriptionText.textContent = descText;
+                    qrDescriptionText.classList.remove('hidden');
+                } else {
+                    qrDescriptionText.textContent = '';
+                    qrDescriptionText.classList.add('hidden');
+                }
+
+                previewContainer.classList.remove('hidden');
                 downloadBtn.classList.remove('hidden');
             }
         }
 
+        // สร้าง QR Code อัตโนมัติเมื่อเปิดหน้าเว็บ
         updateQR();
 
+        // เหตุการณ์เมื่อกดปุ่มหรือ Enter
         generateBtn.addEventListener('click', updateQR);
         urlInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                updateQR();
-            }
+            if (e.key === 'Enter') updateQR();
+        });
+        descInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') updateQR();
         });
 
-        downloadBtn.addEventListener('click', () => {
-            qrCode.download({ name: "pcd-qrcode", extension: "png" });
+        // ฟังก์ชันดาวน์โหลดรูปภาพแบบรวมคำอธิบาย
+        downloadBtn.addEventListener('click', async () => {
+            const text = descInput.value.trim();
+            const originalBtnText = downloadBtn.textContent;
+            downloadBtn.textContent = 'Generating...';
+            downloadBtn.disabled = true;
+
+            try {
+                const blob = await qrCode.getRawData("png");
+                const blobUrl = URL.createObjectURL(blob);
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    
+                    const padding = 30;
+                    const fontSize = 24;
+                    const textSpacing = 15;
+                    const textHeight = text ? (fontSize + textSpacing) : 0;
+                    
+                    // ตั้งค่าขนาดกรอบภาพรวมทั้งหมด
+                    canvas.width = img.width + (padding * 2);
+                    canvas.height = img.height + (padding * 2) + textHeight;
+                    
+                    // เติมพื้นหลังสีขาว
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // วาด QR Code
+                    ctx.drawImage(img, padding, padding);
+                    
+                    // วาดข้อความคำอธิบาย
+                    if (text) {
+                        ctx.fillStyle = "#1f2937"; // สีเทาเข้ม
+                        ctx.font = `500 ${fontSize}px Inter, Sarabun, sans-serif`;
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "top";
+                        ctx.fillText(text, canvas.width / 2, padding + img.height + textSpacing);
+                    }
+                    
+                    // สั่งดาวน์โหลด
+                    const link = document.createElement("a");
+                    link.download = "pcd-qrcode.png";
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                    
+                    URL.revokeObjectURL(blobUrl);
+                    downloadBtn.textContent = originalBtnText;
+                    downloadBtn.disabled = false;
+                };
+                img.src = blobUrl;
+            } catch (error) {
+                console.error("Download Error:", error);
+                // หากรวมภาพมีปัญหา ให้ดาวน์โหลดแค่ QR Code อย่างเดียว
+                qrCode.download({ name: "pcd-qrcode", extension: "png" });
+                downloadBtn.textContent = originalBtnText;
+                downloadBtn.disabled = false;
+            }
         });
     </script>
 </body>
