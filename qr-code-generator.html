@@ -35,7 +35,7 @@
         </button>
 
         <div class="flex items-center justify-center mb-6 mt-2">
-            <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Emblem_of_the_Pollution_Control_Department.svg/250px-Emblem_of_the_Pollution_Control_Department.svg.png" alt="Pollution Control Department Logo" class="h-16 w-16 mr-3">
+            <img src="IMG_0123.png" alt="Pollution Control Department Logo" class="h-16 w-16 mr-3">
             <h1 class="text-xl font-semibold text-green-800">QR Code Generator<br><span class="text-sm text-green-600"> Environmental and Pollution Control Office 11</span></h1>
         </div>
 
@@ -57,19 +57,19 @@
                     <!-- PCD -->
                     <label class="cursor-pointer flex flex-col items-center gap-2 border border-gray-200 rounded-md p-2 hover:bg-gray-50 has-[:checked]:border-green-600 has-[:checked]:ring-1 has-[:checked]:ring-green-600 transition-all">
                         <input type="radio" name="logoOption" value="pcd" class="sr-only" checked>
-                        <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Emblem_of_the_Pollution_Control_Department.svg/250px-Emblem_of_the_Pollution_Control_Department.svg.png" class="h-8 w-8 object-contain">
+                        <img src="IMG_0123.png" class="h-8 w-8 object-contain">
                         <span class="text-xs font-medium text-gray-700">PCD</span>
                     </label>
                     <!-- MNRE -->
                     <label class="cursor-pointer flex flex-col items-center gap-2 border border-gray-200 rounded-md p-2 hover:bg-gray-50 has-[:checked]:border-green-600 has-[:checked]:ring-1 has-[:checked]:ring-green-600 transition-all">
                         <input type="radio" name="logoOption" value="mnre" class="sr-only">
-                        <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/ตรากระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม.svg/250px-ตรากระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม.svg.png" class="h-8 w-8 object-contain">
+                        <img src="IMG_0125.png" class="h-8 w-8 object-contain">
                         <span class="text-xs font-medium text-gray-700">MNRE</span>
                     </label>
                     <!-- ZPOT -->
                     <label class="cursor-pointer flex flex-col items-center gap-2 border border-gray-200 rounded-md p-2 hover:bg-gray-50 has-[:checked]:border-green-600 has-[:checked]:ring-1 has-[:checked]:ring-green-600 transition-all">
                         <input type="radio" name="logoOption" value="zpot" class="sr-only">
-                        <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Logo_of_the_Zoological_Park_Organization_of_Thailand.svg/250px-Logo_of_the_Zoological_Park_Organization_of_Thailand.svg.png" class="h-8 w-8 object-contain">
+                        <img src="IMG_0124.png" class="h-8 w-8 object-contain">
                         <span class="text-xs font-medium text-gray-700">ZPOT</span>
                     </label>
                     <!-- TST -->
@@ -211,7 +211,7 @@
                     <div class="mt-6 p-4 bg-green-50 rounded-md border border-green-100">
                         <p class="font-bold text-green-800 mb-1">Developer</p>
                         <p class="text-gray-800 font-semibold">Dr. Monte Kietpawpan</p>
-                        <p class="text-gray-600 leading-snug mt-1">Director, Environmental and Pollution Control Office 11<br>Pollution Control Department, <Br/>Ministry of Natural Resources and Environment
+                        <p class="text-gray-600 leading-snug mt-1">Director, Environmental and Pollution Control Office 11<br>Pollution Control Department, Ministry of Natural Resources and Environment<br>Owner, The Siam Times Online Newspaper</p>
                     </div>
                 </div>
 
@@ -219,7 +219,7 @@
 
                 <!-- Credits & Licenses Section -->
                 <div>
-                    <h3 class="text-lg font-bold text-gray-800 mb-3 font-['Sarabun']">Credits & Licenses</h3>
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 font-['Sarabun']">Credits & Licenses / เครดิตและลิขสิทธิ์</h3>
                     <div class="text-[13px] text-gray-600 space-y-3 font-['Sarabun'] bg-gray-50 p-4 rounded-md border border-gray-200">
                         <div>
                             <p class="font-semibold text-gray-700">Open Source Libraries:</p>
@@ -236,7 +236,7 @@
                                 <li><strong>PCD:</strong> Pollution Control Department (กรมควบคุมมลพิษ)</li>
                                 <li><strong>MNRE:</strong> Ministry of Natural Resources and Environment (กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม)</li>
                                 <li><strong>ZPOT:</strong> Zoological Park Organization of Thailand (องค์การสวนสัตว์แห่งประเทศไทย ในพระบรมราชูปถัมภ์)</li>
-                                <li><strong>TST:</strong> The Siam Times (เดอะ สยาม ไทม์)</li>
+                                <li><strong>TST:</strong> The Siam Times</li>
                             </ul>
                             <p class="mt-2 text-[12px] text-gray-500 italic">All logos and trademarks belong to their respective owners and are used here for representational purposes within this tool.</p>
                         </div>
@@ -258,7 +258,7 @@
             width: 400,
             height: 400,
             data: "https://www.pcd.go.th",
-            image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Emblem_of_the_Pollution_Control_Department.svg/250px-Emblem_of_the_Pollution_Control_Department.svg.png",
+            image: "IMG_0123.png", // เปลี่ยน URL ตอนเริ่มแรกให้เป็นไฟล์ภาพของ PCD
             dotsOptions: {
                 color: "#166534", 
                 type: "rounded"
@@ -297,7 +297,6 @@
         // ฟังก์ชันจัดการ Modal Popup
         function openModal() {
             helpModal.classList.remove('hidden');
-            // ให้บราวเซอร์ render display ก่อนค่อยเพิ่ม opacity เพื่อให้มีอนิเมชั่น
             setTimeout(() => {
                 helpModal.classList.remove('opacity-0');
                 modalContent.classList.remove('scale-95');
@@ -309,21 +308,19 @@
             modalContent.classList.add('scale-95');
             setTimeout(() => {
                 helpModal.classList.add('hidden');
-            }, 300); // รอให้อนิเมชั่นเสร็จ
+            }, 300);
         }
 
         helpBtn.addEventListener('click', openModal);
         closeHelpBtn.addEventListener('click', closeModal);
         closeHelpBtnFooter.addEventListener('click', closeModal);
         
-        // ปิดเมื่อคลิกพื้นที่ว่างรอบๆ modal
         helpModal.addEventListener('click', function(e) {
             if (e.target === helpModal) {
                 closeModal();
             }
         });
 
-        // กำหนดค่าสีสำหรับแต่ละตัวเลือก
         const colorMap = {
             green: { dots: "#166534", corners: "#15803d" },
             black: { dots: "#000000", corners: "#000000" },
@@ -331,11 +328,11 @@
             red:   { dots: "#7f1d1d", corners: "#b91c1c" }
         };
 
-        // กำหนด URL ของโลโก้สำหรับแต่ละตัวเลือก
+        // ตั้งค่า URL ของโลโก้ให้เป็นชื่อไฟล์ตามที่ร้องขอ
         const logoMap = {
-            pcd: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Emblem_of_the_Pollution_Control_Department.svg/250px-Emblem_of_the_Pollution_Control_Department.svg.png",
-            mnre: "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/ตรากระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม.svg/250px-ตรากระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม.svg.png",
-            zpot: "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Logo_of_the_Zoological_Park_Organization_of_Thailand.svg/250px-Logo_of_the_Zoological_Park_Organization_of_Thailand.svg.png",
+            pcd: "IMG_0123.png",
+            mnre: "IMG_0125.png",
+            zpot: "IMG_0124.png",
             tst: "https://thesiamtimes.com/Fav48.png",
             none: ""
         };
@@ -344,16 +341,13 @@
             const data = urlInput.value.trim();
             const descText = descInput.value.trim();
             
-            // ดึงค่าสีจาก Radio button ที่ถูกเลือก
             const selectedColorValue = document.querySelector('input[name="colorOption"]:checked').value;
             const selectedColor = colorMap[selectedColorValue];
 
-            // ดึงค่าโลโก้จาก Radio button ที่ถูกเลือก
             const selectedLogoValue = document.querySelector('input[name="logoOption"]:checked').value;
             const selectedLogo = logoMap[selectedLogoValue];
 
             if (data) {
-                // อัปเดตข้อมูล สี และโลโก้
                 qrCode.update({ 
                     data: data,
                     image: selectedLogo,
@@ -383,10 +377,8 @@
             }
         }
 
-        // สร้าง QR Code อัตโนมัติเมื่อเปิดหน้าเว็บ
         updateQR();
 
-        // เหตุการณ์เมื่อกดปุ่มหรือ Enter
         generateBtn.addEventListener('click', updateQR);
         urlInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') updateQR();
@@ -395,7 +387,6 @@
             if (e.key === 'Enter') updateQR();
         });
         
-        // อัปเดตทันทีที่คลิกเลือกสีหรือโลโก้
         colorRadios.forEach(radio => {
             radio.addEventListener('change', updateQR);
         });
@@ -403,62 +394,65 @@
             radio.addEventListener('change', updateQR);
         });
 
-        // ฟังก์ชันดาวน์โหลดรูปภาพแบบรวมคำอธิบาย
-        downloadBtn.addEventListener('click', async () => {
+        // ฟังก์ชันดาวน์โหลดรูปแบบใหม่ ดึง Canvas ออกมาวาดโดยตรง 
+        // แก้ปัญหาติด Security (CORS) 100% สำหรับไฟล์ในเครื่อง
+        downloadBtn.addEventListener('click', () => {
             const text = descInput.value.trim();
             const originalBtnText = downloadBtn.textContent;
             downloadBtn.textContent = 'Generating...';
             downloadBtn.disabled = true;
 
             try {
-                const blob = await qrCode.getRawData("png");
-                const blobUrl = URL.createObjectURL(blob);
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                
-                img.onload = () => {
-                    const canvas = document.createElement("canvas");
-                    const ctx = canvas.getContext("2d");
-                    
-                    const padding = 30;
-                    const fontSize = 24;
-                    const textSpacing = 15;
-                    const textHeight = text ? (fontSize + textSpacing) : 0;
-                    
-                    // ตั้งค่าขนาดกรอบภาพรวมทั้งหมด
-                    canvas.width = img.width + (padding * 2);
-                    canvas.height = img.height + (padding * 2) + textHeight;
-                    
-                    // เติมพื้นหลังสีขาว
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    // วาด QR Code
-                    ctx.drawImage(img, padding, padding);
-                    
-                    // วาดข้อความคำอธิบาย
-                    if (text) {
-                        ctx.fillStyle = "#1f2937";
-                        ctx.font = `500 ${fontSize}px Inter, Sarabun, sans-serif`;
-                        ctx.textAlign = "center";
-                        ctx.textBaseline = "top";
-                        ctx.fillText(text, canvas.width / 2, padding + img.height + textSpacing);
-                    }
-                    
-                    // สั่งดาวน์โหลด
-                    const link = document.createElement("a");
-                    link.download = "qrcode.png";
-                    link.href = canvas.toDataURL("image/png");
-                    link.click();
-                    
-                    URL.revokeObjectURL(blobUrl);
-                    downloadBtn.textContent = originalBtnText;
-                    downloadBtn.disabled = false;
-                };
-                img.src = blobUrl;
+                // 1. ดึง Canvas ที่วาดรูปภาพเสร็จสมบูรณ์แล้วจากบนหน้าจอ
+                const canvasElement = qrContainer.querySelector('canvas');
+
+                if (!canvasElement) {
+                    throw new Error("ไม่พบ QR Code กรุณากด Generate ใหม่อีกครั้ง");
+                }
+
+                // 2. สร้าง Canvas ใหม่เพื่อจัดพื้นที่สำหรับใส่คำอธิบายเพิ่มเติม
+                const finalCanvas = document.createElement("canvas");
+                const ctx = finalCanvas.getContext("2d");
+
+                const padding = 30;
+                const fontSize = 24;
+                const textSpacing = 15;
+                const textHeight = text ? (fontSize + textSpacing) : 0;
+
+                // ตั้งขนาดให้พอดีกับภาพ QR Code เดิม + กรอบ + ข้อความ
+                finalCanvas.width = canvasElement.width + (padding * 2);
+                finalCanvas.height = canvasElement.height + (padding * 2) + textHeight;
+
+                // วาดพื้นหลังสีขาว
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+                // นำรูปภาพ QR Code มาแปะ
+                ctx.drawImage(canvasElement, padding, padding);
+
+                // เติมข้อความลงไป
+                if (text) {
+                    ctx.fillStyle = "#1f2937";
+                    ctx.font = `500 ${fontSize}px Inter, Sarabun, sans-serif`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "top";
+                    ctx.fillText(text, finalCanvas.width / 2, padding + canvasElement.height + textSpacing);
+                }
+
+                // 3. เริ่มกระบวนการดาวน์โหลด
+                const link = document.createElement("a");
+                link.download = text ? `QR_${text}.png` : "qrcode.png";
+                link.href = finalCanvas.toDataURL("image/png");
+                link.click();
+
             } catch (error) {
                 console.error("Download Error:", error);
-                qrCode.download({ name: "qrcode", extension: "png" });
+                if (error.name === "SecurityError" || error.message.includes("Tainted")) {
+                    alert("ไม่สามารถดาวน์โหลดได้เนื่องจากติดระบบรักษาความปลอดภัยของเบราว์เซอร์\n\nคำแนะนำ: คุณอาจต้องเปิดไฟล์ HTML นี้ผ่าน Local Server (เช่น Live Server) หรืออัปโหลดขึ้น Host จริง");
+                } else {
+                    alert("เกิดข้อผิดพลาด: " + error.message);
+                }
+            } finally {
                 downloadBtn.textContent = originalBtnText;
                 downloadBtn.disabled = false;
             }
