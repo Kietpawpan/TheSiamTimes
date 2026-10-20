@@ -13,6 +13,7 @@
         #qrContainer canvas, #qrContainer svg {
             max-width: 100%;
             height: auto;
+            display: block;
         }
         /* ซ่อน scrollbar สำหรับ modal แต่ยังเลื่อนได้ */
         .no-scrollbar::-webkit-scrollbar {
@@ -35,14 +36,14 @@
         </button>
 
         <div class="flex items-center justify-center mb-6 mt-2">
-            <img src="IMG_0123.png" alt="Pollution Control Department Logo" class="h-16 w-16 mr-3">
+            <img src="IMG_0123.png" alt="Pollution Control Department Logo" class="h-16 w-16 mr-3 object-contain" onerror="this.style.display='none'">
             <h1 class="text-xl font-semibold text-green-800">QR Code Generator<br><span class="text-sm text-green-600"> Environmental and Pollution Control Office 11</span></h1>
         </div>
 
         <div class="space-y-4">
             <div>
                 <label for="urlInput" class="block text-sm font-medium text-gray-700 mb-1">Enter URL or text</label>
-                <input type="text" id="urlInput" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" placeholder="https://www.pcd.go.th" value="">
+                <input type="text" id="urlInput" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500" placeholder="https://www.pcd.go.th" value="https://www.pcd.go.th">
             </div>
 
             <div>
@@ -89,6 +90,15 @@
                         <span class="text-xs font-medium text-gray-700">None</span>
                     </label>
                 </div>
+
+                <!-- กล่องแจ้งเตือนเฉพาะกรณีเปิดไฟล์ HTML ในเครื่องโดยตรง (file://) แล้วเบราว์เซอร์ล็อกการอ่านไฟล์ภาพ -->
+                <div id="localFileUnlockBox" class="hidden mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800 flex items-center justify-between gap-2">
+                    <span>เปิดใช้งานแบบไฟล์ในเครื่อง: หากต้องการให้ภาพโลโก้ติดลงในไฟล์ดาวน์โหลด กรุณาแตะเลือกไฟล์ภาพโลโก้นี้ 1 ครั้ง (ระบบจะจำค่าไว้ถาวร)</span>
+                    <label class="shrink-0 cursor-pointer bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded font-medium transition">
+                        เลือกไฟล์โลโก้
+                        <input type="file" id="unlockLogoInput" accept="image/*" class="hidden">
+                    </label>
+                </div>
             </div>
 
             <!-- ส่วนสำหรับเลือกสี QR Code แบบสี่เหลี่ยมสีทึบ -->
@@ -128,7 +138,11 @@
 
             <!-- พื้นที่แสดงผล QR Code และคำอธิบาย -->
             <div id="previewContainer" class="flex flex-col items-center mt-6 p-4 bg-gray-50 rounded-lg min-h-[250px] justify-center hidden">
-                <div id="qrContainer" class="w-full max-w-[220px] flex justify-center"></div>
+                <div class="relative w-full max-w-[220px] flex justify-center items-center">
+                    <div id="qrContainer" class="w-full flex justify-center"></div>
+                    <!-- เลเยอร์แสดงโลโก้ซ้อนทับกรณีเปิดแบบไฟล์ในเครื่อง (ป้องกัน Canvas ติด Tainted) -->
+                    <img id="qrLogoOverlay" src="" alt="Center Logo" class="absolute w-[28%] h-[28%] object-contain bg-white p-1 rounded hidden pointer-events-none">
+                </div>
                 <p id="qrDescriptionText" class="mt-3 text-gray-800 font-medium text-center hidden"></p>
             </div>
 
@@ -254,28 +268,8 @@
     </div>
 
     <script>
-        const qrCode = new QRCodeStyling({
-            width: 400,
-            height: 400,
-            data: "https://www.pcd.go.th",
-            image: "IMG_0123.png", // เปลี่ยน URL ตอนเริ่มแรกให้เป็นไฟล์ภาพของ PCD
-            dotsOptions: {
-                color: "#166534", 
-                type: "rounded"
-            },
-            backgroundOptions: {
-                color: "#ffffff",
-            },
-            imageOptions: {
-                crossOrigin: "anonymous",
-                margin: 10,
-                imageSize: 0.4
-            },
-            cornersSquareOptions: {
-                color: "#15803d",
-                type: "extra-rounded"
-            }
-        });
+        // พิกเซลโปร่งใส 1x1 สำหรับจองพื้นที่ตรงกลาง QR Code โดยไม่ทำให้ Canvas ติดสถานะ Tainted
+        const TRANSPARENT_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
         const urlInput = document.getElementById('urlInput');
         const descInput = document.getElementById('descInput');
@@ -285,7 +279,10 @@
         const downloadBtn = document.getElementById('downloadBtn');
         const previewContainer = document.getElementById('previewContainer');
         const qrContainer = document.getElementById('qrContainer');
+        const qrLogoOverlay = document.getElementById('qrLogoOverlay');
         const qrDescriptionText = document.getElementById('qrDescriptionText');
+        const localFileUnlockBox = document.getElementById('localFileUnlockBox');
+        const unlockLogoInput = document.getElementById('unlockLogoInput');
 
         // Modal Elements
         const helpBtn = document.getElementById('helpBtn');
@@ -294,7 +291,6 @@
         const closeHelpBtnFooter = document.getElementById('closeHelpBtnFooter');
         const modalContent = helpModal.querySelector('div');
 
-        // ฟังก์ชันจัดการ Modal Popup
         function openModal() {
             helpModal.classList.remove('hidden');
             setTimeout(() => {
@@ -314,11 +310,8 @@
         helpBtn.addEventListener('click', openModal);
         closeHelpBtn.addEventListener('click', closeModal);
         closeHelpBtnFooter.addEventListener('click', closeModal);
-        
         helpModal.addEventListener('click', function(e) {
-            if (e.target === helpModal) {
-                closeModal();
-            }
+            if (e.target === helpModal) closeModal();
         });
 
         const colorMap = {
@@ -328,7 +321,6 @@
             red:   { dots: "#7f1d1d", corners: "#b91c1c" }
         };
 
-        // ตั้งค่า URL ของโลโก้ให้เป็นชื่อไฟล์ตามที่ร้องขอ
         const logoMap = {
             pcd: "IMG_0123.png",
             mnre: "IMG_0125.png",
@@ -337,46 +329,195 @@
             none: ""
         };
 
-        function updateQR() {
-            const data = urlInput.value.trim();
+        // แคชเก็บภาพโลโก้ที่แปลงเป็น Base64 สำเร็จแล้ว
+        const cleanLogoCache = {};
+        let currentQRInstance = null;
+        let currentSafeLogoDataUrl = null;
+
+        // โหลดแคชจาก localStorage (กรณีผู้ใช้เคยเลือกไฟล์โลโก้ในโหมด file://)
+        ['pcd', 'mnre', 'zpot', 'tst'].forEach(key => {
+            try {
+                const saved = localStorage.getItem('qr_clean_logo_' + key);
+                if (saved) cleanLogoCache[key] = saved;
+            } catch (e) {}
+        });
+
+        // ฟังก์ชันแปลงรูปภาพเป็น Base64 Data URL ที่ปลอดภัยต่อ Canvas
+        function tryLoadImageAsBase64(src, useCors = true) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                if (useCors) img.crossOrigin = "anonymous";
+                img.onload = () => {
+                    try {
+                        const c = document.createElement('canvas');
+                        c.width = img.naturalWidth || 200;
+                        c.height = img.naturalHeight || 200;
+                        const ctx = c.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        const dataUrl = c.toDataURL('image/png');
+                        resolve(dataUrl);
+                    } catch (err) {
+                        resolve(null);
+                    }
+                };
+                img.onerror = () => resolve(null);
+                img.src = src;
+            });
+        }
+
+        // สร้างโลโก้สำรองแบบ Vector/Canvas คมชัดสูง กรณีเปิดแบบ file:// แล้วเบราว์เซอร์บล็อกไฟล์ภาพในเครื่อง
+        function createFallbackBadgeDataUrl(logoKey, borderColor) {
+            const c = document.createElement('canvas');
+            c.width = 200;
+            c.height = 200;
+            const ctx = c.getContext('2d');
+
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(100, 100, 92, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = borderColor || "#166534";
+            ctx.stroke();
+
+            ctx.fillStyle = borderColor || "#166534";
+            ctx.font = "bold 52px Inter, Sarabun, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(logoKey.toUpperCase(), 100, 104);
+
+            return c.toDataURL("image/png");
+        }
+
+        // ดึง Base64 ของโลโก้แบบไม่ทำให้ Canvas พัง
+        async function resolveSafeLogo(logoKey) {
+            if (logoKey === 'none' || !logoMap[logoKey]) {
+                return { dataUrl: null, isFallback: false };
+            }
+
+            if (cleanLogoCache[logoKey]) {
+                return { dataUrl: cleanLogoCache[logoKey], isFallback: false };
+            }
+
+            const rawSrc = logoMap[logoKey];
+
+            // 1. ทดสอบโหลดตรงๆ (ใช้งานได้ทันทีเมื่อรันบน Server / Host จริง)
+            let base64 = await tryLoadImageAsBase64(rawSrc, true);
+            if (!base64) {
+                base64 = await tryLoadImageAsBase64(rawSrc, false);
+            }
+
+            // 2. กรณีเป็น URL ภายนอก (เช่น TST) แล้วติด CORS ให้ดึงผ่านระบบ Proxy อัตโนมัติ
+            if (!base64 && rawSrc.startsWith('http')) {
+                const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(rawSrc)}&output=png`;
+                base64 = await tryLoadImageAsBase64(proxyUrl, true);
+            }
+
+            if (base64) {
+                cleanLogoCache[logoKey] = base64;
+                return { dataUrl: base64, isFallback: false };
+            }
+
+            // 3. กรณีเปิดไฟล์ HTML ในเครื่องโดยตรง (file://) เบราว์เซอร์จะไม่อนุญาตให้อ่านพิกเซลจากไฟล์ภาพข้างเคียง
+            return { dataUrl: null, isFallback: true };
+        }
+
+        // เมื่อผู้ใช้กดปุ่มเลือกไฟล์โลโก้เพื่อปลดล็อกในโหมด file://
+        unlockLogoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const selectedLogoValue = document.querySelector('input[name="logoOption"]:checked').value;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const base64 = evt.target.result;
+                cleanLogoCache[selectedLogoValue] = base64;
+                try {
+                    localStorage.setItem('qr_clean_logo_' + selectedLogoValue, base64);
+                } catch (err) {}
+                updateQR();
+            };
+            reader.readAsDataURL(file);
+            unlockLogoInput.value = '';
+        });
+
+        async function updateQR() {
+            const data = urlInput.value.trim() || urlInput.placeholder;
             const descText = descInput.value.trim();
-            
+
             const selectedColorValue = document.querySelector('input[name="colorOption"]:checked').value;
             const selectedColor = colorMap[selectedColorValue];
 
             const selectedLogoValue = document.querySelector('input[name="logoOption"]:checked').value;
-            const selectedLogo = logoMap[selectedLogoValue];
 
-            if (data) {
-                qrCode.update({ 
-                    data: data,
-                    image: selectedLogo,
-                    dotsOptions: {
-                        color: selectedColor.dots,
-                        type: "rounded"
-                    },
-                    cornersSquareOptions: {
-                        color: selectedColor.corners,
-                        type: "extra-rounded"
-                    }
-                });
-                
-                qrContainer.innerHTML = '';
-                qrCode.append(qrContainer);
-                
-                if (descText) {
-                    qrDescriptionText.textContent = descText;
-                    qrDescriptionText.classList.remove('hidden');
-                } else {
-                    qrDescriptionText.textContent = '';
-                    qrDescriptionText.classList.add('hidden');
-                }
+            if (!data) return;
 
-                previewContainer.classList.remove('hidden');
-                downloadBtn.classList.remove('hidden');
+            const logoResult = await resolveSafeLogo(selectedLogoValue);
+            currentSafeLogoDataUrl = logoResult.dataUrl;
+
+            // แสดงกล่องช่วยปลดล็อกเฉพาะเมื่อเปิดผ่าน file:// และยังไม่ได้แคชโลโก้
+            if (logoResult.isFallback && selectedLogoValue !== 'none') {
+                localFileUnlockBox.classList.remove('hidden');
+                qrLogoOverlay.src = logoMap[selectedLogoValue];
+                qrLogoOverlay.classList.remove('hidden');
+            } else {
+                localFileUnlockBox.classList.add('hidden');
+                qrLogoOverlay.classList.add('hidden');
             }
+
+            // กำหนดรูปที่จะส่งให้ QRCodeStyling (ใช้เฉพาะ Base64 ที่ปลอดภัยเท่านั้น เพื่อป้องกัน Tainted Canvas 100%)
+            let qrImageOption = undefined;
+            if (selectedLogoValue !== 'none') {
+                qrImageOption = currentSafeLogoDataUrl || TRANSPARENT_PIXEL;
+            }
+
+            qrContainer.innerHTML = '';
+
+            currentQRInstance = new QRCodeStyling({
+                width: 400,
+                height: 400,
+                type: "canvas",
+                data: data,
+                image: qrImageOption,
+                dotsOptions: {
+                    color: selectedColor.dots,
+                    type: "rounded"
+                },
+                backgroundOptions: {
+                    color: "#ffffff"
+                },
+                imageOptions: {
+                    margin: 10,
+                    imageSize: 0.4
+                },
+                cornersSquareOptions: {
+                    color: selectedColor.corners,
+                    type: "extra-rounded"
+                }
+            });
+
+            currentQRInstance.append(qrContainer);
+
+            // รอให้ QRCodeStyling วาดลงบน Canvas จนเสร็จสมบูรณ์
+            if (currentQRInstance._canvasDrawingPromise) {
+                try {
+                    await currentQRInstance._canvasDrawingPromise;
+                } catch (e) {}
+            }
+
+            if (descText) {
+                qrDescriptionText.textContent = descText;
+                qrDescriptionText.classList.remove('hidden');
+            } else {
+                qrDescriptionText.textContent = '';
+                qrDescriptionText.classList.add('hidden');
+            }
+
+            previewContainer.classList.remove('hidden');
+            downloadBtn.classList.remove('hidden');
         }
 
+        // สร้าง QR Code ครั้งแรกเมื่อเปิดหน้าเว็บ
         updateQR();
 
         generateBtn.addEventListener('click', updateQR);
@@ -386,7 +527,7 @@
         descInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') updateQR();
         });
-        
+
         colorRadios.forEach(radio => {
             radio.addEventListener('change', updateQR);
         });
@@ -394,23 +535,21 @@
             radio.addEventListener('change', updateQR);
         });
 
-        // ฟังก์ชันดาวน์โหลดรูปแบบใหม่ ดึง Canvas ออกมาวาดโดยตรง 
-        // แก้ปัญหาติด Security (CORS) 100% สำหรับไฟล์ในเครื่อง
-        downloadBtn.addEventListener('click', () => {
+        // ฟังก์ชันดาวน์โหลดไฟล์ PNG ที่ทำงานได้ 100% ทุกเบราว์เซอร์
+        downloadBtn.addEventListener('click', async () => {
             const text = descInput.value.trim();
             const originalBtnText = downloadBtn.textContent;
             downloadBtn.textContent = 'Generating...';
             downloadBtn.disabled = true;
 
             try {
-                // 1. ดึง Canvas ที่วาดรูปภาพเสร็จสมบูรณ์แล้วจากบนหน้าจอ
-                const canvasElement = qrContainer.querySelector('canvas');
+                await updateQR();
 
+                const canvasElement = qrContainer.querySelector('canvas');
                 if (!canvasElement) {
                     throw new Error("ไม่พบ QR Code กรุณากด Generate ใหม่อีกครั้ง");
                 }
 
-                // 2. สร้าง Canvas ใหม่เพื่อจัดพื้นที่สำหรับใส่คำอธิบายเพิ่มเติม
                 const finalCanvas = document.createElement("canvas");
                 const ctx = finalCanvas.getContext("2d");
 
@@ -419,18 +558,36 @@
                 const textSpacing = 15;
                 const textHeight = text ? (fontSize + textSpacing) : 0;
 
-                // ตั้งขนาดให้พอดีกับภาพ QR Code เดิม + กรอบ + ข้อความ
                 finalCanvas.width = canvasElement.width + (padding * 2);
                 finalCanvas.height = canvasElement.height + (padding * 2) + textHeight;
 
-                // วาดพื้นหลังสีขาว
+                // 1. วาดพื้นหลังสีขาว
                 ctx.fillStyle = "#ffffff";
                 ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-                // นำรูปภาพ QR Code มาแปะ
+                // 2. วาดตัว QR Code ที่ปลอด Tainted 100%
                 ctx.drawImage(canvasElement, padding, padding);
 
-                // เติมข้อความลงไป
+                // 3. หากเปิดแบบ file:// และยังไม่ได้ปลดล็อกไฟล์ภาพ ให้วาดตราโลโก้สำรองลงตรงกลางเพื่อไม่ให้ตรงกลางเว้าว่าง
+                const selectedLogoValue = document.querySelector('input[name="logoOption"]:checked').value;
+                const selectedColorValue = document.querySelector('input[name="colorOption"]:checked').value;
+                if (selectedLogoValue !== 'none' && !currentSafeLogoDataUrl) {
+                    const badgeDataUrl = createFallbackBadgeDataUrl(selectedLogoValue, colorMap[selectedColorValue].dots);
+                    await new Promise((resolve) => {
+                        const badgeImg = new Image();
+                        badgeImg.onload = () => {
+                            const logoSize = canvasElement.width * 0.24;
+                            const logoX = padding + (canvasElement.width - logoSize) / 2;
+                            const logoY = padding + (canvasElement.height - logoSize) / 2;
+                            ctx.drawImage(badgeImg, logoX, logoY, logoSize, logoSize);
+                            resolve();
+                        };
+                        badgeImg.onerror = resolve;
+                        badgeImg.src = badgeDataUrl;
+                    });
+                }
+
+                // 4. วาดข้อความคำอธิบายด้านล่าง
                 if (text) {
                     ctx.fillStyle = "#1f2937";
                     ctx.font = `500 ${fontSize}px Inter, Sarabun, sans-serif`;
@@ -439,24 +596,39 @@
                     ctx.fillText(text, finalCanvas.width / 2, padding + canvasElement.height + textSpacing);
                 }
 
-                // 3. เริ่มกระบวนการดาวน์โหลด
-                const link = document.createElement("a");
-                link.download = text ? `QR_${text}.png` : "qrcode.png";
-                link.href = finalCanvas.toDataURL("image/png");
-                link.click();
+                // 5. ตั้งชื่อไฟล์ให้ปลอดภัยจากอักขระพิเศษและสั่งดาวน์โหลดผ่าน Blob URL
+                const safeFilename = text ? `QR_${text.replace(/[\\/:*?"<>|]/g, '_')}.png` : "qrcode.png";
+
+                finalCanvas.toBlob((blob) => {
+                    if (!blob) {
+                        const dataUrl = finalCanvas.toDataURL("image/png");
+                        triggerDownload(dataUrl, safeFilename);
+                        return;
+                    }
+                    const blobUrl = URL.createObjectURL(blob);
+                    triggerDownload(blobUrl, safeFilename, true);
+                }, "image/png");
 
             } catch (error) {
                 console.error("Download Error:", error);
-                if (error.name === "SecurityError" || error.message.includes("Tainted")) {
-                    alert("ไม่สามารถดาวน์โหลดได้เนื่องจากติดระบบรักษาความปลอดภัยของเบราว์เซอร์\n\nคำแนะนำ: คุณอาจต้องเปิดไฟล์ HTML นี้ผ่าน Local Server (เช่น Live Server) หรืออัปโหลดขึ้น Host จริง");
-                } else {
-                    alert("เกิดข้อผิดพลาด: " + error.message);
-                }
+                alert("เกิดข้อผิดพลาด: " + error.message);
             } finally {
                 downloadBtn.textContent = originalBtnText;
                 downloadBtn.disabled = false;
             }
         });
+
+        function triggerDownload(url, filename, isBlob = false) {
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            if (isBlob) {
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
+        }
     </script>
 </body>
 </html>
