@@ -1,0 +1,2546 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบเฝ้าระวังและวิเคราะห์ข่าวสิ่งแวดล้อมและมลพิษ (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Sarabun & Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'sans-serif'],
+                        display: ['Prompt', 'sans-serif'],
+                    },
+                    colors: {
+                        env: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                            950: '#052e16',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f4f9f6;
+        }
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Prompt', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
+            100% { transform: scale(0.98); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+        }
+        .pulse-btn {
+            animation: pulse-ring 2s infinite;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: #ffffff !important;
+            }
+            .print-shadow-none {
+                box-shadow: none !important;
+                border: 1px solid #e2e8f0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none no-print"></div>
+
+    <!-- Top Navigation / Header -->
+    <header class="bg-gradient-to-r from-emerald-900 via-teal-800 to-emerald-900 text-white shadow-lg sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shadow-inner shrink-0">
+                        <i data-lucide="radar" class="w-6 h-6 text-emerald-300"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">ระบบเฝ้าระวังและวิเคราะห์ข่าวสิ่งแวดล้อมและมลพิษ</h1>
+                            <span class="px-2.5 py-0.5 text-xs font-semibold bg-emerald-400/20 text-emerald-200 border border-emerald-400/30 rounded-full">สคพ.11 (Social Listening & AI)</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-emerald-200/90">เขตพื้นที่รับผิดชอบ 4 จังหวัด: นครราชสีมา (โคราช) • ชัยภูมิ • บุรีรัมย์ • สุรินทร์</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="pasteFromClipboardAndAnalyze(false)" class="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow transition" title="วางข่าวที่เพิ่งก๊อปปี้มาจาก Google News แล้วจัดประเภททันที">
+                        <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+                        <span>วางข่าวที่ก๊อปปี้ & จัดประเภททันที</span>
+                    </button>
+                    <button onclick="loadDemoNews()" class="px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 text-xs sm:text-sm font-medium flex items-center gap-1.5 transition" title="โหลดข้อมูลข่าวตัวอย่างเพื่อทดสอบระบบทันที">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+                        <span>โหลดข่าวตัวอย่าง</span>
+                    </button>
+                    <button onclick="openReportModal()" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs sm:text-sm font-medium flex items-center gap-1.5 transition">
+                        <i data-lucide="file-text" class="w-4 h-4 text-emerald-300"></i>
+                        <span>สร้างรายงานส่ง LINE</span>
+                    </button>
+                    <button onclick="toggleApiKeyModal()" class="px-3 py-2 rounded-xl bg-emerald-950/60 hover:bg-emerald-950 text-emerald-200 border border-emerald-700 text-xs sm:text-sm font-medium flex items-center gap-1.5 transition" title="ตั้งค่า Gemini API Key">
+                        <i data-lucide="key-round" class="w-4 h-4 text-emerald-400"></i>
+                        <span id="apiKeyStatusText">AI พร้อมใช้งาน</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">
+
+        <!-- Print-Only Report Header -->
+        <div class="hidden print:block border-b-2 border-emerald-800 pb-4 mb-6">
+            <h1 class="text-2xl font-bold text-emerald-900">รายงานสรุปสถานการณ์ข่าวสิ่งแวดล้อมและมลพิษ (Social Listening)</h1>
+            <p class="text-sm text-slate-600">พื้นที่ติดตาม: นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์ | พิมพ์เมื่อ: <span id="printTimestamp"></span></p>
+        </div>
+
+        <!-- STEP 1: Search & Filter Control Panel -->
+        <section class="bg-white rounded-2xl shadow-sm border border-emerald-100 overflow-hidden no-print">
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-emerald-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-heading font-bold text-sm flex items-center justify-center shadow-sm">1</span>
+                    <h2 class="text-base sm:text-lg font-bold text-emerald-950">ตั้งค่าการค้นหาข่าว ห้วงเวลา และประเด็นมลพิษ</h2>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-emerald-700 font-medium">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>ห้วงเวลาที่เลือก: <strong id="currentTimeframeBadge" class="underline">รอบ 24 ชม. ที่ผ่านมา</strong></span>
+                </div>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-6">
+                <!-- 1.1 Timeframe Selection -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2.5 flex items-center gap-1.5">
+                        <i data-lucide="calendar-clock" class="w-4 h-4 text-emerald-600"></i>
+                        <span>เลือกห้วงเวลาที่ต้องการกวาดข่าว (Timeframe):</span>
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2" id="timeframeButtons">
+                        <button type="button" onclick="selectTimeframe('1d')" data-tf="1d" class="tf-btn active-tf px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span>รอบ 24 ชม.</span>
+                            <span class="text-[11px] font-normal opacity-80">1 วันที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('2d')" data-tf="2d" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span>รอบ 2 วัน</span>
+                            <span class="text-[11px] font-normal opacity-80">48 ชม. ที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('3d')" data-tf="3d" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span>รอบ 3 วัน</span>
+                            <span class="text-[11px] font-normal opacity-80">72 ชม. ที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('4d')" data-tf="4d" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span>รอบ 4 วัน</span>
+                            <span class="text-[11px] font-normal opacity-80">4 วันที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('5d')" data-tf="5d" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span>รอบ 5 วัน</span>
+                            <span class="text-[11px] font-normal opacity-80">5 วันที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('6d')" data-tf="6d" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span>รอบ 6 วัน</span>
+                            <span class="text-[11px] font-normal opacity-80">6 วันที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('7d')" data-tf="7d" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span>รอบสัปดาห์</span>
+                            <span class="text-[11px] font-normal opacity-80">7 วันที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('30d')" data-tf="30d" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span>รอบเดือน</span>
+                            <span class="text-[11px] font-normal opacity-80">30 วันที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('1y')" data-tf="1y" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span class="text-amber-700">รอบ 1 ปี</span>
+                            <span class="text-[11px] font-normal opacity-80">1 ปีที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('3y')" data-tf="3y" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span class="text-amber-700">รอบ 3 ปี</span>
+                            <span class="text-[11px] font-normal opacity-80">3 ปีที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('5y')" data-tf="5y" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span class="text-amber-700">รอบ 5 ปี</span>
+                            <span class="text-[11px] font-normal opacity-80">5 ปีที่ผ่านมา</span>
+                        </button>
+                        <button type="button" onclick="selectTimeframe('10y')" data-tf="10y" class="tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition flex flex-col items-center justify-center gap-0.5">
+                            <span class="text-amber-700">รอบ 10 ปี</span>
+                            <span class="text-[11px] font-normal opacity-80">10 ปีที่ผ่านมา</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1.2 Province Selection -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2 border-t border-slate-100">
+                    <div class="lg:col-span-5">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <label class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i>
+                                <span>พื้นที่จังหวัดเป้าหมาย (เลือกได้มากกว่า 1):</span>
+                            </label>
+                            <button type="button" onclick="selectAllProvinces()" class="text-xs text-emerald-600 hover:text-emerald-800 font-semibold underline">เลือกครบ 4 จังหวัด</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5" id="provinceSelector">
+                            <button type="button" onclick="toggleProvince('นครราชสีมา')" data-prov="นครราชสีมา" class="prov-btn active px-3.5 py-2.5 rounded-xl border text-left transition flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-sm">นครราชสีมา</div>
+                                    <div class="text-[11px] opacity-80">โคราช (32 อำเภอ)</div>
+                                </div>
+                                <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 prov-icon"></i>
+                            </button>
+                            <button type="button" onclick="toggleProvince('ชัยภูมิ')" data-prov="ชัยภูมิ" class="prov-btn active px-3.5 py-2.5 rounded-xl border text-left transition flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-sm">ชัยภูมิ</div>
+                                    <div class="text-[11px] opacity-80">16 อำเภอ</div>
+                                </div>
+                                <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 prov-icon"></i>
+                            </button>
+                            <button type="button" onclick="toggleProvince('บุรีรัมย์')" data-prov="บุรีรัมย์" class="prov-btn active px-3.5 py-2.5 rounded-xl border text-left transition flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-sm">บุรีรัมย์</div>
+                                    <div class="text-[11px] opacity-80">23 อำเภอ</div>
+                                </div>
+                                <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 prov-icon"></i>
+                            </button>
+                            <button type="button" onclick="toggleProvince('สุรินทร์')" data-prov="สุรินทร์" class="prov-btn active px-3.5 py-2.5 rounded-xl border text-left transition flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-sm">สุรินทร์</div>
+                                    <div class="text-[11px] opacity-80">17 อำเภอ</div>
+                                </div>
+                                <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0 prov-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 1.3 Topic Keyword Groups -->
+                    <div class="lg:col-span-7">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <label class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                                <i data-lucide="tags" class="w-4 h-4 text-emerald-600"></i>
+                                <span>กลุ่มคำค้นหาด้านสิ่งแวดล้อมและมลพิษ:</span>
+                            </label>
+                            <button type="button" onclick="selectAllTopics()" class="text-xs text-emerald-600 hover:text-emerald-800 font-semibold underline">เลือกทุกประเด็น</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2" id="topicSelector">
+                            <button type="button" onclick="toggleTopic('water')" data-topic="water" class="topic-btn active px-3 py-2 rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+                                <span>💧 มลพิษทางน้ำ (น้ำเสีย/ปลาตาย/น้ำเน่า)</span>
+                            </button>
+                            <button type="button" onclick="toggleTopic('air')" data-topic="air" class="topic-btn active px-3 py-2 rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+                                <span>💨 อากาศและเสียง (PM2.5/เผาอ้อย/ไฟป่า/กลิ่นเหม็น)</span>
+                            </button>
+                            <button type="button" onclick="toggleTopic('waste')" data-topic="waste" class="topic-btn active px-3 py-2 rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+                                <span>☣️ ขยะและสารเคมี (บ่อขยะ/กากอุตสาหกรรม/ลักลอบทิ้ง)</span>
+                            </button>
+                            <button type="button" onclick="toggleTopic('complaint')" data-topic="complaint" class="topic-btn active px-3 py-2 rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+                                <span>🏭 เหตุรำคาญ/ร้องเรียน (โรงงาน/ฟาร์มหมู/ลานมัน)</span>
+                            </button>
+                            <button type="button" onclick="toggleTopic('general')" data-topic="general" class="topic-btn active px-3 py-2 rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+                                <span>🌳 ภาพรวมสิ่งแวดล้อมและทรัพยากร</span>
+                            </button>
+                        </div>
+
+                        <!-- Custom Keywords Input -->
+                        <div class="mt-3">
+                            <div class="relative">
+                                <input type="text" id="customKeywords" oninput="updateQueryPreview()" placeholder="พิมพ์คำค้นหาเฉพาะเจาะจงเพิ่มเติม (คั่นด้วยจุลภาค เช่น ลำตะคอง, โรงงานน้ำตาล, ปลาตาย)..." 
+                                    class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-xs sm:text-sm bg-slate-50/70">
+                                <i data-lucide="search-code" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1.4 Live Query Preview Bar -->
+                <div class="bg-slate-900 text-slate-200 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-start sm:items-center gap-2.5 overflow-hidden">
+                        <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-mono shrink-0">QUERY</span>
+                        <code id="queryPreviewText" class="text-xs text-emerald-200 font-mono truncate block"></code>
+                    </div>
+                    <button type="button" onclick="copyQueryText()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 shrink-0 border border-slate-700 transition self-end sm:self-auto">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        <span>คัดลอกคำค้น</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2: Action Hub & Instant Google News Paste -->
+        <section class="bg-white rounded-2xl shadow-sm border border-emerald-100 overflow-hidden no-print">
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-emerald-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-heading font-bold text-sm flex items-center justify-center shadow-sm">2</span>
+                    <h2 class="text-base sm:text-lg font-bold text-emerald-950">ดึงข่าวจริงอัตโนมัติ หรือก๊อปปี้จาก Google News มาวางเพื่อจัดประเภททันที</h2>
+                </div>
+                <span class="text-xs text-emerald-700 font-semibold">รองรับการดึงอัตโนมัติ (GAS) และการวางข้อความอัจฉริยะ (Smart Paste)</span>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-5">
+                <!-- Primary Action Buttons Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    <!-- Button 1: Auto Fetch & Analyze -->
+                    <button type="button" onclick="fetchGoogleNewsAndAnalyze()" id="btnAutoFetch" class="pulse-btn md:col-span-2 lg:col-span-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl p-4 shadow-md transition flex flex-col justify-between text-left group">
+                        <div class="flex items-center justify-between w-full mb-2">
+                            <span class="p-2 rounded-xl bg-white/20 text-white">
+                                <i data-lucide="zap" class="w-5 h-5"></i>
+                            </span>
+                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/20">ดึงข่าวจริง • อัตโนมัติ</span>
+                        </div>
+                        <div>
+                            <div class="font-heading font-bold text-base">ดึงข่าวจริง & วิเคราะห์ทันที</div>
+                            <div class="text-xs text-emerald-100 mt-0.5">กวาดข่าวจริงจาก Google News ทั้ง 4 จังหวัด แยก 6 ประเภทมลพิษและสรุปผล</div>
+                        </div>
+                    </button>
+
+                    <!-- Button 2: Open Google News Tab -->
+                    <button type="button" onclick="openGoogleSearch('news')" class="bg-blue-50 hover:bg-blue-100/80 border border-blue-200 text-blue-950 rounded-2xl p-4 transition flex flex-col justify-between text-left group">
+                        <div class="flex items-center justify-between w-full mb-2">
+                            <span class="p-2 rounded-xl bg-blue-600 text-white">
+                                <i data-lucide="newspaper" class="w-5 h-5"></i>
+                            </span>
+                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 flex items-center gap-1">
+                                เปิดค้น & ก๊อปปี้มาวาง <i data-lucide="external-link" class="w-3 h-3"></i>
+                            </span>
+                        </div>
+                        <div>
+                            <div class="font-heading font-bold text-base text-blue-900">เปิดดู Google News</div>
+                            <div class="text-xs text-blue-700/80 mt-0.5">เปิดหน้าข่าว Google News ตามห้วงเวลา แล้วกด Ctrl+A Ctrl+C มาวางด้านล่างได้ทันที</div>
+                        </div>
+                    </button>
+
+                    <!-- Button 3: Open Google All Web Search Tab -->
+                    <button type="button" onclick="openGoogleSearch('all')" class="bg-indigo-50 hover:bg-indigo-100/80 border border-indigo-200 text-indigo-950 rounded-2xl p-4 transition flex flex-col justify-between text-left group">
+                        <div class="flex items-center justify-between w-full mb-2">
+                            <span class="p-2 rounded-xl bg-indigo-600 text-white">
+                                <i data-lucide="globe" class="w-5 h-5"></i>
+                            </span>
+                            <i data-lucide="external-link" class="w-4 h-4 text-indigo-500 group-hover:translate-x-0.5 transition"></i>
+                        </div>
+                        <div>
+                            <div class="font-heading font-bold text-base text-indigo-900">เปิดดู Google Search ทั้งหมด</div>
+                            <div class="text-xs text-indigo-700/80 mt-0.5">ค้นหาทุกเว็บไซต์ หน่วยงานรัฐ และบทความตามห้วงเวลา</div>
+                        </div>
+                    </button>
+
+                    <!-- Button 4: Open Social Listening via Google -->
+                    <button type="button" onclick="openGoogleSearch('social')" class="bg-rose-50 hover:bg-rose-100/80 border border-rose-200 text-rose-950 rounded-2xl p-4 transition flex flex-col justify-between text-left group">
+                        <div class="flex items-center justify-between w-full mb-2">
+                            <span class="p-2 rounded-xl bg-rose-600 text-white">
+                                <i data-lucide="message-circle-warning" class="w-5 h-5"></i>
+                            </span>
+                            <i data-lucide="external-link" class="w-4 h-4 text-rose-500 group-hover:translate-x-0.5 transition"></i>
+                        </div>
+                        <div>
+                            <div class="font-heading font-bold text-base text-rose-900">กวาดโพสต์ Facebook / Social</div>
+                            <div class="text-xs text-rose-700/80 mt-0.5">ค้นหาโพสต์ร้องเรียนในเพจข่าวและกลุ่มสาธารณะผ่าน Google</div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Quick Individual Province Google News & Search Shortcuts -->
+                <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                        <i data-lucide="compass" class="w-4 h-4 text-emerald-600"></i>
+                        <span>ทางลัดเปิด Google News แยกรายจังหวัด (ตามห้วงเวลาที่เลือก):</span>
+                    </span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" onclick="openSingleProvinceGoogle('นครราชสีมา', true)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 text-xs font-medium transition flex items-center gap-1">
+                            <span>📰 ข่าวนครราชสีมา (โคราช)</span>
+                        </button>
+                        <button type="button" onclick="openSingleProvinceGoogle('ชัยภูมิ', true)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 text-xs font-medium transition flex items-center gap-1">
+                            <span>📰 ข่าวชัยภูมิ</span>
+                        </button>
+                        <button type="button" onclick="openSingleProvinceGoogle('บุรีรัมย์', true)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 text-xs font-medium transition flex items-center gap-1">
+                            <span>📰 ข่าวบุรีรัมย์</span>
+                        </button>
+                        <button type="button" onclick="openSingleProvinceGoogle('สุรินทร์', true)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 text-xs font-medium transition flex items-center gap-1">
+                            <span>📰 ข่าวสุรินทร์</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Fetching / AI Status Banner -->
+                <div id="fetchingStatusBanner" class="hidden rounded-xl bg-emerald-50 border-2 border-emerald-300 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin shrink-0"></div>
+                        <div>
+                            <div id="fetchingStatusTitle" class="text-sm font-bold text-emerald-900">กำลังดึงข้อมูลข่าวสิ่งแวดล้อมและมลพิษ...</div>
+                            <div id="fetchingStatusSub" class="text-xs text-emerald-700">กำลังเชื่อมต่อ Google News RSS และคัดกรองตามห้วงเวลา</div>
+                        </div>
+                    </div>
+                    <span id="fetchingProgressBadge" class="text-xs font-mono text-emerald-700 bg-white px-3 py-1.5 rounded-lg border border-emerald-200 font-bold self-start sm:self-auto">กำลังค้นหา...</span>
+                </div>
+
+                <!-- ALWAYS-READY SMART PASTE BOX FOR GOOGLE NEWS -->
+                <div id="quickPasteSection" class="border-2 border-emerald-200 bg-emerald-50/30 rounded-2xl overflow-hidden transition-all">
+                    <div class="px-4 py-3 bg-gradient-to-r from-emerald-100/80 to-teal-100/60 border-b border-emerald-200 flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="p-1.5 rounded-lg bg-emerald-600 text-white">
+                                <i data-lucide="clipboard-paste" class="w-4 h-4"></i>
+                            </span>
+                            <div>
+                                <h3 class="text-xs sm:text-sm font-bold text-emerald-950">ช่องวางข่าวด่วนจาก Google News / Google Search / LINE (วางปุ๊บ จัดประเภทปั๊บ)</h3>
+                                <p class="text-[11px] text-emerald-800">ก๊อปปี้ข้อความจากหน้า Google News (Ctrl+A Ctrl+C หรือลากคลุมข่าว) แล้วกดปุ่มสีเขียวด้านขวา หรือกด Ctrl+V ในช่องด้านล่างได้ทันที</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="pasteFromClipboardAndAnalyze(false)" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                                <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+                                <span>คลิกเดียววางจากคลิปบอร์ด & จัดประเภท (รวมข่าวเดิม)</span>
+                            </button>
+                            <button type="button" onclick="pasteFromClipboardAndAnalyze(true)" class="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition" title="ล้างข่าวเก่าแล้ววิเคราะห์เฉพาะที่ก๊อปปี้มาใหม่">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                <span>วางทับ & จัดประเภทเฉพาะชุดใหม่</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="manualInputContainer" class="p-4 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <label class="inline-flex items-center gap-2 cursor-pointer select-none font-semibold text-emerald-900 bg-white px-3 py-1.5 rounded-lg border border-emerald-200">
+                                <input type="checkbox" id="autoAnalyzeOnPaste" checked class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4">
+                                <span>⚡ จัดประเภทและนับจำนวนอัตโนมัติทันทีที่กดวาง (Ctrl+V) ลงในกล่องข้อความ</span>
+                            </label>
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-500">บังคับระบุจังหวัด (กรณีข่าวไม่เขียนชื่อจังหวัด):</span>
+                                <select id="manualDefaultProvince" class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <option value="AUTO">ตรวจจับจังหวัดอัตโนมัติจากเนื้อหา</option>
+                                    <option value="นครราชสีมา">บังคับเป็น: นครราชสีมา (โคราช)</option>
+                                    <option value="ชัยภูมิ">บังคับเป็น: ชัยภูมิ</option>
+                                    <option value="บุรีรัมย์">บังคับเป็น: บุรีรัมย์</option>
+                                    <option value="สุรินทร์">บังคับเป็น: สุรินทร์</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <textarea id="manualNewsInput" rows="4" placeholder="คลิกที่นี่แล้วกด Ctrl+V เพื่อวางข่าวที่คัดลอกมาจากหน้า Google News หรือ Google Search ระบบจะแยกพาดหัวข่าว สำนักข่าว เวลา และจัดเข้า 6 หมวดมลพิษให้อัตโนมัติทันที..." 
+                            class="w-full p-3.5 rounded-xl border border-emerald-300 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-xs sm:text-sm leading-relaxed"></textarea>
+
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button type="button" onclick="parseAndAddManualNews(false)" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-sm transition">
+                                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                                    <span>นำข้อความนี้ไปรวมวิเคราะห์และแยกประเภท</span>
+                                </button>
+                                <button type="button" onclick="parseAndAddManualNews(true)" class="px-3.5 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    <span>วิเคราะห์เฉพาะข้อความที่วางใหม่ (ล้างของเดิม)</span>
+                                </button>
+                            </div>
+                            <button type="button" onclick="document.getElementById('manualNewsInput').value=''" class="text-xs text-slate-500 hover:text-rose-600 font-medium underline">ล้างช่องข้อความ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3: Analytics, Counting, Categorization & Executive Summary Dashboard -->
+        <section id="dashboardSection" class="space-y-6">
+
+            <!-- 3.1 Top KPI Summary Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                <!-- Total News Card -->
+                <div onclick="resetNewsListFilters()" class="cursor-pointer bg-gradient-to-br from-emerald-800 to-teal-900 text-white rounded-2xl p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium text-emerald-200">จำนวนข่าวทั้งหมด</span>
+                        <i data-lucide="layers" class="w-4 h-4 text-emerald-300"></i>
+                    </div>
+                    <div class="my-2">
+                        <span id="kpiTotal" class="text-3xl sm:text-4xl font-heading font-bold">0</span>
+                        <span class="text-xs text-emerald-200 ml-1">ข่าว</span>
+                    </div>
+                    <div id="kpiTimeframeLabel" class="text-[11px] text-emerald-200/90 truncate">คลิกเพื่อดูทั้งหมด</div>
+                </div>
+
+                <!-- High Urgency Card -->
+                <div onclick="filterNewsByUrgency('เร่งด่วนมาก')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-rose-200 hover:border-rose-400 transition flex flex-col justify-between print-shadow-none">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-rose-700">ประเด็นเร่งด่วนสูง</span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+                    </div>
+                    <div class="my-2">
+                        <span id="kpiUrgent" class="text-3xl sm:text-4xl font-heading font-bold text-rose-600">0</span>
+                        <span class="text-xs text-slate-500 ml-1">ข่าว</span>
+                    </div>
+                    <div class="text-[11px] text-rose-600 font-medium">ต้องเฝ้าระวัง/ตรวจสอบ</div>
+                </div>
+
+                <!-- Nakhon Ratchasima Card -->
+                <div onclick="filterNewsByProvince('นครราชสีมา')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700">นครราชสีมา (โคราช)</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold" id="pctKorat">0%</span>
+                    </div>
+                    <div class="my-2">
+                        <span id="kpiKorat" class="text-3xl font-heading font-bold text-slate-800">0</span>
+                        <span class="text-xs text-slate-500 ml-1">ข่าว</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div id="barKorat" class="bg-emerald-600 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Chaiyaphum Card -->
+                <div onclick="filterNewsByProvince('ชัยภูมิ')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700">ชัยภูมิ</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 font-semibold" id="pctChaiyaphum">0%</span>
+                    </div>
+                    <div class="my-2">
+                        <span id="kpiChaiyaphum" class="text-3xl font-heading font-bold text-slate-800">0</span>
+                        <span class="text-xs text-slate-500 ml-1">ข่าว</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div id="barChaiyaphum" class="bg-teal-600 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Buriram Card -->
+                <div onclick="filterNewsByProvince('บุรีรัมย์')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700">บุรีรัมย์</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-50 text-cyan-700 font-semibold" id="pctBuriram">0%</span>
+                    </div>
+                    <div class="my-2">
+                        <span id="kpiBuriram" class="text-3xl font-heading font-bold text-slate-800">0</span>
+                        <span class="text-xs text-slate-500 ml-1">ข่าว</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div id="barBuriram" class="bg-cyan-600 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Surin Card -->
+                <div onclick="filterNewsByProvince('สุรินทร์')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700">สุรินทร์</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold" id="pctSurin">0%</span>
+                    </div>
+                    <div class="my-2">
+                        <span id="kpiSurin" class="text-3xl font-heading font-bold text-slate-800">0</span>
+                        <span class="text-xs text-slate-500 ml-1">ข่าว</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div id="barSurin" class="bg-amber-500 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3.2 Category Breakdown & Cross-Province Matrix -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: 6 Pollution Categories Visual Breakdown -->
+                <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-emerald-100 p-5 sm:p-6 print-shadow-none">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-5 h-5 text-emerald-600"></i>
+                            <span>แยกจำนวนข่าวตามประเภทปัญหาสิ่งแวดล้อมและมลพิษ</span>
+                        </h3>
+                        <span class="text-xs text-slate-400 no-print">คลิกที่หมวดเพื่อกรองข่าว</span>
+                    </div>
+
+                    <div id="categoryBreakdownList" class="space-y-3">
+                        <!-- Dynamically populated category bars -->
+                    </div>
+                </div>
+
+                <!-- Right: Cross-Tabulation Table -->
+                <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-emerald-100 p-5 sm:p-6 print-shadow-none flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                                <i data-lucide="table-2" class="w-5 h-5 text-emerald-600"></i>
+                                <span>ตารางสรุปจำนวนข่าวแยกรายจังหวัดและประเภทปัญหา</span>
+                            </h3>
+                            <span class="text-xs px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-medium">หน่วย: ข่าว</span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs sm:text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-600 border-y border-slate-200">
+                                        <th class="py-2.5 px-3 text-left font-bold">ประเภทปัญหา / มลพิษ</th>
+                                        <th class="py-2.5 px-2 text-center font-bold">โคราช</th>
+                                        <th class="py-2.5 px-2 text-center font-bold">ชัยภูมิ</th>
+                                        <th class="py-2.5 px-2 text-center font-bold">บุรีรัมย์</th>
+                                        <th class="py-2.5 px-2 text-center font-bold">สุรินทร์</th>
+                                        <th class="py-2.5 px-2 text-center font-bold bg-emerald-50 text-emerald-900">รวม</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="matrixTableBody" class="divide-y divide-slate-100">
+                                    <!-- Dynamically populated matrix rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                        <span>* นับตามจังหวัดหลักที่เกิดเหตุหรือปรากฏลำดับแรกในข่าว</span>
+                        <button type="button" onclick="openReportModal()" class="text-emerald-600 hover:text-emerald-800 font-semibold flex items-center gap-1 no-print">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>คัดลอกตารางสรุป</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3.3 Executive Summary & AI Synthesis -->
+            <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 overflow-hidden print-shadow-none">
+                <div class="bg-gradient-to-r from-emerald-900 to-teal-800 text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-amber-300"></i>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold">บทสรุปผู้บริหารและการสังเคราะห์สถานการณ์ (Executive Summary)</h3>
+                            <p class="text-xs text-emerald-200">สรุปประเด็นสำคัญ แนวโน้มความรุนแรง และข้อเสนอแนะเพื่อการเฝ้าระวังในพื้นที่ 4 จังหวัด</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 no-print">
+                        <button type="button" onclick="runGeminiDeepAnalysis()" id="btnGeminiDeep" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow transition">
+                            <i data-lucide="bot" class="w-4 h-4"></i>
+                            <span>วิเคราะห์เชิงลึกด้วย Gemini AI</span>
+                        </button>
+                        <button type="button" onclick="copyExecutiveSummary()" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>คัดลอกบทสรุป</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-5 sm:p-6">
+                    <!-- AI Loading Spinner -->
+                    <div id="aiSummaryLoading" class="hidden py-8 flex flex-col items-center justify-center text-center space-y-3">
+                        <div class="w-9 h-9 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+                        <p class="text-sm font-bold text-emerald-800">Gemini AI กำลังอ่านข่าวทั้งหมดเพื่อสรุปประเด็นสำคัญและจัดลำดับความเร่งด่วน...</p>
+                    </div>
+
+                    <!-- Summary Content Container -->
+                    <div id="executiveSummaryContent" class="space-y-5">
+                        <!-- Populated automatically by Smart Analyzer & Gemini AI -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3.4 Detailed Categorized News List & Filter Bar -->
+            <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 overflow-hidden print-shadow-none">
+                <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="list-filter" class="w-5 h-5 text-emerald-600"></i>
+                            <span>รายการข่าวสิ่งแวดล้อมและมลพิษที่ตรวจพบ</span>
+                            <span id="filteredCountBadge" class="px-2.5 py-0.5 text-xs rounded-full bg-emerald-100 text-emerald-800 font-bold">0 รายการ</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">สามารถเปลี่ยนหมวดหมู่หรือจังหวัดในแต่ละข่าวได้โดยตรง ระบบจะคำนวณตารางสรุปใหม่ทันที</p>
+                    </div>
+
+                    <!-- Filters & Search within results -->
+                    <div class="flex flex-wrap items-center gap-2 no-print">
+                        <select id="filterProvinceSelect" onchange="applyNewsListFilters()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="ALL">ทุกจังหวัด (4 จังหวัด)</option>
+                            <option value="นครราชสีมา">นครราชสีมา (โคราช)</option>
+                            <option value="ชัยภูมิ">ชัยภูมิ</option>
+                            <option value="บุรีรัมย์">บุรีรัมย์</option>
+                            <option value="สุรินทร์">สุรินทร์</option>
+                        </select>
+
+                        <select id="filterCategorySelect" onchange="applyNewsListFilters()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="ALL">ทุกประเภทมลพิษ (6 หมวด)</option>
+                            <option value="water">💧 มลพิษทางน้ำ</option>
+                            <option value="air">💨 มลพิษทางอากาศ/กลิ่น/เสียง</option>
+                            <option value="waste">☣️ ขยะและของเสียอันตราย</option>
+                            <option value="complaint">🏭 เหตุรำคาญ/ร้องเรียนโรงงาน</option>
+                            <option value="conservation">🌳 การอนุรักษ์/แผนงาน/รณรงค์</option>
+                            <option value="other">📌 อื่นๆ ที่เกี่ยวข้อง</option>
+                        </select>
+
+                        <select id="filterUrgencySelect" onchange="applyNewsListFilters()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="ALL">ทุกระดับความเร่งด่วน</option>
+                            <option value="เร่งด่วนมาก">🔴 เร่งด่วนมาก</option>
+                            <option value="เฝ้าระวัง">🟡 เฝ้าระวัง</option>
+                            <option value="ทั่วไป">🟢 ทั่วไป/ประชาสัมพันธ์</option>
+                        </select>
+
+                        <div class="relative">
+                            <input type="text" id="searchInNewsInput" oninput="applyNewsListFilters()" placeholder="ค้นหาในรายการข่าว..." class="pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500 w-40 sm:w-48">
+                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2"></i>
+                        </div>
+
+                        <button type="button" onclick="exportCSV()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1 transition" title="ส่งออกเป็นไฟล์ Excel CSV">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            <span>CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- News Items List -->
+                <div id="newsListContainer" class="divide-y divide-slate-100">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+            <div>ระบบเฝ้าระวังและวิเคราะห์ข่าวสิ่งแวดล้อมและมลพิษ (Social Listening) • นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์</div>
+            <div class="flex items-center gap-3">
+                <button type="button" onclick="window.print()" class="hover:text-emerald-700 underline flex items-center gap-1">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> พิมพ์รายงาน / PDF
+                </button>
+                <span>•</span>
+                <button type="button" onclick="clearAllNews()" class="hover:text-rose-600 underline">ล้างข้อมูลทั้งหมด</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL 1: LINE / Executive Report Generator -->
+    <div id="reportModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-emerald-900 text-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="send" class="w-5 h-5 text-emerald-300"></i>
+                    <h3 class="font-bold text-base">สร้างรายงานสรุปสำหรับส่ง LINE / รายงานผู้บริหาร</h3>
+                </div>
+                <button type="button" onclick="closeReportModal()" class="text-emerald-200 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4 flex-1">
+                <p class="text-xs text-slate-500">ข้อความด้านล่างถูกจัดรูปแบบพร้อมส่งเข้ากลุ่ม LINE หรือแนบรายงานประจำวัน/สัปดาห์/เดือน สามารถแก้ไขเพิ่มเติมก่อนกดคัดลอกได้ทันที</p>
+                <textarea id="lineReportTextarea" rows="16" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-300 font-sans text-xs sm:text-sm leading-relaxed text-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+            </div>
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+                <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>พิมพ์รายงาน / PDF</span>
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeReportModal()" class="px-4 py-2.5 rounded-xl text-slate-600 hover:bg-slate-200 text-xs sm:text-sm font-medium">ปิดหน้าต่าง</button>
+                    <button type="button" onclick="copyLineReport()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span>คัดลอกข้อความรายงาน</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Gemini API Key Settings -->
+    <div id="apiKeyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="key-round" class="w-5 h-5 text-emerald-400"></i>
+                    <h3 class="font-bold text-base">ตั้งค่าระบบวิเคราะห์ Gemini AI</h3>
+                </div>
+                <button type="button" onclick="toggleApiKeyModal()" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 leading-relaxed">
+                    <strong>ระบบทำงานแบบ Hybrid Intelligence:</strong><br>
+                    1. <strong>ระบบวิเคราะห์ภาษาไทยอัตโนมัติในตัว (Built-in NLP):</strong> นับจำนวนข่าว แยก 6 ประเภทมลพิษ และแยก 4 จังหวัดได้ทันที 100% โดยไม่ต้องใช้คีย์<br>
+                    2. <strong>Gemini AI เชิงลึก:</strong> หากต้องการให้ AI ช่วยดึงข่าวเสริมหรือเขียนบทวิเคราะห์เชิงลึก สามารถใส่ Gemini API Key ด้านล่างได้ครับ
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Gemini API Key (เว้นว่างไว้ได้หากใช้ระบบจัดหมวดหมู่อัตโนมัติในตัว):</label>
+                    <input type="password" id="userApiKeyInput" placeholder="AIzaSy..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+            </div>
+            <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+                <button type="button" onclick="toggleApiKeyModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-200">ปิด</button>
+                <button type="button" onclick="saveUserApiKey()" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white">บันทึกการตั้งค่า</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. STATE & CONFIGURATION
+        // ==========================================
+        const TIMEFRAMES = {
+            '1d':  { label: 'รอบ 24 ชม. ที่ผ่านมา', tbs: 'qdr:d',   rssWhen: 'when:1d', hours: 24 },
+            '2d':  { label: 'รอบ 2 วันที่ผ่านมา',    tbs: 'qdr:d2',  rssWhen: 'when:7d', hours: 48 },
+            '3d':  { label: 'รอบ 3 วันที่ผ่านมา',    tbs: 'qdr:d3',  rssWhen: 'when:7d', hours: 72 },
+            '4d':  { label: 'รอบ 4 วันที่ผ่านมา',    tbs: 'qdr:d4',  rssWhen: 'when:7d', hours: 96 },
+            '5d':  { label: 'รอบ 5 วันที่ผ่านมา',    tbs: 'qdr:d5',  rssWhen: 'when:7d', hours: 120 },
+            '6d':  { label: 'รอบ 6 วันที่ผ่านมา',    tbs: 'qdr:d6',  rssWhen: 'when:7d', hours: 144 },
+            '7d':  { label: 'รอบสัปดาห์ที่ผ่านมา (7 วัน)', tbs: 'qdr:w', rssWhen: 'when:7d', hours: 168 },
+            '30d': { label: 'รอบเดือนที่ผ่านมา (30 วัน)',  tbs: 'qdr:m', rssWhen: 'when:1m', hours: 720 },
+            '1y':  { label: 'รอบ 1 ปีที่ผ่านมา',      tbs: 'qdr:y',   rssWhen: 'when:1y', hours: 8760 },
+            '3y':  { label: 'รอบ 3 ปีที่ผ่านมา',      tbs: 'qdr:y3',  rssWhen: '',        hours: 26280 },
+            '5y':  { label: 'รอบ 5 ปีที่ผ่านมา',      tbs: 'qdr:y5',  rssWhen: '',        hours: 43800 },
+            '10y': { label: 'รอบ 10 ปีที่ผ่านมา',     tbs: 'qdr:y10', rssWhen: '',        hours: 87600 }
+        };
+
+        const PROVINCE_CONFIG = {
+            'นครราชสีมา': {
+                name: 'นครราชสีมา',
+                shortName: 'โคราช',
+                searchTerms: ['"นครราชสีมา"', '"โคราช"'],
+                directKeywords: ['นครราชสีมา', 'โคราช'],
+                districtKeywords: [
+                    'ปากช่อง', 'พิมาย', 'บัวใหญ่', 'สีคิ้ว', 'ปักธงชัย', 
+                    'โชคชัย', 'ด่านขุนทด', 'โนนสูง', 'ครบุรี', 'เสิงสาง', 'วังน้ำเขียว', 'จักราช',
+                    'ห้วยแถลง', 'ประทาย', 'บ้านเหลื่อม', 'หนองบุญมาก', 'สูงเนิน', 'ขามทะเลสอ',
+                    'ขามสะแกแสง', 'โนนไทย', 'โนนแดง', 'ลำทะเมนชัย', 'เมืองยาง',
+                    'พระทองคำ', 'เทพารักษ์', 'สีดา', 'บัวลาย', 'ลำตะคอง', 'เขาใหญ่'
+                ],
+                badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200'
+            },
+            'ชัยภูมิ': {
+                name: 'ชัยภูมิ',
+                shortName: 'ชัยภูมิ',
+                searchTerms: ['"ชัยภูมิ"'],
+                directKeywords: ['ชัยภูมิ'],
+                districtKeywords: [
+                    'ภูเขียว', 'จัตุรัส', 'แก้งคร้อ', 'เกษตรสมบูรณ์', 'บำเหน็จณรงค์',
+                    'คอนสวรรค์', 'หนองบัวแดง', 'บ้านเขว้า', 'คอนสาร', 'เทพสถิต', 'หนองบัวระเหว',
+                    'บ้านแท่น', 'ภักดีชุมพล', 'เนินสง่า', 'ซับใหญ่', 'ลำปะทาว', 'ชีลอง'
+                ],
+                badgeClass: 'bg-teal-100 text-teal-800 border-teal-200'
+            },
+            'บุรีรัมย์': {
+                name: 'บุรีรัมย์',
+                shortName: 'บุรีรัมย์',
+                searchTerms: ['"บุรีรัมย์"'],
+                directKeywords: ['บุรีรัมย์'],
+                districtKeywords: [
+                    'นางรอง', 'ประโคนชัย', 'ละหานทราย', 'ลำปลายมาศ', 'สตึก',
+                    'พุทไธสง', 'คูเมือง', 'กระสัง', 'บ้านกรวด', 'หนองกี่', 'ปะคำ', 'นาโพธิ์',
+                    'หนองหงส์', 'พลับพลาชัย', 'ห้วยราช', 'โนนสุวรรณ', 'ชำนิ', 'บ้านใหม่ไชยพจน์',
+                    'โนนดินแดง', 'บ้านด่าน', 'แคนดง'
+                ],
+                badgeClass: 'bg-cyan-100 text-cyan-800 border-cyan-200'
+            },
+            'สุรินทร์': {
+                name: 'สุรินทร์',
+                shortName: 'สุรินทร์',
+                searchTerms: ['"สุรินทร์"'],
+                directKeywords: ['สุรินทร์'],
+                districtKeywords: [
+                    'ปราสาท', 'ศีขรภูมิ', 'สังขะ', 'รัตนบุรี', 'สำโรงทาบ',
+                    'ท่าตูม', 'จอมพระ', 'ชุมพลบุรี', 'กาบเชิง', 'ลำดวน', 'สนม', 'บัวเชด',
+                    'พนมดงรัก', 'ศรีณรงค์', 'เขวาสินรินทร์', 'โนนนารายณ์', 'ห้วยเสนง'
+                ],
+                badgeClass: 'bg-amber-100 text-amber-800 border-amber-200'
+            }
+        };
+
+        const TOPIC_CONFIG = {
+            water: {
+                id: 'water',
+                name: 'มลพิษทางน้ำ (น้ำเสีย/แหล่งน้ำ)',
+                shortName: '💧 มลพิษทางน้ำ',
+                colorBar: 'bg-blue-500',
+                badgeClass: 'bg-blue-100 text-blue-800 border-blue-200',
+                searchTerms: ['น้ำเสีย', 'น้ำเน่า', 'ปลาตาย', 'มลพิษทางน้ำ', 'ปล่อยน้ำเสีย'],
+                detectKeywords: ['น้ำเสีย', 'น้ำเน่า', 'ปลาตาย', 'ปลาน็อกน้ำ', 'บำบัดน้ำ', 'ปล่อยน้ำ', 'น้ำมีกลิ่น', 'น้ำดำ', 'ลำน้ำ', 'ลำตะคอง', 'แม่น้ำมูล', 'ลำน้ำมูล', 'ลำจักราช', 'ลำปะทาว', 'แหล่งน้ำ', 'คุณภาพน้ำ', 'คราบน้ำมัน', 'น้ำปนเปื้อน', 'ห้วยเสนง', 'ประปาขุ่น', 'น้ำท่วมขังเน่า']
+            },
+            air: {
+                id: 'air',
+                name: 'มลพิษทางอากาศ กลิ่น และเสียง',
+                shortName: '💨 อากาศ/PM2.5/กลิ่น/เสียง',
+                colorBar: 'bg-orange-500',
+                badgeClass: 'bg-orange-100 text-orange-800 border-orange-200',
+                searchTerms: ['PM2.5', 'ฝุ่น', 'เผาอ้อย', 'ไฟป่า', 'กลิ่นเหม็น', 'มลพิษทางอากาศ'],
+                detectKeywords: ['pm2.5', 'pm 2.5', 'ฝุ่น', 'ควัน', 'เผาอ้อย', 'อ้อยไฟไหม้', 'เผาตอซัง', 'เผาฟาง', 'เผาขยะ', 'ไฟป่า', 'จุดความร้อน', 'hotspot', 'กลิ่นเหม็น', 'ส่งกลิ่น', 'เหม็นเน่า', 'กลิ่นฉุน', 'ควันดำ', 'มลพิษทางอากาศ', 'คุณภาพอากาศ', 'เสียงดัง', 'มลพิษทางเสียง', 'เขม่า', 'หมอกควัน']
+            },
+            waste: {
+                id: 'waste',
+                name: 'ขยะมูลฝอยและกากของเสียอันตราย',
+                shortName: '☣️ ขยะ/สารเคมี/ของเสีย',
+                colorBar: 'bg-purple-600',
+                badgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
+                searchTerms: ['ขยะ', 'บ่อขยะ', 'กากอุตสาหกรรม', 'สารเคมี', 'ลักลอบทิ้ง'],
+                detectKeywords: ['ขยะ', 'บ่อขยะ', 'ไฟไหม้บ่อขยะ', 'กากอุตสาหกรรม', 'กากของเสีย', 'สารเคมี', 'ของเสียอันตราย', 'ลักลอบทิ้ง', 'ขยะติดเชื้อ', 'ขยะล้น', 'หลุมฝังกลบ', 'แคดเมียม', 'สารพิษ', 'ขยะอิเล็กทรอนิกส์', 'คัดแยกขยะ', 'พลาสติก', 'กากพิษ', 'ถังสารเคมี']
+            },
+            complaint: {
+                id: 'complaint',
+                name: 'เหตุเดือดร้อนรำคาญและตรวจสอบโรงงาน',
+                shortName: '🏭 ร้องเรียน/โรงงาน/ฟาร์ม',
+                colorBar: 'bg-rose-500',
+                badgeClass: 'bg-rose-100 text-rose-800 border-rose-200',
+                searchTerms: ['โรงงาน', 'เหตุรำคาญ', 'ฟาร์มหมู', 'ลานมัน', 'เหมือง'],
+                detectKeywords: ['ร้องเรียน', 'เดือดร้อน', 'เหตุรำคาญ', 'โรงงาน', 'ฟาร์มหมู', 'ฟาร์มสุกร', 'ฟาร์มไก่', 'ลานมัน', 'โรงแป้งมัน', 'โรงสี', 'โรงงานน้ำตาล', 'เหมือง', 'บ่อทราย', 'ดูดทราย', 'ชาวบ้านโวย', 'ชาวบ้านร้อง', 'อุตสาหกรรมจังหวัด', 'สั่งปิด', 'ตรวจสอบโรงงาน', 'บุกตรวจ', 'โรงงานเถื่อน']
+            },
+            general: {
+                id: 'conservation',
+                name: 'การอนุรักษ์ แผนงาน และรณรงค์สิ่งแวดล้อม',
+                shortName: '🌳 อนุรักษ์/รณรงค์/แผนงาน',
+                colorBar: 'bg-emerald-500',
+                badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                searchTerms: ['สิ่งแวดล้อม', 'มลพิษ', 'ทรัพยากรธรรมชาติ'],
+                detectKeywords: ['อนุรักษ์', 'ปลูกป่า', 'ปลูกต้นไม้', 'พื้นที่สีเขียว', 'รณรงค์', 'ลดโลกร้อน', 'คาร์บอน', 'อบรม', 'ประชุม', 'แผนปฏิบัติการ', 'สิ่งแวดล้อมศึกษา', 'ธนาคารขยะ', 'จิตอาสา', 'ฟื้นฟู', 'ทรัพยากรธรรมชาติ', 'สคพ', 'ทสจ', 'กรมควบคุมมลพิษ']
+            }
+        };
+
+        const CATEGORY_DISPLAY_ORDER = [
+            { key: 'water', ...TOPIC_CONFIG.water },
+            { key: 'air', ...TOPIC_CONFIG.air },
+            { key: 'waste', ...TOPIC_CONFIG.waste },
+            { key: 'complaint', ...TOPIC_CONFIG.complaint },
+            { key: 'conservation', ...TOPIC_CONFIG.general },
+            {
+                key: 'other',
+                id: 'other',
+                name: 'อื่นๆ ที่เกี่ยวข้องกับสิ่งแวดล้อม/ภัยธรรมชาติ',
+                shortName: '📌 อื่นๆ ที่เกี่ยวข้อง',
+                colorBar: 'bg-slate-500',
+                badgeClass: 'bg-slate-100 text-slate-700 border-slate-200'
+            }
+        ];
+
+        // App State
+        let currentState = {
+            timeframe: '1d',
+            selectedProvinces: ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'],
+            selectedTopics: ['water', 'air', 'waste', 'complaint', 'general'],
+            newsItems: [],
+            aiExecutiveSummaryHtml: null
+        };
+
+        let apiKey = "";
+
+        // ==========================================
+        // 2. INITIALIZATION & UI HELPERS
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            const savedKey = localStorage.getItem('env_gemini_api_key');
+            if (savedKey) {
+                apiKey = savedKey;
+                document.getElementById('userApiKeyInput').value = savedKey;
+                document.getElementById('apiKeyStatusText').textContent = 'ตั้งค่า API Key แล้ว';
+            }
+
+            const manualInput = document.getElementById('manualNewsInput');
+            if (manualInput) {
+                manualInput.addEventListener('paste', () => {
+                    const autoCheck = document.getElementById('autoAnalyzeOnPaste');
+                    if (autoCheck && autoCheck.checked) {
+                        setTimeout(() => {
+                            if (manualInput.value.trim().length >= 10) {
+                                parseAndAddManualNews(false);
+                            }
+                        }, 120);
+                    }
+                });
+            }
+
+            updateControlStyles();
+            updateQueryPreview();
+            loadDemoNews(true);
+        });
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' ? 'bg-rose-600 text-white' : (type === 'info' ? 'bg-slate-800 text-white' : 'bg-emerald-700 text-white');
+            toast.className = `${bgClass} px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-medium flex items-center justify-between gap-3 pointer-events-auto transition-all duration-300`;
+            toast.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="opacity-80 hover:opacity-100">✕</button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 4500);
+        }
+
+        function copyTextToClipboard(text, successMsg = 'คัดลอกข้อความเรียบร้อยแล้ว') {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg, 'success');
+            } catch (err) {
+                showToast('ไม่สามารถคัดลอกได้ กรุณาคัดลอกด้วยตนเอง', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // ==========================================
+        // 3. FILTER & QUERY BUILDER LOGIC
+        // ==========================================
+        function selectTimeframe(tfKey) {
+            currentState.timeframe = tfKey;
+            document.getElementById('currentTimeframeBadge').textContent = TIMEFRAMES[tfKey].label;
+            updateControlStyles();
+            updateQueryPreview();
+        }
+
+        function toggleProvince(provName) {
+            const idx = currentState.selectedProvinces.indexOf(provName);
+            if (idx > -1) {
+                if (currentState.selectedProvinces.length === 1) {
+                    showToast('กรุณาเลือกอย่างน้อย 1 จังหวัด', 'info');
+                    return;
+                }
+                currentState.selectedProvinces.splice(idx, 1);
+            } else {
+                currentState.selectedProvinces.push(provName);
+            }
+            updateControlStyles();
+            updateQueryPreview();
+        }
+
+        function selectAllProvinces() {
+            currentState.selectedProvinces = ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'];
+            updateControlStyles();
+            updateQueryPreview();
+        }
+
+        function toggleTopic(topicKey) {
+            const idx = currentState.selectedTopics.indexOf(topicKey);
+            if (idx > -1) {
+                if (currentState.selectedTopics.length === 1) {
+                    showToast('กรุณาเลือกประเด็นอย่างน้อย 1 หมวด', 'info');
+                    return;
+                }
+                currentState.selectedTopics.splice(idx, 1);
+            } else {
+                currentState.selectedTopics.push(topicKey);
+            }
+            updateControlStyles();
+            updateQueryPreview();
+        }
+
+        function selectAllTopics() {
+            currentState.selectedTopics = ['water', 'air', 'waste', 'complaint', 'general'];
+            updateControlStyles();
+            updateQueryPreview();
+        }
+
+        function updateControlStyles() {
+            document.querySelectorAll('.tf-btn').forEach(btn => {
+                const tf = btn.getAttribute('data-tf');
+                if (tf === currentState.timeframe) {
+                    btn.className = 'tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border-2 border-emerald-600 bg-emerald-600 text-white shadow-sm transition flex flex-col items-center justify-center gap-0.5';
+                } else {
+                    btn.className = 'tf-btn px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-700 transition flex flex-col items-center justify-center gap-0.5';
+                }
+            });
+
+            document.querySelectorAll('.prov-btn').forEach(btn => {
+                const prov = btn.getAttribute('data-prov');
+                const active = currentState.selectedProvinces.includes(prov);
+                if (active) {
+                    btn.className = 'prov-btn px-3.5 py-2.5 rounded-xl border-2 border-emerald-600 bg-emerald-50/90 text-emerald-950 text-left transition flex items-center justify-between shadow-sm';
+                } else {
+                    btn.className = 'prov-btn px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-slate-600 text-left transition flex items-center justify-between';
+                }
+            });
+
+            document.querySelectorAll('.topic-btn').forEach(btn => {
+                const topic = btn.getAttribute('data-topic');
+                const active = currentState.selectedTopics.includes(topic);
+                if (active) {
+                    btn.className = 'topic-btn px-3 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-50 text-emerald-900 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 shadow-sm';
+                } else {
+                    btn.className = 'topic-btn px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-slate-600 text-xs sm:text-sm font-medium transition flex items-center gap-1.5';
+                }
+            });
+        }
+
+        function buildGoogleQuery(overrideProvince = null, mode = 'standard') {
+            let provTerms = [];
+            if (overrideProvince) {
+                provTerms = PROVINCE_CONFIG[overrideProvince].searchTerms;
+            } else {
+                currentState.selectedProvinces.forEach(p => {
+                    provTerms.push(...PROVINCE_CONFIG[p].searchTerms);
+                });
+            }
+            const provQuery = `(${provTerms.join(' OR ')})`;
+
+            let topicTerms = new Set();
+            currentState.selectedTopics.forEach(tKey => {
+                if (TOPIC_CONFIG[tKey]) {
+                    TOPIC_CONFIG[tKey].searchTerms.forEach(term => topicTerms.add(`"${term}"`));
+                }
+            });
+
+            const customInput = document.getElementById('customKeywords')?.value.trim() || '';
+            if (customInput) {
+                customInput.split(',').map(s => s.trim()).filter(Boolean).forEach(term => {
+                    topicTerms.add(`"${term}"`);
+                });
+            }
+
+            const topicQuery = `(${Array.from(topicTerms).join(' OR ')})`;
+
+            if (mode === 'social') {
+                return `${provQuery} ${topicQuery} (site:facebook.com OR site:tiktok.com OR site:x.com OR "ร้องเรียน")`;
+            }
+            return `${provQuery} ${topicQuery}`;
+        }
+
+        function updateQueryPreview() {
+            const q = buildGoogleQuery();
+            const tf = TIMEFRAMES[currentState.timeframe];
+            document.getElementById('queryPreviewText').textContent = `${q} [ห้วงเวลา: ${tf.label} (${tf.tbs})]`;
+        }
+
+        function copyQueryText() {
+            const q = buildGoogleQuery();
+            copyTextToClipboard(q, 'คัดลอกคำค้นหา Google ขั้นสูงแล้ว');
+        }
+
+        // ==========================================
+        // 4. GOOGLE SEARCH & ROBUST MULTI-PROXY RSS FETCHER
+        // ==========================================
+        function openGoogleSearch(mode = 'all') {
+            const tf = TIMEFRAMES[currentState.timeframe];
+            const query = buildGoogleQuery(null, mode === 'social' ? 'social' : 'standard');
+            const encodedQuery = encodeURIComponent(query);
+
+            let url = `https://www.google.com/search?q=${encodedQuery}&tbs=${tf.tbs}&hl=th&gl=th`;
+            if (mode === 'news') {
+                url = `https://www.google.com/search?q=${encodedQuery}&tbm=nws&tbs=${tf.tbs}&hl=th&gl=th`;
+            }
+            window.open(url, '_blank', 'noopener,noreferrer');
+
+            const pasteBox = document.getElementById('manualNewsInput');
+            if (pasteBox) {
+                pasteBox.focus();
+            }
+            showToast(`เปิดหน้าค้นหา Google แล้ว ก๊อปปี้ข่าวแล้วกดปุ่ม "วางข่าวที่ก๊อปปี้ & จัดประเภททันที" ได้เลย`, 'info');
+        }
+
+        function openSingleProvinceGoogle(provName, isNewsTab = true) {
+            const tf = TIMEFRAMES[currentState.timeframe];
+            const query = buildGoogleQuery(provName, 'standard');
+            const tbmParam = isNewsTab ? '&tbm=nws' : '';
+            const url = `https://www.google.com/search?q=${encodeURIComponent(query)}${tbmParam}&tbs=${tf.tbs}&hl=th&gl=th`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+
+            const provSelect = document.getElementById('manualDefaultProvince');
+            if (provSelect) provSelect.value = provName;
+            showToast(`เปิดข่าว จ.${provName} แล้ว เมื่อก๊อปปี้เสร็จสามารถวางในช่องด้านล่างได้ทันที`, 'info');
+        }
+
+        // ดึงข้อมูล RSS ผ่าน Google Apps Script (เสถียรและเร็วที่สุด)
+        async function fetchRssXmlWithFallback(rssUrl) {
+            const gasUrl = 'https://script.google.com/macros/s/AKfycbxcDZLaWUG4JDxs1W7SyKZDQ0IR0N6FDjQlhqkP0P9w3B9lwDhi6AYksNK8Uxvcz9WUmg/exec';
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+                
+                const fetchUrl = `${gasUrl}?url=${encodeURIComponent(rssUrl)}`;
+                const res = await fetch(fetchUrl, { signal: controller.signal });
+                
+                clearTimeout(timeoutId);
+                
+                if (!res.ok) return null;
+                
+                const data = await res.json();
+                
+                if (data && data.status === 'success' && data.content) {
+                    return { type: 'xml', content: data.content };
+                }
+                
+            } catch (e) {
+                console.error('พบข้อผิดพลาดในการดึงข้อมูลผ่าน GAS:', e);
+            }
+            
+            return null;
+        }
+
+        function decodeHtmlEntities(str) {
+            if (!str) return '';
+            const txt = document.createElement('textarea');
+            txt.innerHTML = str;
+            return txt.value;
+        }
+
+        function stripHtmlTags(html) {
+            if (!html) return '';
+            const decoded = decodeHtmlEntities(html);
+            const tmp = document.createElement('div');
+            tmp.innerHTML = decoded;
+            return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+        }
+
+        function parseRssResponseToArticles(result, maxHours, sourceProvince = null, ignoreTimeCutoff = false) {
+            const articles = [];
+            const now = new Date();
+            // เผื่อเวลาให้ข่าวตกหล่น 24 ชั่วโมง
+            const cutoffTime = now.getTime() - ((maxHours + 24) * 60 * 60 * 1000);
+
+            if (!result) return articles;
+
+            if (result.type === 'json_items') {
+                result.items.forEach(item => {
+                    const pubDate = item.pubDate ? new Date(item.pubDate) : now;
+                    if (!ignoreTimeCutoff && !isNaN(pubDate.getTime()) && pubDate.getTime() < cutoffTime) return;
+
+                    const rawTitle = decodeHtmlEntities(item.title || '');
+                    const parts = rawTitle.split(' - ');
+                    const source = parts.length > 1 ? parts.pop().trim() : (item.author || 'สำนักข่าวออนไลน์');
+                    const cleanTitle = parts.join(' - ').trim() || rawTitle;
+
+                    articles.push({
+                        title: cleanTitle,
+                        description: stripHtmlTags(item.description || ''),
+                        link: item.link || '',
+                        pubDate: isNaN(pubDate.getTime()) ? now.toISOString() : pubDate.toISOString(),
+                        source: source,
+                        sourceProvince: sourceProvince
+                    });
+                });
+            } else if (result.type === 'xml') {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(result.content, "text/xml");
+                let items = Array.from(xmlDoc.querySelectorAll("item"));
+
+                if (items.length === 0 && result.content.includes('<item>')) {
+                    const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+                    let match;
+                    while ((match = itemRegex.exec(result.content)) !== null) {
+                        const block = match[1];
+                        const getTag = (tag) => {
+                            const m = block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i'));
+                            return m ? m[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').trim() : '';
+                        };
+                        const rawTitle = decodeHtmlEntities(getTag('title'));
+                        const link = getTag('link');
+                        const pubDateStr = getTag('pubDate');
+                        const sourceRaw = stripHtmlTags(getTag('source'));
+                        const descRaw = stripHtmlTags(getTag('description'));
+
+                        const pubDate = pubDateStr ? new Date(pubDateStr) : now;
+                        if (!ignoreTimeCutoff && !isNaN(pubDate.getTime()) && pubDate.getTime() < cutoffTime) continue;
+
+                        const parts = rawTitle.split(' - ');
+                        const fallbackSource = parts.length > 1 ? parts.pop().trim() : 'Google News';
+                        const cleanTitle = parts.join(' - ').trim() || rawTitle;
+
+                        if (cleanTitle) {
+                            articles.push({
+                                title: cleanTitle,
+                                description: descRaw,
+                                link: link,
+                                pubDate: isNaN(pubDate.getTime()) ? now.toISOString() : pubDate.toISOString(),
+                                source: sourceRaw || fallbackSource,
+                                sourceProvince: sourceProvince
+                            });
+                        }
+                    }
+                    return articles;
+                }
+
+                items.forEach(item => {
+                    const rawTitle = decodeHtmlEntities(item.querySelector("title")?.textContent || "");
+                    const link = item.querySelector("link")?.textContent || "";
+                    const pubDateStr = item.querySelector("pubDate")?.textContent || "";
+                    const sourceEl = item.querySelector("source");
+                    const descriptionRaw = item.querySelector("description")?.textContent || "";
+
+                    const pubDate = pubDateStr ? new Date(pubDateStr) : now;
+                    if (!ignoreTimeCutoff && !isNaN(pubDate.getTime()) && pubDate.getTime() < cutoffTime) return;
+
+                    const parts = rawTitle.split(' - ');
+                    const fallbackSource = parts.length > 1 ? parts.pop().trim() : 'Google News';
+                    const source = sourceEl?.textContent || fallbackSource;
+                    const cleanTitle = parts.join(' - ').trim() || rawTitle;
+
+                    if (cleanTitle) {
+                        articles.push({
+                            title: cleanTitle,
+                            description: stripHtmlTags(descriptionRaw),
+                            link: link,
+                            pubDate: isNaN(pubDate.getTime()) ? now.toISOString() : pubDate.toISOString(),
+                            source: source,
+                            sourceProvince: sourceProvince
+                        });
+                    }
+                });
+            }
+
+            return articles;
+        }
+
+        function isEnvironmentalRelevant(article, customKwList = []) {
+            const text = `${article.title || ''} ${article.description || ''}`.toLowerCase();
+            const envCoreKeywords = [
+                'น้ำเสีย', 'น้ำเน่า', 'ปลาตาย', 'ปลาน็อก', 'บำบัดน้ำ', 'ปล่อยน้ำ', 'น้ำดำ', 'ลำตะคอง', 'แม่น้ำมูล', 'ลำน้ำมูล', 'ห้วยเสนง', 'ลำปะทาว', 'คุณภาพน้ำ', 'คราบน้ำมัน', 'น้ำปนเปื้อน',
+                'pm2.5', 'pm 2.5', 'ฝุ่น', 'ควัน', 'เผาอ้อย', 'อ้อยไฟไหม้', 'เผาตอซัง', 'เผาฟาง', 'เผาขยะ', 'ไฟป่า', 'จุดความร้อน', 'hotspot', 'กลิ่นเหม็น', 'ส่งกลิ่น', 'เหม็น', 'ควันดำ', 'มลพิษ', 'คุณภาพอากาศ', 'เสียงดัง', 'เขม่า', 'หมอกควัน',
+                'ขยะ', 'บ่อขยะ', 'กากอุตสาหกรรม', 'กากของเสีย', 'สารเคมี', 'ของเสีย', 'ลักลอบทิ้ง', 'ขยะติดเชื้อ', 'หลุมฝังกลบ', 'แคดเมียม', 'สารพิษ', 'ถังสารเคมี',
+                'ร้องเรียน', 'เดือดร้อน', 'เหตุรำคาญ', 'โรงงาน', 'ฟาร์มหมู', 'ฟาร์มสุกร', 'ฟาร์มไก่', 'ลานมัน', 'โรงแป้งมัน', 'โรงสี', 'โรงงานน้ำตาล', 'เหมือง', 'บ่อทราย', 'ดูดทราย', 'ชาวบ้านโวย', 'ชาวบ้านร้อง', 'อุตสาหกรรม', 'สั่งปิด',
+                'สิ่งแวดล้อม', 'อนุรักษ์', 'ปลูกป่า', 'พื้นที่สีเขียว', 'ลดโลกร้อน', 'คาร์บอน', 'สคพ', 'ทสจ', 'กรมควบคุมมลพิษ', 'ทรัพยากร', 'ภัยแล้ง', 'น้ำท่วม'
+            ];
+            if (customKwList.some(k => text.includes(k.toLowerCase()))) return true;
+            return envCoreKeywords.some(k => text.includes(k));
+        }
+
+        async function fetchGoogleNewsAndAnalyze() {
+            const banner = document.getElementById('fetchingStatusBanner');
+            const titleEl = document.getElementById('fetchingStatusTitle');
+            const subEl = document.getElementById('fetchingStatusSub');
+            const progBadge = document.getElementById('fetchingProgressBadge');
+            const btn = document.getElementById('btnAutoFetch');
+
+            banner.classList.remove('hidden');
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+
+            const tf = TIMEFRAMES[currentState.timeframe];
+            titleEl.textContent = `กำลังดึงข่าวจริงจาก Google News (${tf.label})...`;
+            subEl.textContent = `กำลังเชื่อมต่อไปยังพื้นที่: ${currentState.selectedProvinces.join(' ')}`;
+            progBadge.textContent = `เริ่มกวาดข่าว...`;
+
+            try {
+                const customInput = document.getElementById('customKeywords')?.value.trim() || '';
+                const customKwList = customInput ? customInput.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+                // สร้างชุดคำค้นหาที่กระชับและทรงพลังที่สุดสำหรับ Google News RSS
+                const coreEnvQuery = customKwList.length > 0
+                    ? `(${customKwList.slice(0, 3).join(' OR ')})`
+                    : `(มลพิษ OR ขยะ OR ฝุ่น OR น้ำเสีย OR ร้องเรียน OR สิ่งแวดล้อม)`;
+
+                let allFetchedArticles = [];
+                let completedProvs = 0;
+
+                const provPromises = currentState.selectedProvinces.map(async (prov) => {
+                    const provQuery = prov === 'นครราชสีมา' ? '(นครราชสีมา OR โคราช)' : prov;
+                    
+                    const q1 = `${provQuery} ${coreEnvQuery} ${tf.rssWhen}`.trim();
+                    const rssUrl1 = `https://news.google.com/rss/search?q=${encodeURIComponent(q1)}&hl=th&gl=TH&ceid=TH:th`;
+                    let res = await fetchRssXmlWithFallback(rssUrl1);
+                    let articles = parseRssResponseToArticles(res, tf.hours, prov, false);
+
+                    if (articles.length === 0) {
+                        const q2 = `${provQuery} (น้ำเสีย OR ขยะ OR ฝุ่น OR มลพิษ OR ร้องเรียน OR โรงงาน OR สิ่งแวดล้อม)`;
+                        const rssUrl2 = `https://news.google.com/rss/search?q=${encodeURIComponent(q2)}&hl=th&gl=TH&ceid=TH:th`;
+                        const res2 = await fetchRssXmlWithFallback(rssUrl2);
+                        articles = parseRssResponseToArticles(res2, tf.hours, prov, false);
+                        if (articles.length === 0) {
+                            articles = parseRssResponseToArticles(res2, tf.hours, prov, true).slice(0, 8);
+                        }
+                    }
+
+                    articles = articles.filter(a => isEnvironmentalRelevant(a, customKwList));
+
+                    completedProvs++;
+                    progBadge.textContent = `สำเร็จ ${completedProvs}/${currentState.selectedProvinces.length} จังหวัด`;
+                    return articles;
+                });
+
+                const resultsPerProvince = await Promise.all(provPromises);
+                resultsPerProvince.forEach(list => allFetchedArticles.push(...list));
+
+                const uniqueMap = new Map();
+                allFetchedArticles.forEach(art => {
+                    const normTitle = art.title.replace(/[\s\-_—:]/g, '').toLowerCase();
+                    if (normTitle && !uniqueMap.has(normTitle)) {
+                        uniqueMap.set(normTitle, art);
+                    }
+                });
+
+const deduplicatedArticles = Array.from(uniqueMap.values());
+
+// --- เพิ่มระบบกรองคำเฉพาะชื่อจังหวัดอย่างเข้มงวด ---
+const strictFilteredArticles = deduplicatedArticles.filter(art => {
+    const fullText = `${art.title || ''} ${art.description || ''}`.toLowerCase();
+    // เช็กว่ามีชื่อจังหวัดใดจังหวัดหนึ่งที่เราเลือกไว้ปรากฏในข้อความหรือไม่
+    return currentState.selectedProvinces.some(provKey => {
+        const provData = PROVINCE_CONFIG[provKey];
+        return provData.directKeywords.some(kw => fullText.includes(kw.toLowerCase()));
+    });
+});
+// ---------------------------------------------
+
+if (strictFilteredArticles.length > 0) {
+    // เปลี่ยนเป้าหมายการประมวลผลมาใช้ strictFilteredArticles ที่ผ่านการกรองแล้ว
+    const classified = strictFilteredArticles.map((art, index) => classifySingleNewsItem(art, index));
+    classified.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+    currentState.newsItems = classified;
+    currentState.aiExecutiveSummaryHtml = null;
+    renderDashboard();
+    showToast(`ดึงและกรองข่าวเฉพาะพื้นที่สำเร็จ ${classified.length} ข่าว!`, 'success');
+    document.getElementById('dashboardSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+} else {
+    showToast(`ดึงข้อมูลสำเร็จแต่ไม่พบข่าวที่ระบุชื่อพื้นที่เป้าหมายในห้วงเวลานี้`, 'info');
+}
+
+                if (deduplicatedArticles.length > 0) {
+                    const classified = deduplicatedArticles.map((art, index) => classifySingleNewsItem(art, index));
+                    classified.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                    currentState.newsItems = classified;
+                    currentState.aiExecutiveSummaryHtml = null;
+                    renderDashboard();
+                    showToast(`ดึงข่าวจริงจาก Google News สำเร็จ ${classified.length} ข่าว!`, 'success');
+                    document.getElementById('dashboardSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    showToast(`ระบบเชื่อมต่อสำเร็จแต่ไม่พบข่าวใหม่ใน RSS ห้วงเวลานี้ คุณสามารถกดปุ่มเปิดดู Google News แล้วก๊อปปี้มาวางได้ทันทีครับ`, 'info');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย กรุณาลองอีกครั้งหรือก๊อปปี้ข่าวมาวางในช่องด้านล่าง', 'error');
+            } finally {
+                banner.classList.add('hidden');
+                btn.disabled = false;
+                btn.classList.remove('opacity-75');
+            }
+        }
+
+        // ==========================================
+        // 5. SMART GOOGLE NEWS COPY-PASTE PARSER & THAI NLP CLASSIFIER
+        // ==========================================
+        function findEarliestKeywordPosition(text, keywords) {
+            let minPos = Infinity;
+            for (const kw of keywords) {
+                const pos = text.indexOf(kw.toLowerCase());
+                if (pos !== -1 && pos < minPos) {
+                    minPos = pos;
+                }
+            }
+            return minPos;
+        }
+
+        function classifySingleNewsItem(rawItem, index = 0, forceProvince = 'AUTO') {
+            const titleText = (rawItem.title || '').toLowerCase();
+            const fullText = `${rawItem.title || ''} ${rawItem.description || ''}`.toLowerCase();
+
+            let directMatches = [];
+            for (const [provKey, provData] of Object.entries(PROVINCE_CONFIG)) {
+                const titlePos = findEarliestKeywordPosition(titleText, provData.directKeywords);
+                const fullPos = findEarliestKeywordPosition(fullText, provData.directKeywords);
+                if (fullPos !== Infinity) {
+                    const effectiveScore = titlePos !== Infinity ? titlePos : (10000 + fullPos);
+                    directMatches.push({ prov: provKey, pos: effectiveScore });
+                }
+            }
+
+            let matchedProvinces = [];
+            if (directMatches.length > 0) {
+                directMatches.sort((a, b) => a.pos - b.pos);
+                matchedProvinces = directMatches.map(m => m.prov);
+            } else {
+                let districtMatches = [];
+                for (const [provKey, provData] of Object.entries(PROVINCE_CONFIG)) {
+                    const pos = findEarliestKeywordPosition(fullText, provData.districtKeywords);
+                    if (pos !== Infinity) {
+                        districtMatches.push({ prov: provKey, pos: pos });
+                    }
+                }
+                if (districtMatches.length > 0) {
+                    districtMatches.sort((a, b) => a.pos - b.pos);
+                    matchedProvinces = districtMatches.map(m => m.prov);
+                }
+            }
+
+            if (forceProvince && forceProvince !== 'AUTO' && PROVINCE_CONFIG[forceProvince]) {
+                if (!matchedProvinces.includes(forceProvince)) {
+                    matchedProvinces.unshift(forceProvince);
+                } else {
+                    matchedProvinces = [forceProvince, ...matchedProvinces.filter(p => p !== forceProvince)];
+                }
+            } else if (matchedProvinces.length === 0) {
+                if (rawItem.sourceProvince && PROVINCE_CONFIG[rawItem.sourceProvince]) {
+                    matchedProvinces = [rawItem.sourceProvince];
+                } else {
+                    matchedProvinces = [currentState.selectedProvinces[0] || 'นครราชสีมา'];
+                }
+            }
+
+            let bestCategory = 'other';
+            let highestScore = 0;
+
+            const categoryRules = [
+                { key: 'water', keywords: TOPIC_CONFIG.water.detectKeywords, weight: 1.3 },
+                { key: 'air', keywords: TOPIC_CONFIG.air.detectKeywords, weight: 1.3 },
+                { key: 'waste', keywords: TOPIC_CONFIG.waste.detectKeywords, weight: 1.3 },
+                { key: 'complaint', keywords: TOPIC_CONFIG.complaint.detectKeywords, weight: 1.1 },
+                { key: 'conservation', keywords: TOPIC_CONFIG.general.detectKeywords, weight: 0.9 }
+            ];
+
+            categoryRules.forEach(rule => {
+                let score = 0;
+                rule.keywords.forEach(kw => {
+                    const kwLower = kw.toLowerCase();
+                    if (titleText.includes(kwLower)) {
+                        score += rule.weight * 1.5;
+                    } else if (fullText.includes(kwLower)) {
+                        score += rule.weight;
+                    }
+                });
+                if (score > highestScore) {
+                    highestScore = score;
+                    bestCategory = rule.key;
+                }
+            });
+
+            const urgentKeywords = [
+                'ปลาตาย', 'ปลาน็อกน้ำ', 'ลักลอบทิ้ง', 'สารเคมี', 'ไฟไหม้บ่อขยะ', 'กากอุตสาหกรรม', 'กากของเสีย', 'วิกฤต',
+                'ชาวบ้านเดือดร้อน', 'ร้องเรียน', 'ชาวบ้านโวย', 'ชาวบ้านร้อง', 'ส่งกลิ่นเหม็นรุนแรง', 'น้ำเน่าเสีย', 'สั่งปิด',
+                'ทะลุ', 'มีพิษ', 'อันตราย', 'ด่วน', 'ไฟป่าลุกลาม', 'บุกตรวจ'
+            ];
+            const watchKeywords = [
+                'เฝ้าระวัง', 'ตรวจสอบ', 'ลงพื้นที่', 'ค่าฝุ่น', 'pm2.5', 'เผาอ้อย', 'กลิ่นเหม็น',
+                'น้ำเสีย', 'ขยะล้น', 'แก้ไขปัญหา', 'จุดความร้อน', 'hotspot', 'ไฟป่า', 'บ่อขยะ'
+            ];
+
+            let urgency = 'ทั่วไป';
+            if (urgentKeywords.some(kw => fullText.includes(kw.toLowerCase()))) {
+                urgency = 'เร่งด่วนมาก';
+            } else if (watchKeywords.some(kw => fullText.includes(kw.toLowerCase())) || (bestCategory !== 'conservation' && bestCategory !== 'other')) {
+                urgency = 'เฝ้าระวัง';
+            }
+
+            return {
+                id: rawItem.id || `news_${Date.now()}_${index}_${Math.random().toString(36).substring(2, 6)}`,
+                title: rawItem.title.trim(),
+                description: (rawItem.description || '').trim(),
+                link: rawItem.link || `https://www.google.com/search?q=${encodeURIComponent(rawItem.title)}&tbm=nws`,
+                pubDate: rawItem.pubDate || new Date().toISOString(),
+                source: rawItem.source || 'Google News / ข้อมูลนำเข้า',
+                provinces: matchedProvinces,
+                primaryProvince: matchedProvinces[0],
+                category: bestCategory,
+                urgency: urgency
+            };
+        }
+
+        function parseRelativeTimeString(str) {
+            const now = Date.now();
+            const mMin = str.match(/(\d+)\s*(นาที)/);
+            if (mMin) return new Date(now - parseInt(mMin[1], 10) * 60 * 1000).toISOString();
+
+            const mHour = str.match(/(\d+)\s*(ชั่วโมง|ชม\.)/);
+            if (mHour) return new Date(now - parseInt(mHour[1], 10) * 3600 * 1000).toISOString();
+
+            const mDay = str.match(/(\d+)\s*(วัน)/);
+            if (mDay) return new Date(now - parseInt(mDay[1], 10) * 86400 * 1000).toISOString();
+
+            const mWeek = str.match(/(\d+)\s*(สัปดาห์)/);
+            if (mWeek) return new Date(now - parseInt(mWeek[1], 10) * 7 * 86400 * 1000).toISOString();
+
+            const mMonth = str.match(/(\d+)\s*(เดือน)/);
+            if (mMonth) return new Date(now - parseInt(mMonth[1], 10) * 30 * 86400 * 1000).toISOString();
+
+            if (str.includes('เมื่อวาน')) return new Date(now - 86400 * 1000).toISOString();
+            return null;
+        }
+
+        function smartParseGoogleNewsText(rawText) {
+            const ignoreExact = new Set([
+                'ทั้งหมด', 'ข่าวสาร', 'รูปภาพ', 'วิดีโอ', 'แผนที่', 'ช้อปปิ้ง', 'หนังสือ', 'เครื่องมือ',
+                'ผลการค้นหา', 'ค้นหาด้วย google', 'ข้ามไปที่เนื้อหาหลัก', 'ความช่วยเหลือในการเข้าถึง',
+                'ความคิดเห็นเกี่ยวกับการช่วยสำหรับการเข้าถึง', 'google', 'เข้าสู่ระบบ', 'การตั้งค่า',
+                'ความเป็นส่วนตัว', 'ข้อกำหนด', 'ถัดไป >', 'ถัดไป', 'ก่อนหน้า', 'ดูข่าวสารทั้งหมด',
+                'เรื่องราวทั้งหมด', 'เพิ่มเติม', 'แชร์', 'บันทึก', 'ซ่อนแหล่งข้อมูลนี้'
+            ]);
+
+            const rawLines = rawText
+                .split(/\r?\n/)
+                .map(l => l.replace(/\u00A0/g, ' ').trim())
+                .filter(l => {
+                    if (!l) return false;
+                    const lower = l.toLowerCase();
+                    if (ignoreExact.has(lower)) return false;
+                    if (/^หน้า\s*\d+$/i.test(l)) return false;
+                    if (/^ผลการค้นหาประมาณ/i.test(l)) return false;
+                    if (/^ของการค้นหา/i.test(l)) return false;
+                    if (l.length <= 2) return false;
+                    return true;
+                });
+
+            const extractedArticles = [];
+            const timeRegex = /^(\d+\s*(นาที|ชั่วโมง|ชม\.|วัน|สัปดาห์|เดือน|ปี)(ที่แล้ว|ที่ผ่านมา)?|เมื่อวานนี้)(\s*[—\-•·]\s*(.*))?$/i;
+            const inlineTimeSplitRegex = /^(\d+\s*(นาที|ชั่วโมง|ชม\.|วัน|สัปดาห์|เดือน|ปี)(ที่แล้ว|ที่ผ่านมา)?|เมื่อวานนี้)\s*[—\-•·:]\s*(.+)$/i;
+
+            let i = 0;
+            while (i < rawLines.length) {
+                const line = rawLines[i];
+                const nextLine = rawLines[i + 1] || '';
+                const thirdLine = rawLines[i + 2] || '';
+
+                const isShortSourceLine = line.length >= 3 && line.length <= 42 && !line.includes(' ') || (line.length <= 35 && /ออนไลน์|นิวส์|ข่าว|ทีวี|รัฐ|เดลินิวส์|มติชน|คมชัดลึก|ประชาชาติ|ผู้จัดการ|สคพ|ทสจ|pptv|ch7|ch3|thaipbs|workpoint|amarintv|nation|spring|the standard|the matter|bangkokbiznews|thairath|khaosod|matichon|dailynews|mgronline|posttoday|naewna|siamrath|banmuang|korat/i.test(line));
+
+                if (isShortSourceLine && nextLine.length >= 18) {
+                    const source = line;
+                    const title = nextLine;
+                    let description = '';
+                    let pubDate = new Date().toISOString();
+
+                    if (thirdLine) {
+                        const inlineMatch = thirdLine.match(inlineTimeSplitRegex);
+                        if (inlineMatch) {
+                            pubDate = parseRelativeTimeString(inlineMatch[1]) || pubDate;
+                            description = inlineMatch[4] || '';
+                            i += 3;
+                        } else if (timeRegex.test(thirdLine)) {
+                            pubDate = parseRelativeTimeString(thirdLine) || pubDate;
+                            const fourthLine = rawLines[i + 3] || '';
+                            if (fourthLine && fourthLine.length >= 20 && !timeRegex.test(fourthLine)) {
+                                description = fourthLine;
+                                i += 4;
+                            } else {
+                                i += 3;
+                            }
+                        } else if (thirdLine.length >= 25 && !isShortSourceLine) {
+                            description = thirdLine;
+                            const fourthLine = rawLines[i + 3] || '';
+                            if (timeRegex.test(fourthLine)) {
+                                pubDate = parseRelativeTimeString(fourthLine) || pubDate;
+                                i += 4;
+                            } else {
+                                i += 3;
+                            }
+                        } else {
+                            i += 2;
+                        }
+                    } else {
+                        i += 2;
+                    }
+
+                    extractedArticles.push({ title, description, source, pubDate });
+                    continue;
+                }
+
+                if (line.length >= 16) {
+                    const nextInlineMatch = nextLine.match(inlineTimeSplitRegex);
+                    if (nextInlineMatch) {
+                        const pubDate = parseRelativeTimeString(nextInlineMatch[1]) || new Date().toISOString();
+                        const description = nextInlineMatch[4] || '';
+                        extractedArticles.push({
+                            title: line,
+                            description: description,
+                            source: 'Google News Search',
+                            pubDate: pubDate
+                        });
+                        i += 2;
+                        continue;
+                    }
+
+                    if (timeRegex.test(nextLine)) {
+                        const pubDate = parseRelativeTimeString(nextLine) || new Date().toISOString();
+                        extractedArticles.push({
+                            title: line,
+                            description: '',
+                            source: 'Google News',
+                            pubDate: pubDate
+                        });
+                        i += 2;
+                        continue;
+                    }
+
+                    if (!timeRegex.test(line)) {
+                        const parts = line.split(' - ');
+                        const possibleSource = parts.length > 1 && parts[parts.length - 1].length <= 35 ? parts.pop().trim() : 'Google News / ข้อมูลนำเข้า';
+                        const cleanTitle = parts.join(' - ').trim() || line;
+
+                        extractedArticles.push({
+                            title: cleanTitle.length > 180 ? cleanTitle.substring(0, 180) + '...' : cleanTitle,
+                            description: line,
+                            source: possibleSource,
+                            pubDate: new Date().toISOString()
+                        });
+                    }
+                }
+                i++;
+            }
+
+            return extractedArticles;
+        }
+
+        async function pasteFromClipboardAndAnalyze(replaceExisting = false) {
+            try {
+                if (!navigator.clipboard || !navigator.clipboard.readText) {
+                    const inputBox = document.getElementById('manualNewsInput');
+                    inputBox.focus();
+                    showToast('กรุณากด Ctrl+V ในช่องวางข่าวด้านล่าง ระบบจะจัดประเภทให้อัตโนมัติทันทีครับ', 'info');
+                    return;
+                }
+                const clipText = await navigator.clipboard.readText();
+                if (!clipText || clipText.trim().length < 10) {
+                    showToast('ยังไม่มีข้อความข่าวในคลิปบอร์ด กรุณาก๊อปปี้ข่าวจาก Google News ก่อนครับ', 'info');
+                    document.getElementById('manualNewsInput').focus();
+                    return;
+                }
+                document.getElementById('manualNewsInput').value = clipText;
+                parseAndAddManualNews(replaceExisting);
+            } catch (err) {
+                const inputBox = document.getElementById('manualNewsInput');
+                inputBox.focus();
+                document.getElementById('quickPasteSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showToast('คลิกที่ช่องข้อความแล้วกด Ctrl+V ได้เลยครับ ระบบจะจัดประเภทให้อัตโนมัติทันที', 'info');
+            }
+        }
+
+        function parseAndAddManualNews(replaceExisting = false) {
+            const rawText = document.getElementById('manualNewsInput').value.trim();
+            if (!rawText) {
+                showToast('กรุณาวางข้อความข่าวในช่องก่อนกดวิเคราะห์ครับ', 'info');
+                return;
+            }
+
+
+const forceProv = document.getElementById('manualDefaultProvince')?.value || 'AUTO';
+const parsedArticles = smartParseGoogleNewsText(rawText);
+
+if (parsedArticles.length === 0) {
+    showToast('ไม่พบหัวข้อข่าวที่สมบูรณ์ กรุณาวางพาดหัวข่าวหรือเนื้อหาข่าวอย่างน้อย 1 เรื่อง', 'error');
+    return;
+}
+
+// --- เพิ่มระบบกรองคำเฉพาะชื่อจังหวัดสำหรับข่าวที่คัดลอกมาวาง ---
+const strictFilteredManual = parsedArticles.filter(art => {
+    // หากบังคับเลือกจังหวัดจาก Dropdown ไว้แล้ว ให้ผ่านได้เลยไม่ต้องกรองคำ
+    if (forceProv !== 'AUTO') return true;
+    
+    const fullText = `${art.title || ''} ${art.description || ''}`.toLowerCase();
+    return currentState.selectedProvinces.some(provKey => {
+        const provData = PROVINCE_CONFIG[provKey];
+        return provData.directKeywords.some(kw => fullText.includes(kw.toLowerCase()));
+    });
+});
+
+if (strictFilteredManual.length === 0) {
+    showToast('ข่าวที่นำมาวางไม่มีระบุชื่อจังหวัดที่ สคพ.11 รับผิดชอบ (หากแน่ใจว่าเป็นข่าวในพื้นที่ ให้เลือกบังคับระบุจังหวัดแทนการตั้งค่า AUTO)', 'error');
+    return;
+}
+
+const newItems = strictFilteredManual.map((art, idx) => classifySingleNewsItem(art, idx, forceProv));
+
+          
+            
+
+            if (replaceExisting) {
+                currentState.newsItems = newItems;
+            } else {
+                const existingTitles = new Set(currentState.newsItems.map(i => i.title.replace(/\s+/g, '').toLowerCase()));
+                const uniqueNew = newItems.filter(item => {
+                    const norm = item.title.replace(/\s+/g, '').toLowerCase();
+                    if (existingTitles.has(norm)) return false;
+                    existingTitles.add(norm);
+                    return true;
+                });
+                currentState.newsItems = [...uniqueNew, ...currentState.newsItems];
+            }
+
+            currentState.aiExecutiveSummaryHtml = null;
+            renderDashboard();
+            showToast(`คัดแยกข่าวจากที่วางสำเร็จ ${newItems.length} ข่าว! อัปเดตตารางและกราฟเรียบร้อย`, 'success');
+            document.getElementById('dashboardSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function updateSingleItemCategory(id, newCategory) {
+            const item = currentState.newsItems.find(i => i.id === id);
+            if (item) {
+                item.category = newCategory;
+                currentState.aiExecutiveSummaryHtml = null;
+                renderDashboard();
+                showToast('อัปเดตประเภทมลพิษและคำนวณตารางใหม่แล้ว', 'success');
+            }
+        }
+
+        function updateSingleItemProvince(id, newProvince) {
+            const item = currentState.newsItems.find(i => i.id === id);
+            if (item && PROVINCE_CONFIG[newProvince]) {
+                item.primaryProvince = newProvince;
+                if (!item.provinces.includes(newProvince)) {
+                    item.provinces.unshift(newProvince);
+                }
+                currentState.aiExecutiveSummaryHtml = null;
+                renderDashboard();
+                showToast(`ย้ายข่าวไปยัง จ.${newProvince} และคำนวณยอดใหม่แล้ว`, 'success');
+            }
+        }
+
+        // ==========================================
+        // 6. DASHBOARD RENDERING
+        // ==========================================
+        function computeStatistics(items) {
+            const stats = {
+                total: items.length,
+                urgentCount: 0,
+                watchCount: 0,
+                normalCount: 0,
+                byProvince: {
+                    'นครราชสีมา': 0,
+                    'ชัยภูมิ': 0,
+                    'บุรีรัมย์': 0,
+                    'สุรินทร์': 0
+                },
+                byCategory: {
+                    water: 0,
+                    air: 0,
+                    waste: 0,
+                    complaint: 0,
+                    conservation: 0,
+                    other: 0
+                },
+                matrix: {}
+            };
+
+            CATEGORY_DISPLAY_ORDER.forEach(cat => {
+                stats.matrix[cat.key] = {
+                    'นครราชสีมา': 0,
+                    'ชัยภูมิ': 0,
+                    'บุรีรัมย์': 0,
+                    'สุรินทร์': 0,
+                    total: 0
+                };
+            });
+
+            items.forEach(item => {
+                if (item.urgency === 'เร่งด่วนมาก') stats.urgentCount++;
+                else if (item.urgency === 'เฝ้าระวัง') stats.watchCount++;
+                else stats.normalCount++;
+
+                const catKey = stats.byCategory.hasOwnProperty(item.category) ? item.category : 'other';
+                stats.byCategory[catKey]++;
+                stats.matrix[catKey].total++;
+
+                const prov = stats.byProvince.hasOwnProperty(item.primaryProvince) ? item.primaryProvince : 'นครราชสีมา';
+                stats.byProvince[prov]++;
+                stats.matrix[catKey][prov]++;
+            });
+
+            return stats;
+        }
+
+        function renderDashboard() {
+            const items = currentState.newsItems;
+            const stats = computeStatistics(items);
+            const tf = TIMEFRAMES[currentState.timeframe];
+
+            document.getElementById('printTimestamp').textContent = new Date().toLocaleString('th-TH');
+
+            document.getElementById('kpiTotal').textContent = stats.total;
+            document.getElementById('kpiTimeframeLabel').textContent = tf.label;
+            document.getElementById('kpiUrgent').textContent = stats.urgentCount;
+
+            const provUiMap = [
+                { key: 'นครราชสีมา', kpiId: 'kpiKorat', pctId: 'pctKorat', barId: 'barKorat' },
+                { key: 'ชัยภูมิ', kpiId: 'kpiChaiyaphum', pctId: 'pctChaiyaphum', barId: 'barChaiyaphum' },
+                { key: 'บุรีรัมย์', kpiId: 'kpiBuriram', pctId: 'pctBuriram', barId: 'barBuriram' },
+                { key: 'สุรินทร์', kpiId: 'kpiSurin', pctId: 'pctSurin', barId: 'barSurin' }
+            ];
+
+            provUiMap.forEach(p => {
+                const count = stats.byProvince[p.key] || 0;
+                const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
+                document.getElementById(p.kpiId).textContent = count;
+                document.getElementById(p.pctId).textContent = `${pct}%`;
+                document.getElementById(p.barId).style.width = `${pct}%`;
+            });
+
+            const catContainer = document.getElementById('categoryBreakdownList');
+            catContainer.innerHTML = '';
+
+            CATEGORY_DISPLAY_ORDER.forEach(cat => {
+                const count = stats.byCategory[cat.key] || 0;
+                const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
+
+                const row = document.createElement('div');
+                row.className = 'group cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition';
+                row.onclick = () => filterNewsByCategory(cat.key);
+                row.innerHTML = `
+                    <div class="flex items-center justify-between text-xs sm:text-sm mb-1.5">
+                        <span class="font-bold text-slate-700 group-hover:text-emerald-700 flex items-center gap-1.5">
+                            <span>${cat.shortName}</span>
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="font-heading font-bold text-slate-900">${count} ข่าว</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold w-12 text-center">${pct}%</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                        <div class="${cat.colorBar} h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                    </div>
+                `;
+                catContainer.appendChild(row);
+            });
+
+            const matrixBody = document.getElementById('matrixTableBody');
+            matrixBody.innerHTML = '';
+
+            CATEGORY_DISPLAY_ORDER.forEach(cat => {
+                const mRow = stats.matrix[cat.key];
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/80 transition cursor-pointer';
+                tr.onclick = () => filterNewsByCategory(cat.key);
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 font-medium text-slate-700">${cat.shortName}</td>
+                    <td class="py-2.5 px-2 text-center ${mRow['นครราชสีมา'] > 0 ? 'font-bold text-emerald-700' : 'text-slate-300'}">${mRow['นครราชสีมา']}</td>
+                    <td class="py-2.5 px-2 text-center ${mRow['ชัยภูมิ'] > 0 ? 'font-bold text-teal-700' : 'text-slate-300'}">${mRow['ชัยภูมิ']}</td>
+                    <td class="py-2.5 px-2 text-center ${mRow['บุรีรัมย์'] > 0 ? 'font-bold text-cyan-700' : 'text-slate-300'}">${mRow['บุรีรัมย์']}</td>
+                    <td class="py-2.5 px-2 text-center ${mRow['สุรินทร์'] > 0 ? 'font-bold text-amber-700' : 'text-slate-300'}">${mRow['สุรินทร์']}</td>
+                    <td class="py-2.5 px-2 text-center font-bold bg-emerald-50/60 text-emerald-950">${mRow.total}</td>
+                `;
+                matrixBody.appendChild(tr);
+            });
+
+            const totalTr = document.createElement('tr');
+            totalTr.className = 'bg-emerald-900/5 font-bold text-slate-900 border-t-2 border-emerald-200';
+            totalTr.innerHTML = `
+                <td class="py-2.5 px-3">รวมทั้งหมด (ข่าว)</td>
+                <td class="py-2.5 px-2 text-center text-emerald-800">${stats.byProvince['นครราชสีมา']}</td>
+                <td class="py-2.5 px-2 text-center text-teal-800">${stats.byProvince['ชัยภูมิ']}</td>
+                <td class="py-2.5 px-2 text-center text-cyan-800">${stats.byProvince['บุรีรัมย์']}</td>
+                <td class="py-2.5 px-2 text-center text-amber-800">${stats.byProvince['สุรินทร์']}</td>
+                <td class="py-2.5 px-2 text-center bg-emerald-600 text-white rounded-br-lg">${stats.total}</td>
+            `;
+            matrixBody.appendChild(totalTr);
+
+            renderExecutiveSummary(stats);
+            applyNewsListFilters();
+        }
+
+        function renderExecutiveSummary(stats) {
+            const container = document.getElementById('executiveSummaryContent');
+            if (currentState.aiExecutiveSummaryHtml) {
+                container.innerHTML = currentState.aiExecutiveSummaryHtml;
+                lucide.createIcons();
+                return;
+            }
+
+            if (stats.total === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-slate-400 text-sm">
+                        ยังไม่มีข้อมูลข่าวในรายการ กรุณากดปุ่ม <strong>"ดึงข่าวจริง & วิเคราะห์ทันที"</strong> หรือวางข่าวที่คัดลอกจาก Google News
+                    </div>
+                `;
+                return;
+            }
+
+            let topCatKey = 'water';
+            let topCatCount = -1;
+            CATEGORY_DISPLAY_ORDER.forEach(c => {
+                if (stats.byCategory[c.key] > topCatCount) {
+                    topCatCount = stats.byCategory[c.key];
+                    topCatKey = c.key;
+                }
+            });
+            const topCatObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === topCatKey);
+
+            const urgentItems = currentState.newsItems.filter(i => i.urgency === 'เร่งด่วนมาก');
+
+            const provCardsHtml = ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'].map(prov => {
+                const provItems = currentState.newsItems.filter(i => i.primaryProvince === prov);
+                const pConfig = PROVINCE_CONFIG[prov];
+                if (provItems.length === 0) {
+                    return `
+                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                            <div class="font-bold text-sm text-slate-700 mb-1">${prov} (0 ข่าว)</div>
+                            <p class="text-xs text-slate-400">ไม่พบรายงานข่าวปัญหาสิ่งแวดล้อมหรือมลพิษที่ผิดปกติในห้วงเวลานี้</p>
+                        </div>
+                    `;
+                }
+                const bulletHtml = provItems.slice(0, 4).map(item => {
+                    const catObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === item.category) || CATEGORY_DISPLAY_ORDER[5];
+                    return `<li class="text-xs text-slate-700 leading-relaxed"><span class="font-semibold text-emerald-800">[${catObj.shortName}]</span> ${escapeHtml(item.title)}</li>`;
+                }).join('');
+
+                return `
+                    <div class="p-4 rounded-xl bg-emerald-50/40 border border-emerald-100">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-bold text-sm text-emerald-950 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                                จังหวัด${prov}
+                            </span>
+                            <span class="px-2 py-0.5 text-xs rounded-full ${pConfig.badgeClass} font-bold">${provItems.length} ข่าว</span>
+                        </div>
+                        <ul class="list-disc list-inside space-y-1">
+                            ${bulletHtml}
+                        </ul>
+                    </div>
+                `;
+            }).join('');
+
+            const urgentAlertsHtml = urgentItems.length > 0
+                ? urgentItems.map(u => `
+                    <li class="text-xs sm:text-sm text-rose-900 flex items-start gap-2">
+                        <span class="px-2 py-0.5 rounded bg-rose-600 text-white text-[11px] font-bold shrink-0 mt-0.5">${u.primaryProvince}</span>
+                        <span><strong>${escapeHtml(u.title)}</strong> <span class="text-rose-700/80">(${escapeHtml(u.source)})</span></span>
+                    </li>
+                `).join('')
+                : `<li class="text-xs sm:text-sm text-emerald-800">ไม่พบเหตุการณ์วิกฤตหรือมลพิษรุนแรงเฉียบพลันในห้วงเวลานี้ ส่วนใหญ่เป็นการเฝ้าระวังตามปกติ</li>`;
+
+            container.innerHTML = `
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    <strong>📊 สรุปภาพรวมสถานการณ์ (${TIMEFRAMES[currentState.timeframe].label}):</strong> 
+                    จากการกวาดข้อมูลข่าวสารด้านสิ่งแวดล้อมและมลพิษในเขตพื้นที่ 4 จังหวัด (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์) 
+                    พบข่าวที่เกี่ยวข้องรวมทั้งสิ้น <strong>${stats.total} ข่าว</strong> แบ่งเป็นประเด็นเร่งด่วนสูง <strong>${stats.urgentCount} ข่าว</strong> 
+                    ประเด็นเฝ้าระวัง <strong>${stats.watchCount} ข่าว</strong> และข่าวสารทั่วไป/รณรงค์ <strong>${stats.normalCount} ข่าว</strong> 
+                    โดยประเด็นที่พบมากที่สุดคือ <strong>${topCatObj ? topCatObj.name : '-'} (${topCatCount} ข่าว)</strong>
+                </div>
+
+                <div class="p-4 rounded-xl ${urgentItems.length > 0 ? 'bg-rose-50 border border-rose-200' : 'bg-emerald-50 border border-emerald-200'}">
+                    <div class="font-bold text-sm ${urgentItems.length > 0 ? 'text-rose-900' : 'text-emerald-900'} mb-2 flex items-center gap-1.5">
+                        <span>🚨 ประเด็นร้อน / เหตุเร่งด่วนที่ควรเฝ้าระวังและตรวจสอบ (${urgentItems.length} เรื่อง):</span>
+                    </div>
+                    <ul class="space-y-2">
+                        ${urgentAlertsHtml}
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-700 mb-3">📍 สรุปประเด็นสำคัญแยกรายจังหวัด (4 จังหวัดนครชัยบุรินทร์):</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                        ${provCardsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // 7. GEMINI AI DEEP ANALYSIS INTEGRATION
+        // ==========================================
+        async function fetchWithBackoff(url, options, retries = 3, delay = 1000) {
+            try {
+                const res = await fetch(url, options);
+                if (!res.ok && (res.status === 429 || res.status >= 500) && retries > 0) {
+                    await new Promise(r => setTimeout(r, delay));
+                    return fetchWithBackoff(url, options, retries - 1, delay * 2);
+                }
+                return res;
+            } catch (err) {
+                if (retries > 0) {
+                    await new Promise(r => setTimeout(r, delay));
+                    return fetchWithBackoff(url, options, retries - 1, delay * 2);
+                }
+                throw err;
+            }
+        }
+
+        async function callGeminiModelWithFallback(payload) {
+            const models = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+            let lastErr = null;
+            for (const modelName of models) {
+                try {
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+                    const response = await fetchWithBackoff(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                    lastErr = new Error(`Model ${modelName} returned status ${response.status}`);
+                } catch (e) {
+                    lastErr = e;
+                }
+            }
+            throw lastErr || new Error('ไม่สามารถเชื่อมต่อ Gemini API ได้');
+        }
+
+        async function runGeminiDeepAnalysis() {
+            if (currentState.newsItems.length === 0) {
+                showToast('กรุณาดึงข่าวหรือวางเนื้อหาข่าวก่อนสั่งวิเคราะห์ด้วย AI', 'info');
+                return;
+            }
+
+            const loadingEl = document.getElementById('aiSummaryLoading');
+            const contentEl = document.getElementById('executiveSummaryContent');
+            const btn = document.getElementById('btnGeminiDeep');
+
+            loadingEl.classList.remove('hidden');
+            contentEl.classList.add('opacity-40');
+            btn.disabled = true;
+
+            try {
+                const newsListText = currentState.newsItems.slice(0, 40).map((item, i) => {
+                    return `${i + 1}. [จังหวัด${item.primaryProvince}] ${item.title} (${item.source}) - ${item.description}`;
+                }).join('\n');
+
+                const systemInstruction = `คุณคือผู้เชี่ยวชาญด้านการวิเคราะห์ข่าวสิ่งแวดล้อมและมลพิษ (Environmental Social Listening Analyst) ของสำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 11 (สคพ.11 นครราชสีมา) รับผิดชอบพื้นที่ 4 จังหวัด: นครราชสีมา (โคราช) ชัยภูมิ บุรีรัมย์ และสุรินทร์ หน้าที่ของคุณคือจัดทำหมวดหมู่ ตรวจสอบระดับความเร่งด่วน และเขียนบทสรุปผู้บริหารจากรายการข่าวที่ได้รับ`;
+
+                const userPrompt = `กรุณาวิเคราะห์รายการข่าวสิ่งแวดล้อมและมลพิษต่อไปนี้ (ห้วงเวลา: ${TIMEFRAMES[currentState.timeframe].label}):
+${newsListText}
+
+ส่งผลลัพธ์เป็น JSON ตามโครงสร้างที่กำหนด เพื่ออัปเดตบทสรุปผู้บริหารและจัดหมวดหมู่ข่าวให้แม่นยำที่สุด`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userPrompt }] }],
+                    systemInstruction: { parts: [{ text: systemInstruction }] },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                executive_overview: { type: "STRING", description: "สรุปภาพรวมสถานการณ์และแนวโน้มสำคัญใน 4 จังหวัด" },
+                                urgent_alerts: {
+                                    type: "ARRAY",
+                                    items: { type: "STRING" },
+                                    description: "รายการประเด็นเร่งด่วนและข้อเสนอแนะในการลงพื้นที่ตรวจสอบ"
+                                },
+                                province_summaries: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        korat: { type: "STRING" },
+                                        chaiyaphum: { type: "STRING" },
+                                        buriram: { type: "STRING" },
+                                        surin: { type: "STRING" }
+                                    }
+                                }
+                            },
+                            required: ["executive_overview", "urgent_alerts", "province_summaries"]
+                        }
+                    }
+                };
+
+                const result = await callGeminiModelWithFallback(payload);
+                const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                    const aiData = JSON.parse(text);
+                    const alertsHtml = (aiData.urgent_alerts || []).map(a => `<li class="text-xs sm:text-sm text-rose-900">• ${escapeHtml(a)}</li>`).join('');
+                    const ps = aiData.province_summaries || {};
+
+                    currentState.aiExecutiveSummaryHtml = `
+                        <div class="p-4 rounded-xl bg-amber-50/70 border border-amber-200 text-xs sm:text-sm text-slate-800 leading-relaxed">
+                            <div class="font-bold text-amber-900 mb-1 flex items-center gap-1.5">
+                                <span>✨ บทวิเคราะห์สังเคราะห์โดย Gemini AI (${TIMEFRAMES[currentState.timeframe].label}):</span>
+                            </div>
+                            <p>${escapeHtml(aiData.executive_overview || '')}</p>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200">
+                            <div class="font-bold text-sm text-rose-900 mb-2">🚨 ประเด็นเฝ้าระวังพิเศษและข้อเสนอแนะเชิงรุก:</div>
+                            <ul class="space-y-1.5">${alertsHtml || '<li class="text-xs text-slate-600">ไม่มีประเด็นวิกฤตเร่งด่วน</li>'}</ul>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            <div class="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200">
+                                <div class="font-bold text-sm text-emerald-950 mb-1">📍 นครราชสีมา (โคราช)</div>
+                                <p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(ps.korat || 'ไม่มีประเด็นผิดปกติ')}</p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-teal-50/50 border border-teal-200">
+                                <div class="font-bold text-sm text-teal-950 mb-1">📍 ชัยภูมิ</div>
+                                <p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(ps.chaiyaphum || 'ไม่มีประเด็นผิดปกติ')}</p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-cyan-50/50 border border-cyan-200">
+                                <div class="font-bold text-sm text-cyan-950 mb-1">📍 บุรีรัมย์</div>
+                                <p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(ps.buriram || 'ไม่มีประเด็นผิดปกติ')}</p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-amber-50/50 border border-amber-200">
+                                <div class="font-bold text-sm text-amber-950 mb-1">📍 สุรินทร์</div>
+                                <p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(ps.surin || 'ไม่มีประเด็นผิดปกติ')}</p>
+                            </div>
+                        </div>
+                    `;
+                    renderDashboard();
+                    showToast('วิเคราะห์เชิงลึกด้วย Gemini AI สำเร็จ!', 'success');
+                }
+            } catch (err) {
+                console.warn('Fallback to Built-in Smart Summary:', err);
+                showToast('สรุปผลด้วยระบบวิเคราะห์ภาษาไทยอัตโนมัติเรียบร้อยแล้ว (หากต้องการใช้ Gemini AI กรุณาตั้งค่า API Key มุมขวาบน)', 'info');
+            } finally {
+                loadingEl.classList.add('hidden');
+                contentEl.classList.remove('opacity-40');
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // 8. INTERACTIVE NEWS LIST & FILTERING
+        // ==========================================
+        function filterNewsByProvince(prov) {
+            document.getElementById('filterProvinceSelect').value = prov;
+            document.getElementById('filterCategorySelect').value = 'ALL';
+            document.getElementById('filterUrgencySelect').value = 'ALL';
+            applyNewsListFilters();
+            document.getElementById('newsListContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function filterNewsByCategory(catKey) {
+            document.getElementById('filterCategorySelect').value = catKey;
+            applyNewsListFilters();
+            document.getElementById('newsListContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function filterNewsByUrgency(urg) {
+            document.getElementById('filterProvinceSelect').value = 'ALL';
+            document.getElementById('filterCategorySelect').value = 'ALL';
+            document.getElementById('filterUrgencySelect').value = urg;
+            applyNewsListFilters();
+            document.getElementById('newsListContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function applyNewsListFilters() {
+            const provFilter = document.getElementById('filterProvinceSelect').value;
+            const catFilter = document.getElementById('filterCategorySelect').value;
+            const urgFilter = document.getElementById('filterUrgencySelect').value;
+            const searchKw = document.getElementById('searchInNewsInput').value.trim().toLowerCase();
+
+            const filtered = currentState.newsItems.filter(item => {
+                if (provFilter !== 'ALL' && item.primaryProvince !== provFilter) return false;
+                if (catFilter !== 'ALL' && item.category !== catFilter) return false;
+                if (urgFilter !== 'ALL' && item.urgency !== urgFilter) return false;
+                if (searchKw && !(`${item.title} ${item.description} ${item.source}`.toLowerCase().includes(searchKw))) return false;
+                return true;
+            });
+
+            document.getElementById('filteredCountBadge').textContent = `${filtered.length} รายการ`;
+            const listContainer = document.getElementById('newsListContainer');
+            listContainer.innerHTML = '';
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="p-10 text-center space-y-2">
+                        <p class="text-sm font-bold text-slate-600">ไม่พบรายการข่าวที่ตรงกับตัวกรองปัจจุบัน</p>
+                        <button onclick="resetNewsListFilters()" class="px-3.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition">แสดงข่าวทั้งหมด</button>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach((item) => {
+                const catObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === item.category) || CATEGORY_DISPLAY_ORDER[5];
+                const provObj = PROVINCE_CONFIG[item.primaryProvince] || PROVINCE_CONFIG['นครราชสีมา'];
+
+                const extraProvincesHtml = (item.provinces || [])
+                    .filter(p => p !== item.primaryProvince)
+                    .map(p => `<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">+ ${p}</span>`)
+                    .join('');
+
+                let urgencyBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">🟢 ทั่วไป</span>`;
+                if (item.urgency === 'เร่งด่วนมาก') {
+                    urgencyBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700 border border-rose-200">🔴 เร่งด่วนมาก</span>`;
+                } else if (item.urgency === 'เฝ้าระวัง') {
+                    urgencyBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">🟡 เฝ้าระวัง</span>`;
+                }
+
+                const dateFormatted = formatThaiDateTime(item.pubDate);
+
+                const card = document.createElement('div');
+                card.className = 'p-4 sm:p-5 hover:bg-slate-50/90 transition flex flex-col sm:flex-row sm:items-start justify-between gap-4';
+                card.innerHTML = `
+                    <div class="space-y-2 flex-1">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${provObj.badgeClass}">📍 ${item.primaryProvince}</span>
+                            ${extraProvincesHtml}
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold border ${catObj.badgeClass}">${catObj.shortName}</span>
+                            ${urgencyBadge}
+                            <span class="text-xs text-slate-400 ml-1">• ${escapeHtml(item.source)} • ${dateFormatted}</span>
+                        </div>
+                        <h4 class="text-sm sm:text-base font-bold text-slate-900 hover:text-emerald-700 leading-snug">
+                            <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="hover:underline">${escapeHtml(item.title)}</a>
+                        </h4>
+                        ${item.description && item.description !== item.title ? `<p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">${escapeHtml(item.description)}</p>` : ''}
+                        
+                        <div class="pt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500 no-print">
+                            <span>ปรับหมวดหมู่ทันที:</span>
+                            <select onchange="updateSingleItemProvince('${item.id}', this.value)" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-700 font-medium outline-none focus:border-emerald-500">
+                                <option value="นครราชสีมา" ${item.primaryProvince === 'นครราชสีมา' ? 'selected' : ''}>จ.นครราชสีมา</option>
+                                <option value="ชัยภูมิ" ${item.primaryProvince === 'ชัยภูมิ' ? 'selected' : ''}>จ.ชัยภูมิ</option>
+                                <option value="บุรีรัมย์" ${item.primaryProvince === 'บุรีรัมย์' ? 'selected' : ''}>จ.บุรีรัมย์</option>
+                                <option value="สุรินทร์" ${item.primaryProvince === 'สุรินทร์' ? 'selected' : ''}>จ.สุรินทร์</option>
+                            </select>
+                            <select onchange="updateSingleItemCategory('${item.id}', this.value)" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-700 font-medium outline-none focus:border-emerald-500">
+                                <option value="water" ${item.category === 'water' ? 'selected' : ''}>💧 มลพิษทางน้ำ</option>
+                                <option value="air" ${item.category === 'air' ? 'selected' : ''}>💨 อากาศ/PM2.5/กลิ่น/เสียง</option>
+                                <option value="waste" ${item.category === 'waste' ? 'selected' : ''}>☣️ ขยะ/สารเคมี/ของเสีย</option>
+                                <option value="complaint" ${item.category === 'complaint' ? 'selected' : ''}>🏭 ร้องเรียน/โรงงาน/ฟาร์ม</option>
+                                <option value="conservation" ${item.category === 'conservation' ? 'selected' : ''}>🌳 อนุรักษ์/รณรงค์/แผนงาน</option>
+                                <option value="other" ${item.category === 'other' ? 'selected' : ''}>📌 อื่นๆ ที่เกี่ยวข้อง</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex sm:flex-col items-center sm:items-end justify-end gap-2 shrink-0 no-print">
+                        <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold flex items-center gap-1 transition">
+                            <span>อ่านข่าว</span>
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        </a>
+                        <button onclick="removeNewsItem('${item.id}')" class="text-[11px] text-slate-400 hover:text-rose-600 px-2 py-1" title="ลบข่าวนี้ออกจากการนับจำนวน">คัดออก</button>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        function resetNewsListFilters() {
+            document.getElementById('filterProvinceSelect').value = 'ALL';
+            document.getElementById('filterCategorySelect').value = 'ALL';
+            document.getElementById('filterUrgencySelect').value = 'ALL';
+            document.getElementById('searchInNewsInput').value = '';
+            applyNewsListFilters();
+        }
+
+        function removeNewsItem(id) {
+            currentState.newsItems = currentState.newsItems.filter(i => i.id !== id);
+            currentState.aiExecutiveSummaryHtml = null;
+            renderDashboard();
+            showToast('คัดข่าวออกและคำนวณจำนวนใหม่แล้ว', 'info');
+        }
+
+        function clearAllNews() {
+            currentState.newsItems = [];
+            currentState.aiExecutiveSummaryHtml = null;
+            renderDashboard();
+            showToast('ล้างรายการข่าวทั้งหมดแล้ว', 'info');
+        }
+
+        function formatThaiDateTime(isoStr) {
+            try {
+                const d = new Date(isoStr);
+                if (isNaN(d.getTime())) return '';
+                return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' น.';
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ==========================================
+        // 9. EXPORT TO LINE, CSV, AND PRINT REPORT
+        // ==========================================
+        function generateLineTextReport() {
+            const stats = computeStatistics(currentState.newsItems);
+            const tf = TIMEFRAMES[currentState.timeframe];
+            const dateStr = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            let lines = [];
+            lines.push(`🌿 สรุปสถานการณ์ข่าวสิ่งแวดล้อมและมลพิษ (สคพ.11)`);
+            lines.push(`📍 พื้นที่: นครราชสีมา • ชัยภูมิ • บุรีรัมย์ • สุรินทร์`);
+            lines.push(`🗓️ ประจำวันที่: ${dateStr}`);
+            lines.push(`⏱️ ห้วงเวลาที่กวาดข้อมูล: ${tf.label}`);
+            lines.push(`━━━━━━━━━━━━━━━━━━`);
+            lines.push(`📊 จำนวนข่าวที่พบทั้งหมด: ${stats.total} ข่าว`);
+            lines.push(`🔴 ประเด็นเร่งด่วนมาก: ${stats.urgentCount} ข่าว`);
+            lines.push(`🟡 ประเด็นเฝ้าระวัง: ${stats.watchCount} ข่าว`);
+            lines.push(`🟢 ข่าวทั่วไป/รณรงค์: ${stats.normalCount} ข่าว`);
+            lines.push(`━━━━━━━━━━━━━━━━━━`);
+            lines.push(`🗺️ แยกตามรายจังหวัด (4 จังหวัด):`);
+            lines.push(`• นครราชสีมา (โคราช): ${stats.byProvince['นครราชสีมา']} ข่าว`);
+            lines.push(`• ชัยภูมิ: ${stats.byProvince['ชัยภูมิ']} ข่าว`);
+            lines.push(`• บุรีรัมย์: ${stats.byProvince['บุรีรัมย์']} ข่าว`);
+            lines.push(`• สุรินทร์: ${stats.byProvince['สุรินทร์']} ข่าว`);
+            lines.push(`━━━━━━━━━━━━━━━━━━`);
+            lines.push(`🗂️ แยกตามประเภทปัญหาสิ่งแวดล้อม:`);
+            CATEGORY_DISPLAY_ORDER.forEach(cat => {
+                lines.push(`${cat.shortName}: ${stats.byCategory[cat.key] || 0} ข่าว`);
+            });
+            lines.push(`━━━━━━━━━━━━━━━━━━`);
+            lines.push(`📌 สรุปรายการข่าวสำคัญแยกรายจังหวัด:`);
+
+            ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'].forEach(prov => {
+                const provItems = currentState.newsItems.filter(i => i.primaryProvince === prov);
+                lines.push(`\n▶️ จ.${prov} (${provItems.length} ข่าว):`);
+                if (provItems.length === 0) {
+                    lines.push(`  - ไม่พบรายงานข่าวปัญหาสิ่งแวดล้อมในห้วงเวลานี้`);
+                } else {
+                    provItems.slice(0, 8).forEach((item, idx) => {
+                        const catObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === item.category);
+                        lines.push(`  ${idx + 1}) [${item.urgency}] ${item.title} (${catObj ? catObj.shortName : ''})`);
+                    });
+                }
+            });
+
+            return lines.join('\n');
+        }
+
+        function openReportModal() {
+            document.getElementById('lineReportTextarea').value = generateLineTextReport();
+            const modal = document.getElementById('reportModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeReportModal() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function copyLineReport() {
+            const text = document.getElementById('lineReportTextarea').value;
+            copyTextToClipboard(text, 'คัดลอกรายงานสำหรับส่ง LINE เรียบร้อยแล้ว!');
+        }
+
+        function copyExecutiveSummary() {
+            const text = generateLineTextReport();
+            copyTextToClipboard(text, 'คัดลอกบทสรุปผู้บริหารเรียบร้อยแล้ว!');
+        }
+
+        function exportCSV() {
+            if (currentState.newsItems.length === 0) {
+                showToast('ไม่มีข้อมูลข่าวสำหรับส่งออก CSV', 'info');
+                return;
+            }
+            const headers = ['ลำดับ', 'จังหวัดหลัก', 'จังหวัดที่เกี่ยวข้องทั้งหมด', 'ประเภทปัญหา', 'ระดับความเร่งด่วน', 'หัวข้อข่าว', 'แหล่งข่าว', 'วันที่เผยแพร่', 'ลิงก์ข่าว'];
+            const rows = currentState.newsItems.map((item, idx) => {
+                const catObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === item.category) || CATEGORY_DISPLAY_ORDER[5];
+                return [
+                    idx + 1,
+                    item.primaryProvince,
+                    `"${(item.provinces || [item.primaryProvince]).join(' / ')}"`,
+                    catObj.name,
+                    item.urgency,
+                    `"${(item.title || '').replace(/"/g, '""')}"`,
+                    `"${(item.source || '').replace(/"/g, '""')}"`,
+                    formatThaiDateTime(item.pubDate),
+                    `"${item.link || ''}"`
+                ].join(',');
+            });
+
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `รายงานข่าวสิ่งแวดล้อม_สคพ11_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('ดาวน์โหลดไฟล์ CSV (รองรับภาษาไทยใน Excel) สำเร็จ', 'success');
+        }
+
+        // ==========================================
+        // 10. API KEY MODAL & DEMO DATA
+        // ==========================================
+        function toggleApiKeyModal() {
+            const modal = document.getElementById('apiKeyModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        function saveUserApiKey() {
+            const val = document.getElementById('userApiKeyInput').value.trim();
+            apiKey = val;
+            if (val) {
+                localStorage.setItem('env_gemini_api_key', val);
+                document.getElementById('apiKeyStatusText').textContent = 'ตั้งค่า API Key แล้ว';
+            } else {
+                localStorage.removeItem('env_gemini_api_key');
+                document.getElementById('apiKeyStatusText').textContent = 'AI พร้อมใช้งาน';
+            }
+            toggleApiKeyModal();
+            showToast('บันทึกการตั้งค่า AI เรียบร้อยแล้ว', 'success');
+        }
+
+        function loadDemoNews(silent = false) {
+            const now = Date.now();
+            const sampleRaw = [
+                {
+                    title: 'ชาวบ้านพิมาย โคราช ร้องตรวจสอบน้ำในลำน้ำมูลเปลี่ยนสีดำคล้ำ ส่งกลิ่นเหม็น พบปลาลอยตายจำนวนมาก',
+                    description: 'ชาวบ้านในพื้นที่ อ.พิมาย จ.นครราชสีมา ร้องเรียนหน่วยงานสิ่งแวดล้อมเร่งตรวจสอบคุณภาพน้ำหลังพบน้ำเน่าเสียและปลาน็อกน้ำลอยตายเกือบตลอดแนวตลิ่ง',
+                    source: 'ข่าวภูมิภาคโคราช',
+                    pubDate: new Date(now - 2 * 3600 * 1000).toISOString()
+                },
+                {
+                    title: 'สคพ.11 นครราชสีมา ลงพื้นที่ตรวจวัดคุณภาพอากาศและเฝ้าระวังฝุ่น PM2.5 ช่วงฤดูเก็บเกี่ยวอ้อย',
+                    description: 'สำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 11 (นครราชสีมา) บูรณาการร่วมกับจังหวัดนครราชสีมา ชัยภูมิ บุรีรัมย์ และสุรินทร์ เข้มงวดมาตรการลดการเผาในที่โล่ง',
+                    source: 'สคพ.11 นครราชสีมา',
+                    pubDate: new Date(now - 4 * 3600 * 1000).toISOString()
+                },
+                {
+                    title: 'ด่วน! ตรวจพบรถบรรทุกลักลอบทิ้งกากของเสียอุตสาหกรรมและถังสารเคมีในพื้นที่รกร้าง อ.สีคิ้ว จ.นครราชสีมา',
+                    description: 'เจ้าหน้าที่ฝ่ายปกครองและอุตสาหกรรมจังหวัดนครราชสีมาเข้าตรวจสอบจุดลักลอบทิ้งกากอุตสาหกรรมส่งกลิ่นฉุนรุนแรง เร่งเก็บตัวอย่างตรวจพิสูจน์สารอันตราย',
+                    source: 'มติชนออนไลน์',
+                    pubDate: new Date(now - 5 * 3600 * 1000).toISOString()
+                },
+                {
+                    title: 'ชาวบ้านแก้งคร้อ จ.ชัยภูมิ ร้องเรียนฟาร์มสุกรปล่อยน้ำเสียและส่งกลิ่นเหม็นรบกวนชุมชนใกล้เคียง',
+                    description: 'ตัวแทนชาวบ้านในพื้นที่ อ.แก้งคร้อ จ.ชัยภูมิ ยื่นหนังสือขอให้หน่วยงานตรวจสอบระบบบำบัดน้ำเสียของฟาร์มหมูหลังฝนตกหนักทำให้น้ำเสียไหลลงนาข้าว',
+                    source: 'ข่าวชัยภูมิวันนี้',
+                    pubDate: new Date(now - 7 * 3600 * 1000).toISOString()
+                },
+                {
+                    title: 'จ.ชัยภูมิ เฝ้าระวังจุดความร้อน (Hotspot) และไฟป่าในเขตพื้นที่ป่าอนุรักษ์ภูเขียว-คอนสาร',
+                    description: 'ชุดปฏิบัติการดับไฟป่าจังหวัดชัยภูมิระดมกำลังทำแนวกันไฟและลาดตระเวนป้องกันการลักลอบเผาป่าเพื่อลดปัญหาหมอกควันและฝุ่นละออง PM2.5',
+                    source: 'ไทยรัฐออนไลน์',
+                    pubDate: new Date(now - 9 * 3600 * 1000).toISOString()
+                },
+                {
+                    title: 'เทศบาลใน จ.บุรีรัมย์ เร่งแก้ไขปัญหาบ่อขยะมูลฝอยล้นและป้องกันเหตุไฟไหม้บ่อขยะช่วงสภาพอากาศแห้ง',
+                    description: 'หน่วยงานท้องถิ่นในจังหวัดบุรีรัมย์วางมาตรการฉีดพรมน้ำและจัดระเบียบหลุมฝังกลบขยะมูลฝอย เพื่อป้องกันกลุ่มควันและกลิ่นเหม็นกระทบชุมชน',
+                    source: 'ข่าวสดออนไลน์',
+                    pubDate: new Date(now - 11 * 3600 * 1000).toISOString()
+                },
+                {
+                    title: 'ชาวบ้าน อ.นางรอง จ.บุรีรัมย์ โวยโรงงานลานมันสำปะหลังปล่อยฝุ่นละอองและกลิ่นเหม็นเปรี้ยว',
+                    description: 'ชาวบ้านรอบโรงงานแปรรูปมันสำปะหลังในพื้นที่ อ.นางรอง จ.บุรีรัมย์ ร้องขอให้ตรวจสอบการฟุ้งกระจายของฝุ่นแป้งและกลิ่นน้ำหมักจากบ่อบำบัด',
+                    source: 'เดลินิวส์',
+                    pubDate: new Date(now - 14 * 3600 * 1000).toISOString()
+                },
+                {
+                    title: 'จ.สุรินทร์ รณรงค์งดเผาตอซังข้าวและฟางข้าว ส่งเสริมการไถกลบเพื่อลดฝุ่น PM2.5 และฟื้นฟูดิน',
+                    description: 'ผู้ว่าราชการจังหวัดสุรินทร์เปิดกิจกรรมรณรงค์เกษตรกรปลอดการเผาในพื้นที่ อ.ปราสาท และ อ.ศีขรภูมิ เพื่อลดมลพิษทางอากาศอย่างยั่งยืน',
+                    source: 'สำนักงานประชาสัมพันธ์จังหวัดสุรินทร์',
+                    pubDate: new Date(now - 16 * 3600 * 1000).toISOString()
+                },
+                {
+                    title: 'ตรวจสอบคุณภาพน้ำอ่างเก็บน้ำห้วยเสนง จ.สุรินทร์ เฝ้าระวังการปล่อยน้ำเสียจากชุมชนเมือง',
+                    description: 'เจ้าหน้าที่สิ่งแวดล้อมลงพื้นที่เก็บตัวอย่างน้ำในอ่างเก็บน้ำห้วยเสนงและลำน้ำสาขาใน จ.สุรินทร์ เพื่อตรวจวัดค่าออกซิเจนละลายน้ำ (DO) และความสะอาด',
+                    source: 'สุรินทร์นิวส์',
+                    pubDate: new Date(now - 18 * 3600 * 1000).toISOString()
+                },
+                {
+                    title: 'โคราชเปิดโครงการธนาคารขยะชุมชนและคัดแยกขยะอันตรายจากครัวเรือนในเขต อ.เมืองนครราชสีมา',
+                    description: 'ส่งเสริมการคัดแยกขยะรีไซเคิลและขยะอันตราย อาทิ หลอดไฟ ถ่านไฟฉาย และกระป๋องสเปรย์ เพื่อลดปริมาณขยะตกค้างในจังหวัดนครราชสีมา',
+                    source: 'โคราชรายวัน',
+                    pubDate: new Date(now - 20 * 3600 * 1000).toISOString()
+                }
+            ];
+
+            currentState.newsItems = sampleRaw.map((item, idx) => classifySingleNewsItem(item, idx));
+            currentState.aiExecutiveSummaryHtml = null;
+            renderDashboard();
+            if (!silent) {
+                showToast('โหลดข้อมูลข่าวตัวอย่างทั้ง 4 จังหวัดพร้อมแยกประเภทเรียบร้อยแล้ว', 'success');
+            }
+        }
+    </script>
+</body>
+</html>
