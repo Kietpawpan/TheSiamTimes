@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<!--
-Copyright © 2026 THE SIAM TIMES <monte@thesiamtimes.com>
-All rights reserved.
--->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,12 +14,27 @@ All rights reserved.
             max-width: 100%;
             height: auto;
         }
+        /* ซ่อน scrollbar สำหรับ modal แต่ยังเลื่อนได้ */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="bg-green-50 min-h-screen flex items-center justify-center p-4">
 
-    <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-600">
-        <div class="flex items-center justify-center mb-6">
+    <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-600 relative">
+        <!-- ปุ่ม Help -->
+        <button id="helpBtn" class="absolute top-4 right-4 text-gray-400 hover:text-green-600 transition-colors" title="Information">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </button>
+
+        <div class="flex items-center justify-center mb-6 mt-2">
             <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Emblem_of_the_Pollution_Control_Department.svg/250px-Emblem_of_the_Pollution_Control_Department.svg.png" alt="Pollution Control Department Logo" class="h-16 w-16 mr-3">
             <h1 class="text-xl font-semibold text-green-800">QR Code Generator<br><span class="text-sm text-green-600"> Environmental and Pollution Control Office 11</span></h1>
         </div>
@@ -127,6 +138,94 @@ All rights reserved.
         </div>
     </div>
 
+    <!-- Help Modal (Popup) -->
+    <div id="helpModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col transform transition-transform duration-300 scale-95">
+            
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-5 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Information / ข้อมูลระบบ
+                </h2>
+                <button id="closeHelpBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-6 overflow-y-auto no-scrollbar space-y-8 text-sm text-gray-700 leading-relaxed">
+                
+                <!-- Thai Section -->
+                <div>
+                    <h3 class="text-lg font-bold text-green-700 mb-3 font-['Sarabun']">คุณสมบัติของ QR Code ที่สร้างจากระบบนี้</h3>
+                    <ul class="space-y-4 font-['Sarabun']">
+                        <li>
+                            <span class="font-semibold text-gray-900 block mb-1">1. ไม่มีวันหมดอายุ</span>
+                            QR Code ที่สร้างขึ้นเป็นแบบ Static ซึ่งหมายความว่าข้อมูล (เช่น URL หรือข้อความ) จะถูกแปลงเป็นรหัสและฝังลงไปในตัวภาพโดยตรง ตัวภาพ QR Code เองจึงไม่มีวันหมดอายุและสามารถสแกนได้ตลอดไป ตราบใดที่ลิงก์หรือเว็บไซต์ปลายทางที่กรอกไว้ยังเปิดใช้งานอยู่
+                        </li>
+                        <li>
+                            <span class="font-semibold text-gray-900 block mb-1">2. ปลอดภัยสูงมาก</span>
+                            <ul class="list-disc pl-5 mt-1 space-y-2">
+                                <li><span class="font-medium text-gray-800">ปลอดภัยสำหรับผู้สร้าง:</span> โค้ดทั้งหมดนี้ทำงานบนหน้าเบราว์เซอร์ของอุปกรณ์ท่าน 100% (Client-side) ไม่มีการส่งข้อมูล ลิงก์ หรือคำอธิบายใดๆ กลับไปเก็บไว้ที่เซิร์ฟเวอร์ภายนอก</li>
+                                <li><span class="font-medium text-gray-800">ปลอดภัยสำหรับผู้สแกน:</span> QR Code จะพาผู้สแกนไปยังลิงก์เป้าหมายโดยตรงโดยไม่ผ่านระบบตัวกลาง (Redirect service) ทำให้ไม่มีโฆษณาแอบแฝงและไม่มีความเสี่ยงจากการถูกแฮ็กระบบตัวกลางเพื่อเปลี่ยนเส้นทางไปยังเว็บอันตราย (ความปลอดภัยจะขึ้นอยู่กับลิงก์ต้นทางที่ท่านนำมาใส่เท่านั้น)</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <span class="font-semibold text-gray-900 block mb-1">3. มั่นคงและเสถียร</span>
+                            <ul class="list-disc pl-5 mt-1 space-y-2">
+                                <li><span class="font-medium text-gray-800">สแกนได้ไม่จำกัดจำนวนครั้ง:</span> เว็บไซต์สร้าง QR Code ฟรีหลายแห่งมักจะจำกัดจำนวนครั้งในการสแกน หรือใช้ได้แค่ระยะเวลาหนึ่งแล้วบังคับให้จ่ายเงิน แต่ระบบนี้ไม่มีข้อจำกัดเหล่านั้นเลย</li>
+                                <li><span class="font-medium text-gray-800">ไม่ต้องพึ่งพาระบบคนกลาง:</span> ท่านไม่ต้องกังวลว่าในอนาคตเว็บไซต์ผู้ให้บริการสร้าง QR Code จะปิดตัวลงแล้วทำให้ภาพ QR Code ที่พิมพ์ลงบนเอกสารราชการของ สคพ.11 หรือป้ายไวนิลต่างๆ ใช้งานไม่ได้ เพราะภาพที่โหลดไปแล้วจะทำงานด้วยตัวมันเองอย่างสมบูรณ์</li>
+                            </ul>
+                        </li>
+                    </ul>
+                   
+                </div>
+
+                <hr class="border-gray-200">
+
+                <!-- English Section -->
+                <div>
+                    <h3 class="text-lg font-bold text-green-700 mb-3">System Features</h3>
+                    <ul class="space-y-4">
+                        <li>
+                            <span class="font-semibold text-gray-900 block mb-1">1. No Expiration Date</span>
+                            The generated QR Code is Static, meaning the data (such as a URL or text) is encoded and embedded directly into the image. The QR Code itself will never expire and can be scanned indefinitely, as long as the destination link remains active.
+                        </li>
+                        <li>
+                            <span class="font-semibold text-gray-900 block mb-1">2. Highly Secure</span>
+                            <ul class="list-disc pl-5 mt-1 space-y-2">
+                                <li><span class="font-medium text-gray-800">For Creators:</span> All code runs 100% on your device's browser (Client-side). No data, links, or descriptions are sent to or stored on external servers.</li>
+                                <li><span class="font-medium text-gray-800">For Scanners:</span> The QR Code directs users straight to the target link without using any redirect service. This ensures there are no hidden ads and eliminates the risk of intermediary systems being hacked to redirect to malicious sites (security depends solely on the original link you provide).</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <span class="font-semibold text-gray-900 block mb-1">3. Stable and Reliable</span>
+                            <ul class="list-disc pl-5 mt-1 space-y-2">
+                                <li><span class="font-medium text-gray-800">Unlimited Scans:</span> Many free QR Code generators limit the number of scans or expire after a certain period, forcing you to pay. This system has no such limitations.</li>
+                                <li><span class="font-medium text-gray-800">Independent of Third-Party Services:</span> You don't have to worry about a QR Code generator website shutting down in the future and causing the QR Codes printed on official documents or vinyl banners to stop working. The downloaded image functions completely on its own.</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <!-- Developer Info (English) -->
+                    <div class="mt-6 p-4 bg-green-50 rounded-md border border-green-100">
+                        <p class="font-bold text-green-800 mb-1">Developer</p>
+                        <p class="text-gray-800 font-semibold">Dr. Monte Kietpawpan</p>
+                        <p class="text-gray-600 leading-snug mt-1">Director, Environmental and Pollution Control Office 11<br>Pollution Control Department, Ministry of Natural Resources and Environment</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="p-5 border-t border-gray-200 bg-gray-50 rounded-b-xl flex justify-end">
+                <button id="closeHelpBtnFooter" class="px-5 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors font-medium">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const qrCode = new QRCodeStyling({
             width: 400,
@@ -160,6 +259,42 @@ All rights reserved.
         const previewContainer = document.getElementById('previewContainer');
         const qrContainer = document.getElementById('qrContainer');
         const qrDescriptionText = document.getElementById('qrDescriptionText');
+
+        // Modal Elements
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelpBtn = document.getElementById('closeHelpBtn');
+        const closeHelpBtnFooter = document.getElementById('closeHelpBtnFooter');
+        const modalContent = helpModal.querySelector('div');
+
+        // ฟังก์ชันจัดการ Modal Popup
+        function openModal() {
+            helpModal.classList.remove('hidden');
+            // ให้บราวเซอร์ render display ก่อนค่อยเพิ่ม opacity เพื่อให้มีอนิเมชั่น
+            setTimeout(() => {
+                helpModal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeModal() {
+            helpModal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                helpModal.classList.add('hidden');
+            }, 300); // รอให้อนิเมชั่นเสร็จ
+        }
+
+        helpBtn.addEventListener('click', openModal);
+        closeHelpBtn.addEventListener('click', closeModal);
+        closeHelpBtnFooter.addEventListener('click', closeModal);
+        
+        // ปิดเมื่อคลิกพื้นที่ว่างรอบๆ modal
+        helpModal.addEventListener('click', function(e) {
+            if (e.target === helpModal) {
+                closeModal();
+            }
+        });
 
         // กำหนดค่าสีสำหรับแต่ละตัวเลือก
         const colorMap = {
