@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dhamma Warfare: 37 Bodhipakkhiya vs 21 Akusala</title>
+  <title>Dhamma Warfare: 37 Bodhipakkhiya vs 36 Akusala</title>
   <style>
     :root {
       --bg-dark: #0b0f19;
@@ -12,7 +12,7 @@
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       /* Kusala -> Akusala (Suppression) */
-      --sup-1: #facc15; /* Yellow-Red / Gold */
+      --sup-1: #facc15; /* Red-Yellow / Gold */
       --sup-2: #f97316; /* Orange */
       --sup-3: #ef4444; /* Red */
       /* Kusala -> Kusala (Cultivation) */
@@ -37,7 +37,6 @@
       overflow-x: hidden;
     }
 
-    /* Header */
     header {
       position: sticky;
       top: 0;
@@ -100,13 +99,6 @@
       color: #fda4af;
     }
 
-    button.btn-success {
-      background: rgba(34, 197, 94, 0.2);
-      border-color: #22c55e;
-      color: #86efac;
-    }
-
-    /* Legend & Stats Bar */
     .top-bar {
       display: flex;
       flex-wrap: wrap;
@@ -160,14 +152,13 @@
       border: 1px solid var(--border-dim);
     }
 
-    /* Main Arena */
     .arena-wrapper {
       position: relative;
       display: grid;
-      grid-template-columns: 1.35fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 24px;
       padding: 20px;
-      max-width: 1600px;
+      max-width: 1650px;
       margin: 0 auto;
     }
 
@@ -223,11 +214,10 @@
 
     .nodes-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 8px;
     }
 
-    /* Node Cards */
     .dhamma-node {
       position: relative;
       padding: 8px 10px;
@@ -272,14 +262,12 @@
       font-weight: 700;
     }
 
-    /* Kusala Selected State */
     .dhamma-node.kusala-selected {
       border-color: #fde047;
       background: rgba(250, 204, 21, 0.14);
       box-shadow: 0 0 12px rgba(250, 204, 21, 0.35);
     }
 
-    /* Kusala Cultivated States (1=Green, 2=Blue, 3+=Purple) */
     .dhamma-node.cul-1 {
       border-color: var(--cul-1);
       background: rgba(34, 197, 94, 0.16);
@@ -296,14 +284,12 @@
       box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
     }
 
-    /* Kusala Obstructed by Akusala */
     .dhamma-node.kusala-obstructed {
       border-style: dashed;
       border-color: var(--obs-color);
       box-shadow: inset 0 0 10px rgba(244, 63, 94, 0.35);
     }
 
-    /* Akusala Suppressed States (1=Red-Yellow, 2=Orange, 3+=Red) */
     .dhamma-node.sup-1 {
       border-color: var(--sup-1);
       background: linear-gradient(135deg, rgba(239, 68, 68, 0.22), rgba(250, 204, 21, 0.28));
@@ -320,14 +306,12 @@
       box-shadow: 0 0 16px rgba(239, 68, 68, 0.75);
     }
 
-    /* Akusala Active Attacking State */
     .dhamma-node.akusala-active {
       border-color: #f43f5e;
       background: rgba(244, 63, 94, 0.22);
       box-shadow: 0 0 12px rgba(244, 63, 94, 0.5);
     }
 
-    /* SVG Beam Animations */
     .beam-line {
       fill: none;
       stroke-linecap: round;
@@ -352,10 +336,9 @@
       to { stroke-dashoffset: 20; }
     }
 
-    /* Detail Inspector Footer */
     .inspector-bar {
-      max-width: 1600px;
-      margin: 0 auto 24px auto;
+      max-width: 1650px;
+      margin: 14px auto 0 auto;
       padding: 0 20px;
     }
 
@@ -399,26 +382,26 @@
 
   <header>
     <div class="title-area">
-      <h1 id="ui-title">Dhamma Warfare: 37 Bodhipakkhiya vs 21 Akusala</h1>
-      <p id="ui-subtitle">Click Kusala Dhamma to cultivate wholesome states and suppress Akusala Dhamma</p>
+      <h1 id="ui-title">Dhamma Warfare: 37 Bodhipakkhiya vs 36 Akusala</h1>
+      <p id="ui-subtitle">Select Kusala Dhamma to cultivate wholesome states and suppress Akusala Dhamma</p>
     </div>
     <div class="controls">
       <button id="btn-preset-magganga" onclick="activateGroup('magganga')">8 Maggaṅga</button>
       <button id="btn-preset-bojjhanga" onclick="activateGroup('bojjhanga')">7 Bojjhaṅga</button>
       <button id="btn-mara" class="btn-danger" onclick="triggerMaraAttack()">Māra Raid (Akusala Attack)</button>
       <button id="btn-clear" onclick="resetAll()">Reset All</button>
-      <button id="btn-lang" class="btn-lang" onclick="toggleLanguage()">ภาษาไทย (TH)</button>
+      <button id="btn-lang" class="btn-lang" onclick="toggleLanguage()">รุ่นภาษาไทย (TH)</button>
     </div>
   </header>
 
   <div class="top-bar">
     <div class="legend-group">
-      <strong id="leg-sup-title">Kusala Suppresses Akusala:</strong>
+      <strong id="leg-sup-title">Suppress Akusala:</strong>
       <span class="legend-item"><i class="dot dot-sup-1"></i> <span id="leg-sup-1">1x Red-Yellow</span></span>
       <span class="legend-item"><i class="dot dot-sup-2"></i> <span id="leg-sup-2">2x Orange</span></span>
       <span class="legend-item"><i class="dot dot-sup-3"></i> <span id="leg-sup-3">3x+ Red (Conquered)</span></span>
 
-      <strong id="leg-cul-title" style="margin-left:10px;">Kusala Cultivates Kusala:</strong>
+      <strong id="leg-cul-title" style="margin-left:10px;">Cultivate Kusala:</strong>
       <span class="legend-item"><i class="dot dot-cul-1"></i> <span id="leg-cul-1">1x Green</span></span>
       <span class="legend-item"><i class="dot dot-cul-2"></i> <span id="leg-cul-2">2x Blue</span></span>
       <span class="legend-item"><i class="dot dot-cul-3"></i> <span id="leg-cul-3">3x+ Purple (Fulfilled)</span></span>
@@ -428,11 +411,11 @@
 
     <div class="scoreboard">
       <div class="score-pill" id="score-kusala">Active Kusala: 0 / 37</div>
-      <div class="score-pill" id="score-akusala">Conquered Akusala (3x Red): 0 / 21</div>
+      <div class="score-pill" id="score-akusala">Conquered Akusala (3x+ Red): 0 / 36</div>
     </div>
   </div>
 
-  <div class="inspector-bar" style="margin-top: 14px; margin-bottom: 0;">
+  <div class="inspector-bar">
     <div class="inspector-card" id="inspector-box">
       <h3 id="insp-title">Dhamma Relationship Inspector</h3>
       <div id="insp-content">Click any Kusala or Akusala node below to activate it and inspect its direct suppression and cultivation links.</div>
@@ -451,10 +434,10 @@
       <div id="kusala-container"></div>
     </div>
 
-    <!-- Right Column: 21 Akusala Dhamma -->
+    <!-- Right Column: 36 Akusala Dhamma -->
     <div class="column-panel">
       <div class="column-title akusala-title">
-        <span id="col-akusala-title">Akusala Dhamma (21 Unwholesome States)</span>
+        <span id="col-akusala-title">Akusala Dhamma (36 Unwholesome States)</span>
         <small id="col-akusala-hint" style="font-weight:400; color:#9ca3af;">Click to toggle obstruction</small>
       </div>
       <div id="akusala-container"></div>
@@ -469,7 +452,7 @@
 
     const UI_TEXT = {
       en: {
-        title: "Dhamma Warfare: 37 Bodhipakkhiya vs 21 Akusala",
+        title: "Dhamma Warfare: 37 Bodhipakkhiya vs 36 Akusala",
         subtitle: "Select Kusala Dhamma to cultivate wholesome states and suppress Akusala Dhamma",
         btnMagganga: "Activate 8 Maggaṅga",
         btnBojjhanga: "Activate 7 Bojjhaṅga",
@@ -487,7 +470,7 @@
         legObs: "Akusala Obstructs Kusala",
         colKusalaTitle: "Kusala Dhamma (37 Bodhipakkhiya Dhamma)",
         colKusalaHint: "Click to cultivate & suppress",
-        colAkusalaTitle: "Akusala Dhamma (21 Unwholesome States)",
+        colAkusalaTitle: "Akusala Dhamma (36 Unwholesome States)",
         colAkusalaHint: "Click to test Akusala obstruction",
         inspDefaultTitle: "Dhamma Relationship Inspector",
         inspDefaultBody: "Click any Kusala or Akusala node to toggle its energy beams and view which states it suppresses or cultivates.",
@@ -497,7 +480,7 @@
         lblSuppressedByKusala: "Can be suppressed by Kusala:"
       },
       th: {
-        title: "ธรรมยุทธ์: โพธิปักขิยธรรม 37 ปราบอกุศลธรรม 21",
+        title: "ธรรมยุทธ์: โพธิปักขิยธรรม 37 ปราบอกุศลธรรม 36",
         subtitle: "เลือกกุศลธรรมเพื่อเจริญกุศลและข่มอกุศลธรรมตามลำดับสี",
         btnMagganga: "เลือกมรรคมีองค์ 8",
         btnBojjhanga: "เลือกโพชฌงค์ 7",
@@ -515,7 +498,7 @@
         legObs: "อกุศลธรรมข่มกุศลธรรม",
         colKusalaTitle: "กุศลธรรม (โพธิปักขิยธรรม 37 ประการ)",
         colKusalaHint: "กดเพื่อส่งพลังข่มอกุศลและเจริญกุศล",
-        colAkusalaTitle: "อกุศลธรรม (21 ประการ)",
+        colAkusalaTitle: "อกุศลธรรม (36 ประการ)",
         colAkusalaHint: "กดเพื่อดูเส้นที่อกุศลข่มกุศล",
         inspDefaultTitle: "หน้าต่างตรวจสอบความสัมพันธ์ของสภาวธรรม",
         inspDefaultBody: "กดที่กุศลธรรมหรืออกุศลธรรมข้อใดก็ได้ เพื่อเปิดใช้งานเส้นเชื่อมและดูรายละเอียดการข่มและการเจริญสภาวธรรม",
@@ -540,101 +523,104 @@
       { id: 'nivarana', en: '1. Five Nīvaraṇa (Five Hindrances)', th: '1. นิวรณ์ 5' },
       { id: 'tanha', en: '2. Three Taṇhā (Three Cravings)', th: '2. ตัณหา 3' },
       { id: 'mula', en: '3. Three Akusala-mūla (Unwholesome Roots)', th: '3. อกุศลมูล 3' },
-      { id: 'samyojana', en: '4. Ten Saṃyojana (Ten Fetters)', th: '4. สังโยชน์ 10' }
+      { id: 'samyojana', en: '4. Ten Saṃyojana (Ten Fetters)', th: '4. สังโยชน์ 10' },
+      { id: 'asava', en: '5. Three Āsava (Three Mental Effluents)', th: '5. อาสวะ 3' },
+      { id: 'ogha', en: '6. Four Ogha (Four Floods)', th: '6. โอฆะ 4' },
+      { id: 'micchatta', en: '7. Eight Micchatta (Eightfold Wrongness)', th: '7. มิจฉัตตะ 8' }
     ];
 
-    // 37 Kusala Dhammas with explicit targets for suppressing Akusala and cultivating Kusala
+    // 37 Kusala Dhammas
     const KUSALA_NODES = [
       // 1. Satipatthana 4
       { id: 'k1', group: 'satipatthana', en: 'Kāyānupassanā', enSub: 'Mindfulness of Body', th: 'กายานุปัสสนา', thSub: 'สติกำหนดพิจารณากาย',
-        suppresses: ['a1', 'a6', 'a12', 'a15'], cultivates: ['k15', 'k20', 'k23', 'k36'] },
+        suppresses: ['a1', 'a6', 'a12', 'a15', 'a22', 'a25', 'a32', 'a35'], cultivates: ['k15', 'k20', 'k23', 'k36'] },
       { id: 'k2', group: 'satipatthana', en: 'Vedanānupassanā', enSub: 'Mindfulness of Feelings', th: 'เวทนานุปัสสนา', thSub: 'สติกำหนดพิจารณาเวทนา',
-        suppresses: ['a2', 'a6', 'a7', 'a9', 'a16'], cultivates: ['k15', 'k23', 'k29', 'k36'] },
+        suppresses: ['a2', 'a6', 'a7', 'a9', 'a16', 'a22', 'a23', 'a26', 'a30', 'a35'], cultivates: ['k15', 'k23', 'k29', 'k36'] },
       { id: 'k3', group: 'satipatthana', en: 'Cittānupassanā', enSub: 'Mindfulness of Mind', th: 'จิตตานุปัสสนา', thSub: 'สติกำหนดพิจารณาจิต',
-        suppresses: ['a4', 'a8', 'a9', 'a10', 'a20'], cultivates: ['k11', 'k16', 'k21', 'k28'] },
+        suppresses: ['a4', 'a8', 'a9', 'a10', 'a20', 'a23', 'a35', 'a36'], cultivates: ['k11', 'k16', 'k21', 'k28'] },
       { id: 'k4', group: 'satipatthana', en: 'Dhammānupassanā', enSub: 'Mindfulness of Dhammas', th: 'ธัมมานุปัสสนา', thSub: 'สติกำหนดพิจารณาธรรม',
-        suppresses: ['a5', 'a11', 'a12', 'a13', 'a21'], cultivates: ['k12', 'k17', 'k22', 'k24', 'k30'] },
+        suppresses: ['a5', 'a11', 'a12', 'a13', 'a21', 'a24', 'a27', 'a28', 'a29', 'a35'], cultivates: ['k12', 'k17', 'k22', 'k24', 'k30'] },
 
       // 2. Sammappadhana 4
       { id: 'k5', group: 'sammappadhana', en: 'Saṃvarappadhāna', enSub: 'Effort to Prevent', th: 'สังวรปธาน', thSub: 'เพียรระวังบาปไม่ให้เกิด',
-        suppresses: ['a1', 'a2', 'a4', 'a9'], cultivates: ['k14', 'k19', 'k35', 'k36'] },
+        suppresses: ['a1', 'a2', 'a4', 'a9', 'a22', 'a25', 'a31', 'a32', 'a33', 'a34'], cultivates: ['k14', 'k19', 'k35', 'k36'] },
       { id: 'k6', group: 'sammappadhana', en: 'Pahānappadhāna', enSub: 'Effort to Abandon', th: 'ปหานปธาน', thSub: 'เพียรละบาปที่เกิดขึ้นแล้ว',
-        suppresses: ['a1', 'a2', 'a3', 'a9', 'a10', 'a15'], cultivates: ['k10', 'k14', 'k19', 'k35'] },
+        suppresses: ['a1', 'a2', 'a3', 'a9', 'a10', 'a15', 'a22', 'a25', 'a30', 'a34'], cultivates: ['k10', 'k14', 'k19', 'k35'] },
       { id: 'k7', group: 'sammappadhana', en: 'Bhāvanāppadhāna', enSub: 'Effort to Develop', th: 'ภาวนาปธาน', thSub: 'เพียรเจริญกุศลให้เกิดขึ้น',
-        suppresses: ['a3', 'a5', 'a11', 'a21'], cultivates: ['k23', 'k24', 'k25', 'k26', 'k35'] },
+        suppresses: ['a3', 'a5', 'a11', 'a21', 'a24', 'a28', 'a34'], cultivates: ['k23', 'k24', 'k25', 'k26', 'k35'] },
       { id: 'k8', group: 'sammappadhana', en: 'Anurakkhaṇappadhāna', enSub: 'Effort to Maintain', th: 'อนุรักขนาปธาน', thSub: 'เพียรรักษากุศลไม่ให้เสื่อม',
-        suppresses: ['a3', 'a4', 'a17', 'a18', 'a20'], cultivates: ['k16', 'k21', 'k27', 'k28', 'k37'] },
+        suppresses: ['a3', 'a4', 'a17', 'a18', 'a20', 'a23', 'a26', 'a33', 'a34'], cultivates: ['k16', 'k21', 'k27', 'k28', 'k37'] },
 
       // 3. Iddhipada 4
       { id: 'k9', group: 'iddhipada', en: 'Chanda', enSub: 'Aspiration / Wholesome Zeal', th: 'ฉันทะ', thSub: 'ความพอใจใฝ่ธรรม',
-        suppresses: ['a1', 'a3', 'a6', 'a9'], cultivates: ['k10', 'k13', 'k18', 'k26'] },
+        suppresses: ['a1', 'a3', 'a6', 'a9', 'a25', 'a30', 'a33'], cultivates: ['k10', 'k13', 'k18', 'k26'] },
       { id: 'k10', group: 'iddhipada', en: 'Viriya', enSub: 'Perseverance / Energy', th: 'วิริยะ', thSub: 'ความพากเพียรแกล้วกล้า',
-        suppresses: ['a3', 'a8', 'a15', 'a20'], cultivates: ['k6', 'k14', 'k19', 'k25', 'k35'] },
+        suppresses: ['a3', 'a8', 'a15', 'a20', 'a26', 'a34'], cultivates: ['k6', 'k14', 'k19', 'k25', 'k35'] },
       { id: 'k11', group: 'iddhipada', en: 'Citta', enSub: 'Active Mind-set / Attention', th: 'จิตตะ', thSub: 'ความเอาใจใส่ฝักใฝ่ไม่วางธุระ',
-        suppresses: ['a4', 'a7', 'a17', 'a20'], cultivates: ['k3', 'k16', 'k21', 'k28', 'k37'] },
+        suppresses: ['a4', 'a7', 'a17', 'a20', 'a23', 'a36'], cultivates: ['k3', 'k16', 'k21', 'k28', 'k37'] },
       { id: 'k12', group: 'iddhipada', en: 'Vīmaṃsā', enSub: 'Investigation / Appraisal', th: 'วิมังสา', thSub: 'การไตร่ตรองด้วยปัญญา',
-        suppresses: ['a5', 'a11', 'a12', 'a13', 'a14', 'a21'], cultivates: ['k4', 'k17', 'k22', 'k24', 'k30'] },
+        suppresses: ['a5', 'a11', 'a12', 'a13', 'a14', 'a21', 'a24', 'a27', 'a28', 'a29'], cultivates: ['k4', 'k17', 'k22', 'k24', 'k30'] },
 
       // 4. Indriya 5
       { id: 'k13', group: 'indriya', en: 'Saddhindriya', enSub: 'Faculty of Faith', th: 'สัทธินทรีย์', thSub: 'อินทรีย์คือศรัทธา',
-        suppresses: ['a5', 'a13', 'a14'], cultivates: ['k14', 'k18', 'k26', 'k31'] },
+        suppresses: ['a5', 'a13', 'a14', 'a27', 'a29'], cultivates: ['k14', 'k18', 'k26', 'k31'] },
       { id: 'k14', group: 'indriya', en: 'Viriyindriya', enSub: 'Faculty of Energy', th: 'วิริยินทรีย์', thSub: 'อินทรีย์คือวิริยะ',
-        suppresses: ['a3', 'a6', 'a8'], cultivates: ['k15', 'k19', 'k25', 'k35'] },
+        suppresses: ['a3', 'a6', 'a8', 'a25', 'a26', 'a34'], cultivates: ['k15', 'k19', 'k25', 'k35'] },
       { id: 'k15', group: 'indriya', en: 'Satindriya', enSub: 'Faculty of Mindfulness', th: 'สตินทรีย์', thSub: 'อินทรีย์คือสติ',
-        suppresses: ['a1', 'a2', 'a4', 'a20'], cultivates: ['k1', 'k16', 'k20', 'k23', 'k36'] },
+        suppresses: ['a1', 'a2', 'a4', 'a20', 'a22', 'a25', 'a31', 'a35'], cultivates: ['k1', 'k16', 'k20', 'k23', 'k36'] },
       { id: 'k16', group: 'indriya', en: 'Samādhindriya', enSub: 'Faculty of Concentration', th: 'สมาธินทรีย์', thSub: 'อินทรีย์คือสมาธิ',
-        suppresses: ['a1', 'a4', 'a15', 'a16', 'a20'], cultivates: ['k17', 'k21', 'k27', 'k28', 'k37'] },
+        suppresses: ['a1', 'a4', 'a15', 'a16', 'a20', 'a22', 'a25', 'a36'], cultivates: ['k17', 'k21', 'k27', 'k28', 'k37'] },
       { id: 'k17', group: 'indriya', en: 'Paññindriya', enSub: 'Faculty of Wisdom', th: 'ปัญญินทรีย์', thSub: 'อินทรีย์คือปัญญา',
-        suppresses: ['a5', 'a11', 'a12', 'a19', 'a21'], cultivates: ['k4', 'k22', 'k24', 'k29', 'k30'] },
+        suppresses: ['a5', 'a11', 'a12', 'a19', 'a21', 'a23', 'a24', 'a27', 'a28', 'a29'], cultivates: ['k4', 'k22', 'k24', 'k29', 'k30'] },
 
       // 5. Bala 5
       { id: 'k18', group: 'bala', en: 'Saddhā-bala', enSub: 'Power of Faith', th: 'สัทธาพละ', thSub: 'พละคือศรัทธา ไม่หวั่นไหวด้วยอสัทธา',
-        suppresses: ['a5', 'a13', 'a14', 'a19'], cultivates: ['k13', 'k19', 'k26', 'k32'] },
+        suppresses: ['a5', 'a13', 'a14', 'a19', 'a27', 'a29'], cultivates: ['k13', 'k19', 'k26', 'k32'] },
       { id: 'k19', group: 'bala', en: 'Viriya-bala', enSub: 'Power of Energy', th: 'วิริยพละ', thSub: 'พละคือวิริยะ ไม่หวั่นไหวด้วยโกสัชชะ',
-        suppresses: ['a3', 'a7', 'a8'], cultivates: ['k6', 'k14', 'k20', 'k25', 'k35'] },
+        suppresses: ['a3', 'a7', 'a8', 'a26', 'a34'], cultivates: ['k6', 'k14', 'k20', 'k25', 'k35'] },
       { id: 'k20', group: 'bala', en: 'Sati-bala', enSub: 'Power of Mindfulness', th: 'สติพละ', thSub: 'พละคือสติ ไม่หวั่นไหวด้วยมุฏฐัสสติ',
-        suppresses: ['a1', 'a4', 'a6', 'a9'], cultivates: ['k1', 'k15', 'k21', 'k23', 'k36'] },
+        suppresses: ['a1', 'a4', 'a6', 'a9', 'a25', 'a31', 'a35'], cultivates: ['k1', 'k15', 'k21', 'k23', 'k36'] },
       { id: 'k21', group: 'bala', en: 'Samādhi-bala', enSub: 'Power of Concentration', th: 'สมาธิพละ', thSub: 'พละคือสมาธิ ไม่หวั่นไหวด้วยอุทธัจจะ',
-        suppresses: ['a1', 'a2', 'a4', 'a15', 'a20'], cultivates: ['k16', 'k22', 'k27', 'k28', 'k37'] },
+        suppresses: ['a1', 'a2', 'a4', 'a15', 'a20', 'a22', 'a26', 'a36'], cultivates: ['k16', 'k22', 'k27', 'k28', 'k37'] },
       { id: 'k22', group: 'bala', en: 'Paññā-bala', enSub: 'Power of Wisdom', th: 'ปัญญาพละ', thSub: 'พละคือปัญญา ไม่หวั่นไหวด้วยอวิชชา',
-        suppresses: ['a11', 'a12', 'a17', 'a18', 'a19', 'a21'], cultivates: ['k12', 'k17', 'k24', 'k30'] },
+        suppresses: ['a11', 'a12', 'a17', 'a18', 'a19', 'a21', 'a22', 'a23', 'a24', 'a27', 'a28', 'a29'], cultivates: ['k12', 'k17', 'k24', 'k30'] },
 
       // 6. Bojjhanga 7
       { id: 'k23', group: 'bojjhanga', en: 'Sati-sambojjhaṅga', enSub: 'Mindfulness Awakening Factor', th: 'สติสัมโพชฌงค์', thSub: 'องค์แห่งการตรัสรู้คือสติ',
-        suppresses: ['a1', 'a4', 'a6', 'a15'], cultivates: ['k24', 'k36', 'k1', 'k2'] },
+        suppresses: ['a1', 'a4', 'a6', 'a15', 'a22', 'a25', 'a35'], cultivates: ['k24', 'k36', 'k1', 'k2'] },
       { id: 'k24', group: 'bojjhanga', en: 'Dhammavicaya-sambojjhaṅga', enSub: 'Investigation Awakening Factor', th: 'ธัมมวิจยสัมโพชฌงค์', thSub: 'องค์แห่งการตรัสรู้คือธัมมวิจยะ',
-        suppresses: ['a5', 'a11', 'a12', 'a13', 'a14', 'a21'], cultivates: ['k25', 'k17', 'k22', 'k30'] },
+        suppresses: ['a5', 'a11', 'a12', 'a13', 'a14', 'a21', 'a24', 'a27', 'a28', 'a29'], cultivates: ['k25', 'k17', 'k22', 'k30'] },
       { id: 'k25', group: 'bojjhanga', en: 'Viriya-sambojjhaṅga', enSub: 'Energy Awakening Factor', th: 'วิริยสัมโพชฌงค์', thSub: 'องค์แห่งการตรัสรู้คือวิริยะ',
-        suppresses: ['a3', 'a8', 'a18'], cultivates: ['k26', 'k10', 'k14', 'k35'] },
+        suppresses: ['a3', 'a8', 'a18', 'a26', 'a34'], cultivates: ['k26', 'k10', 'k14', 'k35'] },
       { id: 'k26', group: 'bojjhanga', en: 'Pīti-sambojjhaṅga', enSub: 'Rapture / Joy Awakening Factor', th: 'ปีติสัมโพชฌงค์', thSub: 'องค์แห่งการตรัสรู้คือปีติ',
-        suppresses: ['a2', 'a3', 'a10', 'a16'], cultivates: ['k27', 'k9', 'k13'] },
+        suppresses: ['a2', 'a3', 'a10', 'a16', 'a23', 'a30'], cultivates: ['k27', 'k9', 'k13'] },
       { id: 'k27', group: 'bojjhanga', en: 'Passaddhi-sambojjhaṅga', enSub: 'Tranquility Awakening Factor', th: 'ปัสสัทธิสัมโพชฌงค์', thSub: 'องค์แห่งการตรัสรู้คือปัสสัทธิ',
-        suppresses: ['a4', 'a10', 'a16', 'a20'], cultivates: ['k28', 'k16', 'k21'] },
+        suppresses: ['a4', 'a10', 'a16', 'a20', 'a32', 'a36'], cultivates: ['k28', 'k16', 'k21'] },
       { id: 'k28', group: 'bojjhanga', en: 'Samādhi-sambojjhaṅga', enSub: 'Concentration Awakening Factor', th: 'สมาธิสัมโพชฌงค์', thSub: 'องค์แห่งการตรัสรู้คือสมาธิ',
-        suppresses: ['a1', 'a4', 'a15', 'a20'], cultivates: ['k29', 'k16', 'k21', 'k37'] },
+        suppresses: ['a1', 'a4', 'a15', 'a20', 'a22', 'a26', 'a36'], cultivates: ['k29', 'k16', 'k21', 'k37'] },
       { id: 'k29', group: 'bojjhanga', en: 'Upekkhā-sambojjhaṅga', enSub: 'Equanimity Awakening Factor', th: 'อุเบกขาสัมโพชฌงค์', thSub: 'องค์แห่งการตรัสรู้คืออุเบกขา',
-        suppresses: ['a1', 'a2', 'a7', 'a8', 'a9', 'a17', 'a18', 'a19'], cultivates: ['k2', 'k17', 'k30', 'k37'] },
+        suppresses: ['a1', 'a2', 'a7', 'a8', 'a9', 'a17', 'a18', 'a19', 'a23', 'a26', 'a30'], cultivates: ['k2', 'k17', 'k30', 'k37'] },
 
       // 7. Magganga 8
       { id: 'k30', group: 'magganga', en: 'Sammā-diṭṭhi', enSub: 'Right View', th: 'สัมมาทิฏฐิ', thSub: 'ความเห็นชอบ รู้อริยสัจ 4',
-        suppresses: ['a5', 'a11', 'a12', 'a13', 'a14', 'a19', 'a21'], cultivates: ['k31', 'k12', 'k17', 'k22', 'k24'] },
+        suppresses: ['a5', 'a11', 'a12', 'a13', 'a14', 'a19', 'a21', 'a24', 'a27', 'a28', 'a29'], cultivates: ['k31', 'k12', 'k17', 'k22', 'k24'] },
       { id: 'k31', group: 'magganga', en: 'Sammā-saṅkappa', enSub: 'Right Intention', th: 'สัมมาสังกัปปะ', thSub: 'ดำริชอบ (เนกขัมมะ อพยาบาท อวิหิงสา)',
-        suppresses: ['a1', 'a2', 'a6', 'a9', 'a10', 'a15', 'a16'], cultivates: ['k32', 'k33', 'k9'] },
+        suppresses: ['a1', 'a2', 'a6', 'a9', 'a10', 'a15', 'a16', 'a22', 'a25', 'a30'], cultivates: ['k32', 'k33', 'k9'] },
       { id: 'k32', group: 'magganga', en: 'Sammā-vācā', enSub: 'Right Speech', th: 'สัมมาวาจา', thSub: 'เจรจาชอบ เว้นวจีทุจริต 4',
-        suppresses: ['a2', 'a4', 'a9', 'a10', 'a14'], cultivates: ['k33', 'k5', 'k27'] },
+        suppresses: ['a2', 'a4', 'a9', 'a10', 'a14', 'a31'], cultivates: ['k33', 'k5', 'k27'] },
       { id: 'k33', group: 'magganga', en: 'Sammā-kammanta', enSub: 'Right Action', th: 'สัมมากัมมันตะ', thSub: 'กระทำชอบ เว้นกายทุจริต 3',
-        suppresses: ['a1', 'a2', 'a9', 'a10', 'a14', 'a16'], cultivates: ['k34', 'k5', 'k27'] },
+        suppresses: ['a1', 'a2', 'a9', 'a10', 'a14', 'a16', 'a32'], cultivates: ['k34', 'k5', 'k27'] },
       { id: 'k34', group: 'magganga', en: 'Sammā-ājīva', enSub: 'Right Livelihood', th: 'สัมมาอาชีวะ', thSub: 'เลี้ยงชีพชอบ เว้นมิจฉาอาชีวะ',
-        suppresses: ['a1', 'a6', 'a9', 'a14'], cultivates: ['k35', 'k5', 'k8'] },
+        suppresses: ['a1', 'a6', 'a9', 'a14', 'a33'], cultivates: ['k35', 'k5', 'k8'] },
       { id: 'k35', group: 'magganga', en: 'Sammā-vāyāma', enSub: 'Right Effort', th: 'สัมมาวายามะ', thSub: 'เพียรชอบ (สัมมัปปธาน 4)',
-        suppresses: ['a3', 'a7', 'a8', 'a17', 'a18'], cultivates: ['k36', 'k5', 'k6', 'k7', 'k8'] },
+        suppresses: ['a3', 'a7', 'a8', 'a17', 'a18', 'a23', 'a34'], cultivates: ['k36', 'k5', 'k6', 'k7', 'k8'] },
       { id: 'k36', group: 'magganga', en: 'Sammā-sati', enSub: 'Right Mindfulness', th: 'สัมมาสติ', thSub: 'ระลึกชอบ (สติปัฏฐาน 4)',
-        suppresses: ['a1', 'a4', 'a6', 'a7', 'a20'], cultivates: ['k37', 'k1', 'k2', 'k3', 'k4'] },
+        suppresses: ['a1', 'a4', 'a6', 'a7', 'a20', 'a23', 'a35'], cultivates: ['k37', 'k1', 'k2', 'k3', 'k4'] },
       { id: 'k37', group: 'magganga', en: 'Sammā-samādhi', enSub: 'Right Concentration', th: 'สัมมาสมาธิ', thSub: 'ตั้งจิตมั่นชอบ (ฌาน 4)',
-        suppresses: ['a1', 'a2', 'a3', 'a4', 'a5', 'a15', 'a16', 'a20'], cultivates: ['k16', 'k21', 'k28', 'k30'] }
+        suppresses: ['a1', 'a2', 'a3', 'a4', 'a5', 'a15', 'a16', 'a20', 'a22', 'a26', 'a36'], cultivates: ['k16', 'k21', 'k28', 'k30'] }
     ];
 
-    // 21 Akusala Dhammas with explicit targets for obstructing Kusala
+    // 36 Akusala Dhammas
     const AKUSALA_NODES = [
       // 1. Nivarana 5
       { id: 'a1', group: 'nivarana', en: 'Kāmacchanda', enSub: 'Sensual Desire', th: 'กามฉันทะ', thSub: 'ความพอใจติดใจในกามคุณ',
@@ -684,7 +670,43 @@
       { id: 'a20', group: 'samyojana', en: 'Uddhacca (Fetter)', enSub: 'Subtle Restlessness', th: 'อุทธัจจสังโยชน์', thSub: 'สังโยชน์คือความฟุ้งซ่านอย่างละเอียด',
         obstructs: ['k3', 'k8', 'k15', 'k16', 'k21', 'k27', 'k28', 'k36', 'k37'] },
       { id: 'a21', group: 'samyojana', en: 'Avijjā', enSub: 'Fundamental Ignorance', th: 'อวิชชา', thSub: 'ความไม่รู้แจ้งในอริยสัจ 4',
-        obstructs: ['k4', 'k7', 'k12', 'k17', 'k22', 'k24', 'k30'] }
+        obstructs: ['k4', 'k7', 'k12', 'k17', 'k22', 'k24', 'k30'] },
+
+      // 5. Asava 3
+      { id: 'a22', group: 'asava', en: 'Kāmāsava', enSub: 'Taint of Sensual Desire', th: 'กามาสวะ', thSub: 'กิเลสที่หมักหมมคือกาม',
+        obstructs: ['k1', 'k2', 'k5', 'k6', 'k15', 'k16', 'k21', 'k28', 'k31', 'k37'] },
+      { id: 'a23', group: 'asava', en: 'Bhavāsava', enSub: 'Taint of Lust for Existence', th: 'ภวาสวะ', thSub: 'กิเลสที่หมักหมมคือภพ',
+        obstructs: ['k2', 'k3', 'k8', 'k11', 'k17', 'k26', 'k29', 'k35', 'k36'] },
+      { id: 'a24', group: 'asava', en: 'Avijjāsava', enSub: 'Taint of Ignorance', th: 'อวิชชาสวะ', thSub: 'กิเลสที่หมักหมมคืออวิชชา',
+        obstructs: ['k4', 'k7', 'k12', 'k17', 'k22', 'k24', 'k30'] },
+
+      // 6. Ogha 4
+      { id: 'a25', group: 'ogha', en: 'Kāmogha', enSub: 'Flood of Sensuality', th: 'กาโมฆะ', thSub: 'ห้วงน้ำกิเลสคือกามที่พัดพาสัตว์ไว้',
+        obstructs: ['k1', 'k5', 'k6', 'k9', 'k14', 'k15', 'k16', 'k20', 'k23', 'k31'] },
+      { id: 'a26', group: 'ogha', en: 'Bhavogha', enSub: 'Flood of Existence', th: 'ภโวฆะ', thSub: 'ห้วงน้ำกิเลสคือภพและความติดในภพ',
+        obstructs: ['k2', 'k8', 'k10', 'k14', 'k19', 'k21', 'k25', 'k28', 'k29', 'k37'] },
+      { id: 'a27', group: 'ogha', en: 'Diṭṭhogha', enSub: 'Flood of Wrong Views', th: 'ทิฏโฐฆะ', thSub: 'ห้วงน้ำกิเลสคือความเห็นผิด',
+        obstructs: ['k4', 'k12', 'k13', 'k17', 'k18', 'k22', 'k24', 'k30'] },
+      { id: 'a28', group: 'ogha', en: 'Avijjogha', enSub: 'Flood of Ignorance', th: 'อวิชโชฆะ', thSub: 'ห้วงน้ำกิเลสคือความไม่รู้แจ้ง',
+        obstructs: ['k4', 'k7', 'k12', 'k17', 'k22', 'k24', 'k30'] },
+
+      // 7. Micchatta 8
+      { id: 'a29', group: 'micchatta', en: 'Micchā-diṭṭhi', enSub: 'Wrong View', th: 'มิจฉาทิฏฐิ', thSub: 'ความเห็นผิดจากคลองธรรมและอริยสัจ',
+        obstructs: ['k4', 'k12', 'k13', 'k17', 'k18', 'k22', 'k24', 'k30'] },
+      { id: 'a30', group: 'micchatta', en: 'Micchā-saṅkappa', enSub: 'Wrong Intention', th: 'มิจฉาสังกัปปะ', thSub: 'ดำริผิด (กามวิตก พยาบาทวิตก วิหิงสาวิตก)',
+        obstructs: ['k2', 'k6', 'k9', 'k26', 'k29', 'k31'] },
+      { id: 'a31', group: 'micchatta', en: 'Micchā-vācā', enSub: 'Wrong Speech', th: 'มิจฉาวาจา', thSub: 'เจรจาผิด (วจีทุจริต 4)',
+        obstructs: ['k5', 'k15', 'k20', 'k32'] },
+      { id: 'a32', group: 'micchatta', en: 'Micchā-kammanta', enSub: 'Wrong Action', th: 'มิจฉากัมมันตะ', thSub: 'กระทำผิดทางกาย (กายทุจริต 3)',
+        obstructs: ['k1', 'k5', 'k27', 'k33'] },
+      { id: 'a33', group: 'micchatta', en: 'Micchā-ājīva', enSub: 'Wrong Livelihood', th: 'มิจฉาอาชีวะ', thSub: 'เลี้ยงชีพผิดในทางทุจริต',
+        obstructs: ['k5', 'k8', 'k9', 'k34'] },
+      { id: 'a34', group: 'micchatta', en: 'Micchā-vāyāma', enSub: 'Wrong Effort', th: 'มิจฉาวายามะ', thSub: 'ความเพียรผิด มุ่งไปในทางอกุศล',
+        obstructs: ['k5', 'k6', 'k7', 'k8', 'k10', 'k14', 'k19', 'k25', 'k35'] },
+      { id: 'a35', group: 'micchatta', en: 'Micchā-sati', enSub: 'Wrong Mindfulness', th: 'มิจฉาสติ', thSub: 'ความระลึกผิด นึกคิดในทางอกุศล',
+        obstructs: ['k1', 'k2', 'k3', 'k4', 'k15', 'k20', 'k23', 'k36'] },
+      { id: 'a36', group: 'micchatta', en: 'Micchā-samādhi', enSub: 'Wrong Concentration', th: 'มิจฉาสมาธิ', thSub: 'ตั้งจิตมั่นผิดในอกุศลอารมณ์',
+        obstructs: ['k3', 'k11', 'k16', 'k21', 'k27', 'k28', 'k37'] }
     ];
 
     const kusalaMap = Object.fromEntries(KUSALA_NODES.map(n => [n.id, n]));
@@ -785,13 +807,13 @@
     }
 
     function triggerMaraAttack() {
-      const sampleMara = ['a1', 'a2', 'a3', 'a4', 'a5', 'a9', 'a10', 'a11', 'a21'];
+      const sampleMara = ['a1', 'a2', 'a5', 'a9', 'a11', 'a21', 'a22', 'a24', 'a27', 'a29', 'a34', 'a35', 'a36'];
       const allOn = sampleMara.every(id => activeAkusala.has(id));
       if (allOn) {
         activeAkusala.clear();
       } else {
         sampleMara.forEach(id => activeAkusala.add(id));
-        lastClickedNode = { type: 'akusala', id: 'a1' };
+        lastClickedNode = { type: 'akusala', id: 'a29' };
       }
       updateStateAndRender();
     }
@@ -838,7 +860,6 @@
     }
 
     function updateStateAndRender() {
-      // Calculate counts
       const akusalaSuppressCount = {};
       const kusalaCultivateCount = {};
       const kusalaObstructCount = {};
@@ -866,7 +887,6 @@
         });
       });
 
-      // Update Kusala Node classes & badges
       KUSALA_NODES.forEach(k => {
         const el = document.getElementById('node-' + k.id);
         const badgeBox = document.getElementById('badges-' + k.id);
@@ -913,7 +933,6 @@
         }
       });
 
-      // Update Akusala Node classes & badges
       let conqueredTotal = 0;
       AKUSALA_NODES.forEach(a => {
         const el = document.getElementById('node-' + a.id);
@@ -952,7 +971,6 @@
         }
       });
 
-      // Update Scoreboard
       document.getElementById('score-kusala').textContent =
         currentLang === 'en'
           ? `Active Kusala: ${activeKusala.size} / 37`
@@ -960,8 +978,8 @@
 
       document.getElementById('score-akusala').textContent =
         currentLang === 'en'
-          ? `Conquered Akusala (3x+ Red): ${conqueredTotal} / 21`
-          : `อกุศลที่ถูกปราบ (สีแดง 3x+): ${conqueredTotal} / 21`;
+          ? `Conquered Akusala (3x+ Red): ${conqueredTotal} / 36`
+          : `อกุศลที่ถูกปราบ (สีแดง 3x+): ${conqueredTotal} / 36`;
 
       updateInspector();
       drawConnections(akusalaSuppressCount, kusalaCultivateCount);
@@ -1051,8 +1069,6 @@
           const strokeColor = count === 1 ? '#22c55e' : (count === 2 ? '#3b82f6' : '#a855f7');
 
           const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          const dx = p2.x - p1.x;
-          const dy = p2.y - p1.y;
           const cx = (p1.x + p2.x) / 2 - 40;
           const cy = (p1.y + p2.y) / 2;
 
@@ -1113,7 +1129,6 @@
 
     window.addEventListener('resize', () => updateStateAndRender());
 
-    // Initial render
     applyUITranslations();
     buildArenaDOM();
     updateStateAndRender();
