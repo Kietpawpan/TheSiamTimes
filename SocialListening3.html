@@ -140,7 +140,7 @@
             <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-emerald-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div class="flex items-center gap-2.5">
                     <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-heading font-bold text-sm flex items-center justify-center shadow-sm">1</span>
-                    <h2 class="text-base sm:text-lg font-bold text-emerald-950">ตั้งค่าการค้นหาข่าว ห้วงเวลา และประเด็นมลพิษ</h2>
+                    <h2 class="text-base sm:text-lg font-bold text-emerald-950">ตั้งค่าการค้นหาข่าว ห้วงเวลา และประเด็นมลพิษ (คลังคำค้น 160 คำ)</h2>
                 </div>
                 <div class="flex items-center gap-2 text-xs text-emerald-700 font-medium">
                     <i data-lucide="clock" class="w-4 h-4"></i>
@@ -254,61 +254,78 @@
                         <div class="flex items-center justify-between mb-2.5">
                             <label class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
                                 <i data-lucide="tags" class="w-4 h-4 text-emerald-600"></i>
-                                <span>กลุ่มคำค้นหาด้านสิ่งแวดล้อมและมลพิษ:</span>
+                                <span>กลุ่มคำค้นหาด้านสิ่งแวดล้อมและมลพิษ (หมวดละ 32 คำค้น รวม 160 คำ):</span>
                             </label>
                             <button type="button" onclick="selectAllTopics()" class="text-xs text-emerald-600 hover:text-emerald-800 font-semibold underline">เลือกทุกประเด็น</button>
                         </div>
                         <div class="flex flex-wrap gap-2" id="topicSelector">
                             <button type="button" onclick="toggleTopic('water')" data-topic="water" class="topic-btn active px-3 py-2 rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
-                                <span>💧 มลพิษทางน้ำ (น้ำเสีย/ปลาตาย/น้ำเน่า)</span>
+                                <span>💧 มลพิษทางน้ำ (32 คำค้น)</span>
                             </button>
                             <button type="button" onclick="toggleTopic('air')" data-topic="air" class="topic-btn active px-3 py-2 rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
-                                <span>💨 อากาศและเสียง (PM2.5/เผาอ้อย/ไฟป่า/กลิ่นเหม็น)</span>
+                                <span>💨 อากาศ/ฝุ่น/ไฟป่า/กลิ่น/เสียง (32 คำค้น)</span>
                             </button>
                             <button type="button" onclick="toggleTopic('waste')" data-topic="waste" class="topic-btn active px-3 py-2 rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
-                                <span>☣️ ขยะและสารเคมี (บ่อขยะ/กากอุตสาหกรรม/ลักลอบทิ้ง)</span>
+                                <span>☣️ ขยะ/สารเคมี/กากอุตสาหกรรม (32 คำค้น)</span>
                             </button>
                             <button type="button" onclick="toggleTopic('complaint')" data-topic="complaint" class="topic-btn active px-3 py-2 rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
-                                <span>🏭 เหตุรำคาญ/ร้องเรียน (โรงงาน/ฟาร์มหมู/ลานมัน)</span>
+                                <span>🏭 เหตุรำคาญ/ร้องเรียน/โรงงาน/ฟาร์ม (32 คำค้น)</span>
                             </button>
                             <button type="button" onclick="toggleTopic('general')" data-topic="general" class="topic-btn active px-3 py-2 rounded-xl border text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
-                                <span>🌳 ภาพรวมสิ่งแวดล้อมและทรัพยากร</span>
+                                <span>🌳 ภาพรวมสิ่งแวดล้อม/อนุรักษ์/สคพ.11 (32 คำค้น)</span>
                             </button>
                         </div>
 
-                        <!-- Custom Keywords Input -->
-                        <div class="mt-3">
-                            <div class="relative">
-                                <input type="text" id="customKeywords" oninput="updateQueryPreview()" placeholder="พิมพ์คำค้นหาเฉพาะเจาะจงเพิ่มเติม (คั่นด้วยจุลภาค เช่น ลำตะคอง, โรงงานน้ำตาล, ปลาตาย)..." 
+                        <!-- Custom Keywords & Query Capacity Mode -->
+                        <div class="mt-3 grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                            <div class="relative sm:col-span-7">
+                                <input type="text" id="customKeywords" oninput="updateQueryPreview()" placeholder="พิมพ์คำค้นเพิ่มเติม (คั่นด้วยจุลภาค เช่น ลำตะคอง, โรงงานน้ำตาล)..." 
                                     class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-xs sm:text-sm bg-slate-50/70">
                                 <i data-lucide="search-code" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            </div>
+                            <div class="sm:col-span-5">
+                                <select id="queryCapacityModeSelect" onchange="changeQueryCapacityMode(this.value)" class="w-full px-3 py-2 rounded-xl border border-emerald-300 bg-emerald-50/70 text-emerald-950 font-semibold text-xs sm:text-sm outline-none focus:ring-2 focus:ring-emerald-500" title="เลือกรูปแบบความจุคำค้นสำหรับปุ่ม Google News">
+                                    <option value="max32">⚡ เต็มเพดาน Google (32 คำค้นสูงสุด ไม่ถูกตัดคำ)</option>
+                                    <option value="all">🚀 จัดเต็มทุกคำค้นในคลัง (สูงสุด 165 คำค้นครบ 100%)</option>
+                                </select>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 1.4 Live Query Preview Bar -->
-                <div class="bg-slate-900 text-slate-200 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="flex items-start sm:items-center gap-2.5 overflow-hidden">
-                        <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-mono shrink-0">QUERY</span>
-                        <code id="queryPreviewText" class="text-xs text-emerald-200 font-mono truncate block"></code>
+                <div class="bg-slate-900 text-slate-200 rounded-xl p-3.5 space-y-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-mono">QUERY PREVIEW</span>
+                            <span id="queryCapacityBadge" class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[11px] font-semibold">ความจุคำค้น: 32/32 คำ (เต็มพิกัด)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="openGoogleNewsAllTopicBatches()" class="px-3 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 text-xs font-semibold flex items-center gap-1 border border-emerald-500/40 transition" title="เปิด Google News แยกตามหมวดเพื่อให้ค้นครบทุกคำค้น 160 คำโดยไม่ติดเพดาน 32 คำของ Google">
+                                <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                                <span>เปิดแยกหมวดครบ 160 คำค้น</span>
+                            </button>
+                            <button type="button" onclick="copyQueryText()" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 border border-slate-700 transition">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span>คัดลอกคำค้น</span>
+                            </button>
+                        </div>
                     </div>
-                    <button type="button" onclick="copyQueryText()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 shrink-0 border border-slate-700 transition self-end sm:self-auto">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                        <span>คัดลอกคำค้น</span>
-                    </button>
+                    <div class="max-h-20 overflow-y-auto custom-scrollbar bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
+                        <code id="queryPreviewText" class="text-xs text-emerald-200 font-mono break-all leading-relaxed block"></code>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- STEP 2: Action Hub & Instant Google News Paste -->
         <section class="bg-white rounded-2xl shadow-sm border border-emerald-100 overflow-hidden no-print">
-            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-emerald-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-emerald-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div class="flex items-center gap-2.5">
                     <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-heading font-bold text-sm flex items-center justify-center shadow-sm">2</span>
-                    <h2 class="text-base sm:text-lg font-bold text-emerald-950">ดึงข่าวจริงอัตโนมัติ หรือก๊อปปี้จาก Google News มาวางเพื่อจัดประเภททันที</h2>
+                    <h2 class="text-base sm:text-lg font-bold text-emerald-950">ดึงข่าวจริงอัตโนมัติ หรือเปิดค้น Google News เต็มพิกัดคำค้นแล้วก๊อปปี้มาวาง</h2>
                 </div>
-                <span class="text-xs text-emerald-700 font-semibold">รองรับการดึงอัตโนมัติ (GAS) และการวางข้อความอัจฉริยะ (Smart Paste)</span>
+                <span class="text-xs text-emerald-700 font-semibold">รองรับคำค้นอัดแน่นเต็มความจุ Google News และการวางข้อความอัจฉริยะ (Smart Paste)</span>
             </div>
 
             <div class="p-5 sm:p-6 space-y-5">
@@ -320,27 +337,27 @@
                             <span class="p-2 rounded-xl bg-white/20 text-white">
                                 <i data-lucide="zap" class="w-5 h-5"></i>
                             </span>
-                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/20">ดึงข่าวจริง • อัตโนมัติ</span>
+                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/20">กวาดครบทุกหมวด • อัตโนมัติ</span>
                         </div>
                         <div>
                             <div class="font-heading font-bold text-base">ดึงข่าวจริง & วิเคราะห์ทันที</div>
-                            <div class="text-xs text-emerald-100 mt-0.5">กวาดข่าวจริงจาก Google News ทั้ง 4 จังหวัด แยก 6 ประเภทมลพิษและสรุปผล</div>
+                            <div class="text-xs text-emerald-100 mt-0.5">ส่งชุดคำค้นทุกหมวดมลพิษกวาดข่าวจริงจาก Google News ทั้ง 4 จังหวัดพร้อมคัดกรอง</div>
                         </div>
                     </button>
 
                     <!-- Button 2: Open Google News Tab -->
-                    <button type="button" onclick="openGoogleSearch('news')" class="bg-blue-50 hover:bg-blue-100/80 border border-blue-200 text-blue-950 rounded-2xl p-4 transition flex flex-col justify-between text-left group">
+                    <button type="button" onclick="openGoogleSearch('news')" class="bg-blue-50 hover:bg-blue-100/80 border-2 border-blue-300 text-blue-950 rounded-2xl p-4 transition flex flex-col justify-between text-left group shadow-sm">
                         <div class="flex items-center justify-between w-full mb-2">
                             <span class="p-2 rounded-xl bg-blue-600 text-white">
                                 <i data-lucide="newspaper" class="w-5 h-5"></i>
                             </span>
-                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 flex items-center gap-1">
-                                เปิดค้น & ก๊อปปี้มาวาง <i data-lucide="external-link" class="w-3 h-3"></i>
+                            <span id="btnGoogleNewsBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white flex items-center gap-1">
+                                เต็มพิกัด 32 คำค้น <i data-lucide="external-link" class="w-3 h-3"></i>
                             </span>
                         </div>
                         <div>
-                            <div class="font-heading font-bold text-base text-blue-900">เปิดดู Google News</div>
-                            <div class="text-xs text-blue-700/80 mt-0.5">เปิดหน้าข่าว Google News ตามห้วงเวลา แล้วกด Ctrl+A Ctrl+C มาวางด้านล่างได้ทันที</div>
+                            <div class="font-heading font-bold text-base text-blue-900">เปิดดู Google News (เต็มความจุ)</div>
+                            <div class="text-xs text-blue-700/90 mt-0.5">ค้นหาด้วยชุดคำค้นครอบคลุมเต็มเพดานที่ระบบรับได้ แล้วกด Ctrl+A Ctrl+C มาวางด้านล่าง</div>
                         </div>
                     </button>
 
@@ -354,7 +371,7 @@
                         </div>
                         <div>
                             <div class="font-heading font-bold text-base text-indigo-900">เปิดดู Google Search ทั้งหมด</div>
-                            <div class="text-xs text-indigo-700/80 mt-0.5">ค้นหาทุกเว็บไซต์ หน่วยงานรัฐ และบทความตามห้วงเวลา</div>
+                            <div class="text-xs text-indigo-700/80 mt-0.5">ค้นหาทุกเว็บไซต์ หน่วยงานรัฐ และบทความด้วยคำค้นความจุสูงสุดตามห้วงเวลา</div>
                         </div>
                     </button>
 
@@ -368,7 +385,7 @@
                         </div>
                         <div>
                             <div class="font-heading font-bold text-base text-rose-900">กวาดโพสต์ Facebook / Social</div>
-                            <div class="text-xs text-rose-700/80 mt-0.5">ค้นหาโพสต์ร้องเรียนในเพจข่าวและกลุ่มสาธารณะผ่าน Google</div>
+                            <div class="text-xs text-rose-700/80 mt-0.5">ค้นหาโพสต์ร้องเรียนในเพจข่าวและกลุ่มสาธารณะผ่าน Google เต็มความจุคำค้น</div>
                         </div>
                     </button>
                 </div>
@@ -377,7 +394,7 @@
                 <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
                     <span class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
                         <i data-lucide="compass" class="w-4 h-4 text-emerald-600"></i>
-                        <span>ทางลัดเปิด Google News แยกรายจังหวัด (ตามห้วงเวลาที่เลือก):</span>
+                        <span>ทางลัดเปิด Google News แยกรายจังหวัด (อัดคำค้นมลพิษเต็มพิกัด 32 คำต่อจังหวัด):</span>
                     </span>
                     <div class="flex flex-wrap gap-1.5">
                         <button type="button" onclick="openSingleProvinceGoogle('นครราชสีมา', true)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 text-xs font-medium transition flex items-center gap-1">
@@ -401,7 +418,7 @@
                         <div class="w-6 h-6 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin shrink-0"></div>
                         <div>
                             <div id="fetchingStatusTitle" class="text-sm font-bold text-emerald-900">กำลังดึงข้อมูลข่าวสิ่งแวดล้อมและมลพิษ...</div>
-                            <div id="fetchingStatusSub" class="text-xs text-emerald-700">กำลังเชื่อมต่อ Google News RSS และคัดกรองตามห้วงเวลา</div>
+                            <div id="fetchingStatusSub" class="text-xs text-emerald-700">กำลังเชื่อมต่อ Google News RSS ครบทุกชุดคำค้นและคัดกรองตามห้วงเวลา</div>
                         </div>
                     </div>
                     <span id="fetchingProgressBadge" class="text-xs font-mono text-emerald-700 bg-white px-3 py-1.5 rounded-lg border border-emerald-200 font-bold self-start sm:self-auto">กำลังค้นหา...</span>
@@ -793,8 +810,10 @@
 
     <script>
         // ==========================================
-        // 1. STATE & CONFIGURATION
+        // 1. STATE & CONFIGURATION (คลังคำค้นเต็มพิกัด 160 คำ)
         // ==========================================
+        const GOOGLE_MAX_WORD_LIMIT = 32;
+
         const TIMEFRAMES = {
             '1d':  { label: 'รอบ 24 ชม. ที่ผ่านมา', tbs: 'qdr:d',   rssWhen: 'when:1d', hours: 24 },
             '2d':  { label: 'รอบ 2 วันที่ผ่านมา',    tbs: 'qdr:d2',  rssWhen: 'when:7d', hours: 48 },
@@ -814,7 +833,7 @@
             'นครราชสีมา': {
                 name: 'นครราชสีมา',
                 shortName: 'โคราช',
-                searchTerms: ['"นครราชสีมา"', '"โคราช"'],
+                searchTerms: ['นครราชสีมา', 'โคราช'],
                 directKeywords: ['นครราชสีมา', 'โคราช'],
                 districtKeywords: [
                     'ปากช่อง', 'พิมาย', 'บัวใหญ่', 'สีคิ้ว', 'ปักธงชัย', 
@@ -828,7 +847,7 @@
             'ชัยภูมิ': {
                 name: 'ชัยภูมิ',
                 shortName: 'ชัยภูมิ',
-                searchTerms: ['"ชัยภูมิ"'],
+                searchTerms: ['ชัยภูมิ'],
                 directKeywords: ['ชัยภูมิ'],
                 districtKeywords: [
                     'ภูเขียว', 'จัตุรัส', 'แก้งคร้อ', 'เกษตรสมบูรณ์', 'บำเหน็จณรงค์',
@@ -840,7 +859,7 @@
             'บุรีรัมย์': {
                 name: 'บุรีรัมย์',
                 shortName: 'บุรีรัมย์',
-                searchTerms: ['"บุรีรัมย์"'],
+                searchTerms: ['บุรีรัมย์'],
                 directKeywords: ['บุรีรัมย์'],
                 districtKeywords: [
                     'นางรอง', 'ประโคนชัย', 'ละหานทราย', 'ลำปลายมาศ', 'สตึก',
@@ -853,7 +872,7 @@
             'สุรินทร์': {
                 name: 'สุรินทร์',
                 shortName: 'สุรินทร์',
-                searchTerms: ['"สุรินทร์"'],
+                searchTerms: ['สุรินทร์'],
                 directKeywords: ['สุรินทร์'],
                 districtKeywords: [
                     'ปราสาท', 'ศีขรภูมิ', 'สังขะ', 'รัตนบุรี', 'สำโรงทาบ',
@@ -864,6 +883,7 @@
             }
         };
 
+        // ขยายคำค้นหาหมวดละ 32 คำค้น (รวม 160 คำค้น) เพื่อให้เลือกหมวดเดียวก็อัดเต็มเพดาน 32 คำของ Google ได้ทันที
         const TOPIC_CONFIG = {
             water: {
                 id: 'water',
@@ -871,8 +891,23 @@
                 shortName: '💧 มลพิษทางน้ำ',
                 colorBar: 'bg-blue-500',
                 badgeClass: 'bg-blue-100 text-blue-800 border-blue-200',
-                searchTerms: ['น้ำเสีย', 'น้ำเน่า', 'ปลาตาย', 'มลพิษทางน้ำ', 'ปล่อยน้ำเสีย'],
-                detectKeywords: ['น้ำเสีย', 'น้ำเน่า', 'ปลาตาย', 'ปลาน็อกน้ำ', 'บำบัดน้ำ', 'ปล่อยน้ำ', 'น้ำมีกลิ่น', 'น้ำดำ', 'ลำน้ำ', 'ลำตะคอง', 'แม่น้ำมูล', 'ลำน้ำมูล', 'ลำจักราช', 'ลำปะทาว', 'แหล่งน้ำ', 'คุณภาพน้ำ', 'คราบน้ำมัน', 'น้ำปนเปื้อน', 'ห้วยเสนง', 'ประปาขุ่น', 'น้ำท่วมขังเน่า']
+                searchTerms: [
+                    'น้ำเสีย', 'น้ำเน่า', 'ปลาตาย', 'ปลาน็อกน้ำ', 'ปล่อยน้ำเสีย',
+                    'บำบัดน้ำเสีย', 'มลพิษทางน้ำ', 'น้ำดำ', 'น้ำมีกลิ่น', 'น้ำปนเปื้อน',
+                    'คราบน้ำมัน', 'คุณภาพน้ำ', 'น้ำเน่าเสีย', 'ลักลอบปล่อยน้ำเสีย', 'บ่อบำบัดน้ำเสีย',
+                    'น้ำเสียโรงงาน', 'น้ำเสียชุมชน', 'น้ำเสียฟาร์ม', 'ลำน้ำเน่า', 'คลองเน่า',
+                    'น้ำเปลี่ยนสี', 'ค่าDOต่ำ', 'ออกซิเจนในน้ำ', 'ประปาขุ่น', 'น้ำท่วมขังเน่า',
+                    'สารปนเปื้อนในน้ำ', 'ลำตะคอง', 'แม่น้ำมูล', 'ลำน้ำมูล', 'ลำจักราช',
+                    'ลำปะทาว', 'ห้วยเสนง'
+                ],
+                detectKeywords: [
+                    'น้ำเสีย', 'น้ำเน่า', 'ปลาตาย', 'ปลาน็อกน้ำ', 'ปล่อยน้ำเสีย', 'บำบัดน้ำ', 'ปล่อยน้ำ',
+                    'มลพิษทางน้ำ', 'น้ำดำ', 'น้ำมีกลิ่น', 'น้ำปนเปื้อน', 'คราบน้ำมัน', 'คุณภาพน้ำ',
+                    'น้ำเน่าเสีย', 'ลักลอบปล่อยน้ำเสีย', 'บ่อบำบัดน้ำเสีย', 'น้ำเสียโรงงาน', 'น้ำเสียชุมชน',
+                    'น้ำเสียฟาร์ม', 'ลำน้ำเน่า', 'คลองเน่า', 'น้ำเปลี่ยนสี', 'ค่าdoต่ำ', 'ออกซิเจนในน้ำ',
+                    'ประปาขุ่น', 'น้ำท่วมขังเน่า', 'สารปนเปื้อนในน้ำ', 'ลำน้ำ', 'ลำตะคอง', 'แม่น้ำมูล',
+                    'ลำน้ำมูล', 'ลำจักราช', 'ลำปะทาว', 'แหล่งน้ำ', 'ห้วยเสนง'
+                ]
             },
             air: {
                 id: 'air',
@@ -880,8 +915,23 @@
                 shortName: '💨 อากาศ/PM2.5/กลิ่น/เสียง',
                 colorBar: 'bg-orange-500',
                 badgeClass: 'bg-orange-100 text-orange-800 border-orange-200',
-                searchTerms: ['PM2.5', 'ฝุ่น', 'เผาอ้อย', 'ไฟป่า', 'กลิ่นเหม็น', 'มลพิษทางอากาศ'],
-                detectKeywords: ['pm2.5', 'pm 2.5', 'ฝุ่น', 'ควัน', 'เผาอ้อย', 'อ้อยไฟไหม้', 'เผาตอซัง', 'เผาฟาง', 'เผาขยะ', 'ไฟป่า', 'จุดความร้อน', 'hotspot', 'กลิ่นเหม็น', 'ส่งกลิ่น', 'เหม็นเน่า', 'กลิ่นฉุน', 'ควันดำ', 'มลพิษทางอากาศ', 'คุณภาพอากาศ', 'เสียงดัง', 'มลพิษทางเสียง', 'เขม่า', 'หมอกควัน']
+                searchTerms: [
+                    'PM2.5', 'ฝุ่นละออง', 'ค่าฝุ่น', 'หมอกควัน', 'ไฟป่า',
+                    'จุดความร้อน', 'Hotspot', 'เผาอ้อย', 'อ้อยไฟไหม้', 'เผาตอซัง',
+                    'เผาฟาง', 'เผาขยะ', 'เผาในที่โล่ง', 'ลักลอบเผา', 'กลิ่นเหม็น',
+                    'ส่งกลิ่นเหม็น', 'เหม็นเน่า', 'กลิ่นฉุน', 'กลิ่นก๊าซ', 'ควันดำ',
+                    'เขม่าควัน', 'ฝุ่นพิษ', 'มลพิษทางอากาศ', 'คุณภาพอากาศ', 'เสียงดัง',
+                    'มลพิษทางเสียง', 'เหตุรำคาญเสียง', 'ฝุ่นหิน', 'ฝุ่นแป้ง', 'ฝุ่นโรงสี',
+                    'ควันโรงงาน', 'ไฟไหม้ป่า'
+                ],
+                detectKeywords: [
+                    'pm2.5', 'pm 2.5', 'ฝุ่น', 'ฝุ่นละออง', 'ค่าฝุ่น', 'ควัน', 'หมอกควัน', 'ไฟป่า',
+                    'จุดความร้อน', 'hotspot', 'เผาอ้อย', 'อ้อยไฟไหม้', 'เผาตอซัง', 'เผาฟาง', 'เผาขยะ',
+                    'เผาในที่โล่ง', 'ลักลอบเผา', 'กลิ่นเหม็น', 'ส่งกลิ่น', 'เหม็นเน่า', 'กลิ่นฉุน',
+                    'กลิ่นก๊าซ', 'ควันดำ', 'เขม่า', 'เขม่าควัน', 'ฝุ่นพิษ', 'มลพิษทางอากาศ',
+                    'คุณภาพอากาศ', 'เสียงดัง', 'มลพิษทางเสียง', 'เหตุรำคาญเสียง', 'ฝุ่นหิน',
+                    'ฝุ่นแป้ง', 'ฝุ่นโรงสี', 'ควันโรงงาน', 'ไฟไหม้ป่า'
+                ]
             },
             waste: {
                 id: 'waste',
@@ -889,8 +939,24 @@
                 shortName: '☣️ ขยะ/สารเคมี/ของเสีย',
                 colorBar: 'bg-purple-600',
                 badgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
-                searchTerms: ['ขยะ', 'บ่อขยะ', 'กากอุตสาหกรรม', 'สารเคมี', 'ลักลอบทิ้ง'],
-                detectKeywords: ['ขยะ', 'บ่อขยะ', 'ไฟไหม้บ่อขยะ', 'กากอุตสาหกรรม', 'กากของเสีย', 'สารเคมี', 'ของเสียอันตราย', 'ลักลอบทิ้ง', 'ขยะติดเชื้อ', 'ขยะล้น', 'หลุมฝังกลบ', 'แคดเมียม', 'สารพิษ', 'ขยะอิเล็กทรอนิกส์', 'คัดแยกขยะ', 'พลาสติก', 'กากพิษ', 'ถังสารเคมี']
+                searchTerms: [
+                    'ขยะ', 'บ่อขยะ', 'ไฟไหม้บ่อขยะ', 'ขยะล้น', 'หลุมฝังกลบ',
+                    'ขยะมูลฝอย', 'ขยะติดเชื้อ', 'ขยะอันตราย', 'ขยะอิเล็กทรอนิกส์', 'ขยะพลาสติก',
+                    'ขยะตกค้าง', 'กากอุตสาหกรรม', 'กากของเสีย', 'กากพิษ', 'กากสารเคมี',
+                    'ลักลอบทิ้งขยะ', 'ลักลอบทิ้งกาก', 'ลักลอบฝังกลบ', 'สารเคมี', 'สารเคมีรั่วไหล',
+                    'สารพิษ', 'สารอันตราย', 'ของเสียอันตราย', 'ถังสารเคมี', 'แคดเมียม',
+                    'โลหะหนัก', 'กากตะกอน', 'น้ำมันเครื่องใช้แล้ว', 'ขยะโรงพยาบาล', 'โรงงานรีไซเคิล',
+                    'คัดแยกขยะ', 'เตาเผาขยะ'
+                ],
+                detectKeywords: [
+                    'ขยะ', 'บ่อขยะ', 'ไฟไหม้บ่อขยะ', 'ขยะล้น', 'หลุมฝังกลบ', 'ขยะมูลฝอย',
+                    'ขยะติดเชื้อ', 'ขยะอันตราย', 'ขยะอิเล็กทรอนิกส์', 'ขยะพลาสติก', 'พลาสติก',
+                    'ขยะตกค้าง', 'กากอุตสาหกรรม', 'กากของเสีย', 'กากพิษ', 'กากสารเคมี',
+                    'ลักลอบทิ้ง', 'ลักลอบฝังกลบ', 'สารเคมี', 'สารเคมีรั่วไหล', 'สารพิษ',
+                    'สารอันตราย', 'ของเสียอันตราย', 'ถังสารเคมี', 'แคดเมียม', 'โลหะหนัก',
+                    'กากตะกอน', 'น้ำมันเครื่องใช้แล้ว', 'ขยะโรงพยาบาล', 'โรงงานรีไซเคิล',
+                    'คัดแยกขยะ', 'เตาเผาขยะ'
+                ]
             },
             complaint: {
                 id: 'complaint',
@@ -898,8 +964,23 @@
                 shortName: '🏭 ร้องเรียน/โรงงาน/ฟาร์ม',
                 colorBar: 'bg-rose-500',
                 badgeClass: 'bg-rose-100 text-rose-800 border-rose-200',
-                searchTerms: ['โรงงาน', 'เหตุรำคาญ', 'ฟาร์มหมู', 'ลานมัน', 'เหมือง'],
-                detectKeywords: ['ร้องเรียน', 'เดือดร้อน', 'เหตุรำคาญ', 'โรงงาน', 'ฟาร์มหมู', 'ฟาร์มสุกร', 'ฟาร์มไก่', 'ลานมัน', 'โรงแป้งมัน', 'โรงสี', 'โรงงานน้ำตาล', 'เหมือง', 'บ่อทราย', 'ดูดทราย', 'ชาวบ้านโวย', 'ชาวบ้านร้อง', 'อุตสาหกรรมจังหวัด', 'สั่งปิด', 'ตรวจสอบโรงงาน', 'บุกตรวจ', 'โรงงานเถื่อน']
+                searchTerms: [
+                    'ร้องเรียน', 'เหตุรำคาญ', 'เดือดร้อน', 'ชาวบ้านโวย', 'ชาวบ้านร้อง',
+                    'ร้องสอบ', 'โรงงาน', 'สั่งปิดโรงงาน', 'ตรวจสอบโรงงาน', 'บุกตรวจโรงงาน',
+                    'โรงงานเถื่อน', 'โรงงานปล่อยมลพิษ', 'ฟาร์มหมู', 'ฟาร์มสุกร', 'ฟาร์มไก่',
+                    'ฟาร์มเป็ด', 'ขี้หมู', 'ขี้ไก่', 'ลานมัน', 'โรงแป้งมัน',
+                    'โรงงานน้ำตาล', 'โรงสีข้าว', 'โรงหลอม', 'โรงงานแอสฟัลต์', 'แพลนท์ปูน',
+                    'เหมืองแร่', 'เหมืองหิน', 'โรงโม่หิน', 'บ่อทราย', 'ดูดทราย',
+                    'บ่อดิน', 'อุตสาหกรรมจังหวัด'
+                ],
+                detectKeywords: [
+                    'ร้องเรียน', 'เหตุรำคาญ', 'เดือดร้อน', 'ชาวบ้านโวย', 'ชาวบ้านร้อง', 'ร้องสอบ',
+                    'โรงงาน', 'สั่งปิด', 'ตรวจสอบโรงงาน', 'บุกตรวจ', 'โรงงานเถื่อน', 'โรงงานปล่อยมลพิษ',
+                    'ฟาร์มหมู', 'ฟาร์มสุกร', 'ฟาร์มไก่', 'ฟาร์มเป็ด', 'ขี้หมู', 'ขี้ไก่',
+                    'ลานมัน', 'โรงแป้งมัน', 'โรงงานน้ำตาล', 'โรงสี', 'โรงหลอม', 'แอสฟัลต์',
+                    'แพลนท์ปูน', 'เหมือง', 'โรงโม่หิน', 'บ่อทราย', 'ดูดทราย', 'บ่อดิน',
+                    'อุตสาหกรรมจังหวัด'
+                ]
             },
             general: {
                 id: 'conservation',
@@ -907,8 +988,23 @@
                 shortName: '🌳 อนุรักษ์/รณรงค์/แผนงาน',
                 colorBar: 'bg-emerald-500',
                 badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-                searchTerms: ['สิ่งแวดล้อม', 'มลพิษ', 'ทรัพยากรธรรมชาติ'],
-                detectKeywords: ['อนุรักษ์', 'ปลูกป่า', 'ปลูกต้นไม้', 'พื้นที่สีเขียว', 'รณรงค์', 'ลดโลกร้อน', 'คาร์บอน', 'อบรม', 'ประชุม', 'แผนปฏิบัติการ', 'สิ่งแวดล้อมศึกษา', 'ธนาคารขยะ', 'จิตอาสา', 'ฟื้นฟู', 'ทรัพยากรธรรมชาติ', 'สคพ', 'ทสจ', 'กรมควบคุมมลพิษ']
+                searchTerms: [
+                    'สิ่งแวดล้อม', 'มลพิษ', 'สคพ.11', 'กรมควบคุมมลพิษ', 'ทสจ.',
+                    'ควบคุมมลพิษ', 'คุณภาพสิ่งแวดล้อม', 'ทรัพยากรธรรมชาติ', 'อนุรักษ์สิ่งแวดล้อม', 'ฟื้นฟูสิ่งแวดล้อม',
+                    'เฝ้าระวังมลพิษ', 'ตรวจสอบมลพิษ', 'ตรวจวัดมลพิษ', 'มาตรฐานมลพิษ', 'ลดมลพิษ',
+                    'ปลูกป่า', 'เพิ่มพื้นที่สีเขียว', 'ลดโลกร้อน', 'ก๊าซเรือนกระจก', 'คาร์บอนเครดิต',
+                    'NetZero', 'ธนาคารขยะ', 'ขยะเปียกลดโลกร้อน', 'ระบบบำบัดน้ำเสียรวม', 'แผนจัดการสิ่งแวดล้อม',
+                    'อาสาสมัครพิทักษ์สิ่งแวดล้อม', 'ทส.อาสา', 'เครือข่ายสิ่งแวดล้อม', 'สิ่งแวดล้อมศึกษา', 'เมืองสิ่งแวดล้อมยั่งยืน',
+                    'EIA', 'รณรงค์สิ่งแวดล้อม'
+                ],
+                detectKeywords: [
+                    'สิ่งแวดล้อม', 'มลพิษ', 'สคพ', 'สคพ.11', 'กรมควบคุมมลพิษ', 'ทสจ', 'ควบคุมมลพิษ',
+                    'คุณภาพสิ่งแวดล้อม', 'ทรัพยากรธรรมชาติ', 'อนุรักษ์', 'ฟื้นฟู', 'เฝ้าระวังมลพิษ',
+                    'ตรวจสอบมลพิษ', 'ตรวจวัดมลพิษ', 'มาตรฐานมลพิษ', 'ลดมลพิษ', 'ปลูกป่า', 'ปลูกต้นไม้',
+                    'พื้นที่สีเขียว', 'รณรงค์', 'ลดโลกร้อน', 'ก๊าซเรือนกระจก', 'คาร์บอน', 'netzero',
+                    'ธนาคารขยะ', 'ขยะเปียก', 'แผนปฏิบัติการ', 'แผนจัดการสิ่งแวดล้อม', 'จิตอาสา',
+                    'ทส.อาสา', 'เครือข่ายสิ่งแวดล้อม', 'สิ่งแวดล้อมศึกษา', 'eia', 'อบรม', 'ประชุม'
+                ]
             }
         };
 
@@ -933,6 +1029,7 @@
             timeframe: '1d',
             selectedProvinces: ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'],
             selectedTopics: ['water', 'air', 'waste', 'complaint', 'general'],
+            queryCapacityMode: 'max32', // 'max32' (เต็มเพดาน Google 32 คำ) หรือ 'all' (รวมครบทุกคำ 160+ คำ)
             newsItems: [],
             aiExecutiveSummaryHtml: null
         };
@@ -1003,7 +1100,7 @@
         }
 
         // ==========================================
-        // 3. FILTER & QUERY BUILDER LOGIC
+        // 3. FILTER & MAX-CAPACITY QUERY BUILDER LOGIC
         // ==========================================
         function selectTimeframe(tfKey) {
             currentState.timeframe = tfKey;
@@ -1054,6 +1151,18 @@
             updateQueryPreview();
         }
 
+        function changeQueryCapacityMode(mode) {
+            currentState.queryCapacityMode = mode;
+            updateQueryPreview();
+            const badge = document.getElementById('btnGoogleNewsBadge');
+            if (badge) {
+                badge.innerHTML = mode === 'all'
+                    ? `จัดเต็มครบทุกคำค้น <i data-lucide="external-link" class="w-3 h-3"></i>`
+                    : `เต็มพิกัด 32 คำค้น <i data-lucide="external-link" class="w-3 h-3"></i>`;
+                lucide.createIcons();
+            }
+        }
+
         function updateControlStyles() {
             document.querySelectorAll('.tf-btn').forEach(btn => {
                 const tf = btn.getAttribute('data-tf');
@@ -1085,57 +1194,148 @@
             });
         }
 
-        function buildGoogleQuery(overrideProvince = null, mode = 'standard') {
+        function formatSearchTerm(term) {
+            const clean = term.trim().replace(/^"+|"+$/g, '');
+            if (!clean) return '';
+            return /\s/.test(clean) ? `"${clean}"` : clean;
+        }
+
+        function countSearchWords(term) {
+            const clean = term.trim().replace(/^"+|"+$/g, '');
+            if (!clean) return 0;
+            return clean.split(/\s+/).length;
+        }
+
+        // สร้างชุดคำค้นแบบกระจายสัดส่วน (Round-Robin) เพื่อให้อัดคำค้นได้เต็มความจุสูงสุดของระบบ
+        function buildGoogleQueryDetails(overrideProvince = null, mode = 'standard', forceCapacityMode = null) {
+            const capMode = forceCapacityMode || currentState.queryCapacityMode || 'max32';
+
             let provTerms = [];
-            if (overrideProvince) {
-                provTerms = PROVINCE_CONFIG[overrideProvince].searchTerms;
+            if (overrideProvince && PROVINCE_CONFIG[overrideProvince]) {
+                provTerms = [...PROVINCE_CONFIG[overrideProvince].searchTerms];
             } else {
                 currentState.selectedProvinces.forEach(p => {
-                    provTerms.push(...PROVINCE_CONFIG[p].searchTerms);
+                    if (PROVINCE_CONFIG[p]) {
+                        provTerms.push(...PROVINCE_CONFIG[p].searchTerms);
+                    }
                 });
             }
-            const provQuery = `(${provTerms.join(' OR ')})`;
+            const formattedProvTerms = provTerms.map(formatSearchTerm).filter(Boolean);
+            const provWordCount = formattedProvTerms.reduce((sum, t) => sum + countSearchWords(t), 0);
 
-            let topicTerms = new Set();
-            currentState.selectedTopics.forEach(tKey => {
-                if (TOPIC_CONFIG[tKey]) {
-                    TOPIC_CONFIG[tKey].searchTerms.forEach(term => topicTerms.add(`"${term}"`));
+            const socialTerms = mode === 'social'
+                ? ['site:facebook.com', 'site:tiktok.com', 'site:x.com', 'เพจร้องเรียน']
+                : [];
+            const socialWordCount = socialTerms.length;
+
+            // ดึงคำค้นที่ผู้ใช้พิมพ์เพิ่มเติมเป็นอันดับแรก
+            const customInput = document.getElementById('customKeywords')?.value.trim() || '';
+            const customTerms = customInput
+                ? customInput.split(',').map(s => formatSearchTerm(s)).filter(Boolean)
+                : [];
+
+            // เตรียมรายการคำค้นแยกตามหมวดที่เลือก เพื่อทำ Round-Robin ให้ทุกหมวดได้รับโควตาคำค้นอย่างทั่วถึง
+            const topicLists = currentState.selectedTopics
+                .map(tKey => TOPIC_CONFIG[tKey]?.searchTerms || [])
+                .filter(arr => arr.length > 0);
+
+            const selectedTopicTerms = [];
+            const seenTerms = new Set();
+
+            let usedWords = provWordCount + socialWordCount;
+            const maxAllowedWords = capMode === 'max32' ? GOOGLE_MAX_WORD_LIMIT : 9999;
+
+            // 1. ใส่คำค้นที่ผู้ใช้ระบุเองก่อน
+            for (const cTerm of customTerms) {
+                const keyLower = cTerm.toLowerCase();
+                if (!seenTerms.has(keyLower)) {
+                    const wCount = countSearchWords(cTerm);
+                    if (usedWords + wCount <= maxAllowedWords) {
+                        seenTerms.add(keyLower);
+                        selectedTopicTerms.push(cTerm);
+                        usedWords += wCount;
+                    }
                 }
+            }
+
+            // 2. วนดึงคำค้นแบบสลับหมวด (Round-Robin) จนเต็มเพดานคำค้นสูงสุดที่ระบบรับได้
+            let maxLen = 0;
+            topicLists.forEach(list => {
+                if (list.length > maxLen) maxLen = list.length;
             });
 
-            const customInput = document.getElementById('customKeywords')?.value.trim() || '';
-            if (customInput) {
-                customInput.split(',').map(s => s.trim()).filter(Boolean).forEach(term => {
-                    topicTerms.add(`"${term}"`);
-                });
+            outerLoop:
+            for (let idx = 0; idx < maxLen; idx++) {
+                for (let t = 0; t < topicLists.length; t++) {
+                    if (idx < topicLists[t].length) {
+                        const formatted = formatSearchTerm(topicLists[t][idx]);
+                        if (!formatted) continue;
+                        const keyLower = formatted.toLowerCase();
+                        if (seenTerms.has(keyLower)) continue;
+
+                        const wCount = countSearchWords(formatted);
+                        if (usedWords + wCount > maxAllowedWords) {
+                            if (capMode === 'max32') {
+                                continue;
+                            } else {
+                                break outerLoop;
+                            }
+                        }
+
+                        seenTerms.add(keyLower);
+                        selectedTopicTerms.push(formatted);
+                        usedWords += wCount;
+                    }
+                }
             }
 
-            const topicQuery = `(${Array.from(topicTerms).join(' OR ')})`;
+            // ใช้เครื่องหมาย | (Pipe) แทน OR เพื่อไม่ให้เสียโควตาจำนวนคำของ Google Search
+            const provQuery = `(${formattedProvTerms.join('|')})`;
+            const topicQuery = selectedTopicTerms.length > 0 ? `(${selectedTopicTerms.join('|')})` : '';
+            const socialQuery = socialTerms.length > 0 ? `(${socialTerms.join('|')})` : '';
 
-            if (mode === 'social') {
-                return `${provQuery} ${topicQuery} (site:facebook.com OR site:tiktok.com OR site:x.com OR "ร้องเรียน")`;
-            }
-            return `${provQuery} ${topicQuery}`;
+            const finalQuery = [provQuery, topicQuery, socialQuery].filter(Boolean).join(' ');
+
+            return {
+                query: finalQuery,
+                totalWords: usedWords,
+                provCount: formattedProvTerms.length,
+                topicTermCount: selectedTopicTerms.length,
+                maxLimit: capMode === 'max32' ? GOOGLE_MAX_WORD_LIMIT : usedWords
+            };
+        }
+
+        function buildGoogleQuery(overrideProvince = null, mode = 'standard') {
+            return buildGoogleQueryDetails(overrideProvince, mode).query;
         }
 
         function updateQueryPreview() {
-            const q = buildGoogleQuery();
+            const details = buildGoogleQueryDetails(null, 'standard');
             const tf = TIMEFRAMES[currentState.timeframe];
-            document.getElementById('queryPreviewText').textContent = `${q} [ห้วงเวลา: ${tf.label} (${tf.tbs})]`;
+            document.getElementById('queryPreviewText').textContent = `${details.query} [ห้วงเวลา: ${tf.label} (${tf.tbs})]`;
+
+            const capBadge = document.getElementById('queryCapacityBadge');
+            if (capBadge) {
+                if (currentState.queryCapacityMode === 'max32') {
+                    capBadge.textContent = `ความจุคำค้น: ${details.totalWords}/${GOOGLE_MAX_WORD_LIMIT} คำ (จังหวัด ${details.provCount} + มลพิษ ${details.topicTermCount} คำ • เต็มเพดาน Google Search)`;
+                } else {
+                    capBadge.textContent = `ความจุคำค้น: รวมครบทั้งหมด ${details.totalWords} คำ (จังหวัด ${details.provCount} + มลพิษ ${details.topicTermCount} คำ • 100% ของคลังคำค้น)`;
+                }
+            }
         }
 
         function copyQueryText() {
             const q = buildGoogleQuery();
-            copyTextToClipboard(q, 'คัดลอกคำค้นหา Google ขั้นสูงแล้ว');
+            copyTextToClipboard(q, 'คัดลอกคำค้นหา Google ขั้นสูงความจุสูงสุดแล้ว');
         }
 
         // ==========================================
-        // 4. GOOGLE SEARCH & ROBUST MULTI-PROXY RSS FETCHER
+        // 4. GOOGLE SEARCH & MULTI-BATCH FULL CAPACITY RSS FETCHER
         // ==========================================
         function openGoogleSearch(mode = 'all') {
             const tf = TIMEFRAMES[currentState.timeframe];
-            const query = buildGoogleQuery(null, mode === 'social' ? 'social' : 'standard');
-            const encodedQuery = encodeURIComponent(query);
+            const details = buildGoogleQueryDetails(null, mode === 'social' ? 'social' : 'standard');
+            const encodedQuery = encodeURIComponent(details.query);
 
             let url = `https://www.google.com/search?q=${encodedQuery}&tbs=${tf.tbs}&hl=th&gl=th`;
             if (mode === 'news') {
@@ -1147,19 +1347,43 @@
             if (pasteBox) {
                 pasteBox.focus();
             }
-            showToast(`เปิดหน้าค้นหา Google แล้ว ก๊อปปี้ข่าวแล้วกดปุ่ม "วางข่าวที่ก๊อปปี้ & จัดประเภททันที" ได้เลย`, 'info');
+            showToast(`เปิดค้นหาด้วยคำค้นเต็มความจุ (${details.totalWords} คำค้น) แล้ว ก๊อปปี้ข่าวมาวางได้ทันที`, 'info');
         }
 
         function openSingleProvinceGoogle(provName, isNewsTab = true) {
             const tf = TIMEFRAMES[currentState.timeframe];
-            const query = buildGoogleQuery(provName, 'standard');
+            const details = buildGoogleQueryDetails(provName, 'standard');
             const tbmParam = isNewsTab ? '&tbm=nws' : '';
-            const url = `https://www.google.com/search?q=${encodeURIComponent(query)}${tbmParam}&tbs=${tf.tbs}&hl=th&gl=th`;
+            const url = `https://www.google.com/search?q=${encodeURIComponent(details.query)}${tbmParam}&tbs=${tf.tbs}&hl=th&gl=th`;
             window.open(url, '_blank', 'noopener,noreferrer');
 
             const provSelect = document.getElementById('manualDefaultProvince');
             if (provSelect) provSelect.value = provName;
-            showToast(`เปิดข่าว จ.${provName} แล้ว เมื่อก๊อปปี้เสร็จสามารถวางในช่องด้านล่างได้ทันที`, 'info');
+            showToast(`เปิดข่าว จ.${provName} ด้วยคำค้นอัดแน่น ${details.totalWords} คำค้นแล้ว`, 'info');
+        }
+
+        // เปิด Google News แยกแท็บตามหมวดมลพิษ เพื่อให้ค้นครบทั้ง 160 คำค้นโดยไม่ติดเพดาน 32 คำของ Google
+        function openGoogleNewsAllTopicBatches() {
+            const tf = TIMEFRAMES[currentState.timeframe];
+            const provTerms = [];
+            currentState.selectedProvinces.forEach(p => {
+                if (PROVINCE_CONFIG[p]) provTerms.push(...PROVINCE_CONFIG[p].searchTerms);
+            });
+            const provQuery = `(${provTerms.join('|')})`;
+            const maxTopicSlots = Math.max(10, GOOGLE_MAX_WORD_LIMIT - provTerms.length);
+
+            let openedCount = 0;
+            currentState.selectedTopics.forEach(tKey => {
+                const terms = (TOPIC_CONFIG[tKey]?.searchTerms || []).slice(0, maxTopicSlots).map(formatSearchTerm);
+                if (terms.length > 0) {
+                    const q = `${provQuery} (${terms.join('|')})`;
+                    const url = `https://www.google.com/search?q=${encodeURIComponent(q)}&tbm=nws&tbs=${tf.tbs}&hl=th&gl=th`;
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                    openedCount++;
+                }
+            });
+
+            showToast(`เปิดหน้าค้นหา Google News แยก ${openedCount} หมวด (อัดเต็มหมวดละ 32 คำค้น) เรียบร้อยแล้ว`, 'success');
         }
 
         // ดึงข้อมูล RSS ผ่าน Google Apps Script (เสถียรและเร็วที่สุด)
@@ -1306,15 +1530,14 @@
 
         function isEnvironmentalRelevant(article, customKwList = []) {
             const text = `${article.title || ''} ${article.description || ''}`.toLowerCase();
-            const envCoreKeywords = [
-                'น้ำเสีย', 'น้ำเน่า', 'ปลาตาย', 'ปลาน็อก', 'บำบัดน้ำ', 'ปล่อยน้ำ', 'น้ำดำ', 'ลำตะคอง', 'แม่น้ำมูล', 'ลำน้ำมูล', 'ห้วยเสนง', 'ลำปะทาว', 'คุณภาพน้ำ', 'คราบน้ำมัน', 'น้ำปนเปื้อน',
-                'pm2.5', 'pm 2.5', 'ฝุ่น', 'ควัน', 'เผาอ้อย', 'อ้อยไฟไหม้', 'เผาตอซัง', 'เผาฟาง', 'เผาขยะ', 'ไฟป่า', 'จุดความร้อน', 'hotspot', 'กลิ่นเหม็น', 'ส่งกลิ่น', 'เหม็น', 'ควันดำ', 'มลพิษ', 'คุณภาพอากาศ', 'เสียงดัง', 'เขม่า', 'หมอกควัน',
-                'ขยะ', 'บ่อขยะ', 'กากอุตสาหกรรม', 'กากของเสีย', 'สารเคมี', 'ของเสีย', 'ลักลอบทิ้ง', 'ขยะติดเชื้อ', 'หลุมฝังกลบ', 'แคดเมียม', 'สารพิษ', 'ถังสารเคมี',
-                'ร้องเรียน', 'เดือดร้อน', 'เหตุรำคาญ', 'โรงงาน', 'ฟาร์มหมู', 'ฟาร์มสุกร', 'ฟาร์มไก่', 'ลานมัน', 'โรงแป้งมัน', 'โรงสี', 'โรงงานน้ำตาล', 'เหมือง', 'บ่อทราย', 'ดูดทราย', 'ชาวบ้านโวย', 'ชาวบ้านร้อง', 'อุตสาหกรรม', 'สั่งปิด',
-                'สิ่งแวดล้อม', 'อนุรักษ์', 'ปลูกป่า', 'พื้นที่สีเขียว', 'ลดโลกร้อน', 'คาร์บอน', 'สคพ', 'ทสจ', 'กรมควบคุมมลพิษ', 'ทรัพยากร', 'ภัยแล้ง', 'น้ำท่วม'
-            ];
             if (customKwList.some(k => text.includes(k.toLowerCase()))) return true;
-            return envCoreKeywords.some(k => text.includes(k));
+
+            for (const topic of Object.values(TOPIC_CONFIG)) {
+                if (topic.detectKeywords.some(k => text.includes(k.toLowerCase()))) {
+                    return true;
+                }
+            }
+            return ['ภัยแล้ง', 'น้ำท่วม', 'ทรัพยากร'].some(k => text.includes(k));
         }
 
         async function fetchGoogleNewsAndAnalyze() {
@@ -1329,45 +1552,61 @@
             btn.classList.add('opacity-75');
 
             const tf = TIMEFRAMES[currentState.timeframe];
-            titleEl.textContent = `กำลังดึงข่าวจริงจาก Google News (${tf.label})...`;
-            subEl.textContent = `กำลังเชื่อมต่อไปยังพื้นที่: ${currentState.selectedProvinces.join(' ')}`;
+            titleEl.textContent = `กำลังดึงข่าวจริงจาก Google News เต็มความจุคำค้น (${tf.label})...`;
+            subEl.textContent = `กำลังกวาดข่าวครบทุกหมวดในพื้นที่: ${currentState.selectedProvinces.join(' ')}`;
             progBadge.textContent = `เริ่มกวาดข่าว...`;
 
             try {
                 const customInput = document.getElementById('customKeywords')?.value.trim() || '';
                 const customKwList = customInput ? customInput.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-                // สร้างชุดคำค้นหาที่กระชับและทรงพลังที่สุดสำหรับ Google News RSS
-                const coreEnvQuery = customKwList.length > 0
-                    ? `(${customKwList.slice(0, 3).join(' OR ')})`
-                    : `(มลพิษ OR ขยะ OR ฝุ่น OR น้ำเสีย OR ร้องเรียน OR สิ่งแวดล้อม)`;
+                // สร้างชุดคำค้นแยกตามหมวดหมู่ที่เลือก เพื่อให้ Google News RSS กวาดคำค้นได้ครบทุกมิติโดยไม่ติดเพดานคำค้น
+                const queryBatches = [];
+                if (customKwList.length > 0) {
+                    queryBatches.push(`(${customKwList.map(formatSearchTerm).join(' OR ')})`);
+                }
+                currentState.selectedTopics.forEach(tKey => {
+                    const terms = TOPIC_CONFIG[tKey]?.searchTerms || [];
+                    if (terms.length > 0) {
+                        // แบ่งชุดละไม่เกิน 14 คำค้นต่อ 1 RSS Request เพื่อความเสถียรสูงสุดของ Google News RSS
+                        const batch1 = terms.slice(0, 14).map(formatSearchTerm).join(' OR ');
+                        if (batch1) queryBatches.push(`(${batch1})`);
+                    }
+                });
 
                 let allFetchedArticles = [];
                 let completedProvs = 0;
 
                 const provPromises = currentState.selectedProvinces.map(async (prov) => {
                     const provQuery = prov === 'นครราชสีมา' ? '(นครราชสีมา OR โคราช)' : prov;
-                    
-                    const q1 = `${provQuery} ${coreEnvQuery} ${tf.rssWhen}`.trim();
-                    const rssUrl1 = `https://news.google.com/rss/search?q=${encodeURIComponent(q1)}&hl=th&gl=TH&ceid=TH:th`;
-                    let res = await fetchRssXmlWithFallback(rssUrl1);
-                    let articles = parseRssResponseToArticles(res, tf.hours, prov, false);
+                    let provArticles = [];
 
-                    if (articles.length === 0) {
-                        const q2 = `${provQuery} (น้ำเสีย OR ขยะ OR ฝุ่น OR มลพิษ OR ร้องเรียน OR โรงงาน OR สิ่งแวดล้อม)`;
-                        const rssUrl2 = `https://news.google.com/rss/search?q=${encodeURIComponent(q2)}&hl=th&gl=TH&ceid=TH:th`;
+                    // ยิงดึงข้อมูลพร้อมกันทุกหมวดมลพิษของจังหวัดนั้น
+                    const batchPromises = queryBatches.map(async (envBatchQuery) => {
+                        const q = `${provQuery} ${envBatchQuery} ${tf.rssWhen}`.trim();
+                        const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=th&gl=TH&ceid=TH:th`;
+                        const res = await fetchRssXmlWithFallback(rssUrl);
+                        return parseRssResponseToArticles(res, tf.hours, prov, false);
+                    });
+
+                    const batchResults = await Promise.all(batchPromises);
+                    batchResults.forEach(arr => provArticles.push(...arr));
+
+                    if (provArticles.length === 0) {
+                        const fallbackQuery = `${provQuery} (น้ำเสีย OR น้ำเน่า OR ปลาตาย OR ขยะ OR บ่อขยะ OR ฝุ่น OR PM2.5 OR ไฟป่า OR เผาอ้อย OR กลิ่นเหม็น OR มลพิษ OR ร้องเรียน OR โรงงาน OR ฟาร์มหมู OR ลานมัน OR สิ่งแวดล้อม)`;
+                        const rssUrl2 = `https://news.google.com/rss/search?q=${encodeURIComponent(fallbackQuery)}&hl=th&gl=TH&ceid=TH:th`;
                         const res2 = await fetchRssXmlWithFallback(rssUrl2);
-                        articles = parseRssResponseToArticles(res2, tf.hours, prov, false);
-                        if (articles.length === 0) {
-                            articles = parseRssResponseToArticles(res2, tf.hours, prov, true).slice(0, 8);
+                        provArticles = parseRssResponseToArticles(res2, tf.hours, prov, false);
+                        if (provArticles.length === 0) {
+                            provArticles = parseRssResponseToArticles(res2, tf.hours, prov, true).slice(0, 8);
                         }
                     }
 
-                    articles = articles.filter(a => isEnvironmentalRelevant(a, customKwList));
+                    provArticles = provArticles.filter(a => isEnvironmentalRelevant(a, customKwList));
 
                     completedProvs++;
                     progBadge.textContent = `สำเร็จ ${completedProvs}/${currentState.selectedProvinces.length} จังหวัด`;
-                    return articles;
+                    return provArticles;
                 });
 
                 const resultsPerProvince = await Promise.all(provPromises);
@@ -1381,42 +1620,27 @@
                     }
                 });
 
-const deduplicatedArticles = Array.from(uniqueMap.values());
+                const deduplicatedArticles = Array.from(uniqueMap.values());
 
-// --- เพิ่มระบบกรองคำเฉพาะชื่อจังหวัดอย่างเข้มงวด ---
-const strictFilteredArticles = deduplicatedArticles.filter(art => {
-    const fullText = `${art.title || ''} ${art.description || ''}`.toLowerCase();
-    // เช็กว่ามีชื่อจังหวัดใดจังหวัดหนึ่งที่เราเลือกไว้ปรากฏในข้อความหรือไม่
-    return currentState.selectedProvinces.some(provKey => {
-        const provData = PROVINCE_CONFIG[provKey];
-        return provData.directKeywords.some(kw => fullText.includes(kw.toLowerCase()));
-    });
-});
-// ---------------------------------------------
+                // กรองคำเฉพาะชื่อจังหวัดอย่างเข้มงวด
+                const strictFilteredArticles = deduplicatedArticles.filter(art => {
+                    const fullText = `${art.title || ''} ${art.description || ''}`.toLowerCase();
+                    return currentState.selectedProvinces.some(provKey => {
+                        const provData = PROVINCE_CONFIG[provKey];
+                        return provData.directKeywords.some(kw => fullText.includes(kw.toLowerCase()));
+                    });
+                });
 
-if (strictFilteredArticles.length > 0) {
-    // เปลี่ยนเป้าหมายการประมวลผลมาใช้ strictFilteredArticles ที่ผ่านการกรองแล้ว
-    const classified = strictFilteredArticles.map((art, index) => classifySingleNewsItem(art, index));
-    classified.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-    currentState.newsItems = classified;
-    currentState.aiExecutiveSummaryHtml = null;
-    renderDashboard();
-    showToast(`ดึงและกรองข่าวเฉพาะพื้นที่สำเร็จ ${classified.length} ข่าว!`, 'success');
-    document.getElementById('dashboardSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-} else {
-    showToast(`ดึงข้อมูลสำเร็จแต่ไม่พบข่าวที่ระบุชื่อพื้นที่เป้าหมายในห้วงเวลานี้`, 'info');
-}
-
-                if (deduplicatedArticles.length > 0) {
-                    const classified = deduplicatedArticles.map((art, index) => classifySingleNewsItem(art, index));
+                if (strictFilteredArticles.length > 0) {
+                    const classified = strictFilteredArticles.map((art, index) => classifySingleNewsItem(art, index));
                     classified.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
                     currentState.newsItems = classified;
                     currentState.aiExecutiveSummaryHtml = null;
                     renderDashboard();
-                    showToast(`ดึงข่าวจริงจาก Google News สำเร็จ ${classified.length} ข่าว!`, 'success');
+                    showToast(`ดึงและกรองข่าวเฉพาะพื้นที่สำเร็จ ${classified.length} ข่าว!`, 'success');
                     document.getElementById('dashboardSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 } else {
-                    showToast(`ระบบเชื่อมต่อสำเร็จแต่ไม่พบข่าวใหม่ใน RSS ห้วงเวลานี้ คุณสามารถกดปุ่มเปิดดู Google News แล้วก๊อปปี้มาวางได้ทันทีครับ`, 'info');
+                    showToast(`ไม่พบข่าวที่ระบุชื่อจังหวัดโดยตรงใน RSS ห้วงเวลานี้ สามารถกดปุ่ม "เปิดดู Google News (เต็มความจุ)" เพื่อก๊อปปี้มาวางได้ทันทีครับ`, 'info');
                 }
             } catch (err) {
                 console.error(err);
@@ -1720,36 +1944,31 @@ if (strictFilteredArticles.length > 0) {
                 return;
             }
 
+            const forceProv = document.getElementById('manualDefaultProvince')?.value || 'AUTO';
+            const parsedArticles = smartParseGoogleNewsText(rawText);
 
-const forceProv = document.getElementById('manualDefaultProvince')?.value || 'AUTO';
-const parsedArticles = smartParseGoogleNewsText(rawText);
+            if (parsedArticles.length === 0) {
+                showToast('ไม่พบหัวข้อข่าวที่สมบูรณ์ กรุณาวางพาดหัวข่าวหรือเนื้อหาข่าวอย่างน้อย 1 เรื่อง', 'error');
+                return;
+            }
 
-if (parsedArticles.length === 0) {
-    showToast('ไม่พบหัวข้อข่าวที่สมบูรณ์ กรุณาวางพาดหัวข่าวหรือเนื้อหาข่าวอย่างน้อย 1 เรื่อง', 'error');
-    return;
-}
+            // กรองคำเฉพาะชื่อจังหวัดสำหรับข่าวที่คัดลอกมาวาง
+            const strictFilteredManual = parsedArticles.filter(art => {
+                if (forceProv !== 'AUTO') return true;
+                
+                const fullText = `${art.title || ''} ${art.description || ''}`.toLowerCase();
+                return currentState.selectedProvinces.some(provKey => {
+                    const provData = PROVINCE_CONFIG[provKey];
+                    return provData.directKeywords.some(kw => fullText.includes(kw.toLowerCase()));
+                });
+            });
 
-// --- เพิ่มระบบกรองคำเฉพาะชื่อจังหวัดสำหรับข่าวที่คัดลอกมาวาง ---
-const strictFilteredManual = parsedArticles.filter(art => {
-    // หากบังคับเลือกจังหวัดจาก Dropdown ไว้แล้ว ให้ผ่านได้เลยไม่ต้องกรองคำ
-    if (forceProv !== 'AUTO') return true;
-    
-    const fullText = `${art.title || ''} ${art.description || ''}`.toLowerCase();
-    return currentState.selectedProvinces.some(provKey => {
-        const provData = PROVINCE_CONFIG[provKey];
-        return provData.directKeywords.some(kw => fullText.includes(kw.toLowerCase()));
-    });
-});
+            if (strictFilteredManual.length === 0) {
+                showToast('ข่าวที่นำมาวางไม่มีระบุชื่อจังหวัดที่ สคพ.11 รับผิดชอบ (หากแน่ใจว่าเป็นข่าวในพื้นที่ ให้เลือกบังคับระบุจังหวัดแทนการตั้งค่า AUTO)', 'error');
+                return;
+            }
 
-if (strictFilteredManual.length === 0) {
-    showToast('ข่าวที่นำมาวางไม่มีระบุชื่อจังหวัดที่ สคพ.11 รับผิดชอบ (หากแน่ใจว่าเป็นข่าวในพื้นที่ ให้เลือกบังคับระบุจังหวัดแทนการตั้งค่า AUTO)', 'error');
-    return;
-}
-
-const newItems = strictFilteredManual.map((art, idx) => classifySingleNewsItem(art, idx, forceProv));
-
-          
-            
+            const newItems = strictFilteredManual.map((art, idx) => classifySingleNewsItem(art, idx, forceProv));
 
             if (replaceExisting) {
                 currentState.newsItems = newItems;
