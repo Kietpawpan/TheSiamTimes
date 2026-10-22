@@ -130,6 +130,10 @@
                 <div>
                     <span id="modal-date" class="text-premium-gold text-sm font-medium tracking-wide"></span>
                     <h2 id="modal-title" class="text-2xl font-semibold text-premium-dark mt-1"></h2>
+                    <div id="modal-weather" class="text-sm text-gray-500 mt-2 hidden flex items-center">
+                        <i class="fa-solid fa-cloud-sun mr-2 text-premium-gold"></i>
+                        <span id="modal-weather-text"></span>
+                    </div>
                 </div>
                 <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-premium-dark transition-colors focus:outline-none">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -152,130 +156,165 @@
 
     <!-- Application Logic -->
     <script>
-        // Itinerary Data - Carefully structured to avoid commas in strings and manage dots strictly
+        // ข้อมูลได้รับการจัดโครงสร้างอย่างระมัดระวังเพื่อหลีกเลี่ยงการใช้เครื่องหมายจุลภาคในข้อความภาษาไทย
+        // และควบคุมการใช้จุดตามกฎที่กำหนดอย่างเคร่งครัด
         const itineraryData = [
             {
-                day: 1,
-                date: "23 ต.ค.",
-                location: "แฟรงก์เฟิร์ต",
-                icon: "fa-plane-arrival",
+                type: 'flight',
+                label: 'ข้อมูลสำคัญ',
+                title: 'ข้อมูลเที่ยวบิน',
+                icon: 'fa-plane',
                 schedule: [
-                    { time: "12:25", activity: "ออกเดินทางจากกรุงเทพฯ" },
-                    { time: "19:00", activity: "เดินทางถึงสนามบินแฟรงก์เฟิร์ต" },
-                    { time: "ช่วงเย็น", activity: "เช็คอินที่ Frankfurt Marriott Hotel" }
+                    { time: "23 ต.ค.", activity: "ขาไป กรุงเทพฯ ไป แฟรงก์เฟิร์ต เที่ยวบิน TG 922 เวลา 12:25 น. ถึง 19:00 น." },
+                    { time: "30 ต.ค.", activity: "เชื่อมต่อ ปราก ไป แฟรงก์เฟิร์ต เที่ยวบิน Condor DE4408 เวลา 17:05 น. ถึง 18:15 น." },
+                    { time: "31 ต.ค.", activity: "ขากลับ แฟรงก์เฟิร์ต ไป กรุงเทพฯ เที่ยวบิน TG 923 เวลา 20:40 น. ถึง 1 พ.ย. 12:00 น." }
                 ]
             },
             {
-                day: 2,
-                date: "24 ต.ค.",
-                location: "โคโลญ",
-                icon: "fa-church",
+                type: 'day',
+                label: 'Day 1 &bull; 23 ต.ค.',
+                title: 'แฟรงก์เฟิร์ต',
+                weather: 'อุณหภูมิ 7-14°C ฝนตกปรอยๆ โอกาสเกิดฝน 84%',
+                icon: 'fa-plane-arrival',
                 schedule: [
-                    { time: "09:00", activity: "รถรับที่โรงแรม" },
-                    { time: "ช่วงบ่าย", activity: "ชมมหาวิหารโคโลญ" },
-                    { time: "14:30", activity: "สำรวจร้าน House of 4711" },
-                    { time: "15:15", activity: "เดินผ่านศาลาว่าการเมืองเก่า" },
-                    { time: "16:00", activity: "เดินเล่นจัตุรัส Alter Markt" },
-                    { time: "ช่วงเย็น", activity: "ทานอาหารค่ำแบบกลุ่ม" }
+                    { time: "12:25 น.", activity: "ออกเดินทางจากกรุงเทพฯ" },
+                    { time: "19:00 น.", activity: "เดินทางถึงสนามบินแฟรงก์เฟิร์ต" },
+                    { time: "ช่วงเย็น", activity: "เดินทางไปเช็คอินและพักผ่อนที่ Frankfurt Marriott Hotel" }
                 ]
             },
             {
-                day: 3,
-                date: "25 ต.ค.",
-                location: "สวนสัตว์โคโลญ",
-                icon: "fa-hippo",
+                type: 'day',
+                label: 'Day 2 &bull; 24 ต.ค.',
+                title: 'โคโลญ',
+                weather: 'อุณหภูมิ 10-13°C ฝนตกเป็นระยะ โอกาสเกิดฝน 65%',
+                icon: 'fa-church',
                 schedule: [
-                    { time: "09:00", activity: "ไปสวนสัตว์โคโลญ" },
-                    { time: "09:30", activity: "ถึงสวนสัตว์และปฐมนิเทศ" },
-                    { time: "12:00", activity: "ทานอาหารกลางวัน" },
-                    { time: "13:00", activity: "ศึกษาสวัสดิภาพสัตว์" },
-                    { time: "15:30", activity: "สำรวจบริการผู้ชม" },
-                    { time: "ช่วงเย็น", activity: "พักผ่อน" }
+                    { time: "09:00 น.", activity: "รถรับที่โรงแรมเพื่อเดินทางไปโคโลญ" },
+                    { time: "ช่วงบ่าย", activity: "เยี่ยมชมมหาวิหารโคโลญ" },
+                    { time: "14:30 น.", activity: "สำรวจร้านน้ำหอม House of 4711" },
+                    { time: "15:15 น.", activity: "เดินผ่านศาลาว่าการเมืองเก่า" },
+                    { time: "16:00 น.", activity: "เดินเล่นจัตุรัสเมืองเก่า Alter Markt" },
+                    { time: "ช่วงเย็น", activity: "รับประทานอาหารค่ำแบบกลุ่มและเข้าพักที่ Wasserturm Hotel Cologne" }
                 ]
             },
             {
-                day: 4,
-                date: "26 ต.ค.",
-                location: "เออร์เฟิร์ต และไลป์ซิก",
-                icon: "fa-train-tram",
+                type: 'day',
+                label: 'Day 3 &bull; 25 ต.ค.',
+                title: 'สวนสัตว์โคโลญ',
+                weather: 'อุณหภูมิ 7-14°C ฝนตกเป็นระยะ โอกาสเกิดฝน 75%',
+                icon: 'fa-hippo',
                 schedule: [
-                    { time: "09:00", activity: "เช็คเอาท์ไปเออร์เฟิร์ต" },
-                    { time: "13:15", activity: "ถึงเออร์เฟิร์ต" },
-                    { time: "14:15", activity: "สะพานพ่อค้า" },
-                    { time: "15:15", activity: "ธรรมศาลาเก่า" },
-                    { time: "16:00", activity: "มหาวิหารเออร์เฟิร์ต" },
-                    { time: "ช่วงบ่ายแก่ๆ", activity: "ไปไลป์ซิก" }
+                    { time: "09:00 น.", activity: "เดินทางสู่สวนสัตว์โคโลญ" },
+                    { time: "09:30 น.", activity: "ถึงสวนสัตว์และเริ่มการปฐมนิเทศ" },
+                    { time: "12:00 น.", activity: "พักรับประทานอาหารกลางวัน" },
+                    { time: "13:00 น.", activity: "ศึกษาการจัดการสวัสดิภาพสัตว์" },
+                    { time: "15:30 น.", activity: "สำรวจบริการสำหรับผู้เยี่ยมชม" },
+                    { time: "ช่วงเย็น", activity: "พักผ่อนและค้างคืนที่โรงแรมเดิม" }
                 ]
             },
             {
-                day: 5,
-                date: "27 ต.ค.",
-                location: "ไลป์ซิก",
-                icon: "fa-leaf",
+                type: 'day',
+                label: 'Day 4 &bull; 26 ต.ค.',
+                title: 'เออร์เฟิร์ตและไลป์ซิก',
+                weather: 'เออร์เฟิร์ต 7-11°C ไลป์ซิก 8-13°C โอกาสเกิดฝน 49%',
+                icon: 'fa-train-tram',
                 schedule: [
-                    { time: "09:00", activity: "ไปสวนสัตว์ไลป์ซิก" },
-                    { time: "09:30", activity: "ศึกษาโซน Gondwanaland" },
-                    { time: "13:30", activity: "ทานข้าว" },
-                    { time: "15:00", activity: "โบสถ์เซนต์โทมัส" },
-                    { time: "16:00", activity: "โบสถ์เซนต์นิโคลัส" },
-                    { time: "16:45", activity: "จัตุรัสตลาด" }
+                    { time: "09:00 น.", activity: "เดินทางไปเออร์เฟิร์ต" },
+                    { time: "13:15 น.", activity: "ถึงเออร์เฟิร์ตและรับประทานอาหารกลางวัน" },
+                    { time: "14:15 น.", activity: "สำรวจสะพานพ่อค้าและจัตุรัส" },
+                    { time: "15:15 น.", activity: "ชมธรรมศาลาเก่า" },
+                    { time: "16:00 น.", activity: "เยี่ยมชมมหาวิหารเออร์เฟิร์ต" },
+                    { time: "ช่วงบ่ายแก่", activity: "เดินทางไปเช็คอินที่ Steigenberger Icon Grandhotel Handelshof ไลป์ซิก" }
                 ]
             },
             {
-                day: 6,
-                date: "28 ต.ค.",
-                location: "เดรสเดน",
-                icon: "fa-chess-rook",
+                type: 'day',
+                label: 'Day 5 &bull; 27 ต.ค.',
+                title: 'ไลป์ซิก',
+                weather: 'อุณหภูมิ 7-15°C มีแดดบางส่วน โอกาสเกิดฝน 3%',
+                icon: 'fa-leaf',
                 schedule: [
-                    { time: "09:00", activity: "ไปเดรสเดน" },
-                    { time: "10:45", activity: "พระราชวังซวิงเกอร์" },
-                    { time: "12:30", activity: "ทานข้าว" },
-                    { time: "13:45", activity: "พระราชวังหลวง" },
-                    { time: "15:00", activity: "โบสถ์ Frauenkirche" },
-                    { time: "16:00", activity: "แวะ Semperoper" }
+                    { time: "09:00 น.", activity: "เดินทางไปสวนสัตว์ไลป์ซิก" },
+                    { time: "09:30 น.", activity: "ศึกษาถิ่นที่อยู่สัตว์โซน Gondwanaland" },
+                    { time: "13:30 น.", activity: "รับประทานอาหารกลางวัน" },
+                    { time: "15:00 น.", activity: "เยี่ยมชมโบสถ์เซนต์โทมัส" },
+                    { time: "16:00 น.", activity: "เยี่ยมชมโบสถ์เซนต์นิโคลัส" },
+                    { time: "16:45 น.", activity: "เดินเล่นจัตุรัสตลาด" },
+                    { time: "ช่วงเย็น", activity: "พักค้างคืนที่โรงแรมเดิม" }
                 ]
             },
             {
-                day: 7,
-                date: "29 ต.ค.",
-                location: "ปราก",
-                icon: "fa-bridge-water",
+                type: 'day',
+                label: 'Day 6 &bull; 28 ต.ค.',
+                title: 'เดรสเดน',
+                weather: 'อุณหภูมิ 7-14°C มีเมฆเป็นส่วนใหญ่ โอกาสเกิดฝน 25%',
+                icon: 'fa-chess-rook',
                 schedule: [
-                    { time: "09:00", activity: "ไปปราก" },
-                    { time: "12:00", activity: "ถึงปราก" },
-                    { time: "13:30", activity: "สะพานชาร์ลส์" },
-                    { time: "14:30", activity: "จัตุรัสเมืองเก่า" },
-                    { time: "16:00", activity: "ปราสาทปราก" },
-                    { time: "ช่วงเย็น", activity: "เช็คอิน Augustine" }
+                    { time: "09:00 น.", activity: "เดินทางไปเดรสเดน" },
+                    { time: "10:45 น.", activity: "เยี่ยมชมพระราชวังซวิงเกอร์" },
+                    { time: "12:30 น.", activity: "รับประทานอาหารกลางวัน" },
+                    { time: "13:45 น.", activity: "เยี่ยมชมพระราชวังหลวงเดรสเดน" },
+                    { time: "15:00 น.", activity: "สำรวจโบสถ์ Frauenkirche" },
+                    { time: "16:00 น.", activity: "ถ่ายรูปโรงอุปรากร Semperoper" },
+                    { time: "ช่วงเย็น", activity: "เช็คอินที่ Hotel Taschenbergpalais Dresden" }
                 ]
             },
             {
-                day: 8,
-                date: "30 ต.ค.",
-                location: "สวนสัตว์ปราก",
-                icon: "fa-plane-departure",
+                type: 'day',
+                label: 'Day 7 &bull; 29 ต.ค.',
+                title: 'ปราก',
+                weather: 'อุณหภูมิ 7-13°C มีเมฆหรือแดดสลัว โอกาสเกิดฝน 25%',
+                icon: 'fa-bridge-water',
                 schedule: [
-                    { time: "09:00", activity: "ไปสวนสัตว์ปราก" },
-                    { time: "09:30", activity: "ศึกษาถิ่นที่อยู่สัตว์" },
-                    { time: "12:30", activity: "ทานข้าว" },
-                    { time: "13:45", activity: "ไปสนามบิน" },
-                    { time: "14:45", activity: "ถึงสนามบินปราก" },
-                    { time: "17:05", activity: "เที่ยวบิน Condor DE4408" },
-                    { time: "18:15", activity: "ถึงแฟรงก์เฟิร์ต" }
+                    { time: "09:00 น.", activity: "เดินทางไปปราก" },
+                    { time: "12:00 น.", activity: "ถึงปรากและรับประทานอาหารกลางวัน" },
+                    { time: "13:30 น.", activity: "เดินชมสะพานชาร์ลส์" },
+                    { time: "14:30 น.", activity: "สำรวจจัตุรัสเมืองเก่าและนาฬิกาดาราศาสตร์" },
+                    { time: "16:00 น.", activity: "ชมบริเวณรอบปราสาทปราก" },
+                    { time: "ช่วงเย็น", activity: "เข้าพักที่ Augustine a Luxury Collection Hotel Prague" }
                 ]
             },
             {
-                day: 9,
-                date: "31 ต.ค.",
-                location: "แฟรงก์เฟิร์ต",
-                icon: "fa-bag-shopping",
+                type: 'day',
+                label: 'Day 8 &bull; 30 ต.ค.',
+                title: 'สวนสัตว์ปราก',
+                weather: 'ปราก 5-13°C โอกาสเกิดฝน 12%',
+                icon: 'fa-plane-departure',
                 schedule: [
-                    { time: "09:00", activity: "ไปใจกลางเมือง" },
-                    { time: "10:00", activity: "ถนน Zeil" },
-                    { time: "11:30", activity: "ช้อปปิ้ง MyZeil" },
-                    { time: "13:00", activity: "ทานข้าว" },
-                    { time: "ช่วงบ่าย", activity: "ถนน Goethestraße" },
-                    { time: "20:40", activity: "เที่ยวบิน TG 923 กลับ" }
+                    { time: "09:00 น.", activity: "เดินทางไปสวนสัตว์ปราก" },
+                    { time: "09:30 น.", activity: "ศึกษาถิ่นที่อยู่สัตว์และการอนุรักษ์" },
+                    { time: "12:30 น.", activity: "รับประทานอาหารกลางวัน" },
+                    { time: "13:45 น.", activity: "เดินทางสู่สนามบินปราก" },
+                    { time: "17:05 น.", activity: "ออกเดินทางด้วยเที่ยวบิน Condor DE4408" },
+                    { time: "18:15 น.", activity: "ถึงแฟรงก์เฟิร์ตและเข้าพักที่ JW Marriott Hotel Frankfurt" }
+                ]
+            },
+            {
+                type: 'day',
+                label: 'Day 9 &bull; 31 ต.ค.',
+                title: 'แฟรงก์เฟิร์ต',
+                weather: 'อุณหภูมิ 7-12°C มีเมฆเป็นส่วนใหญ่ โอกาสเกิดฝน 14%',
+                icon: 'fa-bag-shopping',
+                schedule: [
+                    { time: "09:00 น.", activity: "เดินทางสู่ใจกลางแฟรงก์เฟิร์ต" },
+                    { time: "10:00 น.", activity: "ชมร้านค้าบนถนนช้อปปิ้ง Zeil" },
+                    { time: "11:30 น.", activity: "ช้อปปิ้งที่ศูนย์การค้า MyZeil" },
+                    { time: "13:00 น.", activity: "รับประทานอาหารกลางวัน" },
+                    { time: "ช่วงบ่าย", activity: "แวะร้านบูติกถนน Goethestraße" },
+                    { time: "20:40 น.", activity: "ออกเดินทางกลับด้วยเที่ยวบิน TG 923" }
+                ]
+            },
+            {
+                type: 'info',
+                label: 'ข้อควรระวัง',
+                title: 'คำแนะนำการเตรียมตัว',
+                icon: 'fa-suitcase',
+                schedule: [
+                    { time: "เสื้อผ้า", activity: "การแต่งกายแบบ 3 ชั้น ได้แก่ เสื้อชั้นในแขนยาว เสื้อชั้นกลางผ้าฟลีซ และเสื้อชั้นนอกกันลมและน้ำ" },
+                    { time: "รองเท้า", activity: "ควรสวมรองเท้าที่กันลื่นและทนน้ำ" },
+                    { time: "กันฝน", activity: "เตรียมร่มพับ เสื้อกันฝน และซองกันน้ำ" },
+                    { time: "กันหนาว", activity: "เตรียมอุปกรณ์ให้ความอบอุ่น เช่น ผ้าพันคอ หมวก ลิปบาล์ม และครีมบำรุงผิว" },
+                    { time: "เวลา", activity: "วันที่ 25 ต.ค. สิ้นสุดเวลาออมแสง ต้องปรับนาฬิกาถอยหลัง 1 ชั่วโมง" }
                 ]
             }
         ];
@@ -284,7 +323,6 @@
         function renderCards() {
             const container = document.getElementById('cards-container');
             
-            // Using array map and joining with empty string to avoid commas in HTML output
             const cardsHTML = itineraryData.map((data, index) => {
                 return `
                     <div class="itinerary-card bg-white rounded-2xl p-6 border border-gray-100 shadow-sm cursor-pointer relative overflow-hidden group" onclick="openModal(${index})">
@@ -292,8 +330,8 @@
                         
                         <div class="flex justify-between items-start mb-4">
                             <div>
-                                <span class="text-xs font-semibold tracking-wider text-premium-gray uppercase mb-1 block">Day ${data.day} &bull; ${data.date}</span>
-                                <h3 class="text-xl font-medium text-premium-dark">${data.location}</h3>
+                                <span class="text-xs font-semibold tracking-wider text-premium-gray uppercase mb-1 block">${data.label}</span>
+                                <h3 class="text-xl font-medium text-premium-dark">${data.title}</h3>
                             </div>
                             <div class="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center">
                                 <i class="fa-solid ${data.icon} text-xl text-premium-dark card-icon transition-colors transition-transform"></i>
@@ -301,7 +339,7 @@
                         </div>
                         
                         <div class="flex items-center text-sm text-premium-gold font-medium mt-6 group-hover:translate-x-2 transition-transform">
-                            <span>ดูตารางเวลา</span>
+                            <span>ดูรายละเอียด</span>
                             <i class="fa-solid fa-arrow-right-long ml-2"></i>
                         </div>
                     </div>
@@ -317,16 +355,24 @@
             const modalContainer = document.getElementById('modal-container');
             const backdrop = document.getElementById('modal-backdrop');
             const panel = document.getElementById('modal-panel');
+            const weatherEl = document.getElementById('modal-weather');
             
             // Populate Header
-            document.getElementById('modal-date').textContent = `Day ${data.day} | ${data.date}`;
-            document.getElementById('modal-title').textContent = data.location;
+            document.getElementById('modal-date').innerHTML = data.label;
+            document.getElementById('modal-title').textContent = data.title;
+            
+            // Manage Weather Element
+            if (data.weather) {
+                document.getElementById('modal-weather-text').textContent = data.weather;
+                weatherEl.classList.remove('hidden');
+            } else {
+                weatherEl.classList.add('hidden');
+            }
             
             // Generate Timeline
-            // Avoid commas by using .join('')
             const timelineHTML = `
                 <div class="timeline-container relative pl-2">
-                    ${data.schedule.map((item, idx) => `
+                    ${data.schedule.map((item) => `
                         <div class="relative pl-12 pb-6 group">
                             <!-- Dot -->
                             <div class="absolute left-[16px] top-1 w-4 h-4 rounded-full bg-white border-4 border-premium-gold z-10 shadow-sm group-hover:scale-125 transition-transform"></div>
@@ -334,7 +380,7 @@
                             <!-- Content -->
                             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                                 <span class="text-premium-gold font-semibold text-sm block mb-1">
-                                    <i class="fa-regular fa-clock mr-1"></i> ${item.time}
+                                    ${data.type === 'info' ? '<i class="fa-solid fa-thumbtack mr-1"></i>' : '<i class="fa-regular fa-clock mr-1"></i>'} ${item.time}
                                 </span>
                                 <p class="text-premium-dark text-base">${item.activity}</p>
                             </div>
@@ -347,7 +393,6 @@
             
             // Show modal with animation
             modalContainer.classList.remove('hidden');
-            // Small delay to allow display block to apply before animating opacity
             setTimeout(() => {
                 backdrop.classList.remove('opacity-0');
                 backdrop.classList.add('opacity-100');
