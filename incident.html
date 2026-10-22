@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAPS 11 - Incident Command</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MAPS 11">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/Kietpawpan/hotspot/main/img/EPO11App.png?v=2026">
+    
+    <link rel="manifest" href="manifest2.json">
+    <meta name="theme-color" content="#4a148c">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        body { font-family: sans-serif; background-color: #f3f4f6; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #4a148c; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 20px; }
+        .control-panel { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        #map-wrapper { position: relative; }
+        #loadingOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95)); backdrop-filter: blur(8px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 8px; color: white; transition: opacity 0.5s ease; }
+        .maps-logo-text { font-size: 48px; font-weight: 900; letter-spacing: 4px; margin-bottom: 5px; color: #fff; text-shadow: 0 0 15px rgba(56, 189, 248, 0.6), 0 0 30px rgba(56, 189, 248, 0.4); animation: pulseText 2s infinite; }
+        .maps-sub-text { font-size: 16px; font-weight: 300; letter-spacing: 2px; margin-bottom: 40px; color: #94a3b8; text-transform: uppercase; }
+        .cyber-spinner { width: 70px; height: 70px; border: 4px solid rgba(255, 255, 255, 0.1); border-top: 4px solid #38bdf8; border-right: 4px solid #818cf8; border-bottom: 4px solid #c084fc; border-radius: 50%; animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin-bottom: 25px; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+        .loading-status { font-size: 15px; color: #38bdf8; font-weight: 500; letter-spacing: 1px; animation: blink 1.5s infinite; }
+        @keyframes pulseText { 0% { transform: scale(0.98); opacity: 0.8; } 50% { transform: scale(1.02); opacity: 1; } 100% { transform: scale(0.98); opacity: 0.8; } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        #map { 
+            height: 80vh; 
+            width: 100%; 
+            border-radius: 8px; 
+            z-index: 10; 
+        }
+        
+        .legend-wrapper { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); display: flex; flex-direction: column; width: 280px; }
+        .legend-header { background: #4a148c; color: white; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background-color 0.2s; }
+        .legend-header:hover { background: #3b0f70; }
+        .legend-header.open { border-radius: 8px 8px 0 0; }
+        .legend-box { padding: 10px 15px; font-size: 14px; line-height: 1.6; max-height: 450px; overflow-y: auto; width: 100%; box-sizing: border-box; }
+        .legend-title { font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 10px; }
+        .legend-title:first-child { margin-top: 0; }
+        
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { min-width: 280px; padding: 12px 20px; border-radius: 8px; color: white; font-size: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; align-items: center; opacity: 0; transform: translateX(100%); animation: slideIn 0.3s forwards; }
+        .toast.success { background-color: #16a34a; }
+        .toast.error { background-color: #dc2626; }
+        .toast.warning { background-color: #f59e0b; color: white; }
+        .toast.info { background-color: #2563eb; }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
+        
+        @media (max-width: 600px) { .legend-wrapper { width: 180px; } .legend-header { font-size: 12px; padding: 6px 10px; } .legend-box { font-size: 12px; padding: 8px 10px; width: 160px; } #map { height: 550px; } }
+
+        .incident-dashboard {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            border-left: 5px solid #e11d48;
+            width: 270px;
+            max-height: 80vh;
+            overflow-y: auto;
+            pointer-events: auto;
+            position: relative; 
+        }
+
+        .hidden-dashboard { display: none; }
+        
+        .close-dashboard-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px; 
+            height: 40px;
+            background-color: transparent; 
+            z-index: 1000;
+            cursor: default; 
+        }
+
+        /* Styles for Standard Values Popup on Map */
+        #std-popup {
+            position: absolute;
+            top: 80px;
+            right: 15px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            border-left: 4px solid #0284c7;
+            display: none;
+            min-width: 200px;
+            pointer-events: auto;
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body>
+    <div id="toast-container"></div>
+    <div class="container">
+
+        <h2>MAPS 11 Professional</h2>
+        <div class="subtitle">ระบบผู้บัญชาการเหตุการณ์ (Incident Commander Mode)</div>
+          
+        <div class="control-panel">
+            <div id="incidentContainer" style="display: flex; flex-direction: column; gap: 12px; background-color: #fff1f2; padding: 15px; border-radius: 8px; border: 1px solid #fda4af;">
+                
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #fda4af;">
+                    <label style="font-size: 14px; font-weight: bold; color: #0284c7;">🔍 ค้นหาสถานที่:</label>
+                    <input type="text" id="searchPlaceInput" placeholder="พิมพ์ชื่อสถานที่ หรือวางลิงก์แผนที่..." style="padding: 8px; border: 1px solid #7dd3fc; border-radius: 6px; flex: 1; min-width: 150px;">
+                    <button id="searchPlaceBtn" style="padding: 8px 15px; background-color: #0284c7; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);">ค้นหาพิกัด</button>
+                </div>
+
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <label style="font-size: 16px; font-weight: bold; color: #be123c;">🚨 จุดเกิดเหตุด่วน:</label>
+                    <input type="text" id="incidentName" placeholder="ชื่อเหตุการณ์" style="padding: 8px; border: 1px solid #fda4af; border-radius: 6px; flex: 1; min-width: 150px;">
+                    <input type="number" id="latInput" placeholder="Lat" style="padding: 8px; border: 1px solid #fda4af; border-radius: 6px; width: 90px;">
+                    <input type="number" id="lonInput" placeholder="Lon" style="padding: 8px; border: 1px solid #fda4af; border-radius: 6px; width: 90px;">
+                    
+                    <button id="dropPinBtn" style="padding: 8px 15px; background-color: #e11d48; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(225,29,72,0.3);">📍 ปักหมุด</button>
+                    <button id="editPinBtn" style="padding: 8px 12px; background-color: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">✏️ แก้ไข</button>
+                    <button id="clearPinBtn" style="padding: 8px 12px; background-color: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🗑️ ล้าง</button>
+                </div>
+
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap; background-color: white; padding: 10px 15px; border-radius: 6px; border: 1px solid #fecdd3;">
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <label style="font-size: 14px; font-weight: bold; color: #be123c;">🕒 วันเวลา:</label>
+                        <input type="date" id="incidentDate" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+                        <input type="time" id="incidentTime" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+                    </div>
+
+                    <div style="display: flex; gap: 5px; align-items: center; border-left: 2px solid #e2e8f0; padding-left: 15px;">
+                        <label style="font-size: 14px; font-weight: bold; color: #be123c;">💨 ทิศลม:</label>
+                        <input type="number" id="manualWindDir" placeholder="องศา (0-360)" min="0" max="360" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; width: 90px; font-size: 13px;">
+                        <button id="updateWindBtn" style="padding: 6px 10px; background-color: #0284c7; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;">🔄 ปรับ</button>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; align-items: center; border-left: 2px solid #e2e8f0; padding-left: 15px;">
+                        <label style="display: flex; align-items: center; cursor: pointer; font-size: 14px; color: #475569; font-weight: bold;">
+                            <input type="checkbox" id="togglePlumeBtn" checked style="margin-right: 5px; width: 16px; height: 16px; accent-color: #64748b;"> แสดงควัน
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer; font-size: 14px; color: #475569; font-weight: bold;">
+                            <input type="checkbox" id="toggleRadiusBtn" checked style="margin-right: 5px; width: 16px; height: 16px; accent-color: #ef4444;" onchange="updateRadiiVisibility()"> แสดงรัศมี
+                        </label>
+                    </div>
+                </div>
+
+                <div style="width: 100%; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <label style="font-size: 14px; font-weight: bold; color: #be123c; width: 100%;">☣️ สารอันตรายตามประกาศคุณภาพอากาศ:</label>
+                    <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" name="hazard" value="SO<sub>2</sub>" onchange="updateMeasurementTable()"> SO<sub>2</sub></label>
+                    <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" name="hazard" value="NO<sub>2</sub>" onchange="updateMeasurementTable()"> NO<sub>2</sub></label>
+                    <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" name="hazard" value="CO" onchange="updateMeasurementTable()"> CO</label>
+                    <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" name="hazard" value="O<sub>3</sub>" onchange="updateMeasurementTable()"> O<sub>3</sub></label>
+                    <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" name="hazard" value="TSP" onchange="updateMeasurementTable()"> TSP</label>
+                    <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" name="hazard" value="PM<sub>10</sub>" onchange="updateMeasurementTable()"> PM<sub>10</sub></label>
+                    <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" id="pm25Checkbox" name="hazard" value="PM<sub>2.5</sub>" onchange="handlePM25Toggle(this)"> PM<sub>2.5</sub></label>
+                    <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" name="hazard" value="Pb" onchange="updateMeasurementTable()"> Pb</label>
+                </div>
+                
+                <div style="width: 100%; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 5px;">
+                    <label style="font-size: 14px; font-weight: bold; color: #be123c;">สารเคมีอื่นๆ (ฉุกเฉิน):</label>
+                    <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" name="hazard" value="VOCs" onchange="updateMeasurementTable()"> VOCs</label>
+                    <label style="font-size: 13px; cursor: pointer;"><input type="checkbox" name="hazard" value="Cl<sub>2</sub>" onchange="updateMeasurementTable()"> Cl<sub>2</sub></label>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <input type="text" id="customHazardName" placeholder="ระบุสารอื่นๆ..." style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; width: 110px;">
+                        <button type="button" onclick="addCustomHazard()" style="padding: 4px 8px; background: #be123c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">+ เพิ่มสาร</button>
+                    </div>
+                </div>
+
+                <div style="width: 100%; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1;">
+                    <label style="display: flex; align-items: center; cursor: pointer; font-size: 13px; color: #0284c7; font-weight: bold;">
+                        <input type="checkbox" id="toggleStdBtn" checked style="margin-right: 5px; accent-color: #0284c7;" onchange="updateMeasurementTable()"> แสดง/แก้ไขค่ามาตรฐานในตาราง
+                    </label>
+                    <label style="display: flex; align-items: center; cursor: pointer; font-size: 13px; color: #0284c7; font-weight: bold;">
+                        <input type="checkbox" id="toggleMapStdBtn" checked style="margin-right: 5px; accent-color: #0284c7;" onchange="updateMapPopupOnly()"> แสดงค่ามาตรฐานบนแผนที่
+                    </label>
+                </div>
+
+                <div id="measurementContainer" style="width: 100%; display: none; margin-top: 5px; padding-top: 10px; border-top: 1px dashed #fda4af;">
+                    <label style="font-size: 14px; font-weight: bold; color: #be123c; margin-bottom: 5px; display: block;">📊 ผลการตรวจวัดมลพิษภาคสนาม:</label>
+                    
+                    <datalist id="unit-options">
+                        <option value="ppm"></option>
+                        <option value="ppb"></option>
+                        <option value="mg/m³"></option>
+                        <option value="μg/m³"></option>
+                        <option value="%LEL"></option>
+                    </datalist>
+
+                    <div style="overflow-x: auto;">
+                        <table id="dataTable" style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; background: white;">
+                            <thead id="dataHead">
+                                <!-- ส่วนหัวตารางถูกสร้างผ่าน JavaScript -->
+                            </thead>
+                            <tbody id="measurementBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; flex-wrap: wrap; margin-top: 5px; padding-top: 15px; border-top: 2px solid #ffe4e6;">
+                    <span style="font-size: 13px; color: #94a3b8; margin-right: auto;">เครื่องมือจัดการและส่งออกรายงาน:</span>
+                    
+                    <input type="file" id="loadJsonInput" accept=".json" style="display: none;" onchange="loadIncidentData(event)">
+                    <button onclick="saveIncidentData()" style="padding: 8px 14px; background-color: #0f766e; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(15,118,110,0.3);">💾 บันทึกไฟล์ข้อมูล</button>
+                    <button onclick="document.getElementById('loadJsonInput').click()" style="padding: 8px 14px; background-color: #d97706; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(217,119,6,0.3);">📂 โหลดไฟล์ข้อมูล</button>
+                    
+                    <button onclick="openGoogleMaps()" style="padding: 8px 14px; background-color: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">🗺️ แผนที่ Google Maps</button>
+                    <button onclick="copyIncidentReport()" style="padding: 8px 14px; background-color: #8b5cf6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(139,92,246,0.3);">📋 คัดลอกข้อความลง LINE</button>
+                    <button onclick="exportIncidentImage()" style="padding: 8px 14px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; box-shadow: 0 2px 4px rgba(59,130,246,0.3);">📷 บันทึกภาพหน้าจอ</button>
+                </div>
+
+            </div>        
+        </div>       
+        
+        <div id="map-wrapper">
+            <div id="loadingOverlay">
+                <div class="maps-logo-text">MAPS 11</div>
+                <div class="maps-sub-text">Incident Command Mode</div>
+                <div class="cyber-spinner"></div>
+                <div class="loading-status" id="loadingStatusText">INITIALIZING MAP ENGINES...</div>
+            </div>
+            <div id="map"></div>
+
+            <!-- Popup แสดงค่ามาตรฐานบนแผนที่ -->
+            <div id="std-popup">
+                <div style="font-weight: bold; color: #0284c7; margin-bottom: 8px; font-size: 14px;">📋 ค่ามาตรฐานมลพิษ</div>
+                <div id="std-popup-content" style="font-size: 12.5px; line-height: 1.6; color: #475569;">
+                    <!-- เนื้อหาจะถูกแทรกผ่าน JS -->
+                </div>
+            </div>
+
+            <div id="pm25-remark" style="display: none; margin-top: 15px; padding: 15px; background-color: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 8px; font-size: 14px; color: #166534; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <b>📌 หมายเหตุการประเมินฝุ่นละออง (PM<sub>2.5</sub>) พื้นหลัง:</b>
+                <div id="pm25-remark-content" style="margin-top: 8px;">กำลังรอข้อมูล...</div>
+            </div>
+        </div>
+
+    </div> 
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        const longdoApiKey = 'bce812933744d2530d26f0fabb0017cf';
+        const addressCache = {};
+        const geojsonBoundariesUrl = 'https://raw.githubusercontent.com/Kietpawpan/hotspot/refs/heads/main/MAPS11_boundary_highres4K.json';
+        const targetKeywords = ["Nakhon Ratchasima", "Chaiyaphum", "Buri Ram", "Surin"];
+        let dashboardControl = null;
+        
+        // ตัวแปรเก็บค่าตั้งต้นของรัศมี เพื่อให้ปักหมุดทำงานได้ทันทีแม้ยังไม่แสดงตาราง
+        let currentDistances = { d05: 0.5, d10: 1.0, d15: 1.5, d20: 2.0 };
+
+        // ฟังก์ชันตรวจสอบว่าค่าที่ตรวจวัดเกินค่ามาตรฐานหรือไม่
+        function isExceedingStandard(val, stdStr) {
+            if (val === '' || val === null || val === undefined || !stdStr || stdStr === '-') return false;
+            const numVal = parseFloat(val);
+            if (isNaN(numVal)) return false;
+            const stdMatch = String(stdStr).match(/(\d+(\.\d+)?)/);
+            if (!stdMatch) return false;
+            const stdVal = parseFloat(stdMatch[1]);
+            return !isNaN(stdVal) && numVal > stdVal;
+        }
+
+        // ฟังก์ชันเปลี่ยนสีช่องกรอกข้อมูลในตารางเมื่อเกินค่ามาตรฐาน
+        function applyExceedInputStyle(inputEl, val, stdStr) {
+            if (!inputEl) return;
+            if (isExceedingStandard(val, stdStr)) {
+                inputEl.style.color = '#dc2626';
+                inputEl.style.fontWeight = 'bold';
+                inputEl.style.borderColor = '#ef4444';
+                inputEl.style.backgroundColor = '#fef2f2';
+            } else {
+                inputEl.style.color = '';
+                inputEl.style.fontWeight = '';
+                inputEl.style.borderColor = '#ccc';
+                inputEl.style.backgroundColor = '';
+            }
+        }
+
+        document.getElementById('customHazardName').addEventListener('input', function(e) {
+            const cursorPosition = this.selectionStart;
+            const textBeforeCursor = this.value.substring(0, cursorPosition);
+            
+            if (textBeforeCursor.endsWith('<sub>')) {
+                this.value = textBeforeCursor + '</sub>' + this.value.substring(cursorPosition);
+                this.setSelectionRange(cursorPosition, cursorPosition);
+            } 
+            else if (textBeforeCursor.endsWith('<sup>')) {
+                this.value = textBeforeCursor + '</sup>' + this.value.substring(cursorPosition);
+                this.setSelectionRange(cursorPosition, cursorPosition);
+            }
+        });
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            let icon = 'ℹ️';
+            if (type === 'success') icon = '✅';
+            if (type === 'error') icon = '❌';
+            if (type === 'warning') icon = '⚠️';
+            toast.innerHTML = `<span style="margin-right:8px; font-size:16px;">${icon}</span> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s forwards';
+                setTimeout(() => { toast.remove(); }, 300);
+            }, 3000);
+        }
+                  
+        const map = L.map('map', {
+            wheelPxPerZoomLevel: 120,
+            zoomSnap: 0.1,
+            zoomDelta: 0.2,
+            preferCanvas: true 
+        }).setView([15.2, 102.5], 8);
+
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap | EPO11'
+        });
+
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 18,
+            attribution: '© Esri | EPO11'
+        });
+
+        osmLayer.addTo(map);
+
+        const baseMaps = {
+            "แผนที่ถนน (OSM)": osmLayer,
+            "ภาพถ่ายดาวเทียม (Esri)": satelliteLayer
+        };
+
+        const incidentLayer = L.layerGroup().addTo(map);
+        let activeLayers = new Set(["จุดเกิดเหตุด่วน (🚨)"]);
+
+        const overlayMaps = {
+            "จุดเกิดเหตุด่วน (🚨)": incidentLayer
+        };
+
+        const layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+        // ตั้งค่า Event ป้องกันการทำงานทับซ้อนกับแผนที่สำหรับกล่องมาตรฐาน
+        const stdPopupEl = document.getElementById('std-popup');
+        L.DomEvent.disableClickPropagation(stdPopupEl);
+        L.DomEvent.disableScrollPropagation(stdPopupEl);
+
+        fetch(geojsonBoundariesUrl)
+            .then(res => res.json())
+            .then(data => {
+                const boundaryGeoJSON = {
+                    type: "FeatureCollection",
+                    features: data.features.filter(f => {
+                        const propStr = JSON.stringify(f.properties);
+                        return targetKeywords.some(keyword => propStr.includes(keyword));
+                    })
+                };
+                
+                const boundaryLayer = L.geoJSON(boundaryGeoJSON, {
+                    style: {
+                        color: "#4a148c", 
+                        weight: 4,         
+                        opacity: 1,        
+                        fillOpacity: 0.05,
+                        dashArray: '5 5'
+                    }
+                }).addTo(map);
+
+                if (boundaryGeoJSON.features.length > 0) {
+                    map.fitBounds(boundaryLayer.getBounds());
+                }
+            })
+            .catch(err => console.error('ไม่สามารถโหลดข้อมูลขอบเขตจังหวัดได้', err));
+
+        const dynamicLegendControl = L.control({position: 'bottomright'});
+        dynamicLegendControl.onAdd = function (map) {
+            const wrapper = L.DomUtil.create('div', 'legend-wrapper');
+            L.DomEvent.disableClickPropagation(wrapper);
+            L.DomEvent.disableScrollPropagation(wrapper);
+
+            const header = L.DomUtil.create('div', 'legend-header open', wrapper);
+            header.innerHTML = '<span>📋 คำอธิบายสัญลักษณ์</span><span id="legend-toggle-icon">▼</span>';
+            
+            const content = L.DomUtil.create('div', 'legend-box', wrapper);
+            content.id = 'dynamic-legend';
+
+            header.onclick = function() {
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    header.className = 'legend-header open';
+                    document.getElementById('legend-toggle-icon').innerText = '▼';
+                } else {
+                    content.style.display = 'none';
+                    header.className = 'legend-header';
+                    document.getElementById('legend-toggle-icon').innerText = '▲';
+                }
+            };
+            return wrapper;
+        };
+        dynamicLegendControl.addTo(map);
+
+        function updateDynamicLegend() {
+            const legendDiv = document.getElementById('dynamic-legend');
+            if (!legendDiv) return;
+
+            const d05 = document.getElementById('dist05') ? document.getElementById('dist05').value : currentDistances.d05;
+            const d10 = document.getElementById('dist10') ? document.getElementById('dist10').value : currentDistances.d10;
+            const d15 = document.getElementById('dist15') ? document.getElementById('dist15').value : currentDistances.d15;
+            const d20 = document.getElementById('dist20') ? document.getElementById('dist20').value : currentDistances.d20;
+
+            if (activeLayers.size === 0) {
+                legendDiv.innerHTML = '<div style="color:#64748b; text-align:center;">ไม่ได้เลือกข้อมูลแสดงผล</div>';
+                return;
+            }
+
+            let html = '';
+            if (activeLayers.has("จุดเกิดเหตุด่วน (🚨)") && currentIncidentData && document.getElementById('toggleRadiusBtn').checked) {
+                html += '<div class="legend-title">🚨 รัศมีจุดเกิดเหตุ</div>';
+                html += `<div><span style="display:inline-block; width:15px; border-top:3px dashed #ef4444; margin-right:5px; vertical-align:middle;"></span> ระยะ ${d05} กิโลเมตร</div>`;
+                html += `<div><span style="display:inline-block; width:15px; border-top:3px dashed #f97316; margin-right:5px; vertical-align:middle;"></span> ระยะ ${d10} กิโลเมตร</div>`;
+                html += `<div><span style="display:inline-block; width:15px; border-top:3px dashed #eab308; margin-right:5px; vertical-align:middle;"></span> ระยะ ${d15} กิโลเมตร</div>`;
+                html += `<div><span style="display:inline-block; width:15px; border-top:3px dashed #16a34a; margin-right:5px; vertical-align:middle;"></span> ระยะ ${d20} กิโลเมตร</div>`;
+            } else {
+                html += '<div style="color:#64748b; text-align:center;">รอการปักหมุดจุดเกิดเหตุ</div>';
+            }
+
+            if (currentSelectedHazards && currentSelectedHazards.length > 0) {
+                html += '<div class="legend-title" style="margin-top: 10px; color: #be123c; font-size: 13px;">📊 ผลการตรวจวัด (ระยะทาง: กม.)</div>';
+                html += '<table style="width: 100%; font-size: 11px; border-collapse: collapse; margin-top: 5px; text-align: center;">';
+                html += '<tr style="background: #f1f5f9; border-bottom: 1px solid #cbd5e1;">';
+                html += `<th style="text-align:left; padding:4px 2px;">สาร</th><th>${d05}</th><th>${d10}</th><th>${d15}</th><th>${d20}</th><th>หน่วย</th>`;
+                html += '</tr>';
+                
+                currentSelectedHazards.forEach(h => {
+                    const data = measurementData[h];
+                    if (data) {
+                        const style05 = isExceedingStandard(data.d05, data.std) ? 'color:#dc2626; font-weight:bold;' : '';
+                        const style10 = isExceedingStandard(data.d10, data.std) ? 'color:#dc2626; font-weight:bold;' : '';
+                        const style15 = isExceedingStandard(data.d15, data.std) ? 'color:#dc2626; font-weight:bold;' : '';
+                        const style20 = isExceedingStandard(data.d20, data.std) ? 'color:#dc2626; font-weight:bold;' : '';
+
+                        html += '<tr style="border-bottom: 1px dotted #e2e8f0;">';
+                        html += `<td style="text-align:left; padding:4px 2px; font-weight:bold; color:#475569;">${h}</td>`;
+                        html += `<td style="${style05}">${data.d05 || '-'}</td>`;
+                        html += `<td style="${style10}">${data.d10 || '-'}</td>`;
+                        html += `<td style="${style15}">${data.d15 || '-'}</td>`;
+                        html += `<td style="${style20}">${data.d20 || '-'}</td>`;
+                        html += `<td style="color:#64748b;">${data.unit}</td>`;
+                        html += '</tr>';
+                    }
+                });
+                html += '</table>';
+            }
+            legendDiv.innerHTML = html;
+        }
+
+        map.on('overlayadd', function(e) {
+            activeLayers.add(e.name);
+            updateDynamicLegend();
+        });
+
+        map.on('overlayremove', function(e) {
+            activeLayers.delete(e.name);
+            updateDynamicLegend();
+        });
+
+        document.getElementById('dropPinBtn').addEventListener('click', () => createIncidentMarker(false));
+
+        [document.getElementById('latInput'), document.getElementById('lonInput')].forEach(input => {
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter') createIncidentMarker(false); });
+        });
+
+        let currentIncidentData = null;
+        let currentPlumeLayer = null;
+        let currentRadiiLayer = null; 
+        let currentWindSpeed = 0; 
+
+        function updateRadiiVisibility() {
+            if (currentRadiiLayer) {
+                if (document.getElementById('toggleRadiusBtn').checked) {
+                    currentRadiiLayer.addTo(incidentLayer);
+                } else {
+                    incidentLayer.removeLayer(currentRadiiLayer);
+                }
+                updateDynamicLegend(); 
+            }
+        }
+
+        function updateRadiiCircles() {
+            const el05 = document.getElementById('dist05');
+            if (el05) currentDistances.d05 = parseFloat(el05.value) || 0.5;
+            
+            const el10 = document.getElementById('dist10');
+            if (el10) currentDistances.d10 = parseFloat(el10.value) || 1.0;
+            
+            const el15 = document.getElementById('dist15');
+            if (el15) currentDistances.d15 = parseFloat(el15.value) || 1.5;
+            
+            const el20 = document.getElementById('dist20');
+            if (el20) currentDistances.d20 = parseFloat(el20.value) || 2.0;
+
+            if (!currentIncidentData) {
+                updateDynamicLegend();
+                return;
+            }
+
+            if (currentRadiiLayer) {
+                incidentLayer.removeLayer(currentRadiiLayer);
+            }
+            currentRadiiLayer = L.layerGroup();
+
+            const radiiConfig = [
+                { dist: currentDistances.d20 * 1000, color: '#16a34a' },
+                { dist: currentDistances.d15 * 1000, color: '#eab308' },
+                { dist: currentDistances.d10 * 1000, color: '#f97316' },
+                { dist: currentDistances.d05 * 1000, color: '#ef4444' }
+            ].sort((a, b) => b.dist - a.dist);
+
+            radiiConfig.forEach(item => {
+                if (item.dist > 0) {
+                    L.circle([currentIncidentData.lat, currentIncidentData.lon], {
+                        radius: item.dist,
+                        color: item.color,
+                        fillColor: item.color,
+                        fillOpacity: 0.15,
+                        weight: 2,
+                        dashArray: '5 5'
+                    }).addTo(currentRadiiLayer);
+                }
+            });
+
+            if (document.getElementById('toggleRadiusBtn').checked) {
+                currentRadiiLayer.addTo(incidentLayer);
+            }
+            
+            updateDynamicLegend();
+        }
+
+        document.getElementById('clearPinBtn').addEventListener('click', function() {
+            incidentLayer.clearLayers();
+            currentIncidentData = null;
+            currentPlumeLayer = null;
+            currentRadiiLayer = null; 
+            document.getElementById('incidentName').value = "";
+            document.getElementById('latInput').value = "";
+            document.getElementById('lonInput').value = "";
+            document.getElementById('manualWindDir').value = "";
+            document.querySelectorAll('input[name="hazard"]').forEach(cb => cb.checked = false);
+            document.getElementById('pm25-remark').style.display = 'none';
+            
+            customHazardsList = [];
+            measurementData = {};
+            updateMeasurementTable();
+            
+            if (dashboardControl) {
+                map.removeControl(dashboardControl);
+                dashboardControl = null;
+            }
+            
+            showToast("ล้างจุดปักหมุดเรียบร้อยแล้ว", "info");
+            updateDynamicLegend();
+        });
+
+        document.getElementById('togglePlumeBtn').addEventListener('change', function() {
+            if (currentPlumeLayer) {
+                if (this.checked) {
+                    currentPlumeLayer.addTo(incidentLayer);
+                } else {
+                    incidentLayer.removeLayer(currentPlumeLayer);
+                }
+            }
+        });
+
+        document.getElementById('editPinBtn').addEventListener('click', function() {
+            if (!currentIncidentData) {
+                showToast("ไม่พบจุดที่ปักไว้ให้แก้ไข", "warning");
+                return;
+            }
+            document.getElementById('incidentName').value = currentIncidentData.name;
+            document.getElementById('latInput').value = currentIncidentData.lat;
+            document.getElementById('lonInput').value = currentIncidentData.lon;
+            if (currentIncidentData.windDir !== undefined) {
+                document.getElementById('manualWindDir').value = currentIncidentData.windDir;
+            }
+            showToast("ดึงข้อมูลมาที่ช่องแก้ไขแล้ว", "success");
+        });
+
+        document.getElementById('updateWindBtn').addEventListener('click', function() {
+            if (!currentIncidentData) {
+                showToast("กรุณาปักหมุดจุดเกิดเหตุก่อนครับ", "warning");
+                return;
+            }
+
+            const manualDir = parseFloat(document.getElementById('manualWindDir').value);
+            if (isNaN(manualDir) || manualDir < 0 || manualDir > 360) {
+                showToast("กรุณาระบุองศาลมระหว่าง 0-360", "warning");
+                return;
+            }
+
+            currentIncidentData.windDir = manualDir;
+            
+            const dirEls = document.querySelectorAll('#inc-wind-dir');
+            dirEls.forEach(el => {
+                el.innerHTML = `<span style="display:inline-block; transform: rotate(${manualDir + 180}deg); color:#0284c7;">⬆️</span> <span style="color:#0284c7; font-weight:bold;">${manualDir}° (ปรับแก้เอง)</span>`;
+            });
+            
+            drawPlumeAndCalculateRisk(currentIncidentData.lat, currentIncidentData.lon, manualDir, currentWindSpeed);
+            showToast("อัปเดตทิศทางควันเรียบร้อยแล้ว", "success");
+        });
+
+        async function createIncidentMarker(preserveManualWind = false) {
+            const name = document.getElementById('incidentName').value.trim() || "ไม่ได้ระบุชื่อเหตุการณ์";
+            const lat = parseFloat(document.getElementById('latInput').value);
+            const lon = parseFloat(document.getElementById('lonInput').value);
+
+            if (isNaN(lat) || isNaN(lon)) {
+                showToast("กรุณากรอกพิกัดให้ครบถ้วน", "warning");
+                return;
+            }
+
+            const savedWindDir = preserveManualWind && document.getElementById('manualWindDir').value !== ''
+                ? parseFloat(document.getElementById('manualWindDir').value)
+                : undefined;
+
+            currentIncidentData = { name, lat, lon, windDir: savedWindDir };
+            updateDynamicLegend(); 
+
+            incidentLayer.clearLayers();
+            currentPlumeLayer = null;
+            updateRadiiCircles();
+
+            const fireIcon = L.divIcon({
+                html: `<div style="display: flex; justify-content: center; align-items: center; width: 30px; height: 30px; font-size: 26px; line-height: 1; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); cursor: pointer; margin: 0; padding: 0;">🔥</div>`,
+                className: '',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15], 
+                popupAnchor: [0, -15] 
+            });
+            
+            const dateInput = document.getElementById('incidentDate').value;
+            const timeInput = document.getElementById('incidentTime').value;
+            const now = new Date();
+
+            let dateStr = "";
+            let timeStr = "";
+            
+            const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+
+            if (dateInput) {
+                const [y, m, day] = dateInput.split('-');
+                const d = new Date(y, m - 1, day);
+                dateStr = d.toLocaleDateString('th-TH', dateOptions);
+            } else {
+                dateStr = now.toLocaleDateString('th-TH', dateOptions);
+            }
+
+            if (timeInput) {
+                timeStr = timeInput + " น.";
+            } else {
+                timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + " น.";
+            }
+
+            currentIncidentData = { 
+                name: name, 
+                lat: lat, 
+                lon: lon, 
+                date: dateInput, 
+                time: timeInput,
+                windDir: savedWindDir
+            };
+            
+            let hazardString = currentSelectedHazards.length > 0 ? currentSelectedHazards.join(' ') : 'ไม่ได้ระบุ';
+
+            let popupContent = `
+                <div id="closeDashboardBtn" class="close-dashboard-btn"></div>
+                <div style='font-size: 14px; min-width: 220px;'>
+                    <div style='background-color:#e11d48; color:white; padding:6px; border-radius:4px; margin-bottom:8px; text-align:center; line-height:1.4;'>
+                        <b>🚨 รายงานจุดเกิดเหตุ<br>(${name})</b>
+                    </div>
+                    <b>พื้นที่:</b> <span id="inc-location" style="color:#0284c7; font-weight:bold;">กำลังค้นหา...</span><br>
+                    <b>พิกัด:</b> ${lat.toFixed(5)}  ${lon.toFixed(5)}<br>
+                    <b>เวลาที่รายงาน:</b> ${dateStr} ${timeStr}<br>
+                    
+                    <div style='margin-top: 8px; padding: 6px; background-color: #fff1f2; border-left: 3px solid #be123c; border-radius: 4px;'>
+                        <b>☣️ สารที่แพร่กระจาย:</b> <br><span id="inc-hazards" style="color:#be123c; font-weight:bold; font-size: 13px;">${hazardString}</span>
+                    </div>
+                    
+                    <div style='background-color:#f8fafc; padding:8px; border:1px solid #e2e8f0; border-radius:6px; margin-top:8px;'>
+                        <div style='color:#475569; font-weight:bold; margin-bottom:4px; font-size:13px;'>💨 สภาพลม ณ จุดเกิดเหตุ</div>
+                        <b>ทิศทางลม:</b> <span id="inc-wind-dir">กำลังโหลด...</span><br>
+                        <b>ความเร็ว:</b> <span id="inc-wind-speed">กำลังโหลด...</span>
+                        <div style='background-color:#fef2f2; padding:6px; border:1px solid #fca5a5; border-radius:4px; margin-top:6px;'>
+                            <div style='color:#b91c1c; font-weight:bold; font-size:12px; margin-bottom:2px;'>⚠️ คาดการณ์ตำบลท้ายลม (2-5 กม.)</div>
+                            <span id="inc-downwind" style='color:#7f1d1d; font-size:13px; font-weight:bold;'>กำลังวิเคราะห์...</span>
+                        </div>
+                    </div>
+             </div>
+            `;
+
+            if (dashboardControl) {
+                map.removeControl(dashboardControl);
+            }
+
+            dashboardControl = L.control({position: 'topleft'});
+            dashboardControl.onAdd = function (map) {
+                const div = L.DomUtil.create('div', 'incident-dashboard');
+                div.innerHTML = popupContent; 
+                
+                const closeBtn = div.querySelector('#closeDashboardBtn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function() {
+                        map.removeControl(dashboardControl);
+                        dashboardControl = null;
+                    });
+                }
+                
+                L.DomEvent.disableClickPropagation(div);
+                L.DomEvent.disableScrollPropagation(div);
+                return div;
+            };
+            dashboardControl.addTo(map);
+
+            L.marker([lat, lon], { icon: fireIcon }).addTo(incidentLayer);
+            map.setView([lat, lon], 13);
+
+            fetch(`https://api.longdo.com/map/services/address?lon=${lon}&lat=${lat}&key=${longdoApiKey}`)
+            .then(res => res.json())
+            .then(data => {
+                const locEls = document.querySelectorAll('#inc-location');
+                locEls.forEach(el => {
+                    if (data) {
+                        const subdist = data.subdistrict ? data.subdistrict.replace(/^ตำบล|แขวง/g, '').trim() : '-';
+                        const dist = data.district ? data.district.replace(/^อำเภอ|เขต/g, '').trim() : '-';
+                        const prov = data.province ? data.province.replace(/^จังหวัด/g, '').trim() : '-';
+                        el.innerText = `${subdist} ${dist} ${prov}`;
+                    } else {
+                        el.innerText = "ไม่พบข้อมูลพื้นที่";
+                    }
+                });
+            }).catch(() => {
+                document.querySelectorAll('#inc-location').forEach(el => el.innerText = "ข้อผิดพลาดเครือข่าย");
+            });
+
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_direction_10m`)
+            .then(res => res.json())
+            .then(data => {
+                if(data && data.current) {
+                    currentWindSpeed = data.current.wind_speed_10m;
+                    const apiWindDir = data.current.wind_direction_10m;
+                    
+                    const dirEls = document.querySelectorAll('#inc-wind-dir');
+                    const speedEls = document.querySelectorAll('#inc-wind-speed');
+
+                    if (savedWindDir !== undefined && !isNaN(savedWindDir)) {
+                        currentIncidentData.windDir = savedWindDir;
+                        document.getElementById('manualWindDir').value = savedWindDir;
+                        dirEls.forEach(el => el.innerHTML = `<span style="display:inline-block; transform: rotate(${savedWindDir + 180}deg); color:#0284c7;">⬆️</span> <span style="color:#0284c7; font-weight:bold;">${savedWindDir}°</span>`);
+                    } else {
+                        currentIncidentData.windDir = apiWindDir;
+                        document.getElementById('manualWindDir').value = apiWindDir;
+                        dirEls.forEach(el => el.innerHTML = `<span style="display:inline-block; transform: rotate(${apiWindDir + 180}deg);">⬆️</span> ${apiWindDir}°`);
+                    }
+
+                    speedEls.forEach(el => el.innerText = `${currentWindSpeed} กม./ชม.`);
+                    drawPlumeAndCalculateRisk(lat, lon, currentIncidentData.windDir, currentWindSpeed);
+                }
+            });
+        }
+
+        let measurementData = {};
+        let customHazardsList = [];
+        let currentSelectedHazards = [];
+
+        const defaultHazardsConfig = {
+            "SO<sub>2</sub>": { unit: "ppb", std: "100 (1 ชม.)" },
+            "NO<sub>2</sub>": { unit: "ppb", std: "120 (1 ชม.)" },
+            "CO": { unit: "ppm", std: "30 (1 ชม.)" },
+            "O<sub>3</sub>": { unit: "ppb", std: "100 (1 ชม.)" },
+            "TSP": { unit: "μg/m³", std: "200 (24 ชม.)" },
+            "PM<sub>10</sub>": { unit: "μg/m³", std: "100 (24 ชม.)" },
+            "PM<sub>2.5</sub>": { unit: "μg/m³", std: "37.5 (24 ชม.)" },
+            "Pb": { unit: "μg/m³", std: "1 (1 เดือน)" },
+            "VOCs": { unit: "ppm", std: "-" },
+            "Cl<sub>2</sub>": { unit: "ppm", std: "-" }
+        };
+
+        function addCustomHazard() {
+            const input = document.getElementById('customHazardName');
+            let name = input.value.trim();
+            
+            if (!name) return;
+
+            let safeName = name.replace(/</g, "<").replace(/>/g, ">");
+            
+            safeName = safeName.replace(/<sub>/gi, "<sub>").replace(/<\/sub>/gi, "</sub>");
+            safeName = safeName.replace(/<sup>/gi, "<sup>").replace(/<\/sup>/gi, "</sup>");
+
+            safeName = safeName.replace(/^[์็่้๊๋ิีึืุูั]+/g, '');
+            safeName = safeName.replace(/([A-Za-z0-9])[์็่้๊๋ิีึืุูั]+/g, '$1');
+
+            const subOpenCount = (safeName.match(/<sub>/gi) || []).length;
+            const subCloseCount = (safeName.match(/<\/sub>/gi) || []).length;
+            if (subOpenCount > subCloseCount) safeName += "</sub>";
+
+            if (!customHazardsList.includes(safeName)) {
+                customHazardsList.push(safeName);
+                input.value = '';
+                updateMeasurementTable();
+            }
+        }
+
+        function removeCustomHazard(name) {
+            customHazardsList = customHazardsList.filter(h => h !== name);
+            updateMeasurementTable();
+        }
+
+        // ฟังก์ชันอัปเดตเฉพาะหน้าต่าง Popup บนแผนที่ และกล่องสรุปจุดเกิดเหตุ
+        window.updateMapPopupOnly = function() {
+            const stdPopupEl = document.getElementById('std-popup');
+            const stdPopupContent = document.getElementById('std-popup-content');
+            const showMapStd = document.getElementById('toggleMapStdBtn') && document.getElementById('toggleMapStdBtn').checked;
+            
+            // อัปเดตรายชื่อสารในกล่อง Dashboard มุมซ้ายบนของแผนที่ทันที
+            const hazardEls = document.querySelectorAll('#inc-hazards');
+            const hazardString = currentSelectedHazards.length > 0 ? currentSelectedHazards.join(' ') : 'ไม่ได้ระบุ';
+            hazardEls.forEach(el => el.innerHTML = hazardString);
+
+            if (currentSelectedHazards.length === 0 || !showMapStd) {
+                stdPopupEl.style.display = 'none';
+                return;
+            }
+
+            let stdMapHtml = '';
+            let hasMapStandard = false;
+
+            currentSelectedHazards.forEach(hazard => {
+                const data = measurementData[hazard];
+                if (data && data.std && data.std !== '-') {
+                    stdMapHtml += `<div style="border-bottom: 1px dotted #cbd5e1; padding: 6px 0;"><b>${hazard}</b>: ${data.std} <span style="color:#94a3b8;">${data.unit}</span></div>`;
+                    hasMapStandard = true;
+                }
+            });
+
+            if (hasMapStandard) {
+                stdPopupContent.innerHTML = stdMapHtml;
+                stdPopupEl.style.display = 'block';
+            } else {
+                stdPopupEl.style.display = 'none';
+            }
+        }
+
+        function updateMeasurementTable() {
+            const baseHazards = Array.from(document.querySelectorAll('input[name="hazard"]:checked')).map(cb => cb.value);
+            currentSelectedHazards = [...baseHazards, ...customHazardsList];
+
+            const container = document.getElementById('measurementContainer');
+            const dataHead = document.getElementById('dataHead');
+            const tbody = document.getElementById('measurementBody');
+            const showStd = document.getElementById('toggleStdBtn') && document.getElementById('toggleStdBtn').checked;
+            
+            if (currentSelectedHazards.length === 0) {
+                container.style.display = 'none';
+                tbody.innerHTML = '';
+                updateMapPopupOnly();
+                updateDynamicLegend();
+                return;
+            }
+
+            container.style.display = 'block';
+            
+            const dist05Val = document.getElementById('dist05') ? document.getElementById('dist05').value : currentDistances.d05;
+            const dist10Val = document.getElementById('dist10') ? document.getElementById('dist10').value : currentDistances.d10;
+            const dist15Val = document.getElementById('dist15') ? document.getElementById('dist15').value : currentDistances.d15;
+            const dist20Val = document.getElementById('dist20') ? document.getElementById('dist20').value : currentDistances.d20;
+
+            dataHead.innerHTML = `
+                <tr style="background-color: #f1f5f9;">
+                    <th style="padding: 6px; border: 1px solid #cbd5e1; min-width: 90px;">สารอันตราย</th>
+                    ${showStd ? `<th style="padding: 6px; border: 1px solid #cbd5e1; font-size: 11px; width: 60px;">ค่ามาตรฐาน</th>` : ''}
+                    <th style="padding: 6px; border: 1px solid #cbd5e1;"><input type="number" id="dist05" value="${dist05Val}" step="0.1" min="0.1" style="width: 45px; text-align: center; border: 1px solid #94a3b8; border-radius: 4px; font-size: 12px; font-weight: bold; color: #0284c7;" onchange="updateRadiiCircles(); updateMeasurementTable();"> กม.</th>
+                    <th style="padding: 6px; border: 1px solid #cbd5e1;"><input type="number" id="dist10" value="${dist10Val}" step="0.1" min="0.1" style="width: 45px; text-align: center; border: 1px solid #94a3b8; border-radius: 4px; font-size: 12px; font-weight: bold; color: #0284c7;" onchange="updateRadiiCircles(); updateMeasurementTable();"> กม.</th>
+                    <th style="padding: 6px; border: 1px solid #cbd5e1;"><input type="number" id="dist15" value="${dist15Val}" step="0.1" min="0.1" style="width: 45px; text-align: center; border: 1px solid #94a3b8; border-radius: 4px; font-size: 12px; font-weight: bold; color: #0284c7;" onchange="updateRadiiCircles(); updateMeasurementTable();"> กม.</th>
+                    <th style="padding: 6px; border: 1px solid #cbd5e1;"><input type="number" id="dist20" value="${dist20Val}" step="0.1" min="0.1" style="width: 45px; text-align: center; border: 1px solid #94a3b8; border-radius: 4px; font-size: 12px; font-weight: bold; color: #0284c7;" onchange="updateRadiiCircles(); updateMeasurementTable();"> กม.</th>
+                    <th style="padding: 6px; border: 1px solid #cbd5e1;">หน่วย</th>
+                    <th style="padding: 6px; border: 1px solid #cbd5e1;">จัดการ</th>
+                </tr>
+            `;
+
+            tbody.innerHTML = '';
+            
+            currentSelectedHazards.forEach(hazard => {
+                if (!measurementData[hazard]) {
+                    let defaultUnit = defaultHazardsConfig[hazard] ? defaultHazardsConfig[hazard].unit : 'ppm';
+                    let defaultStd = defaultHazardsConfig[hazard] ? defaultHazardsConfig[hazard].std : '-';
+                    measurementData[hazard] = { d05: '', d10: '', d15: '', d20: '', unit: defaultUnit, std: defaultStd };
+                }
+                const data = measurementData[hazard];
+                const isCustom = customHazardsList.includes(hazard);
+
+                const style05 = isExceedingStandard(data.d05, data.std) ? 'color:#dc2626; font-weight:bold; border-color:#ef4444; background-color:#fef2f2;' : 'border: 1px solid #ccc;';
+                const style10 = isExceedingStandard(data.d10, data.std) ? 'color:#dc2626; font-weight:bold; border-color:#ef4444; background-color:#fef2f2;' : 'border: 1px solid #ccc;';
+                const style15 = isExceedingStandard(data.d15, data.std) ? 'color:#dc2626; font-weight:bold; border-color:#ef4444; background-color:#fef2f2;' : 'border: 1px solid #ccc;';
+                const style20 = isExceedingStandard(data.d20, data.std) ? 'color:#dc2626; font-weight:bold; border-color:#ef4444; background-color:#fef2f2;' : 'border: 1px solid #ccc;';
+
+                const tr = document.createElement('tr');
+                let tdStdHtml = showStd ? `<td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="text" class="meas-input" data-hazard="${hazard}" data-dist="std" value="${data.std}" style="width: 60px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 11px; padding: 4px 2px;"></td>` : '';
+                
+                tr.innerHTML = `
+                    <td style="padding: 4px; border: 1px solid #cbd5e1; text-align: left; font-weight: bold; color: #be123c;">${hazard}</td>
+                    ${tdStdHtml}
+                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazard}" data-dist="d05" value="${data.d05}" style="width: 45px; text-align: center; border-radius: 4px; ${style05}"></td>
+                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazard}" data-dist="d10" value="${data.d10}" style="width: 45px; text-align: center; border-radius: 4px; ${style10}"></td>
+                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazard}" data-dist="d15" value="${data.d15}" style="width: 45px; text-align: center; border-radius: 4px; ${style15}"></td>
+                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazard}" data-dist="d20" value="${data.d20}" style="width: 45px; text-align: center; border-radius: 4px; ${style20}"></td>
+                    <td style="padding: 2px; border: 1px solid #cbd5e1;">
+                        <input type="text" class="meas-input" data-hazard="${hazard}" data-dist="unit" value="${data.unit}" list="unit-options" style="width: 60px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;">
+                    </td>
+                    <td style="padding: 2px; border: 1px solid #cbd5e1;">
+                        ${isCustom ? `<button onclick="removeCustomHazard('${hazard}')" style="background:#ef4444; color:white; border:none; border-radius:4px; cursor:pointer; font-size:10px; padding:4px;">❌</button>` : '-'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // ตรวจจับเหตุการณ์พิมพ์ในตาราง
+            document.querySelectorAll('.meas-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const h = e.target.getAttribute('data-hazard');
+                    const d = e.target.getAttribute('data-dist');
+                    measurementData[h][d] = e.target.value;
+                    
+                    if (d === 'std') {
+                        // อัปเดตสีของช่องตัวเลขในแถวเดียวกันเมื่อแก้ค่ามาตรฐาน
+                        ['d05', 'd10', 'd15', 'd20'].forEach(distKey => {
+                            const distInput = document.querySelector(`.meas-input[data-hazard="${CSS.escape(h)}"][data-dist="${distKey}"]`);
+                            applyExceedInputStyle(distInput, measurementData[h][distKey], measurementData[h].std);
+                        });
+                        updateMapPopupOnly();
+                        updateDynamicLegend();
+                    } else if (d === 'unit') {
+                        updateMapPopupOnly();
+                        updateDynamicLegend();
+                    } else {
+                        applyExceedInputStyle(e.target, e.target.value, measurementData[h].std);
+                        updateDynamicLegend();
+                    }
+                });
+            });
+            
+            updateMapPopupOnly();
+            updateDynamicLegend();
+        }
+
+        // ฟังก์ชันบันทึกข้อมูลทั้งหมดเป็นไฟล์ JSON
+        window.saveIncidentData = function() {
+            const checkedBaseHazards = Array.from(document.querySelectorAll('input[name="hazard"]:checked')).map(cb => cb.value);
+            
+            const saveObj = {
+                version: "1.0",
+                timestamp: new Date().toISOString(),
+                incidentName: document.getElementById('incidentName').value,
+                lat: document.getElementById('latInput').value,
+                lon: document.getElementById('lonInput').value,
+                incidentDate: document.getElementById('incidentDate').value,
+                incidentTime: document.getElementById('incidentTime').value,
+                manualWindDir: document.getElementById('manualWindDir').value,
+                togglePlume: document.getElementById('togglePlumeBtn').checked,
+                toggleRadius: document.getElementById('toggleRadiusBtn').checked,
+                toggleStd: document.getElementById('toggleStdBtn').checked,
+                toggleMapStd: document.getElementById('toggleMapStdBtn').checked,
+                checkedBaseHazards: checkedBaseHazards,
+                customHazardsList: customHazardsList,
+                measurementData: measurementData,
+                currentDistances: currentDistances,
+                hasPinDropped: !!currentIncidentData
+            };
+
+            const dataStr = JSON.stringify(saveObj, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            const eventName = saveObj.incidentName.trim() || "ไม่ระบุชื่อ";
+            const datePart = saveObj.incidentDate || new Date().toISOString().slice(0, 10);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `MAPS11_${eventName}_${datePart}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showToast("บันทึกไฟล์ข้อมูลเรียบร้อยแล้ว", "success");
+        };
+
+        // ฟังก์ชันโหลดข้อมูลจากไฟล์ JSON
+        window.loadIncidentData = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const loaded = JSON.parse(e.target.result);
+                    
+                    document.getElementById('incidentName').value = loaded.incidentName || "";
+                    document.getElementById('latInput').value = loaded.lat || "";
+                    document.getElementById('lonInput').value = loaded.lon || "";
+                    document.getElementById('incidentDate').value = loaded.incidentDate || "";
+                    document.getElementById('incidentTime').value = loaded.incidentTime || "";
+                    document.getElementById('manualWindDir').value = loaded.manualWindDir !== undefined ? loaded.manualWindDir : "";
+                    
+                    document.getElementById('togglePlumeBtn').checked = loaded.togglePlume !== undefined ? loaded.togglePlume : true;
+                    document.getElementById('toggleRadiusBtn').checked = loaded.toggleRadius !== undefined ? loaded.toggleRadius : true;
+                    document.getElementById('toggleStdBtn').checked = loaded.toggleStd !== undefined ? loaded.toggleStd : true;
+                    document.getElementById('toggleMapStdBtn').checked = loaded.toggleMapStd !== undefined ? loaded.toggleMapStd : true;
+
+                    if (loaded.currentDistances) {
+                        currentDistances = loaded.currentDistances;
+                    }
+                    
+                    customHazardsList = Array.isArray(loaded.customHazardsList) ? loaded.customHazardsList : [];
+                    measurementData = loaded.measurementData || {};
+
+                    document.querySelectorAll('input[name="hazard"]').forEach(cb => {
+                        cb.checked = Array.isArray(loaded.checkedBaseHazards) && loaded.checkedBaseHazards.includes(cb.value);
+                    });
+
+                    updateMeasurementTable();
+
+                    if (loaded.lat && loaded.lon) {
+                        await createIncidentMarker(true);
+                    }
+
+                    const pm25Cb = document.getElementById('pm25Checkbox');
+                    if (pm25Cb && pm25Cb.checked && loaded.lat && loaded.lon) {
+                        document.getElementById('pm25-remark').style.display = 'block';
+                        fetchBackgroundPM25(parseFloat(loaded.lat), parseFloat(loaded.lon), true);
+                    } else {
+                        document.getElementById('pm25-remark').style.display = 'none';
+                    }
+
+                    showToast("โหลดข้อมูลเหตุการณ์เรียบร้อยแล้ว", "success");
+                } catch (err) {
+                    console.error(err);
+                    showToast("ไฟล์ข้อมูลไม่ถูกต้องหรือเสียหาย", "error");
+                } finally {
+                    event.target.value = "";
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        async function drawPlumeAndCalculateRisk(lat, lon, dir, speed) {
+            if (currentPlumeLayer) {
+                incidentLayer.removeLayer(currentPlumeLayer);
+                currentPlumeLayer = null;
+            }
+
+            const downwindEls = document.querySelectorAll('#inc-downwind');
+
+            if (speed > 1) {
+                const smokeAngle = (dir + 180) % 360;
+                const bearing = smokeAngle > 180 ? smokeAngle - 360 : smokeAngle;
+                const distance = 5; 
+                const spread = 40; 
+                const leftBearing = bearing - (spread / 2);
+                const rightBearing = bearing + (spread / 2);
+                
+                const leftPt = turf.destination([lon, lat], distance, leftBearing, {units: 'kilometers'}).geometry.coordinates;
+                const rightPt = turf.destination([lon, lat], distance, rightBearing, {units: 'kilometers'}).geometry.coordinates;
+                
+                const coneCoords = [
+                    [lat, lon],
+                    [leftPt[1], leftPt[0]],
+                    [rightPt[1], rightPt[0]]
+                ];
+                
+                currentPlumeLayer = L.polygon(coneCoords, {
+                    color: '#64748b',
+                    fillColor: '#94a3b8',
+                    fillOpacity: 0.4,
+                    weight: 1,
+                    dashArray: '4 4'
+                });
+                
+                if (document.getElementById('togglePlumeBtn').checked) {
+                    currentPlumeLayer.addTo(incidentLayer);
+                }
+
+                const pt1 = turf.destination([lon, lat], 2.5, bearing, {units: 'kilometers'}).geometry.coordinates;
+                const pt2 = turf.destination([lon, lat], 5, bearing, {units: 'kilometers'}).geometry.coordinates;
+
+                downwindEls.forEach(el => el.innerHTML = "<span style='color:#64748b;'>กำลังคำนวณพื้นที่ใหม่...</span>");
+
+                try {
+                    const results = await Promise.all([
+                        fetch(`https://api.longdo.com/map/services/address?lon=${pt1[0]}&lat=${pt1[1]}&key=${longdoApiKey}`).then(r => r.json()),
+                        fetch(`https://api.longdo.com/map/services/address?lon=${pt2[0]}&lat=${pt2[1]}&key=${longdoApiKey}`).then(r => r.json())
+                    ]);
+
+                    let riskAreas = [];
+                    results.forEach(res => {
+                        if (res && res.subdistrict) {
+                            const t = res.subdistrict.replace(/^ตำบล|แขวง/g, '').trim();
+                            const a = res.district ? res.district.replace(/^อำเภอ|เขต/g, '').trim() : '';
+                            if (!riskAreas.includes(`${t} ${a}`)) riskAreas.push(`${t} ${a}`);
+                        }
+                    });
+                    downwindEls.forEach(el => el.innerHTML = riskAreas.length > 0 ? riskAreas.join(' และ ') : "ไม่พบข้อมูลชุมชน");
+                } catch(e) {
+                    downwindEls.forEach(el => el.innerHTML = "การวิเคราะห์พิกัดขัดข้อง");
+                }
+            } else {
+                downwindEls.forEach(el => el.innerHTML = "ลมสงบ ควันอาจสะสมในพื้นที่เกิดเหตุ");
+            }
+        }
+
+        map.on('click', function(e) {
+            let clickLat = e.latlng.lat.toFixed(5);
+            let clickLon = e.latlng.lng.toFixed(5);
+            let mapLinkUrl = `https://maps.google.com/?q=${clickLat},${clickLon}`;
+            let popupContent = `<div style='text-align:center; font-size:14px;'>
+            <b>📍 พิกัดที่เลือก</b><br>
+            Lat: <span style='color:#e11d48; font-weight:bold;'>${clickLat}</span><br>
+            Lon: <span style='color:#e11d48; font-weight:bold;'>${clickLon}</span><br>
+            <a href="${mapLinkUrl}" target="_blank" style="display:block; text-align:center; background-color:#3b82f6; color:white; padding:8px 0; border-radius:6px; text-decoration:none; font-weight:bold; margin-top:10px;">🔍 เปิดดูพื้นที่บน Google Maps</a>
+            </div>`;
+
+            L.popup().setLatLng(e.latlng).setContent(popupContent).openOn(map);
+
+            let latInputEl = document.getElementById('latInput');
+            let lonInputEl = document.getElementById('lonInput');
+
+            if (latInputEl && lonInputEl) {
+                latInputEl.value = clickLat;
+                lonInputEl.value = clickLon;
+                showToast("ดึงพิกัดลงช่องเกิดเหตุด่วนเรียบร้อยแล้ว", "success");
+            }
+        });
+
+        setTimeout(() => {
+            let loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 300);
+            }
+            updateDynamicLegend();
+        }, 800);
+
+        window.openGoogleMaps = function() {
+            if (!currentIncidentData) {
+                return showToast("กรุณาปักหมุดจุดเกิดเหตุก่อนครับ", "warning");
+            }
+            const url = `https://maps.google.com/?q=${currentIncidentData.lat},${currentIncidentData.lon}`;
+            window.open(url, '_blank');
+        };
+
+        function formatForLine(text) {
+            const subMap = {'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉','+':'₊','-':'₋'};
+            const supMap = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','+':'⁺','-':'⁻'};
+            
+            if (!text) return text;
+            
+            let formatted = text.replace(/<sub>(.*?)<\/sub>/g, function(match, p1) {
+                return p1.split('').map(c => subMap[c] || c).join('');
+            });
+            
+            formatted = formatted.replace(/<sup>(.*?)<\/sup>/g, function(match, p1) {
+                return p1.split('').map(c => supMap[c] || c).join('');
+            });
+            
+            return formatted;
+        }
+
+        window.copyIncidentReport = function() {
+            if (!currentIncidentData) return showToast("กรุณาปักหมุดจุดเกิดเหตุก่อนครับ", "warning");
+
+            const locationText = document.getElementById('inc-location') ? document.getElementById('inc-location').innerText : '-';
+            const windDirText = document.getElementById('inc-wind-dir') ? document.getElementById('inc-wind-dir').innerText.replace(/⬆️\s*/g, '') : '-';
+            const windSpeedText = document.getElementById('inc-wind-speed') ? document.getElementById('inc-wind-speed').innerText : '-';
+            const downwindText = document.getElementById('inc-downwind') ? document.getElementById('inc-downwind').innerText : '-';
+
+            let hazardText = "ไม่ได้ระบุ";
+            if (currentSelectedHazards && currentSelectedHazards.length > 0) {
+                hazardText = formatForLine(currentSelectedHazards.join(" และ "));
+            }
+
+            let reportDate = "";
+            if (currentIncidentData.date) {
+                const [y, m, d] = currentIncidentData.date.split('-');
+                const dateObj = new Date(y, m - 1, d);
+                reportDate = dateObj.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+            } else {
+                reportDate = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+            }
+            
+            let reportTime = currentIncidentData.time ? currentIncidentData.time + " น." : new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + " น.";
+
+            let report = `🚨 รายงานเหตุด่วน: ${currentIncidentData.name}\n`;
+            report += `📍 พื้นที่: ${locationText}\n`;
+            report += `พิกัด: ${currentIncidentData.lat.toFixed(5)} ${currentIncidentData.lon.toFixed(5)}\n`;
+            report += `เวลาประเมิน: ${reportDate} ${reportTime}\n\n`;
+            report += `💨 สภาพอากาศ:\n- ทิศทางลม: ${windDirText}\n- ความเร็วลม: ${windSpeedText}\n`;
+            report += `⚠️ พื้นที่ท้ายลม (คาดการณ์ 2-5 กม.): ${downwindText}\n\n`;
+            report += `☣️ สารที่เฝ้าระวัง: ${hazardText}\n\n`;
+
+            if (currentSelectedHazards && currentSelectedHazards.length > 0) {
+                const d05 = document.getElementById('dist05') ? document.getElementById('dist05').value : currentDistances.d05;
+                const d10 = document.getElementById('dist10') ? document.getElementById('dist10').value : currentDistances.d10;
+                const d15 = document.getElementById('dist15') ? document.getElementById('dist15').value : currentDistances.d15;
+                const d20 = document.getElementById('dist20') ? document.getElementById('dist20').value : currentDistances.d20;
+                const showStd = document.getElementById('toggleStdBtn') && document.getElementById('toggleStdBtn').checked;
+
+                report += `📊 ผลการตรวจวัดภาคสนาม:\n`;
+                currentSelectedHazards.forEach(h => {
+                    let data = measurementData[h];
+                    if (data && (data.d05 || data.d10 || data.d15 || data.d20)) {
+                        let stdTextStr = (showStd && data.std && data.std !== '-') ? ` (มาตรฐาน: ${data.std})` : '';
+                        report += `- ${formatForLine(h)}${stdTextStr}: ${d05}กม.=${data.d05||'-'} | ${d10}กม.=${data.d10||'-'} | ${d15}กม.=${data.d15||'-'} | ${d20}กม.=${data.d20||'-'} ${data.unit}\n`;
+                    }
+                });
+                report += `\n`;
+            }
+
+            report += `(รายงานโดย หน่วยพิทักษ์สิ่งแวดล้อมที่ 11)`;
+
+            navigator.clipboard.writeText(report).then(() => {
+                showToast("คัดลอกรายงานสำหรับส่ง LINE เรียบร้อยแล้ว", "success");
+            }).catch(err => {
+                showToast("เกิดข้อผิดพลาดในการคัดลอกข้อความ", "error");
+            });
+        };
+
+        window.exportIncidentImage = function() {
+            if (!currentIncidentData) return showToast("กรุณาปักหมุดจุดเกิดเหตุก่อนครับ", "warning");
+            
+            const mapWrapper = document.getElementById('map-wrapper');
+            if (!mapWrapper) return showToast("ไม่พบข้อมูลแผนที่", "error");
+
+            showToast("กำลังสร้างภาพรายงานเหตุการณ์...", "info");
+
+            const legendContent = document.getElementById('dynamic-legend');
+            const legendHeader = document.querySelector('.legend-header');
+            let legendWasClosed = false;
+
+            if (legendContent && legendContent.style.display === 'none') {
+                legendWasClosed = true;
+                legendContent.style.display = 'block';
+                if (legendHeader) legendHeader.className = 'legend-header open';
+            }
+
+            html2canvas(mapWrapper, {
+                backgroundColor: '#ffffff',
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                width: mapWrapper.offsetWidth,
+                height: mapWrapper.offsetHeight
+            }).then(canvas => {
+                if (legendWasClosed && legendContent) {
+                    legendContent.style.display = 'none';
+                    if (legendHeader) legendHeader.className = 'legend-header';
+                }
+
+                const link = document.createElement('a');
+                const eventName = currentIncidentData.name || 'ฉุกเฉิน';
+                link.download = `รายงานสถานการณ์_${eventName}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast("ดาวน์โหลดภาพรายงานเรียบร้อยแล้ว", "success");
+            }).catch(err => {
+                console.error("Error generating image:", err);
+                showToast("สร้างภาพไม่สำเร็จ กรุณาลองใหม่", "error");
+            });
+        };
+
+        document.getElementById('searchPlaceBtn').addEventListener('click', async function() {
+            const keyword = document.getElementById('searchPlaceInput').value.trim();
+            if (!keyword) {
+                showToast("กรุณาพิมพ์ชื่อสถานที่ หรือวางลิงก์ที่ต้องการค้นหา", "warning");
+                return;
+            }
+
+            const latLngMatch = keyword.match(/(-?\d{1,2}\.\d+)(?:[,\s]+|%2C)(-?\d{1,3}\.\d+)/);
+            
+            if (latLngMatch) {
+                let lat = parseFloat(latLngMatch[1]);
+                let lon = parseFloat(latLngMatch[2]);
+                
+                if (lat > 5 && lat < 21 && lon > 97 && lon < 106) {
+                    document.getElementById('latInput').value = lat.toFixed(5);
+                    document.getElementById('lonInput').value = lon.toFixed(5);
+                    map.setView([lat, lon], 14);
+                    showToast("ดึงพิกัดจากข้อความสำเร็จ (คลิกปุ่ม ปักหมุด)", "success");
+                    return;
+                }
+            }
+            showToast("กำลังค้นหาพิกัด...", "info");
+
+            try {
+                const searchUrl = `https://search.longdo.com/mapsearch/json/search?keyword=${encodeURIComponent(keyword)}&limit=1&key=${longdoApiKey}`;
+                const response = await fetch(searchUrl);
+                const data = await response.json();
+
+                if (data && data.data && data.data.length > 0) {
+                    const lat = parseFloat(data.data[0].lat);
+                    const lon = parseFloat(data.data[0].lon);
+                    
+                    document.getElementById('latInput').value = lat.toFixed(5);
+                    document.getElementById('lonInput').value = lon.toFixed(5);
+                    
+                    map.setView([lat, lon], 14);
+                    showToast("พบสถานที่แล้ว กรุณากดปุ่ม ปักหมุด เพื่อเริ่มวิเคราะห์", "success");
+                } else {
+                    showToast("ไม่พบสถานที่ กรุณาลองใช้คำค้นหาที่สั้นลง หรือวางลิงก์ Google Maps", "error");
+                }
+            } catch (error) {
+                console.error(error);
+                showToast("เกิดข้อผิดพลาดในการเชื่อมต่อระบบค้นหาแผนที่", "error");
+            }
+        });
+
+        document.getElementById('searchPlaceInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchPlaceBtn').click();
+            }
+        });
+
+        const GAS_LIVE_PM25_PROXY = 'https://script.google.com/macros/s/AKfycby2OvLen-3AxfZH2mJ9f-63DClvUT5RuSbbNDuD1_T6SqStLKDYKVapnPOVj_ir_ogj-Q/exec';
+
+        window.handlePM25Toggle = function(cb) {
+            updateMeasurementTable();
+            const remarkDiv = document.getElementById('pm25-remark');
+            
+            if (cb.checked) {
+                remarkDiv.style.display = 'block';
+                document.getElementById('pm25-remark-content').innerHTML = 'กำลังดึงข้อมูลเปรียบเทียบจาก Open-Meteo และ Air4Thai...';
+                
+                if (currentIncidentData && currentIncidentData.lat) {
+                    fetchBackgroundPM25(currentIncidentData.lat, currentIncidentData.lon, false);
+                } else {
+                    showToast("กรุณาปักหมุดจุดเกิดเหตุก่อนดึงค่า PM2.5", "warning");
+                    document.getElementById('pm25-remark-content').innerHTML = '<span style="color: #dc2626;">กรุณาปักหมุดจุดเกิดเหตุก่อนครับ</span>';
+                }
+            } else {
+                remarkDiv.style.display = 'none';
+            }
+        };
+
+        async function fetchBackgroundPM25(lat, lon, preserveLoadedValues = false) {
+            showToast("กำลังดึงข้อมูล PM2.5 ในพื้นที่...", "info");
+            try {
+                const openMeteoReq = fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm2_5`).then(r => r.json()).catch(() => null);
+                const air4ThaiReq = fetch(`${GAS_LIVE_PM25_PROXY}?action=live_pm25`).then(r => r.json()).catch(() => null);
+                const geoReq = fetch(`https://api.longdo.com/map/services/address?lon=${lon}&lat=${lat}&key=${longdoApiKey}`).then(r => r.json()).catch(() => null);
+
+                const [meteoData, air4ThaiData, geoRes] = await Promise.all([openMeteoReq, air4ThaiReq, geoReq]);
+
+                let pm25Value = '-';
+                let meteoText = 'ไม่พบข้อมูล Open-Meteo';
+
+                if (meteoData && meteoData.current && meteoData.current.pm2_5 !== undefined) {
+                    pm25Value = meteoData.current.pm2_5;
+                    meteoText = `ค่าฝุ่น ณ เวลาปัจจุบัน (อ้างอิงพิกัดเกิดเหตุจาก Open-Meteo) = <b>${pm25Value} μg/m³</b>`;
+                    
+                    const hazardName = "PM<sub>2.5</sub>";
+                    if (!measurementData[hazardName]) {
+                        measurementData[hazardName] = { d05: '', d10: '', d15: '', d20: '', unit: 'μg/m³', std: '37.5 (24 ชม.)' };
+                    }
+                    
+                    if (!preserveLoadedValues) {
+                        measurementData[hazardName].d05 = pm25Value;
+                        measurementData[hazardName].d10 = pm25Value;
+                        measurementData[hazardName].d15 = pm25Value;
+                        measurementData[hazardName].d20 = pm25Value;
+                        measurementData[hazardName].unit = 'μg/m³';
+                    }
+                    
+                    updateMeasurementTable();
+                    showToast(`ดึงข้อมูล PM2.5 สำเร็จ (${pm25Value} μg/m³)`, "success");
+                }
+
+                let air4ThaiText = 'ไม่พบข้อมูลจากสถานี Air4Thai';
+
+                if (geoRes && geoRes.province) {
+                    let provName = geoRes.province.replace(/^จังหวัด/g, '').trim();
+                    provName = provName.replace(/^จ\./g, '').trim();
+                    
+                    if (air4ThaiData && air4ThaiData[provName]) {
+                        if (air4ThaiData[provName] !== 'Error') {
+                            const a4tValue = air4ThaiData[provName];
+                            air4ThaiText = `ค่าเฉลี่ย 24 ชม. (สถานีตรวจวัด Air4Thai จ.${provName}) = <b>${a4tValue} μg/m³</b>`;
+                        } else {
+                            air4ThaiText = `พบสถานี Air4Thai จ.${provName} แต่เครื่องมือขัดข้องหรือเซิร์ฟเวอร์ยังไม่ส่งข้อมูล`;
+                        }
+                    } else {
+                        air4ThaiText = `พิกัดอยู่นอกพื้นที่ สคพ.11 (จ.${provName}) จึงไม่ได้อ้างอิงข้อมูลสถานี Air4Thai`;
+                    }
+                }
+
+                document.getElementById('pm25-remark-content').innerHTML = `
+                    <ul style="margin-top: 5px; padding-left: 20px; list-style-type: disc;">
+                        <li>${meteoText}</li>
+                        <li>${air4ThaiText}</li>
+                    </ul>
+                `;
+
+            } catch (e) {
+                console.error(e);
+                showToast("เครือข่ายขัดข้อง ไม่สามารถดึงข้อมูลเปรียบเทียบได้", "error");
+                document.getElementById('pm25-remark-content').innerHTML = '<span style="color: #dc2626;">เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ข้อมูลฝุ่น</span>';
+            }
+        }
+
+    </script>
+</body>
+</html>
