@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 Longines HydroConquest 39mm Black — Research & Market Intelligence</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#fcfbfa',
+                            card: '#ffffff',
+                            slate: '#0f172a',
+                            subtle: '#f1f5f9',
+                            border: '#e2e8f0',
+                            gold: '#b45309',
+                            goldLight: '#fef3c7',
+                            accent: '#1e293b',
+                            blueBezel: '#1e3a8a',
+                            greyBezel: '#475569'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Cinzel', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-brand-bg text-slate-800 font-sans antialiased selection:bg-brand-goldLight selection:text-brand-gold">
+
+    <!-- Chosen Palette: Warm Neutral Luxury Horology (Warm Linen #fcfbfa, Slate #0f172a, Ivory Cards #ffffff, Muted Gold #b45309, Subtle Borders #e2e8f0) -->
+    <!-- Application Structure Plan: 
+         Designed as a high-density, interactive horological intelligence portal structured into 6 thematic sections:
+         1. Executive Overview & Reference Disambiguation (Interactive reference switcher, filterable matrix across generations and models).
+         2. Generational Evolution & Ergonomics (Interactive visual footprint comparison tool, detailed design critique breakdown, dynamic hotspot viewer).
+         3. Calibre L888.5 Architecture (Chart.js performance visualizer comparing beat rates/power reserves, amagnetic silicon analysis, timegrapher simulation).
+         4. 2026 Variant Matrix & Bracelet Strategy (Side-by-side interactive variant inspector, custom bundling cost calculator for OEM accessories).
+         5. Competitive Landscape (Radar comparison chart & sortable 7-watch technical matrix across Swatch Group and external rivals).
+         6. Global Pricing & Thailand Acquisition Hub (Interactive multi-currency calculator, interactive store finder for Nonthaburi/Bangkok with stacked discount calculator).
+         Rationale: Chronologically or report-mirrored formats force users to scroll through dense technical jargon. This dashboard structure allows collectors, analysts, and buyers to toggle fluidly between mechanical specs, ergonomics, financial value, and local purchase logistics.
+    -->
+    <!-- Visualization & Content Choices:
+         - Chart 1: Movement Beat Rate vs. Power Reserve Comparison (Chart.js Bar) -> Clear visual proof of L888.5's 3.5Hz / 72h balance.
+         - Chart 2: 7-Way Competitive Radar (Chart.js Radar) -> Holistic comparative analysis of price, thickness, power reserve, water resistance, and warranty.
+         - Interactive Footprint Tool: HTML/CSS custom layout with dynamic sliders to compare 39mm, 42mm, and lug spans.
+         - Dynamic Currency Switcher: JS-driven global recalculation (USD, THB, CHF, EUR, GBP).
+         - Custom Bundling Calculator: JS logic demonstrating the financial impact of separate OEM H-Link bracelet orders.
+         - NO SVG tags used. NO Mermaid JS used. All visual indicators built using styled HTML elements, Unicode symbols, and Chart.js canvas.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-50 bg-slate-900 text-white shadow-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Title -->
+                <div class="flex items-center space-x-3">
+                    <span class="text-xl font-bold font-serif tracking-wider text-amber-400">LONGINES</span>
+                    <span class="hidden sm:inline-block text-xs uppercase tracking-widest text-slate-400 border-l border-slate-700 pl-3">HydroConquest 39mm (2026) Report</span>
+                </div>
+
+                <!-- Global Currency Switcher -->
+                <div class="flex items-center space-x-2 bg-slate-800 p-1.5 rounded-lg border border-slate-700">
+                    <span class="text-xs font-medium text-slate-400 px-2 hidden md:inline">Currency:</span>
+                    <button onclick="setCurrency('USD')" id="btn-curr-USD" class="curr-btn px-2.5 py-1 text-xs font-mono font-semibold rounded bg-amber-500 text-slate-950 transition">USD ($)</button>
+                    <button onclick="setCurrency('THB')" id="btn-curr-THB" class="curr-btn px-2.5 py-1 text-xs font-mono font-semibold rounded text-slate-300 hover:text-white transition">THB (฿)</button>
+                    <button onclick="setCurrency('EUR')" id="btn-curr-EUR" class="curr-btn px-2.5 py-1 text-xs font-mono font-semibold rounded text-slate-300 hover:text-white transition">EUR (€)</button>
+                    <button onclick="setCurrency('CHF')" id="btn-curr-CHF" class="curr-btn px-2.5 py-1 text-xs font-mono font-semibold rounded text-slate-300 hover:text-white transition">CHF</button>
+                </div>
+            </div>
+
+            <!-- Scrollable Tab Bar -->
+            <nav class="flex space-x-1 sm:space-x-4 overflow-x-auto custom-scrollbar pb-2 pt-1 text-xs sm:text-sm font-medium border-t border-slate-800/60">
+                <button onclick="switchTab('tab-overview')" id="nav-tab-overview" class="tab-link px-3 py-1.5 rounded-md text-amber-400 bg-slate-800 whitespace-nowrap transition">1. Overview & References</button>
+                <button onclick="switchTab('tab-evolution')" id="nav-tab-evolution" class="tab-link px-3 py-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap transition">2. Evolution & Ergonomics</button>
+                <button onclick="switchTab('tab-movement')" id="nav-tab-movement" class="tab-link px-3 py-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap transition">3. Calibre L888.5</button>
+                <button onclick="switchTab('tab-variants')" id="nav-tab-variants" class="tab-link px-3 py-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap transition">4. Variants & Bundling</button>
+                <button onclick="switchTab('tab-competition')" id="nav-tab-competition" class="tab-link px-3 py-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap transition">5. Competitive Benchmark</button>
+                <button onclick="switchTab('tab-thailand')" id="nav-tab-thailand" class="tab-link px-3 py-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 whitespace-nowrap transition">6. Market & Thailand Hub</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ==========================================
+             SECTION 1: OVERVIEW & REFERENCE MATRIX
+             ========================================== -->
+        <section id="tab-overview" class="tab-content space-y-8">
+            <!-- Section Intro Paragraph -->
+            <div class="bg-white p-6 rounded-xl border border-brand-border shadow-sm">
+                <div class="flex items-center space-x-2 text-amber-700 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <span>Executive Summary & Catalog Disambiguation</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-serif font-bold text-slate-900 mb-3">
+                    The 2026 Longines HydroConquest 39mm Black Collection
+                </h1>
+                <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
+                    Unveiled on March 26, 2026, Longines' 3rd-generation HydroConquest overhaul fundamentally transforms its flagship 300m aquatic line. By discarding the aggressive, polarizing late-2000s design cues—such as oversized Arabic 6-9-12 numerals, wide slab crown guards, and non-standard 19mm lug widths—the new 39mm <span class="font-mono text-slate-900 font-semibold">L3.779.4</span> family establishes a refined, symmetrical, enthusiast-focused platform. Crucially, the 2026 catalog bifurcates movements by size: quartz options are now restricted to 42mm and 30mm cases, making the 39mm series an exclusively automatic mechanical offering.
+                </p>
+            </div>
+
+            <!-- Key Metric Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <span class="text-xs text-slate-500 uppercase font-medium">Case Diameter</span>
+                    <div class="text-xl font-bold font-mono text-slate-900 mt-1">39.00 mm</div>
+                    <span class="text-[10px] text-amber-700 font-medium">40.0mm bezel span</span>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <span class="text-xs text-slate-500 uppercase font-medium">Case Height</span>
+                    <div class="text-xl font-bold font-mono text-slate-900 mt-1">11.70 mm</div>
+                    <span class="text-[10px] text-emerald-600 font-medium"> Slimmer by 0.5mm</span>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <span class="text-xs text-slate-500 uppercase font-medium">Lug Width</span>
+                    <div class="text-xl font-bold font-mono text-slate-900 mt-1">20.00 mm</div>
+                    <span class="text-[10px] text-emerald-600 font-medium"> Universal strap sizing</span>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <span class="text-xs text-slate-500 uppercase font-medium">Power Reserve</span>
+                    <div class="text-xl font-bold font-mono text-slate-900 mt-1">72 Hours</div>
+                    <span class="text-[10px] text-slate-500">Calibre L888.5 (3.5Hz)</span>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center col-span-2 md:col-span-1">
+                    <span class="text-xs text-slate-500 uppercase font-medium">Base Price (MSRP)</span>
+                    <div class="text-xl font-bold font-mono text-amber-700 mt-1 val-price-2200">$2,200 USD</div>
+                    <span class="text-[10px] text-slate-500">5-Year Warranty</span>
+                </div>
+            </div>
+
+            <!-- Interactive Reference Disambiguation Table -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold font-serif text-slate-900">Reference Catalog Disambiguation (2026 vs Legacy)</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Filter active global market inventory across 3rd Gen, 2nd Gen, and legacy models.</p>
+                    </div>
+                    <!-- Filter Buttons -->
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        <button onclick="filterReferences('all')" id="ref-filter-all" class="ref-btn px-3 py-1.5 rounded-lg font-medium bg-slate-900 text-white">All Models</button>
+                        <button onclick="filterReferences('3rd')" id="ref-filter-3rd" class="ref-btn px-3 py-1.5 rounded-lg font-medium bg-slate-100 text-slate-700 hover:bg-slate-200">2026 (3rd Gen)</button>
+                        <button onclick="filterReferences('legacy')" id="ref-filter-legacy" class="ref-btn px-3 py-1.5 rounded-lg font-medium bg-slate-100 text-slate-700 hover:bg-slate-200">Legacy / Grey Market</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-3">Reference Number</th>
+                                <th class="p-3">Gen & Era</th>
+                                <th class="p-3">Dial & Bezel Config</th>
+                                <th class="p-3">Movement / Spring</th>
+                                <th class="p-3">Dimensions (D×T×L2L)</th>
+                                <th class="p-3">Lug</th>
+                                <th class="p-3">Bracelet / Clasp</th>
+                                <th class="p-3">Global MSRP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reference-tbody" class="divide-y divide-slate-100 font-mono">
+                            <!-- Populated via Javascript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-3 bg-slate-50 text-[11px] text-slate-500 border-t border-slate-200 flex justify-between items-center">
+                    <span>◆ Indicates actively produced 2026 core collection references.</span>
+                    <span>All 2026 39mm models include silicon hairsprings & 5-year warranty.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SECTION 2: EVOLUTION & ERGONOMICS
+             ========================================== -->
+        <section id="tab-evolution" class="tab-content hidden space-y-8">
+            <!-- Section Intro Paragraph -->
+            <div class="bg-white p-6 rounded-xl border border-brand-border shadow-sm">
+                <div class="flex items-center space-x-2 text-amber-700 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <span>Structural Engineering & Wrist Ergonomics</span>
+                </div>
+                <h2 class="text-2xl font-serif font-bold text-slate-900 mb-3">
+                    Generational Refinement: Correcting Iconic Criticisms
+                </h2>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    The shift from the outgoing <span class="font-mono text-slate-900 font-semibold">L3.780.4</span> to the 2026 <span class="font-mono text-slate-900 font-semibold">L3.779.4</span> addresses nearly every point of enthusiast feedback accumulated over the past decade. By pairing an ultra-thin 3.85mm ETA 2892-derived movement with a re-contoured mid-case and recessed planisphere caseback, Longines reduced physical case height to 11.70mm. The introduction of universal 20mm lug spacing, streamlined crown guards, a 120-click Ultra-Chron bezel mechanism, and high-gloss black lacquer dial furniture elevates the HydroConquest into a modern dress-diver platform.
+                </p>
+            </div>
+
+            <!-- Dynamic Dimension & Footprint Comparator -->
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="text-lg font-bold font-serif text-slate-900 mb-2">Interactive Visual Footprint & Dimension Comparator</h3>
+                <p class="text-xs text-slate-500 mb-6">Compare wrist presence, bezel overhang, and case profile between 2026 39mm, 2026 42mm, and legacy models.</p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Interactive Controls -->
+                    <div class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <span class="text-xs font-semibold uppercase text-slate-700">Select Model to Inspect:</span>
+                        <div class="space-y-2 text-xs">
+                            <label class="flex items-center space-x-2 p-2 rounded bg-white border border-slate-200 cursor-pointer hover:border-amber-500">
+                                <input type="radio" name="footprint-model" value="39gen3" checked onchange="updateFootprintVisual()">
+                                <div>
+                                    <div class="font-bold text-slate-900">2026 39mm (Ref. L3.779.4)</div>
+                                    <div class="text-[11px] text-slate-500">39mm case / 40mm bezel / 11.7mm thick / 20mm lug</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-2 rounded bg-white border border-slate-200 cursor-pointer hover:border-amber-500">
+                                <input type="radio" name="footprint-model" value="39gen2" onchange="updateFootprintVisual()">
+                                <div>
+                                    <div class="font-bold text-slate-900">2021-2025 39mm (Ref. L3.780.4)</div>
+                                    <div class="text-[11px] text-slate-500">39mm case / 39mm bezel / 12.2mm thick / 19mm lug</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-2 rounded bg-white border border-slate-200 cursor-pointer hover:border-amber-500">
+                                <input type="radio" name="footprint-model" value="42gen3" onchange="updateFootprintVisual()">
+                                <div>
+                                    <div class="font-bold text-slate-900">2026 42mm (Ref. L3.788.4)</div>
+                                    <div class="text-[11px] text-slate-500">42mm case / 43mm bezel / 11.9mm thick / 21mm lug</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Visual Representation Graphic -->
+                    <div class="lg:col-span-2 bg-slate-900 text-white p-6 rounded-xl flex flex-col justify-between relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="text-xs uppercase font-mono text-amber-400" id="fp-title">2026 39mm Generation 3</span>
+                                <div class="text-2xl font-bold font-serif" id="fp-specs">39.0mm × 11.70mm Profile</div>
+                            </div>
+                            <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] px-2.5 py-1 rounded-full font-mono" id="fp-tag">Wears like 40mm</span>
+                        </div>
+
+                        <!-- Graphical Case Outline Simulation -->
+                        <div class="my-6 flex items-center justify-center">
+                            <div id="fp-box-outer" class="border-2 border-amber-400/60 rounded-full flex items-center justify-center relative transition-all duration-300" style="width: 200px; height: 200px;">
+                                <div class="text-[10px] font-mono text-amber-300 absolute -top-5">Bezel Overhang: <span id="fp-bezel-text">40.0 mm</span></div>
+                                <div id="fp-box-inner" class="border-2 border-dashed border-slate-400 rounded-full flex items-center justify-center transition-all duration-300" style="width: 190px; height: 190px;">
+                                    <div class="text-center font-mono">
+                                        <div class="text-xs text-slate-300" id="fp-case-text">Case: 39.0 mm</div>
+                                        <div class="text-sm font-bold text-amber-400 mt-1" id="fp-l2l-text">L2L: 48.10 mm</div>
+                                    </div>
+                                </div>
+                                <div class="absolute -left-12 text-[10px] font-mono text-slate-400 rotate-90">Lug Width: <span id="fp-lug-text">20 mm</span></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono bg-slate-800/80 p-3 rounded-lg border border-slate-700">
+                            <div>
+                                <div class="text-slate-400 text-[10px]">THICKNESS</div>
+                                <div class="text-amber-400 font-bold" id="fp-stat-thick">11.70 mm</div>
+                            </div>
+                            <div>
+                                <div class="text-slate-400 text-[10px]">WEIGHT (FULL LINK)</div>
+                                <div class="text-slate-200 font-bold" id="fp-stat-weight">167.0 g</div>
+                            </div>
+                            <div>
+                                <div class="text-slate-400 text-[10px]">EFFECTIVE WRIST</div>
+                                <div class="text-emerald-400 font-bold" id="fp-stat-wrist">16.0–18.0 cm</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deep Dive Feature Analysis & Enthusiast Critiques -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Feature Improvements -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-base font-bold font-serif text-slate-900 border-b border-slate-100 pb-2 flex items-center justify-between">
+                        <span>Key Design Upgrades</span>
+                        <span class="text-xs font-sans text-emerald-600 font-semibold">◆ Certified Enhancements</span>
+                    </h3>
+                    <ul class="space-y-3 text-xs text-slate-600">
+                        <li class="flex items-start space-x-2">
+                            <span class="text-amber-600 font-bold mt-0.5">▪</span>
+                            <div>
+                                <strong class="text-slate-900">Polished Black Lacquer Dial:</strong> Replaces the radial sunray pattern with an inky, high-gloss surface providing rich optical depth and contrast.
+                            </div>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-amber-600 font-bold mt-0.5">▪</span>
+                            <div>
+                                <strong class="text-slate-900">Symmetrical Geometric Indices:</strong> Replaces oversized 6-9-12 numerals with 11 applied rhodium-plated markers (inverted triangle @ 12, circles @ 6/9, batons).
+                            </div>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-amber-600 font-bold mt-0.5">▪</span>
+                            <div>
+                                <strong class="text-slate-900">Encapsulated Lume Capsule:</strong> Flush 12 o'clock ceramic bezel capsule replaces vulnerable raised pips. Powered by Ultra-Chron 120-click ratcheting assembly.
+                            </div>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-amber-600 font-bold mt-0.5">▪</span>
+                            <div>
+                                <strong class="text-slate-900">Planisphere Caseback:</strong> Elaborate world globe grid engraving replaces standard relief, maintaining flat 300m profile.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Enthusiast Design Critiques -->
+                <div class="bg-amber-50/50 p-6 rounded-xl border border-amber-200 shadow-sm space-y-4">
+                    <h3 class="text-base font-bold font-serif text-slate-900 border-b border-amber-200 pb-2 flex items-center justify-between">
+                        <span>Collector & Critical Feedback</span>
+                        <span class="text-xs font-sans text-amber-800 font-semibold">▲ Critical Observations</span>
+                    </h3>
+                    <ul class="space-y-3 text-xs text-slate-700">
+                        <li class="flex items-start space-x-2">
+                            <span class="text-amber-700 font-bold mt-0.5">▲</span>
+                            <div>
+                                <strong class="text-slate-900">Clunky Depth Text Formatting:</strong> Retains `"30bar [300meter]"` text at 6 o'clock. Square brackets and awkward kerning clash with the elevated lacquer dial.
+                            </div>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-amber-700 font-bold mt-0.5">▲</span>
+                            <div>
+                                <strong class="text-slate-900">5 Simultaneous Geometric Shapes:</strong> Triangles, circles, batons, rectangular date, diamond hour hand, and sword hands lead critics to compare layout to shape-sorter toys.
+                            </div>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-amber-700 font-bold mt-0.5">▲</span>
+                            <div>
+                                <strong class="text-slate-900">White Date Wheel Contrast:</strong> Unframed white date disc at 3 o'clock causes debate among purists preferring color-matched black discs.
+                            </div>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-amber-700 font-bold mt-0.5">▲</span>
+                            <div>
+                                <strong class="text-slate-900">Specular Reflections:</strong> High-gloss lacquer, double AR coating, and polished ceramic create high reflectivity under direct sunlight.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SECTION 3: CALIBRE L888.5 MOVEMENT
+             ========================================== -->
+        <section id="tab-movement" class="tab-content hidden space-y-8">
+            <!-- Section Intro Paragraph -->
+            <div class="bg-white p-6 rounded-xl border border-brand-border shadow-sm">
+                <div class="flex items-center space-x-2 text-amber-700 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <span>Horological Architecture & Engineering</span>
+                </div>
+                <h2 class="text-2xl font-serif font-bold text-slate-900 mb-3">
+                    Calibre L888.5: The Silicon-Hearted Engine
+                </h2>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    Beating beneath the planisphere caseback is the Swatch Group-exclusive **Calibre L888.5** (ETA A31.L11). Derived from the ultra-slim ETA 2892-A2 platform (3.85mm thickness) rather than thicker ETA 2824 workhorses, the movement operates at a custom **3.5 Hz cadence (25,200 vph)**. This cadence preserves a smooth 7-beat-per-second sweep while delivering a **72-hour (3-day) power reserve**. Enhanced with a monocrystalline silicon hairspring, the caliber delivers 10x ISO 764 magnetic resistance (~600 Gauss) and is backed by a 5-year warranty.
+                </p>
+            </div>
+
+            <!-- Chart & Technical Breakdown Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+                <!-- Chart Container -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold font-serif text-slate-900">Cadence vs. Power Reserve Benchmark</h3>
+                        <p class="text-xs text-slate-500 mb-4">How L888.5's 25,200 vph cadence balances sweep smoothness against power reserve.</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="movementChart"></canvas>
+                    </div>
+                    <div class="text-[11px] text-slate-500 text-center mt-2">
+                        *L888.5 achieves 3 full days of autonomy without slowing to 3.0Hz (6 beats/sec).
+                    </div>
+                </div>
+
+                <!-- Technical Specs List -->
+                <div class="space-y-4">
+                    <div class="bg-slate-900 text-white p-6 rounded-xl space-y-4">
+                        <h3 class="text-base font-serif font-bold text-amber-400 border-b border-slate-800 pb-2">
+                            Calibre L888.5 Specifications
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4 text-xs font-mono">
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">BASE ARCHITECTURE</span>
+                                <span class="text-slate-200 font-semibold">ETA 2892-A2 / A31.L11</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">MOVEMENT HEIGHT</span>
+                                <span class="text-emerald-400 font-semibold">3.85 mm</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">JEWEL COUNT</span>
+                                <span class="text-slate-200 font-semibold">21 Jewels</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">BEAT RATE</span>
+                                <span class="text-amber-400 font-semibold">25,200 VPH (3.5 Hz)</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">BALANCE SPRING</span>
+                                <span class="text-emerald-400 font-semibold">Monocrystalline Silicon</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">REGULATION</span>
+                                <span class="text-slate-200 font-semibold">Free-Sprung Variable Inertia</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empirical Accuracy Module -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">Empirical Precision Data</h4>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded">Chronometer Grade</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                                <span class="text-slate-500 text-[10px] block">6-POSITION TIMEGRAPHER</span>
+                                <span class="font-mono font-bold text-slate-900 text-sm">-4 to +6 s/day</span>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                                <span class="text-slate-500 text-[10px] block">REAL-WORLD WRIST WEAR</span>
+                                <span class="font-mono font-bold text-emerald-700 text-sm">+0 to +4 s/day</span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500">
+                            Includes instantaneous midnight date jump and high isochronism across full 72-hour wind down.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SECTION 4: VARIANTS & BRACELET STRATEGY
+             ========================================== -->
+        <section id="tab-variants" class="tab-content hidden space-y-8">
+            <!-- Section Intro Paragraph -->
+            <div class="bg-white p-6 rounded-xl border border-brand-border shadow-sm">
+                <div class="flex items-center space-x-2 text-amber-700 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <span>Variant Catalog & Accessory Commercial Strategy</span>
+                </div>
+                <h2 class="text-2xl font-serif font-bold text-slate-900 mb-3">
+                    2026 Black Reference Lineup & The Bundling Dilemma
+                </h2>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    Longines launched three distinct 39mm black-dial configurations alongside a limited-edition Commonwealth Games variant. However, the commercial strategy creates a dilemma for collectors: the monochromatic black reference (<span class="font-mono text-slate-900 font-semibold">L3.779.4.56.6</span>) is sold **exclusively on the brushed H-link steel bracelet**, while the two bicolor models—slate grey ceramic (<span class="font-mono text-slate-900 font-semibold">.70.6</span>) and luminous blue ceramic (<span class="font-mono text-slate-900 font-semibold">.90.6</span>)—are sold **exclusively on Milanese mesh**.
+                </p>
+            </div>
+
+            <!-- Variant Matrix & Interactive Cost Calculator -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Variant Selection Tabs -->
+                <div class="space-y-3">
+                    <div onclick="selectVariant('56')" id="var-card-56" class="p-4 rounded-xl border-2 border-amber-500 bg-white cursor-pointer shadow-sm transition">
+                        <div class="flex justify-between items-start">
+                            <span class="font-mono font-bold text-xs text-amber-800">L3.779.4.56.6</span>
+                            <span class="text-xs font-bold text-slate-900 val-price-2200">$2,200</span>
+                        </div>
+                        <div class="text-sm font-bold text-slate-900 mt-1">Monochromatic All-Black</div>
+                        <div class="text-xs text-slate-500 mt-1">Black Ceramic Bezel / Brushed H-Link Bracelet (Micro-Adjust)</div>
+                    </div>
+
+                    <div onclick="selectVariant('70')" id="var-card-70" class="p-4 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition">
+                        <div class="flex justify-between items-start">
+                            <span class="font-mono font-bold text-xs text-slate-600">L3.779.4.70.6</span>
+                            <span class="text-xs font-bold text-slate-900 val-price-2400">$2,400</span>
+                        </div>
+                        <div class="text-sm font-bold text-slate-900 mt-1">Slate Grey Ceramic Bezel</div>
+                        <div class="text-xs text-slate-500 mt-1">Muted Grey Ceramic / Tapered Milanese Mesh Bracelet</div>
+                    </div>
+
+                    <div onclick="selectVariant('90')" id="var-card-90" class="p-4 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-slate-300 transition">
+                        <div class="flex justify-between items-start">
+                            <span class="font-mono font-bold text-xs text-slate-600">L3.779.4.90.6</span>
+                            <span class="text-xs font-bold text-slate-900 val-price-2400">$2,400</span>
+                        </div>
+                        <div class="text-sm font-bold text-slate-900 mt-1">Luminous Blue Bezel</div>
+                        <div class="text-xs text-slate-500 mt-1">Campaign Hero Model / Tapered Milanese Mesh Bracelet</div>
+                    </div>
+                </div>
+
+                <!-- Detailed Variant & Accessories Inspector -->
+                <div class="lg:col-span-2 bg-slate-900 text-white p-6 rounded-xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <div>
+                                <span class="text-xs uppercase font-mono text-amber-400" id="var-detail-ref">Ref. L3.779.4.56.6</span>
+                                <h3 class="text-xl font-serif font-bold text-white" id="var-detail-name">Monochromatic All-Black Edition</h3>
+                            </div>
+                            <span class="text-lg font-mono font-bold text-amber-400" id="var-detail-msrp">$2,200 USD</span>
+                        </div>
+
+                        <!-- Dynamic Config Description -->
+                        <div class="my-4 text-xs text-slate-300 leading-relaxed space-y-2" id="var-detail-desc">
+                            Pairs the polished black lacquer dial with a matching black ceramic bezel insert. Factory-equipped with the redesigned brushed H-link bracelet featuring solid female end-links and 4-step (5mm) toolless micro-adjustment.
+                        </div>
+
+                        <!-- Bundling Cost Calculation Tool -->
+                        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 space-y-3 my-4">
+                            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">OEM Accessory Bundling Calculator</span>
+                            <p class="text-[11px] text-slate-400">
+                                Desire the Slate Grey or Blue bezel on the H-link steel bracelet? OEM H-Link bracelets must be ordered separately via Swatch Group spare parts (~$425 USD / ฿15,000 THB).
+                            </p>
+                            <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-700/80 font-mono">
+                                <span>Base Watch MSRP:</span>
+                                <span id="calc-base-price" class="text-slate-200">$2,200 USD</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs font-mono">
+                                <span>Add OEM 20mm H-Link Bracelet:</span>
+                                <span class="text-amber-400">+$425 USD</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm font-mono font-bold text-emerald-400 pt-2 border-t border-slate-700">
+                                <span>Total Bundle Investment:</span>
+                                <span id="calc-total-price">$2,200 USD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-[11px] text-slate-400 italic">
+                        * Recommendation: The all-black L3.779.4.56.6 on H-Link represents the most cohesive, versatile, and financially logical purchase in the 2026 catalog.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SECTION 5: COMPETITIVE BENCHMARK
+             ========================================== -->
+        <section id="tab-competition" class="tab-content hidden space-y-8">
+            <!-- Section Intro Paragraph -->
+            <div class="bg-white p-6 rounded-xl border border-brand-border shadow-sm">
+                <div class="flex items-center space-x-2 text-amber-700 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <span>Market Position & Horological Competitors</span>
+                </div>
+                <h2 class="text-2xl font-serif font-bold text-slate-900 mb-3">
+                    7-Way Comparative Analysis: $1,000 – $4,000 Category
+                </h2>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    The $1,000 to $3,000 dive watch segment is one of the most competitive markets in watchmaking. By leveraging Swatch Group's industrial scale, Longines delivers standard silicon technology, 72-hour power reserves, and 11.7mm ergonomics at $2,200—undercutting direct rivals like Oris while providing an alternative to the Tudor Black Bay 58 (~$4,000+) at roughly 55% of the price.
+                </p>
+            </div>
+
+            <!-- Radar Chart & Comparison Table Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Chart Container -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-bold font-serif text-slate-900">Multi-Metric Radar Comparison</h3>
+                        <p class="text-xs text-slate-500 mb-4">Normalized score comparison across key value metrics (Higher = Better).</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                    <div class="text-[11px] text-slate-500 text-center mt-2">
+                        Compares Longines 39 against Tudor BB58 and Mido Ocean Star 39.
+                    </div>
+                </div>
+
+                <!-- Comprehensive Sortable Table -->
+                <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+                    <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="text-base font-bold font-serif text-slate-900">Competitive Benchmark Matrix</h3>
+                        <span class="text-xs text-slate-500 font-mono">7 Key Models Analyzed</span>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200">
+                                    <th class="p-3">Model</th>
+                                    <th class="p-3">Case Specs (D×T)</th>
+                                    <th class="p-3">WR</th>
+                                    <th class="p-3">Movement & Cadence</th>
+                                    <th class="p-3">Power Res.</th>
+                                    <th class="p-3">Clasp & Microadjust</th>
+                                    <th class="p-3">Retail Price</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-mono text-[11px]">
+                                <tr class="bg-amber-50/60 font-semibold">
+                                    <td class="p-3 text-amber-900">Longines HydroConquest 39</td>
+                                    <td class="p-3">39.0 × 11.7mm</td>
+                                    <td class="p-3">300m</td>
+                                    <td class="p-3">L888.5 (25.2k vph, Si)</td>
+                                    <td class="p-3 text-emerald-700">72 Hours</td>
+                                    <td class="p-3">Toolless 4-Step (5mm)</td>
+                                    <td class="p-3 text-amber-800 font-bold val-price-2200">$2,200</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-slate-900">Mido Ocean Star 39</td>
+                                    <td class="p-3">39.0 × 10.5mm</td>
+                                    <td class="p-3 text-slate-500">200m</td>
+                                    <td class="p-3">Cal 72 (25.2k vph, Ti)</td>
+                                    <td class="p-3">72 Hours</td>
+                                    <td class="p-3">Sliding Extension</td>
+                                    <td class="p-3 val-price-1150">$1,150</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-slate-900">Certina DS Action 38</td>
+                                    <td class="p-3">38.0 × 12.2mm</td>
+                                    <td class="p-3">300m</td>
+                                    <td class="p-3">Powermatic 80 (21.6k vph)</td>
+                                    <td class="p-3 text-emerald-700">80 Hours</td>
+                                    <td class="p-3">Pressed / Push Clasp</td>
+                                    <td class="p-3 val-price-900">$835–$1,100</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-slate-900">CW C60 Trident Pro 300</td>
+                                    <td class="p-3">38/40 × 11.0mm</td>
+                                    <td class="p-3">300m</td>
+                                    <td class="p-3">Sellita SW200-1 (28.8k)</td>
+                                    <td class="p-3 text-rose-600">38 Hours</td>
+                                    <td class="p-3">Toolless Micro-adjust</td>
+                                    <td class="p-3 val-price-1250">$1,250</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-slate-900">Oris Aquis Date 39.5</td>
+                                    <td class="p-3">39.5 × 12.6mm</td>
+                                    <td class="p-3">300m</td>
+                                    <td class="p-3">Oris 733 / SW200-1 (28.8k)</td>
+                                    <td class="p-3 text-rose-600">38 Hours</td>
+                                    <td class="p-3">Folding Extension</td>
+                                    <td class="p-3 val-price-2300">$2,300</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-slate-900">Seiko Prospex SPB453</td>
+                                    <td class="p-3">40.0 × 13.0mm</td>
+                                    <td class="p-3">300m</td>
+                                    <td class="p-3">6R55 (21.6k vph)</td>
+                                    <td class="p-3">72 Hours</td>
+                                    <td class="p-3 text-rose-600">Pin-Adjust (No OTF)</td>
+                                    <td class="p-3 val-price-1300">$1,300</td>
+                                </tr>
+                                <tr class="bg-slate-50">
+                                    <td class="p-3 font-semibold text-slate-900">Tudor Black Bay 58</td>
+                                    <td class="p-3">39.0 × 11.9mm</td>
+                                    <td class="p-3 text-slate-500">200m</td>
+                                    <td class="p-3">MT5402 (28.8k vph, Si)</td>
+                                    <td class="p-3">70 Hours</td>
+                                    <td class="p-3">T-fit Micro-adjust</td>
+                                    <td class="p-3 text-slate-900 font-bold val-price-4000">$4,000+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-3 bg-slate-50 text-[11px] text-slate-500 border-t border-slate-100">
+                        * Longines L888.5 offers silicon hairspring technology & 72-hour reserve at nearly half Tudor's price point.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SECTION 6: MARKET & THAILAND ACQUISITION
+             ========================================== -->
+        <section id="tab-thailand" class="tab-content hidden space-y-8">
+            <!-- Section Intro Paragraph -->
+            <div class="bg-white p-6 rounded-xl border border-brand-border shadow-sm">
+                <div class="flex items-center space-x-2 text-amber-700 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <span>Global Pricing & Regional Purchasing Guide</span>
+                </div>
+                <h2 class="text-2xl font-serif font-bold text-slate-900 mb-3">
+                    Thailand Retail Ecosystem & Discount Strategy
+                </h2>
+                <p class="text-slate-600 leading-relaxed text-sm">
+                    In Thailand, the 2026 HydroConquest 39mm H-link (<span class="font-mono text-slate-900 font-semibold">L3.779.4.56.6</span>) carries an official MSRP of **฿72,200 THB** (inclusive of 7% VAT). For buyers in Nonthaburi and Greater Bangkok, strategic purchasing through Central Department Store counters (e.g., Central WestGate in Bang Yai) allows stacking seasonal event discounts (Central Midnight Sale / Watch Fair) with The 1 points and 0% 10-month credit card installments—reducing the net price down to **฿61,000–฿65,000 THB** ($1,800–$1,920 USD).
+                </p>
+            </div>
+
+            <!-- Thailand Stacked Discount Calculator -->
+            <div class="bg-slate-900 text-white p-6 rounded-xl shadow-sm space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <span class="text-xs font-mono text-amber-400 uppercase">Interactive Thai Retail Price Stack</span>
+                        <h3 class="text-xl font-serif font-bold text-white">Central Department Store Optimization Tool</h3>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 block">THAI LIST MSRP</span>
+                        <span class="text-xl font-mono font-bold text-slate-200">฿72,200 THB</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Step 1: Promotion -->
+                    <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 space-y-2">
+                        <span class="text-xs text-amber-400 font-bold uppercase">1. Counter Fair Discount</span>
+                        <select id="th-disc-rate" onchange="calcThaiPrice()" class="w-full bg-slate-900 text-white border border-slate-700 rounded p-2 text-xs font-mono">
+                            <option value="0.05">5% Standard Counter Discount</option>
+                            <option value="0.10" selected>10% Midnight Sale / Watch Fair</option>
+                            <option value="0.12">12% Double-Digit Date Campaign</option>
+                        </select>
+                        <span class="text-[11px] text-slate-400 block">Applied directly at Central department store counters.</span>
+                    </div>
+
+                    <!-- Step 2: Points -->
+                    <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 space-y-2">
+                        <span class="text-xs text-amber-400 font-bold uppercase">2. The 1 Card / Cash Back</span>
+                        <select id="th-card-cb" onchange="calcThaiPrice()" class="w-full bg-slate-900 text-white border border-slate-700 rounded p-2 text-xs font-mono">
+                            <option value="0">No Points / Credit Card Cashback</option>
+                            <option value="1500" selected>Standard Credit Card Cashback (-฿1,500)</option>
+                            <option value="3000">The 1 Point Redemption (-฿3,000)</option>
+                        </select>
+                        <span class="text-[11px] text-slate-400 block">Thai credit card 0% 10-mo installment perk.</span>
+                    </div>
+
+                    <!-- Output Box -->
+                    <div class="bg-amber-500/10 border border-amber-500/40 p-4 rounded-lg flex flex-col justify-between">
+                        <span class="text-xs text-amber-300 font-bold uppercase">Estimated Net Outlay</span>
+                        <div>
+                            <div id="th-net-thb" class="text-2xl font-mono font-bold text-amber-400">฿63,480 THB</div>
+                            <div id="th-net-usd" class="text-xs font-mono text-slate-300">~$1,870 USD equivalent</div>
+                        </div>
+                        <span class="text-[10px] text-emerald-400">Includes 5-Year Swatch Group Official Warranty</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Store & Retail Hub Locator -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold font-serif text-slate-900">Authorized Retailers & Service Hubs (Nonthaburi & Bangkok)</h3>
+                        <p class="text-xs text-slate-500">Filter official retail locations, flagship boutiques, and service centers.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        <button onclick="filterStores('all')" id="st-filter-all" class="st-btn px-3 py-1 rounded-lg font-medium bg-slate-900 text-white">All Locations</button>
+                        <button onclick="filterStores('nonthaburi')" id="st-filter-nonthaburi" class="st-btn px-3 py-1 rounded-lg font-medium bg-slate-100 text-slate-700 hover:bg-slate-200">Nonthaburi / Bang Yai</button>
+                        <button onclick="filterStores('bangkok')" id="st-filter-bangkok" class="st-btn px-3 py-1 rounded-lg font-medium bg-slate-100 text-slate-700 hover:bg-slate-200">Central Bangkok</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5" id="store-grid">
+                    <!-- Populated via Javascript -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-12 py-8 text-xs font-mono">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <span class="text-slate-200 font-bold font-serif">LONGINES HYDROCONQUEST 39MM (2026) RESEARCH PORTAL</span>
+                <p class="text-[11px] text-slate-500 mt-0.5">The Siam Times’ Comprehensive Technical, Ergonomic & Market Intelligence Analysis</p>
+            </div>
+            <div class="text-right text-[11px] text-slate-500">
+                <span>Data Current as of October 2026</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Global State Management
+        let currentCurrency = 'USD';
+        const exchangeRates = {
+            USD: 1.0,
+            THB: 34.0,
+            EUR: 0.92,
+            CHF: 0.85
+        };
+        const currencySymbols = {
+            USD: '$',
+            THB: '฿',
+            EUR: '€',
+            CHF: 'CHF '
+        };
+
+        // Reference Catalog Data
+        const referencesData = [
+            { ref: 'L3.779.4.56.6', gen: '3rd Gen (2026)', desc: 'Polished Black Lacquer / Black Ceramic', mov: 'Cal. L888.5 (72h, Si)', dim: '39.0×11.70×48.1', lug: '20mm', brac: 'Brushed H-Link (Micro-adjust)', msrpUSD: 2200, category: '3rd', core: true },
+            { ref: 'L3.779.4.70.6', gen: '3rd Gen (2026)', desc: 'Polished Black Lacquer / Slate Grey Ceramic', mov: 'Cal. L888.5 (72h, Si)', dim: '39.0×11.70×48.1', lug: '20mm', brac: 'Milanese Mesh (Micro-adjust)', msrpUSD: 2400, category: '3rd', core: true },
+            { ref: 'L3.779.4.90.6', gen: '3rd Gen (2026)', desc: 'Polished Black Lacquer / Blue Ceramic', mov: 'Cal. L888.5 (72h, Si)', dim: '39.0×11.70×48.1', lug: '20mm', brac: 'Milanese Mesh (Micro-adjust)', msrpUSD: 2400, category: '3rd', core: true },
+            { ref: 'L3.779.4.09.9', gen: '3rd Gen LE (2026)', desc: 'Commonwealth Rainbow / Black Ceramic', mov: 'Cal. L888.5 (72h, Si)', dim: '39.0×11.70×48.1', lug: '20mm', brac: 'Black Rubber (Micro-adjust)', msrpUSD: 2400, category: '3rd', core: false },
+            { ref: 'L3.780.4.56.6', gen: '2nd Gen (2021–25)', desc: 'Sunray Black (6-9-12) / Black Ceramic', mov: 'Cal. L888.5 (72h, Si)', dim: '39.0×12.20×48.1', lug: '19mm', brac: '3-Link Steel (Pin-hole)', msrpUSD: 2000, category: 'legacy', core: false },
+            { ref: 'L3.741.4.56.6', gen: '1st/2nd Gen Alum', desc: 'Sunray Black (6-9-12) / Black Aluminum', mov: 'Cal. L888.2 (64h)', dim: '39.0×11.85×48.0', lug: '20mm', brac: '3-Link Steel (Fold-over)', msrpUSD: 1600, category: 'legacy', core: false },
+            { ref: 'L3.730.4.56.6', gen: 'Legacy Quartz', desc: 'Sunray Black (6-9-12) / Black Aluminum', mov: 'Cal. L157 Quartz', dim: '39.0×10.00×48.0', lug: '20mm', brac: '3-Link Steel (Fold-over)', msrpUSD: 1250, category: 'legacy', core: false }
+        ];
+
+        // Store Network Data
+        const storesData = [
+            { name: 'Longines Central WestGate', region: 'nonthaburi', addr: 'Kanchanaphisek Rd, Sao Thong Hin, Bang Yai, Nonthaburi 11140', phone: '+66 2 102 7999', hours: '10:00–22:00 Daily', note: 'Primary Nonthaburi Hub near Bang Bua Thong. Full Central Midnight Sale & 0% bank perks.' },
+            { name: 'Longines Central Pinklao', region: 'bangkok', addr: 'Borommaratchachonnani Rd, Bangkok Noi, Bangkok 10700', phone: '+66 2 802 9000', hours: '10:00–22:00 Daily', note: 'Western Bangkok Hub. Easy access via Kanchanaphisek corridor.' },
+            { name: 'Longines Central Ladprao', region: 'bangkok', addr: 'Phahonyothin Rd, Chatuchak, Bangkok 10900', phone: '+66 2 793 6000', hours: '10:00–22:00 Daily', note: 'Major Northern Bangkok watch hub with high stock rotation.' },
+            { name: 'Longines Central World / Pendulum', region: 'bangkok', addr: 'Ratchadamri Rd, Pathumwan, Bangkok 10330', phone: '+66 2 640 7000', hours: '10:00–22:00 Daily', note: 'Allows side-by-side comparison between Central Dept Store and Pendulum AD.' },
+            { name: 'Longines Boutique – One Bangkok', region: 'bangkok', addr: 'Wireless Rd, Lumphini, Pathumwan, Bangkok 10330', phone: '+66 2 000 1148', hours: '11:00–20:00 Daily', note: 'Flagship Corporate Boutique for exclusive boutique allocations.' },
+            { name: 'Swatch Group Customer Service', region: 'bangkok', addr: '4th Fl, M. Thai Tower, All Seasons Place, Wireless Rd, Bangkok', phone: '+66 2 610 0200', hours: 'M–F 09:00–18:00', note: 'Official Service Center for ordering OEM 20mm H-Link bracelets (~฿15,000 THB).' }
+        ];
+
+        // Footprint Comparator Models Data
+        const footprintData = {
+            '39gen3': { title: '2026 39mm Generation 3 (Ref. L3.779.4)', specs: '39.0mm × 11.70mm Profile', tag: 'Wears like 40mm', bezel: '40.0 mm', case: 'Case: 39.0 mm', l2l: 'L2L: 48.10 mm', lug: '20 mm', thick: '11.70 mm', weight: '167.0 g', wrist: '16.0–18.0 cm', outerSize: 200, innerSize: 190 },
+            '39gen2': { title: '2021–2025 39mm Generation 2 (Ref. L3.780.4)', specs: '39.0mm × 12.20mm Profile', tag: 'Legacy Proportion', bezel: '39.0 mm', case: 'Case: 39.0 mm', l2l: 'L2L: 48.10 mm', lug: '19 mm', thick: '12.20 mm', weight: '166.1 g', wrist: '16.0–18.0 cm', outerSize: 190, innerSize: 190 },
+            '42gen3': { title: '2026 42mm Generation 3 (Ref. L3.788.4)', specs: '42.0mm × 11.90mm Profile', tag: 'Large Wrist Span', bezel: '43.0 mm', case: 'Case: 42.0 mm', l2l: 'L2L: 51.20 mm', lug: '21 mm', thick: '11.90 mm', weight: '182.0 g', wrist: '18.0cm+', outerSize: 220, innerSize: 210 }
+        };
+
+        // Navigation Tab Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-link').forEach(btn => {
+                btn.classList.remove('text-amber-400', 'bg-slate-800');
+                btn.classList.add('text-slate-300');
+            });
+
+            const activeNav = document.getElementById('nav-' + tabId);
+            if(activeNav) {
+                activeNav.classList.add('text-amber-400', 'bg-slate-800');
+                activeNav.classList.remove('text-slate-300');
+            }
+
+            // Trigger chart renders if visible
+            if (tabId === 'tab-movement' && window.movementChartObj) {
+                window.movementChartObj.resize();
+            }
+            if (tabId === 'tab-competition' && window.radarChartObj) {
+                window.radarChartObj.resize();
+            }
+        }
+
+        // Global Currency Switcher
+        function setCurrency(curr) {
+            currentCurrency = curr;
+            document.querySelectorAll('.curr-btn').forEach(btn => {
+                btn.classList.remove('bg-amber-500', 'text-slate-950');
+                btn.classList.add('text-slate-300');
+            });
+            document.getElementById('btn-curr-' + curr).classList.add('bg-amber-500', 'text-slate-950');
+            document.getElementById('btn-curr-' + curr).classList.remove('text-slate-300');
+
+            updatePricesInUI();
+        }
+
+        function formatPrice(usdVal) {
+            const rate = exchangeRates[currentCurrency];
+            const converted = usdVal * rate;
+            const sym = currencySymbols[currentCurrency];
+
+            if (currentCurrency === 'THB') {
+                return sym + Math.round(converted).toLocaleString();
+            }
+            return sym + Math.round(converted).toLocaleString();
+        }
+
+        function updatePricesInUI() {
+            // Update reference table
+            renderReferencesTable(referencesData);
+
+            // Update specific static price badges
+            document.querySelectorAll('.val-price-2200').forEach(el => el.textContent = formatPrice(2200));
+            document.querySelectorAll('.val-price-2400').forEach(el => el.textContent = formatPrice(2400));
+            document.querySelectorAll('.val-price-1150').forEach(el => el.textContent = formatPrice(1150));
+            document.querySelectorAll('.val-price-900').forEach(el => el.textContent = formatPrice(900));
+            document.querySelectorAll('.val-price-1250').forEach(el => el.textContent = formatPrice(1250));
+            document.querySelectorAll('.val-price-2300').forEach(el => el.textContent = formatPrice(2300));
+            document.querySelectorAll('.val-price-1300').forEach(el => el.textContent = formatPrice(1300));
+            document.querySelectorAll('.val-price-4000').forEach(el => el.textContent = formatPrice(4000));
+
+            // Update variant details
+            updateVariantPrices();
+        }
+
+        // Render Reference Catalog Table
+        function renderReferencesTable(data) {
+            const tbody = document.getElementById('reference-tbody');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = item.core ? 'bg-amber-50/30 hover:bg-amber-50/60 transition' : 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="p-3 font-bold ${item.core ? 'text-amber-900' : 'text-slate-800'}">
+                        ${item.core ? '◆ ' : ''}${item.ref}
+                    </td>
+                    <td class="p-3 text-slate-600">${item.gen}</td>
+                    <td class="p-3 text-slate-700">${item.desc}</td>
+                    <td class="p-3 text-slate-600">${item.mov}</td>
+                    <td class="p-3 text-slate-800">${item.dim}</td>
+                    <td class="p-3 ${item.lug === '20mm' ? 'text-emerald-700 font-bold' : 'text-slate-500'}">${item.lug}</td>
+                    <td class="p-3 text-slate-700">${item.brac}</td>
+                    <td class="p-3 font-bold text-slate-900">${formatPrice(item.msrpUSD)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterReferences(type) {
+            document.querySelectorAll('.ref-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-700');
+            });
+            document.getElementById('ref-filter-' + type).classList.add('bg-slate-900', 'text-white');
+
+            if (type === 'all') renderReferencesTable(referencesData);
+            else if (type === '3rd') renderReferencesTable(referencesData.filter(r => r.category === '3rd'));
+            else if (type === 'legacy') renderReferencesTable(referencesData.filter(r => r.category === 'legacy'));
+        }
+
+        // Render Store Locator
+        function renderStores(data) {
+            const grid = document.getElementById('store-grid');
+            grid.innerHTML = '';
+
+            data.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'p-4 rounded-xl border border-slate-200 bg-white flex flex-col justify-between space-y-3 hover:border-amber-400 transition shadow-sm';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-xs text-slate-900 font-serif">${s.name}</h4>
+                            <span class="text-[10px] uppercase tracking-wider font-mono px-2 py-0.5 rounded ${s.region === 'nonthaburi' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'}">${s.region}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1">${s.addr}</p>
+                    </div>
+                    <div class="space-y-1 text-[11px] font-mono border-t border-slate-100 pt-2">
+                        <div class="text-slate-600">Tel: <span class="text-slate-900 font-bold">${s.phone}</span></div>
+                        <div class="text-slate-500">${s.hours}</div>
+                        <div class="text-[10px] text-amber-700 mt-1 italic">${s.note}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterStores(region) {
+            document.querySelectorAll('.st-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-700');
+            });
+            document.getElementById('st-filter-' + region).classList.add('bg-slate-900', 'text-white');
+
+            if (region === 'all') renderStores(storesData);
+            else renderStores(storesData.filter(s => s.region === region));
+        }
+
+        // Footprint Comparator Visual Update
+        function updateFootprintVisual() {
+            const selected = document.querySelector('input[name="footprint-model"]:checked').value;
+            const data = footprintData[selected];
+
+            document.getElementById('fp-title').textContent = data.title;
+            document.getElementById('fp-specs').textContent = data.specs;
+            document.getElementById('fp-tag').textContent = data.tag;
+            document.getElementById('fp-bezel-text').textContent = data.bezel;
+            document.getElementById('fp-case-text').textContent = data.case;
+            document.getElementById('fp-l2l-text').textContent = data.l2l;
+            document.getElementById('fp-lug-text').textContent = data.lug;
+            document.getElementById('fp-stat-thick').textContent = data.thick;
+            document.getElementById('fp-stat-weight').textContent = data.weight;
+            document.getElementById('fp-stat-wrist').textContent = data.wrist;
+
+            const outer = document.getElementById('fp-box-outer');
+            const inner = document.getElementById('fp-box-inner');
+            outer.style.width = data.outerSize + 'px';
+            outer.style.height = data.outerSize + 'px';
+            inner.style.width = data.innerSize + 'px';
+            inner.style.height = data.innerSize + 'px';
+        }
+
+        // Variant Selection Logic
+        let activeVariant = '56';
+        function selectVariant(varCode) {
+            activeVariant = varCode;
+            document.querySelectorAll('[id^="var-card-"]').forEach(card => {
+                card.classList.remove('border-2', 'border-amber-500');
+                card.classList.add('border', 'border-slate-200');
+            });
+            document.getElementById('var-card-' + varCode).classList.add('border-2', 'border-amber-500');
+            document.getElementById('var-card-' + varCode).classList.remove('border-slate-200');
+
+            updateVariantPrices();
+        }
+
+        function updateVariantPrices() {
+            const refEl = document.getElementById('var-detail-ref');
+            const nameEl = document.getElementById('var-detail-name');
+            const msrpEl = document.getElementById('var-detail-msrp');
+            const descEl = document.getElementById('var-detail-desc');
+            const basePriceEl = document.getElementById('calc-base-price');
+            const totalPriceEl = document.getElementById('calc-total-price');
+
+            if (activeVariant === '56') {
+                refEl.textContent = 'Ref. L3.779.4.56.6';
+                nameEl.textContent = 'Monochromatic All-Black Edition';
+                msrpEl.textContent = formatPrice(2200);
+                descEl.textContent = 'Pairs the polished black lacquer dial with a matching black ceramic bezel insert. Factory-equipped with the brushed H-link bracelet featuring solid female end-links and 4-step toolless micro-adjustment.';
+                basePriceEl.textContent = formatPrice(2200);
+                totalPriceEl.textContent = formatPrice(2200);
+            } else if (activeVariant === '70') {
+                refEl.textContent = 'Ref. L3.779.4.70.6';
+                nameEl.textContent = 'Slate Grey Ceramic Edition';
+                msrpEl.textContent = formatPrice(2400);
+                descEl.textContent = 'Pairs the black lacquer dial with a muted slate grey ceramic bezel insert. Sold exclusively on the tapered Milanese mesh bracelet.';
+                basePriceEl.textContent = formatPrice(2400);
+                totalPriceEl.textContent = formatPrice(2400 + 425) + ' (Mesh + OEM H-Link)';
+            } else if (activeVariant === '90') {
+                refEl.textContent = 'Ref. L3.779.4.90.6';
+                nameEl.textContent = 'Luminous Blue Bezel Hero Model';
+                msrpEl.textContent = formatPrice(2400);
+                descEl.textContent = 'Pairs the black lacquer dial with a high-contrast vibrant blue ceramic bezel insert. Campaign hero reference sold exclusively on Milanese mesh.';
+                basePriceEl.textContent = formatPrice(2400);
+                totalPriceEl.textContent = formatPrice(2400 + 425) + ' (Mesh + OEM H-Link)';
+            }
+        }
+
+        // Thai Retail Price Calculator
+        function calcThaiPrice() {
+            const listTHB = 72200;
+            const rate = parseFloat(document.getElementById('th-disc-rate').value);
+            const cb = parseFloat(document.getElementById('th-card-cb').value);
+
+            const net = (listTHB * (1 - rate)) - cb;
+            const netUSD = net / exchangeRates['THB'];
+
+            document.getElementById('th-net-thb').textContent = '฿' + Math.round(net).toLocaleString() + ' THB';
+            document.getElementById('th-net-usd').textContent = '~$ ' + Math.round(netUSD).toLocaleString() + ' USD equivalent';
+        }
+
+        // Initialize Chart.js Graphs
+        function initCharts() {
+            // Movement Bar Chart
+            const ctxMovement = document.getElementById('movementChart').getContext('2d');
+            window.movementChartObj = new Chart(ctxMovement, {
+                type: 'bar',
+                data: {
+                    labels: ['Longines L888.5', 'Powermatic 80', 'Sellita SW200-1', 'Tudor MT5402'],
+                    datasets: [
+                        {
+                            label: 'Power Reserve (Hours)',
+                            data: [72, 80, 38, 70],
+                            backgroundColor: '#b45309',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Cadence (Hz / Beat Rate)',
+                            data: [3.5, 3.0, 4.0, 4.0],
+                            backgroundColor: '#1e293b',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if(context.dataset.label.includes('Power')) return context.dataset.label + ': ' + context.raw + ' Hours';
+                                    return context.dataset.label + ': ' + context.raw + ' Hz (' + (context.raw * 7200) + ' vph)';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Radar Comparison Chart
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            window.radarChartObj = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['Slimness', 'Power Reserve', 'Water Resistance', 'Anti-Magnetism', 'Clasp Engineering', 'Value/Price'],
+                    datasets: [
+                        {
+                            label: 'Longines HydroConquest 39',
+                            data: [85, 90, 100, 95, 90, 88],
+                            borderColor: '#b45309',
+                            backgroundColor: 'rgba(180, 83, 9, 0.25)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Tudor Black Bay 58',
+                            data: [82, 88, 70, 90, 85, 60],
+                            borderColor: '#0f172a',
+                            backgroundColor: 'rgba(15, 23, 42, 0.15)',
+                            borderWidth: 1.5
+                        },
+                        {
+                            label: 'Mido Ocean Star 39',
+                            data: [95, 90, 70, 75, 75, 95],
+                            borderColor: '#64748b',
+                            backgroundColor: 'rgba(100, 116, 139, 0.15)',
+                            borderWidth: 1.5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#f1f5f9' },
+                            suggestedMin: 50,
+                            suggestedMax: 100,
+                            ticks: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // On Page Load Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            renderReferencesTable(referencesData);
+            renderStores(storesData);
+            initCharts();
+            calcThaiPrice();
+        });
+    </script>
+</body>
+</html>
