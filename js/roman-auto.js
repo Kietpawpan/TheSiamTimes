@@ -71,18 +71,93 @@
   function isConsonant(ch) { return ch >= "ก" && ch <= "ฮ"; }
   function isThai(ch) { return ch >= "฀" && ch <= "๿"; }
 
-  /** Reads the syllable table out of roman.js's source code. */
   function parseTable(source) {
     var start = source.indexOf("new Map([");
-    var end = source.indexOf("]);", start);
+    var end = source.indexOf("]);");
     if (start < 0 || end < 0) throw new Error("Syllable table not found in roman.js");
-    var body = source.slice(start, end).replace(/\/\/[^\n]*/g, "");
+    var body = source.slice(start).slice(0, end - start).replace(/\/\/[^\n]*/g, "");
     var table = Object.create(null);
-    var pair = /\[\s*'([^']*)'\s*,\s*'([^']*)'\s*\]/g, m;
+    var pair = /\[\s*'([^']*)'\s*\x2c\s*'([^']*)'\s*\]/g;
+    var m;
     while ((m = pair.exec(body))) {
-      // Thai syllables only; like a JavaScript Map, a later entry replaces an earlier one.
       if (m[1] && /^[฀-๿]+$/.test(m[1]) && /^[A-Z]+$/.test(m[2])) table[m[1]] = m[2];
     }
+
+    // กำหนดค่าพยางค์สระ แ-บ ที่ตกหล่นหรือคลาดเคลื่อนเพิ่มเติม
+    // 1. พยัญชนะเดี่ยว ก ถึง ฮ (44 ตัว)
+    table["แกบ"] = "KAEP";
+    table["แขบ"] = "KHAEP";
+    table["แฃบ"] = "KHAEP";
+    table["แคบ"] = "KHAEP";
+    table["แฅบ"] = "KHAEP";
+    table["แฆบ"] = "KHAEP";
+    table["แงบ"] = "NGAEP";
+    table["แจบ"] = "CHAEP";
+    table["แฉบ"] = "CHAEP";
+    table["แชบ"] = "CHAEP";
+    table["แซบ"] = "SAEP";
+    table["แฌบ"] = "CHAEP";
+    table["แญบ"] = "YAEP";
+    table["แฎบ"] = "DAEP";
+    table["แฏบ"] = "TAEP";
+    table["แฐบ"] = "THAEP";
+    table["แฑบ"] = "THAEP";
+    table["แฒบ"] = "THAEP";
+    table["แณบ"] = "NAEP";
+    table["แดบ"] = "DAEP";
+    table["แตบ"] = "TAEP";
+    table["แถบ"] = "THAEP";
+    table["แทบ"] = "THAEP";
+    table["แธบ"] = "THAEP";
+    table["แนบ"] = "NAEP";
+    table["แบบ"] = "BAEP";
+    table["แปบ"] = "PAEP";
+    table["แผบ"] = "PHAEP";
+    table["แฝบ"] = "FAEP";
+    table["แพบ"] = "PHAEP";
+    table["แฟบ"] = "FAEP";
+    table["แภบ"] = "PHAEP";
+    table["แมบ"] = "MAEP";
+    table["แยบ"] = "YAEP";
+    table["แรบ"] = "RAEP";
+    table["แลบ"] = "LAEP";
+    table["แวบ"] = "WAEP";
+    table["แศบ"] = "SAEP";
+    table["แษบ"] = "SAEP";
+    table["แสบ"] = "SAEP";
+    table["แหบ"] = "HAEP";
+    table["แฬบ"] = "LAEP";
+    table["แอบ"] = "AEP";
+    table["แฮบ"] = "HAEP";
+
+    // 2. คำควบกล้ำ (ร ล ว)
+    table["แกรบ"] = "KRAEP";
+    table["แขรบ"] = "KHRAEP";
+    table["แครบ"] = "KHRAEP";
+    table["แตรบ"] = "TRAEP";
+    table["แปรบ"] = "PRAEP";
+    table["แพรบ"] = "PHRAEP";
+    table["แกลบ"] = "KLAEP";
+    table["แขลบ"] = "KHLAEP";
+    table["แคลบ"] = "KHLAEP";
+    table["แปลบ"] = "PLAEP";
+    table["แผลบ"] = "PHLAEP";
+    table["แพลบ"] = "PHLAEP";
+    table["แฟลบ"] = "FLAEP";
+    table["แกวบ"] = "KWAEP";
+    table["แขวบ"] = "KHWAEP";
+    table["แควบ"] = "KHWAEP";
+
+    // 3. อักษรนำ (ห นำ)
+    table["แหงบ"] = "NGAEP";
+    table["แหญบ"] = "YAEP";
+    table["แหนบ"] = "NAEP";
+    table["แหมบ"] = "MAEP";
+    table["แหยบ"] = "YAEP";
+    table["แหรบ"] = "RAEP";
+    table["แหลบ"] = "LAEP";
+    table["แหวบ"] = "WAEP";
+
     return table;
   }
 
