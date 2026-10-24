@@ -190,6 +190,40 @@
         .pdf-link:hover {
             text-decoration: underline;
         }
+
+        /* การแบ่งพยางค์อัตโนมัติ (Read as) */
+        .reading {
+            display: none;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        .reading.visible { display: flex; }
+
+        .reading .label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-right: 8px;
+        }
+
+        .reading button {
+            background: none;
+            border: none;
+            padding: 0;
+            color: var(--primary-color);
+            font: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .reading button:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -199,11 +233,12 @@
 
     <div class="card">
         <div class="input-group">
-            <label for="thaiName">Thai Reading (Pronunciation)</label>
-            <input type="text" id="thaiName" placeholder="e.g. แม่-น้ำ เจ้า-พระ-ยา">
+            <label for="thaiName">Thai</label>
+            <input type="text" id="thaiName" placeholder="e.g. แม่น้ำเจ้าพระยา" autocomplete="off" autofocus>
             <div class="instructions">
-                <p>1. Use <strong>dash (-)</strong> to separate syllables</p>
+                <p>1. Type Thai normally. <strong>No dashes needed</strong>; the result appears as you type</p>
                 <p>2. Use <strong>space</strong> to separate words</p>
+                <p>3. If a word comes out wrong, add <strong>dashes (-)</strong> between its syllables as pronounced, e.g. ราด-ชะ-บุ-รี</p>
             </div>
         </div>
 
@@ -223,6 +258,10 @@
             <label for="romanize">Romanized Output</label>
             <!-- เปลี่ยน id จาก romanizeOutput เป็น romanize ให้ตรงกับโค้ด JS เดิมของคุณ -->
             <textarea id="romanize" readonly placeholder="Result will appear here..."></textarea>
+            <div class="reading" id="reading">
+                <div><span class="label">Read as</span><span id="readingText"></span></div>
+                <button type="button" id="editSyllables" title="Put the syllables in the box so you can correct them">Edit syllables</button>
+            </div>
         </div>
 
         <div class="references">
@@ -231,7 +270,8 @@
             2. Announcement of the Royal Institute on Romanization (1999)<br>
             3. Regulation of the Ministry of Foreign Affairs on Passport Issuance (2005) Clause 39<br>
             4. United Nations Romanization Systems for Geographical Names (2013)<br>
-            5. ISO 91140-2 Exceptions:<br>
+            5. ISO 11940-2<br>
+            Exceptions:<br>
             &nbsp;&nbsp;&nbsp;- Sound 'จ' uses 'CH-' instead of 'C-'<br>
             &nbsp;&nbsp;&nbsp;- Do not add prime (') before the sound 'อ'
         </div>
@@ -246,6 +286,60 @@
 
 <!-- เรียกใช้งานไฟล์ JS ของคุณจาก GitHub โดยตรง -->
 <script src="https://kietpawpan.github.io/roman/js/roman.js"></script>
+<!-- แบ่งพยางค์อัตโนมัติ: ใช้ตารางพยางค์เดียวกับ roman.js โดยไม่ต้องใส่ขีด -->
+<script src="roman-auto.js"></script>
+<script>
+    (function () {
+        var ROMAN_JS = "https://kietpawpan.github.io/roman/js/roman.js";
+        var input = document.getElementById("thaiName");
+        var output = document.getElementById("romanize");
+        var reading = document.getElementById("reading");
+        var readingText = document.getElementById("readingText");
+        var dashRomanize = window.romanize; // the original, which needs dashes
+        var auto = null;
+
+        function update() {
+            if (!auto) return;
+            var text = input.value.trim();
+            var result = text ? auto.romanize(text) : { roman: "", syllables: "" };
+            output.value = result.roman;
+            // Show how the text was split, unless the reader already typed it that way.
+            var show = result.roman && result.syllables !== text;
+            readingText.textContent = show ? result.syllables : "";
+            reading.classList.toggle("visible", !!show);
+        }
+
+        // The Romanize button: automatic syllables once the table has loaded, the original until then.
+        window.romanize = function () {
+            if (auto) { update(); } else { dashRomanize(); }
+        };
+
+        window.clearText = function () {
+            input.value = "";
+            update();
+            output.value = "";
+            input.focus();
+        };
+
+        input.addEventListener("input", update);
+        input.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") { event.preventDefault(); window.romanize(); }
+        });
+        document.getElementById("editSyllables").addEventListener("click", function () {
+            input.value = readingText.textContent;
+            update();
+            input.focus();
+        });
+
+        RomanAuto.load(ROMAN_JS).then(function (romanizer) {
+            auto = romanizer;
+            update();
+        }).catch(function (error) {
+            // Without the table, the page keeps working the original way, with dashes.
+            console.warn("Automatic syllables unavailable:", error);
+        });
+    })();
+</script>
 
 <!-- ฟังก์ชันเสริมสำหรับ Copy และ Clear (หากในไฟล์ roman.js ไม่มีฟังก์ชันนี้) -->
 <script>
@@ -260,10 +354,6 @@
         }
     }
 
-    function clearText() {
-        document.getElementById("thaiName").value = "";
-        document.getElementById("romanize").value = "";
-    }
 </script>
 
 </body>
