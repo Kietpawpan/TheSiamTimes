@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Siam Times - Social Listening</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Tech Reviews · The Siam Times</title>
+    <meta name="description" content="The Siam Times Pulse Dashboard: the past 7 days of green, clean and climate technology news, with sentiment and topic trends.">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="icon" type="image/png" href="/Fav48.png?v=1">
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
-    
+
     <style>
         @font-face {
             font-family: 'Chomsky';
@@ -20,7 +23,7 @@
             font-display: swap;
         }
     </style>
-    
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -48,90 +51,147 @@
     </script>
     <style>
         body {
-            background-color: #0f172a; 
-            color: #e2e8f0; 
+            background-color: #0f172a;
+            color: #e2e8f0;
         }
         .glass-panel {
-            background: rgba(30, 41, 59, 0.7); 
+            background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid #475569;
+            background: rgba(15, 23, 42, 0.6);
+            color: #cbd5e1;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            transition: background-color .2s, border-color .2s, color .2s;
+        }
+        .chip:hover { border-color: #10b981; color: #fff; }
+        .chip[aria-pressed="true"] { background: #10b981; border-color: #10b981; color: #022c22; font-weight: 700; }
+        .chip .count { opacity: .7; font-variant-numeric: tabular-nums; }
+        :focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
+        .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
         }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 font-sans">
     <div class="max-w-7xl mx-auto">
-        
+
+        <a href="index.html" class="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-emerald-400 transition mb-4">&larr; Back to The Siam Times</a>
+
         <!-- Header -->
         <header class="flex flex-col md:flex-row items-center justify-between border-b border-slate-700 pb-6 mb-8 gap-4">
-            <div class="flex items-center gap-4">
-                <img src="IMG_6412.jpeg" alt="The Siam Times Logo" class="w-12 h-12 object-cover rounded shadow-md border border-slate-600" onerror="this.src='https://placehold.co/100x100/000000/ffffff?text=S'">
+            <a href="index.html" class="flex items-center gap-4" aria-label="The Siam Times home">
+                <img src="IMG_6412.jpeg" alt="" class="w-12 h-12 object-cover rounded shadow-md border border-slate-600" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23000%22/%3E%3Ctext x=%2250%22 y=%2268%22 font-size=%2256%22 text-anchor=%22middle%22 fill=%22%23fff%22 font-family=%22serif%22%3ES%3C/text%3E%3C/svg%3E'">
                 <div class="flex flex-col">
-                    <span class="text-emerald-400 font-bold tracking-widest text-xs uppercase mb-1">Pulse Dashboard</span>
+                    <span class="text-emerald-400 font-bold tracking-widest text-xs uppercase mb-1">Tech Reviews · Pulse Dashboard</span>
                     <h1 class="font-masthead text-4xl sm:text-5xl tracking-wide text-white leading-none mt-1">The Siam Times</h1>
                 </div>
-            </div>
-            <div class="text-right glass-panel px-4 py-2 rounded-lg flex items-center gap-4">
-                <div>
-                    <div class="text-xs text-slate-400 uppercase tracking-wider">Live Updates</div>
-                    <div class="text-sm font-medium text-emerald-400 flex items-center justify-end gap-2 mt-1">
-                        <span class="relative flex h-2 w-2">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </a>
+            <div class="glass-panel px-4 py-2 rounded-lg flex items-center gap-4">
+                <div class="text-right">
+                    <div class="text-xs text-slate-400 uppercase tracking-wider">News Feed</div>
+                    <div class="text-sm font-medium flex items-center justify-end gap-2 mt-1" aria-live="polite">
+                        <span class="relative flex h-2 w-2" id="status-dot">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-slate-400"></span>
                         </span>
-                        <span id="sync-status">Auto-sync Active</span>
+                        <span id="sync-status" class="text-slate-300">Connecting…</span>
                     </div>
                 </div>
-                <button onclick="fetchNews()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded border border-slate-600 transition">
+                <button id="refresh-btn" type="button" class="bg-slate-800 hover:bg-slate-700 disabled:opacity-60 disabled:cursor-wait text-slate-200 text-xs px-3 py-2 rounded border border-slate-600 transition inline-flex items-center gap-2">
+                    <svg id="refresh-icon" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
                     Refresh
                 </button>
             </div>
         </header>
 
         <!-- KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="glass-panel p-5 rounded-xl">
-                <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Total Mentions (7 Days)</h3>
-                <p class="text-3xl font-bold text-white" id="total-mentions">...</p>
+                <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Articles (7 Days)</h3>
+                <p class="text-3xl font-bold text-white tabular-nums" id="total-mentions">…</p>
+                <p class="text-xs text-slate-400 mt-1" id="total-sub">&nbsp;</p>
             </div>
             <div class="glass-panel p-5 rounded-xl">
                 <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Positive Sentiment</h3>
-                <p class="text-3xl font-bold text-emerald-400" id="positive-rate">...</p>
+                <p class="text-3xl font-bold text-emerald-400 tabular-nums" id="positive-rate">…</p>
+                <p class="text-xs text-slate-400 mt-1" id="positive-sub">&nbsp;</p>
             </div>
-            <div class="glass-panel p-5 rounded-xl">
+            <div class="glass-panel p-5 rounded-xl min-w-0">
                 <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Top Publisher</h3>
-                <p class="text-xl font-bold text-white truncate" id="top-publisher">...</p>
+                <p class="text-xl font-bold text-white truncate" id="top-publisher">…</p>
+                <p class="text-xs text-slate-400 mt-1" id="publisher-sub">&nbsp;</p>
             </div>
             <div class="glass-panel p-5 rounded-xl">
-                <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Topic Velocity</h3>
-                <p class="text-3xl font-bold text-emerald-400" id="topic-velocity">...</p>
+                <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Last 24 Hours</h3>
+                <p class="text-3xl font-bold text-white tabular-nums" id="topic-velocity">…</p>
+                <p class="text-xs text-slate-400 mt-1" id="velocity-sub">&nbsp;</p>
             </div>
         </div>
 
         <!-- Charts Row -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="glass-panel p-6 rounded-xl lg:col-span-2">
-                <h3 class="text-sm text-slate-300 font-bold mb-4 uppercase tracking-wider">7-Day Mention Volume Trend</h3>
+                <h3 class="text-sm text-slate-300 font-bold mb-4 uppercase tracking-wider">Daily Article Volume by Sentiment</h3>
                 <div class="h-64 w-full relative">
-                    <canvas id="volumeChart"></canvas>
+                    <canvas id="volumeChart" role="img" aria-label="Daily article volume for the past 7 days"></canvas>
                 </div>
             </div>
             <div class="glass-panel p-6 rounded-xl">
                 <h3 class="text-sm text-slate-300 font-bold mb-4 uppercase tracking-wider">Sentiment Analysis</h3>
                 <div class="h-64 w-full relative">
-                    <canvas id="sentimentChart"></canvas>
+                    <canvas id="sentimentChart" role="img" aria-label="Sentiment breakdown"></canvas>
+                    <div class="absolute inset-x-0 top-0 bottom-10 flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-3xl font-bold text-white tabular-nums" id="donut-total">–</span>
+                        <span class="text-[10px] uppercase tracking-widest text-slate-400">articles</span>
+                    </div>
                 </div>
+                <p class="text-[11px] text-slate-500 mt-3 text-center">Tap a slice to filter the news below.</p>
             </div>
         </div>
 
         <!-- News Feed Section -->
-        <div class="glass-panel rounded-xl p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b border-slate-700 pb-4 gap-2">
-                <h3 class="text-2xl text-white font-title font-bold">Recent Green & Environmental Tech Intelligence</h3>
+        <section class="glass-panel rounded-xl p-4 sm:p-6" aria-labelledby="feed-title">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 border-b border-slate-700 pb-4 gap-2">
+                <h2 id="feed-title" class="text-2xl text-white font-title font-bold">Recent Green &amp; Environmental Tech Intelligence</h2>
                 <span class="text-xs text-slate-400" id="last-updated">Powered by Google News (Past 7 Days)</span>
             </div>
-            
+
+            <!-- ตัวกรองข่าว -->
+            <div class="flex flex-col gap-3 mb-6">
+                <div class="flex flex-col md:flex-row gap-3">
+                    <label class="relative flex-1">
+                        <span class="sr-only">Search headlines</span>
+                        <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                        <input id="search" type="search" placeholder="Search headlines or publishers…" autocomplete="off"
+                               class="w-full bg-slate-900/70 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500">
+                    </label>
+                    <div class="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter by sentiment" id="sentiment-filters"></div>
+                </div>
+                <div class="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter by topic" id="topic-filters"></div>
+            </div>
+
+            <p class="text-xs text-slate-400 mb-4" id="result-count" aria-live="polite"></p>
             <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </div>
+            <div class="text-center mt-8">
+                <button id="more-btn" type="button" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm px-5 py-2 rounded-lg border border-slate-600 transition">Show more</button>
+            </div>
+        </section>
+
+        <footer class="text-[11px] text-slate-500 text-center mt-8 leading-relaxed">
+            Headlines from Google News for “green technology”, “environmental technology”, “clean tech” and “climate tech”.
+            Sentiment and topics are estimated automatically from headline keywords and may not reflect each article's full content.
+        </footer>
 
     </div>
 
@@ -140,255 +200,480 @@
         const searchQuery = '("green technology" OR "environmental technology" OR "clean tech" OR "climate tech") when:7d';
         const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(searchQuery)}&hl=en-US&gl=US&ceid=US:en`;
 
-        let volChart, sentChart;
+        // ไฟล์ข่าวที่ GitHub Actions อัปเดตให้ทุก 3 ชั่วโมง (อยู่โดเมนเดียวกัน ไม่ต้องพึ่ง CORS Proxy)
+        const SITE_FEED_URL = 'techReviews.json';
+        const SITE_FEED_MAX_AGE = 8 * 60 * 60 * 1000;     // เก่ากว่า 8 ชม. ให้ลองดึงสดเพิ่ม
+        const AUTO_REFRESH_MS = 30 * 60 * 1000;           // รีเฟรชอัตโนมัติทุก 30 นาที
+        const CACHE_KEY = 'techReviews.cache.v1';
+        const PAGE_SIZE = 18;
+        const DAY_MS = 24 * 60 * 60 * 1000;
 
-        // ฟังก์ชันแปลงวันที่ให้รองรับ Safari และทุกเบราว์เซอร์
+        const SENTIMENT_COLORS = { Positive: '#10b981', Neutral: '#64748b', Negative: '#ef4444' };
+
+        // คำบอกอารมณ์ข่าว (จับเฉพาะคำเต็ม ไม่จับคำที่ซ่อนอยู่ในคำอื่น เช่น "ban" ใน "urban")
+        const POS_RE = /\b(breakthroughs?|grow(s|th|ing)?|launch(es|ed|ing)?|awards?|awarded|wins?|won|winning|innovat\w*|boost\w*|solutions?|succe\w*|advanc\w*|record|expand\w*|partner\w*|milestones?|surg\w*|unveil\w*|funding|raises?|raised|opens?|opened|achiev\w*|improv\w*|accelerat\w*|leads?|leading|champion\w*|transform\w*|progress\w*|opportunit\w*|scal(e|es|ed|ing) up)\b/gi;
+        const NEG_RE = /\b(crisis|crises|fail\w*|pollut\w*|threat\w*|delay\w*|risks?|risky|warn\w*|drops?|dropped|lawsuits?|sue[sd]?|bans?|banned|shortages?|problems?|damag\w*|declin\w*|slump\w*|layoffs?|bankrupt\w*|scandals?|fraud\w*|collaps\w*|loss(es)?|halt\w*|concerns?|protest\w*|cancel\w*|setbacks?|struggl\w*|plung\w*|crash\w*|toxic|disaster\w*|greenwash\w*|backlash|criticis\w*|criticiz\w*|bust|insolven\w*|lagg\w*|chill|slow\w*|weak\w*|falls?|falling|fell|stall\w*|cuts?|shut\w*|closures?)\b/gi;
+
+        // หมวดหัวข้อเทคโนโลยี
+        const TOPICS = [
+            { name: 'Solar', re: /\b(solar|photovoltaics?|pv)\b/i },
+            { name: 'Wind', re: /\bwind\b/i },
+            { name: 'Batteries & Storage', re: /\b(batter(y|ies)|energy storage|lithium|sodium-ion)\b/i },
+            { name: 'EVs & Transport', re: /\b(evs?|electric (vehicles?|cars?|trucks?|bus(es)?)|charging|e-?mobility|aviation|saf|shipping)\b/i },
+            { name: 'Hydrogen', re: /\b(hydrogen|fuel cells?|electroly[sz]\w*)\b/i },
+            { name: 'Carbon Capture', re: /\b(carbon (capture|removal|credits?)|ccus?|direct air capture|decarboni[sz]\w*)\b/i },
+            { name: 'Recycling & Waste', re: /\b(recycl\w*|waste|circular|plastics?)\b/i },
+            { name: 'Water', re: /\b(water|desalinat\w*|wastewater)\b/i },
+            { name: 'AI & Digital', re: /\b(ai|artificial intelligence|data cent(er|re)s?|digital|software|satellites?)\b/i },
+            { name: 'Investment', re: /\b(invest\w*|funding|ipos?|stocks?|shares|venture|startups?|fund|raises?|raised|acqui\w*|deal)\b/i },
+            { name: 'Policy', re: /\b(polic(y|ies)|regulat\w*|government|ministers?|ministry|laws?|cop\d*|summit|tariffs?|subsid\w*)\b/i },
+        ];
+
+        let volChart, sentChart;
+        let allItems = [];
+        let isLoading = false;
+        let lastCheckAt = 0;
+        const filters = { query: '', sentiment: 'All', topic: null, limit: PAGE_SIZE };
+
+        // ---------- ตัวช่วยทั่วไป ----------
+
+        // สร้าง element แบบปลอดภัย (ใช้ textContent เสมอ กันพาดหัวข่าวที่มีโค้ด HTML แปลกปลอม)
+        function el(tag, className, text) {
+            const node = document.createElement(tag);
+            if (className) node.className = className;
+            if (text != null) node.textContent = text;
+            return node;
+        }
+
+        // แปลง &amp; &#39; ฯลฯ ให้เป็นตัวอักษรปกติ
+        function decodeEntities(str) {
+            if (!str || !str.includes('&')) return str || '';
+            return new DOMParser().parseFromString(str, 'text/html').documentElement.textContent;
+        }
+
+        function safeLink(url) {
+            return /^https?:\/\//i.test(url || '') ? url : null;
+        }
+
+        // ฟังก์ชันแปลงวันที่ให้รองรับ Safari และทุกเบราว์เซอร์ (คืนค่า null ถ้าอ่านวันที่ไม่ได้)
         function parseSafeDate(dateStr) {
-            if (!dateStr) return new Date();
-            // แก้ปัญหา Safari อ่านค่า "YYYY-MM-DD HH:MM:SS" ไม่ได้
+            if (!dateStr) return null;
+            // แก้ปัญหา Safari อ่านค่า "YYYY-MM-DD HH:MM:SS" ไม่ได้ (rss2json ส่งมาเป็นเวลา UTC)
             const normalized = dateStr.trim().replace(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})$/, '$1T$2Z');
             const d = new Date(normalized);
-            return isNaN(d.getTime()) ? new Date() : d;
+            return isNaN(d.getTime()) ? null : d;
         }
 
-        // ดึงข่าวด้วยระบบสำรองหลายช่องทาง (Multi-Fallback)
-        async function fetchNews() {
-            const container = document.getElementById('news-container');
-            container.innerHTML = `
-                <div class="col-span-full text-center py-10">
-                    <div class="inline-block animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mb-4"></div>
-                    <p class="text-slate-400 text-sm">Gathering latest intelligence from Google News...</p>
-                </div>
-            `;
+        function plural(n, word) {
+            return `${n} ${word}${n === 1 ? '' : 's'}`;
+        }
 
-            // ช่องทางที่ 1 และ 2: ดึง XML โดยตรงผ่าน CORS Proxy (ได้ข่าวเยอะถึง 100 ข่าว)
-            const xmlProxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
-                `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`
-            ];
+        function getRelativeTime(date) {
+            if (!date) return 'Date unknown';
+            const diff = Math.max(0, (Date.now() - date.getTime()) / 1000);
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return plural(Math.floor(diff / 60), 'min') + ' ago';
+            if (diff < 86400) return plural(Math.floor(diff / 3600), 'hour') + ' ago';
+            return plural(Math.floor(diff / 86400), 'day') + ' ago';
+        }
 
-            for (const proxyUrl of xmlProxies) {
-                try {
-                    const response = await fetch(proxyUrl);
-                    if (response.ok) {
-                        const xmlText = await response.text();
-                        const items = parseRSSXML(xmlText);
-                        if (items.length > 0) {
-                            processData(items);
-                            return;
-                        }
-                    }
-                } catch (e) {
-                    console.warn('XML Proxy failed, trying next...', e);
-                }
-            }
-
-            // ช่องทางที่ 3: ใช้ rss2json เป็นตัวสำรองสุดท้าย
+        async function fetchWithTimeout(url, ms = 12000) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), ms);
             try {
-                const rss2jsonUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
-                const response = await fetch(rss2jsonUrl);
-                const data = await response.json();
-                if (data.status === 'ok' && data.items && data.items.length > 0) {
-                    processData(data.items);
-                    return;
-                }
-            } catch (e) {
-                console.error('All proxies failed:', e);
+                const response = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response;
+            } finally {
+                clearTimeout(timer);
             }
-
-            showError('Unable to reach Google News servers right now. Please click Refresh to try again.');
         }
+
+        // ---------- แหล่งข่าว ----------
 
         // แปลง XML จาก Google News RSS เป็น Array
         function parseRSSXML(xmlText) {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-            const itemNodes = xmlDoc.querySelectorAll("item");
-            const results = [];
-
-            itemNodes.forEach(node => {
-                const title = node.querySelector("title")?.textContent || "Untitled";
-                const link = node.querySelector("link")?.textContent || "#";
-                const pubDate = node.querySelector("pubDate")?.textContent || "";
-                const sourceNode = node.querySelector("source");
-                const sourceName = sourceNode ? sourceNode.textContent : "";
-
-                results.push({
-                    title: title,
-                    link: link,
-                    pubDate: pubDate,
-                    source: sourceName
-                });
-            });
-
-            return results;
+            const xmlDoc = new DOMParser().parseFromString(xmlText, 'text/xml');
+            return [...xmlDoc.querySelectorAll('item')].map(node => ({
+                title: node.querySelector('title')?.textContent || '',
+                link: node.querySelector('link')?.textContent || '',
+                pubDate: node.querySelector('pubDate')?.textContent || '',
+                source: node.querySelector('source')?.textContent || ''
+            }));
         }
+
+        // ช่องทางสำรองแบบดึงสด (ลองพร้อมกันทุกช่องทาง ใช้อันที่ตอบกลับก่อน)
+        const liveSources = [
+            async () => {
+                const res = await fetchWithTimeout(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+                const data = await res.json();
+                if (data.status !== 'ok') throw new Error(data.message || 'rss2json error');
+                return data.items.map(i => ({ title: i.title, link: i.link, pubDate: i.pubDate, source: '' }));
+            },
+            async () => parseRSSXML(await (await fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`)).text()),
+            async () => parseRSSXML((await (await fetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`)).json()).contents || ''),
+            async () => parseRSSXML(await (await fetchWithTimeout(`https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(rssUrl)}`)).text()),
+        ];
+
+        async function fetchLive() {
+            return Promise.any(liveSources.map(async load => {
+                const items = await load();
+                if (!items.length) throw new Error('empty feed');
+                return items;
+            }));
+        }
+
+        async function fetchSiteFeed() {
+            const res = await fetchWithTimeout(`${SITE_FEED_URL}?t=${Date.now()}`, 8000);
+            const data = await res.json();
+            if (!Array.isArray(data.items) || !data.items.length) throw new Error('empty site feed');
+            return { items: data.items, at: parseSafeDate(data.generated)?.getTime() || 0 };
+        }
+
+        function readCache() {
+            try {
+                const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+                return cached && Array.isArray(cached.items) && cached.items.length ? cached : null;
+            } catch (e) { return null; }
+        }
+
+        function writeCache(items, at) {
+            try {
+                const slim = items.map(i => ({ title: i.title, link: i.link, source: i.source, pubDate: i.dateObj ? i.dateObj.toISOString() : '' }));
+                localStorage.setItem(CACHE_KEY, JSON.stringify({ at, items: slim }));
+            } catch (e) { /* โหมดส่วนตัวหรือพื้นที่เต็ม ข้ามไป */ }
+        }
+
+        // ดึงข่าว: ไฟล์ของเว็บเอง → ดึงสดผ่าน Proxy → ข่าวที่บันทึกไว้ในเครื่อง
+        async function fetchNews() {
+            if (isLoading) return;
+            isLoading = true;
+            lastCheckAt = Date.now();
+            setBusy(true);
+            if (!allItems.length) showLoading();
+
+            let site = null;
+            try {
+                site = await fetchSiteFeed();
+            } catch (e) {
+                console.warn('Site feed unavailable, trying live sources…', e);
+            }
+
+            try {
+                if (site && Date.now() - site.at < SITE_FEED_MAX_AGE) {
+                    return useItems(site.items, site.at, 'fresh');
+                }
+                try {
+                    return useItems(await fetchLive(), Date.now(), 'fresh');
+                } catch (e) {
+                    console.warn('All live sources failed', e);
+                }
+                // ใช้ข้อมูลที่ใหม่ที่สุดที่มีอยู่
+                const cached = readCache();
+                const best = [site, cached].filter(Boolean).sort((a, b) => b.at - a.at)[0];
+                if (best) return useItems(best.items, best.at, 'stale');
+                if (allItems.length) return setStatus('offline', 'Offline · showing earlier results');
+                setStatus('offline', 'Offline');
+                showError('Unable to reach the news service right now. Please check your connection and click Refresh to try again.');
+            } finally {
+                isLoading = false;
+                setBusy(false);
+            }
+        }
+
+        // ---------- ประมวลผลข่าว ----------
 
         // วิเคราะห์อารมณ์ข่าวเบื้องต้นจากคำสำคัญในพาดหัว
         function analyzeSentiment(title) {
-            const text = title.toLowerCase();
-            const posWords = ['breakthrough', 'growth', 'launch', 'award', 'innovation', 'boost', 'solution', 'success', 'clean', 'sustainable', 'advance', 'new', 'invest', 'record', 'smart'];
-            const negWords = ['crisis', 'fail', 'pollution', 'threat', 'delay', 'cost', 'risk', 'warn', 'drop', 'lawsuit', 'ban', 'shortage', 'problem', 'damage'];
-
-            let score = 0;
-            posWords.forEach(w => { if (text.includes(w)) score++; });
-            negWords.forEach(w => { if (text.includes(w)) score--; });
-
+            const score = (title.match(POS_RE) || []).length - (title.match(NEG_RE) || []).length;
             if (score > 0) return 'Positive';
             if (score < 0) return 'Negative';
             return 'Neutral';
         }
 
-        function processData(items) {
-            const now = new Date();
-            const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-
-            // กรองข่าวและจัดเรียงจากใหม่สุดไปเก่าสุด
-            const recentItems = items
-                .map(item => ({
-                    ...item,
-                    dateObj: parseSafeDate(item.pubDate),
-                    sentiment: analyzeSentiment(item.title)
-                }))
-                .filter(item => item.dateObj >= sevenDaysAgo)
-                .sort((a, b) => b.dateObj - a.dateObj);
-
-            const finalItems = recentItems.length > 0 ? recentItems : items.map(item => ({
-                ...item,
-                dateObj: parseSafeDate(item.pubDate),
-                sentiment: analyzeSentiment(item.title)
-            }));
-
-            // 1. อัปเดตจำนวนข่าวทั้งหมด
-            document.getElementById('total-mentions').innerText = finalItems.length;
-
-            // 2. คำนวณสัดส่วน Sentiment
-            let pos = 0, neu = 0, neg = 0;
-            finalItems.forEach(item => {
-                if (item.sentiment === 'Positive') pos++;
-                else if (item.sentiment === 'Negative') neg++;
-                else neu++;
-            });
-            const posRate = finalItems.length > 0 ? Math.round((pos / finalItems.length) * 100) : 0;
-            document.getElementById('positive-rate').innerText = `${posRate}%`;
-
-            // 3. หาสำนักข่าวที่รายงานมากที่สุด
-            const publishers = {};
-            finalItems.forEach(item => {
-                let pub = item.source;
-                if (!pub) {
-                    const parts = item.title.split(' - ');
-                    pub = parts.length > 1 ? parts[parts.length - 1] : 'News Wire';
+        function normalizeItems(items) {
+            const seen = new Set();
+            const results = [];
+            items.forEach(raw => {
+                let title = decodeEntities(raw.title).trim();
+                let source = decodeEntities(raw.source).trim();
+                // Google News ต่อท้ายพาดหัวด้วย " - ชื่อสำนักข่าว"
+                const parts = title.split(' - ');
+                if (parts.length > 1) {
+                    const last = parts[parts.length - 1].trim();
+                    if (!source || last === source) {
+                        source = source || last;
+                        parts.pop();
+                        title = parts.join(' - ').trim();
+                    }
                 }
-                publishers[pub] = (publishers[pub] || 0) + 1;
+                if (!title) return;
+                // ตัดข่าวซ้ำ (หัวข้อเดียวกัน)
+                const key = title.toLowerCase().replace(/[^a-z0-9฀-๿]+/g, ' ').trim();
+                if (seen.has(key)) return;
+                seen.add(key);
+                results.push({
+                    title,
+                    source: source || 'News Wire',
+                    link: safeLink(raw.link),
+                    dateObj: parseSafeDate(raw.pubDate),
+                    sentiment: analyzeSentiment(title),
+                    topics: TOPICS.filter(t => t.re.test(title)).map(t => t.name)
+                });
             });
-
-            let topPub = 'N/A';
-            let maxCount = 0;
-            for (const [pub, count] of Object.entries(publishers)) {
-                if (count > maxCount) {
-                    maxCount = count;
-                    topPub = pub;
-                }
-            }
-            document.getElementById('top-publisher').innerText = topPub;
-
-            // 4. ประเมินความร้อนแรงของประเด็น
-            document.getElementById('topic-velocity').innerText = finalItems.length >= 25 ? 'High' : (finalItems.length >= 10 ? 'Moderate' : 'Normal');
-
-            // 5. แสดงเวลาอัปเดตล่าสุด
-            document.getElementById('last-updated').innerText = `Last synced: ${now.toLocaleTimeString()}`;
-
-            // แสดงผลการ์ดข่าวและอัปเดตกราฟ
-            renderNews(finalItems);
-            updateCharts(finalItems, [pos, neu, neg]);
+            return results;
         }
 
-        function renderNews(items) {
-            const container = document.getElementById('news-container');
-            container.innerHTML = '';
+        function useItems(rawItems, at, freshness) {
+            const now = Date.now();
+            const items = normalizeItems(rawItems);
+            // เก็บเฉพาะข่าว 7 วันล่าสุด (ถ้าไม่เหลือเลย ให้แสดงทั้งหมดแทน) และเรียงจากใหม่สุดไปเก่าสุด
+            const recent = items.filter(i => i.dateObj && now - i.dateObj.getTime() <= 7 * DAY_MS);
+            allItems = (recent.length ? recent : items)
+                .sort((a, b) => (b.dateObj?.getTime() || 0) - (a.dateObj?.getTime() || 0));
 
-            if (items.length === 0) {
-                container.innerHTML = '<p class="text-slate-400 col-span-full text-center py-8">No articles found in the past 7 days.</p>';
+            if (freshness === 'fresh') writeCache(allItems, at);
+            setStatus(freshness, freshness === 'fresh' ? `Updated ${getRelativeTime(new Date(at)).toLowerCase()}` : `Saved news from ${getRelativeTime(new Date(at)).toLowerCase()}`);
+            document.getElementById('last-updated').textContent =
+                `Google News · past 7 days · synced ${new Date(at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`;
+
+            // ถ้าหมวดที่เลือกไว้ไม่มีข่าวแล้ว ให้ล้างตัวกรอง
+            if (filters.topic && !allItems.some(i => i.topics.includes(filters.topic))) filters.topic = null;
+            updateKPIs(allItems);
+            updateCharts(allItems);
+            renderFilters();
+            renderNews();
+        }
+
+        function updateKPIs(items) {
+            const now = Date.now();
+            const total = items.length;
+
+            // 1. จำนวนข่าวทั้งหมด
+            const publishers = {};
+            items.forEach(i => { publishers[i.source] = (publishers[i.source] || 0) + 1; });
+            const pubEntries = Object.entries(publishers).sort((a, b) => b[1] - a[1]);
+            document.getElementById('total-mentions').textContent = total;
+            document.getElementById('total-sub').textContent = `from ${plural(pubEntries.length, 'publisher')}`;
+
+            // 2. สัดส่วน Sentiment
+            const counts = sentimentCounts(items);
+            const posRate = total ? Math.round(counts.Positive / total * 100) : 0;
+            document.getElementById('positive-rate').textContent = `${posRate}%`;
+            document.getElementById('positive-sub').textContent = `${counts.Positive} pos · ${counts.Neutral} neu · ${counts.Negative} neg`;
+
+            // 3. สำนักข่าวที่รายงานมากที่สุด
+            const [topPub, topCount] = pubEntries[0] || ['N/A', 0];
+            const topEl = document.getElementById('top-publisher');
+            topEl.textContent = topPub;
+            topEl.title = topPub;
+            document.getElementById('publisher-sub').textContent = topCount ? plural(topCount, 'article') : '';
+
+            // 4. ความร้อนแรงของประเด็น: 24 ชม. ล่าสุด เทียบกับ 24 ชม. ก่อนหน้า
+            const last24 = items.filter(i => i.dateObj && now - i.dateObj.getTime() < DAY_MS).length;
+            const prev24 = items.filter(i => i.dateObj && now - i.dateObj.getTime() >= DAY_MS && now - i.dateObj.getTime() < 2 * DAY_MS).length;
+            document.getElementById('topic-velocity').textContent = last24;
+            const sub = document.getElementById('velocity-sub');
+            if (prev24) {
+                const change = Math.round((last24 - prev24) / prev24 * 100);
+                sub.textContent = `${change > 0 ? '▲' : change < 0 ? '▼' : '■'} ${Math.abs(change)}% vs previous day`;
+                sub.className = `text-xs mt-1 ${change > 0 ? 'text-emerald-400' : change < 0 ? 'text-red-400' : 'text-slate-400'}`;
+            } else {
+                sub.textContent = 'articles published';
+                sub.className = 'text-xs mt-1 text-slate-400';
+            }
+        }
+
+        function sentimentCounts(items) {
+            const counts = { Positive: 0, Neutral: 0, Negative: 0 };
+            items.forEach(i => counts[i.sentiment]++);
+            return counts;
+        }
+
+        // ---------- ตัวกรองและการแสดงผล ----------
+
+        function filteredItems() {
+            const q = filters.query.trim().toLowerCase();
+            return allItems.filter(i =>
+                (filters.sentiment === 'All' || i.sentiment === filters.sentiment) &&
+                (!filters.topic || i.topics.includes(filters.topic)) &&
+                (!q || i.title.toLowerCase().includes(q) || i.source.toLowerCase().includes(q))
+            );
+        }
+
+        function makeChip(label, count, pressed, onClick, dotColor) {
+            const btn = el('button', 'chip');
+            btn.type = 'button';
+            btn.setAttribute('aria-pressed', String(pressed));
+            if (dotColor) {
+                const dot = el('span', 'inline-block w-2 h-2 rounded-full');
+                dot.style.background = dotColor;
+                btn.append(dot);
+            }
+            btn.append(document.createTextNode(label));
+            if (count != null) btn.append(el('span', 'count', String(count)));
+            btn.addEventListener('click', onClick);
+            return btn;
+        }
+
+        function renderFilters() {
+            const counts = sentimentCounts(allItems);
+            const sentBox = document.getElementById('sentiment-filters');
+            sentBox.replaceChildren(...['All', 'Positive', 'Neutral', 'Negative'].map(s =>
+                makeChip(s, s === 'All' ? allItems.length : counts[s], filters.sentiment === s,
+                    () => setFilter({ sentiment: s }), SENTIMENT_COLORS[s])
+            ));
+
+            const topicCounts = TOPICS
+                .map(t => [t.name, allItems.filter(i => i.topics.includes(t.name)).length])
+                .filter(([, n]) => n > 0)
+                .sort((a, b) => b[1] - a[1]);
+            const topicBox = document.getElementById('topic-filters');
+            topicBox.replaceChildren(
+                el('span', 'text-xs text-slate-500 self-center pr-1', 'Topics:'),
+                ...topicCounts.map(([name, n]) =>
+                    makeChip(name, n, filters.topic === name, () => setFilter({ topic: filters.topic === name ? null : name })))
+            );
+        }
+
+        function setFilter(change) {
+            Object.assign(filters, change, { limit: PAGE_SIZE });
+            renderFilters();
+            renderNews();
+        }
+
+        function renderNews() {
+            const container = document.getElementById('news-container');
+            const moreBtn = document.getElementById('more-btn');
+            const items = filteredItems();
+            const isFiltered = filters.query || filters.sentiment !== 'All' || filters.topic;
+
+            document.getElementById('result-count').textContent = items.length
+                ? `Showing ${Math.min(filters.limit, items.length)} of ${plural(items.length, 'article')}${isFiltered ? ' matching your filters' : ''}`
+                : '';
+
+            if (!items.length) {
+                const box = el('div', 'col-span-full text-center py-10');
+                box.append(el('p', 'text-slate-400', allItems.length ? 'No articles match your filters.' : 'No articles found in the past 7 days.'));
+                if (isFiltered) {
+                    const clear = el('button', 'mt-4 text-sm text-emerald-400 hover:underline', 'Clear all filters');
+                    clear.type = 'button';
+                    clear.addEventListener('click', () => {
+                        document.getElementById('search').value = '';
+                        setFilter({ query: '', sentiment: 'All', topic: null });
+                    });
+                    box.append(clear);
+                }
+                container.replaceChildren(box);
+                moreBtn.classList.add('hidden');
                 return;
             }
 
-            // แสดง 18 ข่าวล่าสุด
-            items.slice(0, 18).forEach(item => {
-                const parts = item.title.split(' - ');
-                const publisher = item.source || (parts.length > 1 ? parts.pop() : 'Global News');
-                const cleanTitle = parts.join(' - ');
+            const badgeColors = {
+                'Positive': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+                'Neutral': 'bg-slate-600/30 text-slate-300 border-slate-500/30',
+                'Negative': 'bg-red-500/20 text-red-300 border-red-500/30'
+            };
 
-                const timeString = getRelativeTime(item.dateObj);
+            container.replaceChildren(...items.slice(0, filters.limit).map(item => {
+                const card = el(item.link ? 'a' : 'div', 'group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 rounded-xl p-5 transition-all duration-300 flex flex-col justify-between h-full shadow-sm');
+                if (item.link) {
+                    card.href = item.link;
+                    card.target = '_blank';
+                    card.rel = 'noopener noreferrer';
+                }
 
-                const badgeColors = {
-                    'Positive': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-                    'Neutral': 'bg-slate-600/30 text-slate-300 border-slate-500/30',
-                    'Negative': 'bg-red-500/20 text-red-300 border-red-500/30'
-                };
+                const top = el('div');
+                const meta = el('div', 'flex items-center justify-between gap-2 mb-3');
+                const pub = el('span', 'bg-emerald-500 text-slate-950 text-[10px] font-bold uppercase px-2 py-0.5 rounded truncate max-w-[70%]', item.source);
+                pub.title = item.source;
+                meta.append(pub, el('span', `text-[10px] px-2 py-0.5 rounded border ${badgeColors[item.sentiment]}`, item.sentiment));
+                top.append(meta, el('h3', 'text-slate-100 font-title font-bold text-lg mb-3 group-hover:text-emerald-400 transition-colors leading-snug line-clamp-4', item.title));
+                if (item.topics.length) {
+                    const tags = el('div', 'flex flex-wrap gap-1.5 mb-3');
+                    item.topics.slice(0, 3).forEach(t => tags.append(el('span', 'text-[10px] text-slate-400 bg-slate-900/60 border border-slate-700 rounded px-1.5 py-0.5', t)));
+                    top.append(tags);
+                }
 
-                const card = document.createElement('a');
-                card.href = item.link;
-                card.target = "_blank";
-                card.rel = "noopener noreferrer";
-                card.className = "group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 rounded-xl p-5 transition-all duration-300 flex flex-col justify-between h-full shadow-sm";
-                
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between gap-2 mb-3">
-                            <span class="bg-emerald-500 text-slate-950 text-[10px] font-bold uppercase px-2 py-0.5 rounded truncate max-w-[70%]">${publisher}</span>
-                            <span class="text-[10px] px-2 py-0.5 rounded border ${badgeColors[item.sentiment]}">${item.sentiment}</span>
-                        </div>
-                        <h4 class="text-slate-100 font-title font-bold text-lg mb-3 group-hover:text-emerald-400 transition-colors leading-snug">${cleanTitle}</h4>
-                    </div>
-                    <div class="pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-400">
-                        <span>${timeString}</span>
-                        <span class="group-hover:translate-x-1 transition-transform text-emerald-400">Read &rarr;</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+                const footer = el('div', 'pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-400');
+                const time = el('time', '', getRelativeTime(item.dateObj));
+                if (item.dateObj) {
+                    time.dateTime = item.dateObj.toISOString();
+                    time.title = item.dateObj.toLocaleString();
+                }
+                footer.append(time);
+                if (item.link) footer.append(el('span', 'group-hover:translate-x-1 transition-transform text-emerald-400', 'Read →'));
+
+                card.append(top, footer);
+                return card;
+            }));
+
+            moreBtn.classList.toggle('hidden', items.length <= filters.limit);
+            moreBtn.textContent = `Show more (${items.length - filters.limit} left)`;
         }
 
-        function getRelativeTime(date) {
-            const diff = Math.max(0, (new Date() - date) / 1000);
-            if (diff < 60) return 'Just now';
-            if (diff < 3600) return Math.floor(diff / 60) + ' mins ago';
-            if (diff < 86400) return Math.floor(diff / 3600) + ' hours ago';
-            return Math.floor(diff / 86400) + ' days ago';
+        function showLoading() {
+            const box = el('div', 'col-span-full text-center py-10');
+            box.append(
+                el('div', 'inline-block animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mb-4'),
+                el('p', 'text-slate-400 text-sm', 'Gathering latest intelligence from Google News…')
+            );
+            document.getElementById('news-container').replaceChildren(box);
         }
 
         function showError(msg) {
-            const container = document.getElementById('news-container');
-            container.innerHTML = `<p class="text-red-400 col-span-full bg-red-900/20 p-4 rounded border border-red-500/30 text-center">${msg}</p>`;
+            document.getElementById('news-container').replaceChildren(
+                el('p', 'text-red-400 col-span-full bg-red-900/20 p-4 rounded border border-red-500/30 text-center', msg)
+            );
         }
+
+        function setBusy(busy) {
+            const btn = document.getElementById('refresh-btn');
+            btn.disabled = busy;
+            document.getElementById('refresh-icon').classList.toggle('animate-spin', busy);
+            if (busy && allItems.length) document.getElementById('sync-status').textContent = 'Updating…';
+        }
+
+        function setStatus(state, text) {
+            const color = { fresh: ['bg-emerald-400', 'bg-emerald-500', 'text-emerald-400'], stale: ['bg-amber-400', 'bg-amber-500', 'text-amber-400'], offline: ['bg-red-400', 'bg-red-500', 'text-red-400'] }[state];
+            const [ping, dot] = document.getElementById('status-dot').children;
+            ping.className = `${state === 'fresh' ? 'animate-ping ' : ''}absolute inline-flex h-full w-full rounded-full ${color[0]} opacity-75`;
+            dot.className = `relative inline-flex rounded-full h-2 w-2 ${color[1]}`;
+            const label = document.getElementById('sync-status');
+            label.className = color[2];
+            label.textContent = text;
+        }
+
+        // ---------- กราฟ ----------
 
         function initCharts() {
             Chart.defaults.color = '#94a3b8';
             Chart.defaults.font.family = "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
-            
+
             const volCtx = document.getElementById('volumeChart').getContext('2d');
             volChart = new Chart(volCtx, {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: ['6d ago', '5d ago', '4d ago', '3d ago', '2d ago', '1d ago', 'Today'],
-                    datasets: [{
-                        label: 'Mentions',
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.35
-                    }]
+                    labels: [],
+                    datasets: ['Positive', 'Neutral', 'Negative'].map(s => ({
+                        label: s,
+                        data: [],
+                        backgroundColor: SENTIMENT_COLORS[s],
+                        borderRadius: 3,
+                        maxBarThickness: 48
+                    }))
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } },
+                        tooltip: { footer: ctx => `Total: ${ctx.reduce((sum, c) => sum + c.parsed.y, 0)}` }
+                    },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        x: { grid: { display: false } }
+                        y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 0, font: { size: 11 } } }
                     }
                 }
             });
@@ -399,8 +684,8 @@
                 data: {
                     labels: ['Positive', 'Neutral', 'Negative'],
                     datasets: [{
-                        data: [1, 1, 1],
-                        backgroundColor: ['#10b981', '#64748b', '#ef4444'],
+                        data: [0, 0, 0],
+                        backgroundColor: Object.values(SENTIMENT_COLORS),
                         borderWidth: 0,
                         hoverOffset: 4
                     }]
@@ -411,42 +696,78 @@
                     cutout: '75%',
                     plugins: {
                         legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } }
-                    }
+                    },
+                    // คลิกที่กราฟเพื่อกรองข่าวตามอารมณ์
+                    onClick: (evt, elements) => {
+                        if (!elements.length) return;
+                        const s = sentChart.data.labels[elements[0].index];
+                        setFilter({ sentiment: filters.sentiment === s ? 'All' : s });
+                        document.getElementById('feed-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    },
+                    onHover: (evt, elements) => { evt.native.target.style.cursor = elements.length ? 'pointer' : 'default'; }
                 }
             });
         }
 
-        function updateCharts(items, sentimentCounts) {
-            // คำนวณจำนวนข่าวจริงในแต่ละวันย้อนหลัง 7 วัน
+        function updateCharts(items) {
+            // นับจำนวนข่าวรายวันตามวันในปฏิทิน (เวลาท้องถิ่น) ย้อนหลัง 7 วัน
             const labels = [];
-            const dailyCounts = [0, 0, 0, 0, 0, 0, 0];
+            const dayKeys = [];
             const today = new Date();
-            today.setHours(23, 59, 59, 999);
-
             for (let i = 6; i >= 0; i--) {
-                const d = new Date(today.getTime() - (i * 24 * 60 * 60 * 1000));
-                labels.push(i === 0 ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' }));
+                const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+                dayKeys.push(d.toDateString());
+                labels.push(i === 0 ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }));
             }
 
+            const series = { Positive: Array(7).fill(0), Neutral: Array(7).fill(0), Negative: Array(7).fill(0) };
             items.forEach(item => {
-                const diffTime = today - item.dateObj;
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                if (diffDays >= 0 && diffDays < 7) {
-                    dailyCounts[6 - diffDays]++;
-                }
+                if (!item.dateObj) return;
+                const idx = dayKeys.indexOf(item.dateObj.toDateString());
+                if (idx >= 0) series[item.sentiment][idx]++;
             });
 
             volChart.data.labels = labels;
-            volChart.data.datasets[0].data = dailyCounts;
+            volChart.data.datasets.forEach(ds => { ds.data = series[ds.label]; });
             volChart.update();
 
-            sentChart.data.datasets[0].data = sentimentCounts;
+            const counts = sentimentCounts(items);
+            sentChart.data.datasets[0].data = [counts.Positive, counts.Neutral, counts.Negative];
             sentChart.update();
+            document.getElementById('donut-total').textContent = items.length;
+
+            document.getElementById('volumeChart').setAttribute('aria-label',
+                'Daily articles, past 7 days: ' + labels.map((l, i) => `${l} ${series.Positive[i] + series.Neutral[i] + series.Negative[i]}`).join(', '));
+            document.getElementById('sentimentChart').setAttribute('aria-label',
+                `Sentiment: ${counts.Positive} positive, ${counts.Neutral} neutral, ${counts.Negative} negative`);
         }
+
+        // ---------- เริ่มทำงาน ----------
 
         document.addEventListener('DOMContentLoaded', () => {
             initCharts();
+
+            document.getElementById('refresh-btn').addEventListener('click', fetchNews);
+            document.getElementById('more-btn').addEventListener('click', () => {
+                filters.limit += PAGE_SIZE;
+                renderNews();
+            });
+            let searchTimer;
+            document.getElementById('search').addEventListener('input', e => {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => setFilter({ query: e.target.value }), 150);
+            });
+
+            // แสดงข่าวที่บันทึกไว้ก่อนทันที ระหว่างรอข่าวใหม่
+            const cached = readCache();
+            if (cached) useItems(cached.items, cached.at, 'stale');
             fetchNews();
+
+            // รีเฟรชอัตโนมัติ และอัปเดตเมื่อกลับมาเปิดแท็บนี้อีกครั้ง
+            setInterval(() => { if (!document.hidden) fetchNews(); }, AUTO_REFRESH_MS);
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && Date.now() - lastCheckAt > AUTO_REFRESH_MS) fetchNews();
+            });
         });
     </script>
 </body>
