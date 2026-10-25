@@ -1,0 +1,36 @@
+# Refreshes techReviews.json (the news feed behind techReviews.html) every
+# 3 hours, so the page never depends on public CORS proxies to load news.
+name: Update tech news
+
+on:
+  schedule:
+    - cron: '17 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-tech-news
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch latest headlines
+        run: python3 scripts/fetch_tech_news.py techReviews.json
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- techReviews.json; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898341+github-actions[bot]@users.noreply.github.com"
+          git add techReviews.json
+          git commit -m "Update tech news feed"
+          git push
