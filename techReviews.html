@@ -1,517 +1,137 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Siam Times | Green Tech Social Listening</title>
-    
-    <!-- Tailwind CSS for styling -->
+    <title>The Siam Times - Social Listening</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Chomsky';
+            src: url('Chomsky.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
     
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+                        serif: ['Newsreader', 'serif'],
+                        title: ['Newsreader', 'serif'],
+                        masthead: ['Chomsky', 'UnifrakturMaguntia', 'cursive'],
                     },
                     colors: {
-                        brand: {
-                            50: '#ecfdf5',
-                            100: '#d1fae5',
+                        slate: {
+                            850: '#151e2e',
+                            900: '#0f172a',
+                        },
+                        emerald: {
                             400: '#34d399',
                             500: '#10b981',
-                            600: '#059669',
-                            900: '#064e3b',
-                        },
-                        dark: {
-                            900: '#0f172a', // Slate 900
-                            800: '#1e293b', // Slate 800
-                            700: '#334155', // Slate 700
                         }
                     }
                 }
             }
         }
     </script>
-
     <style>
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-        /* Custom Scrollbar for sleek look */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569; 
-        }
-        /* Loader animation */
-        .loader {
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top: 3px solid #10b981;
-            width: 24px;
-            height: 24px;
-            -webkit-animation: spin 1s linear infinite; /* Safari */
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            background-color: #0f172a; 
+            color: #e2e8f0; 
         }
         .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(30, 41, 59, 0.7); 
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
-<body class="font-sans antialiased min-h-screen flex flex-col">
-
-    <!-- Navigation Bar -->
-    <nav class="sticky top-0 z-50 glass-panel border-b border-dark-700">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded bg-brand-500 flex items-center justify-center font-bold text-white shadow-lg shadow-brand-500/30">
-                        T
-                    </div>
-                    <span class="font-bold text-xl tracking-tight">The Siam Times <span class="text-brand-500 font-medium">Pulse</span></span>
-                </div>
-                <div class="flex items-center gap-4 text-sm text-slate-400">
-                    <span id="current-time" class="hidden sm:inline-block"></span>
-                    <button onclick="location.reload()" class="flex items-center gap-2 hover:text-white transition-colors bg-dark-700/50 hover:bg-dark-700 px-3 py-1.5 rounded-lg border border-dark-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        Refresh Data
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+<body class="min-h-screen p-4 md:p-8 font-sans">
+    <div class="max-w-7xl mx-auto">
         
-        <!-- Header Section -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-white mb-2">Green Technology & Environmental Trends</h1>
-            <p class="text-slate-400">Real-time social listening and news aggregation for the past 7 days.</p>
-        </div>
-
-        <!-- Dashboard Loading State -->
-        <div id="loading-state" class="flex flex-col items-center justify-center py-20">
-            <div class="loader mb-4 w-12 h-12"></div>
-            <p class="text-slate-400 animate-pulse">Aggregating latest news from across the web...</p>
-        </div>
-
-        <!-- Error State -->
-        <div id="error-state" class="hidden bg-red-900/20 border border-red-500/50 rounded-xl p-6 text-center mb-8">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-500 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <h3 class="text-lg font-medium text-red-400 mb-1">Unable to fetch data</h3>
-            <p class="text-sm text-slate-300">There was a problem retrieving the RSS feed. Please try refreshing the page later.</p>
-        </div>
-
-        <!-- Dashboard Content (Hidden until loaded) -->
-        <div id="dashboard-content" class="hidden space-y-6">
-            
-            <!-- KPIs Row -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="glass-panel rounded-xl p-6">
-                    <h3 class="text-sm font-medium text-slate-400 mb-1">Articles Analyzed (7d)</h3>
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-white" id="kpi-volume">--</span>
-                        <span class="text-xs font-medium text-brand-400 bg-brand-400/10 px-2 py-0.5 rounded-full flex items-center">
-                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                            Live
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="glass-panel rounded-xl p-6">
-                    <h3 class="text-sm font-medium text-slate-400 mb-1">Overall Sentiment</h3>
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-brand-400">Positive</span>
-                        <span class="text-sm text-slate-400">68%</span>
-                    </div>
-                    <div class="w-full bg-dark-700 rounded-full h-1.5 mt-3">
-                        <div class="bg-brand-500 h-1.5 rounded-full" style="width: 68%"></div>
-                    </div>
-                </div>
-
-                <div class="glass-panel rounded-xl p-6">
-                    <h3 class="text-sm font-medium text-slate-400 mb-1">Top Source</h3>
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-2xl font-bold text-white truncate w-full" id="kpi-source">Loading...</span>
-                    </div>
-                    <p class="text-xs text-slate-400 mt-1">Most frequent publisher in feed</p>
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row items-center justify-between border-b border-slate-700 pb-6 mb-8 gap-4">
+            <div class="flex items-center gap-4">
+                <img src="IMG_6412.jpeg" alt="The Siam Times Logo" class="w-12 h-12 object-cover rounded shadow-md border border-slate-600">
+                <div class="flex flex-col">
+                    <span class="text-emerald-400 font-bold tracking-widest text-xs uppercase mb-1">Pulse Dashboard</span>
+                    <h1 class="font-masthead text-5xl tracking-wide text-white leading-none mt-1">The Siam Times</h1>
                 </div>
             </div>
-
-            <!-- Charts Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Line Chart -->
-                <div class="glass-panel rounded-xl p-6 lg:col-span-2 shadow-lg">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-white">Mentions Volume (Past 7 Days)</h3>
-                    </div>
-                    <div class="h-64 w-full relative">
-                        <canvas id="volumeChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Doughnut Chart -->
-                <div class="glass-panel rounded-xl p-6 shadow-lg">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-white">Sentiment Breakdown</h3>
-                    </div>
-                    <div class="h-64 w-full relative flex justify-center">
-                        <canvas id="sentimentChart"></canvas>
-                    </div>
+            <div class="text-right glass-panel px-4 py-2 rounded-lg">
+                <div class="text-xs text-slate-400 uppercase tracking-wider">Live Updates</div>
+                <div class="text-sm font-medium text-emerald-400 flex items-center justify-end gap-2 mt-1">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Auto-sync Active
                 </div>
             </div>
+        </header>
 
-            <!-- News Feed Section -->
-            <div class="mt-10">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                        </svg>
-                        Live News Feed
-                    </h2>
-                    <span class="text-sm text-slate-400 bg-dark-800 px-3 py-1 rounded-full border border-dark-700">Auto-updates</span>
-                </div>
-                
-                <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                    <!-- News cards will be injected here via JavaScript -->
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="glass-panel p-5 rounded-xl">
+                <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Total Mentions (7 Days)</h3>
+                <p class="text-3xl font-bold text-white" id="total-mentions">...</p>
+            </div>
+            <div class="glass-panel p-5 rounded-xl">
+                <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Sentiment Shift</h3>
+                <p class="text-3xl font-bold text-emerald-400">+12%</p>
+            </div>
+            <div class="glass-panel p-5 rounded-xl">
+                <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Top Publisher</h3>
+                <p class="text-xl font-bold text-white truncate" id="top-publisher">...</p>
+            </div>
+            <div class="glass-panel p-5 rounded-xl">
+                <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Topic Velocity</h3>
+                <p class="text-3xl font-bold text-emerald-400">High</p>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="glass-panel p-6 rounded-xl lg:col-span-2">
+                <h3 class="text-sm text-slate-300 font-bold mb-4 uppercase tracking-wider">Mention Volume Trend</h3>
+                <div class="h-64 w-full relative">
+                    <canvas id="volumeChart"></canvas>
                 </div>
             </div>
-
+            <div class="glass-panel p-6 rounded-xl">
+                <h3 class="text-sm text-slate-300 font-bold mb-4 uppercase tracking-wider">Sentiment Analysis</h3>
+                <div class="h-64 w-full relative">
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+            </div>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-dark-700 bg-dark-900 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <p class="text-center text-sm text-slate-500">
-                &copy; <span id="year"></span> The Siam Times. Dashboard strictly for analytical and social listening purposes. Powered by Google News.
-            </p>
-        </div>
-    </footer>
-
-    <script>
-        // Set current date/time in header
-        function updateTime() {
-            const now = new Date();
-            const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            document.getElementById('current-time').textContent = now.toLocaleDateString('en-US', options);
-            document.getElementById('year').textContent = now.getFullYear();
-        }
-        updateTime();
-        setInterval(updateTime, 60000);
-
-        // Chart instances
-        let volumeChartInstance = null;
-        let sentimentChartInstance = null;
-
-        // Fetch RSS via rss2json API
-        async function fetchNewsData() {
-            // Google News RSS URL for Green or Environmental tech over the last 7 days
-            const rssQuery = 'green technology OR environmental technology when:7d';
-            const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(rssQuery)}&hl=en-US&gl=US&ceid=US:en`;
+        <!-- News Feed Section -->
+        <div class="glass-panel rounded-xl p-6">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
+                <h3 class="text-2xl text-white font-title font-bold">Recent Green Tech Intelligence</h3>
+                <span class="text-xs text-slate-400">Powered by Google News</span>
+            </div>
             
-            // rss2json API endpoint to bypass CORS and parse XML to JSON
-            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=`;
-
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error('Network response was not ok');
-                
-                const data = await response.json();
-                
-                if (data.status === 'ok') {
-                    processNewsData(data.items);
-                } else {
-                    throw new Error('API returned error status');
-                }
-            } catch (error) {
-                console.error("Error fetching news:", error);
-                document.getElementById('loading-state').classList.add('hidden');
-                document.getElementById('error-state').classList.remove('hidden');
-            }
-        }
-
-        // Process and display the data
-        function processNewsData(items) {
-            // Hide loading, show dashboard
-            document.getElementById('loading-state').classList.add('hidden');
-            document.getElementById('dashboard-content').classList.remove('hidden');
-
-            // 1. Update KPIs
-            document.getElementById('kpi-volume').textContent = items.length;
-            
-            // Extract sources to find top source
-            const sources = {};
-            let topSource = "Various Sources";
-            let maxCount = 0;
-
-            const processedItems = items.map(item => {
-                // Google News format usually puts the publisher at the end of the title after " - "
-                const titleParts = item.title.split(' - ');
-                let source = "Unknown Source";
-                let cleanTitle = item.title;
-
-                if (titleParts.length > 1) {
-                    source = titleParts.pop(); // Remove and get the last part
-                    cleanTitle = titleParts.join(' - '); // Rejoin the rest
-                }
-
-                // Count sources
-                sources[source] = (sources[source] || 0) + 1;
-                if (sources[source] > maxCount) {
-                    maxCount = sources[source];
-                    topSource = source;
-                }
-
-                // Attempt to get image (rss2json sometimes grabs it, otherwise use placeholder)
-                let imageUrl = item.thumbnail || item.enclosure?.link;
-                if (!imageUrl || imageUrl === "") {
-                    // Create a placeholder image using placehold.co
-                    // Use a hash of the title to give a consistent random-looking color
-                    let hash = 0;
-                    for (let i = 0; i < source.length; i++) {
-                        hash = source.charCodeAt(i) + ((hash << 5) - hash);
-                    }
-                    const hue = Math.abs(hash % 360);
-                    const bgColor = `1e293b`; // Slate 800
-                    const textColor = `10b981`; // Brand 500
-                    
-                    // Simple URL encoding for text
-                    const encodedSource = encodeURIComponent(source.substring(0, 15));
-                    imageUrl = `https://placehold.co/600x400/${bgColor}/${textColor}?text=${encodedSource}`;
-                }
-
-                return {
-                    ...item,
-                    cleanTitle,
-                    source,
-                    imageUrl,
-                    pubDateObj: new Date(item.pubDate)
-                };
-            });
-
-            document.getElementById('kpi-source').textContent = topSource;
-
-            // 2. Render News Grid
-            renderNewsGrid(processedItems);
-
-            // 3. Render Charts (Mock analytics based on real timeline)
-            renderCharts(processedItems);
-        }
-
-        function renderNewsGrid(items) {
-            const grid = document.getElementById('news-grid');
-            grid.innerHTML = ''; // Clear existing
-
-            // Render up to 12 items to avoid overwhelming the DOM
-            const displayItems = items.slice(0, 12);
-
-            displayItems.forEach(item => {
-                // Format relative time (e.g., "2 hours ago", "Oct 24")
-                const now = new Date();
-                const diffTime = Math.abs(now - item.pubDateObj);
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
-                
-                let dateStr = "";
-                if (diffHours < 24) {
-                    dateStr = diffHours <= 1 ? "Just now" : `${diffHours} hours ago`;
-                } else {
-                    dateStr = item.pubDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                }
-
-                const cardHTML = `
-                    <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="group glass-panel rounded-xl overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 transition-all duration-300 border border-dark-700 hover:border-brand-500/30 flex flex-col h-full">
-                        <div class="h-48 overflow-hidden relative bg-dark-800">
-                            <img src="${item.imageUrl}" alt="Article Thumbnail" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.src='https://placehold.co/600x400/1e293b/10b981?text=News'">
-                            <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-xs font-medium text-white px-2 py-1 rounded-md">
-                                ${dateStr}
-                            </div>
-                        </div>
-                        <div class="p-5 flex-1 flex flex-col">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="text-xs font-semibold text-brand-400 bg-brand-400/10 px-2 py-1 rounded-md">${item.source}</span>
-                            </div>
-                            <h3 class="font-bold text-slate-100 text-lg leading-snug mb-3 group-hover:text-brand-400 transition-colors line-clamp-3">
-                                ${item.cleanTitle}
-                            </h3>
-                            <div class="mt-auto flex items-center text-sm text-slate-400 group-hover:text-white transition-colors">
-                                Read full article 
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                            </div>
-                        </div>
-                    </a>
-                `;
-                grid.insertAdjacentHTML('beforeend', cardHTML);
-            });
-        }
-
-        function renderCharts(items) {
-            // Setup Chart Defaults for dark theme
-            Chart.defaults.color = '#94a3b8'; // text-slate-400
-            Chart.defaults.font.family = "'Inter', sans-serif";
-            Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.9)';
-            Chart.defaults.plugins.tooltip.titleColor = '#fff';
-            Chart.defaults.plugins.tooltip.bodyColor = '#cbd5e1';
-            Chart.defaults.plugins.tooltip.borderColor = '#334155';
-            Chart.defaults.plugins.tooltip.borderWidth = 1;
-            Chart.defaults.plugins.tooltip.padding = 10;
-            Chart.defaults.plugins.tooltip.cornerRadius = 8;
-
-            // Generate mock data for the last 7 days based on the total volume to simulate social listening
-            const labels = [];
-            const volumeData = [];
-            
-            // Distribute total volume somewhat randomly across 7 days, biased towards recent days
-            let remainingVolume = items.length;
-            const now = new Date();
-            
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date(now);
-                d.setDate(d.getDate() - i);
-                labels.push(d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
-                
-                if (i === 0) {
-                    volumeData.push(remainingVolume); // Last day takes the rest
-                } else {
-                    // Random chunk, slightly weighted
-                    const chunk = Math.floor(Math.random() * (remainingVolume / (i + 1)) * 1.5);
-                    volumeData.push(chunk);
-                    remainingVolume -= chunk;
-                }
-            }
-
-            // --- VOLUME LINE CHART ---
-            const ctxVol = document.getElementById('volumeChart').getContext('2d');
-            
-            // Create Gradient
-            const gradient = ctxVol.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.5)'); // brand-500
-            gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
-
-            if(volumeChartInstance) volumeChartInstance.destroy();
-
-            volumeChartInstance = new Chart(ctxVol, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Article Mentions',
-                        data: volumeData,
-                        borderColor: '#10b981', // brand-500
-                        backgroundColor: gradient,
-                        borderWidth: 2,
-                        pointBackgroundColor: '#0f172a',
-                        pointBorderColor: '#10b981',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        fill: true,
-                        tension: 0.4 // smooth curves
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: '#334155', // dark-700
-                                drawBorder: false,
-                            },
-                            ticks: { precision: 0 }
-                        },
-                        x: {
-                            grid: { display: false, drawBorder: false }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index',
-                    },
-                }
-            });
-
-            // --- SENTIMENT DOUGHNUT CHART ---
-            const ctxSent = document.getElementById('sentimentChart').getContext('2d');
-            
-            if(sentimentChartInstance) sentimentChartInstance.destroy();
-
-            sentimentChartInstance = new Chart(ctxSent, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Positive', 'Neutral', 'Negative'],
-                    datasets: [{
-                        data: [68, 22, 10], // Mock sentiment breakdown typical for green tech
-                        backgroundColor: [
-                            '#10b981', // Emerald 500 (Positive)
-                            '#3b82f6', // Blue 500 (Neutral)
-                            '#f43f5e'  // Rose 500 (Negative)
-                        ],
-                        borderColor: '#1e293b', // Match card background
-                        borderWidth: 4,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '70%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Initialize App on Load
-        window.addEventListener('DOMContentLoaded', () => {
-            fetchNewsData();
-        });
-
-    </script>
-</body>
-</html>
+            <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Loading State -->
+                <div class="col-span-full text-center py-10">
+                    <div class="inline-block animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-
