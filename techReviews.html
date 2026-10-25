@@ -17,6 +17,7 @@
             src: url('Chomsky.woff2') format('woff2');
             font-weight: normal;
             font-style: normal;
+            font-display: swap;
         }
     </style>
     
@@ -55,13 +56,6 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 font-sans">
@@ -70,21 +64,26 @@
         <!-- Header -->
         <header class="flex flex-col md:flex-row items-center justify-between border-b border-slate-700 pb-6 mb-8 gap-4">
             <div class="flex items-center gap-4">
-                <img src="IMG_6412.jpeg" alt="The Siam Times Logo" class="w-12 h-12 object-cover rounded shadow-md border border-slate-600">
+                <img src="IMG_6412.jpeg" alt="The Siam Times Logo" class="w-12 h-12 object-cover rounded shadow-md border border-slate-600" onerror="this.src='https://placehold.co/100x100/000000/ffffff?text=S'">
                 <div class="flex flex-col">
                     <span class="text-emerald-400 font-bold tracking-widest text-xs uppercase mb-1">Pulse Dashboard</span>
-                    <h1 class="font-masthead text-5xl tracking-wide text-white leading-none mt-1">The Siam Times</h1>
+                    <h1 class="font-masthead text-4xl sm:text-5xl tracking-wide text-white leading-none mt-1">The Siam Times</h1>
                 </div>
             </div>
-            <div class="text-right glass-panel px-4 py-2 rounded-lg">
-                <div class="text-xs text-slate-400 uppercase tracking-wider">Live Updates</div>
-                <div class="text-sm font-medium text-emerald-400 flex items-center justify-end gap-2 mt-1">
-                    <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    Auto-sync Active
+            <div class="text-right glass-panel px-4 py-2 rounded-lg flex items-center gap-4">
+                <div>
+                    <div class="text-xs text-slate-400 uppercase tracking-wider">Live Updates</div>
+                    <div class="text-sm font-medium text-emerald-400 flex items-center justify-end gap-2 mt-1">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span id="sync-status">Auto-sync Active</span>
+                    </div>
                 </div>
+                <button onclick="fetchNews()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded border border-slate-600 transition">
+                    Refresh
+                </button>
             </div>
         </header>
 
@@ -95,8 +94,8 @@
                 <p class="text-3xl font-bold text-white" id="total-mentions">...</p>
             </div>
             <div class="glass-panel p-5 rounded-xl">
-                <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Sentiment Shift</h3>
-                <p class="text-3xl font-bold text-emerald-400">+12%</p>
+                <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Positive Sentiment</h3>
+                <p class="text-3xl font-bold text-emerald-400" id="positive-rate">...</p>
             </div>
             <div class="glass-panel p-5 rounded-xl">
                 <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Top Publisher</h3>
@@ -104,14 +103,14 @@
             </div>
             <div class="glass-panel p-5 rounded-xl">
                 <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-2">Topic Velocity</h3>
-                <p class="text-3xl font-bold text-emerald-400">High</p>
+                <p class="text-3xl font-bold text-emerald-400" id="topic-velocity">...</p>
             </div>
         </div>
 
         <!-- Charts Row -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="glass-panel p-6 rounded-xl lg:col-span-2">
-                <h3 class="text-sm text-slate-300 font-bold mb-4 uppercase tracking-wider">Mention Volume Trend</h3>
+                <h3 class="text-sm text-slate-300 font-bold mb-4 uppercase tracking-wider">7-Day Mention Volume Trend</h3>
                 <div class="h-64 w-full relative">
                     <canvas id="volumeChart"></canvas>
                 </div>
@@ -126,12 +125,153 @@
 
         <!-- News Feed Section -->
         <div class="glass-panel rounded-xl p-6">
-            <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
-                <h3 class="text-2xl text-white font-title font-bold">Recent Green Tech Intelligence</h3>
-                <span class="text-xs text-slate-400">Powered by Google News</span>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b border-slate-700 pb-4 gap-2">
+                <h3 class="text-2xl text-white font-title font-bold">Recent Green & Environmental Tech Intelligence</h3>
+                <span class="text-xs text-slate-400" id="last-updated">Powered by Google News (Past 7 Days)</span>
             </div>
             
-            <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Loading State -->
+            <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // บังคับ Google News ค้นหาเฉพาะข่าวในรอบ 7 วันที่ผ่านมาด้วย when:7d
+        const searchQuery = '("green technology" OR "environmental technology" OR "clean tech" OR "climate tech") when:7d';
+        const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(searchQuery)}&hl=en-US&gl=US&ceid=US:en`;
+
+        let volChart, sentChart;
+
+        // ฟังก์ชันแปลงวันที่ให้รองรับ Safari และทุกเบราว์เซอร์
+        function parseSafeDate(dateStr) {
+            if (!dateStr) return new Date();
+            // แก้ปัญหา Safari อ่านค่า "YYYY-MM-DD HH:MM:SS" ไม่ได้
+            const normalized = dateStr.trim().replace(/^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})$/, '$1T$2Z');
+            const d = new Date(normalized);
+            return isNaN(d.getTime()) ? new Date() : d;
+        }
+
+        // ดึงข่าวด้วยระบบสำรองหลายช่องทาง (Multi-Fallback)
+        async function fetchNews() {
+            const container = document.getElementById('news-container');
+            container.innerHTML = `
                 <div class="col-span-full text-center py-10">
-                    <div class="inline-block animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-
+                    <div class="inline-block animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mb-4"></div>
+                    <p class="text-slate-400 text-sm">Gathering latest intelligence from Google News...</p>
+                </div>
+            `;
+
+            // ช่องทางที่ 1 และ 2: ดึง XML โดยตรงผ่าน CORS Proxy (ได้ข่าวเยอะถึง 100 ข่าว)
+            const xmlProxies = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`, `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`
+            ];
+
+            for (const proxyUrl of xmlProxies) {
+                try {
+                    const response = await fetch(proxyUrl);
+                    if (response.ok) {
+                        const xmlText = await response.text();
+                        const items = parseRSSXML(xmlText);
+                        if (items.length > 0) {
+                            processData(items);
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('XML Proxy failed, trying next...', e);
+                }
+            }
+
+            // ช่องทางที่ 3: ใช้ rss2json เป็นตัวสำรองสุดท้าย
+            try {
+                const rss2jsonUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`; const response = await fetch(rss2jsonUrl); const data = await response.json(); if (data.status === 'ok' && data.items && data.items.length > 0) { processData(data.items); return; } } catch (e) { console.error('All proxies failed:', e); }  showError('Unable to reach Google News servers right now. Please click Refresh to try again.'); }  // แปลง XML จาก Google News RSS เป็น Array function parseRSSXML(xmlText) { const parser = new DOMParser(); const xmlDoc = parser.parseFromString(xmlText, "text/xml"); const itemNodes = xmlDoc.querySelectorAll("item"); const results = [];  itemNodes.forEach(node => { const title = node.querySelector("title")?.textContent \vert{}\vert{} "Untitled"; const link = node.querySelector("link")?.textContent \vert{}\vert{} "#"; const pubDate = node.querySelector("pubDate")?.textContent \vert{}\vert{} ""; const sourceNode = node.querySelector("source"); const sourceName = sourceNode ? sourceNode.textContent : "";  results.push({ title: title, link: link, pubDate: pubDate, source: sourceName }); });  return results; }  // วิเคราะห์อารมณ์ข่าวเบื้องต้นจากคำสำคัญในพาดหัว function analyzeSentiment(title) { const text = title.toLowerCase(); const posWords = ['breakthrough', 'growth', 'launch', 'award', 'innovation', 'boost', 'solution', 'success', 'clean', 'sustainable', 'advance', 'new', 'invest', 'record', 'smart']; const negWords = ['crisis', 'fail', 'pollution', 'threat', 'delay', 'cost', 'risk', 'warn', 'drop', 'lawsuit', 'ban', 'shortage', 'problem', 'damage'];  let score = 0; posWords.forEach(w => { if (text.includes(w)) score++; }); negWords.forEach(w => { if (text.includes(w)) score--; });  if (score > 0) return 'Positive'; if (score < 0) return 'Negative'; return 'Neutral'; }  function processData(items) { const now = new Date(); const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));  // กรองข่าวและจัดเรียงจากใหม่สุดไปเก่าสุด const recentItems = items .map(item => ({ ...item, dateObj: parseSafeDate(item.pubDate), sentiment: analyzeSentiment(item.title) })) .filter(item => item.dateObj >= sevenDaysAgo) .sort((a, b) => b.dateObj - a.dateObj);  const finalItems = recentItems.length > 0 ? recentItems : items.map(item => ({ ...item, dateObj: parseSafeDate(item.pubDate), sentiment: analyzeSentiment(item.title) }));  // 1. อัปเดตจำนวนข่าวทั้งหมด document.getElementById('total-mentions').innerText = finalItems.length;  // 2. คำนวณสัดส่วน Sentiment let pos = 0, neu = 0, neg = 0; finalItems.forEach(item => { if (item.sentiment === 'Positive') pos++; else if (item.sentiment === 'Negative') neg++; else neu++; }); const posRate = finalItems.length > 0 ? Math.round((pos / finalItems.length) * 100) : 0; document.getElementById('positive-rate').innerText = `${posRate}%`;
+
+            // 3. หาสำนักข่าวที่รายงานมากที่สุด
+            const publishers = {};
+            finalItems.forEach(item => {
+                let pub = item.source;
+                if (!pub) {
+                    const parts = item.title.split(' - ');
+                    pub = parts.length > 1 ? parts[parts.length - 1] : 'News Wire';
+                }
+                publishers[pub] = (publishers[pub] || 0) + 1;
+            });
+
+            let topPub = 'N/A';
+            let maxCount = 0;
+            for (const [pub, count] of Object.entries(publishers)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topPub = pub;
+                }
+            }
+            document.getElementById('top-publisher').innerText = topPub;
+
+            // 4. ประเมินความร้อนแรงของประเด็น
+            document.getElementById('topic-velocity').innerText = finalItems.length >= 25 ? 'High' : (finalItems.length >= 10 ? 'Moderate' : 'Normal');
+
+            // 5. แสดงเวลาอัปเดตล่าสุด
+            document.getElementById('last-updated').innerText = `Last synced: ${now.toLocaleTimeString()}`;
+
+            // แสดงผลการ์ดข่าวและอัปเดตกราฟ
+            renderNews(finalItems);
+            updateCharts(finalItems, [pos, neu, neg]);
+        }
+
+        function renderNews(items) {
+            const container = document.getElementById('news-container');
+            container.innerHTML = '';
+
+            if (items.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 col-span-full text-center py-8">No articles found in the past 7 days.</p>';
+                return;
+            }
+
+            // แสดง 18 ข่าวล่าสุด
+            items.slice(0, 18).forEach(item => {
+                const parts = item.title.split(' - ');
+                const publisher = item.source || (parts.length > 1 ? parts.pop() : 'Global News');
+                const cleanTitle = parts.join(' - ');
+
+                const timeString = getRelativeTime(item.dateObj);
+
+                const badgeColors = {
+                    'Positive': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+                    'Neutral': 'bg-slate-600/30 text-slate-300 border-slate-500/30',
+                    'Negative': 'bg-red-500/20 text-red-300 border-red-500/30'
+                };
+
+                const card = document.createElement('a');
+                card.href = item.link;
+                card.target = "_blank";
+                card.rel = "noopener noreferrer";
+                card.className = "group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 rounded-xl p-5 transition-all duration-300 flex flex-col justify-between h-full shadow-sm";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="bg-emerald-500 text-slate-950 text-[10px] font-bold uppercase px-2 py-0.5 rounded truncate max-w-[70%]">${publisher}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded border ${badgeColors[item.sentiment]}">${item.sentiment}</span>
+                        </div>
+                        <h4 class="text-slate-100 font-title font-bold text-lg mb-3 group-hover:text-emerald-400 transition-colors leading-snug">${cleanTitle}</h4>
+                    </div>
+                    <div class="pt-3 border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-400">
+                        <span>${timeString}</span>
+                        <span class="group-hover:translate-x-1 transition-transform text-emerald-400">Read &rarr;</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function getRelativeTime(date) {
+            const diff = Math.max(0, (new Date() - date) / 1000);
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return Math.floor(diff / 60) + ' mins ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + ' hours ago';
+            return Math.floor(diff / 86400) + ' days ago';
+        }
+
+        function showError(msg) {
+            const container = document.getElementById('news-container');
+            container.innerHTML = `<p class="text-red-400 col-span-full bg-
