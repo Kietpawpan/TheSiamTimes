@@ -1,12 +1,60 @@
 {
- "generated": "2026-10-26T13:15:41Z",
+ "generated": "2026-10-26T20:35:23Z",
  "source": "Google News",
  "items": [
+  {
+   "title": "The buyer in a proposed mineral sale must commit at least US$2 million to exploration.",
+   "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNcXhlSUU3dHRyejdqM2x2enpJSkFPUFhXLVYtVXpBTlZBSTlHOElIZ3J2Z1loOUU2cW1hRkxWV2VxZFk5cjl4QjYzRlJ1TGZjbFY2QWRoMVJDcUdjWnM0Vno5RTNfRExYYmNPY2IwSy0yU3FCUlIzeGFBc1lab0tkaDNHbTZmclZRdTF4ZWxWeGFfMVV0eXdiRDhUTmg1U2hBQjFxXzBRMjNXUS1vcHprSnVn?oc=5",
+   "source": "Stock Titan",
+   "pubDate": "2026-10-26T19:54:00Z"
+  },
+  {
+   "title": "Guangdong Wenke Green Technology Corp., Ltd. Class A Estimates – SZSE:002775",
+   "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1lVXgtRmZQMmtPT3VhZXdkbWZ3TjJSaE45ODVPTFJ1cllYOFp2R3JobEdHdk1IdVNPWkk4S09XYnd5aXgtMllyMVpzYUJEb1N5ekE4RUVWdUtBbjB2a0xheHVDM2JlTXdTNms3blhyQ1FNa0F4cktNZw?oc=5",
+   "source": "TradingView",
+   "pubDate": "2026-10-26T19:23:16Z"
+  },
+  {
+   "title": "Silver Elephant Receives Approval to Proceed with Robinson-Lasher Asset Acquisition Transaction",
+   "link": "https://news.google.com/rss/articles/CBMihwJBVV95cUxNbXY0NjhRTHpyS0Z5LXNWWkVQOVF3QmF4ZVpCYk9SZ2NSWnlfcC1ZOEtVV0p3R21LdDlnZlpBQkRJTjJoMUlaYnZFd21ORDJPU29EWHJaTHN5V1RCcHdyREFQN3dyazdPMVh1REJ2aFU3YUMyMDliX0pLbDgtVzF2emRoMVYtZXVPd1FsUTJxZTZPM2hvV3ctSmI4MEx0UTQ4UWd5akQyV2FyVW1zOWxLd3JBWEdqQ19SQkU0UEJDZDQ1dGVIYW5hRmFrWENDNEhHTjlyX0JiRUpmbWJsWlFucy02Tm4tT0lpcWZfV2ZwdzhsRG9XdmJ6dVMwQUpEMVRIcFprbjhsWQ?oc=5",
+   "source": "The Globe and Mail",
+   "pubDate": "2026-10-26T19:19:40Z"
+  },
+  {
+   "title": "Opening Ceremony of the 4th Ho Chi Minh City Green Growth Products and Services Exhibition Space 2026",
+   "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPWUcxMGtJVDgySXA5eWxtdTBFVGJJVFl6bEFCdzFGUmJMMU1GbEk3OWhueVFZM1F4ZXRBOEVjQjNvdjJheTZrQlM2WGNTUHNBcXp2ZzN3X1V3YzI1MUxrQUtiNUhBRU9wNHZ6NF95X182Ty1tSFZyc1hvaDV4ZmdFTjNETGVnZjA1dnFNMi1Md1dkWEt5UHV1R09lSmN3MHBLVU9jZjhEcEhQYkZTajRHbDQ4UnhzYWVFSzZJVlhSd011QQ?oc=5",
+   "source": "Vietnam.vn",
+   "pubDate": "2026-10-26T16:40:37Z"
+  },
+  {
+   "title": "EU offers up to €4.5bn in loan guarantees for green hydrogen and other clean tech in non-European Mediterranean states",
+   "link": "https://news.google.com/rss/articles/CBMiggJBVV95cUxQQ2t6akprRGF3T0N3X3djNXRKV1VTYUl0UGIwNWNNb2FhV1AxbjFhN1dMUmxmTEdLWWlJdENkVDhVWTFhNjhhOU1FQllKMGVlalB4U1hsc093dUZDMGZhcncxSzNuLTNPaENZcGhLd1k1M3lUU0puSnRVTlpXTWdZWnFHWjRZU09LY0xqeC1CNlNMazhEdGlhZXNwWkUwb2pHWkdJdEtPYlc1RDFsTUpwNFJVV0Jxc1RzZU9YM0lGVjVzbF9LV2Jsb1ZnTy1xMzFDeGFHRmpBR1ZBb01pNncwTnptQWowU3h0U095YmJDR0JEMUlUM2p0NUZyNHJCRGx5d2c?oc=5",
+   "source": "Hydrogen Insight",
+   "pubDate": "2026-10-26T15:54:09Z"
+  },
+  {
+   "title": "GRECO 2026 showcases green growth and technology solutions",
+   "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOdDdZSjVFTjJhUTBrR3F2RXBrSWswOGxfTUpZMGpfQkFCLXZDUE10TXE1SXlGcnMtWWFuVG1XYW96OHU3NHVDYVBNbnR2aHZHaElqbXhDR3p5SXpQUTIwNmNtM1BpMi1FZE85bXNwaVM0eE1Nb3JJYWQ5akNNdnpMYjk5MUNxVHJaUnpYY3k0TWZmMnBhdm50ZWRGTDBqZE53Vk5HWA?oc=5",
+   "source": "vietnamnews.vn",
+   "pubDate": "2026-10-26T15:40:00Z"
+  },
+  {
+   "title": "SFC Environmental Technologies IPO: From Issue Details to Financials; Here’s What You Need to Know",
+   "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxQUjJEVGVkY3VZc3ZxSVF1bUg5Q2JFQTZQTFhmeEZ0TUh3SEpvMjRuVzhLMjBsX1FHS2FieGI2MUpFLVctaWpZblVBSW9vNjVRdjFmbnF0cnVuT1J0Y21aSGh6eGFKVU0xR0pLd3VZclprdVNBazhXMzJCVTJMVS0zS2NMUnV0cVVsQzB1ZnNwbDJ0cl9kYmNUV2dlWkxwWktkR0RVdWdCcjhMeWUzMUZpLXZtaFd1THU1a1IxTE1mX1Y3dk5KSWxzcG5wNlVvQ2VaWW9pcjAxQlZTUQ?oc=5",
+   "source": "Trade Brains",
+   "pubDate": "2026-10-26T15:31:37Z"
+  },
+  {
+   "title": "50 years later, Amory Lovins’ soft energy path meets electrification",
+   "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNdGJKRnYxMXdLRFItUE5zaXViMXRmY0puRVk2U3o0Sk8yZEpGaFFtNDJmOXRqM3Z3NXlxOHBQUWRhRExaS1RjTWMtRFU4TG5ERjVNVjRkam5UX2RqWk9QVjE1ZEQ2N052dTN2RUpIWEVjc3dtOEwzdVJsdVZXbEdJZ0YwSGZ4eENqRE9qRTU1bWtDMGdfRDQ0YW1B?oc=5",
+   "source": "swiowanewssource.com",
+   "pubDate": "2026-10-26T13:04:09Z"
+  },
   {
    "title": "UK energy sector unites to tackle barriers to household clean tech adoption",
    "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQV2FVa2xkUlYzTmh3aUw4RVpCbVQxa0hPaTFtWVNJbndpSzRXcDMwbnQwVmhJX2JrTTJNenZ6elJBb2Ewc3dWRTh4RDMzNzdzd1VyVnlBQWhOSThkanBoVThkU0c0OUJoeldsWGNTZW1IZzdMVUVUZEVseU45UDRyS2FqcjFVZzRaaGxJa3gtTzRTb2hiU2g5OERuRHBPSTZWbnJrS2g3cldsTnRiWXRaZEhR?oc=5",
    "source": "BusinessGreen",
-   "pubDate": "2026-10-26T12:40:12Z"
+   "pubDate": "2026-10-26T12:41:15Z"
   },
   {
    "title": "Tata Capital Cleantech Commits INR 750 Crore To 350 MW Hybrid Renewable Project With 750 MWh BESS In Maharashtra",
@@ -15,10 +63,22 @@
    "pubDate": "2026-10-26T12:30:42Z"
   },
   {
+   "title": "Shortlisted finalists for the 2026 C2I awards",
+   "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxQQVNZNG5pWloyVk0tZjFkR1FpSTZXZFBtWDVJZkZvdS00eGxUTlJvOW5LdVcwTEZRWldmZmtGVUJrY2NUNmNPRzZBbGY0S0w1MVFLeFViYlZqcFk0SFVSOFVKN3FBbmozb041YS1YQ2hXcEhwUGFUOXlzYlFZYUlwdmlteDVQRmVaaUtiOERqQmQ5R04wN1NBZTRUZDRUdHBkYkV6dDJKNktlWnJzelVmb2hmd3o0M0xZXy1OMjZhbUVNUFpqVUZqMQ?oc=5",
+   "source": "The Engineer",
+   "pubDate": "2026-10-26T12:17:25Z"
+  },
+  {
    "title": "Scanship lands $8.6m cruise technology order with further options",
    "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNMHNISEllZWlNcGsxbWxXalVUVUJRRmY3Q2FmVURXT2FYSHBFLXJ1cTlSZ2p1cUI5ZlJ1QnZFOWJKdEFRYUhpQWs5dTIyRE1KNmVRSFRxclROcFVPUjYwSHJySHlFUlRHYlRxQVhnNEhLTnhGa04wRVBUS09CZVlFNkZIN3VJeWMxR2Nyck9qLUk?oc=5",
    "source": "Splash247",
-   "pubDate": "2026-10-26T11:42:42Z"
+   "pubDate": "2026-10-26T12:06:58Z"
+  },
+  {
+   "title": "COMY Launches Waste Plastic-to-Propylene Chemical Recycling Pilot in Hebei Province",
+   "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPbWlDTTc2SGpQQTY3a0syNEVheTZtQWkyNFZWUzdvbXJwdUhRTDZUbjY0YXZpQWE2QlBQTk9pVW43VzZnYTgzQ2ZHSVpwRk5LOUlKMDhabDV0dDNKVERsNk5JZ1VYZ2ZYNFJ0akJLMkJjbUQ2a3MxRWVxRUhhTVhQMS1BeDR3OEsxNHZNYUU5blloQ1RZOEpqN2huaXl3d3lTUVNhVnhtSkFCMUVCaFVNLUh4SmxyOENxZ3JpRw?oc=5",
+   "source": "Digital Journal",
+   "pubDate": "2026-10-26T11:43:54Z"
   },
   {
    "title": "SFC Environmental Technologies IPO opens tomorrow; check GMP, lot size and other key details",
@@ -57,12 +117,6 @@
    "pubDate": "2026-10-26T09:25:59Z"
   },
   {
-   "title": "Technologies that help agricultural workers reduce labor and improve productivity",
-   "link": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNT1ZoWkpPTU9MNUstbzlsU0pqQl9xUEZSajVvcTFSa2wycUJuUzliU09mbmNFZHAzSHdXSEcwQV9UaVNkZklDTUJHa0FjVmNvMTduWGNIOEcyN3ptWDJQX0FJQVAyREJvMnNUWXh5NDkyYXJxR1Z0TEtGRkgyUmxnM1NVMXc3NDVIYnhuMWRjMU9IeVBzZGcwOTl6TU4yS1hDVkJmTUtpY2xCY3NXa0MxRTdVdzZoMkhkTDY2dEN2TTN2QQ?oc=5",
-   "source": "Laodong.vn",
-   "pubDate": "2026-10-26T08:43:08Z"
-  },
-  {
    "title": "Eco Expo Asia opens Mon with green solutions to tap business opportunities",
    "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxQeUFaVFBEdWNJajh1Ym5oNlV5Q1IyWDl5aFdVVHlPWDVkQ1dIRmJGWVFMdHBoQnF3OG9ncVdyS0x3c3RQd184VW5FR2ZpTS1rX3hONS1EMGMxWjFGV3dIS3FQQUQzLWs1WHdYX21KTDBKcXhQb0k0bV9QeEpkcjhDNERSQVQwcm0tMDJva096ZkdkQzhLRGNCc0p3d1d1Ty1iekE3MF9hWWhoRlBzYXlINHhnUTJzYnFaU182dndUbElEVnc?oc=5",
    "source": "The Standard (HK)",
@@ -75,9 +129,15 @@
    "pubDate": "2026-10-26T06:28:49Z"
   },
   {
+   "title": "Hotel sustainability depends on more than technology, new SHTM research finds",
+   "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOdFloVTU5RENtMWFXLVdjcmdVaXhkdkdTYU5PNDIzTzFhOXhWbGh6NmlWZjVPUjlIMkg3aENsb3MwTC1qMnVGSDB0Sm9zeE5ibmtteGdqb1V1MUJRTVg3TUZhVTI3UkQzNmFSSkE0T29QTXItSjVfLUFYNGU3UlZKNnpvLTN0UzBtM3FDRU9QOUpxSW9manFiOE9Ha2FieGs?oc=5",
+   "source": "Travel Daily News Asia-Pacific",
+   "pubDate": "2026-10-26T04:13:12Z"
+  },
+  {
    "title": "HK can assist green push within the Belt and Road: CE",
-   "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQVExxZjJBQVMtTUxwdDRzZDlURGFiNGpab19Cdm8zY0VrYzZsOEZnNkE2TDdiSkdJdU1SYnQ0VlE2LTd0LXZtSFY1MTRBVkZJQUNNcS0xSk5EWGhsX1JlUkgxMkJ0SnNuYnNaTGpPbi1YdElkRWN1ZWtxTFhzd1MxZGNVbHRmeVVCUmJyVXdxVTFQLU1tajF6WGsxeFp1REVQYmJN?oc=5",
-   "source": "香港電台",
+   "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE43NXNLbFhXMnpWVkxLTy0wcXFZZzEzblNYNmV5aHYySWpybmxhV1dhOS1hR2x5OUh6LTBzRzYwM2NsTVVXQ2Y0UUNnbVdrMWw5MWFoUEtUUnJTZ2xqVU9kMmVqRXFkdDczckdQN1VFcw?oc=5",
+   "source": "香港電台新聞網",
    "pubDate": "2026-10-26T03:20:00Z"
   },
   {
@@ -91,18 +151,6 @@
    "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOckcyS25PUW51VnpFNUhwT2pfbW1mVldoOEhWMHYyb05fRDdRaGppZ2FfQlMzdTY2azV0UUdRcjA5aFJmeHVTczBrMTlFNDMzRWFlYjh5ZFJLYURua1pENklyUUlpZWF2UEY1Z21pTVpvSWRNd053Tlh0eHRZNDIzNHhuY2xObXRaRXd5cGZ6aFZoU3R5TWlSeVpB?oc=5",
    "source": "Hong Kong Business",
    "pubDate": "2026-10-26T02:22:00Z"
-  },
-  {
-   "title": "University of Nottingham to lead £13.6m in projects under East Midlands clean technology program",
-   "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxQWVZ1ZDIzemFkaTJ5V1pvVFZaTGdtZWNDeTdGajhuaG1kdGNkd3ZjeC1ibXd1RmlqV055UjlneXI2djd1SXM1S08xc0NYdVNjdnFGdXZ3c3kyWWdCSG8yRnktSHFldHRaNkhYUzdNdHBjRlJCd2tuclUzaHExaXNacm1vakR4bjg1UWxMVTV6NEJwd0ZqT19YeVBTMHhtQ1BIbzZwamJRRExEcjI2TU9lWG1wNTZQeFdEYjd0dDIzY21ieVFaS1NzTHpoYm85R1Fv?oc=5",
-   "source": "EdTech Innovation Hub",
-   "pubDate": "2026-10-26T01:35:05Z"
-  },
-  {
-   "title": "Hotel sustainability depends on more than technology, new SHTM research finds",
-   "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOdFloVTU5RENtMWFXLVdjcmdVaXhkdkdTYU5PNDIzTzFhOXhWbGh6NmlWZjVPUjlIMkg3aENsb3MwTC1qMnVGSDB0Sm9zeE5ibmtteGdqb1V1MUJRTVg3TUZhVTI3UkQzNmFSSkE0T29QTXItSjVfLUFYNGU3UlZKNnpvLTN0UzBtM3FDRU9QOUpxSW9manFiOE9Ha2FieGs?oc=5",
-   "source": "Travel Daily News Asia-Pacific",
-   "pubDate": "2026-10-25T23:03:26Z"
   },
   {
    "title": "Hongcheng Environmental Technology Co., Ltd. Estimates – FWB:R7Q",
@@ -135,18 +183,6 @@
    "pubDate": "2026-10-25T14:03:40Z"
   },
   {
-   "title": "GT Voice: Shipbuilding industry is defined by both competition and cooperation",
-   "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE81WXZySUwyYWJHNE00ay0zT3I0SnZDM1FsVDZpVFdUOVV2cjdCemRkTXdPMUJEQTFobEZPOVZLNDI5TDlkcVQtLUpCeVRzLXRWamtYZ0dEcnlOVkpEQUdaOVBR?oc=5",
-   "source": "Global Times",
-   "pubDate": "2026-10-25T13:59:00Z"
-  },
-  {
-   "title": "State Minister for Environment stresses green financing and technology use in environmental protection",
-   "link": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxQMVhSVnlWUDAxeGxNZEwta1ZuVlpKUmtmY2xkaFVfRVVveFpjWDNHVHBnME5ZZko5UTM4M3JvUmM4d21XN1QtTTEzekxhdEtObnZSVVFxcUJyT3hzVnFSUVJibWxDM0FDWTJBODFDZlhDNEZXNEx5dHV5SFBmS21rbUJzblNxUnRkbFhHMGtYaUF3dnhhb0J6dlpIQmRhcWFHc29CNXFVQlUzb1ZTcXB6ZHJSVVhwVE5mamM5bEZDNjN4Z1lveENIeGhpaC05V1JuT1lsS3hfZXBnYXlWV2JtcnlB?oc=5",
-   "source": "dhakamagazine.com",
-   "pubDate": "2026-10-25T13:12:36Z"
-  },
-  {
    "title": "Hong Kong Launches B&R Green Development Platform to Enhance International Cooperation and Sustainable Technology Exchange",
    "link": "https://news.google.com/rss/articles/CBMigwJBVV95cUxORFBTODFLWUJuODJnTi15aEFBd19LcnZHb05WLThMbnRuOXYyMVJmY0c3Yk1NUGZLMkR1LUpDQUcxZ1pZM2h3THZXV25ncERFM0tYTzB5S3BSWFk1djJWRzE0NXZwQjlDbmZMZ0FfTFNPU3JubmhmNmJnQjdUcDlva0JWSFRWV1VQN3dTalI4MHdVVFVpUlZkQ1dyUngtV2VfQ3V2a0JYd2szVE1DNHA0QzJoT1hDRGxJZHNiOFllSnRqQkpyd2tGNkF2c1ZBLVhRcmdROFhlYXh4WW9kRlU1UDN1UVh6cnZ2Z1R6SU1XTWhNT3VNbjExQk4xWWktbnJSaUlz?oc=5",
    "source": "巴士的報",
@@ -171,10 +207,10 @@
    "pubDate": "2026-10-25T07:48:16Z"
   },
   {
-   "title": "Anticipating the demand for human resources in emerging technology industries.",
-   "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxOUmM4RlltYjE5OGZmdkM4YVB5ZXhNSXdQZzBEN2sxYlh3a3ktM0xTUGVPclJqZDM0YWVXZ2tjMVZTeXdzWHRIS2xwSVNlOEFKZHd1d2JBVVc0X2ZrclpvZmdBajkxTHFiZ3UtR1dqVDJLNjBReVVGMS1GTGlJMmN6TGhMdWtGYlE?oc=5",
-   "source": "Vietnam.vn",
-   "pubDate": "2026-10-25T00:04:50Z"
+   "title": "Budget 2026: New S$800 million decarbonisation challenge to support research and innovation in low-carbon technologies",
+   "link": "https://news.google.com/rss/articles/CBMi7gFBVV95cUxQVDlkVnJjNXV3bmxoaW4xelhkN05Va1BkWlYyVFR6TERzUE9tNXA3Wjk4Q0hMbjN6ZzU1Z0x0Q3pGd1hLdzA2VnhHRThaUnhVR285YlpTaWppaEFaWU5kSl9xM1BCaEtHUzRoNDN1UVlTXzB2WllXSGpnSFNlMWMxUVR1OUlvNWdkYUtpZE5UNUdaeUZGUlhEQm5zQktrVTk1RHpJaHdDN3NrT20yQTFHMVgweXhLYnAwbExDeHdFeFRLYTRyeXE1Nm5RMjhHMWtHOUJsWWRVeXpTTGxaLWZfWnh4UVJsMmZKdnBJdWlB?oc=5",
+   "source": "Singapore Economic Development Board (EDB)",
+   "pubDate": "2026-10-25T07:00:00Z"
   },
   {
    "title": "E-Station Green Technology Group Co., Limited Estimates – HKEX:8475",
@@ -201,24 +237,6 @@
    "pubDate": "2026-10-24T07:00:00Z"
   },
   {
-   "title": "Sparkle Clean Tech Strengthens UAE Operations With Al Masaood",
-   "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNckpsQ2lHR2pRVEJmSWZ5dEl3RVY5STdZU1cyOGRlb3ZDcDdLc09rQnRHMzhqcGJLdlMyOHdabWNyY3B5ZUptMUwzZjNVQVFCa3psZ2g3eml1SThxOWFOVzlvOW9WSS1GWGpoMFBGdTVjeUVleDYzWHhHVTZFZG15MkdLa1V0aWVmVnE3LWhSeEtDN2Qxd1M0TEsxQlphdEVNcEFrLdIBpAFBVV95cUxNckpsQ2lHR2pRVEJmSWZ5dEl3RVY5STdZU1cyOGRlb3ZDcDdLc09rQnRHMzhqcGJLdlMyOHdabWNyY3B5ZUptMUwzZjNVQVFCa3psZ2g3eml1SThxOWFOVzlvOW9WSS1GWGpoMFBGdTVjeUVleDYzWHhHVTZFZG15MkdLa1V0aWVmVnE3LWhSeEtDN2Qxd1M0TEsxQlphdEVNcEFrLQ?oc=5",
-   "source": "SMEStreet",
-   "pubDate": "2026-10-24T04:47:37Z"
-  },
-  {
-   "title": "Top leader applauds Wallonia’s contributions to Vietnam–Belgium ties",
-   "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPTG5Jb1FxdnpLdEgydGQ3WVotLUNHQlNUZTdic3JneEI2UVpmcGhLRFdkX3NyaEozWGhsbVNlSi1TclRHa1VGNWNCYTNtMkkyeG5fUUxGdEl0clRsUUs5VDIwT09RdWhka3ZzUEhfcHZnTk8xTFJLX1Rzd0FGdXh3LWlWc0d4RmNoMk83NExFdEtsdy1PdzZsRW4yX2YxbnhOc2JYcU9WSmpVZ1RleWVtYXNad3oxM0d0bE92Z1J1X0s2Wnl2QWs2Qw?oc=5",
-   "source": "Thông tấn xã Việt Nam",
-   "pubDate": "2026-10-24T02:05:17Z"
-  },
-  {
-   "title": "General Secretary and President To Lam receives the Minister-President of the Wallonia region, Belgium.",
-   "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNNFBZODFQS0d1ejRwajZXbGhDcWxpUTBDdHdZQ3hVODM2TUZkTko0WkVDVnRNV1RnajVka3M3dldycTZ5c1ZLWm1Yb3E5Q0JuMEw5V0hnVGZiUUR6VkpLRjQ2NFJfSVpLYmpNMVQ0V1FHTHJwcU9lRUZJbFFsS1FBMjlRb2MteE53Q19GeEI5STliN2RucDFWczR0RVNpQUpt?oc=5",
-   "source": "Vietnam.vn",
-   "pubDate": "2026-10-24T01:03:18Z"
-  },
-  {
    "title": "CleanTech Power Corp Estimates – LSX:A3EEHV",
    "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE5zWXNHQVlVUTc1VUNnWmt2TG5ENVM1UTZSN1JRSTRyQVliRWNOMXF3bHFaWEJxc29KVktOU2dvVF9JalF6RFVDMjZzSzg5YzI5U2lCdUZWTWNGdFRDM0pRSUgtWHdzbnNmTnRJR25xaTlHb3lULWNJ?oc=5",
    "source": "TradingView",
@@ -243,40 +261,16 @@
    "pubDate": "2026-10-23T15:11:01Z"
   },
   {
-   "title": "How Gen Z Will Drive The Future Of AI And Green Innovation",
-   "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQeXZ5OG9tUWJOZGdQNkJBN3VnSUNtQ0RUOEgxY2NFSUxDZ2U1eDhzSmdRTnlTdFJ6Q25HOGhQMk93RjBZT1E5bzRMN3VfWUFPRFNNMVpuaUNPWUtEV0JLaS1wa0RMNV9JRkFSV0E5UVRtaHZ1bEFFZDg5dEtid0FPZ0FiVy1zVnVFbkZvWGVBN19wcnhDQnZBRGI4eWRyZUJfQTJCcUxpN2jSAasBQVVfeXFMTWMtX2lUYW1NRHhuYjlVODV6S21mcFpwLXdWUUliSE1iUE5UbWN6VVdXZl9POW9aU05xM2RMdkowZWNqS1NaUFlheHAxcHRMT1d6NVZLV09LOExSN3FTd0lyM1NQMDJRZzRyUHN0VXZBYUdSb19mRnQyY1phWWdnZld5dXJUdzZsb1UzVmVXRzdVZVFudkdyZGo1ZUxjZVdMNzRUUWZqMTIzSWhv?oc=5",
-   "source": "Rediff",
-   "pubDate": "2026-10-23T13:49:52Z"
-  },
-  {
-   "title": "Public-private partnerships pave the way for green cities and industrial transformation.",
-   "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQWG5BcEVtRldkempuV0kyYlIzc3hNOV81cWIyTHhmRjFqb2I1dGhxUWxMbTEzRXF1Uzc2TENtckNwNXJaaHhwNHBxcU80QnZIbUJEUUJCNEVYZHRydXJsVmN5VkFLNTNCZ0ltNk5HQVFwdGVTSTZwQU9iR1M2MS00Q0RrMUtERElMbWZ0Q0NUZmNtRmx2aG04?oc=5",
-   "source": "Vietnam.vn",
-   "pubDate": "2026-10-23T13:25:56Z"
-  },
-  {
    "title": "University of York builds green technology ties with India's Karnataka state",
    "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOaVg3NjlwOTJXVXBPTUYyWnY1TjBCcWh5Q2g3dzUxSnpvRXRxSFFmTFRWMnBfVTd4NTRMX0dmcldUZHJVU1RnWXhlcFdNcVJIZ1dGLUtKazF2WUVRRW9pRXlCMGRiWFgzZktoSUtLajZfRDVjUEJKcWFMdlg0X2k0cGZzemcxcHFOendTb19UYVUxR1N3a1BTMThoNA?oc=5",
    "source": "University of York",
    "pubDate": "2026-10-23T11:26:27Z"
   },
   {
-   "title": "Karnataka Biofuel Board explores tech tie-up with China for green energy push",
-   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNYW9lcl9KOWMyX1EtQlNjQWhCQmJaWGQ0V2lYcjllbnBOSzlVTjVHNnBTWG90ejZoMXdRbFpPaFFneUpBX1lxZTl4ZUVianIwNlNUd0o2RGkzelJuTl9KQi1sbm95LUdFQVFoNzM1cFkxRm9DV3hNdlBHdVpET3g3QmV2cndPUlBBWkZycTAyd1ZsTmZTc1F6S2ZKdmlYUHg2bVJoZDRfUVFiUQ?oc=5",
-   "source": "Public TV English",
-   "pubDate": "2026-10-23T09:09:39Z"
-  },
-  {
    "title": "Sparkle Clean Tech Partners with Al Masaood to Expand UAE Operations",
    "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxPaHIwU2ljYjNXMmsxaUh1VFpBVUNWSmRDYUlNN1ZjS0s1ei1COWxVVU5BYm45VFpNTW4taXpVRXdabG1WS1FMZ2F0SEdqV1AzWGxTdEhXdzlrb2FEcVA0THMyZ21Ka0FmdWt5TGE4MUNrYXNYVFdzejE4cVJiZHIwQWNCZXBQemRvVV9JRlFYNzZ5QTN5X3NmQjJVakhDUVItdkNYZw?oc=5",
    "source": "Machine Maker",
    "pubDate": "2026-10-23T08:57:10Z"
-  },
-  {
-   "title": "Ho Chi Minh City learns from the experience of green urban development and entrepreneurship.",
-   "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQZUxCYWxSTGtQSjYxNFVHMGJ0d19GZnp5NmpCWTNyZzItaW1POG9RTjJqeE5mM1RBU2U2X3ZsenJUdG95TEpoN0FUczNhWndhVmJTSkVXN1ZySHBMb3hISlVWN3ZuZk1RRU16bUFWZmliRmNWa0VubnpJY08yMEcwNkowRXlRVzhVaG9VZHdNU0h6aFdTbGIyUG1B?oc=5",
-   "source": "Vietnam.vn",
-   "pubDate": "2026-10-23T08:01:44Z"
   },
   {
    "title": "National Grid and Climate-i launch new project to tackle SF6 emissions",
@@ -321,12 +315,6 @@
    "pubDate": "2026-10-22T18:23:20Z"
   },
   {
-   "title": "Karnataka Biofuel Board seeks China collaboration to advance green energy",
-   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOMlY0eWczOGxoMVBMTmplZkpUelZiaXR1SmFKaUFNaGRDU00zOUI2ZzNYd1ppRl9FRXNTcjdKaXdMY1pNZ3dXQ2hGbjhkNlVjZVR2ckpWSHg3RnN1QUVtTDVMaWJVc3J5cU9uOGhyVWdzVmd5MTEzUUU4a2hTR2l1X0JsVGR6RXFDSTB5SzlZNWxaXzdaLW5WNDVSelFFV0JzcFItRmpNT2JNQQ?oc=5",
-   "source": "The News Mill",
-   "pubDate": "2026-10-22T17:52:22Z"
-  },
-  {
    "title": "Moving towards zero waste",
    "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPWjdBMWQtUVFCaFhUX1hfV3RaQk5xLXd3MWExcU1NakwwSWxQTlM4WFZRT19qaXBqcGprRXJfbFJzS1RmNGtPNmR5VzV1YzROaS0tZHdJVWJsRGs4X3BIWmlWa25HT1pQckFueVpCTC0tczVIczhlR3NkeXUtOXptRGU4RUJoc1JCbjNLQ1N1MFk0NjRqLUE?oc=5",
    "source": "UNEP - UN Environment Programme",
@@ -351,6 +339,12 @@
    "pubDate": "2026-10-22T13:01:48Z"
   },
   {
+   "title": "Raynal leaves corporate VC role at EDF to join energy startup",
+   "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPQjF5c1ZUeDF6Nlg1WHl0UTJSTk13RlBxZU80WkM0d1hZU1VGeTdUX0tNS01uRF8wbjZMYmtFd21fT3BHamxWMFMyUlE0LWxQNTM3MUxqNmZENEhLMzlIejdwY2c5Q2F3NG9mdGFHTV9OdkxKWkVXdWZHSnI2Qmc3cVVfbS1BQ0lQazZiQTZOM1ZiR3MzYmNJdTNDdFVmQWNiU2lnTVVVbVQ0Y0U?oc=5",
+   "source": "Global Venturing",
+   "pubDate": "2026-10-22T12:53:36Z"
+  },
+  {
    "title": "The Download: computing’s next leap and permafrost’s climate threat",
    "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOcUZJcWFCVnF1QmpicG0talMzMF9ZZ2ltR2o1S2g0VFNISGNsdHZfT3RaLXlUckZub1FKNVR4bkVEWXdrWTF0WDQtcXlPWk16cVJ4WGhGZ01RVnhoUkFrX2d3czZWY21SeDRqejEwOVRla09nc0ZUMDRkc2lzcGRBYXJZNjNYUGI0azBKYk9lUmlzb191YnMxMVR2d2Jnci1qOVNXd0dwaTJNVEltbExSUdIBtgFBVV95cUxPYXE4NHJkVy1CN1RNeGh1QWFnczBZM2NfWkdYT2s5cnRmdHhlVXF3MlZkSjVzZlhMSDMyLVZVN1NYMzJoRVIzNUtfNFhhdUlYUnd4bkNodktMYWZPY0pJWXFNY2IzUjl4eHd3SUJYLU9FYlJ4QV96Nlg1VWJSNmxQeExOcDZNV3ZycUJURzl6Q3I0N3FXNUx4SUhWYkVoUERlRTJ6WWFzdGVIUS1lbXJTQlpDOHMzdw?oc=5",
    "source": "MIT Technology Review",
@@ -363,16 +357,22 @@
    "pubDate": "2026-10-22T12:04:25Z"
   },
   {
-   "title": "Indonesia joins IDDI to speed up low-carbon material transition",
-   "link": "https://news.google.com/rss/articles/CBMiowFBVV95cUxONG42OWhGNUFHblkxU1h2REE2Snk3b2JhY1RPdnZpM3ZUemhrUXlIcE5Ianc1Vm9wTnRMVnhSbUoxdGx0X19FRDBGODBjcXZsY25wdktnRDRoeW9HZVJCdy1GaDNDYk1NeDdONWNxd1ZQQXNzTy1PcGcxbk9TVEE2WWROMEg2b0RjX2JVVVF6eWhkdWJmVlp1UkVTNDlpOVJNdVJj0gGoAUFVX3lxTE56NzNUNkNZSUxYejBDLTJIQ01XNEY1VnRTVmpiWEtGbW5GYXpJYThKU3VQM3RlY2I3dmtWM2FPd2RMTnpqUmY1THpHUkRERTB3YmluaDI0bm56LTR2MG16YlRRQ0pQazRla21HRGlNZlRXUGZEWEJhRy1ZazV5TW9TbzZmcWY0R3Q1bVZZekpBaGQ4MV9lbzRLX0l6bTRaOGYyYWEyZ1ZyTQ?oc=5",
-   "source": "ANTARA News",
-   "pubDate": "2026-10-22T11:00:33Z"
+   "title": "National Grid and Climate-i launch innovative trial to capture SF6 emissions from electricity network assets",
+   "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxNWkpQSmpqdUQzeXkxNHMwRENXUEliOFpWSTlPaklZOGJkNWpnSU1rU25FX1d6N25lQVVUQndSU09rc0xBdFBaUmdHN3ZEZHlLWUFrUWRVaHlZY0JUTlhTT3BFYkN0YjhsVndZSUVWdjh2SEZJeWtnRzZPNldyZDh6a1B3YThpTDBBRDFhQzM5b1dael9na3FxLWh4RU9QVHhSWDlZdXZfWk9GZlVKaFFqTlctVW5nUV9MVXl1WmVpUzVhd1ZJeXY2bDRZanFPQQ?oc=5",
+   "source": "theenergyst.com",
+   "pubDate": "2026-10-22T10:09:26Z"
   },
   {
    "title": "Takachar, PepsiCo Partner for Decarbonization",
    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNbk1EQjBxbjZTcWRKLVlUbG1jWmVOU05rWDdPOEp3NG5hOExKc3hVMmFuR1dfWjZ4akRUNkFlWDlqQUFBUk9ZTE43UklKdUYzQWxzOE00ZHhDaVFiOGFiNlg3WWRMSXEybzI2bVZvUEI1TGNfcW9oaDJlM21YWG95QWN1ZGxoVTJFeHptdlNVaEN4V05uVDd4dQ?oc=5",
    "source": "ESG News.earth",
    "pubDate": "2026-10-22T09:00:36Z"
+  },
+  {
+   "title": "Sparkle Clean Tech strengthens UAE market presence through partnership with Al Masaood",
+   "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOdDNFVDI2TmRBVFYtVnluMnB6OXAyZ0hUalg3d0NwYjdsNW1XLU9LbEU4eTc5LUVwRlJvMzA1SS02a1puVnFiRjFaZ05VeEZRMmZFNzJwWjI2R3RVUEoxc01CUU9ady14dkpqeTAtbDN6N1BlRG1ndk9QSHA3YjJjRXFDRDlVWTRSQ0ZYMkdfaWR6UVp6ZmxzaVBvRldtMEVWUmVvMW9IS1BQU2FUZmJ5TmJZMC1BMl95QkE?oc=5",
+   "source": "India Technology News",
+   "pubDate": "2026-10-22T08:06:55Z"
   },
   {
    "title": "If Heavy Snow Shuts Down a Factory, Investments Are Shaken... \"Climate Risks Must Be Reflected in Company Valuations\"",
@@ -397,18 +397,6 @@
    "link": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxPYTQzTEpzS3BmRHE1bjhfX2ZUa09TTEZwTHdIcHNXZnc2RVdlOVZoOWFOaFF5VldIWm9PNHZaR3dEd1U0OTJOS3RGalVBdlQ4eTVsZGFZeHFadzQ3alB0OWlPUHRNV3BUb29WTVBQQWZNcmxLN0Y4cXRrTlk1dTZBMm9qcjVxN3FPM0w2aXFvRDZGNG0zb09IYXg0WFpvdUZkZUxEbmlwQW5hUjUwaXFoeFE0NWI4N1FaTnVLaXlxaGRfUzJ6ZERCQk93OTc4SUcyNzNJUmp4YVRfbTZpZjlkNEVNMDdrem0xMFVtdXN5OGRwczF5?oc=5",
    "source": "Singapore Economic Development Board (EDB)",
    "pubDate": "2026-10-22T07:00:00Z"
-  },
-  {
-   "title": "Budget 2026: New S$800 million decarbonisation challenge to support research and innovation in low-carbon technologies",
-   "link": "https://news.google.com/rss/articles/CBMi7gFBVV95cUxQVDlkVnJjNXV3bmxoaW4xelhkN05Va1BkWlYyVFR6TERzUE9tNXA3Wjk4Q0hMbjN6ZzU1Z0x0Q3pGd1hLdzA2VnhHRThaUnhVR285YlpTaWppaEFaWU5kSl9xM1BCaEtHUzRoNDN1UVlTXzB2WllXSGpnSFNlMWMxUVR1OUlvNWdkYUtpZE5UNUdaeUZGUlhEQm5zQktrVTk1RHpJaHdDN3NrT20yQTFHMVgweXhLYnAwbExDeHdFeFRLYTRyeXE1Nm5RMjhHMWtHOUJsWWRVeXpTTGxaLWZfWnh4UVJsMmZKdnBJdWlB?oc=5",
-   "source": "Singapore Economic Development Board (EDB)",
-   "pubDate": "2026-10-22T07:00:00Z"
-  },
-  {
-   "title": "SFC Environmental Technologies Limited has Rs 668 crore IPO",
-   "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNMHU3dERqQlc4TG9YZTRaaHF4MndWZXN5WkRRX0dFSXNyeUh6SHZlVXZJNmdfZE1SZXhwalctVnhYVEk2WlUxM3k1S0lLZUp1MXJVanNUR0poM0lUa1A3c05zZHRjVWN4WkhFOEZHVVJkclFQbERfOGEzLVQ5ZHdhaWJoY09KYWJYVnk2c0lJM1IyMXpIa05sZzJB?oc=5",
-   "source": "The Financial World",
-   "pubDate": "2026-10-22T06:40:49Z"
   },
   {
    "title": "EU pledges €3.4 billion to 77 clean-tech projects as it targets 290 million tonnes in emissions cuts",
@@ -447,6 +435,12 @@
    "pubDate": "2026-10-21T22:34:30Z"
   },
   {
+   "title": "TECH FOR SUSTAINABILITY // Oct 21, 2026 Report . October 2026",
+   "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9oLWpXYmlMaC11RDA2aDVHaVFuT1N6ODJDVkFGUXB5ZFFnVEp3TGdvaUJTc0JvaDJldG9JX29kLUlVdTNyam5OMkl0SUxQaHVCNkM5S0NPMm1DbjIySVhPZ0lPbXJTNFkySTR0WTRmRQ?oc=5",
+   "source": "Diplomatic Courier",
+   "pubDate": "2026-10-21T19:56:37Z"
+  },
+  {
    "title": "How Hotels Can Turn Green Technology Into Measurable Sustainability Gains",
    "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOWldkamp3ZmdCajBKbUJTaUtQa21sMlRQRkpOV2lLMHlBbHVnQU4tajhBV1ZmRmF0T0RHcE92UEtlTXdsTVVjX1lqdms3WFpQVHNyMUFLVkJsckxJRW5MVDZadlhUQkhKLU5TZ2V4STZ1c3NFeDltYkk1SXFGRFJKMTFCTC1pTGZHQk1TUWdzTllrdldIbnZzVndiOTVLUTItZGFMLS1RUFFCLTg?oc=5",
    "source": "Hotel Online",
@@ -465,12 +459,6 @@
    "pubDate": "2026-10-21T16:52:34Z"
   },
   {
-   "title": "Next-Gen Energy Alliance: Reliance Leadership Hosts Top US Officials in Jamnagar",
-   "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNNDFLb2N3Ym03cUV1OHpTSjNVSm91TzVRYmpuN0JuVmdfdDlob0RRRnJKdDVHOEZhRmF5VzNWMTNtZDBMU1o0aDVXUjdGTXpQLWpibFQ2alZrdUN5UW5WUWI5dmdaZjg3MkFDNjBSRHBYeldpV0cyd2llMGhEa29QRmlmQ3B0Zw?oc=5",
-   "source": "Pragativadi",
-   "pubDate": "2026-10-21T16:38:18Z"
-  },
-  {
    "title": "Prioritization Is the Product: Where Vegetation Management Is Heading",
    "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNQUh6Ri1UU1BmNE8yQVJJT1UtY1gwNGtROEZGWVJLXzJCM2MtSEdScVZtWmE1X2tNVnRUUllkMVhCS2tBZUlkZWk1cjF1MnFNY2JOLXVrcnRlQ21VY3IxSEsxcWNnSFdKcjNCSnFpS2RDM0RIcEJFV2h5RXZZdEh1RHduZDh2Y2lfSHptdWJOcWxrS0pXTUE?oc=5",
    "source": "Cleantech Group",
@@ -481,12 +469,6 @@
    "link": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxNSFd2QWdHVFk5N1JRMVVlbXI0eUUxNU1hUVJkdF9aTDByWjZTZFJPUUxKVFlVVEk2Q2NjYk5FUEpNb1F4QTdDOWVaSE5JMkZHMndVRU9VOU5yY0Q5dUVDTHFoeVhXV1NkUFBkS0t3bExrMThIVFIzbDVkdkluTURGNHh6czJiVE1JaUtwVkFvcXVOSWZIYkYwQlVWeHBLQUcyUndpQ1lhVmQtck4tU2RwMS1pbnQwNk01TEUwdnhDQkFUckpiYldxRjNMRDhGUkJ5cng5Zk1hUG1DWUlkSXZseFhyVGo?oc=5",
    "source": "www.marketscreener.com",
    "pubDate": "2026-10-21T14:46:02Z"
-  },
-  {
-   "title": "Uganda, Denmark Launch Shs10.34 Bn Fund for Green Agricultural Technologies",
-   "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPUGJsRXFhZ3pUYlUtc0VLTjRtMmwtcHVwRkFMTUxLdWN0ckl5ME5UYUQxZDFLSUQ3bHc4VDZEQjZ3NGwwNXlJU3VrWUZLSHRablZEd0RLTVNkVGREekdVdnpnd3FvaEt0aE5HcVlIVHN4SXhPSEdValZrcGI5RDg1YWlNOEF5V0h1dTF1S1dlTzVxXzNxMlRQZlJxRXdQdmtObkVCUFR1ZUo3RF96VjZmUVB3TFBFcFXSAb8BQVVfeXFMTUs2R2NjVnIwV1FjUnRVX0VqaEJ2MU9DWUxObV9mU2NETTJ4UjhXRmRvTjQtM0hUSm51MlVYZzMwU2NTVFQ2MVpubElmbXpWdmRRVVZfa3lxeDY0WkZBZk90dEtCOERRejJ5VWdMZnU3TVdBdHdnMDI4ek9Pd1Fsb1lNWjFsd2FWSk9BWmlRczlGNEM5aHZMN21uM3RScEZ5VkVhMk5vNFMxV3RvcWFrVXBObUtsY3JMeTlRTjBhUmc?oc=5",
-   "source": "Nilepost",
-   "pubDate": "2026-10-21T14:19:17Z"
   },
   {
    "title": "Price to sales forward of China Environmental Technology and Bioenergy Holdings Limited – HKEX:1237",
@@ -505,6 +487,12 @@
    "link": "https://news.google.com/rss/articles/CBMimAJBVV95cUxQUGlaOFpUMEkyMWFXc0NZVlNKckpLTmF3ZTJaUHdNWWt5M3ppTWpUb3FXSktkcEhwN2VXdWt3UnpHZnotQlVod0xhSHZFOEdUM2dKSVlCY0xJeXQ0cVgyc2tUYjA2VXdpOXl6d053S25mRnp5Rjd1bmlLem1DRFJ5TVp2aTAzQXlKaE0tcU1WaE1DWmFOYUFJRzBocXJjLXJkNlVTb1BUMnhlOGxZNkRtR05YZmxxN3QtR2hyWFMycUZMYlBBWndUSEk1aVpCeWk1QTNiVUN2NmhxbjN5YmQ2T2dqVXJPSlJKUnhITV9aaWx2VFlNZm84Y0hWVEUtZkJrX0FKX0VwM1VJdXM1Z1RGUU1nR3pHeHV6?oc=5",
    "source": "University of Venda",
    "pubDate": "2026-10-21T12:58:58Z"
+  },
+  {
+   "title": "Climate collective explores water-tech accelerator as data centre demand grows",
+   "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNSFI3eWp2RTVBV1hLVVBNcHZGNmRWNTBVeE1jaDlDY01YQmFBRWVFT0FjODBDc1RraXVtbURvZ0kxRl9DM3Z6dGo1ZGxHZVFYRGNxSXduLVN5blFKa2VhNlNsRnUxMlNmRC1pUUpJdUJvMWlGTU05UUZEQlU0R0RPVV9iSXpsNTkyWjhzU2NjTDF2ODRPNXZvdkdwbmZ2Wk3SAZ8BQVVfeXFMTUhSN3lqdkU1QVdYS1VQTXB2RjZkVjUwVXhNY2g5Q2NNWEJhQUVlRU9BYzgwQ3NUa2l1bW1Eb2dJMUZfQzN2enRqNWRsR2VRWERjcUl3bi1TeW5RSmtlYTZTbEZ1MTJTZkQtaVFKSXVCbzFpRk1NOVFGREJVNEdET1VfYkl6bDU5Mlo4c1NjY0wxdjg0TzV2b3ZHcG5mdlpN?oc=5",
+   "source": "DQ",
+   "pubDate": "2026-10-21T11:46:40Z"
   },
   {
    "title": "Bangalore Climate Data Week 2026 concludes, bringing climate and data ecosystems together to advance climate action",
@@ -531,22 +519,10 @@
    "pubDate": "2026-10-21T10:05:15Z"
   },
   {
-   "title": "Shanghai–Melbourne green corridor enters delivery phase",
-   "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOZG9aSjJ5YVJJVlZHd0NQZ05JNk0tOTNKeVpLTUQxbHB3cFNUN1VYc2tsQ1FWd0J4Q1hBTXUzWjh1Yk9xbzk1T29uQ1MzdDl6cHlwdWQ2RDdRZDNMeHZDdWRXZjI2RG4yb2Z4cjJwY3NfaEZnSVVIOU14UHBiMFd5OHFocWtSTThQVU9nTXMtaGp0VmhzWDliMzFVdlFCbmsyUDRFbHZQeDRySDZNY0dObW9oZW9RMXB5REoyVW9pRlo4czJhN3c?oc=5",
-   "source": "Port Technology",
-   "pubDate": "2026-10-21T08:54:22Z"
-  },
-  {
    "title": "SFC Environmental Technologies IPO DRHP: ₹150 crore fresh issue; 80% SBR market share",
    "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxPS3NfSUh3dGhMVDdHV2JsV1gyQVM0cm81Mkd0eEk1OGZIZlpCNmpENnZMU1R3REs0Ync3Wm9pWnVGLTMxZU5kX3NrRUVUZjJpZzVUNE5jcDNUblY3Y0F0elROdHQtNm5iSmIyb3lDZlJ1dFVLT0NiQ3NicWZtM2pJQk5GZkcxWGpSQkN5TFlseWhHRDlGWm5LX3JZWE0tS3pMdDJsSERnejFNNWQxSmV0eXhFVk5uQ2JkMHFXRG9kNjg4TU5yWnM5bjdRd0JXdndPYi0tVlpsNmZlZw?oc=5",
    "source": "scanx.trade",
    "pubDate": "2026-10-21T08:27:45Z"
-  },
-  {
-   "title": "Rabot secures €50 million to scale home energy storage networks",
-   "link": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxQYXlRYi11eXBrOXJBYWwxMkJwdDBCaXlhNWY0VFJ5UTBldF9ZWmpHXzhCSHpoelZTMW12LVJSMmwtam9FWVFHRHdzcTNZYzZCNG5ISXYybHR2Y1FzaFZtTnFETjI3WElCellJRDdRTG5OaXdSVXIwc2d6NzJBdFVta0czUkM4RzhDWTl4bUpXclZvbVAxTDY1cnF6N2M1Y3BCOUxqaXFTNEJxMmdCaS1PUm9JQnVzQXo2UklUbDhVZnZEODdKY05NZ0NUNldfaDI4WkJjOW0zZWp0aDdyTGpvRFROaXJLUGc?oc=5",
-   "source": "climate.economictimes.indiatimes.com",
-   "pubDate": "2026-10-21T08:20:13Z"
   },
   {
    "title": "SFK Partners with Netherlands-Based StaticAir to Introduce Filterless Outdoor Air Purification Technology in India",
@@ -563,6 +539,12 @@
   {
    "title": "10 Inspirational Startup Stories from Founders Forum Asia 2025",
    "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQSW5wVVVOQThyZzQ2U1JaRVIyeXZjU1lJUV9tZ21lRHp1R1FCNXEwQWdfOU1ySUVqQlRuY05Hc1NwMlFZT1p3bnZ4RW9SR2NjaW04Q0RiLVYzRUNMUWhhdUM5ckFLNGdwQVhTNUtJT1NPQlp1OExLZnNNQzBsSTlsUkZYSnJkNnppMFgyMm0xQ0lqeFRiZVZDSzVnUFFtVzdJSnZ1MHNMMmxuQQ?oc=5",
+   "source": "Singapore Economic Development Board (EDB)",
+   "pubDate": "2026-10-21T07:00:00Z"
+  },
+  {
+   "title": "NTU academy to help professionals navigate the world of carbon trading",
+   "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOa19Ic2RSa2Q0MVBqVTFTbk5LdVJyZ3lNOUJHM05PelpGVGVtM2V6N0ptZXpGY1VsaENrWWJsYkJTUlcxdWFCTld5ekFTa2xrX1JTR1lmd2JaaW8xWmdHQ2FFS0RVR1FmWDRNQ25lUUs4VlVUZHJxOU9sTEtpSkt0dl9sbmppc2lTcF8zM3JEUWpIWDRwcGZjNER5Vnh0WnpKaDV3QjVVSk1JUWFoSEY1ZHRCQVFkZGNkbC1TcQ?oc=5",
    "source": "Singapore Economic Development Board (EDB)",
    "pubDate": "2026-10-21T07:00:00Z"
   },
@@ -603,22 +585,16 @@
    "pubDate": "2026-10-20T22:51:41Z"
   },
   {
-   "title": "Vietnam–Belgium partnership entering new phase of strategic significance: diplomat",
-   "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNWjdzMl9lU3Z2NGNWb3RUdE9WQ2tINE0tWElpalJqY3ZlN2JZMVRXQUdTREJrUzVHWDE2cTdfallCVzBac19aQXlINmRraEp2LXJwMmplTlhkTV9KbmxrWGR5c0Voc3lpMjc5M1JlMVV4MTVMUXFnMTFpV2V2dTZIcTBqdzFFMlhuVEJoWjN2bUQzUUZfN1gwLTJEMlZTY3VPQlotN2MxOFZ5OHFBYXNxUjYwQXN5cVF5VzhkeFo0Q3FoNXhmQ2NZVnRxVmVwZWlleTZYdktoVkI?oc=5",
-   "source": "Thông tấn xã Việt Nam",
-   "pubDate": "2026-10-20T16:58:25Z"
-  },
-  {
    "title": "This AI Startup Decodes Plant Language Through Electricity",
    "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxORVN5bzF6ampIZWJUODQ0aUt5VHh5RE5DR0liOWEwTVozNVQ3Tnkwd0d4NjlET0pHdFBySnh0NUNvRUo3WWRCd2dad21Pdi1EVUotWjctMW1jc25HWlZzcThsRHQzVEJtOXRRUlpxejc1MjYydlc1d2QwYWFoVThnRWVLa1NiaEtMTkpybkdWVGVwMEtWUmc?oc=5",
    "source": "The Tech Buzz",
    "pubDate": "2026-10-20T16:06:00Z"
   },
   {
-   "title": "Officials, experts suggest forging new green ecosystem of BRI",
-   "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE1MM1dSSDhucjZldmpoQmRlOS1vbUQ1TE0wSDYzWE95U3d2VVFuT0JXQlQ5XzBEMkRXR1BySncxWGdUVUZvaDJzYV9nTmc0LS04MHNLVm9pY05rb3R5eDBQTFFB?oc=5",
-   "source": "Global Times",
-   "pubDate": "2026-10-20T15:40:00Z"
+   "title": "JE Cleantech Holdings Limited Reports Earnings Results for the Half Year Ended June 30, 2026",
+   "link": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxPNndKT0laRmpkaEc2LWZNLXpOc05CeHlRcktFbEx4WTM3VzhldWl4YVpXN0Zwb3M4X2N3ZG9hNmRRWmFMbUVQZTAxUXhnc0tzc2ZjTmlDWjQzZjY4c0RzVFBnOWJQRWFrQ09wWVpRN09rZ0JCZHpIcG9OZUhaNW5Rd2RzaUZNVHRLV0hKRVJqTDRrbi1ESVhDWm1yb2tVbTNkNXJjLWtCU0hBUkV0Y1ZjQXBkMEpISzF4eGFZWmhpbV9xcE5HUnVpWW5wV0dHUjE4bldzdkZNVFgzdWMw?oc=5",
+   "source": "marketscreener.com",
+   "pubDate": "2026-10-20T14:35:55Z"
   },
   {
    "title": "Ferveret Named to Cleantech Group’s 2026 Cleantech 50 to Watch List",
@@ -663,6 +639,12 @@
    "pubDate": "2026-10-20T10:17:25Z"
   },
   {
+   "title": "This melting Ron DeSantis statue is a perfect metaphor for climate change",
+   "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQckVuNE9Bb3NCbWo4cGh3d0NUY3NCdnVzNUxrOTBzd043QllWVExlbjM2amRYcmptS2VCcXdhZURNY1BPc0NQTW42RjFBRXV1bzhYUk5BNzY2Ul9TdmprZmVIVXZuZzlLTm9ldFBfQXFmU1Q0VmRyRjlKNV9FUERyN1ZDdFVJZFhTVFBfS1I4a0lKNC1XYUhXejlEbW1zcU84RGc?oc=5",
+   "source": "Fast Company",
+   "pubDate": "2026-10-20T10:05:55Z"
+  },
+  {
    "title": "FireSwarm wildfire drone tech makes Cleantech 50 to Watch",
    "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE13NXZzaXVkMENTZ3VRdHlRRUh4cFNyYnRxVDFyVzBGdkViaVg3X1lVV3lPNXVoNkhpRWdUUGNvYTlqajZhQmJyZzl3Sm9EOTQxQllEYm1SckNxcGh1WVdaYVV4eHladmZIdWlxRGdYVnJ4U05RdUpVMVdMWQ?oc=5",
    "source": "Fire & Safety Journal Americas",
@@ -699,6 +681,12 @@
    "pubDate": "2026-10-20T07:00:00Z"
   },
   {
+   "title": "Philip Morris International’s economic footprint in the EU 2021–2025: Transformation made in Europe",
+   "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxPLWxWVXZjSDdHYUtBOU04Vk93S2M4aGI2emtGZlFhS1FvOXJEZ20yYjcxb2J5RS1qSlJFaEd2aDhVQVpFS25TTXRxSXgxMk5UaHpmZTRnU19WcUs3Z1Vrb0tCUFZlay1FT3hzLVgxTHAyTExkVU5maHdvSjMwcTdrWEFhQ2Rtb3pKYVVjdElyVERNQWx2Y3dUMmg2VXZ1N2N3VEtiTFhGVGRsdEZPaWJ2WDFGeFctTTFrOUhtbjFmdFZyRHlMWnRlbWpGbVBGV3gwaGtVbE5GUQ?oc=5",
+   "source": "Business Review",
+   "pubDate": "2026-10-20T06:19:27Z"
+  },
+  {
    "title": "EU backs 77 climate tech projects with €3.4b, touts drastic emissions cuts",
    "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQdVZrSjdKbTVDdVN5cXJER1ZQQXJwZXk4OTNSa0FJMkZ3N0o0U0toM3hsMHpLVWsyUG54RElhR01lSXBGTDA1TzNoc2dJQV9zSV85OTI2OUw4M093azZSN21KWThaTUlRZGNfSHMzVmFGNGx1bVA2b3NRTHQzSGNCWEZFY05kLTdCMlFxYTk4VndQak8ybGpuVWhGSDhTQ3kxckdXRC1TUVppUGNnQ2lyNQ?oc=5",
    "source": "The Brussels Times",
@@ -711,22 +699,10 @@
    "pubDate": "2026-10-20T04:47:24Z"
   },
   {
-   "title": "Interview: China's technological advances open new opportunities for cooperation, says former British business secretary",
-   "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTFB4aHBTZEdZSHRWeld0NnRzblBBcm81VTdxS0NpNTN6YnBfN2JLRXpCaWZqWjlOZ1dQRmNsMFZPaWdWMEltVjZhc3VUVmc3V2V0Tjd4alhVRnM2LTA5X3FYS0tlaDV3WTBkYnVmemlVUWdnaVFJR1lrVzJRSUU?oc=5",
-   "source": "Xinhua",
-   "pubDate": "2026-10-20T04:33:30Z"
-  },
-  {
    "title": "Online lender Kissht gets in-principle BSE, NSE approval for Rs 832 crore preferential issue",
    "link": "https://news.google.com/rss/articles/CBMi8wFBVV95cUxPbFhDOW8yMDZ0Z3BlRURVV0RkenZJZzUzdXZGejBNMzJ1WFp0eTJCdW9ncUlaOHVxNGtGV2J2bmx0aXE3RkRDZ1BKSHJGV0NfeW5FazdObWhyb2RxVzJvNHlXWDBLUXI4ODZIeW9pamRGTS1jbG8td1pCUlpJVDB0Sk1SOU5YZnlRV0MtLUdUX05iZzB1RHc0b1lnb1BrbXR2WTJpNHlmTXU5WW9WQjdER184ZE1BSldYQzFKNVlpQ3doa0JRbXJRSmx1aUZlR2ItV092VHZOczJSY2JTWDY5dVZ0WW9aZzFpckRKX3NqRlVfb3fSAfgBQVVfeXFMTXM3Ym9rRm9PbUFDNDcyeEtIdFd4c29kM0lyc2U1Tl8yVFBndjlkd0hwaWlSVlpkQmkyWUN3X1A1V2VIa0xkMkI3N2xsdW9ZZVZUdzNNRmdFUWI2QWoxLWhpNHlyYUxXeWctNFRPQzQ3Q3RIQ1pPdzMzWGtqbTF3em9idzdSeldzS2F4aV9CcmVraUl5SV8wTllHUU42MVUtZEVnNmtpeUNBS2FTY0FVbTdPT3E1ekhaNjFRY3lzcXR6Q09sNTVwRmN4Y1A3VjVZckNnbTkwZVFTV0FqbC1hOWNXZDFST05Ubmk4OEo3VU5HWFRnUk4yV1k?oc=5",
    "source": "The Economic Times",
    "pubDate": "2026-10-20T04:31:52Z"
-  },
-  {
-   "title": "Vietnam–EFTA trade deal seen opening door to capital, technology, skills",
-   "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNY3k3dFpaWDdDU1ZBY2NwZzN3d2FjREZnUGI4enVxUXNrRTJFdUJRSDZfQ016anc5UjM5RDJ5eFRrWTZrUFJXSnd1SmJUblVsWXNPU1ZHa3QyaGNBdE1seGVKWTJ6QU9kT0NFcXVsUk5FSERoN05rM2tMSWtoMDRYbkdqQWxReGlENnAwTFA3MUJ4RVZpMU5xeUV6VkxuZFQ2cm5CUkFjX1VRRUU?oc=5",
-   "source": "Báo VietNamNet",
-   "pubDate": "2026-10-20T04:26:00Z"
   },
   {
    "title": "Total non-current assets of JE Cleantech Holdings Limited – NASDAQ:JCSE",
@@ -736,7 +712,7 @@
   },
   {
    "title": "What's Driving Green Technology Metals (ASX:GT1) Share Price Higher Today? Stock Gains 16.67%",
-   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNWUxwVjhVdW54M1B3aHN4MmlwcHlHVEc1WU9jbzNJdVNabVhMeGZqZXdPbGtMN0R5QzNwckE0ZFJSSlZPMFZudGtYbDFralJIT1FDclg2bFAwbDVrdTdaSHNidGtNX2lDMXZIenZFVU5PdTFiNHdZQWtnc0dOaHRpM2FyUVNkc1RpczFFOFE2NWR4LXBmWHlGa2pJNHBlenRjVUt6VDhxejllcTBIUmM3enJya0FsZ2pYQ3laamJicHFSaWNYWXl3N01Pbw?oc=5",
+   "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQbk04a29VTGtYMlNLcHVpVmg1YVBwOEZ5Z1RnZFMzS0xOaHZ5SkdfUDN4emo1QXBXcGZRU2JKZU9sMVVjZURyWG0zcXRVdTFNcUd3a191RnoyN0M4VkdZV2sxWUh2STg2U1M0QWdPdHBJcWMwNWJia0tjVFRIMGVaU0dsWDkyNV9VSVBtemV3bUJSZnRnOGVCUV9wYlYxcnJBUnhCbmFPYllyam1fWXhxYUxLZkZ6b2tDNTRVbWVn?oc=5",
    "source": "Kalkine",
    "pubDate": "2026-10-20T04:07:00Z"
   },
@@ -759,22 +735,10 @@
    "pubDate": "2026-10-20T01:20:44Z"
   },
   {
-   "title": "Women in the ancestral land start businesses with \"green innovation\".",
-   "link": "https://news.google.com/rss/articles/CBMic0FVX3lxTFA4alBzRzY5cWxtOXBIbC05V1Raclc4dFV3SEo4eEVnWV84S09kTnkzVC1DQUVPaHlZeHFKaU9wMFBIeXpfSkJuSGZ5SG11WFgxVmpWeXI1Y3lWeFJYYy1jTS1qNUwwUTh6OGZYZmp2LXBXdWc?oc=5",
-   "source": "Vietnam.vn",
-   "pubDate": "2026-10-20T01:17:12Z"
-  },
-  {
    "title": "Promoting the sorting and processing of organic waste.",
    "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE9aZzhiNG9vTTU0MFJ1eG4zSUQ1NEs5VVJWb0l2ZDFaT2s2SFZxaDczX0haRVFEZHdsVHRySElTUEdLYlZZeDVlbEVVT2Y4ZGtGdmZBbUhQRWtwSzUyd0g0aE4zMnlVQUN0elFXS1VSbEh2UzRpZ1E?oc=5",
    "source": "Vietnam.vn",
    "pubDate": "2026-10-20T00:25:01Z"
-  },
-  {
-   "title": "140th Canton Fair: Green Innovation Drives China's Contribution to a Low-Carbon Future",
-   "link": "https://news.google.com/rss/articles/CBMiowJBVV95cUxQYzJRb0J3b3d1Um03ZDAyVVFqY1NUNUNyckFhUVhRbmFJZjY0bnBYYlpZdWFrbTZJZGJ2Z1UwNGtzNWUtOFJUbkkzRThydXAwSGJBaEtxbGtUc3FnOUNqTUhQa09pT01qU293THktWWROa044VHNVRVZfQ3RfcjUtMVR3WnAtaFVaSXgtRUItRmYtMThBcWVCQVlyNWlTdHQwSnAtcHU1NTNLb0ZCMmtKTFRzX1ZlNTlVcXFrMXI3QllwV01lOURRR0QtRUhmQVByTWJ3MTU5TUUzZ1NHWkFYUV9Kbkw1R01uWmdjaEFITThiMXBobEpUcHlBTFJZcUtLYm5FUHVEaEplWTFDcFlDeV9RMUhONFFHeUxjUmNzTEwyVVk?oc=5",
-   "source": "Tioga Publishing",
-   "pubDate": "2026-10-20T00:00:00Z"
   },
   {
    "title": "Gyeonggi Climate Tech Conference Draws 50.2 Billion Won in Investment Talks",
@@ -799,60 +763,6 @@
    "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQVm55dUVTbnpIT3lkdjFmdkM3bTUxTldQY04ybVBzM3FDMjh0THc0aHZEam8tLTM3cDdra0xyb3ZOWlNxU0RSNi1vWkZDaVEtTEJvcDlBdnZtZGx2NVhHWXVHbTVxQkQwZ3p0SGV5TXlLM3JVZVl3SDRmdjk3VzJoNDVyQnFkLURFcDFxS3BnS2VfZjJvVmVpbzZRWGpqMWlrOXJjeGc0OWMzSm1DcjRqYVRLMjVfSWhvc2c?oc=5",
    "source": "NextBillion",
    "pubDate": "2026-10-19T21:28:05Z"
-  },
-  {
-   "title": "Apple to host 'Pro and tell' event on October 28 in LA",
-   "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxOOHZwVEdrUlVtNzhJUVVvYTBORVF3N0E2Z1lRa2tZNXZ2OGdQekdGbXBiWnN5UWNCTDF6TUZlVTh4VjVNMnlPZGxfVjFPaHJlQTNidHBaTjJaSXloVzI1czkyVzN3XzNJZ3BPNkl3TTNQMUhRaVJjLWE1WE1tOHNla2lvYzBpQUtaUnFlSnREVHQzRG4zZDVKaUk0ZzdGektvUXBIazNPdjZPNzFOWEFGNUlITk9ZYm83N3B2dzhHdw?oc=5",
-   "source": "The Economic Times",
-   "pubDate": "2026-10-19T18:21:36Z"
-  },
-  {
-   "title": "Rapido says man linked to Tiger Shroff shooting incident was not an active captain",
-   "link": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxOcG1OMFJqcXpVS0xxUWFfbWhpdHhOS3hpdExpbUFFYU9ISVBubGN4NmI3S1pMdFdJVEVhQnVULTlEOGF5cnZkZTdEMWUwSGZRdlFCTzZLYmZkMURHYkhaR1J1aFdqS1BjSUFNZ0ZDSjRSaTRpUmc0c3VQVVB6Zmx4enRrLUd4V3c0ZjhjQk1TLVFiY21sMUtqbDlYbGdEc1BpZ2NrNE1wODl2LU8wZWhleGtoYjdBVU9UUGd4U3JmOWxGWXdVUVhtV2hqVk4wR1k4YmlYa3NhOEU5alVhaHNsNWJPcVF0VGfSAewBQVVfeXFMTmtPeFo0QXRScW4xUUd3azNYek9tZGNudkVuMnNXRGtzZllLNUpya1Rqb29ISnA3TE1HdmZWSnJFYW1qTTZkUEt2Ui1xSVI1WlAwd3Y4Skx2NzJCM0tnYUhkeDUwakdDeEZ4X0pUcU1WR2pSNVF1SEdweXZETjFNTzNYZ1JTSFhTZ0x6OHpBZVJPUFhyYi1ZWWxuU3RmcHgwaGluVFBVNTBfWmdyT3MtOVh0UWp3OWtrd1BkTHRLSWhLVUlTSUtXV0h1c3BFOEI2SFV2VkZhSEtMc01JMHZBM2xZbVA3dFdDd1EzR3A?oc=5",
-   "source": "The Economic Times",
-   "pubDate": "2026-10-19T17:45:33Z"
-  },
-  {
-   "title": "China vs US vs Europe vs India: Who Leads Clean-Tech Manufacturing in 2026? Major Solar, EV Battery and Wind Factory Investments",
-   "link": "https://news.google.com/rss/articles/CBMihAJBVV95cUxNbXpOOTVsQi11a0xMYW1nbkNQZnpvMDcwbWRwXzJlbFdrb0xCcTFZdEZ2c2xVZl8wVXpWN2xRRUxZNWVFQzZ2SjlvM3NsOXp0RTV3QlBCaE05aUlFUEFxaXFGUk0zbTA5Yy1FdzNWSWRYNVBkY2Z2ZHZZOEdHMWpuZkl3dXpYQ1J6UDJOMWh3Zk9hRlB2cmpCcGt6VXRnQTBWUVRuanBMTk1UQl83U3ktVnVpd0NDUTVxNnBKMk1vQVgzWUMxVUNEYzRlaHZMLW9Td0VCMFdyUE9hQzJEWEVjZzRoQS1SQ2pqSmpZak5BS2NoY2RTLVpwV1hYMGliUXo4V0ltMg?oc=5",
-   "source": "GreentechLead",
-   "pubDate": "2026-10-19T16:53:37Z"
-  },
-  {
-   "title": "The World’s First Subsea Geothermal Well Had 8.7 Seconds of Glory",
-   "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTFA5b09UY0hQWU9FSE1TUWV0R0JRVmFMUngyVzYtYzdXYVdWSjNJU0drX3dqc0g3em5RY01NWUFTWmljZm5QNDlPN2dlRHJFSnBQNWZ5eDdINTBZZ1BDMzFRaHZNVTVEMW9INGdWNGRLRlBMMlJzODVV?oc=5",
-   "source": "Heatmap News",
-   "pubDate": "2026-10-19T16:05:11Z"
-  },
-  {
-   "title": "Climate tech funding stood at $19.6 billion in Q3 2026",
-   "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOQjVuekVIcnVQbEl1OGl0UlJ1MUJTUmdEazlBUWJ3eVJWc2k5NTIxNVFUWXlaZVgwTnl2R0JfTEJfclB1QWk0a2dYdXpoN2k4b0JJeWUtc0tZUW1qX25ZalMwQkw4NXpqMjJrM3MyQk9UTS1jZk9nelpQakRYRVI3emhxR2xjb3d5bnRXb3ltc19VX1J2VG84?oc=5",
-   "source": "Sustainability Online",
-   "pubDate": "2026-10-19T15:22:08Z"
-  },
-  {
-   "title": "Women from the ancestral land bring local products into green tourism journeys.",
-   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOOEtvR3FDTVFxR1dhWDYzVnBIYlpZQ25ESW1ZS1B4UXJ3dWMwYWMzRDVqdHIxS0NtMmNzUzZqMzNETGU1dE1acVZ0SU1jS2ZRNFlERDB4bTdES1R4THdsT2F5NmRNa3U5bENEM3dMQ1NsT0tORml3UmFTRHVrbnF4blBqYkpKT0FSblJ0eExVSVVpR00?oc=5",
-   "source": "Vietnam.vn",
-   "pubDate": "2026-10-19T14:12:54Z"
-  },
-  {
-   "title": "Why India Just Became the Best Place for Deep Tech",
-   "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxOY0hlN0Z0aEJVWUx1dXQ2SllreXo4LV9USG01aDJHb3lndldENl9BMG9tcGRIUTI5UGtRNkJBZFlmeS1RUWFhV0VfamJ0ZkZWRVY5Q1NiUlRMRzRBX3lSVm14d3dfdkFITUk1eWRhc0FxcGtmaHRCcjdDQnVBc21pRmFB?oc=5",
-   "source": "TechJuice",
-   "pubDate": "2026-10-19T14:05:23Z"
-  },
-  {
-   "title": "Top Climate Tech Startups In The UAE To Watch In 2027",
-   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNUTdNNmxkNlkwclhHa1dHc21lTktyLWxBdFA4VFIwQTFTVXc3OGt3aHVGOHN4dnhrc05JQ2x5SWwxSlFfZnp4SXVZMUN0M3c1UW03X2F3WkQyVG1qeFluOFJqQ01fWG1UN1A3NGJmU0V0bkFoa0lkSERIVUg5bkpVUHgxQUNMazA3cU45N1F0dXA?oc=5",
-   "source": "TechRound",
-   "pubDate": "2026-10-19T14:03:22Z"
-  },
-  {
-   "title": "AI, Deep Tech, And Climate: Where Industry Experts See India’s Startup Capital Flowing Next",
-   "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNYWFHRjAxaVNYSS1Pdm1NVVBPMUZaWVFrLXpxUEVPQ3J6dkVZWjFGbFZMT2w1RmhMMmFPd2Z3VGh4SzVwQlRkU25lb2pqd3lGR1lWMDJwRklJVzFGTXNCbTNGbjRqbU5ZOTJWeGxGT2tHWVhtOEtFNnFKXzhNSWVjOGZ6dTFjWVZuSldfeVBTQnhxbS1NcnRWRkZEcGttaWtvSEctLURhaHg0bE9Ma3NUYmR2N1BhYm54VEtIdEZISmFLdzBITUVyY20xTGFFTGJpYjdBdDlneVbSAd8BQVVfeXFMT2luX0gwX21UbUJmZWxXNmpNUXdNR1A1RTVHX2RQWVFvVFB4VWxXak9YVGJRRXNQckZRMkdhVTR2LWY4cFdCZVhJVXdOd0d1T21ZM0xvbFRsUlRDR01URmdWMlQ2NE53cnFmT2hsb0ZvdTJJZFo5NWdMa25venZyMlFJZ2ZmNWNPZjZkVkp6QjVPeVBuRVhXaGlhYkRhX0tXQjJyeV9sbGJsNHE2V2VDZzdOU0NEZUhEMkl4bFI0Uzg4aVY3SjRUc1RpT3prQWdTYmJ3V1llY3dNMUxTVTBGTQ?oc=5",
-   "source": "The Daily Jagran",
-   "pubDate": "2026-10-19T13:30:00Z"
   }
  ]
 }
