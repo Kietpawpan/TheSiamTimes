@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ผู้ช่วยงานสารบรรณอิเล็กทรอนิกส์ คพ.</title>
+<meta name="description" content="เครื่องมือช่วยปฏิบัติงานสารบรรณอิเล็กทรอนิกส์ตามคำสั่งกรมควบคุมมลพิษ ที่ ๓๓๙/๒๕๖๙ และประกาศกรมควบคุมมลพิษ เรื่อง การรับส่งข้อมูลข่าวสารหรือหนังสือด้วยระบบอิเล็กทรอนิกส์">
+<link rel="icon" href="Fav48.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Sarabun', sans-serif; }
+  .tab-btn[aria-selected="true"] { background:#166534; color:#fff; }
+  .card { background:#fff; border-radius:.75rem; box-shadow:0 1px 3px rgba(0,0,0,.08); border:1px solid #e5e7eb; padding:1.25rem; }
+  .inp { width:100%; border:1px solid #d1d5db; border-radius:.5rem; padding:.5rem .75rem; background:#fff; }
+  .inp:focus { outline:2px solid #16a34a; outline-offset:0; border-color:#16a34a; }
+  .lbl { display:block; font-size:.875rem; font-weight:500; color:#374151; margin-bottom:.25rem; }
+  .btn { display:inline-flex; align-items:center; gap:.375rem; border-radius:.5rem; padding:.5rem .9rem; font-weight:500; font-size:.9rem; transition:background .15s; }
+  .btn-p { background:#166534; color:#fff; } .btn-p:hover { background:#14532d; }
+  .btn-s { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; } .btn-s:hover { background:#dcfce7; }
+  .btn-d { background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; } .btn-d:hover { background:#fee2e2; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .ref { font-size:.75rem; color:#6b7280; }
+  .tbl th { text-align:left; font-weight:600; background:#f9fafb; padding:.5rem; border-bottom:1px solid #e5e7eb; white-space:nowrap; }
+  .tbl td { padding:.5rem; border-bottom:1px solid #f3f4f6; vertical-align:top; }
+  .chk:checked + span { text-decoration:line-through; color:#6b7280; }
+  .badge { display:inline-block; font-size:.75rem; padding:.1rem .5rem; border-radius:999px; font-weight:500; }
+  @media print { header, nav, .no-print { display:none !important; } .card { box-shadow:none; border:none; } }
+</style>
+</head>
+<body class="bg-green-50 min-h-screen text-gray-800">
+
+<header class="bg-green-800 text-white">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center gap-3">
+    <img src="IMG_0123.png" alt="" class="h-12 w-12 object-contain bg-white rounded-full p-1" onerror="this.style.display='none'">
+    <div class="min-w-0">
+      <h1 class="text-lg sm:text-xl font-semibold leading-tight">ผู้ช่วยงานสารบรรณอิเล็กทรอนิกส์</h1>
+      <p class="text-green-100 text-xs sm:text-sm">ตามคำสั่ง คพ. ที่ ๓๓๙/๒๕๖๙ และประกาศ คพ. เรื่อง การรับส่งข้อมูลข่าวสารหรือหนังสือด้วยระบบอิเล็กทรอนิกส์</p>
+    </div>
+    <button id="settingsBtn" class="ml-auto shrink-0 text-sm bg-green-700 hover:bg-green-600 rounded-lg px-3 py-2">⚙️ <span class="hidden sm:inline">ตั้งค่าหน่วยงาน</span></button>
+  </div>
+</header>
+
+<nav class="bg-white border-b sticky top-0 z-20 overflow-x-auto">
+  <div class="max-w-6xl mx-auto px-2 flex gap-1 py-2 text-sm whitespace-nowrap" role="tablist">
+    <button class="tab-btn btn" data-tab="channel" aria-selected="true">🧭 เลือกช่องทาง</button>
+    <button class="tab-btn btn" data-tab="naming">📄 ตั้งชื่อไฟล์</button>
+    <button class="tab-btn btn" data-tab="send">📤 ตรวจก่อนส่ง</button>
+    <button class="tab-btn btn" data-tab="directory">📇 อีเมลกลาง</button>
+    <button class="tab-btn btn" data-tab="inbox">📥 ทะเบียนรับ</button>
+    <button class="tab-btn btn" data-tab="outbox">📮 ทะเบียนส่ง</button>
+    <button class="tab-btn btn" data-tab="timer">⏰ ตรวจอีเมล</button>
+    <button class="tab-btn btn" data-tab="rules">📚 สรุประเบียบ</button>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+<!-- ============ 1. CHANNEL ============ -->
+<section data-panel="channel" class="space-y-4">
+  <div class="card">
+    <h2 class="text-lg font-semibold text-green-800 mb-1">ช่องทางที่ถูกต้องสำหรับหนังสือฉบับนี้</h2>
+    <p class="text-sm text-gray-600 mb-4">ตอบคำถามด้านล่าง ระบบจะบอกว่าต้องส่ง/รับทางใด และขั้นตอนที่ต้องทำ</p>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="lbl">1. ทิศทางของหนังสือ</label>
+        <select id="chDir" class="inp">
+          <option value="in">รับเข้า (จากภายนอก)</option>
+          <option value="outExt">ส่งออก ไปหน่วยงานภายนอก (นอกกระทรวง ทส.)</option>
+          <option value="outMin">ส่งออก ไปหน่วยงานในกระทรวง ทส.</option>
+          <option value="outPcd">ส่งระหว่างหน่วยงานภายใน คพ.</option>
+        </select>
+      </div>
+      <div id="chFormWrap">
+        <label class="lbl">2. รูปแบบหนังสือที่ได้รับ</label>
+        <select id="chForm" class="inp">
+          <option value="paper">กระดาษ</option>
+          <option value="elec">อิเล็กทรอนิกส์ (อีเมลกลาง / dConnect)</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">3. ชั้นความลับ</label>
+        <select id="chSecret" class="inp">
+          <option value="none">ไม่มีชั้นความลับ</option>
+          <option value="secret">ลับ / ลับมาก</option>
+          <option value="top">ลับที่สุด / ความลับตามระเบียบรักษาความปลอดภัยแห่งชาติ</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">4. ลักษณะเนื้อหา</label>
+        <select id="chKind" class="inp">
+          <option value="general">หนังสือทั่วไป</option>
+          <option value="finance">สัญญา / จัดซื้อจัดจ้าง / การเงิน (ใบเสนอราคา ใบแจ้งหนี้ ใบเสร็จ ฯลฯ)</option>
+          <option value="evidence">หลักฐานทางราชการ / คดีความ / ข้อมูลส่วนบุคคล (สืบสวน คำร้อง หนังสือรับรอง ผลตรวจวุฒิ/ประวัติ)</option>
+          <option value="physical">สิ่งของที่แปลงเป็นอิเล็กทรอนิกส์ไม่ได้ (รูปเล่ม ภาพถ่าย แผ่นบันทึกข้อมูล ซีดี ฯลฯ)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div id="chResult" class="card border-l-4 border-green-600"></div>
+</section>
+
+<!-- ============ 2. NAMING ============ -->
+<section data-panel="naming" class="space-y-4 hidden">
+  <div class="card">
+    <h2 class="text-lg font-semibold text-green-800 mb-1">ตั้งชื่อไฟล์หนังสือ</h2>
+    <p class="ref mb-4">คำสั่ง ๓๓๙/๒๕๖๙ ข้อ ๒.๒ · ประกาศ คพ. ข้อ ๕.๓–๕.๔ — ใช้เลขอารบิก ใช้ขีดล่าง (_) แทนเว้นวรรค ห้ามใช้อักขระพิเศษ เช่น / หรือ .</p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="sm:col-span-2 lg:col-span-4">
+        <label class="lbl">วางเลขที่หนังสือ (ช่วยกรอกอัตโนมัติ)</label>
+        <input id="nmPaste" class="inp" placeholder="เช่น ทส ๐๓๐๑/๑๒๓๔ ลงวันที่ ๒๕ สิงหาคม ๒๕๖๙">
+      </div>
+      <div>
+        <label class="lbl">ประเภทหนังสือ</label>
+        <select id="nmType" class="inp">
+          <option value="ext">หนังสือภายนอก</option>
+          <option value="int">หนังสือภายใน (บันทึกข้อความ)</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">ปีพุทธศักราช</label>
+        <input id="nmYear" class="inp mono" inputmode="numeric" maxlength="4">
+      </div>
+      <div>
+        <label class="lbl">เลขประจำส่วนราชการ</label>
+        <input id="nmUnit" class="inp mono" inputmode="numeric" placeholder="0301">
+      </div>
+      <div>
+        <label class="lbl">เลขที่หนังสือส่ง</label>
+        <input id="nmNo" class="inp mono" inputmode="numeric" placeholder="1234">
+      </div>
+    </div>
+    <div class="mt-5 rounded-lg bg-green-50 border border-green-200 p-4">
+      <div class="text-sm text-gray-600">ชื่อไฟล์หนังสือนำ</div>
+      <div class="flex flex-wrap items-center gap-2 mt-1">
+        <code id="nmOut" class="mono text-xl sm:text-2xl font-semibold text-green-900 break-all">—</code>
+        <button class="btn btn-s text-xs" data-copy="#nmOut">คัดลอก</button>
+      </div>
+      <div id="nmErr" class="text-sm text-red-700 mt-2"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="font-semibold text-green-800 mb-1">เปลี่ยนชื่อไฟล์ให้อัตโนมัติ</h3>
+    <p class="text-sm text-gray-600 mb-3">เลือกไฟล์หนังสือนำและเอกสารแนบ (แยกไฟล์ละฉบับ) เรียงลำดับ แล้วดาวน์โหลดชื่อใหม่ — ไฟล์ประมวลผลในเครื่องของท่านเท่านั้น ไม่ถูกอัปโหลดไปที่ใด</p>
+    <label id="nmDrop" class="block border-2 border-dashed border-green-300 rounded-lg p-6 text-center cursor-pointer hover:bg-green-50">
+      <input id="nmFiles" type="file" multiple accept="application/pdf,.pdf" class="hidden">
+      <div class="text-3xl">📂</div>
+      <div class="font-medium">คลิกหรือลากไฟล์ PDF มาวางที่นี่</div>
+      <div class="text-xs text-gray-500">ไฟล์แรก = หนังสือนำ · ไฟล์ถัดไป = เอกสารแนบ ๑, ๒, ...</div>
+    </label>
+    <div class="overflow-x-auto mt-3"><table class="tbl w-full text-sm" id="nmTable"></table></div>
+    <div class="flex flex-wrap gap-2 mt-3 no-print">
+      <button id="nmZip" class="btn btn-p" disabled>⬇️ ดาวน์โหลดทั้งหมด (ZIP)</button>
+      <button id="nmClear" class="btn btn-d">ล้างรายการ</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. SEND CHECKLIST ============ -->
+<section data-panel="send" class="space-y-4 hidden">
+  <div class="card">
+    <h2 class="text-lg font-semibold text-green-800 mb-1">ตรวจความเรียบร้อยก่อนส่งหนังสือ</h2>
+    <div class="grid sm:grid-cols-2 gap-4 mt-3">
+      <div>
+        <label class="lbl">ส่งไปที่</label>
+        <select id="sdMode" class="inp">
+          <option value="email">หน่วยงานภายนอก — ผ่านอีเมลกลาง (คำสั่ง ข้อ ๔)</option>
+          <option value="dconnect">หน่วยงานในกระทรวง ทส. — ผ่าน dConnect (คำสั่ง ข้อ ๕)</option>
+          <option value="pcd">หน่วยงานภายใน คพ. — ผ่านอีเมลกลาง/ระบบสารบรรณ (ประกาศ ข้อ ๔–๕)</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">ชื่อเรื่อง (subject) — ต้องตรงกับเรื่องในหนังสือ</label>
+        <div class="flex gap-2">
+          <input id="sdSubject" class="inp" placeholder="เรื่อง ...">
+          <button class="btn btn-s shrink-0" data-copy="#sdSubject">คัดลอก</button>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4">
+      <div class="flex items-center justify-between text-sm mb-1"><span id="sdProg">0/0</span><button id="sdReset" class="text-green-700 underline text-xs">เริ่มใหม่</button></div>
+      <div class="h-2 bg-gray-200 rounded-full overflow-hidden"><div id="sdBar" class="h-full bg-green-600 transition-all" style="width:0"></div></div>
+    </div>
+    <ol id="sdList" class="mt-4 space-y-2"></ol>
+    <div id="sdDone" class="hidden mt-4 rounded-lg bg-green-100 text-green-900 p-3 font-medium">✅ ตรวจครบทุกข้อแล้ว — บันทึกลงทะเบียนส่งได้ที่แท็บ “ทะเบียนส่ง”</div>
+  </div>
+</section>
+
+<!-- ============ 4. DIRECTORY ============ -->
+<section data-panel="directory" class="space-y-4 hidden">
+  <div class="card">
+    <div class="flex flex-wrap items-end gap-3 mb-3">
+      <div class="grow">
+        <h2 class="text-lg font-semibold text-green-800">บัญชีอีเมลกลางของหน่วยงานใน คพ.</h2>
+        <p class="ref">บัญชีท้ายประกาศ คพ. เรื่อง การรับส่งข้อมูลข่าวสารหรือหนังสือด้วยระบบอิเล็กทรอนิกส์</p>
+      </div>
+      <input id="dirSearch" class="inp sm:max-w-xs" placeholder="🔎 ค้นหาหน่วยงาน/อีเมล/จังหวัด">
+    </div>
+    <div class="flex flex-wrap gap-2 mb-3 items-center">
+      <span class="text-sm text-gray-600">เลือกหลายหน่วยงานแล้ว:</span>
+      <button id="dirCopySel" class="btn btn-s text-xs">คัดลอกอีเมลที่เลือก</button>
+      <button id="dirMailSel" class="btn btn-p text-xs">✉️ เขียนอีเมลถึงที่เลือก</button>
+      <span id="dirSelCount" class="text-xs text-gray-500"></span>
+    </div>
+    <div class="overflow-x-auto"><table class="tbl w-full text-sm" id="dirTable"></table></div>
+  </div>
+</section>
+
+<!-- ============ 5. INBOX REGISTER ============ -->
+<section data-panel="inbox" class="space-y-4 hidden">
+  <div class="card">
+    <h2 class="text-lg font-semibold text-green-800 mb-1">ทะเบียนรับหนังสือ</h2>
+    <p class="ref mb-3">คำสั่ง ข้อ ๓ — ตรวจความครบถ้วน จัดลำดับความสำคัญ/ความเร่งด่วน ลงทะเบียนรับ แปลงกระดาษเป็น PDF ๓๐๐ dpi แล้วส่งผู้รับผ่าน e-office</p>
+    <form id="inForm" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div><label class="lbl">วัน-เวลารับ</label><input name="at" type="datetime-local" class="inp" required></div>
+      <div><label class="lbl">ช่องทางที่รับ</label>
+        <select name="channel" class="inp"><option>กระดาษ</option><option>อีเมลกลาง</option><option>dConnect</option><option>e-office</option></select></div>
+      <div><label class="lbl">ที่ (เลขหนังสือต้นทาง)</label><input name="ref" class="inp" placeholder="ทส ๐๓๐๑/๑๒๓๔"></div>
+      <div><label class="lbl">ลงวันที่</label><input name="docDate" type="date" class="inp"></div>
+      <div class="sm:col-span-2"><label class="lbl">จาก</label><input name="from" class="inp" required></div>
+      <div class="sm:col-span-2"><label class="lbl">เรื่อง</label><input name="subject" class="inp" required></div>
+      <div><label class="lbl">ความเร่งด่วน</label>
+        <select name="urgency" class="inp"><option>ปกติ</option><option>ด่วน</option><option>ด่วนมาก</option><option>ด่วนที่สุด</option></select></div>
+      <div><label class="lbl">ชั้นความลับ</label>
+        <select name="secret" class="inp"><option>ไม่มี</option><option>ลับ</option><option>ลับมาก</option><option>ลับที่สุด</option></select></div>
+      <div><label class="lbl">ลักษณะเอกสาร</label>
+        <select name="kind" class="inp"><option value="general">ทั่วไป</option><option value="finance">สัญญา/จัดซื้อจัดจ้าง/การเงิน</option><option value="evidence">หลักฐาน/คดี/ข้อมูลส่วนบุคคล</option><option value="physical">รูปเล่ม/สื่อบันทึกข้อมูล</option></select></div>
+      <div><label class="lbl">ส่งให้ (ผู้รับภายใน)</label><input name="to" class="inp"></div>
+      <div class="sm:col-span-2 lg:col-span-4 flex flex-wrap gap-2 items-center">
+        <button class="btn btn-p" type="submit">＋ ลงทะเบียนรับ</button>
+        <span id="inHint" class="text-sm text-amber-700"></span>
+      </div>
+    </form>
+  </div>
+  <div class="card">
+    <div class="flex flex-wrap gap-2 items-center mb-3">
+      <input id="inSearch" class="inp sm:max-w-xs" placeholder="🔎 ค้นหาในทะเบียน">
+      <select id="inFilter" class="inp sm:max-w-[14rem]">
+        <option value="">ทุกสถานะ</option><option value="pending">ยังดำเนินการไม่ครบ</option><option value="paper">ต้องส่งต้นฉบับกระดาษ</option>
+      </select>
+      <div class="ml-auto flex gap-2">
+        <button class="btn btn-s text-xs" data-export="inbox">⬇️ CSV</button>
+        <button class="btn btn-s text-xs" onclick="window.print()">🖨️ พิมพ์</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto"><table class="tbl w-full text-sm" id="inTable"></table></div>
+  </div>
+</section>
+
+<!-- ============ 6. OUTBOX REGISTER ============ -->
+<section data-panel="outbox" class="space-y-4 hidden">
+  <div class="card">
+    <h2 class="text-lg font-semibold text-green-800 mb-1">ทะเบียนส่งหนังสือ</h2>
+    <p class="ref mb-3">คำสั่ง ข้อ ๔.๓ — แนบ PDF ตรวจความถูกต้อง ลงลายมือชื่ออิเล็กทรอนิกส์ (ถ้ามี) ส่งจากอีเมลกลางเท่านั้น บันทึกในทะเบียนว่าส่งทางอีเมลแล้ว และส่งต่ออีเมลตอบรับให้เจ้าของเรื่อง</p>
+    <form id="outForm" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div><label class="lbl">เลขที่หนังสือ</label><input name="ref" class="inp" placeholder="ทส ๐๓๐๑/๑๒๓๔" required></div>
+      <div><label class="lbl">ลงวันที่</label><input name="docDate" type="date" class="inp"></div>
+      <div><label class="lbl">ช่องทาง</label>
+        <select name="channel" class="inp"><option>อีเมลกลาง</option><option>dConnect</option><option>กระดาษ</option></select></div>
+      <div><label class="lbl">ชื่อไฟล์</label><input name="file" class="inp mono" placeholder="2569_PCD0301_1234"></div>
+      <div class="sm:col-span-2"><label class="lbl">ถึง (หน่วยงาน)</label><input name="to" class="inp" list="dirList" required></div>
+      <div class="sm:col-span-2"><label class="lbl">อีเมลปลายทาง</label><input name="email" class="inp" placeholder="saraban@..."></div>
+      <div class="sm:col-span-2 lg:col-span-3"><label class="lbl">เรื่อง</label><input name="subject" class="inp" required></div>
+      <div><label class="lbl">เจ้าของเรื่อง</label><input name="owner" class="inp"></div>
+      <div class="sm:col-span-2 lg:col-span-4"><button class="btn btn-p" type="submit">＋ ลงทะเบียนส่ง</button></div>
+    </form>
+    <datalist id="dirList"></datalist>
+  </div>
+  <div class="card">
+    <div class="flex flex-wrap gap-2 items-center mb-3">
+      <input id="outSearch" class="inp sm:max-w-xs" placeholder="🔎 ค้นหาในทะเบียน">
+      <div class="ml-auto flex gap-2">
+        <button class="btn btn-s text-xs" data-export="outbox">⬇️ CSV</button>
+        <button class="btn btn-s text-xs" onclick="window.print()">🖨️ พิมพ์</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto"><table class="tbl w-full text-sm" id="outTable"></table></div>
+  </div>
+</section>
+
+<!-- ============ 7. TIMER ============ -->
+<section data-panel="timer" class="space-y-4 hidden">
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="card">
+      <h2 class="text-lg font-semibold text-green-800 mb-1">รอบตรวจอีเมลกลาง</h2>
+      <p class="ref mb-3">คำสั่ง ข้อ ๓.๒.๑ — สารบรรณกลางตรวจอย่างน้อยทุก ๓๐ นาที · ประกาศ ข้อ ๖ — หน่วยงานตรวจอย่างน้อยทุกชั่วโมงในเวลาราชการ (รวมโฟลเดอร์อีเมลขยะ)</p>
+      <label class="lbl">ความถี่</label>
+      <select id="tmInterval" class="inp mb-4">
+        <option value="30">ทุก ๓๐ นาที (สารบรรณกลาง)</option>
+        <option value="60">ทุก ๖๐ นาที (หน่วยงานในสังกัด)</option>
+      </select>
+      <div class="text-center py-4">
+        <div class="text-sm text-gray-500">ตรวจครั้งถัดไปใน</div>
+        <div id="tmCountdown" class="mono text-5xl font-bold text-green-800">--:--</div>
+        <div id="tmLast" class="text-sm text-gray-500 mt-1"></div>
+      </div>
+      <div class="flex flex-wrap gap-2 justify-center">
+        <button id="tmChecked" class="btn btn-p">✔️ ตรวจแล้ว (รวมอีเมลขยะ)</button>
+        <button id="tmNotify" class="btn btn-s">🔔 เปิดการแจ้งเตือน</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2 class="text-lg font-semibold text-green-800 mb-1">มีการแจ้งเตือน (alert) เข้ามา</h2>
+      <p class="ref mb-3">คำสั่ง ข้อ ๓.๒.๑ — เมื่อได้รับแจ้งทางโทรศัพท์ว่ามีหนังสือเข้าอีเมลกลาง ต้องตรวจและดำเนินการภายใน ๑๕ นาที</p>
+      <div class="text-center py-4">
+        <div class="text-sm text-gray-500">เวลาที่เหลือ</div>
+        <div id="alCountdown" class="mono text-5xl font-bold text-gray-300">15:00</div>
+        <div id="alFrom" class="text-sm text-gray-500 mt-1"></div>
+      </div>
+      <div class="flex flex-wrap gap-2 justify-center">
+        <input id="alWho" class="inp max-w-xs" placeholder="แจ้งจาก (ชื่อ/เบอร์โทร)">
+        <button id="alStart" class="btn btn-d">🚨 เริ่มจับเวลา ๑๕ นาที</button>
+        <button id="alDone" class="btn btn-p hidden">✔️ ดำเนินการแล้ว</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="flex items-center mb-2"><h3 class="font-semibold text-green-800">บันทึกการตรวจวันนี้</h3><button id="tmClearLog" class="ml-auto text-xs text-red-700 underline">ล้าง</button></div>
+    <ul id="tmLog" class="text-sm space-y-1"></ul>
+  </div>
+</section>
+
+<!-- ============ 8. RULES ============ -->
+<section data-panel="rules" class="space-y-4 hidden">
+  <div class="card prose max-w-none">
+    <h2 class="text-lg font-semibold text-green-800 mb-3">สรุปสาระสำคัญ</h2>
+    <div class="grid md:grid-cols-2 gap-6 text-sm leading-relaxed">
+      <div>
+        <h3 class="font-semibold mb-2">คำสั่งกรมควบคุมมลพิษ ที่ ๓๓๙/๒๕๖๙<br><span class="font-normal text-gray-600">แนวทางการปฏิบัติงานระบบสารบรรณอิเล็กทรอนิกส์ของ คพ. (สั่ง ณ ๒๒ ต.ค. ๒๕๖๙)</span></h3>
+        <ol class="list-decimal pl-5 space-y-2">
+          <li>ใช้ e-document เป็นหลัก กระดาษ/ไปรษณีย์เป็นข้อยกเว้น เว้นแต่ข้อมูลลับที่สุด หรือความลับตามระเบียบรักษาความปลอดภัยแห่งชาติ ให้ส่งเป็นกระดาษ</li>
+          <li>จัดทำเป็นไฟล์ แยกหนังสือนำกับเอกสารแนบ (แนบ &gt; ๑ ฉบับ แยกคนละไฟล์) ตั้งชื่อไฟล์ <code class="mono">ปีพ.ศ._PCDเลขส่วนราชการ_เลขที่</code> เช่น <code class="mono">2569_PCD0301_1234</code> แนบต่อท้าย <code class="mono">_1</code>, <code class="mono">_2</code> · subject ตรงกับชื่อเรื่อง · ผ่าน Draft, In-tray และระบบสารบรรณ</li>
+          <li>รับหนังสือกระดาษ: สารบรรณกลางตรวจ จัดลำดับ ลงทะเบียน แปลงเป็น PDF ๓๐๐ dpi ส่งผ่าน e-office (ยกเว้นหนังสือลับ และสิ่งที่แปลงไม่ได้) เก็บต้นฉบับไว้ เว้นแต่ <b>สัญญา/จัดซื้อจัดจ้าง/การเงิน</b> และ <b>หลักฐาน/คดี/ข้อมูลส่วนบุคคล</b> ให้นำส่งต้นฉบับแก่ผู้รับในวันเดียวกัน · รับทางอิเล็กทรอนิกส์: ตรวจอีเมลกลางอย่างน้อยทุก ๓๐ นาที หากมี alert ทางโทรศัพท์ให้ดำเนินการภายใน ๑๕ นาที แล้วลงทะเบียนใน e-office – dConnect</li>
+          <li>ส่งไปภายนอก: ส่งอีเมลกลางของผู้รับ ออกเลข ทำ PDF ๓๐๐ dpi แยกไฟล์ ไฟล์ใหญ่ให้ส่งลิงก์แทน แจ้งรายชื่อหน่วยงาน อีเมลกลาง เบอร์โทร ให้สารบรรณกลางผ่าน e-office · สารบรรณกลางตรวจ ส่งจากอีเมลกลางเท่านั้น ลงลายมือชื่ออิเล็กทรอนิกส์ (ถ้ามี) บันทึกทะเบียนส่ง และ forward อีเมลตอบรับให้เจ้าของเรื่อง</li>
+          <li>ส่งในกระทรวง ทส.: ใช้ dConnect เมนู “ส่งผ่าน dConnect” → “ส่งภายนอก” → เลือกหน่วยงาน/กล่องรับ → ตรวจไฟล์ → “ยืนยันการส่ง” · ผู้ใช้ทั่วไปมีสิทธิ์ “ส่งหนังสืออย่างเดียว” การรับรวมศูนย์ที่สารบรรณกลาง</li>
+          <li>เก็บรักษา: ต้นฉบับกระดาษเข้าแฟ้มเรียงตามวัน เดือน ปี ที่รับ มีบัญชีหนังสือส่งเก็บและทะเบียนหนังสือเก็บ (อายุเก็บตามข้อ ๕๗ ระเบียบงานสารบรรณ ๒๕๒๖) · ไฟล์อิเล็กทรอนิกส์สำรองข้อมูลที่ ศูนย์เทคโนโลยีสารสนเทศฯ</li>
+          <li>เลขานุการกรมและผู้อำนวยการศูนย์เทคโนโลยีสารสนเทศฯ กำกับ ติดตาม แก้ไขปัญหา</li>
+          <li>หลักเกณฑ์อื่นเป็นไปตามระเบียบสำนักนายกรัฐมนตรีว่าด้วยงานสารบรรณ พ.ศ. ๒๕๒๖ และที่แก้ไขเพิ่มเติม</li>
+        </ol>
+      </div>
+      <div>
+        <h3 class="font-semibold mb-2">ประกาศกรมควบคุมมลพิษ<br><span class="font-normal text-gray-600">เรื่อง การรับส่งข้อมูลข่าวสารหรือหนังสือด้วยระบบอิเล็กทรอนิกส์ (ประกาศ ณ ๒๒ ต.ค. ๒๕๖๙)</span></h3>
+        <ol class="list-decimal pl-5 space-y-2">
+          <li>ทุกหน่วยงานใช้ระบบสารบรรณอิเล็กทรอนิกส์ มีอีเมลกลางอย่างน้อยหนึ่งที่อยู่ หน่วยงานในภูมิภาคมีอีเมลกลางของตนเอง เผยแพร่บนเว็บไซต์พร้อมเบอร์โทรเจ้าหน้าที่ และแจ้ง สพร. (DGA)</li>
+          <li>ใช้อีเมลกลางตามบัญชีท้ายประกาศ</li>
+          <li>ติดต่อราชการด้วยเอกสารอิเล็กทรอนิกส์เป็นหลัก ลับ/ลับมากอาจส่งกระดาษ ส่วนลับที่สุดหรือความลับตามระเบียบรักษาความปลอดภัยแห่งชาติ ให้ส่งกระดาษ · หากส่งทางอิเล็กทรอนิกส์ต้องเข้ารหัสป้องกันผู้ไม่มีสิทธิ์</li>
+          <li>ส่งผ่านอีเมลกลาง ไม่ต้องส่งกระดาษตามไปอีก เว้นแต่ <b>คดีความ สัญญา หรือการเงิน</b> ให้ส่งกระดาษ</li>
+          <li>ไฟล์ PDF ๓๐๐ dpi <b>ห้ามลงนามบนกระดาษแล้วสแกน</b> · แยกหนังสือนำ/เอกสารแนบ · ตั้งชื่อไฟล์ตามข้อ ๕.๓ · <b>หนังสือภายใน (บันทึกข้อความ) เติม <code class="mono">i</code></b> หน้า PCD เช่น <code class="mono">2569_iPCD0301_1234</code> · subject ตรงกับชื่อเรื่อง</li>
+          <li>หัวหน้าส่วนราชการมอบหมายเจ้าหน้าที่ตรวจอีเมลกลาง รวมโฟลเดอร์อีเมลขยะ <b>อย่างน้อยทุกชั่วโมงในเวลาราชการ</b> · ปฏิบัติตามภาคผนวก ๖ หรือ ๗ ของระเบียบงานสารบรรณ (ฉบับที่ ๔) พ.ศ. ๒๕๖๔</li>
+        </ol>
+      </div>
+    </div>
+    <p class="text-xs text-gray-500 mt-6 border-t pt-3">เครื่องมือนี้เป็นตัวช่วยในการปฏิบัติงาน ไม่ใช่ระบบสารบรรณอย่างเป็นทางการ (e-office / dConnect) ข้อมูลทะเบียนเก็บไว้ในเบราว์เซอร์ของเครื่องนี้เท่านั้น โปรดส่งออก CSV หรือสำรองข้อมูลเป็นระยะ</p>
+    <div class="flex flex-wrap gap-2 mt-3 no-print">
+      <button id="bkExport" class="btn btn-s text-xs">💾 สำรองข้อมูลทั้งหมด (JSON)</button>
+      <label class="btn btn-s text-xs cursor-pointer">📥 กู้คืนข้อมูล<input id="bkImport" type="file" accept="application/json" class="hidden"></label>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- Settings dialog -->
+<dialog id="settingsDlg" class="rounded-xl p-0 w-[min(92vw,28rem)] backdrop:bg-black/40">
+  <form method="dialog" class="p-5 space-y-3">
+    <h2 class="text-lg font-semibold text-green-800">ตั้งค่าหน่วยงานของท่าน</h2>
+    <div><label class="lbl">หน่วยงาน</label><select id="stUnit" class="inp"></select></div>
+    <div><label class="lbl">เลขประจำส่วนราชการ (เช่น 0301)</label><input id="stCode" class="inp mono" inputmode="numeric"></div>
+    <div><label class="lbl">ขนาดไฟล์แนบสูงสุดที่ส่งทางอีเมลได้ (MB)</label><input id="stMax" type="number" min="1" class="inp mono"></div>
+    <p class="text-xs text-gray-500">ไฟล์ที่ใหญ่เกินกว่านี้ ระบบจะเตือนให้นำไปเก็บในที่ที่ผู้รับเข้าถึงได้ แล้วแนบลิงก์ไว้ในเนื้อหาแทน (คำสั่ง ข้อ ๔.๒.๒)</p>
+    <div class="flex justify-end gap-2 pt-2"><button value="cancel" class="btn btn-s">ยกเลิก</button><button id="stSave" value="ok" class="btn btn-p">บันทึก</button></div>
+  </form>
+</dialog>
+
+<div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm rounded-lg px-4 py-2 opacity-0 pointer-events-none transition-opacity z-50"></div>
+
+<script>
+(() => {
+'use strict';
+
+// ---------- Data from the announcement appendix ----------
+const DIRECTORY = [
+  { g: 'ส่วนกลาง', name: 'กรมควบคุมมลพิษ', emails: ['saraban@pcd.go.th'] },
+  { g: 'ส่วนกลาง', name: 'สำนักงานเลขานุการกรม', emails: ['pcd.saraban@gmail.com'] },
+  { g: 'ส่วนกลาง', name: 'กองกฎหมาย', emails: ['pcdlaw10@gmail.com'] },
+  { g: 'ส่วนกลาง', name: 'กองยุทธศาสตร์และแผนงาน', emails: ['ratchada_muay@hotmail.com'] },
+  { g: 'ส่วนกลาง', name: 'กองจัดการกากของเสียและสารอันตราย', emails: ['pratasuk@outlook.com'] },
+  { g: 'ส่วนกลาง', name: 'กองจัดการคุณภาพน้ำ', emails: ['bunnagthunyawat@gmail.com'] },
+  { g: 'ส่วนกลาง', name: 'กองจัดการคุณภาพอากาศและเสียง', emails: ['generalaqmpcd@gmail.com'] },
+  { g: 'ส่วนกลาง', name: 'กองตรวจมลพิษ', emails: ['e-petition@pcd.go.th'] },
+  { g: 'ส่วนกลาง', name: 'ศูนย์ปฏิบัติการวิเคราะห์มลพิษและสิ่งแวดล้อม', emails: ['jeera_16@hotmail.com'] },
+  { g: 'ส่วนกลาง', name: 'กลุ่มพัฒนาระบบบริหาร', emails: ['psdg.pcd@gmail.com'] },
+  { g: 'ส่วนกลาง', name: 'ศูนย์เทคโนโลยีสารสนเทศและการสื่อสาร', emails: ['nutchayaa.r.t@gmail.com'] },
+  { g: 'ส่วนกลาง', name: 'กลุ่มตรวจสอบภายใน', emails: ['auditpcd@gmail.com'] },
+  { g: 'ส่วนกลาง', name: 'กองการต่างประเทศและนวัตกรรม', emails: ['int.pcd@gmail.com'] },
+];
+['เชียงใหม่','ลำปาง','พิษณุโลก','นครสวรรค์','นครปฐม','นนทบุรี','สระบุรี','ราชบุรี','อุดรธานี','ขอนแก่น','นครราชสีมา','อุบลราชธานี','ชลบุรี','สุราษฎร์ธานี','ภูเก็ต','สงขลา']
+  .forEach((prov, i) => {
+    const n = String(i + 1).padStart(2, '0');
+    const emails = [`epo${n}@pcd.go.th`];
+    if (n === '01') emails.push('epo01.pcd@gmail.com');
+    DIRECTORY.push({ g: 'ส่วนภูมิภาค', name: `สำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ ${toThai(i + 1)} ${prov}`, emails });
+  });
+
+// ---------- Utilities ----------
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function toThai(n) { return String(n).replace(/\d/g, d => '๐๑๒๓๔๕๖๗๘๙'[d]); }
+function toArabic(s) { return String(s ?? '').replace(/[๐-๙]/g, d => '๐๑๒๓๔๕๖๗๘๙'.indexOf(d)); }
+const digitsOnly = s => toArabic(s).replace(/\D/g, '');
+const beYear = (d = new Date()) => d.getFullYear() + 543;
+const pad = n => String(n).padStart(2, '0');
+const localDT = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const fmtDT = iso => { if (!iso) return ''; const d = new Date(iso); return isNaN(d) ? iso : `${toThai(d.getDate())}/${toThai(d.getMonth() + 1)}/${toThai(beYear(d))} ${toThai(pad(d.getHours()))}:${toThai(pad(d.getMinutes()))}`; };
+const fmtD = s => { if (!s) return ''; const [y, m, d] = s.split('-'); return `${toThai(+d)}/${toThai(+m)}/${toThai(+y + 543)}`; };
+const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.ceil(b / 1024) + ' KB';
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+const store = {
+  get(k, def) { try { const v = localStorage.getItem('pcdSaraban.' + k); return v == null ? def : JSON.parse(v); } catch { return def; } },
+  set(k, v) { try { localStorage.setItem('pcdSaraban.' + k, JSON.stringify(v)); } catch {} },
+};
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.style.opacity = 1;
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.style.opacity = 0, 2200);
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); toast('คัดลอกแล้ว'); }
+  catch { prompt('คัดลอกข้อความนี้', text); }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-copy]'); if (!b) return;
+  const el = $(b.dataset.copy); copyText(el.value ?? el.textContent);
+});
+
+// ---------- Settings ----------
+const settings = Object.assign({ unit: 'สำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ ๑๑ นครราชสีมา', code: '', maxMB: 25 }, store.get('settings', {}));
+$('#stUnit').innerHTML = DIRECTORY.map(d => `<option>${esc(d.name)}</option>`).join('');
+$('#settingsBtn').onclick = () => {
+  $('#stUnit').value = settings.unit; $('#stCode').value = settings.code; $('#stMax').value = settings.maxMB;
+  $('#settingsDlg').showModal();
+};
+$('#stSave').onclick = () => {
+  settings.unit = $('#stUnit').value; settings.code = digitsOnly($('#stCode').value); settings.maxMB = Math.max(1, +$('#stMax').value || 25);
+  store.set('settings', settings);
+  if (!$('#nmUnit').value) $('#nmUnit').value = settings.code;
+  updateName(); renderFiles(); toast('บันทึกการตั้งค่าแล้ว');
+};
+
+// ---------- Tabs ----------
+function showTab(name) {
+  $$('.tab-btn').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === name));
+  $$('[data-panel]').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== name));
+  store.set('tab', name);
+}
+$$('.tab-btn').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+showTab(store.get('tab', 'channel'));
+
+// ---------- 1. Channel advisor ----------
+function renderChannel() {
+  const dir = $('#chDir').value, form = $('#chForm').value, secret = $('#chSecret').value, kind = $('#chKind').value;
+  $('#chFormWrap').classList.toggle('hidden', dir !== 'in');
+  let verdict, color, steps = [], refs = [];
+
+  if (secret === 'top') {
+    verdict = 'ส่ง/รับเป็นกระดาษเท่านั้น — ห้ามผ่านระบบอิเล็กทรอนิกส์'; color = 'red';
+    steps = ['ดำเนินการตามระเบียบว่าด้วยการรักษาความลับของทางราชการ และระเบียบว่าด้วยการรักษาความปลอดภัยแห่งชาติ', 'ไม่ต้องแปลงเป็น PDF และไม่ส่งผ่าน e-office / อีเมล'];
+    refs = ['คำสั่ง ข้อ ๑, ๓.๑.๒(๑)', 'ประกาศ ข้อ ๓'];
+  } else if (dir === 'in') {
+    if (form === 'paper') {
+      if (kind === 'physical') {
+        verdict = 'รับเป็นกระดาษ/สิ่งของ — ไม่ต้องแปลงเป็นอิเล็กทรอนิกส์'; color = 'amber';
+        steps = ['ตรวจความครบถ้วน จัดลำดับความสำคัญ/เร่งด่วน', 'ลงทะเบียนรับ', 'นำส่งตัวจริงให้ผู้รับภายในหน่วยงาน'];
+        refs = ['คำสั่ง ข้อ ๓.๑.๒(๒)'];
+      } else if (secret === 'secret') {
+        verdict = 'หนังสือลับ — ไม่ส่งผ่านระบบสารบรรณอิเล็กทรอนิกส์'; color = 'amber';
+        steps = ['ลงทะเบียนรับตามระเบียบการรักษาความลับฯ', 'นำส่งตัวจริงให้ผู้มีสิทธิ์โดยตรง'];
+        refs = ['คำสั่ง ข้อ ๓.๑.๒(๑)'];
+      } else {
+        verdict = 'แปลงเป็น PDF ๓๐๐ dpi แล้วส่งผู้รับผ่าน e-office'; color = 'green';
+        steps = ['สารบรรณกลางตรวจความครบถ้วน จัดลำดับความสำคัญ/เร่งด่วน และลงทะเบียนรับ', 'สแกนเป็นไฟล์ .pdf ความละเอียด ๓๐๐ dpi แยกหนังสือนำ/เอกสารแนบ ตั้งชื่อไฟล์ตามข้อ ๒', 'ส่งให้ผู้รับภายในหน่วยงานผ่านระบบ e-office'];
+        if (kind === 'finance' || kind === 'evidence') {
+          steps.push('<b>นำส่งต้นฉบับกระดาษให้ผู้รับในวันเดียวกันกับที่ได้รับ</b> (' + (kind === 'finance' ? 'สัญญา/จัดซื้อจัดจ้าง/การเงิน' : 'หลักฐานทางราชการ/ข้อมูลส่วนบุคคล') + ')');
+          refs = ['คำสั่ง ข้อ ๓.๑.๑–๓.๑.๒', 'คำสั่ง ข้อ ๓ วรรคท้าย (๑)–(๒)'];
+        } else {
+          steps.push('เก็บต้นฉบับกระดาษไว้ที่สำนักงานเลขานุการกรม/ส่วนสารบรรณ เข้าแฟ้มเรียงตามวันที่รับ (ผู้รับขอสืบค้นได้)');
+          refs = ['คำสั่ง ข้อ ๓.๑.๑–๓.๑.๒, ข้อ ๖.๑'];
+        }
+      }
+    } else {
+      verdict = 'รับทางอิเล็กทรอนิกส์ — ลงทะเบียนใน e-office (dConnect)'; color = 'green';
+      steps = ['ตรวจอีเมลกลางสม่ำเสมออย่างน้อยทุก ๓๐ นาที (หากมี alert ทางโทรศัพท์ ดำเนินการภายใน ๑๕ นาที)', 'ตรวจความครบถ้วนถูกต้อง จัดลำดับความสำคัญ/เร่งด่วน', 'บันทึกเข้าระบบพร้อมลงทะเบียนรับใน e-office – dConnect', 'นำส่งผู้รับภายในหน่วยงาน'];
+      if (secret === 'secret') steps.push('หนังสือลับ: ตรวจสอบว่ามีการเข้ารหัสและจำกัดผู้มีสิทธิ์อ่าน');
+      refs = ['คำสั่ง ข้อ ๓.๒.๑–๓.๒.๒', 'ประกาศ ข้อ ๖'];
+    }
+  } else {
+    const paperAlso = dir === 'outPcd' && (kind === 'finance' || kind === 'evidence');
+    if (kind === 'physical') {
+      verdict = 'ส่งเป็นกระดาษ/สิ่งของทางไปรษณีย์ หรือนำส่ง'; color = 'amber';
+      steps = ['หรือนำไฟล์ไปเก็บในที่ที่ผู้รับเข้าถึงได้ และแนบลิงก์ในเนื้อหาหนังสือแทน'];
+      refs = ['คำสั่ง ข้อ ๔.๒.๒(๒)'];
+    } else if (dir === 'outMin') {
+      verdict = 'ส่งผ่านระบบ dConnect'; color = 'green';
+      steps = ['ผู้มีอำนาจลงนาม (ลงนามอิเล็กทรอนิกส์ ไม่สแกนลายมือชื่อ)', 'เข้าหน้าเอกสาร เลือกเมนู “ส่งผ่าน dConnect”', 'เลือกกลุ่มหน่วยงานเป้าหมายในส่วน “ส่งภายนอก” (เช่น กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม)', 'เลือกหน่วยงาน/กล่องรับหนังสือปลายทาง (เช่น สำนักงานปลัดกระทรวง ทส.)', 'ตรวจสอบไฟล์เอกสารและไฟล์แนบให้ครบถ้วน แล้วกด “ยืนยันการส่ง”'];
+      refs = ['คำสั่ง ข้อ ๕'];
+    } else {
+      verdict = dir === 'outPcd' ? 'ส่งผ่านระบบสารบรรณอิเล็กทรอนิกส์/อีเมลกลางของหน่วยงานปลายทาง' : 'ส่งทางอีเมลกลางของหน่วยงานปลายทาง ผ่านสารบรรณกลาง';
+      color = 'green';
+      steps = ['ออกเลขหนังสือ ทำเป็น PDF ๓๐๐ dpi (ลงนามอิเล็กทรอนิกส์ ไม่สแกนลายมือชื่อ)', 'แยกไฟล์หนังสือนำ/เอกสารแนบ และตั้งชื่อไฟล์ตามหลักเกณฑ์' + (dir === 'outPcd' ? ' (บันทึกข้อความเติม _i หน้า PCD)' : ''), 'ไฟล์ใหญ่เกินส่งได้ → นำไปเก็บที่ผู้รับเข้าถึงได้ แล้วแนบลิงก์ในเนื้อหา', 'ใช้ชื่อเรื่อง (subject) ให้ตรงกับชื่อเรื่องของหนังสือ'];
+      if (dir === 'outExt') steps.push('ส่งไฟล์พร้อมรายชื่อหน่วยงาน อีเมลกลาง และเบอร์โทรปลายทาง ให้สารบรรณกลางผ่าน e-office', 'สารบรรณกลางส่งจากอีเมลกลางของส่วนราชการ บันทึกทะเบียนส่ง และ forward อีเมลตอบรับให้เจ้าของเรื่อง');
+      else steps.push('ส่งไปยังอีเมลกลางตามบัญชีท้ายประกาศ (ดูแท็บ “อีเมลกลาง”)');
+      if (secret === 'secret') steps.push('<b>หนังสือลับ/ลับมาก:</b> เข้ารหัสไฟล์เพื่อป้องกันผู้ไม่มีสิทธิ์อ่าน หรือเลือกส่งเป็นกระดาษ');
+      if (paperAlso) steps.push('<b>เป็นเรื่องคดีความ/สัญญา/การเงิน — ต้องจัดส่งเป็นกระดาษด้วย</b>');
+      else if (dir === 'outPcd') steps.push('ไม่ต้องส่งหนังสือกระดาษตามไปอีก');
+      refs = dir === 'outPcd' ? ['ประกาศ ข้อ ๓–๕'] : ['คำสั่ง ข้อ ๔.๑–๔.๓'];
+    }
+  }
+  const colors = { green: 'border-green-600', amber: 'border-amber-500', red: 'border-red-600' };
+  const res = $('#chResult');
+  res.className = 'card border-l-4 ' + colors[color];
+  res.innerHTML = `<div class="text-lg font-semibold mb-2">${verdict}</div>
+    <ol class="list-decimal pl-5 space-y-1 text-sm">${steps.map(s => `<li>${s}</li>`).join('')}</ol>
+    <div class="ref mt-3">อ้างอิง: ${refs.join(' · ')}</div>`;
+}
+['#chDir', '#chForm', '#chSecret', '#chKind'].forEach(s => $(s).addEventListener('change', renderChannel));
+renderChannel();
+
+// ---------- 2. File naming ----------
+const nm = { files: [] };
+$('#nmYear').value = beYear();
+$('#nmUnit').value = settings.code;
+
+function baseName() {
+  const year = digitsOnly($('#nmYear').value), unit = digitsOnly($('#nmUnit').value), no = digitsOnly($('#nmNo').value);
+  const errs = [];
+  if (year.length !== 4) errs.push('ปี พ.ศ. ต้องเป็นตัวเลข ๔ หลัก');
+  if (!unit) errs.push('กรุณากรอกเลขประจำส่วนราชการ');
+  if (!no) errs.push('กรุณากรอกเลขที่หนังสือ');
+  const prefix = $('#nmType').value === 'int' ? 'iPCD' : 'PCD';
+  return { name: errs.length ? '' : `${year}_${prefix}${unit}_${no}`, errs };
+}
+function updateName() {
+  const { name, errs } = baseName();
+  $('#nmOut').textContent = name || '—';
+  $('#nmErr').textContent = errs.join(' · ');
+  renderFiles();
+}
+['#nmYear', '#nmUnit', '#nmNo', '#nmType'].forEach(s => $(s).addEventListener('input', updateName));
+$('#nmPaste').addEventListener('input', e => {
+  const s = toArabic(e.target.value);
+  const m = s.match(/(\d{3,5})\s*(?:\.\d+)?\s*\/\s*(?:ว\s*)?(\d+)/);
+  if (m) { $('#nmUnit').value = m[1]; $('#nmNo').value = m[2]; }
+  const years = s.match(/25\d\d/g);
+  if (years) $('#nmYear').value = years[years.length - 1];
+  updateName();
+});
+
+async function isPdf(file) {
+  const head = new Uint8Array(await file.slice(0, 5).arrayBuffer());
+  return String.fromCharCode(...head) === '%PDF-';
+}
+async function addFiles(list) {
+  for (const f of [...list]) nm.files.push({ id: uid(), file: f, pdf: await isPdf(f) });
+  renderFiles();
+}
+function renderFiles() {
+  const { name } = baseName();
+  const max = settings.maxMB * 1048576;
+  const t = $('#nmTable');
+  $('#nmZip').disabled = !name || !nm.files.length;
+  if (!nm.files.length) { t.innerHTML = ''; return; }
+  t.innerHTML = `<thead><tr><th>#</th><th>ไฟล์เดิม</th><th>ชื่อใหม่</th><th>ตรวจสอบ</th><th class="no-print"></th></tr></thead><tbody>` +
+    nm.files.map((f, i) => {
+      const newName = name ? (i === 0 ? name : `${name}_${i}`) + '.pdf' : '—';
+      const warn = [];
+      if (!f.pdf) warn.push('<span class="badge bg-red-100 text-red-700">ไม่ใช่ PDF</span>');
+      if (f.file.size > max) warn.push(`<span class="badge bg-amber-100 text-amber-800">ใหญ่เกิน ${settings.maxMB} MB → ส่งเป็นลิงก์</span>`);
+      if (!warn.length) warn.push('<span class="badge bg-green-100 text-green-800">ผ่าน</span>');
+      return `<tr><td>${i === 0 ? 'หนังสือนำ' : 'แนบ ' + toThai(i)}</td>
+        <td class="break-all">${esc(f.file.name)}<div class="ref">${fmtSize(f.file.size)}</div></td>
+        <td class="mono font-semibold text-green-900 break-all">${esc(newName)}</td>
+        <td>${warn.join(' ')}</td>
+        <td class="no-print whitespace-nowrap">
+          <button class="btn btn-s text-xs px-2" data-mv="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''} title="เลื่อนขึ้น">↑</button>
+          <button class="btn btn-s text-xs px-2" data-mv="${i}" data-d="1" ${i === nm.files.length - 1 ? 'disabled' : ''} title="เลื่อนลง">↓</button>
+          <button class="btn btn-s text-xs px-2" data-dl="${i}" ${name ? '' : 'disabled'} title="ดาวน์โหลด">⬇️</button>
+          <button class="btn btn-d text-xs px-2" data-rm="${i}" title="ลบ">✕</button>
+        </td></tr>`;
+    }).join('') + '</tbody>';
+}
+function download(blob, filename) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+$('#nmTable').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const { name } = baseName();
+  if (b.dataset.mv != null) { const i = +b.dataset.mv, j = i + +b.dataset.d; [nm.files[i], nm.files[j]] = [nm.files[j], nm.files[i]]; }
+  if (b.dataset.rm != null) nm.files.splice(+b.dataset.rm, 1);
+  if (b.dataset.dl != null) { const i = +b.dataset.dl; download(nm.files[i].file, (i ? `${name}_${i}` : name) + '.pdf'); }
+  renderFiles();
+});
+$('#nmFiles').addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; addFiles(files); });
+const drop = $('#nmDrop');
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('bg-green-100'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('bg-green-100'));
+drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('bg-green-100'); addFiles(e.dataTransfer.files); });
+$('#nmClear').onclick = () => { nm.files = []; renderFiles(); };
+$('#nmZip').onclick = async () => {
+  const { name } = baseName(); if (!name) return;
+  if (typeof JSZip === 'undefined') { nm.files.forEach((f, i) => download(f.file, (i ? `${name}_${i}` : name) + '.pdf')); return; }
+  const zip = new JSZip();
+  nm.files.forEach((f, i) => zip.file((i ? `${name}_${i}` : name) + '.pdf', f.file));
+  download(await zip.generateAsync({ type: 'blob' }), name + '.zip');
+};
+updateName();
+
+// ---------- 3. Send checklist ----------
+const CHECKS = {
+  common: [
+    ['ผู้มีอำนาจลงนามแล้ว ด้วยลายมือชื่ออิเล็กทรอนิกส์ (ไม่ลงนามบนกระดาษแล้วสแกน)', 'ประกาศ ข้อ ๕.๑'],
+    ['ออกเลขหนังสือแล้ว', 'คำสั่ง ข้อ ๔.๒.๑'],
+    ['ไฟล์เป็น PDF ความละเอียด ๓๐๐ dpi', 'คำสั่ง ข้อ ๔.๒.๑'],
+    ['แยกไฟล์หนังสือนำ กับเอกสารแนบ (แนบมากกว่า ๑ ฉบับ แยกคนละไฟล์)', 'คำสั่ง ข้อ ๔.๒.๒(๑)'],
+    ['ตั้งชื่อไฟล์ถูกต้อง (ดูแท็บ “ตั้งชื่อไฟล์”)', 'คำสั่ง ข้อ ๒.๒, ๔.๒.๓'],
+    ['ไฟล์ที่ใหญ่เกินส่งได้ นำไปเก็บในที่ที่ผู้รับเข้าถึงได้ และใส่ลิงก์ในเนื้อหาแทน', 'คำสั่ง ข้อ ๔.๒.๒(๒)'],
+    ['ชื่อเรื่อง (subject) ตรงกับชื่อเรื่องของหนังสือ', 'คำสั่ง ข้อ ๒.๓'],
+    ['ตรวจแล้วว่าไม่ใช่หนังสือลับที่สุด/ความลับตามระเบียบรักษาความปลอดภัยแห่งชาติ (ถ้าลับ/ลับมาก เข้ารหัสไฟล์)', 'คำสั่ง ข้อ ๑ · ประกาศ ข้อ ๓'],
+  ],
+  email: [
+    ['ส่งไฟล์ พร้อมรายชื่อหน่วยงาน อีเมลกลาง และเบอร์โทรของหน่วยงานปลายทาง ให้สารบรรณกลางผ่าน e-office', 'คำสั่ง ข้อ ๔.๒.๔'],
+    ['[สารบรรณกลาง] ตรวจความเรียบร้อยของไฟล์', 'คำสั่ง ข้อ ๔.๓.๑'],
+    ['[สารบรรณกลาง] ส่งจากอีเมลกลางของส่วนราชการเท่านั้น', 'คำสั่ง ข้อ ๔.๓.๒'],
+    ['[สารบรรณกลาง] แนบ PDF ตรวจอีกครั้ง ลงลายมือชื่ออิเล็กทรอนิกส์ (ถ้ามี)', 'คำสั่ง ข้อ ๔.๓.๓'],
+    ['[สารบรรณกลาง] บันทึกในทะเบียนหนังสือส่งว่าส่งทางอีเมลแล้ว', 'คำสั่ง ข้อ ๔.๓.๓'],
+    ['[สารบรรณกลาง] เมื่อได้รับ reply ตอบรับ ให้ forward ให้เจ้าของเรื่อง', 'คำสั่ง ข้อ ๔.๓.๔'],
+  ],
+  dconnect: [
+    ['เข้าหน้าเอกสาร เลือกเมนู “ส่งผ่าน dConnect”', 'คำสั่ง ข้อ ๕.๒.๑'],
+    ['เลือกกลุ่มหน่วยงานเป้าหมายในส่วน “ส่งภายนอก” (เช่น กระทรวง ทส.)', 'คำสั่ง ข้อ ๕.๒.๒'],
+    ['เลือกหน่วยงาน/กล่องรับหนังสือปลายทาง', 'คำสั่ง ข้อ ๕.๒.๓'],
+    ['ตรวจไฟล์เอกสารและไฟล์แนบครบถ้วน แล้วกด “ยืนยันการส่ง”', 'คำสั่ง ข้อ ๕.๒.๔'],
+  ],
+  pcd: [
+    ['หนังสือภายใน (บันทึกข้อความ) ใช้ชื่อไฟล์ _iPCD', 'ประกาศ ข้อ ๕.๔'],
+    ['ส่งไปยังอีเมลกลางของหน่วยงานปลายทางตามบัญชีท้ายประกาศ', 'ประกาศ ข้อ ๒, ๔'],
+    ['ถ้าเป็นเรื่องคดีความ สัญญา หรือการเงิน ส่งกระดาษตามไปด้วย (เรื่องอื่นไม่ต้อง)', 'ประกาศ ข้อ ๔'],
+  ],
+};
+let sdState = store.get('sendChecks', {});
+function renderChecks() {
+  const mode = $('#sdMode').value;
+  const items = [...CHECKS.common, ...CHECKS[mode]];
+  const st = sdState[mode] || [];
+  $('#sdList').innerHTML = items.map(([t, r], i) => `<li><label class="flex gap-3 items-start p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+    <input type="checkbox" class="chk mt-1 h-4 w-4 accent-green-700" data-i="${i}" ${st[i] ? 'checked' : ''}><span>${esc(t)} <span class="ref">(${r})</span></span></label></li>`).join('');
+  const done = items.filter((_, i) => st[i]).length;
+  $('#sdProg').textContent = `ตรวจแล้ว ${toThai(done)}/${toThai(items.length)} ข้อ`;
+  $('#sdBar').style.width = (done / items.length * 100) + '%';
+  $('#sdDone').classList.toggle('hidden', done !== items.length);
+}
+$('#sdList').addEventListener('change', e => {
+  const mode = $('#sdMode').value; sdState[mode] = sdState[mode] || [];
+  sdState[mode][+e.target.dataset.i] = e.target.checked; store.set('sendChecks', sdState); renderChecks();
+});
+$('#sdMode').addEventListener('change', renderChecks);
+$('#sdReset').onclick = () => { sdState[$('#sdMode').value] = []; store.set('sendChecks', sdState); renderChecks(); };
+renderChecks();
+
+// ---------- 4. Directory ----------
+const dirSel = new Set();
+function renderDir() {
+  const q = $('#dirSearch').value.trim().toLowerCase();
+  const qa = toArabic(q);
+  let lastG = '';
+  const rows = DIRECTORY.map((d, i) => ({ d, i })).filter(({ d }) => !q || (d.name + ' ' + toArabic(d.name) + ' ' + d.emails.join(' ')).toLowerCase().includes(qa) || d.name.includes(q));
+  $('#dirTable').innerHTML = `<thead><tr><th class="w-8"></th><th>หน่วยงาน</th><th>อีเมลกลาง</th><th class="no-print"></th></tr></thead><tbody>` +
+    rows.map(({ d, i }) => {
+      const head = d.g !== lastG ? `<tr><td colspan="4" class="bg-green-50 font-semibold text-green-800">${esc(d.g)}</td></tr>` : '';
+      lastG = d.g;
+      const mine = d.name === settings.unit ? ' <span class="badge bg-green-100 text-green-800">หน่วยงานของท่าน</span>' : '';
+      return head + `<tr><td><input type="checkbox" class="h-4 w-4 accent-green-700" data-sel="${i}" ${dirSel.has(i) ? 'checked' : ''}></td>
+        <td>${esc(d.name)}${mine}</td>
+        <td class="mono">${d.emails.map(e => `<div>${esc(e)}</div>`).join('')}</td>
+        <td class="no-print whitespace-nowrap"><button class="btn btn-s text-xs px-2" data-cp="${i}">คัดลอก</button>
+          <a class="btn btn-s text-xs px-2" href="mailto:${d.emails.map(encodeURIComponent).join(',')}">✉️</a></td></tr>`;
+    }).join('') + '</tbody>';
+  $('#dirSelCount').textContent = dirSel.size ? `เลือก ${toThai(dirSel.size)} หน่วยงาน` : '';
+}
+const selEmails = () => [...dirSel].flatMap(i => DIRECTORY[i].emails);
+$('#dirTable').addEventListener('click', e => {
+  const b = e.target.closest('[data-cp]'); if (b) copyText(DIRECTORY[+b.dataset.cp].emails.join(', '));
+});
+$('#dirTable').addEventListener('change', e => {
+  const i = +e.target.dataset.sel; e.target.checked ? dirSel.add(i) : dirSel.delete(i); renderDir();
+});
+$('#dirSearch').addEventListener('input', renderDir);
+$('#dirCopySel').onclick = () => selEmails().length ? copyText(selEmails().join(', ')) : toast('ยังไม่ได้เลือกหน่วยงาน');
+$('#dirMailSel').onclick = () => {
+  if (!selEmails().length) return toast('ยังไม่ได้เลือกหน่วยงาน');
+  const subj = $('#sdSubject').value;
+  location.href = `mailto:?bcc=${selEmails().map(encodeURIComponent).join(',')}${subj ? '&subject=' + encodeURIComponent(subj) : ''}`;
+};
+$('#dirList').innerHTML = DIRECTORY.map(d => `<option value="${esc(d.name)}">`).join('');
+renderDir();
+
+// ---------- 5/6. Registers ----------
+const db = { inbox: store.get('inbox', []), outbox: store.get('outbox', []) };
+const save = k => store.set(k, db[k]);
+const KIND_LABEL = { general: 'ทั่วไป', finance: 'สัญญา/การเงิน', evidence: 'หลักฐาน/ข้อมูลส่วนบุคคล', physical: 'รูปเล่ม/สื่อ' };
+const URG_CLS = { 'ปกติ': 'bg-gray-100 text-gray-700', 'ด่วน': 'bg-amber-100 text-amber-800', 'ด่วนมาก': 'bg-orange-100 text-orange-800', 'ด่วนที่สุด': 'bg-red-100 text-red-700' };
+const nextNo = k => db[k].reduce((m, r) => r.year === beYear() ? Math.max(m, r.no) : m, 0) + 1;
+
+function inboxTasks(r) {
+  const t = [];
+  const paperIn = r.channel === 'กระดาษ';
+  const isSecret = r.secret !== 'ไม่มี';
+  if (paperIn && !isSecret && r.kind !== 'physical') t.push(['scan', 'แปลง PDF ๓๐๐ dpi']);
+  if (!(r.secret === 'ลับที่สุด')) t.push(['sent', paperIn && (isSecret || r.kind === 'physical') ? 'ส่งตัวจริงให้ผู้รับ' : 'ส่งผ่าน e-office']);
+  else t.push(['sent', 'ส่งตัวจริง (ลับที่สุด)']);
+  if (paperIn && (r.kind === 'finance' || r.kind === 'evidence')) t.push(['paper', 'ส่งต้นฉบับภายในวันนี้']);
+  if (paperIn && r.kind === 'general' && !isSecret) t.push(['filed', 'เข้าแฟ้มเก็บต้นฉบับ']);
+  return t;
+}
+function inHint() {
+  const f = $('#inForm');
+  const paperIn = f.channel.value === 'กระดาษ';
+  const msgs = [];
+  if (f.secret.value === 'ลับที่สุด') msgs.push('ลับที่สุด: ห้ามผ่านระบบอิเล็กทรอนิกส์');
+  else if (paperIn && (f.kind.value === 'finance' || f.kind.value === 'evidence')) msgs.push('ต้องนำส่งต้นฉบับกระดาษให้ผู้รับภายในวันเดียวกัน');
+  $('#inHint').textContent = msgs.join(' · ');
+}
+$('#inForm').addEventListener('change', inHint);
+$('#inForm').at.value = localDT();
+$('#inForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const r = Object.fromEntries(new FormData(e.target));
+  r.id = uid(); r.year = beYear(new Date(r.at)); r.no = nextNo('inbox'); r.done = {};
+  db.inbox.unshift(r); save('inbox');
+  e.target.reset(); e.target.at.value = localDT(); inHint(); renderInbox();
+  toast(`ลงทะเบียนรับเลขที่ ${toThai(r.no)}/${toThai(r.year)}`);
+});
+function renderInbox() {
+  const q = toArabic($('#inSearch').value.trim().toLowerCase()), flt = $('#inFilter').value;
+  const today = new Date().toDateString();
+  const rows = db.inbox.filter(r => {
+    if (q && !toArabic(Object.values(r).join(' ')).toLowerCase().includes(q)) return false;
+    const tasks = inboxTasks(r);
+    if (flt === 'pending' && tasks.every(([k]) => r.done?.[k])) return false;
+    if (flt === 'paper' && !tasks.some(([k]) => k === 'paper')) return false;
+    return true;
+  });
+  $('#inTable').innerHTML = `<thead><tr><th>เลขรับ</th><th>วัน-เวลารับ</th><th>ที่ / ลงวันที่</th><th>จาก</th><th>เรื่อง</th><th>ส่งให้</th><th>การดำเนินการ</th><th class="no-print"></th></tr></thead><tbody>` +
+    (rows.length ? rows.map(r => {
+      const tasks = inboxTasks(r);
+      const overdue = tasks.some(([k]) => k === 'paper' && !r.done?.[k]) && new Date(r.at).toDateString() !== today;
+      return `<tr class="${overdue ? 'bg-red-50' : ''}">
+        <td class="mono whitespace-nowrap">${toThai(r.no)}/${toThai(r.year)}</td>
+        <td class="whitespace-nowrap">${fmtDT(r.at)}<div class="ref">${esc(r.channel)}</div></td>
+        <td>${esc(r.ref)}<div class="ref">${fmtD(r.docDate)}</div></td>
+        <td>${esc(r.from)}</td>
+        <td>${esc(r.subject)}<div class="mt-1 flex flex-wrap gap-1">
+          <span class="badge ${URG_CLS[r.urgency] || ''}">${esc(r.urgency)}</span>
+          ${r.secret !== 'ไม่มี' ? `<span class="badge bg-purple-100 text-purple-800">${esc(r.secret)}</span>` : ''}
+          ${r.kind !== 'general' ? `<span class="badge bg-sky-100 text-sky-800">${KIND_LABEL[r.kind]}</span>` : ''}</div></td>
+        <td>${esc(r.to)}</td>
+        <td class="whitespace-nowrap">${tasks.map(([k, l]) => `<label class="flex items-center gap-1"><input type="checkbox" class="accent-green-700" data-in="${r.id}" data-k="${k}" ${r.done?.[k] ? 'checked' : ''}><span class="${k === 'paper' ? 'text-red-700 font-medium' : ''}">${l}</span></label>`).join('')}</td>
+        <td class="no-print"><button class="btn btn-d text-xs px-2" data-del-in="${r.id}" title="ลบ">✕</button></td></tr>`;
+    }).join('') : `<tr><td colspan="8" class="text-center text-gray-500 py-6">ยังไม่มีรายการ</td></tr>`) + '</tbody>';
+}
+$('#inTable').addEventListener('change', e => {
+  const r = db.inbox.find(x => x.id === e.target.dataset.in); if (!r) return;
+  r.done = r.done || {}; r.done[e.target.dataset.k] = e.target.checked ? new Date().toISOString() : null; save('inbox'); renderInbox();
+});
+$('#inTable').addEventListener('click', e => {
+  const id = e.target.closest('[data-del-in]')?.dataset.delIn; if (!id || !confirm('ลบรายการนี้?')) return;
+  db.inbox = db.inbox.filter(r => r.id !== id); save('inbox'); renderInbox();
+});
+['#inSearch', '#inFilter'].forEach(s => $(s).addEventListener('input', renderInbox));
+
+$('#outForm').to.addEventListener('change', e => {
+  const d = DIRECTORY.find(x => x.name === e.target.value);
+  if (d && !$('#outForm').email.value) $('#outForm').email.value = d.emails.join(', ');
+});
+$('#outForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const r = Object.fromEntries(new FormData(e.target));
+  r.id = uid(); r.at = new Date().toISOString(); r.year = beYear(); r.no = nextNo('outbox'); r.done = {};
+  db.outbox.unshift(r); save('outbox'); e.target.reset(); renderOutbox(); toast('ลงทะเบียนส่งแล้ว');
+});
+const OUT_STEPS = [['sent', 'ส่งแล้ว'], ['sign', 'ลงนามอิเล็กทรอนิกส์'], ['reply', 'ได้รับตอบรับ'], ['fwd', 'forward ให้เจ้าของเรื่อง']];
+function renderOutbox() {
+  const q = toArabic($('#outSearch').value.trim().toLowerCase());
+  const rows = db.outbox.filter(r => !q || toArabic(Object.values(r).join(' ')).toLowerCase().includes(q));
+  $('#outTable').innerHTML = `<thead><tr><th>ลำดับ</th><th>เลขที่ / ลงวันที่</th><th>ถึง</th><th>เรื่อง</th><th>ชื่อไฟล์</th><th>สถานะ</th><th class="no-print"></th></tr></thead><tbody>` +
+    (rows.length ? rows.map(r => {
+      const steps = r.channel === 'อีเมลกลาง' ? OUT_STEPS : OUT_STEPS.slice(0, 1);
+      const mail = r.email && r.channel === 'อีเมลกลาง' ? `<a class="btn btn-s text-xs px-2" title="เปิดอีเมล" href="mailto:${r.email.split(/[,\s]+/).filter(Boolean).map(encodeURIComponent).join(',')}?subject=${encodeURIComponent(r.subject)}">✉️</a>` : '';
+      return `<tr><td class="mono">${toThai(r.no)}/${toThai(r.year)}</td>
+        <td>${esc(r.ref)}<div class="ref">${fmtD(r.docDate)}</div></td>
+        <td>${esc(r.to)}<div class="ref mono">${esc(r.email)}</div></td>
+        <td>${esc(r.subject)}${r.owner ? `<div class="ref">เจ้าของเรื่อง: ${esc(r.owner)}</div>` : ''}</td>
+        <td class="mono text-xs break-all">${esc(r.file)}</td>
+        <td class="whitespace-nowrap"><div class="ref">${esc(r.channel)}</div>${steps.map(([k, l]) => `<label class="flex items-center gap-1"><input type="checkbox" class="accent-green-700" data-out="${r.id}" data-k="${k}" ${r.done?.[k] ? 'checked' : ''}>${l}</label>`).join('')}</td>
+        <td class="no-print whitespace-nowrap">${mail}<button class="btn btn-d text-xs px-2" data-del-out="${r.id}" title="ลบ">✕</button></td></tr>`;
+    }).join('') : `<tr><td colspan="7" class="text-center text-gray-500 py-6">ยังไม่มีรายการ</td></tr>`) + '</tbody>';
+}
+$('#outTable').addEventListener('change', e => {
+  const r = db.outbox.find(x => x.id === e.target.dataset.out); if (!r) return;
+  r.done = r.done || {}; r.done[e.target.dataset.k] = e.target.checked ? new Date().toISOString() : null; save('outbox'); renderOutbox();
+});
+$('#outTable').addEventListener('click', e => {
+  const id = e.target.closest('[data-del-out]')?.dataset.delOut; if (!id || !confirm('ลบรายการนี้?')) return;
+  db.outbox = db.outbox.filter(r => r.id !== id); save('outbox'); renderOutbox();
+});
+$('#outSearch').addEventListener('input', renderOutbox);
+
+// CSV export
+function toCSV(rows) { return '﻿' + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n'); }
+$$('[data-export]').forEach(b => b.onclick = () => {
+  const k = b.dataset.export, ymd = new Date().toISOString().slice(0, 10);
+  let rows;
+  if (k === 'inbox') rows = [['เลขรับ', 'วันเวลารับ', 'ช่องทาง', 'ที่', 'ลงวันที่', 'จาก', 'เรื่อง', 'ความเร่งด่วน', 'ชั้นความลับ', 'ลักษณะ', 'ส่งให้', 'สถานะ'],
+    ...db.inbox.map(r => [`${r.no}/${r.year}`, fmtDT(r.at), r.channel, r.ref, fmtD(r.docDate), r.from, r.subject, r.urgency, r.secret, KIND_LABEL[r.kind], r.to,
+      inboxTasks(r).map(([k2, l]) => `${l}:${r.done?.[k2] ? '✓' : '✗'}`).join(' ')])];
+  else rows = [['ลำดับ', 'วันเวลาบันทึก', 'เลขที่', 'ลงวันที่', 'ช่องทาง', 'ถึง', 'อีเมล', 'เรื่อง', 'ชื่อไฟล์', 'เจ้าของเรื่อง', 'สถานะ'],
+    ...db.outbox.map(r => [`${r.no}/${r.year}`, fmtDT(r.at), r.ref, fmtD(r.docDate), r.channel, r.to, r.email, r.subject, r.file, r.owner,
+      OUT_STEPS.map(([k2, l]) => `${l}:${r.done?.[k2] ? '✓' : '✗'}`).join(' ')])];
+  download(new Blob([toCSV(rows)], { type: 'text/csv;charset=utf-8' }), `${k === 'inbox' ? 'ทะเบียนรับ' : 'ทะเบียนส่ง'}_${ymd}.csv`);
+});
+
+// Backup / restore
+$('#bkExport').onclick = () => download(new Blob([JSON.stringify({ v: 1, settings, inbox: db.inbox, outbox: db.outbox, checkLog: store.get('checkLog', []) }, null, 1)], { type: 'application/json' }), `saraban-backup_${new Date().toISOString().slice(0, 10)}.json`);
+$('#bkImport').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (!Array.isArray(data.inbox) || !Array.isArray(data.outbox)) throw new Error('bad');
+    if (!confirm('แทนที่ข้อมูลทะเบียนปัจจุบันด้วยไฟล์สำรองนี้?')) return;
+    db.inbox = data.inbox; db.outbox = data.outbox; save('inbox'); save('outbox');
+    if (data.settings) { Object.assign(settings, data.settings); store.set('settings', settings); }
+    if (Array.isArray(data.checkLog)) store.set('checkLog', data.checkLog);
+    renderInbox(); renderOutbox(); renderLog(); toast('กู้คืนข้อมูลแล้ว');
+  } catch { alert('ไฟล์ไม่ถูกต้อง'); }
+  e.target.value = '';
+};
+
+// ---------- 7. Timers ----------
+let tm = Object.assign({ interval: 30, last: null }, store.get('timer', {}));
+let al = store.get('alert', null);
+$('#tmInterval').value = tm.interval;
+$('#tmInterval').onchange = e => { tm.interval = +e.target.value; store.set('timer', tm); tick(); };
+const fmtMS = ms => { const s = Math.max(0, Math.round(ms / 1000)); return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`; };
+function notify(title, body) {
+  try { if ('Notification' in window && Notification.permission === 'granted') new Notification(title, { body, icon: 'Fav48.png' }); } catch {}
+  try { const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(); o.connect(c.destination); o.frequency.value = 880; o.start(); o.stop(c.currentTime + .4); } catch {}
+}
+function renderLog() {
+  const today = new Date().toDateString();
+  const log = store.get('checkLog', []).filter(l => new Date(l.at).toDateString() === today);
+  $('#tmLog').innerHTML = log.length ? log.slice().reverse().map(l => `<li>• ${fmtDT(l.at)} — ${esc(l.what)}</li>`).join('') : '<li class="text-gray-500">ยังไม่มีบันทึก</li>';
+}
+function logCheck(what) { const log = store.get('checkLog', []); log.push({ at: new Date().toISOString(), what }); store.set('checkLog', log.slice(-500)); renderLog(); }
+$('#tmChecked').onclick = () => { tm.last = Date.now(); tm.notified = false; store.set('timer', tm); logCheck('ตรวจอีเมลกลางและโฟลเดอร์อีเมลขยะ'); tick(); };
+$('#tmNotify').onclick = async () => {
+  if (!('Notification' in window)) return toast('เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือน');
+  const p = await Notification.requestPermission(); toast(p === 'granted' ? 'เปิดการแจ้งเตือนแล้ว' : 'ไม่ได้รับอนุญาตให้แจ้งเตือน');
+};
+$('#alStart').onclick = () => { al = { start: Date.now(), who: $('#alWho').value, notified: false }; store.set('alert', al); logCheck('ได้รับ alert ทางโทรศัพท์' + (al.who ? ' จาก ' + al.who : '')); tick(); };
+$('#alDone').onclick = () => {
+  const used = Date.now() - al.start;
+  logCheck(`ดำเนินการตาม alert เสร็จ ใช้เวลา ${fmtMS(used)} นาที${used > 15 * 60000 ? ' (เกิน ๑๕ นาที)' : ''}`);
+  al = null; store.set('alert', null); $('#alWho').value = ''; tick();
+};
+function tick() {
+  const now = Date.now();
+  const cd = $('#tmCountdown');
+  if (tm.last) {
+    const left = tm.last + tm.interval * 60000 - now;
+    cd.textContent = left > 0 ? fmtMS(left) : 'ถึงเวลาตรวจ!';
+    cd.className = 'mono text-5xl font-bold ' + (left > 0 ? 'text-green-800' : 'text-red-600 animate-pulse');
+    $('#tmLast').textContent = 'ตรวจล่าสุด ' + fmtDT(new Date(tm.last).toISOString());
+    if (left <= 0 && !tm.notified) { tm.notified = true; store.set('timer', tm); notify('ถึงเวลาตรวจอีเมลกลาง', 'ตรวจกล่องจดหมายและโฟลเดอร์อีเมลขยะ'); }
+  } else { cd.textContent = '--:--'; cd.className = 'mono text-5xl font-bold text-gray-300'; $('#tmLast').textContent = 'กด “ตรวจแล้ว” เพื่อเริ่มนับรอบ'; }
+
+  const ac = $('#alCountdown');
+  $('#alStart').classList.toggle('hidden', !!al); $('#alWho').classList.toggle('hidden', !!al); $('#alDone').classList.toggle('hidden', !al);
+  if (al) {
+    const left = al.start + 15 * 60000 - now;
+    ac.textContent = left > 0 ? fmtMS(left) : 'เกินกำหนด ' + fmtMS(-left);
+    ac.className = 'mono text-5xl font-bold ' + (left > 5 * 60000 ? 'text-amber-600' : 'text-red-600 animate-pulse');
+    $('#alFrom').textContent = 'แจ้งเมื่อ ' + fmtDT(new Date(al.start).toISOString()) + (al.who ? ' โดย ' + al.who : '');
+    if (left <= 0 && !al.notified) { al.notified = true; store.set('alert', al); notify('ครบ ๑๕ นาทีหลังได้รับ alert', 'ต้องดำเนินการหนังสือในอีเมลกลางทันที'); }
+  } else { ac.textContent = '15:00'; ac.className = 'mono text-5xl font-bold text-gray-300'; $('#alFrom').textContent = ''; }
+  document.title = (al ? '🚨 ' : tm.last && tm.last + tm.interval * 60000 < now ? '⏰ ' : '') + 'ผู้ช่วยงานสารบรรณอิเล็กทรอนิกส์ คพ.';
+}
+$('#tmClearLog').onclick = () => { if (confirm('ล้างบันทึกการตรวจทั้งหมด?')) { store.set('checkLog', []); renderLog(); } };
+setInterval(tick, 1000);
+
+renderInbox(); renderOutbox(); renderLog(); tick();
+})();
+</script>
+</body>
+</html>
