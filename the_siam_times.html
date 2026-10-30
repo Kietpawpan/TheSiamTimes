@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Siam Times</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="icon" type="image/png" href="/Fav48.png?v=1">
+    <link rel="apple-touch-icon" href="/Fav48.png?v=1">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Chomsky';
+            src: url('Chomsky.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+                        serif: ['Newsreader', 'serif'],
+                        title: ['Newsreader', 'serif'],
+                        masthead: ['Chomsky', 'UnifrakturMaguntia', 'cursive'],
+                    },
+                    colors: {
+                        nyt: {
+                            gray: '#dfdfdf',
+                            text: '#333333',
+                            dark: '#121212',
+                            link: '#326891'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #121212;
+        }
+        .border-double-thick {
+            border-top: 1px solid #121212;
+            border-bottom: 3px solid #121212;
+        }
+        .border-double-thin {
+            border-top: 1px solid #121212;
+            border-bottom: 1px solid #121212;
+        }
+        .text-justify-newspaper {
+            text-align: left;
+        }
+        @media (min-width: 768px) {
+            .text-justify-newspaper {
+                width: 100% !important;
+                box-sizing: border-box;
+                float: none;
+                text-align: justify;
+                text-justify: inter-word;
+            }
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Styles for Popup (Dialog) & Info Button */
+        .info-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 6px;
+            color: #6c757d;
+            vertical-align: middle;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        .info-button:hover { 
+            color: #212529; 
+        }
+        .info-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor; 
+        }
+
+        dialog.credit-popup {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #212529;
+            text-align: left;
+        }
+
+        dialog.credit-popup::backdrop { background: rgba(0, 0, 0, 0.6); }
+        .close-button {
+            margin-top: 15px;
+            padding: 8px 12px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .close-button:hover { background: #555; }
+        
+        /* =========================================
+           ROLEX CLOCK STYLES (UPDATED)
+           ========================================= */
+        .rolex-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            margin-bottom: 5px;
+        }
+
+        /* 5. ปรับสีเขียว Lacquer Green พร้อม radial-gradient */
+        .dial {
+            width: 290px;
+            height: 290px;
+            min-width: 290px;
+            min-height: 290px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 10px 30px rgb(0 0 0 / 0.35), inset 0 0 12px rgba(0, 0, 0, 0.35);
+            background: radial-gradient(circle at 50% 45%, #117a43 0%, #0d6e3a 58%, #085029 100%);
+            transform: scale(0.6);
+            transform-origin: center center;
+        }
+
+        /* 2. ขีดบอกชั่วโมงพร้อมขอบโลหะสีเงินลาดเอียง (Beveled Metallic Edge) */
+        .marker {
+            position: absolute;
+            width: 10.5px;
+            height: 27px;
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            border-radius: 1px;
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #ffffff 0%, #d8dcdf 30%, #73797e 70%, #3e4246 100%);
+            padding: 2px;
+            box-shadow: 1.5px 2px 4px rgba(0,0,0,0.45), inset 0 0 0.5px rgba(255,255,255,0.9);
+            z-index: 5;
+        }
+
+        .marker::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: #fbfbfb;
+            box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.22);
+        }
+        
+        /* 2. ขีดคู่ที่ 3, 6, 9 นาฬิกา ชิดติดกันโดยมีร่องโลหะคั่นกลาง */
+        .marker.double {
+            width: 18px;
+            padding: 2px;
+            background: linear-gradient(135deg, #ffffff 0%, #d8dcdf 30%, #73797e 70%, #3e4246 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.2px;
+            box-shadow: 1.5px 2px 4px rgba(0,0,0,0.45);
+        }
+
+        .marker.double::after {
+            display: none;
+        }
+
+        .marker.double div {
+            width: calc(50% - 0.6px);
+            height: 100%;
+            background-color: #fbfbfb;
+            border: 0.5px solid #6c7277;
+            box-sizing: border-box;
+            box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.22);
+        }
+
+        .minute-tick {
+            position: absolute;
+            width: 1.6px;
+            height: 6px; 
+            background-color: rgba(255, 255, 255, 0.95);
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            z-index: 4;
+        }
+
+        /* 5. ขีดนาทีที่ขนาบข้างคำว่า SWISS MADE ยาวกว่าปกติเล็กน้อย */
+        .minute-tick.long-tick {
+            height: 9.5px;
+        }
+
+        /* 2. ขีดสี่เหลี่ยมหลัก 5 นาที สีขาวล้วนขนาดเล็กลงและคมชัด */
+        .minute-square {
+            position: absolute;
+            width: 4.5px; 
+            height: 4.5px; 
+            background-color: #ffffff;
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            z-index: 4;
+            border: none;
+            box-shadow: 0 0.5px 1px rgba(0,0,0,0.25);
+        }
+        
+        .tiny-crown {
+            position: absolute;
+            width: 9px; 
+            height: 9px;
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            z-index: 4;
+        }
+        .tiny-crown svg {
+            width: 100%;
+            height: 100%;
+            fill: white;
+        }
+      
+    
+        /* 3. โลโก้ The Siam Times (ตัว S อักษร Chomsky เงางาม) ที่ 12 นาฬิกา */
+        .crown-pos {
+            position: absolute;
+            top: 17px; 
+            left: 50%;
+            transform: translateX(-50%); 
+            width: 34px;
+            height: 34px;
+            z-index: 6;
+            filter: drop-shadow(1.2px 2.2px 2.5px rgba(0,0,0,0.55));
+        }
+        .crown-pos svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            overflow: visible;
+        }
+      
+
+        /* 5. ปรับสัดส่วนฟอนต์และระยะห่างตัวอักษรบรรทัดแรก (RELAX) */
+        .text-brand {
+            font-family: 'Garamond', 'Baskerville', 'Times New Roman', serif;
+            font-size: 14.5px;
+            font-weight: 700;
+            letter-spacing: 2.2px;
+            text-transform: uppercase;
+            text-shadow: 0 1px 1.5px rgba(0,0,0,0.25);
+            margin-bottom: 1px;
+            transform: scaleX(1.12) scaleY(0.88);
+            display: inline-block;
+            padding-left: 2.2px;
+        }
+
+        .text-model {
+            font-family: 'Arial', sans-serif;
+            font-size: 8px;
+            font-weight: bold;
+            letter-spacing: 0.45px;
+            opacity: 0.95;
+            text-shadow: 0 1px 1.5px rgba(0,0,0,0.25);
+        }
+
+        .text-top {
+            position: absolute;
+            top: 59px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            line-height: 1.25;
+        }
+
+        .text-bottom {
+            position: absolute;
+            bottom: 58px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            line-height: 1.22;
+        }
+        
+        .text-cert {
+            font-family: 'Arial Narrow', 'Roboto Condensed', 'Arial', sans-serif;
+            font-size: 8.2px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            transform: scaleX(0.85);
+            transform-origin: center;
+            text-shadow: 0 1px 1.5px rgba(0,0,0,0.25);
+        }
+        
+        .swiss-text {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.95);
+            font-family: 'Arial', sans-serif;
+            font-size: 4.8px;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+            text-align: center;
+            width: 22px;
+            z-index: 5;
+        }
+
+        .hand {
+            position: absolute;
+            left: 50%;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hand-tail {
+            display: none;
+        }
+
+        /* 1. เข็มชั่วโมง: โลหะสีเงินแบ่งครึ่งซ้ายขวา โคนถึงหางเป็นสีเงินทึบ พรายน้ำอยู่ครึ่งปลายและสั้นลงไม่ทับขีดชั่วโมง */
+        .hour-hand {
+            width: 11.5px;
+            height: 103px;
+            bottom: calc(50% - 21px);
+            margin-left: -5.75px;
+            transform-origin: 50% 82px;
+            background: transparent;
+            z-index: 11;
+        }
+        .hour-hand::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right,
+                #92979b 0%,
+                #f2f5f7 18%,
+                #d8dde0 48.5%,
+                #3a3d40 50%,
+                #676c70 82%,
+                #9ea3a8 100%
+            );
+            clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+            box-shadow: inset 0 0 0.5px rgba(255,255,255,0.8);
+            z-index: 2;
+        }
+        .hour-hand::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 45px;
+            background-color: #ffffff;
+            border: 1px solid #6c7176;
+            box-sizing: border-box;
+            box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.22), 0 0 0.5px rgba(255,255,255,0.8);
+            z-index: 3;
+        }
+
+        /* 1. เข็มนาที: โลหะสีเงินแบ่งครึ่งซ้ายขวา โคนถึงหางเป็นสีเงินทึบ มีกรอบเงินล้อมรอบพรายน้ำชัดเจน */
+        .minute-hand {
+            width: 9.5px;
+            height: 149px;
+            bottom: calc(50% - 24px);
+            margin-left: -4.75px;
+            transform-origin: 50% 125px;
+            background: transparent;
+            z-index: 12;
+        }
+        .minute-hand::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right,
+                #92979b 0%,
+                #f2f5f7 18%,
+                #d8dde0 48.5%,
+                #3a3d40 50%,
+                #676c70 82%,
+                #9ea3a8 100%
+            );
+            clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+            box-shadow: inset 0 0 0.5px rgba(255,255,255,0.8);
+            z-index: 2;
+        }
+        .minute-hand::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 80px;
+            background-color: #ffffff;
+            border: 1px solid #6c7176;
+            box-sizing: border-box;
+            box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.22), 0 0 0.5px rgba(255,255,255,0.8);
+            z-index: 3;
+        }
+
+        .second-hand {
+            width: 4px;
+            height: 168px;
+            bottom: calc(50% - 35px);
+            margin-left: -2px;
+            transform-origin: 50% 133px;
+            background: transparent;
+            z-index: 13;
+        }
+        .second-hand::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, #f0f3f5 50%, #5a5e62 50%);
+            clip-path: polygon(38% 0%, 62% 0%, 100% 100%, 0% 100%);
+        }
+        .second-hand::after {
+            display: none;
+        }
+
+        /* 4. จุดหมุนตรงกลาง (Center Pivot) ขนาดเล็กลง สีเงินเงาพร้อมวงแหวนด้านใน */
+        .pivot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 9px;
+            height: 9px;
+            background: conic-gradient(from 135deg, #ffffff, #a5aaae, #55595c, #d8dcdf, #ffffff, #6e7377, #e8ecef, #ffffff);
+            border: 0.5px solid #4a4e52;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 14;
+            box-shadow: 0 1.5px 3px rgba(0,0,0,0.55);
+        }
+        .pivot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, #b8bdc2 65%, #5c6064 100%);
+            border: 0.6px solid #45494d;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen">
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6">
+        <header class="pt-4 pb-2 relative">
+            
+            <div class="flex flex-col md:flex-row justify-between items-end mb-4">
+                <div class="w-full md:flex-1 text-[11px] sm:text-xs text-gray-800 font-sans hidden md:block">
+                    <span class="font-bold" id="desktop-date">Tuesday, September 22, 2026</span><br>
+                    <a href="#" class="hover:underline hover:text-black">Weekly Newspaper</a>
+                </div>
+                
+                <div class="w-full md:w-auto px-2 text-center mb-4 md:mb-0">
+                    <div class="md:hidden mb-2 text-[11px] text-gray-800 font-sans font-bold" id="mobile-date">
+                        Monday, September 21, 2026
+                    </div>
+                    
+                    <div class="text-[10px] text-gray-500 font-sans tracking-[0.2em] uppercase mb-1">
+                        THAILAND &nbsp;&nbsp;&nbsp; INTERNATIONAL
+                    </div>
+
+                    <h1 class="font-masthead whitespace-nowrap text-[clamp(2.75rem,9vw,6rem)] font-normal tracking-normal leading-none py-2 text-center" style="letter-spacing: 0.02em;">
+                        The Siam Times
+                    </h1>
+                </div>
+
+                <div class="w-full md:flex-1 text-[11px] sm:text-xs text-gray-800 font-sans text-right hidden md:flex justify-end items-end pb-2">
+                    <span>Global <span id="result-box" class="text-green-700 font-bold ml-1">+0.7°C to 0.85°C</span></span>
+                </div>
+            </div>
+
+            <div class="border-double-thick py-1 mb-1 relative">
+                <!-- แถบเมนูหลัก -->
+                <nav class="flex justify-start md:justify-center overflow-x-auto no-scrollbar space-x-6 md:space-x-8 text-[12px] font-sans font-normal text-gray-900 whitespace-nowrap px-2 py-1">
+                    <button data-target="policy-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Policy <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="water-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Water <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="air-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Air <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="wastes-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Wastes <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="laws-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Laws <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="climate-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Climate <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="tech-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Technology <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="sport-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Sport <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="games-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Games <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="culture-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Culture <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="about-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">About Us <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <button data-target="disclaimer-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Disclaimer <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+                    <a href="License.txt" target="_blank" class="hover:underline flex items-center gap-1 py-1 focus:outline-none">License</a>
+                </nav>
+            </div>
+
+            <!-- กล่องรวม Mega Menu ทั้งหมด -->
+            <div id="mega-menus-container" class="absolute left-0 right-0 top-full z-50 mt-1">
+                
+                <!-- Mega Menu: Policy -->
+                <div id="policy-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="https://thesiamtimes.com/690922policyen.html" class="hover:underline">National Policy</a></li>
+                                <li><a href="691001inter.html" class="hover:underline">International Treaties</a></li>
+                                <li><a href="691001potasen.html" class="hover:underline">Local Governance</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="691001pacific.html" class="hover:underline">Asia Pacific</a></li>
+                                <li><a href="691002cbam.html" class="hover:underline">European Union</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">New Environmental Regulations 2026</a></li>
+                                <li><a href="#" class="hover:underline">Global Summit on Carbon Pricing</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-gray-200 flex items-center justify-center text-gray-700 font-bold rounded-sm">P</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Policy Brief</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Weekly updates on crucial policy shifts</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Water -->
+                <div id="water-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="https://thesiamtimes.com/690930flood.html" class="hover:underline">Floods Management</a></li>
+                                <li><a href="691002water.html" class="hover:underline">Water Quality</a></li>
+                                <li><a href="691002wwater.html" class="hover:underline">Wastewater</a></li>
+                                <li><a href="691002marine.html" class="hover:underline">Marine Life</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Chao Phraya River</a></li>
+                                <li><a href="#" class="hover:underline">Mekong River</a></li>
+                                <li><a href="#" class="hover:underline">Gulf of Thailand</a></li>
+                                <li><a href="#" class="hover:underline">Andaman Sea</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">Bangkok Prepares for Heavy Monsoon</a></li>
+                                <li><a href="#" class="hover:underline">New Technologies in Wastewater Treatment</a></li>
+                                <li><a href="#" class="hover:underline">El Niño Effects on Thai Agriculture</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-blue-100 flex items-center justify-center text-blue-700 font-bold rounded-sm">W</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">The Water Guide</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">A guide to understanding water management</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Air -->
+                <div id="air-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="691003pm25.html" class="hover:underline">PM2.5 Management</a></li>
+                                <li><a href="#" class="hover:underline">Industrial Emissions</a></li>
+                                <li><a href="#" class="hover:underline">Clean Air Act</a></li>
+                                <li><a href="691001clearSky.html" class="hover:underline">CLEAR Sky Strategy</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Northern Thailand</a></li>
+                                <li><a href="#" class="hover:underline">Bangkok Metro</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="691015burnScarEN.html" class="hover:underline">Smoldering Fields and Scorched Forests: The Seasonal Chokehold on Northeast Thailand</a></li>
+                                <li><a href="#" class="hover:underline">Transitioning to EV Transportation</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-gray-100 flex items-center justify-center text-gray-600 font-bold rounded-sm">A</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Air Quality Alert</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Daily reports on breathing safe</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Wastes -->
+                <div id="wastes-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="691003waste.html" class="hover:underline">Solid Waste</a></li>
+                                <li><a href="#" class="hover:underline">Hazardous Materials</a></li>
+                                <li><a href="691003ew.html" class="hover:underline">E-Waste</a></li>
+                                <li><a href="691003circularEconomy.html" class="hover:underline">Circular Economy</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Industrial Zones</a></li>
+                                <li><a href="#" class="hover:underline">Urban Centers</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">The Rise of E-Waste Recycling Hubs</a></li>
+                                <li><a href="#" class="hover:underline">Zero Waste Communities in Action</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-green-100 flex items-center justify-center text-green-700 font-bold rounded-sm">W</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Zero Waste Weekly</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Tips and news on sustainable living</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Laws -->
+                <div id="laws-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="690927lawsEng.html" class="hover:underline">Environmental Acts</a></li>
+                                <li><a href="691003controller.html" class="hover:underline">Compliance</a></li>
+                                <li><a href="#" class="hover:underline">Enforcement</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Supreme Court</a></li>
+                                <li><a href="#" class="hover:underline">Administrative Court</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">Landmark Ruling on Factory Emissions</a></li>
+                                <li><a href="#" class="hover:underline">Understanding the New Carbon Tax</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-amber-100 flex items-center justify-center text-amber-700 font-bold rounded-sm">L</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Legal Insider</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Deep dive into environmental jurisprudence</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Climate -->
+                <div id="climate-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Global Warming</a></li>
+                                <li><a href="#" class="hover:underline">Net Zero Goals</a></li>
+                                <li><a href="#" class="hover:underline">Carbon Credit</a></li>
+                                <li><a href="#" class="hover:underline">Adaptation</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Global</a></li>
+                                <li><a href="#" class="hover:underline">Southeast Asia</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">2026 Set to Break Temperature Records</a></li>
+                                <li><a href="#" class="hover:underline">The Economics of Carbon Trading</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-orange-100 flex items-center justify-center text-orange-700 font-bold rounded-sm">C</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Climate Watch</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Tracking the changing planet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Technology -->
+                <div id="tech-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="691003gt.html" class="hover:underline">Green Tech</a></li>
+                                <li><a href="691003AI.html" class="hover:underline">AI for Environment</a></li>
+                                <li><a href="#" class="hover:underline">Renewable Energy</a></li>
+                                <li><a href="#" class="hover:underline">Smart Cities</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Silicon Valley</a></li>
+                                <li><a href="#" class="hover:underline">Tech Hub Asia</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">How AI is Predicting Climate Disasters</a></li>
+                                <li><a href="#" class="hover:underline">Next-Gen Solar Panels Hit the Market</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-purple-100 flex items-center justify-center text-purple-700 font-bold rounded-sm">T</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Future Tech</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Innovations saving our ecosystem</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Sport -->
+                <div id="sport-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="690926Puripon.html" class="hover:underline">Athletics</a></li>
+                                <li><a href="691004jino.html" class="hover:underline">Golf</a></li>
+                                <li><a href="#" class="hover:underline">Olympics</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">National</a></li>
+                                <li><a href="#" class="hover:underline">International</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">Puripon Breaks National Sprint Record</a></li>
+                                <li><a href="#" class="hover:underline">Sustainable Stadiums in 2026</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-red-100 flex items-center justify-center text-red-700 font-bold rounded-sm">S</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">The Athletic Brief</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Sports news and analyses</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Games -->
+                <div id="games-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">PC Games</a></li>
+                                <li><a href="#" class="hover:underline">Console</a></li>
+                                <li><a href="#" class="hover:underline">Mobile</a></li>
+                                <li><a href="#" class="hover:underline">E-Sports</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Reviews</a></li>
+                                <li><a href="#" class="hover:underline">Hardware</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="#" class="hover:underline">The Environmental Cost of Cloud Gaming</a></li>
+                                <li><a href="#" class="hover:underline">Top 10 Indie Games of the Year</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold rounded-sm">G</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Game On</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">The latest in gaming culture</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: About Us -->
+                <div id="about-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[800px] mx-auto">
+                        <h3 class="text-xl font-bold font-title mb-4 border-b border-gray-300 pb-2">About The Siam Times</h3>
+                        <div class="text-[14px] text-gray-800 font-serif leading-relaxed space-y-3">
+                            <p><strong class="font-bold">Heritage and Historical Disclaimer</strong></p>
+                            <p>The name "The Siam Times" pays homage to the historical newspaper originally founded in Bangkok in 1864. This modern publication is an entirely independent initiative created to revive the spirit of classic journalism.</p>
+                            <p>It has no legal, financial, or historical affiliation with the original founders, owners, or the historical entity of the 19th century.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Culture -->
+                <div id="culture-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Sections</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="691014Buddha.html" class="hover:underline">Buddhism</a></li>
+                                <li><a href="691004sunwukong.html" class="hover:underline">Taoism</a></li>
+                                <li><a href="#" class="hover:underline">Music</a></li>
+                                <li><a href="#" class="hover:underline">Food</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-transparent uppercase font-sans mb-4 select-none">Regions</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-800">
+                                <li><a href="#" class="hover:underline">Reviews</a></li>
+                                <li><a href="#" class="hover:underline">Hardware</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Top Stories</h4>
+                            <ul class="space-y-3 text-[13px] font-sans text-gray-900 font-bold">
+                                <li><a href="691010immortals.html" class="hover:underline">Divine but Deeply Human: Decoding the Paradox of the Eight Immortals</a></li>
+                                <li><a href="691016mental.html" class="hover:underline">The Anatomy of a Quiet Mind</a></li>                    
+                                <li><a href="691016give.html" class="hover:underline">The Anatomy of a Generous Life</a></li>            
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Newsletters</h4>
+                            <div class="flex gap-3 mb-4">
+                                <div class="w-10 h-10 bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold rounded-sm">G</div>
+                                <div>
+                                    <a href="#" class="text-[13px] font-bold font-sans text-gray-900 hover:underline">Study Note</a>
+                                    <p class="text-[11px] text-gray-600 mt-1 leading-snug">Buddhism in Five Minutes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Menu: Disclaimer -->
+                <div id="disclaimer-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+                    <div class="max-w-[800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4 border-b border-gray-300 pb-2">Design Inspiration</h4>
+                            <p class="text-[13px] text-gray-800 font-sans leading-relaxed text-justify-newspaper">
+                                The visual design, typography structure, and editorial layout of this website are inspired by the digital edition of The New York Times. The Siam Times is a strictly independent entity and is not affiliated with, sponsored by, or endorsed by The New York Times Company.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4 border-b border-gray-300 pb-2">Copyright & Ownership</h4>
+                            <p class="text-[13px] text-gray-800 font-sans leading-relaxed text-justify-newspaper">
+                                All original articles, photographs, and logos are the exclusive property of The Siam Times. All rights reserved, except for cited materials which remain the property of their respective sources. The information and tools provided on this website are for educational and informational purposes. The Siam Times makes no warranties regarding the absolute accuracy, completeness, or reliability of the generated content or proofreading results.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="border-b border-gray-300 mb-6"></div>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10 md:mb-20">
+            
+            <div class="lg:col-span-9 grid grid-cols-1 md:grid-cols-12 gap-6 lg:pr-6 lg:border-r border-gray-300">
+                
+                <section class="md:col-span-4 flex flex-col px-0 md:px-4 md:border-r border-gray-300">
+                    <article class="mb-6 border-b border-gray-300 md:border-0 pb-6 md:pb-0">
+                        <div class="text-[10px] font-bold tracking-widest text-black uppercase font-sans mb-3">History</div>
+                        <h2 class="text-3xl lg:text-[32px] font-bold font-title leading-[1.1] mb-3 hover:text-gray-600 cursor-pointer italic">
+                            <a href="https://thesiamtimes.com/6909221005.html">The Siam Times Enters a New Era</a>
+                        </h2>
+                        <p class="text-[15px] text-gray-800 font-serif leading-relaxed mb-4 text-justify-newspaper">
+                            Our publication returns with a renewed commitment to classic journalism, pairing in-depth reporting with a timeless, elegant design crafted for the modern reader.
+                        </p>
+                        <div class="text-[10px] text-gray-500 uppercase font-sans font-medium tracking-wide">3 Min Read</div>
+                    </article>
+
+                    <article class="hidden md:block mt-6 pt-6 border-t border-gray-300">
+                        <h3 class="text-xl font-bold font-title leading-tight mb-2 hover:text-gray-600 cursor-pointer">
+                            A Wealth of Knowledge: From the Environment to Modern Gaming
+                        </h3>
+                        <p class="text-sm text-gray-800 font-serif leading-relaxed">
+                            We continue to expand our coverage across diverse branches of knowledge, bringing comprehensive insights on the issues that shape our daily lives and global culture.
+                        </p>
+                    </article>
+                </section>
+
+                <section class="md:col-span-8 flex flex-col">
+                    <div class="text-center mb-3">
+                        <span class="text-[13px] font-sans border-b border-nyt-link text-gray-800 pb-[2px]">All stories are <strong class="font-bold">free to read</strong>.</span>
+                    </div>
+
+                    <div class="relative group cursor-pointer border border-gray-200 mt-2">
+                        <img src="IMG_0046.jpeg" class="w-full h-auto object-cover" alt="Far Right Rally in Europe">
+                        
+                        <div class="absolute bottom-2 left-2 md:bottom-6 md:left-6 bg-white/90 px-2 py-1 md:px-3 md:py-2 max-w-[80%] md:max-w-[65%] shadow-sm">
+                            <p class="text-xs md:text-base font-serif text-black leading-snug">
+                                Bangkok 1864<br>The Kingdom of Siam
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-[9px] text-right text-gray-500 mt-1 uppercase font-sans tracking-wide">FACEBOOK | SEA HERITAGE & HISTORY<button class="info-button" aria-label="View Image Credit" onclick="document.getElementById('credit-popup').showModal()" title="image attribution">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"></path>
+                        </svg>
+                    </button>
+                            
+                    <dialog id="credit-popup" class="credit-popup">
+                        <h3 style="margin-top: 0; font-family: 'Playfair Display', 'Sarabun';">Image Attribution</h3>
+                        <div style="font-family: 'Lora', 'Sarabun'; margin-bottom: 20px;">&copy; 2026 FACEBOOK | SEA HERITAGE & HISTORY <br> "<i> Bangkok, Chao Phraya River&mdash;1864: A Floating World of Trade and Tradition </i>" <br>by facebook | Sea Heritage & History is copyrighted. <br>Original material available at: <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2FSEAheritagehistory%2Fposts%2Fpfbid02reBuQoHwUWseiT4phA4TLycRwGYXU8e7VE7MDH81YadFnkSJbyMZaBt4VCU15vY6l&show_text=true&width=500" width="500" height="754" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe> </div>
+                        <button class="close-button" onclick="document.getElementById('credit-popup').close()">Close</button>
+                    </dialog> 
+                    </div>
+                </section>
+
+                <section class="col-span-1 md:col-span-12 border-t border-black mt-8 pt-4">
+                    <h3 class="font-sans font-bold text-sm mb-4">More to read <strong class="text-black">for free.</strong></h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <article class="flex gap-4 border-t border-gray-200 pt-4 lg:border-t-0 lg:pt-0">
+                            <div class="flex-1">
+                                <div class="text-[10px] font-bold tracking-widest text-black uppercase font-sans mb-1">The Great Read</div>
+                                <h4 class="text-[17px] font-bold font-title leading-snug hover:text-gray-600 cursor-pointer">
+                                    <a href="691017times.html">The Metaphysics of Timekeeping: Where Swiss Luxury Meets Buddhist Wisdom</a>
+                                </h4>
+                            </div>
+                            <img src="https://placehold.co/150x150/e2e8f0/475569?text=Family" class="w-20 h-20 object-cover" alt="Thumbnail">
+                        </article>
+                        <article class="flex gap-4 border-t border-gray-200 pt-4 lg:border-t-0 lg:pt-0">
+                            <div class="flex-1">
+                                <div class="text-[10px] font-bold tracking-widest text-black uppercase font-sans mb-1">Opinion</div>
+                                <h4 class="text-[17px] font-bold font-title leading-snug hover:text-gray-600 cursor-pointer">
+                                    <a href="https://thesiamtimes.com/6909221832Nene.html">The Thai Renaissance: A Year of Grit and Global Dominance</a>
+                                </h4>
+                            </div>
+                            <img src="https://placehold.co/150x150/e2e8f0/475569?text=Fans" class="w-20 h-20 object-cover" alt="Thumbnail">
+                        </article>
+                        <article class="flex gap-4 border-t border-gray-200 pt-4 lg:border-t-0 lg:pt-0 hidden lg:flex">
+                            <div class="flex-1">
+                                <div class="text-[10px] font-bold tracking-widest text-black uppercase font-sans mb-1">Science</div>
+                                <h4 class="text-[17px] font-bold font-title leading-snug hover:text-gray-600 cursor-pointer">
+                                   <a href="691006ww.html">New Technologies in Wastewater Treatment for Local Shops and Small Buildings</a>
+                                </h4>
+                            </div>
+                            <img src="https://placehold.co/150x150/e2e8f0/475569?text=Science" class="w-20 h-20 object-cover" alt="Thumbnail">
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="lg:col-span-3 flex flex-col gap-6 lg:pl-2 mt-4 lg:mt-0">
+                
+                <!-- แสดงนาฬิกาในแถบด้านข้าง (Sidebar) -->
+                <div class="rolex-container mt-6 lg:mt-0">
+                    <div class="dial">
+                      
+                        <!-- โลโก้ The Siam Times (ตัว S อักษร Chomsky เงางาม 3 มิติ) ที่ตำแหน่ง 12 นาฬิกา -->
+                        <div class="crown-pos">
+                            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <!-- เฉดสีเงินแพลทินัม/ไวท์โกลด์เงางามสำหรับตัวอักษรหลัก -->
+                                    <linearGradient id="siam-silver-shine" x1="12%" y1="5%" x2="88%" y2="95%">
+                                        <stop offset="0%" stop-color="#ffffff" />
+                                        <stop offset="18%" stop-color="#f3f6f8" />
+                                        <stop offset="38%" stop-color="#bfc6cc" />
+                                        <stop offset="50%" stop-color="#767d84" />
+                                        <stop offset="64%" stop-color="#ffffff" />
+                                        <stop offset="82%" stop-color="#cfd5da" />
+                                        <stop offset="100%" stop-color="#52585e" />
+                                    </linearGradient>
+                                    <!-- เฉดสีขอบสะท้อนแสง (Specular Bevel Edge) -->
+                                    <linearGradient id="siam-edge-bevel" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#ffffff" />
+                                        <stop offset="45%" stop-color="#9aa1a7" />
+                                        <stop offset="55%" stop-color="#3e4347" />
+                                        <stop offset="100%" stop-color="#eef2f5" />
+                                    </linearGradient>
+                                </defs>
+                                <!-- ชั้นฐานโลหะด้านล่างเพื่อสร้างมิติความหนา (3D Extrusion) -->
+                                <text x="51.2" y="81.5" text-anchor="middle" font-family="'Chomsky', 'UnifrakturMaguntia', serif" font-size="84" fill="#3a3f44" opacity="0.85">S</text>
+                                <!-- ชั้นตัวอักษร S โลหะเงางามพร้อมขอบสะท้อนแสง -->
+                                <text x="50" y="80" text-anchor="middle" font-family="'Chomsky', 'UnifrakturMaguntia', serif" font-size="84" fill="url(#siam-silver-shine)" stroke="url(#siam-edge-bevel)" stroke-width="1.6" paint-order="stroke fill">S</text>
+                                <!-- ชั้นไฮไลต์แสงตกกระทบด้านบน -->
+                                <text x="49.5" y="79.5" text-anchor="middle" font-family="'Chomsky', 'UnifrakturMaguntia', serif" font-size="84" fill="none" stroke="#ffffff" stroke-width="0.6" opacity="0.75">S</text>
+                            </svg>
+                        </div>
+
+                        <!-- ข้อความบนหน้าปัด บรรทัดที่ 1 และ 2 -->
+                        <div class="text-top">
+                            <div class="text-brand">RELAX</div>
+                            <div class="text-model">The Siam Times Newspaper</div>
+                        </div>
+                        
+                        <!-- ข้อความบนหน้าปัด บรรทัดที่ 3 และ 4 -->
+                        <div class="text-bottom">
+                            <div><span class="text-cert">Environmental Management</span></div>
+                            <div><span class="text-cert">Lessons Learned</span></div>
+                        </div>
+                    
+                        <div id="markers-container"></div>
+                    
+                        <div class="hand hour-hand" id="hour">
+                            <div class="hand-tail"></div>
+                        </div>
+                        <div class="hand minute-hand" id="minute">
+                            <div class="hand-tail"></div>
+                        </div>
+                        
+                        <div class="hand second-hand" id="second"></div>
+                        <div class="pivot"></div>
+                    </div>
+                </div>
+                <!-- จบส่วนการแสดงนาฬิกา -->
+
+                <!-- ส่วนแสดงเวลานับตั้งแต่เข้า Waiting List -->
+                <div class="text-center font-sans border-b border-gray-300 pb-4 mt-2">
+                    <div class="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">
+                        Waiting List<br>Green Dial Watch 36<br>Since 2 Nov 2024
+                    </div>
+                    <div id="waitlist-counter" class="text-[13px] font-bold text-[#1a5c32]">
+                        0 y 0 m 0 d 0 h 0 m 0 s
+                    </div>
+                </div>
+
+                <article class="border-t border-gray-300 pt-6 lg:border-0 lg:pt-0">
+                    <div class="relative mb-3 pt-2 pl-2">
+                        <div class="absolute top-0 left-0 w-[95%] h-[95%] bg-gray-200 shadow-sm border border-gray-300 transform -rotate-3"></div>
+                        <img src="https://placehold.co/500x350/dddddd/555555?text=NetZero" class="relative w-full h-auto object-cover border border-gray-200 shadow-sm" alt="Lenox Hill Building">
+                    </div>
+                    <div class="text-[9px] text-right text-gray-500 uppercase font-sans mb-3 tracking-wide">By 2050</div>
+                    
+                    <h2 class="text-[22px] font-bold font-title leading-tight mb-2 hover:text-gray-600 cursor-pointer">
+                        The Modern Civil Servant: Adapting to the Digital Era
+                    </h2>
+                    <p class="text-[14px] text-gray-800 font-serif leading-relaxed text-justify-newspaper">
+                        While academic expertise and administrative skills remain the foundation of public service, today's government officials must also arm themselves with financial literacy and digital skills to elevate both their performance and personal well-being.
+                    </p>
+                </article>
+
+                <div class="border-b border-gray-300 my-2"></div>
+
+<div class="grid grid-cols-2 gap-4 mt-2">
+                    <!-- ของเดิม -->
+                    <a href="techReviews.html" class="block group text-center">
+                        <div class="aspect-square bg-[#E3F2FD] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl">🌐</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Tech Reviews</h4>
+                    </a>
+                    <a href="editor.html" class="block group text-center">
+                        <div class="aspect-square bg-[#FFF3E0] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl">&#128187;</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Coding</h4>
+                    </a>
+
+                    <a href="roman.html" class="block group text-center">
+                        <div class="aspect-square bg-[#F3E5F5] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl font-serif italic text-purple-700 font-bold">กK</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Romanization</h4>
+                    </a>
+
+                    <!-- ส่วนที่เพิ่มใหม่ 4 รายการ -->
+                    <a href="http://kietpawpan.github.io/hotspot/maps11v70c.html" class="block group text-center">
+                        <div class="aspect-square bg-[#FFEBEE] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl">🔥</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">LandfillFire</h4>
+                    </a>
+                    
+                    <a href="incident.html" class="block group text-center">
+                        <div class="aspect-square bg-[#FFF9C4] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl">🚨</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Incident</h4>
+                    </a>
+                    
+                    <a href="PM2570.html" class="block group text-center">
+                        <div class="aspect-square bg-[#ECEFF1] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl">🌫️</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">PM2.5</h4>
+                    </a>
+                    
+                    <a href="http://kietpawpan.github.io/hotspot/burnScar6869.html" class="block group text-center">
+                        <div class="aspect-square bg-[#EFEBE9] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl">🛰️</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">BurnScar</h4>
+                    </a>
+                
+
+                <a href="https://kietpawpan.github.io/pdf/" class="block group text-center">
+
+                        <div class="aspect-square bg-[#E8F5E9] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl">📝</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">ProofRead</h4>
+                    </a>
+                    
+                    <a href="https://kietpawpan.github.io/note/" class="block group text-center">
+                        <div class="aspect-square bg-[#E0F7FA] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl">📊</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Diagram</h4>
+                    </a>
+    <a href="Dhamma.html" class="block group text-center">
+    <div class="aspect-square bg-[#E0F7FA] flex items-center justify-center relative overflow-hidden mb-2">
+        <span class="text-4xl">☸️</span>
+    </div>
+    <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Kusala</h4>
+</a>
+ 
+    <a href="qr-code-generator.html" class="block group text-center">
+    <div class="aspect-square bg-[#F3E5F5] flex items-center justify-center relative overflow-hidden mb-2">
+        <span class="text-4xl">🔳</span>
+    </div>
+    <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">QR Code Generator</h4>
+</a>
+
+    <a href="socialListening4.html" class="block group text-center">
+    <!-- พื้นหลังสีเขียวเข้มและถ้าจะให้ขอบโค้งมน ให้เติมท้ายว่า rounded-[24px]-->
+    <div class="aspect-square bg-[#124b30] flex items-center justify-center relative overflow-hidden mb-2">
+        <!-- กรอบวงในสีเขียวที่สว่างขึ้น -->
+        <div class="absolute inset-2 border-[4px] border-[#1f6642] rounded-[16px]"></div>
+        
+        <!-- ไอคอนเรดาร์ SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-[55%] h-[55%] text-[#78e0a2] z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+            <path d="M15.5 12a3.5 3.5 0 1 0-3.5 3.5"/>
+            <path d="M12 19a7 7 0 1 0-7-7"/>
+            <path d="M12 12l4.5-4.5"/>
+            <circle cx="7" cy="9" r="0.8" fill="currentColor" stroke="none"/>
+            <circle cx="13" cy="17" r="0.8" fill="currentColor" stroke="none"/>
+        </svg>
+    </div>
+    <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Social Listening</h4>
+</a>
+
+</div>
+               
+            </aside>
+
+        </main>
+        
+        <footer class="border-t border-double-thin py-6 text-center text-xs font-sans text-gray-500 mt-10">
+            <p>&copy; <span id="footer-year">2026</span> The Siam Times. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // 1. ส่วนอัปเดตวันที่ของหน้าหนังสือพิมพ์
+            function updateDate() {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const today = new Date();
+                const formattedDate = today.toLocaleDateString('en-US', options);
+                
+                const desktopDate = document.getElementById('desktop-date');
+                const mobileDate = document.getElementById('mobile-date');
+                const footerYear = document.getElementById('footer-year');
+
+                if (desktopDate) desktopDate.textContent = formattedDate;
+                if (mobileDate) mobileDate.textContent = formattedDate;
+                if (footerYear) footerYear.textContent = today.getFullYear();
+            }
+            updateDate();
+
+            // 2. ส่วนดึงข้อมูลอุณหภูมิโลก
+            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyfoFishbabfNLqqyv9nOIkk8XipSlFD4kSaa8BfYw-ckF4fq7UZiRdfJMjqXqff8BQZg/exec'; 
+
+            async function fetchTemperatureData() {
+                const container = document.getElementById('result-box');
+                if (!container) return;
+                try {
+                    const response = await fetch(WEB_APP_URL);
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        container.innerHTML = `+<span class="data-val">${data.temperature}°C</span>`;
+                    } else {
+                        container.innerHTML = `<span class="error">No Data</span>`;
+                    }
+                } catch (error) {
+                    container.innerHTML = `<span class="error">Network Error</span>`;
+                    console.error(error);
+                }
+            }
+            fetchTemperatureData();
+
+            // 3. ส่วนจัดการการทำงานของ Mega Menu
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const megaMenus = document.querySelectorAll('.mega-menu');
+
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    const targetMenu = document.getElementById(targetId);
+                    if (!targetMenu) return;
+
+                    const icon = this.querySelector('svg');
+                    const isHidden = targetMenu.classList.contains('hidden');
+
+                    megaMenus.forEach(menu => menu.classList.add('hidden'));
+                    navBtns.forEach(b => {
+                        const ic = b.querySelector('svg');
+                        if (ic) ic.classList.remove('rotate-180');
+                    });
+
+                    if (isHidden) {
+                        targetMenu.classList.remove('hidden');
+                        if (icon) icon.classList.add('rotate-180');
+                    }
+                });
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.nav-btn') && !e.target.closest('.mega-menu')) {
+                    megaMenus.forEach(menu => menu.classList.add('hidden'));
+                    navBtns.forEach(b => {
+                        const ic = b.querySelector('svg');
+                        if (ic) ic.classList.remove('rotate-180');
+                    });
+                }
+            });
+
+            // 4. ส่วนสร้างรายละเอียดหน้าปัดนาฬิกาและสั่งให้เข็มเดิน
+            const markersContainer = document.getElementById('markers-container');
+            if (markersContainer) {
+                markersContainer.innerHTML = '';
+                const radiusMinute = 138;
+                const radiusHour = 115;
+
+               const crownSVG = `
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <g id="tiny-lotus-bud">
+                                <path d="M 0,3 C -6.8,2 -8.5,-4.5 -4.8,-12.5 C -6,-5.5 0,-17.5 0,-17.5 C 0,-17.5 6,-5.5 4.8,-12.5 C 8.5,-4.5 6.8,2 0,3 Z" fill="white" />
+                                <path d="M 0,3 C -5,2.2 -6,-5.5 0,-17.5 C 6,-5.5 5,2.2 0,3 Z" fill="white" />
+                            </g>
+                        </defs>
+                        <path d="M 48,82 L 48.8,24 L 51.2,24 L 52,82 Z" fill="white" />
+                        <path d="M 40.5,82 Q 36,55 31,28.5 L 33.5,27.8 Q 39,54.5 44.5,82 Z" fill="white" />
+                        <path d="M 59.5,82 Q 64,55 69,28.5 L 66.5,27.8 Q 61,54.5 55.5,82 Z" fill="white" />
+                        <path d="M 33.5,84 Q 25,62 15.8,39.5 L 18.2,38.3 Q 28,61 37.5,84 Z" fill="white" />
+                        <path d="M 66.5,84 Q 75,62 84.2,39.5 L 81.8,38.3 Q 72,61 62.5,84 Z" fill="white" />
+                        <use href="#tiny-lotus-bud" transform="translate(50, 24)" />
+                        <use href="#tiny-lotus-bud" transform="translate(32.2, 28.2) rotate(-15)" />
+                        <use href="#tiny-lotus-bud" transform="translate(67.8, 28.2) rotate(15)" />
+                        <use href="#tiny-lotus-bud" transform="translate(17, 39) rotate(-30)" />
+                        <use href="#tiny-lotus-bud" transform="translate(83, 39) rotate(30)" />
+                        <path d="M 20,84 C 19,79 26,75 34,77 C 39,74 46,75 50,78 C 54,75 61,74 66,77 C 74,75 81,79 80,84 C 79,91 66,95 50,95 C 34,95 21,91 20,84 Z" fill="white" />
+                    </svg>
+                `;
+
+               for (let i = 0; i < 60; i++) {
+                    const angle = i * 6;
+                    const rad = (angle - 90) * (Math.PI / 180);
+                    const xOuter = 145 + radiusMinute * Math.cos(rad);
+                    const yOuter = 145 + radiusMinute * Math.sin(rad);
+
+                 if (i === 29) {
+                        // ปรับองศาให้ห่างจาก 180 (ตำแหน่งมงกุฎ) ถอยไปที่ 173 องศา
+                        const textAngle = 173; 
+                        const radText = (textAngle - 90) * (Math.PI / 180);
+                        const txt = document.createElement('div');
+                        txt.className = 'swiss-text';
+                        txt.innerText = "MADE";
+                        txt.style.left = (145 + radiusMinute * Math.cos(radText)) + 'px';
+                        txt.style.top = (145 + radiusMinute * Math.sin(radText)) + 'px';
+                        txt.style.transform = `translate(-50%, -50%) rotate(${textAngle - 180}deg)`;
+                        markersContainer.appendChild(txt);
+                        continue;
+                    }
+
+                    if (i === 31) {
+                        // ปรับองศาให้ห่างจาก 180 (ตำแหน่งมงกุฎ) เดินหน้าไปที่ 187 องศา
+                        const textAngle = 187; 
+                        const radText = (textAngle - 90) * (Math.PI / 180);
+                        const txt = document.createElement('div');
+                        txt.className = 'swiss-text';
+                        txt.innerText = "SIAM";
+                        txt.style.left = (145 + radiusMinute * Math.cos(radText)) + 'px';
+                        txt.style.top = (145 + radiusMinute * Math.sin(radText)) + 'px';
+                        txt.style.transform = `translate(-50%, -50%) rotate(${textAngle - 180}deg)`;
+                        markersContainer.appendChild(txt);
+                        continue;
+                    }
+
+                    if (i === 0) {
+                        const square = document.createElement('div');
+                        square.className = 'minute-square';
+                        square.style.left = xOuter + 'px';
+                        square.style.top = yOuter + 'px';
+                        square.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                        markersContainer.appendChild(square);
+                        continue;
+                    }
+
+                    if (i % 5 === 0) {
+                        const marker = document.createElement('div');
+                        marker.className = 'marker';
+
+                        if (i === 15 || i === 30 || i === 45) {
+                            marker.classList.add('double');
+                            marker.appendChild(document.createElement('div'));
+                            marker.appendChild(document.createElement('div'));
+                        }
+
+                        const xInner = 145 + radiusHour * Math.cos(rad);
+                        const yInner = 145 + radiusHour * Math.sin(rad);
+                        marker.style.left = xInner + 'px';
+                        marker.style.top = yInner + 'px';
+                        marker.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                        markersContainer.appendChild(marker);
+
+                        if (i === 30) {
+                            const crownRadius = radiusMinute;
+                            const xCrown = 145 + crownRadius * Math.cos(rad);
+                            const yCrown = 145 + crownRadius * Math.sin(rad);
+                            const tCrown = document.createElement('div');
+                            tCrown.className = 'tiny-crown';
+                            tCrown.innerHTML = crownSVG;
+                            tCrown.style.left = xCrown + 'px';
+                            tCrown.style.top = yCrown + 'px';
+                            tCrown.style.transform = `translate(-50%, -50%) rotate(0deg)`;
+                            markersContainer.appendChild(tCrown);
+                        } else {
+                            const square = document.createElement('div');
+                            square.className = 'minute-square';
+                            square.style.left = xOuter + 'px';
+                            square.style.top = yOuter + 'px';
+                            square.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                            markersContainer.appendChild(square);
+                        }
+                    } else {
+                        const tick = document.createElement('div');
+                        const isFlankingSwissMade = (i === 28 || i === 32);
+                        tick.className = isFlankingSwissMade ? 'minute-tick long-tick' : 'minute-tick';
+                        
+                        const tickRadius = isFlankingSwissMade ? (radiusMinute - 1.75) : radiusMinute;
+                        tick.style.left = (145 + tickRadius * Math.cos(rad)) + 'px';
+                        tick.style.top = (145 + tickRadius * Math.sin(rad)) + 'px';
+                        tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                        markersContainer.appendChild(tick);
+                    }
+                }
+                const waitlistStart = new Date(2024, 10, 2, 0, 0, 0);
+
+                function updateClock() {
+                    const now = new Date();
+
+                    const counterEl = document.getElementById('waitlist-counter');
+                    if (counterEl) {
+                        let years = now.getFullYear() - waitlistStart.getFullYear();
+                        let months = now.getMonth() - waitlistStart.getMonth();
+                        let days = now.getDate() - waitlistStart.getDate();
+                        let hours = now.getHours() - waitlistStart.getHours();
+                        let minutes = now.getMinutes() - waitlistStart.getMinutes();
+                        let seconds = now.getSeconds() - waitlistStart.getSeconds();
+
+                        if (seconds < 0) {
+                            seconds += 60;
+                            minutes--;
+                        }
+                        if (minutes < 0) {
+                            minutes += 60;
+                            hours--;
+                        }
+                        if (hours < 0) {
+                            hours += 24;
+                            days--;
+                        }
+                        if (days < 0) {
+                            const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+                            days += prevMonth.getDate();
+                            months--;
+                        }
+                        if (months < 0) {
+                            months += 12;
+                            years--;
+                        }
+
+                        counterEl.innerText = `${years} yr ${months} m ${days} d + ${hours} : ${minutes} : ${seconds} `;
+                    }
+
+                    const ms = now.getMilliseconds();
+                    const seconds = now.getSeconds();
+                    const minutes = now.getMinutes();
+                    const hours = now.getHours();
+
+                    const secondsDeg = ((seconds + ms / 1000) / 60) * 360;
+                    const minutesDeg = ((minutes + seconds / 60) / 60) * 360;
+                    const hoursDeg = ((hours % 12 + minutes / 60) / 12) * 360;
+
+                    const shadowDistance = 4;
+
+                    const radM = (minutesDeg + 180) * (Math.PI / 180);
+                    const shadowXM = shadowDistance * Math.sin(radM);
+                    const shadowYM = shadowDistance * -Math.cos(radM);
+
+                    const radH = (hoursDeg + 180) * (Math.PI / 180);
+                    const shadowXH = shadowDistance * Math.sin(radH);
+                    const shadowYH = shadowDistance * -Math.cos(radH);
+
+                    const secondHand = document.getElementById('second');
+                    if (secondHand) {
+                        secondHand.style.transform = `rotate(${secondsDeg}deg)`;
+                        secondHand.style.filter = `drop-shadow(${shadowXM.toFixed(2)}px ${shadowYM.toFixed(2)}px 5px rgba(0,0,0,0.4))`;
+                    }
+
+                    const minuteHand = document.getElementById('minute');
+                    if (minuteHand) {
+                        minuteHand.style.transform = `rotate(${minutesDeg}deg)`;
+                        minuteHand.style.filter = `drop-shadow(${shadowXM.toFixed(2)}px ${shadowYM.toFixed(2)}px 4px rgba(0,0,0,0.6))`;
+                    }
+
+                    const hourHand = document.getElementById('hour');
+                    if (hourHand) {
+                        hourHand.style.transform = `rotate(${hoursDeg}deg)`;
+                        hourHand.style.filter = `drop-shadow(${shadowXH.toFixed(2)}px ${shadowYH.toFixed(2)}px 4px rgba(0,0,0,0.6))`;
+                    }
+
+                    requestAnimationFrame(updateClock);
+                }
+
+                // สั่งให้ฟังก์ชันเริ่มทำงานครั้งแรก
+                requestAnimationFrame(updateClock);
+            }
+        });
+    </script>
+</body>
+</html>
