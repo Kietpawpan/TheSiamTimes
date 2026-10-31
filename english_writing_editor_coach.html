@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--
+    Content Security Policy (defense-in-depth for the user's Gemini API key):
+    - connect-src: the page may only send network requests (fetch/XHR/beacon/WebSocket) to the Gemini API,
+      so a misbehaving third-party script cannot quietly upload the stored key anywhere else.
+    - form-action 'none': forms can never submit (and therefore can never put the key into a URL).
+    If you later add analytics or another API, append its origin to connect-src.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="connect-src https://generativelanguage.googleapis.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>LexiCraft Editorial — English Style Editor, Proofreader & Writing Coach</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -10,8 +18,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Lucide Icons (pinned version + Subresource Integrity, so an altered CDN file can never run on a page that holds an API key) -->
+  <script src="https://unpkg.com/lucide@1.57.0/dist/umd/lucide.min.js" integrity="sha384-Qp5jsYqEgOGiWD8YMQ6yXIycASOePxr9mmbt+Ua0Wu1IScYxo0Pxf7o3Kx6NWJID" crossorigin="anonymous"></script>
 
   <script>
     tailwind.config = {
@@ -36,7 +44,7 @@
               crimson: '#991B1B',
               academic: '#1E3A8A',
               everyday: '#0F766E',
-              nyt: '#18181B',
+              tst: '#18181B',
               gold: '#B45309'
             }
           }
@@ -52,12 +60,21 @@
       font-family: 'Inter', 'IBM Plex Sans Thai', sans-serif;
     }
 
-    /* Editorial Double Border Rule inspired by NYT */
-    .nyt-double-rule {
+    /* Editorial Double Border Rule (classic broadsheet newspaper rule) */
+    .tst-double-rule {
       border-top: 3px double #18181B;
     }
-    .nyt-thin-rule {
+    .tst-thin-rule {
       border-top: 1px solid #D6D0C4;
+    }
+
+    /* API Key Modal entrance animation */
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-modal-in {
+      animation: modalIn 0.22s ease-out;
     }
 
     /* Track Changes Styling */
@@ -123,26 +140,39 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Top Mini Bar -->
       <div class="hidden sm:flex items-center justify-between py-1.5 text-xs text-stone-500 border-b border-stone-200/80 font-sans">
-        <div class="flex items-center gap-3">
-          <span class="font-semibold text-stone-800 uppercase tracking-wider">LexiCraft Editorial Studio</span>
-          <span>•</span>
-          <span class="font-thai">ระบบเกลาภาษาอังกฤษ ตรวจไวยากรณ์ และโค้ชสอนเขียนเชิงลึก</span>
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="font-semibold text-stone-800 uppercase tracking-wider whitespace-nowrap">LexiCraft Editorial Studio</span>
+          <span class="hidden lg:inline">•</span>
+          <span class="font-thai hidden lg:inline truncate">ระบบเกลาภาษาอังกฤษ ตรวจไวยากรณ์ และโค้ชสอนเขียนเชิงลึก</span>
         </div>
-        <div class="flex items-center gap-4">
-          <span class="inline-flex items-center gap-1.5 text-emerald-700 font-medium">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            Secured via Google Apps Script
+        <div class="flex items-center gap-3 shrink-0">
+          <span id="engineStatus" class="inline-flex items-center gap-1.5 text-amber-700 font-medium">
+            <span id="engineStatusDot" class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span class="hidden lg:inline">Gemini AI Editorial Engine •</span>
+            <span id="engineStatusText" class="font-thai hidden md:inline">ยังไม่ได้ตั้งค่า API Key</span>
           </span>
+          <!-- API Key settings button (opens the API key popup) — tablet/desktop -->
+          <button
+            type="button"
+            id="apiKeyHeaderBtn"
+            onclick="openApiKeyModal()"
+            title="ตั้งค่า Gemini API Key"
+            aria-haspopup="dialog"
+            class="px-2.5 py-1 rounded-lg text-xs font-semibold border transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer bg-amber-50 border-amber-300 text-amber-900 hover:bg-amber-100"
+          >
+            <i data-lucide="key-round" class="w-3.5 h-3.5"></i>
+            <span id="apiKeyHeaderLabel" class="font-thai">ตั้งค่า API Key</span>
+          </button>
         </div>
       </div>
 
       <!-- Main Header Bar -->
       <div class="py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 w-full md:w-auto">
           <div class="w-10 h-10 rounded-xl bg-stone-900 text-amber-50 flex items-center justify-center shadow-sm shrink-0">
             <i data-lucide="feather" class="w-5 h-5"></i>
           </div>
-          <div>
+          <div class="min-w-0">
             <h1 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 leading-none">
               The Style &amp; Proofreading Desk
             </h1>
@@ -150,10 +180,23 @@
               ปรับแต่งประโยคและย่อหน้าเป็น <span class="font-semibold text-blue-900">Academic</span> • <span class="font-semibold text-teal-800">Everyday</span> • <span class="font-semibold text-stone-900">The Siam Times</span> พร้อมตรวจ Proofread และวิพากย์สอนเขียน
             </p>
           </div>
+          <!-- API Key settings button — phones (the status bar above is hidden on small screens) -->
+          <button
+            type="button"
+            id="apiKeyMobileBtn"
+            onclick="openApiKeyModal()"
+            title="ตั้งค่า Gemini API Key"
+            aria-label="ตั้งค่า Gemini API Key (ยังไม่ได้ตั้งค่า)"
+            aria-haspopup="dialog"
+            class="sm:hidden relative ml-auto self-start shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center transition cursor-pointer bg-amber-50 border-amber-300 text-amber-900"
+          >
+            <i data-lucide="key-round" class="w-4 h-4"></i>
+            <span id="apiKeyMobileDot" class="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-[#FAF8F5] bg-amber-500"></span>
+          </button>
         </div>
 
         <!-- Quick Navigation Pills -->
-        <nav class="flex items-center gap-1.5 self-stretch md:self-auto overflow-x-auto pb-1 md:pb-0">
+        <nav class="flex items-center gap-1.5 self-stretch md:self-auto overflow-x-auto pb-1 md:pb-0 lg:shrink-0">
           <a href="#section-styles" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-200/70 hover:bg-stone-300/70 text-stone-800 transition whitespace-nowrap flex items-center gap-1.5">
             <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-700"></i>
             3 Standard Styles
@@ -175,7 +218,7 @@
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
 
     <!-- ==========================================
-         SECTION 1: INPUT STUDIO
+         SECTION 1: INPUT STUDIO & SAMPLE SELECTOR
          ========================================== -->
     <section class="bg-white rounded-2xl border border-stone-200/90 shadow-sm overflow-hidden">
       <!-- Top Bar of Input Card -->
@@ -185,6 +228,27 @@
           <h2 class="font-thai font-semibold text-stone-800 text-sm sm:text-base">
             ต้นฉบับภาษาอังกฤษของคุณ (Original Draft)
           </h2>
+        </div>
+
+        <!-- Sample Text Preset Buttons -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="text-xs text-stone-500 font-thai mr-1">ตัวอย่างข้อความทดสอบ:</span>
+          <button type="button" onclick="loadSample('environment')" class="sample-btn text-xs px-2.5 py-1.5 rounded-lg bg-white border border-stone-300 hover:border-stone-500 hover:bg-stone-50 text-stone-700 font-medium transition flex items-center gap-1 shadow-2xs">
+            <i data-lucide="leaf" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>Environmental Report</span>
+          </button>
+          <button type="button" onclick="loadSample('email')" class="sample-btn text-xs px-2.5 py-1.5 rounded-lg bg-white border border-stone-300 hover:border-stone-500 hover:bg-stone-50 text-stone-700 font-medium transition flex items-center gap-1 shadow-2xs">
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-600"></i>
+            <span>Daily Work Email</span>
+          </button>
+          <button type="button" onclick="loadSample('news')" class="sample-btn text-xs px-2.5 py-1.5 rounded-lg bg-white border border-stone-300 hover:border-stone-500 hover:bg-stone-50 text-stone-700 font-medium transition flex items-center gap-1 shadow-2xs">
+            <i data-lucide="newspaper" class="w-3.5 h-3.5 text-amber-700"></i>
+            <span>AI &amp; Society Pitch</span>
+          </button>
+          <button type="button" onclick="loadSample('research')" class="sample-btn text-xs px-2.5 py-1.5 rounded-lg bg-white border border-stone-300 hover:border-stone-500 hover:bg-stone-50 text-stone-700 font-medium transition flex items-center gap-1 shadow-2xs">
+            <i data-lucide="microscope" class="w-3.5 h-3.5 text-purple-600"></i>
+            <span>Research Draft</span>
+          </button>
         </div>
       </div>
 
@@ -249,9 +313,18 @@
           <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
           <div class="flex-1 font-thai">
             <p id="errorTitle" class="font-semibold">เกิดข้อผิดพลาดในการเชื่อมต่อ</p>
-            <p id="errorMessage" class="text-xs text-red-700 mt-0.5"></p>
+            <p id="errorMessage" class="text-xs text-red-700 mt-0.5 break-words whitespace-pre-line"></p>
+            <button
+              type="button"
+              id="errorKeyAction"
+              onclick="openApiKeyModal()"
+              class="hidden mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-red-900 bg-white hover:bg-red-100 border border-red-300 px-3 py-1.5 rounded-lg transition cursor-pointer"
+            >
+              <i data-lucide="key-round" class="w-3.5 h-3.5"></i>
+              <span>ตั้งค่า / เปลี่ยน API Key</span>
+            </button>
           </div>
-          <button type="button" onclick="hideError()" class="text-red-500 hover:text-red-800">
+          <button type="button" onclick="hideError()" aria-label="ปิดข้อความแจ้งเตือน" class="text-red-500 hover:text-red-800">
             <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
@@ -270,7 +343,7 @@
           The Editorial Board is Reviewing Your Draft...
         </h3>
         <p id="loadingStepText" class="text-sm text-stone-600 font-thai">
-          กำลังตรวจไวยากรณ์ (Proofreading) และเรียบเรียงเป็น 3 สำนวนมาตรฐาน...
+          กำลังตรวจไวยากรณ์ (Proofreading) และเรียบเรียงเป็น 3 สำนวนมาตรฐาน (Academic, Everyday, The Siam Times)...
         </p>
         <!-- Progress Bar -->
         <div class="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
@@ -298,15 +371,15 @@
     </section>
 
     <!-- ==========================================
-         RESULTS WORKSPACE (Hidden until first analysis)
+         RESULTS WORKSPACE
          ========================================== -->
-    <div id="resultsWorkspace" class="hidden space-y-10">
+    <div id="resultsWorkspace" class="space-y-10">
 
       <!-- ==========================================
            SECTION 2: THREE STANDARD STYLES (REWRITES)
            ========================================== -->
       <section id="section-styles" class="space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 nyt-double-rule pt-4">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 tst-double-rule pt-4">
           <div>
             <div class="flex items-center gap-2">
               <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-stone-900 text-white text-xs font-bold">2</span>
@@ -454,7 +527,7 @@
             </div>
           </article>
 
-          <!-- STYLE 3: THE SIAM TIMES STYLE -->
+          <!-- STYLE 3: THE SIAM TIMES (TST) STYLE -->
           <article class="bg-white rounded-2xl border border-stone-200/90 shadow-sm flex flex-col overflow-hidden hover:border-stone-800/50 transition">
             <div class="bg-gradient-to-r from-stone-900 via-neutral-900 to-stone-800 text-amber-50 px-5 py-4 flex items-center justify-between">
               <div class="flex items-center gap-2.5">
@@ -473,14 +546,14 @@
               <div class="space-y-4">
                 <!-- Rewritten Text Box -->
                 <div class="p-4 rounded-xl bg-[#FAF8F5] border border-stone-300/80 min-h-[145px]">
-                  <p id="nytTextDisplay" class="font-serif text-base sm:text-[17px] leading-relaxed text-stone-900"></p>
+                  <p id="tstTextDisplay" class="font-serif text-base sm:text-[17px] leading-relaxed text-stone-900"></p>
                 </div>
 
                 <!-- Action Bar: Copy + Speak -->
                 <div class="flex items-center justify-between gap-2 pt-1">
                   <button
                     type="button"
-                    onclick="speakText('nyt')"
+                    onclick="speakText('tst')"
                     class="inline-flex items-center gap-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 px-2.5 py-1.5 rounded-lg hover:bg-stone-100 transition cursor-pointer"
                   >
                     <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
@@ -488,7 +561,7 @@
                   </button>
                   <button
                     type="button"
-                    onclick="copyStyleText('nyt', this)"
+                    onclick="copyStyleText('tst', this)"
                     class="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-900 bg-amber-100/80 hover:bg-amber-200/80 border border-amber-300 px-3 py-1.5 rounded-lg transition cursor-pointer"
                   >
                     <i data-lucide="copy" class="w-3.5 h-3.5"></i>
@@ -502,8 +575,8 @@
                     <i data-lucide="info" class="w-3.5 h-3.5 text-amber-700"></i>
                     <span>จุดเด่นและการปรับโครงสร้าง (Key Features):</span>
                   </div>
-                  <p id="nytWhy" class="text-xs sm:text-sm text-stone-700 font-bodyThai leading-relaxed"></p>
-                  <div id="nytHighlights" class="flex flex-wrap gap-1.5 pt-1"></div>
+                  <p id="tstWhy" class="text-xs sm:text-sm text-stone-700 font-bodyThai leading-relaxed"></p>
+                  <div id="tstHighlights" class="flex flex-wrap gap-1.5 pt-1"></div>
                 </div>
               </div>
             </div>
@@ -516,7 +589,7 @@
            SECTION 3: STANDARD PROOFREADING & TRACK CHANGES
            ========================================== -->
       <section id="section-proofread" class="space-y-5">
-        <div class="nyt-double-rule pt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div class="tst-double-rule pt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
             <div class="flex items-center gap-2">
               <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-800 text-white text-xs font-bold">3</span>
@@ -531,17 +604,17 @@
           </div>
 
           <!-- Compare Target Selector for Track Changes -->
-          <div class="flex items-center gap-2 self-start sm:self-auto">
+          <div class="flex items-center gap-2 self-start sm:self-auto max-w-full">
             <label for="diffTargetSelect" class="text-xs font-thai font-medium text-stone-600">เทียบต้นฉบับกับ:</label>
             <select
               id="diffTargetSelect"
               onchange="renderTrackChangesView()"
-              class="rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-stone-800"
+              class="min-w-0 max-w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-stone-800"
             >
               <option value="proofread">Standard Proofread (แก้เฉพาะจุดผิด คงน้ำเสียงเดิม)</option>
               <option value="academic">Academic English Version</option>
               <option value="everyday">Everyday English Version</option>
-              <option value="nyt">The Siam Times Version</option>
+              <option value="tst">The Siam Times Version</option>
             </select>
           </div>
         </div>
@@ -646,7 +719,7 @@
            SECTION 4: CRITIQUE & WRITING COACH
            ========================================== -->
       <section id="section-coach" class="space-y-6">
-        <div class="nyt-double-rule pt-4">
+        <div class="tst-double-rule pt-4">
           <div class="flex items-center gap-2">
             <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-800 text-white text-xs font-bold">4</span>
             <span class="text-xs font-bold uppercase tracking-widest text-emerald-800">Editorial Critique &amp; Writing Coach</span>
@@ -668,16 +741,16 @@
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Original Draft Assessment</span>
                 <span id="cefrBadge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                  CEFR: -
+                  CEFR: B1 → C1
                 </span>
               </div>
 
               <!-- Big Score Display -->
               <div class="mt-4 flex items-baseline gap-3">
-                <span id="overallScoreValue" class="font-serif text-5xl sm:text-6xl font-bold text-stone-900">0</span>
+                <span id="overallScoreValue" class="font-serif text-5xl sm:text-6xl font-bold text-stone-900">72</span>
                 <div class="text-xs text-stone-500 font-thai">
                   <div class="font-bold text-stone-800 text-sm">/ 100 คะแนน</div>
-                  <div id="overallScoreLabel">รอการวิเคราะห์</div>
+                  <div id="overallScoreLabel">ระดับกำลังพัฒนา (Developing Draft)</div>
                 </div>
               </div>
 
@@ -687,10 +760,10 @@
                 <div>
                   <div class="flex justify-between text-xs font-semibold mb-1">
                     <span class="text-stone-700">Clarity &amp; Coherence (ความชัดเจน)</span>
-                    <span id="scoreClarityText" class="text-stone-900">0/100</span>
+                    <span id="scoreClarityText" class="text-stone-900">75/100</span>
                   </div>
                   <div class="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
-                    <div id="scoreClarityBar" class="h-full bg-blue-700 rounded-full transition-all duration-700" style="width: 0%"></div>
+                    <div id="scoreClarityBar" class="h-full bg-blue-700 rounded-full transition-all duration-700" style="width: 75%"></div>
                   </div>
                 </div>
 
@@ -698,10 +771,10 @@
                 <div>
                   <div class="flex justify-between text-xs font-semibold mb-1">
                     <span class="text-stone-700">Grammar &amp; Syntax (ไวยากรณ์)</span>
-                    <span id="scoreGrammarText" class="text-stone-900">0/100</span>
+                    <span id="scoreGrammarText" class="text-stone-900">68/100</span>
                   </div>
                   <div class="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
-                    <div id="scoreGrammarBar" class="h-full bg-emerald-700 rounded-full transition-all duration-700" style="width: 0%"></div>
+                    <div id="scoreGrammarBar" class="h-full bg-emerald-700 rounded-full transition-all duration-700" style="width: 68%"></div>
                   </div>
                 </div>
 
@@ -709,10 +782,10 @@
                 <div>
                   <div class="flex justify-between text-xs font-semibold mb-1">
                     <span class="text-stone-700">Vocabulary Precision (ความแม่นยำของคำ)</span>
-                    <span id="scoreVocabText" class="text-stone-900">0/100</span>
+                    <span id="scoreVocabText" class="text-stone-900">70/100</span>
                   </div>
                   <div class="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
-                    <div id="scoreVocabBar" class="h-full bg-amber-600 rounded-full transition-all duration-700" style="width: 0%"></div>
+                    <div id="scoreVocabBar" class="h-full bg-amber-600 rounded-full transition-all duration-700" style="width: 70%"></div>
                   </div>
                 </div>
 
@@ -720,10 +793,10 @@
                 <div>
                   <div class="flex justify-between text-xs font-semibold mb-1">
                     <span class="text-stone-700">Naturalness &amp; Tone (ความเป็นธรรมชาติ)</span>
-                    <span id="scoreToneText" class="text-stone-900">0/100</span>
+                    <span id="scoreToneText" class="text-stone-900">74/100</span>
                   </div>
                   <div class="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
-                    <div id="scoreToneBar" class="h-full bg-purple-700 rounded-full transition-all duration-700" style="width: 0%"></div>
+                    <div id="scoreToneBar" class="h-full bg-purple-700 rounded-full transition-all duration-700" style="width: 74%"></div>
                   </div>
                 </div>
               </div>
@@ -841,10 +914,180 @@
 
   </main>
 
+  <!-- ==========================================
+       API KEY POPUP (BRING YOUR OWN GEMINI API KEY)
+       The key is typed in by each user and kept only in their own browser.
+       ========================================== -->
+  <div
+    id="apiKeyModal"
+    class="fixed inset-0 z-[60] hidden items-center justify-center p-4 sm:p-6"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="apiKeyModalTitle"
+    aria-describedby="apiKeyModalDesc"
+  >
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-stone-950/60 backdrop-blur-sm" onclick="closeApiKeyModal()"></div>
+
+    <!-- Panel -->
+    <div id="apiKeyModalPanel" class="relative w-full max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-stone-200 animate-modal-in">
+      <!-- Panel Header -->
+      <div class="bg-gradient-to-r from-stone-900 via-neutral-900 to-stone-800 text-amber-50 px-5 sm:px-6 py-4 flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
+            <i data-lucide="key-round" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 id="apiKeyModalTitle" class="font-thai text-lg sm:text-xl font-bold leading-tight">เชื่อมต่อ Gemini API</h2>
+            <p class="text-[11px] text-stone-300 font-sans mt-0.5">The Siam Times • LexiCraft Editorial Studio</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onclick="closeApiKeyModal()"
+          aria-label="ปิดหน้าต่าง"
+          class="p-1.5 rounded-lg text-stone-300 hover:text-white hover:bg-white/10 transition cursor-pointer"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Panel Body. The form never submits anywhere (JS handles it, the input has no name, and CSP sets form-action 'none'). -->
+      <form id="apiKeyForm" novalidate class="p-5 sm:p-6 space-y-4 font-thai">
+        <p id="apiKeyModalDesc" class="text-sm text-stone-700 font-bodyThai leading-relaxed">
+          เครื่องมือนี้เรียกใช้ Google Gemini API โดยตรงจากเบราว์เซอร์ของคุณ กรุณากรอก <strong class="text-stone-900">API key ของคุณเอง</strong> เพื่อเริ่มวิเคราะห์ เกลาสำนวน และตรวจ Proofread
+        </p>
+
+        <!-- Shown only when a key is already saved -->
+        <div id="apiKeyCurrentStatus" class="hidden items-start gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 leading-relaxed">
+          <i data-lucide="circle-check-big" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+          <span id="apiKeyCurrentStatusText"></span>
+        </div>
+
+        <!-- Key Input -->
+        <div>
+          <label for="apiKeyInput" class="block text-xs font-semibold text-stone-800 mb-1.5">Gemini API Key</label>
+          <div class="relative">
+            <input
+              id="apiKeyInput"
+              type="password"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore
+              placeholder="วาง API key ของคุณที่นี่"
+              class="w-full rounded-xl border border-stone-300 bg-[#FCFBF9] pl-3.5 pr-11 py-2.5 text-sm font-mono text-stone-900 placeholder:text-stone-400 placeholder:font-thai focus:outline-none focus:ring-2 focus:ring-stone-800 focus:border-transparent transition"
+            />
+            <button
+              type="button"
+              id="apiKeyVisibilityBtn"
+              onclick="toggleApiKeyVisibility()"
+              aria-label="แสดง API key"
+              aria-pressed="false"
+              class="absolute inset-y-0 right-0 px-3 flex items-center text-stone-400 hover:text-stone-700 transition cursor-pointer"
+            >
+              <span id="apiKeyVisibilityIcon" class="inline-flex"><i data-lucide="eye" class="w-4 h-4"></i></span>
+            </button>
+          </div>
+          <a
+            href="https://aistudio.google.com/apikey"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-blue-800 hover:text-blue-950 hover:underline"
+          >
+            <span>ยังไม่มี API key? สร้างได้ฟรีที่ Google AI Studio</span>
+            <i data-lucide="external-link" class="w-3 h-3"></i>
+          </a>
+        </div>
+
+        <!-- Remember Choice -->
+        <label for="rememberKeyCheckbox" class="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200 cursor-pointer hover:border-stone-300 transition">
+          <input id="rememberKeyCheckbox" type="checkbox" class="mt-0.5 w-4 h-4 accent-stone-900 shrink-0 cursor-pointer" />
+          <span class="text-xs text-stone-700 leading-relaxed">
+            <span class="font-semibold text-stone-900">จดจำ API key ไว้ในเบราว์เซอร์นี้</span><br>
+            หากไม่เลือก ระบบจะเก็บไว้เฉพาะแท็บนี้และลบออกเองเมื่อปิดแท็บ (แนะนำสำหรับคอมพิวเตอร์สาธารณะหรือเครื่องที่ใช้ร่วมกัน)
+          </span>
+        </label>
+
+        <!-- Advanced: Model -->
+        <details id="apiAdvancedSettings" class="rounded-xl border border-stone-200">
+          <summary class="cursor-pointer select-none px-3 py-2 text-xs font-semibold text-stone-700 hover:text-stone-900">
+            ตั้งค่าขั้นสูง (เลือกโมเดล Gemini)
+          </summary>
+          <div class="px-3 pb-3 pt-1 space-y-1">
+            <label for="modelInput" class="block text-[11px] text-stone-600">ชื่อโมเดล (Model ID)</label>
+            <input
+              id="modelInput"
+              type="text"
+              list="modelSuggestions"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              class="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-mono text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-800 focus:border-transparent"
+            />
+            <datalist id="modelSuggestions">
+              <option value="gemini-3-flash-preview"></option>
+              <option value="gemini-2.5-flash"></option>
+              <option value="gemini-2.5-pro"></option>
+            </datalist>
+            <p class="text-[11px] text-stone-500 leading-relaxed">
+              ค่าเริ่มต้น: <span class="font-mono">gemini-3-flash-preview</span> • เปลี่ยนได้หากโมเดลเดิมถูกยกเลิกหรือคุณต้องการใช้รุ่นอื่น
+            </p>
+          </div>
+        </details>
+
+        <!-- Privacy Note -->
+        <div class="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/60 border border-blue-200/80 text-xs text-blue-950 leading-relaxed">
+          <i data-lucide="shield-check" class="w-4 h-4 text-blue-700 shrink-0 mt-0.5"></i>
+          <span>
+            API key <strong>ไม่ได้ฝังอยู่ในซอร์สโค้ด</strong> และไม่ถูกส่งไปยังเซิร์ฟเวอร์ของ The Siam Times — เก็บไว้ในเบราว์เซอร์ของคุณเท่านั้น และส่งตรงถึง Google
+            (<span class="font-mono">generativelanguage.googleapis.com</span>) ผ่าน HTTPS เมื่อคุณสั่งวิเคราะห์ ค่าใช้จ่ายและโควตาจะคิดกับบัญชี Google ของเจ้าของ key
+          </span>
+        </div>
+
+        <!-- Validation / API Error -->
+        <div id="apiKeyModalError" role="alert" class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 leading-relaxed break-words whitespace-pre-line"></div>
+
+        <!-- Actions -->
+        <div class="flex flex-col-reverse sm:flex-row sm:items-center gap-2 pt-1">
+          <button
+            type="button"
+            id="apiKeyClearBtn"
+            onclick="clearApiKey()"
+            class="hidden items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-700 hover:text-red-900 hover:bg-red-50 transition cursor-pointer"
+          >
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <span>ลบ API key ที่บันทึกไว้</span>
+          </button>
+          <div class="flex flex-col-reverse sm:flex-row gap-2 sm:ml-auto">
+            <button
+              type="button"
+              id="apiKeyCancelBtn"
+              onclick="closeApiKeyModal()"
+              class="px-4 py-2.5 rounded-xl text-sm font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 transition cursor-pointer"
+            >
+              ไว้ทีหลัง (ดูตัวอย่างก่อน)
+            </button>
+            <button
+              type="submit"
+              id="apiKeySaveBtn"
+              class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-amber-50 bg-stone-900 hover:bg-stone-800 shadow-md transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <i data-lucide="key-round" class="w-4 h-4 text-amber-400"></i>
+              <span id="apiKeySaveLabel">ตรวจสอบและบันทึก</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div
     id="toastNotification"
-    class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-stone-900 text-amber-50 px-4 py-3 rounded-xl shadow-xl border border-stone-700 flex items-center gap-2.5 text-xs sm:text-sm font-thai"
+    class="fixed bottom-5 right-5 z-[70] transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-stone-900 text-amber-50 px-4 py-3 rounded-xl shadow-xl border border-stone-700 flex items-center gap-2.5 text-xs sm:text-sm font-thai"
   >
     <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
     <span id="toastText">คัดลอกข้อความเรียบร้อยแล้ว</span>
@@ -858,30 +1101,221 @@
         <span>—</span>
         <span>ออกแบบเพื่อพัฒนาทักษะการเขียนภาษาอังกฤษระดับสากล (Academic • Everyday • TST)</span>
       </div>
-      <div class="text-stone-500">
-        Powered by Gemini API • Standard Proofreading &amp; Linguistic Coaching
+      <div class="text-stone-500 text-center sm:text-right space-y-1">
+        <div>Powered by Gemini API • Standard Proofreading &amp; Linguistic Coaching</div>
+        <div class="inline-flex items-center gap-1.5">
+          <i data-lucide="lock" class="w-3 h-3"></i>
+          <span>API key ของคุณเก็บไว้ในเบราว์เซอร์นี้เท่านั้น •</span>
+          <button type="button" onclick="openApiKeyModal()" class="underline underline-offset-2 hover:text-stone-900 cursor-pointer">จัดการ API Key</button>
+        </div>
       </div>
     </div>
   </footer>
 
   <!-- ==========================================
-       APPLICATION LOGIC (NO API KEY IN CLIENT)
+       APPLICATION LOGIC & GEMINI API INTEGRATION
        ========================================== -->
   <script>
-    // กรณีนำไฟล์ HTML นี้ไปรันนอก Google Apps Script ให้นำ Web App URL (ลงท้ายด้วย /exec) มาใส่ที่นี่
-    // แต่ถ้ารันบน Google Apps Script โดยตรง ระบบจะเรียกใช้ google.script.run อัตโนมัติโดยไม่ต้องใส่ URL
-    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzuqneaawb4OnTD5fgjzbJfeA9ZmhpOqxa_3mZdJdZhj-6_xap0VAtd1lCqGIGt5iM8/exec";
+    // ==========================================
+    // GEMINI API CONFIGURATION (NO API KEY IN SOURCE CODE)
+    // Each user enters their own key in the popup. It is kept in this browser only
+    // (sessionStorage by default, localStorage if the user ticks "remember"),
+    // and is sent only to the Gemini API in the x-goog-api-key request header.
+    // ==========================================
+    const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
+    const DEFAULT_MODEL_NAME = "gemini-3-flash-preview";
+    const API_KEY_STORAGE_KEY = "tst.lexicraft.geminiApiKey";
+    const MODEL_STORAGE_KEY = "tst.lexicraft.geminiModel";
+    const GENERATE_TIMEOUT_MS = 180000; // 3 minutes per attempt
+    const VERIFY_TIMEOUT_MS = 15000;
 
     // Application State
     let currentStyleCardMode = 'clean'; // 'clean' | 'diff'
     let activeCategoryFilter = 'ALL';
     let currentAnalysisData = null;
+    let isAnalyzing = false;
+
+    // API Key Popup State
+    let memoryApiKey = '';               // fallback when Web Storage is unavailable (e.g. some private modes)
+    let pendingAnalysisAfterKey = false; // re-run the analysis automatically once a key is saved
+    let lastFocusedBeforeModal = null;
+    let isSavingApiKey = false;
+
+    // Sample Texts with Pre-built Instant Analysis for the Default Sample + One-Click Testing
+    const SAMPLE_TEXTS = {
+      environment: {
+        goal: "General improvement across all styles",
+        text: "Nowaday climate change is very big problem for many country in the world. Many company still make a lot of pollution and carbon into the air because they care more about money than nature. If government not make strict law soon, the earth temperature will going up more fast and make bad effect to people life in future."
+      },
+      email: {
+        goal: "Professional workplace email or daily communication",
+        text: "Dear Mr. John, I write this email for tell you that our team cannot send the marketing report today because we have some problem with the sale data from last month. We are trying to fix it right now. Can we send to you tomorrow afternoon instead? Sorry for make you inconvenient."
+      },
+      news: {
+        goal: "Journalistic article, op-ed, or cultural commentary",
+        text: "Artificial intelligence is changing how people work in office everywhere very quickly. Many worker are afraid that AI will take their job soon, while big tech boss say it will help human work better and faster. Actually, the truth is more complicate than what both side think."
+      },
+      research: {
+        goal: "Academic journal, thesis, or university essay",
+        text: "This research want to study how sleeping less than six hour affect university student grade and mental health. We collect data by asking 200 student at our university. The result show that student who sleep late every night have more stress and get lower score in exam."
+      }
+    };
+
+    // Pre-loaded Rich Analysis for the default "environment" sample so the user immediately sees a full demonstration
+    const INITIAL_DEMO_ANALYSIS = {
+      originalText: SAMPLE_TEXTS.environment.text,
+      standardProofread: "Nowadays, climate change is a major problem for many countries around the world. Many companies still release large amounts of pollution and carbon emissions into the atmosphere because they prioritize profits over nature. If governments do not enact strict laws soon, global temperatures will rise even faster and severely affect people's lives in the future.",
+      styles: {
+        academic: {
+          text: "Contemporary climate change poses a critical challenge to nations worldwide. Numerous corporations continue to generate substantial atmospheric pollutants and carbon emissions, largely prioritizing short-term economic gains over environmental sustainability. Absent the prompt implementation of stringent regulatory frameworks, global temperatures are projected to accelerate, resulting in profound adverse consequences for human populations.",
+          whyItWorksThai: "ใช้คำนามที่เป็นทางการและแม่นยำ (Nominalization) เช่น 'implementation of stringent regulatory frameworks' แทน 'make strict law' เปลี่ยนคำกริยาพื้นฐานเป็นคำศัพท์เชิงวิชาการ เช่น 'poses a critical challenge', 'prioritizing short-term economic gains' และใช้โครงสร้างเงื่อนไขระดับสูง 'Absent the prompt implementation...'",
+          keyPhrases: [
+            "poses a critical challenge",
+            "environmental sustainability",
+            "stringent regulatory frameworks",
+            "profound adverse consequences"
+          ]
+        },
+        everyday: {
+          text: "These days, climate change is a huge issue all over the world. A lot of companies are still pumping pollution and carbon into the air because they care more about profits than protecting the planet. Unless governments step in with stricter laws soon, global temperatures are going to rise even faster—and that will seriously impact our daily lives.",
+          whyItWorksThai: "ปรับให้ฟังดูเป็นธรรมชาติเหมือนเจ้าของภาษาพูดคุยหรือเขียนบล็อกทั่วไป เปลี่ยน 'Nowaday' เป็น 'These days' ใช้ Phrasal verbs ที่ลื่นไหลอย่าง 'pumping ... into the air' และ 'step in with stricter laws' พร้อมใช้คำเชื่อม 'Unless' แทน 'If ... not' เพื่อความกระชับ",
+          keyPhrases: [
+            "These days",
+            "pumping pollution into the air",
+            "step in with stricter laws",
+            "seriously impact our daily lives"
+          ]
+        },
+        tst: {
+          text: "Across the globe, the climate crisis is deepening, driven in no small part by corporate inertia. Too many companies continue to treat the atmosphere as an open sewer, putting quarterly profits ahead of planetary survival. Without decisive government intervention, the world faces a rapid, unforgiving spike in temperatures that will reshape daily life for generations.",
+          whyItWorksThai: "เดินเรื่องด้วยจังหวะที่เฉียบคมแบบคอลัมน์วิเคราะห์ของ The Siam Times ใช้คำกริยาและภาพพจน์ที่ทรงพลัง เช่น 'corporate inertia' (ความเฉื่อยชาของภาคธุรกิจ), 'putting quarterly profits ahead of planetary survival' และปิดท้ายด้วยจังหวะประโยคที่กระตุ้นให้ผู้อ่านขบคิด",
+          keyPhrases: [
+            "corporate inertia",
+            "putting quarterly profits ahead of",
+            "decisive government intervention",
+            "unforgiving spike in temperatures"
+          ]
+        }
+      },
+      corrections: [
+        {
+          original: "Nowaday",
+          corrected: "Nowadays,",
+          category: "Grammar",
+          explanationThai: "คำวิเศษณ์ที่ถูกต้องคือ 'Nowadays' (ต้องมี -s เสมอ) และควรใส่เครื่องหมายจุลภาค (comma) คั่นเมื่อวางไว้ต้นประโยค"
+        },
+        {
+          original: "very big problem for many country",
+          corrected: "a major problem for many countries",
+          category: "Grammar",
+          explanationThai: "'problem' เป็นคำนามนับได้เอกพจน์ต้องมี Article 'a' นำหน้า และหลังคำว่า 'many' คำนามต้องเป็นพหูพจน์เสมอ ('countries') นอกจากนี้ 'major' ดูเป็นมาตรฐานกว่า 'very big'"
+        },
+        {
+          original: "Many company still make a lot of pollution and carbon",
+          corrected: "Many companies still release large amounts of pollution and carbon emissions",
+          category: "Word Choice",
+          explanationThai: "หลัง 'Many' ต้องใช้พหูพจน์ ('companies') และในภาษาอังกฤษเราไม่ใช้ 'make pollution' แต่จะใช้ Collocation เช่น 'release/generate pollution' และ 'carbon emissions'"
+        },
+        {
+          original: "If government not make strict law",
+          corrected: "If governments do not enact strict laws",
+          category: "Grammar",
+          explanationThai: "ประโยคปฏิเสธใน Present Simple ต้องใช้กริยาช่วย 'do not / does not' (จะใช้ 'not make' ลอยๆ ไม่ได้) และคำกริยาที่ใช้คู่กับกฎหมาย (laws) ตามมาตรฐานคือ 'enact' หรือ 'pass'"
+        },
+        {
+          original: "will going up more fast",
+          corrected: "will rise even faster",
+          category: "Grammar",
+          explanationThai: "หลัง Modal verb 'will' ต้องตามด้วยกริยาช่องที่ 1 ไม่เติม -ing ('will rise' ไม่ใช่ 'will going up') และขั้นกว่าของ 'fast' คือ 'faster' ไม่ใช่ 'more fast'"
+        },
+        {
+          original: "make bad effect to people life",
+          corrected: "severely affect people's lives",
+          category: "Clarity/Flow",
+          explanationThai: "สำนวน 'make bad effect to' เป็นการแปลตรงตัวจากภาษาไทย (ส่งผลเสียต่อ) ควรเปลี่ยนเป็นกริยา 'severely affect' หรือ 'have a devastating impact on' และใช้รูปแสดงความเป็นเจ้าของพหูพจน์ 'people's lives'"
+        }
+      ],
+      critique: {
+        overallScore: 62,
+        cefrEstimate: "B1 → C1",
+        scores: {
+          clarity: 78,
+          grammar: 52,
+          vocabulary: 58,
+          tone: 60
+        },
+        editorVerdictThai: "โครงสร้างความคิดและลำดับเหตุ-ผล (ปัญหา -> สาเหตุ -> ผลกระทบ) ชัดเจนดีมาก แต่ยังมีข้อผิดพลาดพื้นฐานเรื่องพหูพจน์ (Singular/Plural), การใช้กริยาหลัง Modal Verb (will going up) และการแปลสำนวนไทยเป็นอังกฤษตรงตัว (make pollution, make strict law) หากปรับ Collocation ให้แม่นยำ งานเขียนจะยกระดับขึ้นทันที",
+        strengthsThai: [
+          "วางโครงสร้างย่อหน้าได้เป็นระบบ เริ่มจากปูประเด็นปัญหา (Topic Sentence) ตามด้วยสาเหตุจากภาคธุรกิจ และสรุปด้วยผลกระทบในอนาคต",
+          "เชื่อมโยงเหตุและผลด้วยคำเชื่อม (because, If...) ทำให้ผู้อ่านเข้าใจตรรกะของผู้เขียนได้ตั้งแต่การอ่านครั้งแรก",
+          "สื่อสารใจความสำคัญ (Core Message) ได้ชัดเจนโดยไม่หลงประเด็น"
+        ],
+        weaknessesThai: [
+          "มักลืมเติม -s/-es ในคำนามพหูพจน์หลังคำบอกปริมาณ เช่น 'many country', 'many company' และลืมใส่ Article (a/an/the) หน้าคำนามเอกพจน์",
+          "ใช้คำกริยาพื้นฐานอย่าง 'make' กับทุกบริบท ('make pollution', 'make strict law', 'make bad effect') ซึ่งเป็นลักษณะของการคิดเป็นภาษาไทยแล้วแปลตรงตัว",
+          "เกิดข้อผิดพลาดทางไวยากรณ์ในโครงสร้างเงื่อนไข ('If government not make') และการใช้ขั้นกว่า ('more fast' แทนที่จะเป็น 'faster')"
+        ],
+        styleComparisonNoteThai: "สังเกตว่าเมื่อเปลี่ยนเป็น Academic English เราจะลดการกล่าวโทษแบบตรงๆ ('care more about money') แล้วเปลี่ยนเป็นภาษาเชิงวิเคราะห์ ('prioritizing short-term economic gains over environmental sustainability') ในขณะที่ Everyday English จะเน้นคำกริยาวลีที่ฟังดูคุ้นหู ('step in', 'pumping into the air') ส่วน The Siam Times Style จะเลือกใช้คำที่สร้างพลังและภาพจำในหัวผู้อ่านทันที เช่น 'corporate inertia' และ 'putting quarterly profits ahead of planetary survival'"
+      },
+      coachingLessons: [
+        {
+          titleThai: "1. เลิกใช้ 'make' กับทุกอย่าง ด้วยการจำคู่คำ (Collocations)",
+          explanationThai: "ในภาษาไทยเราใช้คำว่า 'ทำ/สร้าง' กับหลายบริบท แต่ภาษาอังกฤษมีคำกริยาเฉพาะคู่กับคำนามแต่ละคำ เช่น มลพิษต้องใช้ release/emit pollution, กฎหมายต้องใช้ enact/pass laws, และผลกระทบต้องใช้ have an impact on หรือ affect โดยตรง",
+          beforeExample: "make pollution / make strict law / make bad effect",
+          afterExample: "release pollutants / enact strict laws / severely affect (or have an adverse impact on)"
+        },
+        {
+          titleThai: "2. ระวังกฎเหล็กของ Many + พหูพจน์ และ Modal Verb + V.infinitive",
+          explanationThai: "ทุกครั้งที่ใช้คำว่า many, several, numerous คำนามที่ตามมาต้องอยู่ในรูปพหูพจน์เสมอ (countries, companies) และหลังคำว่า will, can, should, must ห้ามเติม -ing หรือ -ed เด็ดขาด ต้องตามด้วยกริยารูปเดิม (Base form)",
+          beforeExample: "many country ... will going up more fast",
+          afterExample: "many countries ... will rise even faster"
+        },
+        {
+          titleThai: "3. ยกระดับประโยคเงื่อนไข (If-Clause) ให้ดูเป็นมืออาชีพ",
+          explanationThai: "แทนที่จะใช้ 'If ... not ...' เสมอไป ลองเปลี่ยนเป็น 'Unless + ประโยคบอกเล่า' สำหรับภาษาพูด/ทั่วไป หรือใช้ 'Without / Absent + คำนาม (Noun Phrase)' สำหรับงานเขียนวิชาการและบทความข่าวระดับสูง",
+          beforeExample: "If government not make strict law soon...",
+          afterExample: "Unless governments step in soon... / Absent stringent regulatory frameworks..."
+        }
+      ],
+      vocabUpgrades: [
+        {
+          original: "very big problem",
+          everyday: "a huge issue",
+          academic: "a critical challenge",
+          tst: "a deepening crisis",
+          nuanceThai: "หลีกเลี่ยงการใช้ very + คำคุณศัพท์พื้นฐาน โดยเปลี่ยนเป็นคำที่มีน้ำหนักในตัวเอง"
+        },
+        {
+          original: "make pollution",
+          everyday: "pump pollution into the air",
+          academic: "generate atmospheric pollutants",
+          tst: "treat the atmosphere as an open sewer",
+          nuanceThai: "เลือกกริยาที่สะท้อนภาพการปล่อยมลพิษได้ชัดเจนตามระดับความเป็นทางการ"
+        },
+        {
+          original: "care more about money",
+          everyday: "put profits first",
+          academic: "prioritize short-term economic gains",
+          tst: "put quarterly profits ahead of survival",
+          nuanceThai: "เปลี่ยนคำว่า money เป็น profits หรือ economic gains เพื่อความเป็นมืออาชีพ"
+        },
+        {
+          original: "make strict law",
+          everyday: "pass stricter laws",
+          academic: "implement stringent regulations",
+          tst: "take decisive regulatory intervention",
+          nuanceThai: "ใช้คำว่า pass/enact/implement แทน make เมื่อพูดถึงกฎหมายหรือข้อบังคับ"
+        }
+      ]
+    };
 
     // ==========================================
     // WORD-LEVEL DIFF ENGINE (Longest Common Subsequence)
+    // Guarantees accurate red/green Track Changes for any pair of texts
     // ==========================================
     function tokenizeForDiff(text) {
       if (!text) return [];
+      // Split by whitespace while preserving punctuation attached or separate cleanly
       return text.trim().split(/\s+/).filter(Boolean);
     }
 
@@ -892,6 +1326,7 @@
       const n = origTokens.length;
       const m = targTokens.length;
 
+      // DP matrix for LCS
       const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
 
       for (let i = n - 1; i >= 0; i--) {
@@ -926,6 +1361,7 @@
         ops.push({ type: 'ins', text: targTokens[j++] });
       }
 
+      // Merge consecutive operations of the same type for cleaner visual badges
       const merged = [];
       for (const op of ops) {
         if (merged.length > 0 && merged[merged.length - 1].type === op.type) {
@@ -935,6 +1371,7 @@
         }
       }
 
+      // Reorder adjacent [ins, del] into [del, ins] so strikethrough always precedes green replacement
       for (let k = 0; k < merged.length - 1; k++) {
         if (merged[k].type === 'ins' && merged[k + 1].type === 'del') {
           const temp = merged[k];
@@ -965,7 +1402,7 @@
     }
 
     // ==========================================
-    // UI COUNTERS & INPUT CONTROLS
+    // UI COUNTERS & SAMPLE LOADING
     // ==========================================
     function updateTextCounters() {
       const textarea = document.getElementById('userInput');
@@ -981,11 +1418,29 @@
       document.getElementById('sentenceCount').textContent = sentences;
     }
 
+    function loadSample(key) {
+      const sample = SAMPLE_TEXTS[key];
+      if (!sample) return;
+      const textarea = document.getElementById('userInput');
+      textarea.value = sample.text;
+      document.getElementById('writingGoal').value = sample.goal;
+      updateTextCounters();
+      hideError();
+
+      if (key === 'environment') {
+        // Render the instant pre-loaded analysis immediately, or user can re-run anytime
+        renderFullAnalysis(INITIAL_DEMO_ANALYSIS);
+        showToast("โหลดตัวอย่าง Environmental Report พร้อมผลวิเคราะห์แล้ว");
+      } else {
+        // Automatically trigger live Gemini analysis for the chosen sample
+        runEditorialAnalysis();
+      }
+    }
+
     function clearInput() {
       const textarea = document.getElementById('userInput');
       textarea.value = '';
       updateTextCounters();
-      hideError();
       textarea.focus();
     }
 
@@ -995,14 +1450,17 @@
     function renderFullAnalysis(data) {
       currentAnalysisData = data;
 
-      const resultsWorkspace = document.getElementById('resultsWorkspace');
-      resultsWorkspace.classList.remove('hidden');
-
+      // 1. Render 3 Standard Styles
       renderStyleCards();
+
+      // 2. Render Track Changes & Standard Proofreading
       renderTrackChangesView();
       renderCorrectionsLog(data.corrections || []);
+
+      // 3. Render Critique & Writing Coach
       renderCritiqueSection(data.critique, data.coachingLessons || [], data.vocabUpgrades || []);
 
+      // Re-init icons for dynamically added DOM nodes
       if (window.lucide) {
         lucide.createIcons();
       }
@@ -1044,10 +1502,10 @@
           tagClass: 'bg-teal-50 text-teal-900 border-teal-200'
         },
         {
-          key: 'nyt',
-          textEl: 'nytTextDisplay',
-          whyEl: 'nytWhy',
-          tagsEl: 'nytHighlights',
+          key: 'tst',
+          textEl: 'tstTextDisplay',
+          whyEl: 'tstWhy',
+          tagsEl: 'tstHighlights',
           tagClass: 'bg-stone-100 text-stone-900 border-stone-300'
         }
       ];
@@ -1086,8 +1544,8 @@
       } else if (targetKey === 'everyday') {
         targetText = currentAnalysisData.styles.everyday.text;
         labelText = "Clean Everyday English Version";
-      } else if (targetKey === 'nyt') {
-        targetText = currentAnalysisData.styles.nyt.text;
+      } else if (targetKey === 'tst') {
+        targetText = currentAnalysisData.styles.tst.text;
         labelText = "Clean The Siam Times Version";
       }
 
@@ -1099,6 +1557,7 @@
 
       trackContainer.innerHTML = diffHtml;
 
+      // If a user clicked a specific correction card, highlight the corrected phrase in the clean container
       if (highlightCorrectionObj && highlightCorrectionObj.corrected) {
         const cleanEscaped = escapeHtml(targetText);
         const corrEscaped = escapeHtml(highlightCorrectionObj.corrected);
@@ -1213,6 +1672,7 @@
       const targetItem = filtered[filteredIndex];
       if (!targetItem) return;
 
+      // Switch dropdown to Standard Proofread so the exact phrase matches cleanly
       document.getElementById('diffTargetSelect').value = 'proofread';
       renderTrackChangesView(targetItem);
     }
@@ -1239,6 +1699,7 @@
       document.getElementById('editorVerdict').textContent = critique.editorVerdictThai || '';
       document.getElementById('styleComparisonNote').textContent = critique.styleComparisonNoteThai || '';
 
+      // Strengths
       const strengthsEl = document.getElementById('strengthsList');
       strengthsEl.innerHTML = (critique.strengthsThai || []).map(item => `
         <li class="flex items-start gap-2.5">
@@ -1247,6 +1708,7 @@
         </li>
       `).join('');
 
+      // Weaknesses
       const weaknessesEl = document.getElementById('weaknessesList');
       weaknessesEl.innerHTML = (critique.weaknessesThai || []).map(item => `
         <li class="flex items-start gap-2.5">
@@ -1255,6 +1717,7 @@
         </li>
       `).join('');
 
+      // Coaching Lessons
       const lessonsEl = document.getElementById('coachingLessonsList');
       lessonsEl.innerHTML = lessons.map(lesson => `
         <div class="p-4 rounded-xl bg-[#FAF8F5] border border-stone-200/90 space-y-2.5">
@@ -1277,6 +1740,7 @@
         </div>
       `).join('');
 
+      // Vocabulary Upgrade Matrix
       const vocabBody = document.getElementById('vocabUpgradeTableBody');
       vocabBody.innerHTML = vocabUpgrades.map(row => `
         <tr class="hover:bg-stone-50/80 transition">
@@ -1291,14 +1755,14 @@
             ${escapeHtml(row.academic)}
           </td>
           <td class="py-3 px-3 align-top font-serif font-medium text-stone-900 bg-stone-50/60">
-            ${escapeHtml(row.nyt)}
+            ${escapeHtml(row.tst)}
           </td>
         </tr>
       `).join('');
     }
 
     function updateScoreBar(textId, barId, val) {
-      const safeVal = Math.max(0, Math.min(100, Number(val) || 0));
+      const safeVal = Math.max(0, Math.min(100, Number(val) || 70));
       document.getElementById(textId).textContent = `${safeVal}/100`;
       document.getElementById(barId).style.width = `${safeVal}%`;
     }
@@ -1328,7 +1792,7 @@
       const labels = {
         academic: 'Academic English',
         everyday: 'Everyday English',
-        nyt: 'The Siam Times Style'
+        tst: 'The Siam Times Style'
       };
       copyTextToClipboard(text, `คัดลอกสำนวน ${labels[styleKey]} แล้ว`);
     }
@@ -1366,10 +1830,11 @@
       }, 2800);
     }
 
-    function showError(title, message) {
+    function showError(title, message, options = {}) {
       const box = document.getElementById('errorBox');
       document.getElementById('errorTitle').textContent = title;
       document.getElementById('errorMessage').textContent = message;
+      document.getElementById('errorKeyAction').classList.toggle('hidden', !options.showKeyAction);
       box.classList.remove('hidden');
     }
 
@@ -1378,39 +1843,566 @@
     }
 
     // ==========================================
-    // SECURE BACKEND COMMUNICATION (GAS)
+    // API KEY STORAGE (BROWSER-ONLY, NEVER IN SOURCE CODE)
     // ==========================================
-    function callBackendAnalysis(userText, writingGoal) {
-      // กรณีที่ 1: รันอยู่บน Google Apps Script Web App โดยตรง (ปลอดภัยสูงสุด)
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        return new Promise((resolve, reject) => {
-          google.script.run
-            .withSuccessHandler(resolve)
-            .withFailureHandler(reject)
-            .analyzeEditorialText(userText, writingGoal);
+    function getStorage(type) {
+      // Accessing window.localStorage / sessionStorage can throw (blocked cookies, sandboxed frames, etc.)
+      try {
+        const storage = window[type];
+        const probe = '__tst_storage_probe__';
+        storage.setItem(probe, probe);
+        storage.removeItem(probe);
+        return storage;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function getApiKey() {
+      if (memoryApiKey) return memoryApiKey;
+      for (const type of ['sessionStorage', 'localStorage']) {
+        const storage = getStorage(type);
+        const value = storage ? storage.getItem(API_KEY_STORAGE_KEY) : '';
+        if (value) {
+          memoryApiKey = value;
+          return value;
+        }
+      }
+      return '';
+    }
+
+    function isApiKeyRemembered() {
+      const local = getStorage('localStorage');
+      return !!(local && local.getItem(API_KEY_STORAGE_KEY));
+    }
+
+    function saveApiKey(key, remember) {
+      memoryApiKey = key;
+      const session = getStorage('sessionStorage');
+      const local = getStorage('localStorage');
+      try {
+        if (remember && local) {
+          local.setItem(API_KEY_STORAGE_KEY, key);
+          if (session) session.removeItem(API_KEY_STORAGE_KEY);
+        } else {
+          if (session) session.setItem(API_KEY_STORAGE_KEY, key);
+          if (local) local.removeItem(API_KEY_STORAGE_KEY);
+        }
+      } catch (e) {
+        // Storage quota/permission problems: the key still works for this page view via memoryApiKey.
+      }
+    }
+
+    function forgetApiKey() {
+      memoryApiKey = '';
+      for (const type of ['sessionStorage', 'localStorage']) {
+        const storage = getStorage(type);
+        if (storage) storage.removeItem(API_KEY_STORAGE_KEY);
+      }
+    }
+
+    function normalizeModelName(value) {
+      return String(value || '').trim().replace(/^models\//, '');
+    }
+
+    function isValidModelName(value) {
+      return /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(value);
+    }
+
+    function getModelName() {
+      const local = getStorage('localStorage');
+      const stored = normalizeModelName(local ? local.getItem(MODEL_STORAGE_KEY) : '');
+      return stored && isValidModelName(stored) ? stored : DEFAULT_MODEL_NAME;
+    }
+
+    function saveModelName(model) {
+      const local = getStorage('localStorage');
+      if (!local) return;
+      try {
+        if (model === DEFAULT_MODEL_NAME) {
+          local.removeItem(MODEL_STORAGE_KEY);
+        } else {
+          local.setItem(MODEL_STORAGE_KEY, model);
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    function maskApiKey(key) {
+      if (!key) return '';
+      return key.length > 8 ? `••••${key.slice(-4)}` : '••••';
+    }
+
+    // Reflect the key status in the header button and the masthead status line
+    function refreshApiKeyStatus() {
+      const key = getApiKey();
+      const headerBtn = document.getElementById('apiKeyHeaderBtn');
+      const headerLabel = document.getElementById('apiKeyHeaderLabel');
+      const mobileBtn = document.getElementById('apiKeyMobileBtn');
+      const mobileDot = document.getElementById('apiKeyMobileDot');
+      const engineStatus = document.getElementById('engineStatus');
+      const engineDot = document.getElementById('engineStatusDot');
+      const engineText = document.getElementById('engineStatusText');
+      const baseBtnClass = "px-2.5 py-1 rounded-lg text-xs font-semibold border transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer";
+      const baseMobileClass = "sm:hidden relative ml-auto self-start shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center transition cursor-pointer";
+      const baseMobileDot = "absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-[#FAF8F5]";
+
+      if (key) {
+        headerBtn.className = `${baseBtnClass} bg-emerald-50 border-emerald-300 text-emerald-900 hover:bg-emerald-100`;
+        headerLabel.textContent = `API Key ${maskApiKey(key)}`;
+        mobileBtn.className = `${baseMobileClass} bg-emerald-50 border-emerald-300 text-emerald-900`;
+        mobileBtn.setAttribute('aria-label', `ตั้งค่า Gemini API Key (กำลังใช้ ${maskApiKey(key)})`);
+        mobileDot.className = `${baseMobileDot} bg-emerald-500`;
+        engineStatus.className = "inline-flex items-center gap-1.5 text-emerald-700 font-medium";
+        engineDot.className = "w-2 h-2 rounded-full bg-emerald-500";
+        engineText.textContent = `พร้อมใช้งาน (${getModelName()})`;
+      } else {
+        headerBtn.className = `${baseBtnClass} bg-amber-50 border-amber-300 text-amber-900 hover:bg-amber-100`;
+        headerLabel.textContent = 'ตั้งค่า API Key';
+        mobileBtn.className = `${baseMobileClass} bg-amber-50 border-amber-300 text-amber-900`;
+        mobileBtn.setAttribute('aria-label', 'ตั้งค่า Gemini API Key (ยังไม่ได้ตั้งค่า)');
+        mobileDot.className = `${baseMobileDot} bg-amber-500`;
+        engineStatus.className = "inline-flex items-center gap-1.5 text-amber-700 font-medium";
+        engineDot.className = "w-2 h-2 rounded-full bg-amber-500";
+        engineText.textContent = 'ยังไม่ได้ตั้งค่า API Key';
+      }
+    }
+
+    // ==========================================
+    // API KEY POPUP (MODAL)
+    // ==========================================
+    function isApiKeyModalOpen() {
+      return !document.getElementById('apiKeyModal').classList.contains('hidden');
+    }
+
+    function showApiKeyModalError(message) {
+      const box = document.getElementById('apiKeyModalError');
+      if (message) {
+        box.textContent = message;
+        box.classList.remove('hidden');
+      } else {
+        box.textContent = '';
+        box.classList.add('hidden');
+      }
+    }
+
+    function setApiKeyVisibility(visible) {
+      const input = document.getElementById('apiKeyInput');
+      const btn = document.getElementById('apiKeyVisibilityBtn');
+      input.type = visible ? 'text' : 'password';
+      btn.setAttribute('aria-pressed', visible ? 'true' : 'false');
+      btn.setAttribute('aria-label', visible ? 'ซ่อน API key' : 'แสดง API key');
+      document.getElementById('apiKeyVisibilityIcon').innerHTML =
+        `<i data-lucide="${visible ? 'eye-off' : 'eye'}" class="w-4 h-4"></i>`;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleApiKeyVisibility() {
+      setApiKeyVisibility(document.getElementById('apiKeyInput').type === 'password');
+    }
+
+    /**
+     * Open the API key popup.
+     * @param {{message?: string, pendingAnalysis?: boolean, openAdvanced?: boolean}} options
+     */
+    function openApiKeyModal(options = {}) {
+      const modal = document.getElementById('apiKeyModal');
+      const existingKey = getApiKey();
+
+      if (options.pendingAnalysis) pendingAnalysisAfterKey = true;
+      if (!isApiKeyModalOpen()) {
+        lastFocusedBeforeModal = document.activeElement;
+      }
+
+      // Reset the form every time: the saved key is never written back into the input field
+      const input = document.getElementById('apiKeyInput');
+      input.value = '';
+      setApiKeyVisibility(false);
+      document.getElementById('rememberKeyCheckbox').checked = existingKey ? isApiKeyRemembered() : false;
+      document.getElementById('modelInput').value = getModelName();
+      document.getElementById('apiAdvancedSettings').open = !!options.openAdvanced;
+      showApiKeyModalError(options.message || '');
+
+      const statusBox = document.getElementById('apiKeyCurrentStatus');
+      const clearBtn = document.getElementById('apiKeyClearBtn');
+      const cancelBtn = document.getElementById('apiKeyCancelBtn');
+      if (existingKey) {
+        document.getElementById('apiKeyCurrentStatusText').textContent =
+          `กำลังใช้ API key ${maskApiKey(existingKey)} (${isApiKeyRemembered() ? 'จดจำไว้ในเบราว์เซอร์นี้' : 'เก็บไว้เฉพาะแท็บนี้'}) — ` +
+          `กรอก key ใหม่ด้านล่างเพื่อเปลี่ยน หรือเว้นว่างไว้เพื่อใช้ key เดิม`;
+        statusBox.classList.remove('hidden');
+        statusBox.classList.add('flex');
+        clearBtn.classList.remove('hidden');
+        clearBtn.classList.add('inline-flex');
+        cancelBtn.textContent = 'ยกเลิก';
+        input.placeholder = 'เว้นว่างไว้เพื่อใช้ key เดิม';
+      } else {
+        statusBox.classList.add('hidden');
+        statusBox.classList.remove('flex');
+        clearBtn.classList.add('hidden');
+        clearBtn.classList.remove('inline-flex');
+        cancelBtn.textContent = 'ไว้ทีหลัง (ดูตัวอย่างก่อน)';
+        input.placeholder = 'วาง API key ของคุณที่นี่';
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+      if (window.lucide) lucide.createIcons();
+      setTimeout(() => input.focus(), 30);
+    }
+
+    function closeApiKeyModal() {
+      if (isSavingApiKey || !isApiKeyModalOpen()) return;
+      const modal = document.getElementById('apiKeyModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+      document.getElementById('apiKeyInput').value = '';
+      setApiKeyVisibility(false);
+      showApiKeyModalError('');
+      pendingAnalysisAfterKey = false;
+      if (lastFocusedBeforeModal && typeof lastFocusedBeforeModal.focus === 'function' && document.contains(lastFocusedBeforeModal)) {
+        lastFocusedBeforeModal.focus();
+      }
+      lastFocusedBeforeModal = null;
+    }
+
+    function setApiKeySaving(saving) {
+      isSavingApiKey = saving;
+      const saveBtn = document.getElementById('apiKeySaveBtn');
+      saveBtn.disabled = saving;
+      document.getElementById('apiKeySaveLabel').textContent = saving ? 'กำลังตรวจสอบ API key...' : 'ตรวจสอบและบันทึก';
+      document.getElementById('apiKeyCancelBtn').disabled = saving;
+    }
+
+    /**
+     * Light-weight key check: GET models/{model} (free, no tokens used).
+     * Returns { status: 'ok' | 'invalid' | 'model-not-found' | 'unverified', message?: string }
+     */
+    async function verifyApiKey(key, model) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), VERIFY_TIMEOUT_MS);
+      try {
+        const response = await fetch(`${GEMINI_API_BASE}/models/${encodeURIComponent(model)}`, {
+          method: 'GET',
+          headers: { 'x-goog-api-key': key },
+          signal: controller.signal,
+          cache: 'no-store'
         });
+        if (response.ok) return { status: 'ok' };
+        const info = await readGeminiError(response);
+        if (isKeyProblem(response.status, info.reason, info.message)) {
+          return { status: 'invalid', message: describeKeyProblem(response.status, info) };
+        }
+        if (response.status === 404) {
+          return { status: 'model-not-found', message: `API key ใช้งานได้ แต่ไม่พบโมเดล "${model}" — กรุณาตรวจสอบชื่อโมเดลในตั้งค่าขั้นสูง` };
+        }
+        if (response.status === 400) {
+          // e.g. FAILED_PRECONDITION "User location is not supported" — the key cannot be used from here
+          return { status: 'invalid', message: `Google ปฏิเสธคำขอ (400)${info.message ? `: ${info.message}` : ''}` };
+        }
+        // 429 / 5xx: the key may well be fine, the service is just busy → save it anyway
+        return { status: 'unverified', message: info.message };
+      } catch (e) {
+        return { status: 'unverified', message: e && e.name === 'AbortError' ? 'timeout' : 'network' };
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function handleApiKeySubmit(event) {
+      event.preventDefault();
+      if (isSavingApiKey) return;
+
+      const typedKey = document.getElementById('apiKeyInput').value.trim();
+      const existingKey = getApiKey();
+      const key = typedKey || existingKey;
+      const remember = document.getElementById('rememberKeyCheckbox').checked;
+      const model = normalizeModelName(document.getElementById('modelInput').value) || DEFAULT_MODEL_NAME;
+
+      if (!key) {
+        showApiKeyModalError('กรุณากรอก Gemini API key ก่อนบันทึก');
+        document.getElementById('apiKeyInput').focus();
+        return;
+      }
+      if (/\s/.test(key) || key.length < 20) {
+        showApiKeyModalError('รูปแบบ API key ไม่ถูกต้อง — กรุณาคัดลอก key จาก Google AI Studio มาวางใหม่ทั้งหมด (ต้องไม่มีช่องว่าง)');
+        document.getElementById('apiKeyInput').focus();
+        return;
+      }
+      if (!isValidModelName(model)) {
+        document.getElementById('apiAdvancedSettings').open = true;
+        showApiKeyModalError('ชื่อโมเดลไม่ถูกต้อง — ใช้ได้เฉพาะตัวอักษรภาษาอังกฤษ ตัวเลข จุด ขีดกลาง และขีดล่าง เช่น gemini-3-flash-preview');
+        document.getElementById('modelInput').focus();
+        return;
       }
 
-      // กรณีที่ 2: รันจากไฟล์ HTML ภายนอกผ่าน GAS_WEB_APP_URL
-      if (!GAS_WEB_APP_URL) {
-        return Promise.reject(new Error("กรุณารันผ่านลิงก์ Google Apps Script Web App หรือใส่ค่า GAS_WEB_APP_URL ในโค้ด"));
+      showApiKeyModalError('');
+      setApiKeySaving(true);
+      let result;
+      try {
+        result = await verifyApiKey(key, model);
+      } finally {
+        setApiKeySaving(false);
       }
 
-      return fetch(GAS_WEB_APP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ userText, writingGoal })
-      })
-        .then(res => res.json())
-        .then(resJson => {
-          if (resJson.status === 'error') {
-            throw new Error(resJson.message);
+      if (result.status === 'invalid') {
+        showApiKeyModalError(result.message);
+        document.getElementById('apiKeyInput').focus();
+        return;
+      }
+      if (result.status === 'model-not-found') {
+        document.getElementById('apiAdvancedSettings').open = true;
+        showApiKeyModalError(result.message);
+        document.getElementById('modelInput').focus();
+        return;
+      }
+
+      saveApiKey(key, remember);
+      saveModelName(model);
+      refreshApiKeyStatus();
+
+      const shouldRunAnalysis = pendingAnalysisAfterKey;
+      pendingAnalysisAfterKey = false;
+      closeApiKeyModal();
+      hideError();
+
+      showToast(result.status === 'ok'
+        ? 'เชื่อมต่อ Gemini API สำเร็จ บันทึก API key แล้ว'
+        : 'บันทึก API key แล้ว (ยังตรวจสอบกับ Google ไม่ได้ในขณะนี้)');
+
+      if (shouldRunAnalysis) {
+        runEditorialAnalysis();
+      }
+    }
+
+    function clearApiKey() {
+      if (isSavingApiKey) return;
+      forgetApiKey();
+      refreshApiKeyStatus();
+      closeApiKeyModal();
+      showToast('ลบ API key ออกจากเบราว์เซอร์นี้แล้ว');
+    }
+
+    // Keyboard support for the modal: Esc closes, Tab stays inside the dialog
+    function handleModalKeydown(event) {
+      if (!isApiKeyModalOpen()) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeApiKeyModal();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const panel = document.getElementById('apiKeyModalPanel');
+      const focusables = Array.from(panel.querySelectorAll(
+        'button:not([disabled]), input:not([disabled]), summary, a[href], [tabindex]:not([tabindex="-1"])'
+      )).filter(el => el.offsetParent !== null);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    // ==========================================
+    // GEMINI API ERRORS
+    // ==========================================
+    class GeminiApiError extends Error {
+      constructor(message, { status = 0, reason = '', apiStatus = '' } = {}) {
+        super(message);
+        this.name = 'GeminiApiError';
+        this.status = status;
+        this.reason = reason;
+        this.apiStatus = apiStatus;
+      }
+    }
+
+    // Parse Google's error body: { error: { code, message, status, details: [{ reason }] } }
+    async function readGeminiError(response) {
+      let raw = '';
+      try {
+        raw = await response.text();
+      } catch (e) { /* ignore */ }
+      try {
+        const parsed = JSON.parse(raw);
+        const err = parsed && (Array.isArray(parsed) ? parsed[0] : parsed).error;
+        if (err) {
+          const detail = (err.details || []).find(d => d && d.reason);
+          return {
+            message: err.message || '',
+            apiStatus: err.status || '',
+            reason: detail ? detail.reason : ''
+          };
+        }
+      } catch (e) { /* not JSON */ }
+      return { message: raw.slice(0, 300), apiStatus: '', reason: '' };
+    }
+
+    function isKeyProblem(status, reason, message) {
+      if (status === 401 || status === 403) return true;
+      if (status === 400) {
+        return /API_KEY/i.test(reason || '') || /api key/i.test(message || '');
+      }
+      return false;
+    }
+
+    function describeKeyProblem(status, info) {
+      if (status === 400 || (info.reason || '').includes('API_KEY_INVALID')) {
+        return 'API key ไม่ถูกต้องหรือหมดอายุ — กรุณาตรวจสอบว่าคัดลอกมาครบถ้วน หรือสร้าง key ใหม่ที่ Google AI Studio';
+      }
+      return `API key นี้ไม่มีสิทธิ์เรียกใช้ Gemini API (${info.apiStatus || status}) — key อาจถูกจำกัดสิทธิ์ ถูกระงับ หรือโปรเจกต์ยังไม่ได้เปิดใช้ Generative Language API` +
+        (info.message ? `\nรายละเอียดจาก Google: ${info.message}` : '');
+    }
+
+    // Translate any failure into a Thai title/message for the UI
+    function describeAnalysisError(error) {
+      const status = error && error.status;
+      const reason = (error && error.reason) || '';
+      const message = (error && error.message) || '';
+
+      if (isKeyProblem(status, reason, message)) {
+        return {
+          title: 'API key ใช้งานไม่ได้',
+          message: describeKeyProblem(status, { reason, apiStatus: error.apiStatus, message }),
+          keyProblem: true
+        };
+      }
+      if (status === 404) {
+        return {
+          title: 'ไม่พบโมเดล Gemini ที่เลือก',
+          message: `ไม่พบโมเดล "${getModelName()}" หรือโมเดลนี้ไม่รองรับการใช้งานด้วย key ของคุณ — เปลี่ยนชื่อโมเดลได้ที่ "ตั้งค่าขั้นสูง" ในหน้าต่าง API Key`,
+          keyProblem: true,
+          openAdvanced: true
+        };
+      }
+      if (status === 429) {
+        return {
+          title: 'ใช้งานเกินโควตาของ API key',
+          message: 'คำขอมากเกินไปหรือโควตาของ API key นี้หมดแล้ว กรุณารอสักครู่แล้วลองใหม่ หรือตรวจสอบโควตา/การเรียกเก็บเงินใน Google AI Studio',
+          keyProblem: false
+        };
+      }
+      if (status >= 500) {
+        return {
+          title: 'เซิร์ฟเวอร์ Gemini ไม่ว่างชั่วคราว',
+          message: `Google ตอบกลับด้วยข้อผิดพลาด ${status} กรุณาลองใหม่อีกครั้งในอีกสักครู่`,
+          keyProblem: false
+        };
+      }
+      if (reason === 'TIMEOUT') {
+        return {
+          title: 'หมดเวลารอการตอบกลับ',
+          message: 'Gemini ใช้เวลาประมวลผลนานเกินไป กรุณาลองใหม่ หรือลดความยาวของข้อความ',
+          keyProblem: false
+        };
+      }
+      if (reason === 'NETWORK') {
+        return {
+          title: 'เชื่อมต่อ Gemini API ไม่ได้',
+          message: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต หรือส่วนขยายของเบราว์เซอร์ที่อาจบล็อกการเชื่อมต่อ แล้วลองใหม่อีกครั้ง',
+          keyProblem: false
+        };
+      }
+      return {
+        title: 'ไม่สามารถประมวลผลข้อความได้ในขณะนี้',
+        message: message || 'เกิดข้อผิดพลาดในการเชื่อมต่อกับ Gemini API กรุณาลองใหม่อีกครั้ง',
+        keyProblem: false
+      };
+    }
+
+    // ==========================================
+    // GEMINI API CALL WITH EXPONENTIAL BACKOFF
+    // Retries only transient failures (network errors, 429, 5xx); fails fast on other 4xx (e.g. a bad key).
+    // ==========================================
+    async function fetchWithBackoff(url, options, maxRetries = 3) {
+      let delay = 1000;
+      for (let attempt = 0; ; attempt++) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), GENERATE_TIMEOUT_MS);
+        let response;
+        try {
+          response = await fetch(url, { ...options, signal: controller.signal });
+          if (response.ok) {
+            return await response.json();
           }
-          return resJson.data;
-        });
+        } catch (err) {
+          const timedOut = err && err.name === 'AbortError';
+          if (!timedOut && !(err instanceof SyntaxError) && attempt < maxRetries) {
+            await new Promise(res => setTimeout(res, delay));
+            delay *= 2;
+            continue;
+          }
+          if (err instanceof SyntaxError) {
+            throw new GeminiApiError('ข้อมูลตอบกลับจาก Gemini API ไม่ใช่ JSON ที่ถูกต้อง กรุณาลองใหม่อีกครั้ง', { reason: 'BAD_RESPONSE' });
+          }
+          throw new GeminiApiError(timedOut ? 'timeout' : 'network', { reason: timedOut ? 'TIMEOUT' : 'NETWORK' });
+        } finally {
+          clearTimeout(timer);
+        }
+
+        const info = await readGeminiError(response);
+        if ((response.status === 429 || response.status >= 500) && attempt < maxRetries) {
+          await new Promise(res => setTimeout(res, delay));
+          delay *= 2;
+          continue;
+        }
+        throw new GeminiApiError(
+          info.message ? `API Error (${response.status}): ${info.message}` : `API Error (${response.status})`,
+          { status: response.status, reason: info.reason, apiStatus: info.apiStatus }
+        );
+      }
+    }
+
+    function extractResponseText(result) {
+      const candidate = result && result.candidates && result.candidates[0];
+      const parts = (candidate && candidate.content && candidate.content.parts) || [];
+      const text = parts
+        .filter(part => part && typeof part.text === 'string' && !part.thought)
+        .map(part => part.text)
+        .join('')
+        .trim();
+
+      if (text) return text;
+
+      const blockReason = result && result.promptFeedback && result.promptFeedback.blockReason;
+      if (blockReason) {
+        throw new GeminiApiError(`Gemini ปฏิเสธการประมวลผลข้อความนี้ (${blockReason}) กรุณาปรับข้อความแล้วลองใหม่`, { reason: 'BLOCKED' });
+      }
+      const finishReason = candidate && candidate.finishReason;
+      if (finishReason && finishReason !== 'STOP') {
+        throw new GeminiApiError(`Gemini หยุดการตอบกลับก่อนเสร็จสมบูรณ์ (${finishReason}) กรุณาลองใหม่อีกครั้ง`, { reason: 'INCOMPLETE' });
+      }
+      throw new GeminiApiError('ไม่ได้รับข้อมูลตอบกลับจากระบบ AI กรุณาลองใหม่อีกครั้ง', { reason: 'EMPTY' });
+    }
+
+    function parseAnalysisJson(rawJsonText) {
+      let data;
+      try {
+        // Some models wrap JSON in ```json fences even when JSON mode is on
+        const cleaned = rawJsonText.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+        data = JSON.parse(cleaned);
+      } catch (e) {
+        throw new GeminiApiError('ข้อมูลตอบกลับจาก AI อยู่ในรูปแบบที่ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง', { reason: 'BAD_JSON' });
+      }
+      const styles = data && data.styles;
+      const hasAllStyles = styles && ['academic', 'everyday', 'tst'].every(k => styles[k] && typeof styles[k].text === 'string');
+      if (!hasAllStyles || typeof data.standardProofread !== 'string') {
+        throw new GeminiApiError('ข้อมูลตอบกลับจาก AI ไม่ครบถ้วน กรุณาลองใหม่อีกครั้ง', { reason: 'BAD_SHAPE' });
+      }
+      data.corrections = Array.isArray(data.corrections) ? data.corrections : [];
+      data.coachingLessons = Array.isArray(data.coachingLessons) ? data.coachingLessons : [];
+      data.vocabUpgrades = Array.isArray(data.vocabUpgrades) ? data.vocabUpgrades : [];
+      return data;
     }
 
     async function runEditorialAnalysis() {
+      if (isAnalyzing) return;
+
       const textarea = document.getElementById('userInput');
       const userText = textarea.value.trim();
       const writingGoal = document.getElementById('writingGoal').value;
@@ -1421,8 +2413,19 @@
         return;
       }
 
-      hideError();
+      // No key yet → ask for it in the popup, then continue automatically after it is saved
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        hideError();
+        openApiKeyModal({ pendingAnalysis: true });
+        return;
+      }
+      const modelName = getModelName();
 
+      hideError();
+      isAnalyzing = true;
+
+      // UI Loading State
       const analyzeBtn = document.getElementById('analyzeBtn');
       const loadingSection = document.getElementById('loadingSection');
       const resultsWorkspace = document.getElementById('resultsWorkspace');
@@ -1434,12 +2437,13 @@
       loadingSection.classList.remove('hidden');
       resultsWorkspace.classList.add('opacity-40', 'pointer-events-none');
 
+      // Animated progress steps
       loadingBar.style.width = '25%';
       loadingStepText.textContent = "ขั้นตอนที่ 1/3: กำลังตรวจทานไวยากรณ์ (Proofreading) และวิเคราะห์โครงสร้างประโยค...";
 
       const stepTimer1 = setTimeout(() => {
         loadingBar.style.width = '60%';
-        loadingStepText.textContent = "ขั้นตอนที่ 2/3: กำลังเรียบเรียงเป็น Academic English • Everyday English และ The Siam Times Style...";
+        loadingStepText.textContent = "ขั้นตอนที่ 2/3: กำลังเรียบเรียงเป็น Academic English, Everyday English และ The Siam Times Style...";
       }, 1400);
 
       const stepTimer2 = setTimeout(() => {
@@ -1447,20 +2451,171 @@
         loadingStepText.textContent = "ขั้นตอนที่ 3/3: กำลังจัดทำบทวิพากย์เชิงลึกและบทเรียนสอนเขียนภาษาไทย...";
       }, 3000);
 
+      const systemInstruction = `You are a world-class English Executive Editor (senior editor at The Siam Times — Thailand's historic English-language newspaper, first published in Bangkok in 1864 — as well as an Oxford academic journal editor and a bilingual Thai-English linguistics coach).
+Your task is to analyze the user's English sentence or paragraph, proofread it thoroughly, transform it into three distinct gold-standard English styles, and coach the Thai user on how to write significantly better.
+
+Follow these strict standards:
+1. "standardProofread": Fix all grammar, spelling, punctuation, article, tense, and awkward phrasing errors in the original text while preserving the author's original structure and voice as closely as possible.
+2. "styles":
+   - "academic": Formal, objective, scholarly tone suitable for peer-reviewed journals or university essays. Use precise academic vocabulary, appropriate hedging, nominalization, and cohesive transitions.
+   - "everyday": Natural, clear, idiomatic, conversational yet polite English used by educated native speakers in daily life and modern workplaces.
+   - "tst": "The Siam Times Style" — sophisticated journalistic prose in the house style of an elite international broadsheet: sharp active verbs, concrete nouns, vivid rhythm and varied sentence cadence, a compelling lede, economy of words, precise attribution, and authoritative clarity.
+3. "corrections": Extract 4 to 8 specific proofreading edits comparing the original text to the standard proofread version. Assign each to one of these exact categories: "Grammar", "Word Choice", "Punctuation", "Clarity/Flow", or "Style/Tone". Provide a clear, educational explanation in Thai ("explanationThai").
+4. "critique" & "coachingLessons" & "vocabUpgrades": Provide insightful, encouraging, and specific critique and actionable writing lessons in natural Thai (with English examples) so the user genuinely improves their writing skills.
+5. Naming rule: whenever any output field (including every Thai explanation) refers to the journalistic style, call it "The Siam Times Style" or "TST". Do not name any other newspaper or publication as the model for this style.`;
+
+      const userPrompt = `Please edit, proofread, and critique the following English passage.
+Context / User Goal: ${writingGoal}
+
+Original English Passage:
+"""
+${userText}
+"""`;
+
+      const responseSchema = {
+        type: "OBJECT",
+        properties: {
+          standardProofread: { type: "STRING" },
+          styles: {
+            type: "OBJECT",
+            properties: {
+              academic: {
+                type: "OBJECT",
+                properties: {
+                  text: { type: "STRING" },
+                  whyItWorksThai: { type: "STRING" },
+                  keyPhrases: { type: "ARRAY", items: { type: "STRING" } }
+                },
+                required: ["text", "whyItWorksThai", "keyPhrases"]
+              },
+              everyday: {
+                type: "OBJECT",
+                properties: {
+                  text: { type: "STRING" },
+                  whyItWorksThai: { type: "STRING" },
+                  keyPhrases: { type: "ARRAY", items: { type: "STRING" } }
+                },
+                required: ["text", "whyItWorksThai", "keyPhrases"]
+              },
+              tst: {
+                type: "OBJECT",
+                properties: {
+                  text: { type: "STRING" },
+                  whyItWorksThai: { type: "STRING" },
+                  keyPhrases: { type: "ARRAY", items: { type: "STRING" } }
+                },
+                required: ["text", "whyItWorksThai", "keyPhrases"]
+              }
+            },
+            required: ["academic", "everyday", "tst"]
+          },
+          corrections: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                original: { type: "STRING" },
+                corrected: { type: "STRING" },
+                category: { type: "STRING" },
+                explanationThai: { type: "STRING" }
+              },
+              required: ["original", "corrected", "category", "explanationThai"]
+            }
+          },
+          critique: {
+            type: "OBJECT",
+            properties: {
+              overallScore: { type: "INTEGER" },
+              cefrEstimate: { type: "STRING" },
+              scores: {
+                type: "OBJECT",
+                properties: {
+                  clarity: { type: "INTEGER" },
+                  grammar: { type: "INTEGER" },
+                  vocabulary: { type: "INTEGER" },
+                  tone: { type: "INTEGER" }
+                },
+                required: ["clarity", "grammar", "vocabulary", "tone"]
+              },
+              editorVerdictThai: { type: "STRING" },
+              strengthsThai: { type: "ARRAY", items: { type: "STRING" } },
+              weaknessesThai: { type: "ARRAY", items: { type: "STRING" } },
+              styleComparisonNoteThai: { type: "STRING" }
+            },
+            required: ["overallScore", "cefrEstimate", "scores", "editorVerdictThai", "strengthsThai", "weaknessesThai", "styleComparisonNoteThai"]
+          },
+          coachingLessons: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                titleThai: { type: "STRING" },
+                explanationThai: { type: "STRING" },
+                beforeExample: { type: "STRING" },
+                afterExample: { type: "STRING" }
+              },
+              required: ["titleThai", "explanationThai", "beforeExample", "afterExample"]
+            }
+          },
+          vocabUpgrades: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                original: { type: "STRING" },
+                everyday: { type: "STRING" },
+                academic: { type: "STRING" },
+                tst: { type: "STRING" },
+                nuanceThai: { type: "STRING" }
+              },
+              required: ["original", "everyday", "academic", "tst", "nuanceThai"]
+            }
+          }
+        },
+        required: ["standardProofread", "styles", "corrections", "critique", "coachingLessons", "vocabUpgrades"]
+      };
+
+      // The key travels in the x-goog-api-key header (not in the URL), so it never shows up in
+      // browser history, proxy logs or Referer headers.
+      const apiUrl = `${GEMINI_API_BASE}/models/${encodeURIComponent(modelName)}:generateContent`;
+      const payload = {
+        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: responseSchema,
+          temperature: 0.4
+        }
+      };
+
       try {
-        const parsedData = await callBackendAnalysis(userText, writingGoal);
+        const result = await fetchWithBackoff(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey
+          },
+          body: JSON.stringify(payload),
+          cache: 'no-store'
+        });
+
+        const parsedData = parseAnalysisJson(extractResponseText(result));
+        parsedData.originalText = userText;
 
         loadingBar.style.width = '100%';
         activeCategoryFilter = 'ALL';
         renderFullAnalysis(parsedData);
-        showToast("วิเคราะห์และเกลาภาษาครบทั้ง 3 สำนวนเรียบร้อยแล้ว");
+        showToast("วิเคราะห์และเกลาภาษาครบทั้ง 3 สำนวนเรียบร้อยแล้ว!");
       } catch (error) {
         console.error("Editorial Analysis Error:", error);
-        showError(
-          "ไม่สามารถประมวลผลข้อความได้ในขณะนี้",
-          error.message || "เกิดข้อผิดพลาดในการเชื่อมต่อกับ Google Apps Script กรุณาลองใหม่อีกครั้ง"
-        );
+        const info = describeAnalysisError(error);
+        showError(info.title, info.message, { showKeyAction: info.keyProblem });
+        if (info.keyProblem) {
+          // Let the user fix the key (or model) right away; the analysis re-runs after saving
+          openApiKeyModal({ message: info.message, pendingAnalysis: true, openAdvanced: !!info.openAdvanced });
+        }
       } finally {
+        isAnalyzing = false;
         clearTimeout(stepTimer1);
         clearTimeout(stepTimer2);
         analyzeBtn.disabled = false;
@@ -1471,16 +2626,29 @@
     }
 
     // ==========================================
-    // INITIALIZE ON WINDOW LOAD (EMPTY STATE)
+    // INITIALIZE ON WINDOW LOAD
     // ==========================================
     window.onload = function () {
       const textarea = document.getElementById('userInput');
-      textarea.value = '';
+      textarea.value = SAMPLE_TEXTS.environment.text;
       textarea.addEventListener('input', updateTextCounters);
       updateTextCounters();
 
+      // Render pre-loaded demonstration analysis immediately so the page is rich and interactive at startup
+      renderFullAnalysis(INITIAL_DEMO_ANALYSIS);
+
+      // API key popup wiring
+      document.getElementById('apiKeyForm').addEventListener('submit', handleApiKeySubmit);
+      document.addEventListener('keydown', handleModalKeydown);
+      refreshApiKeyStatus();
+
       if (window.lucide) {
         lucide.createIcons();
+      }
+
+      // First visit (or key not saved): ask for the user's own Gemini API key
+      if (!getApiKey()) {
+        openApiKeyModal();
       }
     };
   </script>
