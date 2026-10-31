@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LexiCraft Editorial — English Style Editor, Proofreader & Writing Coach</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Newsreader (Editorial Serif), Inter (UI Sans), IBM Plex Sans Thai & Sarabun (Thai Legibility) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            sans: ['Inter', 'IBM Plex Sans Thai', 'sans-serif'],
+            thai: ['IBM Plex Sans Thai', 'Sarabun', 'sans-serif'],
+            bodyThai: ['Sarabun', 'IBM Plex Sans Thai', 'sans-serif'],
+          },
+          colors: {
+            paper: {
+              50: '#FAF8F5',
+              100: '#F3EFE6',
+              200: '#E6DFD1',
+              800: '#292524',
+              900: '#1C1917',
+            },
+            editorial: {
+              ink: '#121212',
+              crimson: '#991B1B',
+              academic: '#1E3A8A',
+              everyday: '#0F766E',
+              nyt: '#18181B',
+              gold: '#B45309'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #FAF8F5;
+      color: #18181B;
+      font-family: 'Inter', 'IBM Plex Sans Thai', sans-serif;
+    }
+
+    /* Editorial Double Border Rule inspired by NYT */
+    .nyt-double-rule {
+      border-top: 3px double #18181B;
+    }
+    .nyt-thin-rule {
+      border-top: 1px solid #D6D0C4;
+    }
+
+    /* Track Changes Styling */
+    del.diff-del {
+      background-color: #FEE2E2;
+      color: #991B1B;
+      text-decoration: line-through;
+      text-decoration-color: #DC2626;
+      padding: 1px 4px;
+      border-radius: 4px;
+      margin: 0 1px;
+      font-weight: 500;
+    }
+    ins.diff-ins {
+      background-color: #DCFCE7;
+      color: #166534;
+      text-decoration: none;
+      border-bottom: 2px solid #22C55E;
+      padding: 1px 4px;
+      border-radius: 4px;
+      margin: 0 1px;
+      font-weight: 600;
+    }
+
+    /* Highlighted sentence when hovering/clicking a proofread card */
+    .proof-highlight-active {
+      background-color: #FEF08A;
+      outline: 2px solid #EAB308;
+      border-radius: 4px;
+      padding: 1px 3px;
+      transition: all 0.2s ease;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F3EFE6;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #C7BEB0;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A69C8E;
+    }
+
+    @keyframes pulseSubtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+    .animate-pulse-subtle {
+      animation: pulseSubtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-amber-200 selection:text-stone-900">
+
+  <!-- Top Editorial Masthead -->
+  <header class="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-stone-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Top Mini Bar -->
+      <div class="hidden sm:flex items-center justify-between py-1.5 text-xs text-stone-500 border-b border-stone-200/80 font-sans">
+        <div class="flex items-center gap-3">
+          <span class="font-semibold text-stone-800 uppercase tracking-wider">LexiCraft Editorial Studio</span>
+          <span>•</span>
+          <span class="font-thai">ระบบเกลาภาษาอังกฤษ ตรวจไวยากรณ์ และโค้ชสอนเขียนเชิงลึก</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="inline-flex items-center gap-1.5 text-emerald-700 font-medium">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            Gemini AI Editorial Engine
+          </span>
+        </div>
+      </div>
+
+      <!-- Main Header Bar -->
+      <div class="py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-stone-900 text-amber-50 flex items-center justify-center shadow-sm shrink-0">
+            <i data-lucide="feather" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 leading-none">
+              The Style &amp; Proofreading Desk
+            </h1>
+            <p class="text-xs sm:text-sm text-stone-600 font-thai mt-1">
+              ปรับแต่งประโยคและย่อหน้าเป็น <span class="font-semibold text-blue-900">Academic</span> • <span class="font-semibold text-teal-800">Everyday</span> • <span class="font-semibold text-stone-900">New York Times</span> พร้อมตรวจ Proofread และวิพากย์สอนเขียน
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Navigation Pills -->
+        <nav class="flex items-center gap-1.5 self-stretch md:self-auto overflow-x-auto pb-1 md:pb-0">
+          <a href="#section-styles" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-200/70 hover:bg-stone-300/70 text-stone-800 transition whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-700"></i>
+            3 Standard Styles
+          </a>
+          <a href="#section-proofread" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-200/70 hover:bg-stone-300/70 text-stone-800 transition whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="file-check-2" class="w-3.5 h-3.5 text-red-700"></i>
+            Proofread &amp; Markup
+          </a>
+          <a href="#section-coach" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-200/70 hover:bg-stone-300/70 text-stone-800 transition whitespace-nowrap flex items-center gap-1.5">
+            <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-emerald-700"></i>
+            Critique &amp; Writing Coach
+          </a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+
+    <!-- ==========================================
+         SECTION 1: INPUT STUDIO & SAMPLE SELECTOR
+         ========================================== -->
+    <section class="bg-white rounded-2xl border border-stone-200/90 shadow-sm overflow-hidden">
+      <!-- Top Bar of Input Card -->
+      <div class="bg-stone-100/80 px-5 py-3.5 border-b border-stone-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-stone-900 text-white text-xs font-bold">1</span>
+          <h2 class="font-thai font-semibold text-stone-800 text-sm sm:text-base">
+            ต้นฉบับภาษาอังกฤษของคุณ (Original Draft)
+          </h2>
+        </div>
+
+        <!-- Sample Text Preset Buttons -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="text-xs text-stone-500 font-thai mr-1">ตัวอย่างข้อความทดสอบ:</span>
+          <button type="button" onclick="loadSample('environment')" class="sample-btn text-xs px-2.5 py-1.5 rounded-lg bg-white border border-stone-300 hover:border-stone-500 hover:bg-stone-50 text-stone-700 font-medium transition flex items-center gap-1 shadow-2xs">
+            <i data-lucide="leaf" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>Environmental Report</span>
+          </button>
+          <button type="button" onclick="loadSample('email')" class="sample-btn text-xs px-2.5 py-1.5 rounded-lg bg-white border border-stone-300 hover:border-stone-500 hover:bg-stone-50 text-stone-700 font-medium transition flex items-center gap-1 shadow-2xs">
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-600"></i>
+            <span>Daily Work Email</span>
+          </button>
+          <button type="button" onclick="loadSample('news')" class="sample-btn text-xs px-2.5 py-1.5 rounded-lg bg-white border border-stone-300 hover:border-stone-500 hover:bg-stone-50 text-stone-700 font-medium transition flex items-center gap-1 shadow-2xs">
+            <i data-lucide="newspaper" class="w-3.5 h-3.5 text-amber-700"></i>
+            <span>AI &amp; Society Pitch</span>
+          </button>
+          <button type="button" onclick="loadSample('research')" class="sample-btn text-xs px-2.5 py-1.5 rounded-lg bg-white border border-stone-300 hover:border-stone-500 hover:bg-stone-50 text-stone-700 font-medium transition flex items-center gap-1 shadow-2xs">
+            <i data-lucide="microscope" class="w-3.5 h-3.5 text-purple-600"></i>
+            <span>Research Draft</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Textarea & Controls -->
+      <div class="p-5 sm:p-6">
+        <div class="relative">
+          <textarea
+            id="userInput"
+            rows="5"
+            placeholder="Paste or type your English sentence or paragraph here... (วางประโยคหรือย่อหน้าภาษาอังกฤษที่ต้องการเกลาและตรวจทานที่นี่)"
+            class="w-full rounded-xl border border-stone-300 bg-[#FCFBF9] p-4 text-base sm:text-lg text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-800 focus:border-transparent transition leading-relaxed font-sans resize-y"
+          ></textarea>
+          <button
+            type="button"
+            onclick="clearInput()"
+            title="ล้างข้อความ"
+            class="absolute top-3 right-3 p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Bottom Action Row -->
+        <div class="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <!-- Counters & Context Selector -->
+          <div class="flex flex-wrap items-center gap-3 text-xs text-stone-600">
+            <div class="flex items-center gap-3 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-200">
+              <span><strong id="wordCount" class="text-stone-900">0</strong> words</span>
+              <span class="text-stone-300">|</span>
+              <span><strong id="charCount" class="text-stone-900">0</strong> chars</span>
+              <span class="text-stone-300">|</span>
+              <span><strong id="sentenceCount" class="text-stone-900">0</strong> sentences</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="writingGoal" class="font-thai text-stone-600 font-medium">บริบทเสริม:</label>
+              <select id="writingGoal" class="rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-xs text-stone-800 font-thai focus:outline-none focus:ring-2 focus:ring-stone-800">
+                <option value="General improvement across all styles">ทั่วไป (วิเคราะห์รอบด้าน)</option>
+                <option value="Academic journal, thesis, or university essay">บทความวิชาการ / วิทยานิพนธ์ (Academic Focus)</option>
+                <option value="Professional workplace email or daily communication">อีเมลทำงาน / สื่อสารในชีวิตประจำวัน (Everyday Focus)</option>
+                <option value="Journalistic article, op-ed, or cultural commentary">บทความข่าว / คอลัมน์วิเคราะห์ (NYT Editorial Focus)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Primary Submit CTA -->
+          <div class="flex items-center gap-2.5">
+            <button
+              id="analyzeBtn"
+              type="button"
+              onclick="runEditorialAnalysis()"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-stone-900 hover:bg-stone-800 active:scale-[0.99] text-amber-50 font-thai font-semibold text-sm sm:text-base shadow-md hover:shadow-lg transition cursor-pointer"
+            >
+              <i data-lucide="wand-sparkles" class="w-4 h-4 text-amber-400"></i>
+              <span>วิเคราะห์ เกลาสำนวน และตรวจ Proofread</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Inline Error Message Box (Hidden by default) -->
+        <div id="errorBox" class="hidden mt-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm flex items-start gap-3">
+          <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+          <div class="flex-1 font-thai">
+            <p id="errorTitle" class="font-semibold">เกิดข้อผิดพลาดในการเชื่อมต่อ</p>
+            <p id="errorMessage" class="text-xs text-red-700 mt-0.5"></p>
+          </div>
+          <button type="button" onclick="hideError()" class="text-red-500 hover:text-red-800">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         LOADING SKELETON OVERLAY / STATE
+         ========================================== -->
+    <section id="loadingSection" class="hidden bg-white rounded-2xl border border-stone-200 p-8 shadow-sm">
+      <div class="max-w-xl mx-auto text-center space-y-4">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-stone-900 text-amber-300 shadow-md animate-bounce">
+          <i data-lucide="pen-tool" class="w-7 h-7"></i>
+        </div>
+        <h3 class="font-serif text-2xl font-bold text-stone-900">
+          The Editorial Board is Reviewing Your Draft...
+        </h3>
+        <p id="loadingStepText" class="text-sm text-stone-600 font-thai">
+          กำลังตรวจไวยากรณ์ (Proofreading) และเรียบเรียงเป็น 3 สำนวนมาตรฐาน (Academic, Everyday, New York Times)...
+        </p>
+        <!-- Progress Bar -->
+        <div class="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+          <div id="loadingBar" class="bg-stone-900 h-full w-1/3 rounded-full transition-all duration-500"></div>
+        </div>
+        <!-- Skeleton Preview Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-left">
+          <div class="p-4 rounded-xl border border-stone-200 bg-stone-50 animate-pulse-subtle space-y-2">
+            <div class="h-3 w-24 bg-blue-200 rounded"></div>
+            <div class="h-2.5 w-full bg-stone-200 rounded"></div>
+            <div class="h-2.5 w-5/6 bg-stone-200 rounded"></div>
+          </div>
+          <div class="p-4 rounded-xl border border-stone-200 bg-stone-50 animate-pulse-subtle space-y-2">
+            <div class="h-3 w-24 bg-teal-200 rounded"></div>
+            <div class="h-2.5 w-full bg-stone-200 rounded"></div>
+            <div class="h-2.5 w-4/6 bg-stone-200 rounded"></div>
+          </div>
+          <div class="p-4 rounded-xl border border-stone-200 bg-stone-50 animate-pulse-subtle space-y-2">
+            <div class="h-3 w-24 bg-stone-300 rounded"></div>
+            <div class="h-2.5 w-full bg-stone-200 rounded"></div>
+            <div class="h-2.5 w-5/6 bg-stone-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         RESULTS WORKSPACE
+         ========================================== -->
+    <div id="resultsWorkspace" class="space-y-10">
+
+      <!-- ==========================================
+           SECTION 2: THREE STANDARD STYLES (REWRITES)
+           ========================================== -->
+      <section id="section-styles" class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 nyt-double-rule pt-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-stone-900 text-white text-xs font-bold">2</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-amber-800">Multi-Style Transformation</span>
+            </div>
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900 mt-1">
+              Three Standard English Styles
+            </h2>
+            <p class="text-sm text-stone-600 font-thai">
+              เปรียบเทียบการเรียบเรียงประโยคของคุณใน 3 มาตรฐานระดับสากล พร้อมสลับดูจุดที่ปรับแก้ (Track Changes) รายสำนวน
+            </p>
+          </div>
+
+          <!-- Global View Mode Toggle for the 3 Style Cards -->
+          <div class="flex items-center gap-1.5 bg-stone-200/80 p-1 rounded-xl self-start sm:self-auto">
+            <button
+              type="button"
+              id="styleViewCleanBtn"
+              onclick="setStyleCardMode('clean')"
+              class="px-3 py-1.5 rounded-lg text-xs font-thai font-semibold bg-white text-stone-900 shadow-2xs transition cursor-pointer"
+            >
+              ข้อความฉบับสมบูรณ์ (Clean)
+            </button>
+            <button
+              type="button"
+              id="styleViewDiffBtn"
+              onclick="setStyleCardMode('diff')"
+              class="px-3 py-1.5 rounded-lg text-xs font-thai font-medium text-stone-600 hover:text-stone-900 transition cursor-pointer"
+            >
+              เทียบการแก้ไข (Red/Green Diff)
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Column Style Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- STYLE 1: ACADEMIC ENGLISH -->
+          <article class="bg-white rounded-2xl border border-stone-200/90 shadow-sm flex flex-col overflow-hidden hover:border-blue-900/40 transition">
+            <div class="bg-gradient-to-r from-blue-950 to-slate-900 text-white px-5 py-4 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-blue-200">
+                  <i data-lucide="book-open-check" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="font-serif font-bold text-lg leading-tight">Academic English</h3>
+                  <p class="text-[11px] text-blue-200 font-thai">สำนวนวิชาการ • งานวิจัย • วิทยานิพนธ์</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-blue-900/80 text-blue-100 border border-blue-700">Scholarly</span>
+            </div>
+
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div class="space-y-4">
+                <!-- Rewritten Text Box -->
+                <div class="p-4 rounded-xl bg-slate-50/80 border border-slate-200/90 min-h-[145px]">
+                  <p id="academicTextDisplay" class="font-serif text-base sm:text-[17px] leading-relaxed text-stone-900"></p>
+                </div>
+
+                <!-- Action Bar: Copy + Speak -->
+                <div class="flex items-center justify-between gap-2 pt-1">
+                  <button
+                    type="button"
+                    onclick="speakText('academic')"
+                    class="inline-flex items-center gap-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 px-2.5 py-1.5 rounded-lg hover:bg-stone-100 transition cursor-pointer"
+                  >
+                    <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                    <span>Listen</span>
+                  </button>
+                  <button
+                    type="button"
+                    onclick="copyStyleText('academic', this)"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg transition cursor-pointer"
+                  >
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Copy Academic</span>
+                  </button>
+                </div>
+
+                <!-- Why it works / Style Breakdown -->
+                <div class="border-t border-stone-200 pt-3 space-y-2.5">
+                  <div class="text-xs font-thai font-semibold text-blue-950 flex items-center gap-1.5">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-blue-700"></i>
+                    <span>จุดเด่นและการปรับโครงสร้าง (Key Features):</span>
+                  </div>
+                  <p id="academicWhy" class="text-xs sm:text-sm text-stone-700 font-bodyThai leading-relaxed"></p>
+                  <div id="academicHighlights" class="flex flex-wrap gap-1.5 pt-1"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- STYLE 2: EVERYDAY ENGLISH -->
+          <article class="bg-white rounded-2xl border border-stone-200/90 shadow-sm flex flex-col overflow-hidden hover:border-teal-800/40 transition">
+            <div class="bg-gradient-to-r from-teal-900 to-emerald-900 text-white px-5 py-4 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-teal-200">
+                  <i data-lucide="message-circle-heart" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="font-serif font-bold text-lg leading-tight">Everyday English</h3>
+                  <p class="text-[11px] text-teal-100 font-thai">สำนวนธรรมชาติ • สื่อสารทั่วไป • อีเมลทำงาน</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-teal-800/80 text-teal-100 border border-teal-600">Natural &amp; Clear</span>
+            </div>
+
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div class="space-y-4">
+                <!-- Rewritten Text Box -->
+                <div class="p-4 rounded-xl bg-teal-50/30 border border-teal-200/70 min-h-[145px]">
+                  <p id="everydayTextDisplay" class="font-sans text-base sm:text-[16px] leading-relaxed text-stone-900"></p>
+                </div>
+
+                <!-- Action Bar: Copy + Speak -->
+                <div class="flex items-center justify-between gap-2 pt-1">
+                  <button
+                    type="button"
+                    onclick="speakText('everyday')"
+                    class="inline-flex items-center gap-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 px-2.5 py-1.5 rounded-lg hover:bg-stone-100 transition cursor-pointer"
+                  >
+                    <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                    <span>Listen</span>
+                  </button>
+                  <button
+                    type="button"
+                    onclick="copyStyleText('everyday', this)"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-1.5 rounded-lg transition cursor-pointer"
+                  >
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Copy Everyday</span>
+                  </button>
+                </div>
+
+                <!-- Why it works / Style Breakdown -->
+                <div class="border-t border-stone-200 pt-3 space-y-2.5">
+                  <div class="text-xs font-thai font-semibold text-teal-950 flex items-center gap-1.5">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-teal-700"></i>
+                    <span>จุดเด่นและการปรับโครงสร้าง (Key Features):</span>
+                  </div>
+                  <p id="everydayWhy" class="text-xs sm:text-sm text-stone-700 font-bodyThai leading-relaxed"></p>
+                  <div id="everydayHighlights" class="flex flex-wrap gap-1.5 pt-1"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- STYLE 3: NEW YORK TIMES STYLE -->
+          <article class="bg-white rounded-2xl border border-stone-200/90 shadow-sm flex flex-col overflow-hidden hover:border-stone-800/50 transition">
+            <div class="bg-gradient-to-r from-stone-900 via-neutral-900 to-stone-800 text-amber-50 px-5 py-4 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-300">
+                  <i data-lucide="newspaper" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="font-serif font-bold text-lg leading-tight">New York Times Style</h3>
+                  <p class="text-[11px] text-stone-300 font-thai">สำนวนวารสารศาสตร์ชั้นนำ • คมคาย • ทรงพลัง</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-200 border border-amber-400/30">Editorial</span>
+            </div>
+
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div class="space-y-4">
+                <!-- Rewritten Text Box -->
+                <div class="p-4 rounded-xl bg-[#FAF8F5] border border-stone-300/80 min-h-[145px]">
+                  <p id="nytTextDisplay" class="font-serif text-base sm:text-[17px] leading-relaxed text-stone-900"></p>
+                </div>
+
+                <!-- Action Bar: Copy + Speak -->
+                <div class="flex items-center justify-between gap-2 pt-1">
+                  <button
+                    type="button"
+                    onclick="speakText('nyt')"
+                    class="inline-flex items-center gap-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 px-2.5 py-1.5 rounded-lg hover:bg-stone-100 transition cursor-pointer"
+                  >
+                    <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                    <span>Listen</span>
+                  </button>
+                  <button
+                    type="button"
+                    onclick="copyStyleText('nyt', this)"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-900 bg-amber-100/80 hover:bg-amber-200/80 border border-amber-300 px-3 py-1.5 rounded-lg transition cursor-pointer"
+                  >
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Copy NYT Style</span>
+                  </button>
+                </div>
+
+                <!-- Why it works / Style Breakdown -->
+                <div class="border-t border-stone-200 pt-3 space-y-2.5">
+                  <div class="text-xs font-thai font-semibold text-stone-900 flex items-center gap-1.5">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-amber-700"></i>
+                    <span>จุดเด่นและการปรับโครงสร้าง (Key Features):</span>
+                  </div>
+                  <p id="nytWhy" class="text-xs sm:text-sm text-stone-700 font-bodyThai leading-relaxed"></p>
+                  <div id="nytHighlights" class="flex flex-wrap gap-1.5 pt-1"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SECTION 3: STANDARD PROOFREADING & TRACK CHANGES
+           ========================================== -->
+      <section id="section-proofread" class="space-y-5">
+        <div class="nyt-double-rule pt-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-800 text-white text-xs font-bold">3</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-red-800">Standard Proofreading &amp; Redline Markup</span>
+            </div>
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900 mt-1">
+              Proofread &amp; Track Changes
+            </h2>
+            <p class="text-sm text-stone-600 font-thai">
+              แสดงการตรวจแก้ไวยากรณ์ คำศัพท์ และโครงสร้างประโยคตามมาตรฐานบรรณาธิการ (<span class="text-red-700 line-through font-medium">สีแดงขีดฆ่า = ส่วนที่ตัดออก/ผิด</span> • <span class="text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-semibold">สีเขียว = ส่วนที่แก้ไข/เพิ่มเติม</span>)
+            </p>
+          </div>
+
+          <!-- Compare Target Selector for Track Changes -->
+          <div class="flex items-center gap-2 self-start sm:self-auto">
+            <label for="diffTargetSelect" class="text-xs font-thai font-medium text-stone-600">เทียบต้นฉบับกับ:</label>
+            <select
+              id="diffTargetSelect"
+              onchange="renderTrackChangesView()"
+              class="rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-stone-800"
+            >
+              <option value="proofread">Standard Proofread (แก้เฉพาะจุดผิด คงน้ำเสียงเดิม)</option>
+              <option value="academic">Academic English Version</option>
+              <option value="everyday">Everyday English Version</option>
+              <option value="nyt">New York Times Version</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Track Changes Main Box + Side-by-Side Clean Corrected Box -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          <!-- Left 7 Cols: Visual Redline Diff & Clean Baseline -->
+          <div class="lg:col-span-7 bg-white rounded-2xl border border-stone-200/90 shadow-sm p-5 sm:p-6 flex flex-col justify-between space-y-5">
+            <div class="space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 -ml-1"></span>
+                  <h3 class="font-thai font-bold text-stone-900 text-sm sm:text-base">
+                    Track Changes Markup (เปรียบเทียบคำต่อคำ)
+                  </h3>
+                </div>
+                <div class="flex items-center gap-3 text-xs">
+                  <span class="inline-flex items-center gap-1"><del class="diff-del">Removed</del></span>
+                  <span class="inline-flex items-center gap-1"><ins class="diff-ins">Inserted</ins></span>
+                </div>
+              </div>
+
+              <!-- Interactive Redline Diff Container -->
+              <div
+                id="trackChangesContainer"
+                class="p-4 sm:p-5 rounded-xl bg-[#FCFBF9] border border-stone-200/90 font-serif text-base sm:text-lg leading-loose text-stone-900"
+              ></div>
+
+              <!-- Clean Corrected Version below -->
+              <div class="pt-2 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span id="cleanTargetLabel" class="text-xs font-bold uppercase tracking-wider text-stone-500">
+                    Clean Proofread Version (ฉบับแก้ไขสมบูรณ์)
+                  </span>
+                  <button
+                    type="button"
+                    onclick="copyCurrentProofread(this)"
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg transition cursor-pointer"
+                  >
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Copy Clean Text</span>
+                  </button>
+                </div>
+                <div
+                  id="cleanProofreadContainer"
+                  class="p-4 rounded-xl bg-emerald-50/40 border border-emerald-200/80 font-sans text-sm sm:text-base leading-relaxed text-stone-800"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Hint Footer -->
+            <div class="text-xs text-stone-500 font-thai flex items-center gap-2 bg-stone-100/80 px-3.5 py-2.5 rounded-xl">
+              <i data-lucide="mouse-pointer-click" class="w-4 h-4 text-amber-700 shrink-0"></i>
+              <span>คลิกที่รายการแก้ไขด้านขวา เพื่อไฮไลต์ตำแหน่งที่ถูกปรับแก้ในประโยค และอ่านคำอธิบายหลักไวยากรณ์</span>
+            </div>
+          </div>
+
+          <!-- Right 5 Cols: Categorized Proofreading Log -->
+          <div class="lg:col-span-5 bg-white rounded-2xl border border-stone-200/90 shadow-sm p-5 sm:p-6 flex flex-col">
+            <div class="flex items-center justify-between border-b border-stone-200 pb-3 mb-3">
+              <div>
+                <h3 class="font-thai font-bold text-stone-900 text-sm sm:text-base">
+                  รายการแก้ไขตามมาตรฐาน (Proofreading Log)
+                </h3>
+                <p class="text-xs text-stone-500 font-thai">แยกตามประเภทข้อผิดพลาดพร้อมเหตุผลอธิบาย</p>
+              </div>
+              <span id="correctionCountBadge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-stone-900 text-white">0 จุด</span>
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div id="proofCategoryFilters" class="flex flex-wrap gap-1.5 mb-4">
+              <button type="button" onclick="filterCorrections('ALL')" data-cat="ALL" class="proof-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-stone-900 text-white transition cursor-pointer">
+                ทั้งหมด (All)
+              </button>
+              <button type="button" onclick="filterCorrections('Grammar')" data-cat="Grammar" class="proof-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-red-50 text-red-800 border border-red-200 hover:bg-red-100 transition cursor-pointer">
+                [Grammar]
+              </button>
+              <button type="button" onclick="filterCorrections('Word Choice')" data-cat="Word Choice" class="proof-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 transition cursor-pointer">
+                [Word Choice]
+              </button>
+              <button type="button" onclick="filterCorrections('Clarity/Flow')" data-cat="Clarity/Flow" class="proof-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100 transition cursor-pointer">
+                [Clarity/Flow]
+              </button>
+              <button type="button" onclick="filterCorrections('Style/Tone')" data-cat="Style/Tone" class="proof-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition cursor-pointer">
+                [Style/Tone]
+              </button>
+              <button type="button" onclick="filterCorrections('Punctuation')" data-cat="Punctuation" class="proof-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer">
+                [Punctuation]
+              </button>
+            </div>
+
+            <!-- Scrollable Corrections List -->
+            <div id="correctionsList" class="space-y-3 max-h-[430px] overflow-y-auto pr-1 flex-1"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SECTION 4: CRITIQUE & WRITING COACH
+           ========================================== -->
+      <section id="section-coach" class="space-y-6">
+        <div class="nyt-double-rule pt-4">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-800 text-white text-xs font-bold">4</span>
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-800">Editorial Critique &amp; Writing Coach</span>
+          </div>
+          <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900 mt-1">
+            วิพากย์ข้อความเดิม &amp; บทเรียนสอนเขียนให้เก่งขึ้น
+          </h2>
+          <p class="text-sm text-stone-600 font-thai">
+            วิเคราะห์จุดแข็ง-จุดอ่อนของต้นฉบับอย่างตรงไปตรงมา พร้อมเทคนิคการยกระดับคลังคำศัพท์และโครงสร้างประโยค
+          </p>
+        </div>
+
+        <!-- Score & Diagnostic Overview + Strengths/Weaknesses -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          <!-- Left 4 Cols: Diagnostic Score Card -->
+          <div class="lg:col-span-4 bg-white rounded-2xl border border-stone-200/90 shadow-sm p-6 flex flex-col justify-between space-y-6">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Original Draft Assessment</span>
+                <span id="cefrBadge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                  CEFR: B1 → C1
+                </span>
+              </div>
+
+              <!-- Big Score Display -->
+              <div class="mt-4 flex items-baseline gap-3">
+                <span id="overallScoreValue" class="font-serif text-5xl sm:text-6xl font-bold text-stone-900">72</span>
+                <div class="text-xs text-stone-500 font-thai">
+                  <div class="font-bold text-stone-800 text-sm">/ 100 คะแนน</div>
+                  <div id="overallScoreLabel">ระดับกำลังพัฒนา (Developing Draft)</div>
+                </div>
+              </div>
+
+              <!-- 4 Sub-Score Bars -->
+              <div class="mt-6 space-y-4 font-thai">
+                <!-- Clarity -->
+                <div>
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-stone-700">Clarity &amp; Coherence (ความชัดเจน)</span>
+                    <span id="scoreClarityText" class="text-stone-900">75/100</span>
+                  </div>
+                  <div class="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
+                    <div id="scoreClarityBar" class="h-full bg-blue-700 rounded-full transition-all duration-700" style="width: 75%"></div>
+                  </div>
+                </div>
+
+                <!-- Grammar -->
+                <div>
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-stone-700">Grammar &amp; Syntax (ไวยากรณ์)</span>
+                    <span id="scoreGrammarText" class="text-stone-900">68/100</span>
+                  </div>
+                  <div class="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
+                    <div id="scoreGrammarBar" class="h-full bg-emerald-700 rounded-full transition-all duration-700" style="width: 68%"></div>
+                  </div>
+                </div>
+
+                <!-- Vocabulary -->
+                <div>
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-stone-700">Vocabulary Precision (ความแม่นยำของคำ)</span>
+                    <span id="scoreVocabText" class="text-stone-900">70/100</span>
+                  </div>
+                  <div class="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
+                    <div id="scoreVocabBar" class="h-full bg-amber-600 rounded-full transition-all duration-700" style="width: 70%"></div>
+                  </div>
+                </div>
+
+                <!-- Tone & Naturalness -->
+                <div>
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span class="text-stone-700">Naturalness &amp; Tone (ความเป็นธรรมชาติ)</span>
+                    <span id="scoreToneText" class="text-stone-900">74/100</span>
+                  </div>
+                  <div class="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
+                    <div id="scoreToneBar" class="h-full bg-purple-700 rounded-full transition-all duration-700" style="width: 74%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Executive Summary Box -->
+            <div class="p-4 rounded-xl bg-stone-100/90 border border-stone-200/80">
+              <div class="text-xs font-thai font-bold text-stone-800 mb-1 flex items-center gap-1.5">
+                <i data-lucide="award" class="w-4 h-4 text-amber-700"></i>
+                <span>ภาพรวมจากบรรณาธิการ (Editor's Verdict)</span>
+              </div>
+              <p id="editorVerdict" class="text-xs sm:text-sm text-stone-700 font-bodyThai leading-relaxed"></p>
+            </div>
+          </div>
+
+          <!-- Right 8 Cols: Detailed Critique (Strengths & Weaknesses) -->
+          <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Strengths Card -->
+            <div class="bg-white rounded-2xl border border-stone-200/90 shadow-sm p-6 flex flex-col">
+              <div class="flex items-center gap-2.5 pb-3 border-b border-stone-200">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                  <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="font-thai font-bold text-stone-900 text-base">จุดแข็งของข้อความเดิม (Strengths)</h3>
+                  <p class="text-xs text-stone-500 font-thai">สิ่งที่คุณสื่อสารได้ดีอยู่แล้วในงานเขียนชิ้นนี้</p>
+                </div>
+              </div>
+              <ul id="strengthsList" class="mt-4 space-y-3 flex-1 font-bodyThai text-sm text-stone-700"></ul>
+            </div>
+
+            <!-- Weaknesses / Areas for Improvement Card -->
+            <div class="bg-white rounded-2xl border border-stone-200/90 shadow-sm p-6 flex flex-col">
+              <div class="flex items-center gap-2.5 pb-3 border-b border-stone-200">
+                <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-800 flex items-center justify-center shrink-0">
+                  <i data-lucide="search-check" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="font-thai font-bold text-stone-900 text-base">จุดที่ควรปรับปรุง (Critique &amp; Blind Spots)</h3>
+                  <p class="text-xs text-stone-500 font-thai">ข้อบกพร่องที่ทำให้ประโยคยังไม่เป็นธรรมชาติหรือลดความน่าเชื่อถือ</p>
+                </div>
+              </div>
+              <ul id="weaknessesList" class="mt-4 space-y-3 flex-1 font-bodyThai text-sm text-stone-700"></ul>
+            </div>
+
+            <!-- Style Comparison Lesson Spanning Both Columns -->
+            <div class="md:col-span-2 bg-gradient-to-br from-stone-900 to-stone-800 text-amber-50 rounded-2xl p-6 shadow-sm">
+              <div class="flex items-center gap-2.5 mb-2">
+                <i data-lucide="compass" class="w-5 h-5 text-amber-400"></i>
+                <h3 class="font-thai font-bold text-base sm:text-lg text-white">
+                  วิเคราะห์ความต่างของ 3 สำนวนจากประโยคของคุณ (Style Nuance Analysis)
+                </h3>
+              </div>
+              <p id="styleComparisonNote" class="font-bodyThai text-sm sm:text-base text-stone-200 leading-relaxed"></p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Actionable Writing Coach Lessons + Vocabulary Upgrade Table -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          <!-- Left 6 Cols: Step-by-Step Writing Coach Lessons -->
+          <div class="lg:col-span-6 bg-white rounded-2xl border border-stone-200/90 shadow-sm p-6">
+            <div class="flex items-center gap-2.5 pb-3 border-b border-stone-200 mb-4">
+              <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
+                <i data-lucide="lightbulb" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="font-thai font-bold text-stone-900 text-base">
+                  บทเรียนสอนเขียนเฉพาะบุคคล (Personalized Writing Lessons)
+                </h3>
+                <p class="text-xs text-stone-500 font-thai">เทคนิคที่คุณนำไปใช้ได้ทันทีในการเขียนครั้งต่อไป</p>
+              </div>
+            </div>
+
+            <div id="coachingLessonsList" class="space-y-4"></div>
+          </div>
+
+          <!-- Right 6 Cols: Vocabulary & Expression Upgrade Matrix -->
+          <div class="lg:col-span-6 bg-white rounded-2xl border border-stone-200/90 shadow-sm p-6 flex flex-col">
+            <div class="flex items-center gap-2.5 pb-3 border-b border-stone-200 mb-4">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-900 flex items-center justify-center shrink-0">
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="font-thai font-bold text-stone-900 text-base">
+                  ตารางอัปเกรดคำศัพท์และสำนวน (Vocabulary Upgrade Matrix)
+                </h3>
+                <p class="text-xs text-stone-500 font-thai">เปรียบเทียบการเลือกใช้คำในแต่ละระดับภาษา</p>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto flex-1">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-sans">
+                    <th class="py-2.5 px-3 bg-stone-50 rounded-tl-lg">คำเดิม (Original)</th>
+                    <th class="py-2.5 px-3 bg-teal-50/60 text-teal-900">Everyday</th>
+                    <th class="py-2.5 px-3 bg-blue-50/60 text-blue-950">Academic</th>
+                    <th class="py-2.5 px-3 bg-stone-100 text-stone-900 rounded-tr-lg">NYT Style</th>
+                  </tr>
+                </thead>
+                <tbody id="vocabUpgradeTableBody" class="divide-y divide-stone-200 text-xs sm:text-sm"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div
+    id="toastNotification"
+    class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-stone-900 text-amber-50 px-4 py-3 rounded-xl shadow-xl border border-stone-700 flex items-center gap-2.5 text-xs sm:text-sm font-thai"
+  >
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+    <span id="toastText">คัดลอกข้อความเรียบร้อยแล้ว</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-12 border-t border-stone-300 bg-[#F3EFE6]/70 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-600 font-thai">
+      <div class="flex items-center gap-2">
+        <span class="font-serif font-bold text-stone-900 text-sm">LexiCraft Editorial</span>
+        <span>—</span>
+        <span>ออกแบบเพื่อพัฒนาทักษะการเขียนภาษาอังกฤษระดับสากล (Academic • Everyday • NYT)</span>
+      </div>
+      <div class="text-stone-500">
+        Powered by Gemini API • Standard Proofreading &amp; Linguistic Coaching
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================
+       APPLICATION LOGIC & GEMINI API INTEGRATION
+       ========================================== -->
+  <script>
+    // Required Gemini API configuration
+    const apiKey = "";
+    const MODEL_NAME = "gemini-3-flash-preview";
+
+    // Application State
+    let currentStyleCardMode = 'clean'; // 'clean' | 'diff'
+    let activeCategoryFilter = 'ALL';
+    let currentAnalysisData = null;
+
+    // Sample Texts with Pre-built Instant Analysis for the Default Sample + One-Click Testing
+    const SAMPLE_TEXTS = {
+      environment: {
+        goal: "General improvement across all styles",
+        text: "Nowaday climate change is very big problem for many country in the world. Many company still make a lot of pollution and carbon into the air because they care more about money than nature. If government not make strict law soon, the earth temperature will going up more fast and make bad effect to people life in future."
+      },
+      email: {
+        goal: "Professional workplace email or daily communication",
+        text: "Dear Mr. John, I write this email for tell you that our team cannot send the marketing report today because we have some problem with the sale data from last month. We are trying to fix it right now. Can we send to you tomorrow afternoon instead? Sorry for make you inconvenient."
+      },
+      news: {
+        goal: "Journalistic article, op-ed, or cultural commentary",
+        text: "Artificial intelligence is changing how people work in office everywhere very quickly. Many worker are afraid that AI will take their job soon, while big tech boss say it will help human work better and faster. Actually, the truth is more complicate than what both side think."
+      },
+      research: {
+        goal: "Academic journal, thesis, or university essay",
+        text: "This research want to study how sleeping less than six hour affect university student grade and mental health. We collect data by asking 200 student at our university. The result show that student who sleep late every night have more stress and get lower score in exam."
+      }
+    };
+
+    // Pre-loaded Rich Analysis for the default "environment" sample so the user immediately sees a full demonstration
+    const INITIAL_DEMO_ANALYSIS = {
+      originalText: SAMPLE_TEXTS.environment.text,
+      standardProofread: "Nowadays, climate change is a major problem for many countries around the world. Many companies still release large amounts of pollution and carbon emissions into the atmosphere because they prioritize profits over nature. If governments do not enact strict laws soon, global temperatures will rise even faster and severely affect people's lives in the future.",
+      styles: {
+        academic: {
+          text: "Contemporary climate change poses a critical challenge to nations worldwide. Numerous corporations continue to generate substantial atmospheric pollutants and carbon emissions, largely prioritizing short-term economic gains over environmental sustainability. Absent the prompt implementation of stringent regulatory frameworks, global temperatures are projected to accelerate, resulting in profound adverse consequences for human populations.",
+          whyItWorksThai: "ใช้คำนามที่เป็นทางการและแม่นยำ (Nominalization) เช่น 'implementation of stringent regulatory frameworks' แทน 'make strict law' เปลี่ยนคำกริยาพื้นฐานเป็นคำศัพท์เชิงวิชาการ เช่น 'poses a critical challenge', 'prioritizing short-term economic gains' และใช้โครงสร้างเงื่อนไขระดับสูง 'Absent the prompt implementation...'",
+          keyPhrases: [
+            "poses a critical challenge",
+            "environmental sustainability",
+            "stringent regulatory frameworks",
+            "profound adverse consequences"
+          ]
+        },
+        everyday: {
+          text: "These days, climate change is a huge issue all over the world. A lot of companies are still pumping pollution and carbon into the air because they care more about profits than protecting the planet. Unless governments step in with stricter laws soon, global temperatures are going to rise even faster—and that will seriously impact our daily lives.",
+          whyItWorksThai: "ปรับให้ฟังดูเป็นธรรมชาติเหมือนเจ้าของภาษาพูดคุยหรือเขียนบล็อกทั่วไป เปลี่ยน 'Nowaday' เป็น 'These days' ใช้ Phrasal verbs ที่ลื่นไหลอย่าง 'pumping ... into the air' และ 'step in with stricter laws' พร้อมใช้คำเชื่อม 'Unless' แทน 'If ... not' เพื่อความกระชับ",
+          keyPhrases: [
+            "These days",
+            "pumping pollution into the air",
+            "step in with stricter laws",
+            "seriously impact our daily lives"
+          ]
+        },
+        nyt: {
+          text: "Across the globe, the climate crisis is deepening, driven in no small part by corporate inertia. Too many companies continue to treat the atmosphere as an open sewer, putting quarterly profits ahead of planetary survival. Without decisive government intervention, the world faces a rapid, unforgiving spike in temperatures that will reshape daily life for generations.",
+          whyItWorksThai: "เดินเรื่องด้วยจังหวะที่เฉียบคมแบบคอลัมน์วิเคราะห์ของ The New York Times ใช้คำกริยาและภาพพจน์ที่ทรงพลัง เช่น 'corporate inertia' (ความเฉื่อยชาของภาคธุรกิจ), 'putting quarterly profits ahead of planetary survival' และปิดท้ายด้วยจังหวะประโยคที่กระตุ้นให้ผู้อ่านขบคิด",
+          keyPhrases: [
+            "corporate inertia",
+            "putting quarterly profits ahead of",
+            "decisive government intervention",
+            "unforgiving spike in temperatures"
+          ]
+        }
+      },
+      corrections: [
+        {
+          original: "Nowaday",
+          corrected: "Nowadays,",
+          category: "Grammar",
+          explanationThai: "คำวิเศษณ์ที่ถูกต้องคือ 'Nowadays' (ต้องมี -s เสมอ) และควรใส่เครื่องหมายจุลภาค (comma) คั่นเมื่อวางไว้ต้นประโยค"
+        },
+        {
+          original: "very big problem for many country",
+          corrected: "a major problem for many countries",
+          category: "Grammar",
+          explanationThai: "'problem' เป็นคำนามนับได้เอกพจน์ต้องมี Article 'a' นำหน้า และหลังคำว่า 'many' คำนามต้องเป็นพหูพจน์เสมอ ('countries') นอกจากนี้ 'major' ดูเป็นมาตรฐานกว่า 'very big'"
+        },
+        {
+          original: "Many company still make a lot of pollution and carbon",
+          corrected: "Many companies still release large amounts of pollution and carbon emissions",
+          category: "Word Choice",
+          explanationThai: "หลัง 'Many' ต้องใช้พหูพจน์ ('companies') และในภาษาอังกฤษเราไม่ใช้ 'make pollution' แต่จะใช้ Collocation เช่น 'release/generate pollution' และ 'carbon emissions'"
+        },
+        {
+          original: "If government not make strict law",
+          corrected: "If governments do not enact strict laws",
+          category: "Grammar",
+          explanationThai: "ประโยคปฏิเสธใน Present Simple ต้องใช้กริยาช่วย 'do not / does not' (จะใช้ 'not make' ลอยๆ ไม่ได้) และคำกริยาที่ใช้คู่กับกฎหมาย (laws) ตามมาตรฐานคือ 'enact' หรือ 'pass'"
+        },
+        {
+          original: "will going up more fast",
+          corrected: "will rise even faster",
+          category: "Grammar",
+          explanationThai: "หลัง Modal verb 'will' ต้องตามด้วยกริยาช่องที่ 1 ไม่เติม -ing ('will rise' ไม่ใช่ 'will going up') และขั้นกว่าของ 'fast' คือ 'faster' ไม่ใช่ 'more fast'"
+        },
+        {
+          original: "make bad effect to people life",
+          corrected: "severely affect people's lives",
+          category: "Clarity/Flow",
+          explanationThai: "สำนวน 'make bad effect to' เป็นการแปลตรงตัวจากภาษาไทย (ส่งผลเสียต่อ) ควรเปลี่ยนเป็นกริยา 'severely affect' หรือ 'have a devastating impact on' และใช้รูปแสดงความเป็นเจ้าของพหูพจน์ 'people's lives'"
+        }
+      ],
+      critique: {
+        overallScore: 62,
+        cefrEstimate: "B1 → C1",
+        scores: {
+          clarity: 78,
+          grammar: 52,
+          vocabulary: 58,
+          tone: 60
+        },
+        editorVerdictThai: "โครงสร้างความคิดและลำดับเหตุ-ผล (ปัญหา -> สาเหตุ -> ผลกระทบ) ชัดเจนดีมาก แต่ยังมีข้อผิดพลาดพื้นฐานเรื่องพหูพจน์ (Singular/Plural), การใช้กริยาหลัง Modal Verb (will going up) และการแปลสำนวนไทยเป็นอังกฤษตรงตัว (make pollution, make strict law) หากปรับ Collocation ให้แม่นยำ งานเขียนจะยกระดับขึ้นทันที",
+        strengthsThai: [
+          "วางโครงสร้างย่อหน้าได้เป็นระบบ เริ่มจากปูประเด็นปัญหา (Topic Sentence) ตามด้วยสาเหตุจากภาคธุรกิจ และสรุปด้วยผลกระทบในอนาคต",
+          "เชื่อมโยงเหตุและผลด้วยคำเชื่อม (because, If...) ทำให้ผู้อ่านเข้าใจตรรกะของผู้เขียนได้ตั้งแต่การอ่านครั้งแรก",
+          "สื่อสารใจความสำคัญ (Core Message) ได้ชัดเจนโดยไม่หลงประเด็น"
+        ],
+        weaknessesThai: [
+          "มักลืมเติม -s/-es ในคำนามพหูพจน์หลังคำบอกปริมาณ เช่น 'many country', 'many company' และลืมใส่ Article (a/an/the) หน้าคำนามเอกพจน์",
+          "ใช้คำกริยาพื้นฐานอย่าง 'make' กับทุกบริบท ('make pollution', 'make strict law', 'make bad effect') ซึ่งเป็นลักษณะของการคิดเป็นภาษาไทยแล้วแปลตรงตัว",
+          "เกิดข้อผิดพลาดทางไวยากรณ์ในโครงสร้างเงื่อนไข ('If government not make') และการใช้ขั้นกว่า ('more fast' แทนที่จะเป็น 'faster')"
+        ],
+        styleComparisonNoteThai: "สังเกตว่าเมื่อเปลี่ยนเป็น Academic English เราจะลดการกล่าวโทษแบบตรงๆ ('care more about money') แล้วเปลี่ยนเป็นภาษาเชิงวิเคราะห์ ('prioritizing short-term economic gains over environmental sustainability') ในขณะที่ Everyday English จะเน้นคำกริยาวลีที่ฟังดูคุ้นหู ('step in', 'pumping into the air') ส่วน New York Times Style จะเลือกใช้คำที่สร้างพลังและภาพจำในหัวผู้อ่านทันที เช่น 'corporate inertia' และ 'putting quarterly profits ahead of planetary survival'"
+      },
+      coachingLessons: [
+        {
+          titleThai: "1. เลิกใช้ 'make' กับทุกอย่าง ด้วยการจำคู่คำ (Collocations)",
+          explanationThai: "ในภาษาไทยเราใช้คำว่า 'ทำ/สร้าง' กับหลายบริบท แต่ภาษาอังกฤษมีคำกริยาเฉพาะคู่กับคำนามแต่ละคำ เช่น มลพิษต้องใช้ release/emit pollution, กฎหมายต้องใช้ enact/pass laws, และผลกระทบต้องใช้ have an impact on หรือ affect โดยตรง",
+          beforeExample: "make pollution / make strict law / make bad effect",
+          afterExample: "release pollutants / enact strict laws / severely affect (or have an adverse impact on)"
+        },
+        {
+          titleThai: "2. ระวังกฎเหล็กของ Many + พหูพจน์ และ Modal Verb + V.infinitive",
+          explanationThai: "ทุกครั้งที่ใช้คำว่า many, several, numerous คำนามที่ตามมาต้องอยู่ในรูปพหูพจน์เสมอ (countries, companies) และหลังคำว่า will, can, should, must ห้ามเติม -ing หรือ -ed เด็ดขาด ต้องตามด้วยกริยารูปเดิม (Base form)",
+          beforeExample: "many country ... will going up more fast",
+          afterExample: "many countries ... will rise even faster"
+        },
+        {
+          titleThai: "3. ยกระดับประโยคเงื่อนไข (If-Clause) ให้ดูเป็นมืออาชีพ",
+          explanationThai: "แทนที่จะใช้ 'If ... not ...' เสมอไป ลองเปลี่ยนเป็น 'Unless + ประโยคบอกเล่า' สำหรับภาษาพูด/ทั่วไป หรือใช้ 'Without / Absent + คำนาม (Noun Phrase)' สำหรับงานเขียนวิชาการและบทความข่าวระดับสูง",
+          beforeExample: "If government not make strict law soon...",
+          afterExample: "Unless governments step in soon... / Absent stringent regulatory frameworks..."
+        }
+      ],
+      vocabUpgrades: [
+        {
+          original: "very big problem",
+          everyday: "a huge issue",
+          academic: "a critical challenge",
+          nyt: "a deepening crisis",
+          nuanceThai: "หลีกเลี่ยงการใช้ very + คำคุณศัพท์พื้นฐาน โดยเปลี่ยนเป็นคำที่มีน้ำหนักในตัวเอง"
+        },
+        {
+          original: "make pollution",
+          everyday: "pump pollution into the air",
+          academic: "generate atmospheric pollutants",
+          nyt: "treat the atmosphere as an open sewer",
+          nuanceThai: "เลือกกริยาที่สะท้อนภาพการปล่อยมลพิษได้ชัดเจนตามระดับความเป็นทางการ"
+        },
+        {
+          original: "care more about money",
+          everyday: "put profits first",
+          academic: "prioritize short-term economic gains",
+          nyt: "put quarterly profits ahead of survival",
+          nuanceThai: "เปลี่ยนคำว่า money เป็น profits หรือ economic gains เพื่อความเป็นมืออาชีพ"
+        },
+        {
+          original: "make strict law",
+          everyday: "pass stricter laws",
+          academic: "implement stringent regulations",
+          nyt: "take decisive regulatory intervention",
+          nuanceThai: "ใช้คำว่า pass/enact/implement แทน make เมื่อพูดถึงกฎหมายหรือข้อบังคับ"
+        }
+      ]
+    };
+
+    // ==========================================
+    // WORD-LEVEL DIFF ENGINE (Longest Common Subsequence)
+    // Guarantees accurate red/green Track Changes for any pair of texts
+    // ==========================================
+    function tokenizeForDiff(text) {
+      if (!text) return [];
+      // Split by whitespace while preserving punctuation attached or separate cleanly
+      return text.trim().split(/\s+/).filter(Boolean);
+    }
+
+    function computeWordDiffHtml(originalStr, targetStr) {
+      const origTokens = tokenizeForDiff(originalStr);
+      const targTokens = tokenizeForDiff(targetStr);
+
+      const n = origTokens.length;
+      const m = targTokens.length;
+
+      // DP matrix for LCS
+      const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+
+      for (let i = n - 1; i >= 0; i--) {
+        for (let j = m - 1; j >= 0; j--) {
+          if (origTokens[i] === targTokens[j]) {
+            dp[i][j] = 1 + dp[i + 1][j + 1];
+          } else {
+            dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+          }
+        }
+      }
+
+      let i = 0, j = 0;
+      const ops = [];
+      while (i < n && j < m) {
+        if (origTokens[i] === targTokens[j]) {
+          ops.push({ type: 'equal', text: origTokens[i] });
+          i++;
+          j++;
+        } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+          ops.push({ type: 'del', text: origTokens[i] });
+          i++;
+        } else {
+          ops.push({ type: 'ins', text: targTokens[j] });
+          j++;
+        }
+      }
+      while (i < n) {
+        ops.push({ type: 'del', text: origTokens[i++] });
+      }
+      while (j < m) {
+        ops.push({ type: 'ins', text: targTokens[j++] });
+      }
+
+      // Merge consecutive operations of the same type for cleaner visual badges
+      const merged = [];
+      for (const op of ops) {
+        if (merged.length > 0 && merged[merged.length - 1].type === op.type) {
+          merged[merged.length - 1].text += ' ' + op.text;
+        } else {
+          merged.push({ ...op });
+        }
+      }
+
+      // Reorder adjacent [ins, del] into [del, ins] so strikethrough always precedes green replacement
+      for (let k = 0; k < merged.length - 1; k++) {
+        if (merged[k].type === 'ins' && merged[k + 1].type === 'del') {
+          const temp = merged[k];
+          merged[k] = merged[k + 1];
+          merged[k + 1] = temp;
+        }
+      }
+
+      return merged.map(part => {
+        const escaped = escapeHtml(part.text);
+        if (part.type === 'del') {
+          return `<del class="diff-del">${escaped}</del>`;
+        } else if (part.type === 'ins') {
+          return `<ins class="diff-ins">${escaped}</ins>`;
+        }
+        return `<span>${escaped}</span>`;
+      }).join(' ');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ==========================================
+    // UI COUNTERS & SAMPLE LOADING
+    // ==========================================
+    function updateTextCounters() {
+      const textarea = document.getElementById('userInput');
+      const raw = textarea.value;
+      const trimmed = raw.trim();
+
+      const words = trimmed ? trimmed.split(/\s+/).length : 0;
+      const chars = raw.length;
+      const sentences = trimmed ? trimmed.split(/[.!?]+/).filter(s => s.trim().length > 0).length : 0;
+
+      document.getElementById('wordCount').textContent = words;
+      document.getElementById('charCount').textContent = chars;
+      document.getElementById('sentenceCount').textContent = sentences;
+    }
+
+    function loadSample(key) {
+      const sample = SAMPLE_TEXTS[key];
+      if (!sample) return;
+      const textarea = document.getElementById('userInput');
+      textarea.value = sample.text;
+      document.getElementById('writingGoal').value = sample.goal;
+      updateTextCounters();
+      hideError();
+
+      if (key === 'environment') {
+        // Render the instant pre-loaded analysis immediately, or user can re-run anytime
+        renderFullAnalysis(INITIAL_DEMO_ANALYSIS);
+        showToast("โหลดตัวอย่าง Environmental Report พร้อมผลวิเคราะห์แล้ว");
+      } else {
+        // Automatically trigger live Gemini analysis for the chosen sample
+        runEditorialAnalysis();
+      }
+    }
+
+    function clearInput() {
+      const textarea = document.getElementById('userInput');
+      textarea.value = '';
+      updateTextCounters();
+      textarea.focus();
+    }
+
+    // ==========================================
+    // RENDERING FUNCTIONS
+    // ==========================================
+    function renderFullAnalysis(data) {
+      currentAnalysisData = data;
+
+      // 1. Render 3 Standard Styles
+      renderStyleCards();
+
+      // 2. Render Track Changes & Standard Proofreading
+      renderTrackChangesView();
+      renderCorrectionsLog(data.corrections || []);
+
+      // 3. Render Critique & Writing Coach
+      renderCritiqueSection(data.critique, data.coachingLessons || [], data.vocabUpgrades || []);
+
+      // Re-init icons for dynamically added DOM nodes
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function setStyleCardMode(mode) {
+      currentStyleCardMode = mode;
+      const cleanBtn = document.getElementById('styleViewCleanBtn');
+      const diffBtn = document.getElementById('styleViewDiffBtn');
+
+      if (mode === 'clean') {
+        cleanBtn.className = "px-3 py-1.5 rounded-lg text-xs font-thai font-semibold bg-white text-stone-900 shadow-2xs transition cursor-pointer";
+        diffBtn.className = "px-3 py-1.5 rounded-lg text-xs font-thai font-medium text-stone-600 hover:text-stone-900 transition cursor-pointer";
+      } else {
+        diffBtn.className = "px-3 py-1.5 rounded-lg text-xs font-thai font-semibold bg-white text-stone-900 shadow-2xs transition cursor-pointer";
+        cleanBtn.className = "px-3 py-1.5 rounded-lg text-xs font-thai font-medium text-stone-600 hover:text-stone-900 transition cursor-pointer";
+      }
+      renderStyleCards();
+    }
+
+    function renderStyleCards() {
+      if (!currentAnalysisData) return;
+      const orig = currentAnalysisData.originalText || document.getElementById('userInput').value;
+      const styles = currentAnalysisData.styles;
+
+      const mapping = [
+        {
+          key: 'academic',
+          textEl: 'academicTextDisplay',
+          whyEl: 'academicWhy',
+          tagsEl: 'academicHighlights',
+          tagClass: 'bg-blue-50 text-blue-900 border-blue-200'
+        },
+        {
+          key: 'everyday',
+          textEl: 'everydayTextDisplay',
+          whyEl: 'everydayWhy',
+          tagsEl: 'everydayHighlights',
+          tagClass: 'bg-teal-50 text-teal-900 border-teal-200'
+        },
+        {
+          key: 'nyt',
+          textEl: 'nytTextDisplay',
+          whyEl: 'nytWhy',
+          tagsEl: 'nytHighlights',
+          tagClass: 'bg-stone-100 text-stone-900 border-stone-300'
+        }
+      ];
+
+      mapping.forEach(item => {
+        const styleObj = styles[item.key];
+        if (!styleObj) return;
+
+        const displayEl = document.getElementById(item.textEl);
+        if (currentStyleCardMode === 'diff') {
+          displayEl.innerHTML = computeWordDiffHtml(orig, styleObj.text);
+        } else {
+          displayEl.textContent = styleObj.text;
+        }
+
+        document.getElementById(item.whyEl).textContent = styleObj.whyItWorksThai || '';
+
+        const tagsContainer = document.getElementById(item.tagsEl);
+        tagsContainer.innerHTML = (styleObj.keyPhrases || []).map(phrase =>
+          `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border ${item.tagClass}">"${escapeHtml(phrase)}"</span>`
+        ).join('');
+      });
+    }
+
+    function renderTrackChangesView(highlightCorrectionObj = null) {
+      if (!currentAnalysisData) return;
+      const orig = currentAnalysisData.originalText || document.getElementById('userInput').value;
+      const targetKey = document.getElementById('diffTargetSelect').value;
+
+      let targetText = currentAnalysisData.standardProofread;
+      let labelText = "Clean Proofread Version (ฉบับแก้ไขไวยากรณ์มาตรฐาน)";
+
+      if (targetKey === 'academic') {
+        targetText = currentAnalysisData.styles.academic.text;
+        labelText = "Clean Academic English Version";
+      } else if (targetKey === 'everyday') {
+        targetText = currentAnalysisData.styles.everyday.text;
+        labelText = "Clean Everyday English Version";
+      } else if (targetKey === 'nyt') {
+        targetText = currentAnalysisData.styles.nyt.text;
+        labelText = "Clean New York Times Version";
+      }
+
+      document.getElementById('cleanTargetLabel').textContent = labelText;
+
+      const diffHtml = computeWordDiffHtml(orig, targetText);
+      const trackContainer = document.getElementById('trackChangesContainer');
+      const cleanContainer = document.getElementById('cleanProofreadContainer');
+
+      trackContainer.innerHTML = diffHtml;
+
+      // If a user clicked a specific correction card, highlight the corrected phrase in the clean container
+      if (highlightCorrectionObj && highlightCorrectionObj.corrected) {
+        const cleanEscaped = escapeHtml(targetText);
+        const corrEscaped = escapeHtml(highlightCorrectionObj.corrected);
+        if (corrEscaped && cleanEscaped.includes(corrEscaped)) {
+          cleanContainer.innerHTML = cleanEscaped.replace(
+            corrEscaped,
+            `<mark class="proof-highlight-active font-semibold">${corrEscaped}</mark>`
+          );
+        } else {
+          cleanContainer.textContent = targetText;
+        }
+      } else {
+        cleanContainer.textContent = targetText;
+      }
+    }
+
+    function getCategoryBadgeStyle(category) {
+      const cat = (category || '').toLowerCase();
+      if (cat.includes('grammar')) {
+        return { label: 'Grammar', classes: 'bg-red-100 text-red-800 border-red-200' };
+      }
+      if (cat.includes('word')) {
+        return { label: 'Word Choice', classes: 'bg-blue-100 text-blue-800 border-blue-200' };
+      }
+      if (cat.includes('clarity') || cat.includes('flow')) {
+        return { label: 'Clarity/Flow', classes: 'bg-purple-100 text-purple-800 border-purple-200' };
+      }
+      if (cat.includes('style') || cat.includes('tone')) {
+        return { label: 'Style/Tone', classes: 'bg-amber-100 text-amber-900 border-amber-200' };
+      }
+      if (cat.includes('punct')) {
+        return { label: 'Punctuation', classes: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+      }
+      return { label: category || 'Edit', classes: 'bg-stone-100 text-stone-800 border-stone-200' };
+    }
+
+    function filterCorrections(category) {
+      activeCategoryFilter = category;
+      document.querySelectorAll('.proof-filter-btn').forEach(btn => {
+        const btnCat = btn.getAttribute('data-cat');
+        if (btnCat === category) {
+          btn.classList.add('ring-2', 'ring-stone-900', 'font-bold');
+        } else {
+          btn.classList.remove('ring-2', 'ring-stone-900', 'font-bold');
+        }
+      });
+
+      if (currentAnalysisData) {
+        renderCorrectionsLog(currentAnalysisData.corrections || []);
+      }
+    }
+
+    function renderCorrectionsLog(corrections) {
+      const listEl = document.getElementById('correctionsList');
+      const countBadge = document.getElementById('correctionCountBadge');
+
+      const filtered = activeCategoryFilter === 'ALL'
+        ? corrections
+        : corrections.filter(c => getCategoryBadgeStyle(c.category).label === activeCategoryFilter);
+
+      countBadge.textContent = `${filtered.length} จุด`;
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="p-6 text-center rounded-xl bg-stone-50 border border-stone-200 text-stone-500 font-thai text-sm">
+            ไม่พบรายการแก้ไขในหมวดหมู่นี้
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map((item, idx) => {
+        const badge = getCategoryBadgeStyle(item.category);
+        return `
+          <div
+            onclick="focusCorrection(${idx})"
+            class="p-3.5 rounded-xl border border-stone-200/90 bg-[#FCFBF9] hover:bg-amber-50/40 hover:border-amber-400 transition cursor-pointer group"
+          >
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold border ${badge.classes}">
+                [${escapeHtml(badge.label)}]
+              </span>
+              <span class="text-[11px] text-stone-400 group-hover:text-amber-700 font-thai flex items-center gap-1">
+                <span>คลิกดูในประโยค</span>
+                <i data-lucide="arrow-up-left" class="w-3 h-3"></i>
+              </span>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-sans mb-2">
+              <del class="diff-del">${escapeHtml(item.original)}</del>
+              <span class="text-stone-400 font-bold">→</span>
+              <ins class="diff-ins">${escapeHtml(item.corrected)}</ins>
+            </div>
+            <p class="text-xs text-stone-700 font-bodyThai leading-relaxed">
+              ${escapeHtml(item.explanationThai)}
+            </p>
+          </div>
+        `;
+      }).join('');
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function focusCorrection(filteredIndex) {
+      if (!currentAnalysisData) return;
+      const allCorrections = currentAnalysisData.corrections || [];
+      const filtered = activeCategoryFilter === 'ALL'
+        ? allCorrections
+        : allCorrections.filter(c => getCategoryBadgeStyle(c.category).label === activeCategoryFilter);
+
+      const targetItem = filtered[filteredIndex];
+      if (!targetItem) return;
+
+      // Switch dropdown to Standard Proofread so the exact phrase matches cleanly
+      document.getElementById('diffTargetSelect').value = 'proofread';
+      renderTrackChangesView(targetItem);
+    }
+
+    function renderCritiqueSection(critique, lessons, vocabUpgrades) {
+      if (!critique) return;
+
+      const overall = critique.overallScore || 75;
+      document.getElementById('overallScoreValue').textContent = overall;
+      document.getElementById('cefrBadge').textContent = `CEFR: ${critique.cefrEstimate || 'B1 → C1'}`;
+
+      let scoreDesc = "ระดับดีมาก (Polished Draft)";
+      if (overall < 60) scoreDesc = "ควรปรับปรุงโครงสร้างและไวยากรณ์ (Needs Revision)";
+      else if (overall < 78) scoreDesc = "สื่อสารเข้าใจได้ดี แต่ยังเกลาให้เป็นธรรมชาติขึ้นได้ (Developing Draft)";
+      else if (overall < 90) scoreDesc = "เขียนได้ดี มีจุดปรับแก้เล็กน้อย (Strong Draft)";
+      document.getElementById('overallScoreLabel').textContent = scoreDesc;
+
+      const s = critique.scores || { clarity: 75, grammar: 70, vocabulary: 70, tone: 72 };
+      updateScoreBar('scoreClarityText', 'scoreClarityBar', s.clarity);
+      updateScoreBar('scoreGrammarText', 'scoreGrammarBar', s.grammar);
+      updateScoreBar('scoreVocabText', 'scoreVocabBar', s.vocabulary);
+      updateScoreBar('scoreToneText', 'scoreToneBar', s.tone);
+
+      document.getElementById('editorVerdict').textContent = critique.editorVerdictThai || '';
+      document.getElementById('styleComparisonNote').textContent = critique.styleComparisonNoteThai || '';
+
+      // Strengths
+      const strengthsEl = document.getElementById('strengthsList');
+      strengthsEl.innerHTML = (critique.strengthsThai || []).map(item => `
+        <li class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">✓</span>
+          <span class="leading-relaxed">${escapeHtml(item)}</span>
+        </li>
+      `).join('');
+
+      // Weaknesses
+      const weaknessesEl = document.getElementById('weaknessesList');
+      weaknessesEl.innerHTML = (critique.weaknessesThai || []).map(item => `
+        <li class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">!</span>
+          <span class="leading-relaxed">${escapeHtml(item)}</span>
+        </li>
+      `).join('');
+
+      // Coaching Lessons
+      const lessonsEl = document.getElementById('coachingLessonsList');
+      lessonsEl.innerHTML = lessons.map(lesson => `
+        <div class="p-4 rounded-xl bg-[#FAF8F5] border border-stone-200/90 space-y-2.5">
+          <h4 class="font-thai font-bold text-stone-900 text-sm sm:text-base">
+            ${escapeHtml(lesson.titleThai)}
+          </h4>
+          <p class="font-bodyThai text-xs sm:text-sm text-stone-700 leading-relaxed">
+            ${escapeHtml(lesson.explanationThai)}
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs font-sans">
+            <div class="p-2.5 rounded-lg bg-red-50/70 border border-red-200/80 text-red-900">
+              <span class="font-bold uppercase text-[10px] tracking-wider block text-red-700 mb-0.5">Avoid / Original:</span>
+              <span class="line-through">${escapeHtml(lesson.beforeExample)}</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200/80 text-emerald-950">
+              <span class="font-bold uppercase text-[10px] tracking-wider block text-emerald-700 mb-0.5">Better / Upgraded:</span>
+              <span class="font-semibold">${escapeHtml(lesson.afterExample)}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Vocabulary Upgrade Matrix
+      const vocabBody = document.getElementById('vocabUpgradeTableBody');
+      vocabBody.innerHTML = vocabUpgrades.map(row => `
+        <tr class="hover:bg-stone-50/80 transition">
+          <td class="py-3 px-3 align-top">
+            <span class="font-medium text-red-800 line-through">${escapeHtml(row.original)}</span>
+            <p class="text-[11px] text-stone-500 font-bodyThai mt-1">${escapeHtml(row.nuanceThai || '')}</p>
+          </td>
+          <td class="py-3 px-3 align-top font-medium text-teal-900 bg-teal-50/20">
+            ${escapeHtml(row.everyday)}
+          </td>
+          <td class="py-3 px-3 align-top font-medium text-blue-950 bg-blue-50/20">
+            ${escapeHtml(row.academic)}
+          </td>
+          <td class="py-3 px-3 align-top font-serif font-medium text-stone-900 bg-stone-50/60">
+            ${escapeHtml(row.nyt)}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updateScoreBar(textId, barId, val) {
+      const safeVal = Math.max(0, Math.min(100, Number(val) || 70));
+      document.getElementById(textId).textContent = `${safeVal}/100`;
+      document.getElementById(barId).style.width = `${safeVal}%`;
+    }
+
+    // ==========================================
+    // CLIPBOARD & SPEECH UTILITIES
+    // ==========================================
+    function copyTextToClipboard(text, message = "คัดลอกข้อความเรียบร้อยแล้ว") {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      tempInput.style.position = 'fixed';
+      tempInput.style.opacity = '0';
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast(message);
+      } catch (err) {
+        showToast("ไม่สามารถคัดลอกข้อความได้");
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    function copyStyleText(styleKey, btnEl) {
+      if (!currentAnalysisData || !currentAnalysisData.styles[styleKey]) return;
+      const text = currentAnalysisData.styles[styleKey].text;
+      const labels = {
+        academic: 'Academic English',
+        everyday: 'Everyday English',
+        nyt: 'New York Times Style'
+      };
+      copyTextToClipboard(text, `คัดลอกสำนวน ${labels[styleKey]} แล้ว`);
+    }
+
+    function copyCurrentProofread() {
+      const cleanEl = document.getElementById('cleanProofreadContainer');
+      if (!cleanEl) return;
+      copyTextToClipboard(cleanEl.textContent, "คัดลอกข้อความฉบับแก้ไขสมบูรณ์แล้ว");
+    }
+
+    function speakText(styleKey) {
+      if (!('speechSynthesis' in window)) {
+        showToast("เบราว์เซอร์ของคุณไม่รองรับการอ่านออกเสียง");
+        return;
+      }
+      if (!currentAnalysisData || !currentAnalysisData.styles[styleKey]) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(currentAnalysisData.styles[styleKey].text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.96;
+      window.speechSynthesis.speak(utterance);
+      showToast("กำลังอ่านออกเสียงภาษาอังกฤษ...");
+    }
+
+    let toastTimeout = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastText').textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2800);
+    }
+
+    function showError(title, message) {
+      const box = document.getElementById('errorBox');
+      document.getElementById('errorTitle').textContent = title;
+      document.getElementById('errorMessage').textContent = message;
+      box.classList.remove('hidden');
+    }
+
+    function hideError() {
+      document.getElementById('errorBox').classList.add('hidden');
+    }
+
+    // ==========================================
+    // GEMINI API CALL WITH EXPONENTIAL BACKOFF
+    // ==========================================
+    async function fetchWithBackoff(url, options, maxRetries = 4) {
+      let delay = 1000;
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch(url, options);
+          if (response.ok) {
+            return await response.json();
+          }
+          // Retry on 429 or 5xx
+          if ((response.status === 429 || response.status >= 500) && attempt < maxRetries) {
+            await new Promise(res => setTimeout(res, delay));
+            delay *= 2;
+            continue;
+          }
+          const errText = await response.text();
+          throw new Error(`API Error (${response.status}): ${errText}`);
+        } catch (err) {
+          if (attempt === maxRetries) throw err;
+          await new Promise(res => setTimeout(res, delay));
+          delay *= 2;
+        }
+      }
+    }
+
+    async function runEditorialAnalysis() {
+      const textarea = document.getElementById('userInput');
+      const userText = textarea.value.trim();
+      const writingGoal = document.getElementById('writingGoal').value;
+
+      if (!userText) {
+        showError("กรุณากรอกข้อความภาษาอังกฤษ", "โปรดวางหรือพิมพ์ประโยคภาษาอังกฤษที่คุณต้องการให้ระบบเกลาและตรวจทานก่อนกดปุ่มวิเคราะห์");
+        textarea.focus();
+        return;
+      }
+
+      hideError();
+
+      // UI Loading State
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      const loadingSection = document.getElementById('loadingSection');
+      const resultsWorkspace = document.getElementById('resultsWorkspace');
+      const loadingBar = document.getElementById('loadingBar');
+      const loadingStepText = document.getElementById('loadingStepText');
+
+      analyzeBtn.disabled = true;
+      analyzeBtn.classList.add('opacity-60', 'cursor-not-allowed');
+      loadingSection.classList.remove('hidden');
+      resultsWorkspace.classList.add('opacity-40', 'pointer-events-none');
+
+      // Animated progress steps
+      loadingBar.style.width = '25%';
+      loadingStepText.textContent = "ขั้นตอนที่ 1/3: กำลังตรวจทานไวยากรณ์ (Proofreading) และวิเคราะห์โครงสร้างประโยค...";
+
+      const stepTimer1 = setTimeout(() => {
+        loadingBar.style.width = '60%';
+        loadingStepText.textContent = "ขั้นตอนที่ 2/3: กำลังเรียบเรียงเป็น Academic English, Everyday English และ New York Times Style...";
+      }, 1400);
+
+      const stepTimer2 = setTimeout(() => {
+        loadingBar.style.width = '88%';
+        loadingStepText.textContent = "ขั้นตอนที่ 3/3: กำลังจัดทำบทวิพากย์เชิงลึกและบทเรียนสอนเขียนภาษาไทย...";
+      }, 3000);
+
+      const systemInstruction = `You are a world-class English Executive Editor (former New York Times senior editor, Oxford academic journal editor, and bilingual Thai-English linguistics coach).
+Your task is to analyze the user's English sentence or paragraph, proofread it thoroughly, transform it into three distinct gold-standard English styles, and coach the Thai user on how to write significantly better.
+
+Follow these strict standards:
+1. "standardProofread": Fix all grammar, spelling, punctuation, article, tense, and awkward phrasing errors in the original text while preserving the author's original structure and voice as closely as possible.
+2. "styles":
+   - "academic": Formal, objective, scholarly tone suitable for peer-reviewed journals or university essays. Use precise academic vocabulary, appropriate hedging, nominalization, and cohesive transitions.
+   - "everyday": Natural, clear, idiomatic, conversational yet polite English used by educated native speakers in daily life and modern workplaces.
+   - "nyt": Sophisticated journalistic prose following The New York Times stylebook—sharp active verbs, vivid rhythm, compelling lede/cadence, and authoritative clarity.
+3. "corrections": Extract 4 to 8 specific proofreading edits comparing the original text to the standard proofread version. Assign each to one of these exact categories: "Grammar", "Word Choice", "Punctuation", "Clarity/Flow", or "Style/Tone". Provide a clear, educational explanation in Thai ("explanationThai").
+4. "critique" & "coachingLessons" & "vocabUpgrades": Provide insightful, encouraging, and specific critique and actionable writing lessons in natural Thai (with English examples) so the user genuinely improves their writing skills.`;
+
+      const userPrompt = `Please edit, proofread, and critique the following English passage.
+Context / User Goal: ${writingGoal}
+
+Original English Passage:
+"""
+${userText}
+"""`;
+
+      const responseSchema = {
+        type: "OBJECT",
+        properties: {
+          standardProofread: { type: "STRING" },
+          styles: {
+            type: "OBJECT",
+            properties: {
+              academic: {
+                type: "OBJECT",
+                properties: {
+                  text: { type: "STRING" },
+                  whyItWorksThai: { type: "STRING" },
+                  keyPhrases: { type: "ARRAY", items: { type: "STRING" } }
+                },
+                required: ["text", "whyItWorksThai", "keyPhrases"]
+              },
+              everyday: {
+                type: "OBJECT",
+                properties: {
+                  text: { type: "STRING" },
+                  whyItWorksThai: { type: "STRING" },
+                  keyPhrases: { type: "ARRAY", items: { type: "STRING" } }
+                },
+                required: ["text", "whyItWorksThai", "keyPhrases"]
+              },
+              nyt: {
+                type: "OBJECT",
+                properties: {
+                  text: { type: "STRING" },
+                  whyItWorksThai: { type: "STRING" },
+                  keyPhrases: { type: "ARRAY", items: { type: "STRING" } }
+                },
+                required: ["text", "whyItWorksThai", "keyPhrases"]
+              }
+            },
+            required: ["academic", "everyday", "nyt"]
+          },
+          corrections: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                original: { type: "STRING" },
+                corrected: { type: "STRING" },
+                category: { type: "STRING" },
+                explanationThai: { type: "STRING" }
+              },
+              required: ["original", "corrected", "category", "explanationThai"]
+            }
+          },
+          critique: {
+            type: "OBJECT",
+            properties: {
+              overallScore: { type: "INTEGER" },
+              cefrEstimate: { type: "STRING" },
+              scores: {
+                type: "OBJECT",
+                properties: {
+                  clarity: { type: "INTEGER" },
+                  grammar: { type: "INTEGER" },
+                  vocabulary: { type: "INTEGER" },
+                  tone: { type: "INTEGER" }
+                },
+                required: ["clarity", "grammar", "vocabulary", "tone"]
+              },
+              editorVerdictThai: { type: "STRING" },
+              strengthsThai: { type: "ARRAY", items: { type: "STRING" } },
+              weaknessesThai: { type: "ARRAY", items: { type: "STRING" } },
+              styleComparisonNoteThai: { type: "STRING" }
+            },
+            required: ["overallScore", "cefrEstimate", "scores", "editorVerdictThai", "strengthsThai", "weaknessesThai", "styleComparisonNoteThai"]
+          },
+          coachingLessons: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                titleThai: { type: "STRING" },
+                explanationThai: { type: "STRING" },
+                beforeExample: { type: "STRING" },
+                afterExample: { type: "STRING" }
+              },
+              required: ["titleThai", "explanationThai", "beforeExample", "afterExample"]
+            }
+          },
+          vocabUpgrades: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                original: { type: "STRING" },
+                everyday: { type: "STRING" },
+                academic: { type: "STRING" },
+                nyt: { type: "STRING" },
+                nuanceThai: { type: "STRING" }
+              },
+              required: ["original", "everyday", "academic", "nyt", "nuanceThai"]
+            }
+          }
+        },
+        required: ["standardProofread", "styles", "corrections", "critique", "coachingLessons", "vocabUpgrades"]
+      };
+
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
+      const payload = {
+        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: responseSchema,
+          temperature: 0.4
+        }
+      };
+
+      try {
+        const result = await fetchWithBackoff(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const rawJsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawJsonText) {
+          throw new Error("ไม่ได้รับข้อมูลตอบกลับจากระบบ AI กรุณาลองใหม่อีกครั้ง");
+        }
+
+        const parsedData = JSON.parse(rawJsonText);
+        parsedData.originalText = userText;
+
+        loadingBar.style.width = '100%';
+        activeCategoryFilter = 'ALL';
+        renderFullAnalysis(parsedData);
+        showToast("วิเคราะห์และเกลาภาษาครบทั้ง 3 สำนวนเรียบร้อยแล้ว!");
+      } catch (error) {
+        console.error("Editorial Analysis Error:", error);
+        showError(
+          "ไม่สามารถประมวลผลข้อความได้ในขณะนี้",
+          error.message || "เกิดข้อผิดพลาดในการเชื่อมต่อกับ Gemini API กรุณาลองใหม่อีกครั้ง"
+        );
+      } finally {
+        clearTimeout(stepTimer1);
+        clearTimeout(stepTimer2);
+        analyzeBtn.disabled = false;
+        analyzeBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+        loadingSection.classList.add('hidden');
+        resultsWorkspace.classList.remove('opacity-40', 'pointer-events-none');
+      }
+    }
+
+    // ==========================================
+    // INITIALIZE ON WINDOW LOAD
+    // ==========================================
+    window.onload = function () {
+      const textarea = document.getElementById('userInput');
+      textarea.value = SAMPLE_TEXTS.environment.text;
+      textarea.addEventListener('input', updateTextCounters);
+      updateTextCounters();
+
+      // Render pre-loaded demonstration analysis immediately so the page is rich and interactive at startup
+      renderFullAnalysis(INITIAL_DEMO_ANALYSIS);
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    };
+  </script>
+</body>
+</html>
