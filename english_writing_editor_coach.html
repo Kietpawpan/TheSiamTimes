@@ -4,13 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!--
-    Content Security Policy (defense-in-depth for the user's Gemini API key):
-    - connect-src: the page may only send network requests (fetch/XHR/beacon/WebSocket) to the Gemini API,
-      so a misbehaving third-party script cannot quietly upload the stored key anywhere else.
-    - form-action 'none': forms can never submit (and therefore can never put the key into a URL).
-    If you later add analytics or another API, append its origin to connect-src.
+    Content Security Policy (defense-in-depth for the user's Gemini API key). What it does:
+    - connect-src: fetch/XHR/sendBeacon/WebSocket may only reach the Gemini API.
+    - img-src / font-src / style-src / frame-src: images, fonts, stylesheets and frames may only come from
+      this site, Google Fonts or inline styles (Tailwind injects a <style> tag).
+    - form-action 'none': forms can never submit (so the key can never end up in a URL).
+    What it does NOT do: it cannot stop a compromised third-party <script> (e.g. the Tailwind CDN, which is
+    not version-pinned) from loading further scripts or navigating away with the key. Keep the list of
+    external scripts short. If you add analytics or another API, append its origin to connect-src.
   -->
-  <meta http-equiv="Content-Security-Policy" content="connect-src https://generativelanguage.googleapis.com; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="connect-src https://generativelanguage.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>LexiCraft Editorial — English Style Editor, Proofreader & Writing Coach</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -18,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <!-- Lucide Icons (pinned version + Subresource Integrity, so an altered CDN file can never run on a page that holds an API key) -->
+  <!-- Lucide Icons (pinned version + Subresource Integrity: the browser refuses to run the file if the CDN copy is ever altered) -->
   <script src="https://unpkg.com/lucide@1.57.0/dist/umd/lucide.min.js" integrity="sha384-Qp5jsYqEgOGiWD8YMQ6yXIycASOePxr9mmbt+Ua0Wu1IScYxo0Pxf7o3Kx6NWJID" crossorigin="anonymous"></script>
 
   <script>
@@ -177,7 +180,7 @@
               The Style &amp; Proofreading Desk
             </h1>
             <p class="text-xs sm:text-sm text-stone-600 font-thai mt-1">
-              ปรับแต่งประโยคและย่อหน้าเป็น <span class="font-semibold text-blue-900">Academic</span> • <span class="font-semibold text-teal-800">Everyday</span> • <span class="font-semibold text-stone-900">The Siam Times</span> พร้อมตรวจ Proofread และวิพากย์สอนเขียน
+              ปรับแต่งประโยคและย่อหน้าเป็น <span class="font-semibold text-blue-900">Academic</span> • <span class="font-semibold text-teal-800">Everyday</span> • <span class="font-semibold text-stone-900">The Siam Times</span> พร้อมตรวจ Proofread และวิพากษ์สอนเขียน
             </p>
           </div>
           <!-- API Key settings button — phones (the status bar above is hidden on small screens) -->
@@ -317,7 +320,7 @@
             <button
               type="button"
               id="errorKeyAction"
-              onclick="openApiKeyModal()"
+              onclick="openApiKeyModalFromError()"
               class="hidden mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-red-900 bg-white hover:bg-red-100 border border-red-300 px-3 py-1.5 rounded-lg transition cursor-pointer"
             >
               <i data-lucide="key-round" class="w-3.5 h-3.5"></i>
@@ -725,7 +728,7 @@
             <span class="text-xs font-bold uppercase tracking-widest text-emerald-800">Editorial Critique &amp; Writing Coach</span>
           </div>
           <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900 mt-1">
-            วิพากย์ข้อความเดิม &amp; บทเรียนสอนเขียนให้เก่งขึ้น
+            วิพากษ์ข้อความเดิม &amp; บทเรียนสอนเขียนให้เก่งขึ้น
           </h2>
           <p class="text-sm text-stone-600 font-thai">
             วิเคราะห์จุดแข็ง-จุดอ่อนของต้นฉบับอย่างตรงไปตรงมา พร้อมเทคนิคการยกระดับคลังคำศัพท์และโครงสร้างประโยค
@@ -953,15 +956,18 @@
       </div>
 
       <!-- Panel Body. The form never submits anywhere (JS handles it, the input has no name, and CSP sets form-action 'none'). -->
-      <form id="apiKeyForm" novalidate class="p-5 sm:p-6 space-y-4 font-thai">
+      <form id="apiKeyForm" novalidate onsubmit="event.preventDefault()" class="p-5 sm:p-6 space-y-4 font-thai">
         <p id="apiKeyModalDesc" class="text-sm text-stone-700 font-bodyThai leading-relaxed">
           เครื่องมือนี้เรียกใช้ Google Gemini API โดยตรงจากเบราว์เซอร์ของคุณ กรุณากรอก <strong class="text-stone-900">API key ของคุณเอง</strong> เพื่อเริ่มวิเคราะห์ เกลาสำนวน และตรวจ Proofread
         </p>
 
-        <!-- Shown only when a key is already saved -->
-        <div id="apiKeyCurrentStatus" class="hidden items-start gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 leading-relaxed">
-          <i data-lucide="circle-check-big" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
-          <span id="apiKeyCurrentStatusText"></span>
+        <!-- Validation / API Error (kept near the top so it is visible as soon as the popup opens) -->
+        <div id="apiKeyModalError" role="alert" class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 leading-relaxed break-words whitespace-pre-line"></div>
+
+        <!-- Shown only when a key is already saved (green = in use, amber = the last request with it failed) -->
+        <div id="apiKeyCurrentStatus" class="hidden items-start gap-2 px-3 py-2.5 rounded-xl border text-xs leading-relaxed">
+          <span id="apiKeyCurrentStatusIcon" class="inline-flex shrink-0 mt-0.5"></span>
+          <span id="apiKeyCurrentStatusText" class="min-w-0"></span>
         </div>
 
         <!-- Key Input -->
@@ -978,7 +984,7 @@
               data-lpignore="true"
               data-1p-ignore
               placeholder="วาง API key ของคุณที่นี่"
-              class="w-full rounded-xl border border-stone-300 bg-[#FCFBF9] pl-3.5 pr-11 py-2.5 text-sm font-mono text-stone-900 placeholder:text-stone-400 placeholder:font-thai focus:outline-none focus:ring-2 focus:ring-stone-800 focus:border-transparent transition"
+              class="w-full rounded-xl border border-stone-300 bg-[#FCFBF9] pl-3.5 pr-11 py-2.5 text-sm font-mono text-stone-900 placeholder:text-stone-500 placeholder:font-thai focus:outline-none focus:ring-2 focus:ring-stone-800 focus:border-transparent transition"
             />
             <button
               type="button"
@@ -986,7 +992,7 @@
               onclick="toggleApiKeyVisibility()"
               aria-label="แสดง API key"
               aria-pressed="false"
-              class="absolute inset-y-0 right-0 px-3 flex items-center text-stone-400 hover:text-stone-700 transition cursor-pointer"
+              class="absolute inset-y-0 right-0 px-3 flex items-center text-stone-500 hover:text-stone-800 transition cursor-pointer"
             >
               <span id="apiKeyVisibilityIcon" class="inline-flex"><i data-lucide="eye" class="w-4 h-4"></i></span>
             </button>
@@ -1005,9 +1011,9 @@
         <!-- Remember Choice -->
         <label for="rememberKeyCheckbox" class="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200 cursor-pointer hover:border-stone-300 transition">
           <input id="rememberKeyCheckbox" type="checkbox" class="mt-0.5 w-4 h-4 accent-stone-900 shrink-0 cursor-pointer" />
-          <span class="text-xs text-stone-700 leading-relaxed">
+          <span class="text-xs text-stone-700 leading-relaxed min-w-0">
             <span class="font-semibold text-stone-900">จดจำ API key ไว้ในเบราว์เซอร์นี้</span><br>
-            หากไม่เลือก ระบบจะเก็บไว้เฉพาะแท็บนี้และลบออกเองเมื่อปิดแท็บ (แนะนำสำหรับคอมพิวเตอร์สาธารณะหรือเครื่องที่ใช้ร่วมกัน)
+            เมื่อเลือก key จะถูกบันทึกในเบราว์เซอร์นี้จนกว่าคุณจะกด “ลบ API key” • หากไม่เลือก key จะอยู่ชั่วคราวในหน้านี้เท่านั้น (ไม่บันทึกลงเครื่อง) และต้องกรอกใหม่เมื่อรีโหลดหรือปิดหน้า — แนะนำสำหรับคอมพิวเตอร์สาธารณะหรือเครื่องที่ใช้ร่วมกัน
           </span>
         </label>
 
@@ -1041,17 +1047,14 @@
         <!-- Privacy Note -->
         <div class="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/60 border border-blue-200/80 text-xs text-blue-950 leading-relaxed">
           <i data-lucide="shield-check" class="w-4 h-4 text-blue-700 shrink-0 mt-0.5"></i>
-          <span>
+          <span class="min-w-0">
             API key <strong>ไม่ได้ฝังอยู่ในซอร์สโค้ด</strong> และไม่ถูกส่งไปยังเซิร์ฟเวอร์ของ The Siam Times — เก็บไว้ในเบราว์เซอร์ของคุณเท่านั้น และส่งตรงถึง Google
-            (<span class="font-mono">generativelanguage.googleapis.com</span>) ผ่าน HTTPS เมื่อคุณสั่งวิเคราะห์ ค่าใช้จ่ายและโควตาจะคิดกับบัญชี Google ของเจ้าของ key
+            (<span class="font-mono break-all">generativelanguage.googleapis.com</span>) ผ่าน HTTPS เมื่อคุณสั่งวิเคราะห์ ค่าใช้จ่ายและโควตาจะคิดกับบัญชี Google ของเจ้าของ key
           </span>
         </div>
 
-        <!-- Validation / API Error -->
-        <div id="apiKeyModalError" role="alert" class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 leading-relaxed break-words whitespace-pre-line"></div>
-
-        <!-- Actions -->
-        <div class="flex flex-col-reverse sm:flex-row sm:items-center gap-2 pt-1">
+        <!-- Actions (DOM order = visual order on every screen size, so Tab moves top-to-bottom / left-to-right) -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 pt-1">
           <button
             type="button"
             id="apiKeyClearBtn"
@@ -1059,21 +1062,21 @@
             class="hidden items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-700 hover:text-red-900 hover:bg-red-50 transition cursor-pointer"
           >
             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            <span>ลบ API key ที่บันทึกไว้</span>
+            <span>ลบ API key</span>
           </button>
-          <div class="flex flex-col-reverse sm:flex-row gap-2 sm:ml-auto">
+          <div class="flex flex-col sm:flex-row gap-2 sm:ml-auto">
             <button
               type="button"
               id="apiKeyCancelBtn"
               onclick="closeApiKeyModal()"
-              class="px-4 py-2.5 rounded-xl text-sm font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 transition cursor-pointer"
+              class="px-4 py-2.5 rounded-xl text-sm font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               ไว้ทีหลัง (ดูตัวอย่างก่อน)
             </button>
             <button
               type="submit"
               id="apiKeySaveBtn"
-              class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-amber-50 bg-stone-900 hover:bg-stone-800 shadow-md transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-amber-50 bg-stone-900 hover:bg-stone-800 shadow-md transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <i data-lucide="key-round" class="w-4 h-4 text-amber-400"></i>
               <span id="apiKeySaveLabel">ตรวจสอบและบันทึก</span>
@@ -1084,9 +1087,12 @@
     </div>
   </div>
 
-  <!-- Toast Notification -->
+  <!-- Toast Notification (announced to screen readers) -->
   <div
     id="toastNotification"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
     class="fixed bottom-5 right-5 z-[70] transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-stone-900 text-amber-50 px-4 py-3 rounded-xl shadow-xl border border-stone-700 flex items-center gap-2.5 text-xs sm:text-sm font-thai"
   >
     <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
@@ -1103,10 +1109,10 @@
       </div>
       <div class="text-stone-500 text-center sm:text-right space-y-1">
         <div>Powered by Gemini API • Standard Proofreading &amp; Linguistic Coaching</div>
-        <div class="inline-flex items-center gap-1.5">
+        <div class="flex flex-wrap items-center justify-center sm:justify-end gap-x-1.5 gap-y-1">
           <i data-lucide="lock" class="w-3 h-3"></i>
           <span>API key ของคุณเก็บไว้ในเบราว์เซอร์นี้เท่านั้น •</span>
-          <button type="button" onclick="openApiKeyModal()" class="underline underline-offset-2 hover:text-stone-900 cursor-pointer">จัดการ API Key</button>
+          <button type="button" onclick="openApiKeyModal()" class="underline underline-offset-2 hover:text-stone-900 cursor-pointer whitespace-nowrap">จัดการ API Key</button>
         </div>
       </div>
     </div>
@@ -1118,9 +1124,10 @@
   <script>
     // ==========================================
     // GEMINI API CONFIGURATION (NO API KEY IN SOURCE CODE)
-    // Each user enters their own key in the popup. It is kept in this browser only
-    // (sessionStorage by default, localStorage if the user ticks "remember"),
-    // and is sent only to the Gemini API in the x-goog-api-key request header.
+    // Each user enters their own key in the popup. By default it lives only in this page's memory
+    // (gone on reload / tab close, nothing written to disk); if the user ticks "remember" it is kept
+    // in localStorage until they delete it. It is sent only to the Gemini API, in the
+    // x-goog-api-key request header.
     // ==========================================
     const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
     const DEFAULT_MODEL_NAME = "gemini-3-flash-preview";
@@ -1136,10 +1143,13 @@
     let isAnalyzing = false;
 
     // API Key Popup State
-    let memoryApiKey = '';               // fallback when Web Storage is unavailable (e.g. some private modes)
+    let pageOnlyApiKey = '';             // "don't remember" mode: key kept in memory for this page view only
     let pendingAnalysisAfterKey = false; // re-run the analysis automatically once a key is saved
     let lastFocusedBeforeModal = null;
     let isSavingApiKey = false;
+    let failedApiKey = '';               // key that Google just rejected (popup shows it as failing)
+    let lastKeyErrorOptions = null;      // popup options for the inline error box's "change key" button
+    const keySyncChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('tst.lexicraft.apiKey') : null;
 
     // Sample Texts with Pre-built Instant Analysis for the Default Sample + One-Click Testing
     const SAMPLE_TEXTS = {
@@ -1421,6 +1431,11 @@
     function loadSample(key) {
       const sample = SAMPLE_TEXTS[key];
       if (!sample) return;
+      if (isAnalyzing) {
+        // Don't swap the draft under a running analysis (its results would be shown for the wrong text)
+        showToast("กรุณารอให้การวิเคราะห์ปัจจุบันเสร็จก่อน แล้วจึงเลือกตัวอย่างใหม่");
+        return;
+      }
       const textarea = document.getElementById('userInput');
       textarea.value = sample.text;
       document.getElementById('writingGoal').value = sample.goal;
@@ -1858,47 +1873,83 @@
       }
     }
 
+    // The remembered key is read from localStorage every time (never cached), so a key deleted or
+    // replaced in another tab takes effect here immediately.
+    function getRememberedApiKey() {
+      const local = getStorage('localStorage');
+      return (local && local.getItem(API_KEY_STORAGE_KEY)) || '';
+    }
+
     function getApiKey() {
-      if (memoryApiKey) return memoryApiKey;
-      for (const type of ['sessionStorage', 'localStorage']) {
-        const storage = getStorage(type);
-        const value = storage ? storage.getItem(API_KEY_STORAGE_KEY) : '';
-        if (value) {
-          memoryApiKey = value;
-          return value;
-        }
-      }
-      return '';
+      return pageOnlyApiKey || getRememberedApiKey();
     }
 
     function isApiKeyRemembered() {
-      const local = getStorage('localStorage');
-      return !!(local && local.getItem(API_KEY_STORAGE_KEY));
+      return !pageOnlyApiKey && !!getRememberedApiKey();
     }
 
+    /** Returns true if the key was remembered in localStorage, false if it is kept for this page only. */
     function saveApiKey(key, remember) {
-      memoryApiKey = key;
-      const session = getStorage('sessionStorage');
       const local = getStorage('localStorage');
-      try {
-        if (remember && local) {
+      if (remember && local) {
+        try {
           local.setItem(API_KEY_STORAGE_KEY, key);
-          if (session) session.removeItem(API_KEY_STORAGE_KEY);
-        } else {
-          if (session) session.setItem(API_KEY_STORAGE_KEY, key);
-          if (local) local.removeItem(API_KEY_STORAGE_KEY);
+          pageOnlyApiKey = '';
+          return true;
+        } catch (e) {
+          // Quota/permission problem → fall through to page-only mode
         }
-      } catch (e) {
-        // Storage quota/permission problems: the key still works for this page view via memoryApiKey.
       }
+      // "Don't remember": keep it in memory only and remove any copy remembered earlier
+      pageOnlyApiKey = key;
+      if (local) {
+        try { local.removeItem(API_KEY_STORAGE_KEY); } catch (e) { /* ignore */ }
+      }
+      return false;
     }
 
     function forgetApiKey() {
-      memoryApiKey = '';
-      for (const type of ['sessionStorage', 'localStorage']) {
+      pageOnlyApiKey = '';
+      failedApiKey = '';
+      for (const type of ['localStorage', 'sessionStorage']) {
         const storage = getStorage(type);
-        if (storage) storage.removeItem(API_KEY_STORAGE_KEY);
+        if (storage) {
+          try { storage.removeItem(API_KEY_STORAGE_KEY); } catch (e) { /* ignore */ }
+        }
       }
+    }
+
+    /**
+     * Clean up a pasted key: drop invisible characters (zero-width spaces, BOM, NBSP…) and wrapping quotes
+     * that chat apps and documents often add. HTTP headers only accept Latin-1, so anything else would make
+     * every request fail before it is even sent.
+     */
+    function normalizeApiKey(value) {
+      return String(value || '')
+        .replace(/[​-‍⁠﻿ ]/g, '')
+        .trim()
+        .replace(/^["'`“”‘’]+|["'`“”‘’]+$/g, '')
+        .trim();
+    }
+
+    function isPlausibleApiKey(key) {
+      // Printable ASCII only, no spaces, at least 20 characters (covers both "AIza…" and "AQ.…" keys)
+      return /^[\x21-\x7E]{20,}$/.test(key);
+    }
+
+    // Keep other open tabs in sync when the key is saved or deleted here
+    function broadcastKeyChange(type) {
+      if (!keySyncChannel) return;
+      try { keySyncChannel.postMessage({ type }); } catch (e) { /* ignore */ }
+    }
+
+    function handleExternalKeyChange(type) {
+      if (type === 'forget') {
+        pageOnlyApiKey = '';
+        failedApiKey = '';
+      }
+      refreshApiKeyStatus();
+      if (isApiKeyModalOpen()) renderModalKeyStatus();
     }
 
     function normalizeModelName(value) {
@@ -1989,8 +2040,8 @@
       const input = document.getElementById('apiKeyInput');
       const btn = document.getElementById('apiKeyVisibilityBtn');
       input.type = visible ? 'text' : 'password';
+      // Toggle button: the label stays "show API key" and aria-pressed carries the on/off state
       btn.setAttribute('aria-pressed', visible ? 'true' : 'false');
-      btn.setAttribute('aria-label', visible ? 'ซ่อน API key' : 'แสดง API key');
       document.getElementById('apiKeyVisibilityIcon').innerHTML =
         `<i data-lucide="${visible ? 'eye-off' : 'eye'}" class="w-4 h-4"></i>`;
       if (window.lucide) lucide.createIcons();
@@ -1998,6 +2049,46 @@
 
     function toggleApiKeyVisibility() {
       setApiKeyVisibility(document.getElementById('apiKeyInput').type === 'password');
+    }
+
+    // Status box + buttons inside the popup that depend on whether a key is saved (and whether it just failed)
+    function renderModalKeyStatus() {
+      const existingKey = getApiKey();
+      const input = document.getElementById('apiKeyInput');
+      const statusBox = document.getElementById('apiKeyCurrentStatus');
+      const statusIcon = document.getElementById('apiKeyCurrentStatusIcon');
+      const statusText = document.getElementById('apiKeyCurrentStatusText');
+      const clearBtn = document.getElementById('apiKeyClearBtn');
+      const cancelBtn = document.getElementById('apiKeyCancelBtn');
+      const baseStatusClass = "items-start gap-2 px-3 py-2.5 rounded-xl border text-xs leading-relaxed";
+
+      if (existingKey) {
+        const where = isApiKeyRemembered() ? 'จดจำไว้ในเบราว์เซอร์นี้' : 'เก็บชั่วคราวเฉพาะหน้านี้';
+        const failed = failedApiKey && failedApiKey === existingKey;
+        if (failed) {
+          statusBox.className = `flex ${baseStatusClass} bg-amber-50 border-amber-300 text-amber-950`;
+          statusIcon.innerHTML = '<i data-lucide="circle-alert" class="w-4 h-4 text-amber-600"></i>';
+          statusText.textContent = `API key ${maskApiKey(existingKey)} ที่ใช้อยู่ (${where}) ถูก Google ปฏิเสธ — กรุณาวาง key ใหม่ด้านล่าง หรือกด “ลบ API key”`;
+          input.placeholder = 'วาง API key ใหม่ที่นี่';
+        } else {
+          statusBox.className = `flex ${baseStatusClass} bg-emerald-50 border-emerald-200 text-emerald-900`;
+          statusIcon.innerHTML = '<i data-lucide="circle-check-big" class="w-4 h-4 text-emerald-600"></i>';
+          statusText.textContent = `กำลังใช้ API key ${maskApiKey(existingKey)} (${where}) — กรอก key ใหม่ด้านล่างเพื่อเปลี่ยน หรือเว้นว่างไว้เพื่อใช้ key เดิม`;
+          input.placeholder = 'เว้นว่างไว้เพื่อใช้ key เดิม';
+        }
+        clearBtn.classList.remove('hidden');
+        clearBtn.classList.add('inline-flex');
+        cancelBtn.textContent = 'ยกเลิก';
+      } else {
+        statusBox.className = `hidden ${baseStatusClass}`;
+        statusIcon.innerHTML = '';
+        statusText.textContent = '';
+        clearBtn.classList.add('hidden');
+        clearBtn.classList.remove('inline-flex');
+        cancelBtn.textContent = 'ไว้ทีหลัง (ดูตัวอย่างก่อน)';
+        input.placeholder = 'วาง API key ของคุณที่นี่';
+      }
+      if (window.lucide) lucide.createIcons();
     }
 
     /**
@@ -2021,34 +2112,13 @@
       document.getElementById('modelInput').value = getModelName();
       document.getElementById('apiAdvancedSettings').open = !!options.openAdvanced;
       showApiKeyModalError(options.message || '');
-
-      const statusBox = document.getElementById('apiKeyCurrentStatus');
-      const clearBtn = document.getElementById('apiKeyClearBtn');
-      const cancelBtn = document.getElementById('apiKeyCancelBtn');
-      if (existingKey) {
-        document.getElementById('apiKeyCurrentStatusText').textContent =
-          `กำลังใช้ API key ${maskApiKey(existingKey)} (${isApiKeyRemembered() ? 'จดจำไว้ในเบราว์เซอร์นี้' : 'เก็บไว้เฉพาะแท็บนี้'}) — ` +
-          `กรอก key ใหม่ด้านล่างเพื่อเปลี่ยน หรือเว้นว่างไว้เพื่อใช้ key เดิม`;
-        statusBox.classList.remove('hidden');
-        statusBox.classList.add('flex');
-        clearBtn.classList.remove('hidden');
-        clearBtn.classList.add('inline-flex');
-        cancelBtn.textContent = 'ยกเลิก';
-        input.placeholder = 'เว้นว่างไว้เพื่อใช้ key เดิม';
-      } else {
-        statusBox.classList.add('hidden');
-        statusBox.classList.remove('flex');
-        clearBtn.classList.add('hidden');
-        clearBtn.classList.remove('inline-flex');
-        cancelBtn.textContent = 'ไว้ทีหลัง (ดูตัวอย่างก่อน)';
-        input.placeholder = 'วาง API key ของคุณที่นี่';
-      }
+      renderModalKeyStatus();
 
       modal.classList.remove('hidden');
       modal.classList.add('flex');
       document.body.classList.add('overflow-hidden');
-      if (window.lucide) lucide.createIcons();
-      setTimeout(() => input.focus(), 30);
+      document.getElementById('apiKeyModalPanel').scrollTop = 0;
+      setTimeout(() => input.focus({ preventScroll: true }), 30);
     }
 
     function closeApiKeyModal() {
@@ -2061,10 +2131,18 @@
       setApiKeyVisibility(false);
       showApiKeyModalError('');
       pendingAnalysisAfterKey = false;
-      if (lastFocusedBeforeModal && typeof lastFocusedBeforeModal.focus === 'function' && document.contains(lastFocusedBeforeModal)) {
-        lastFocusedBeforeModal.focus();
-      }
+
+      // Return focus to where the user was; if that element is gone/hidden/disabled, use the Analyze button
+      const target = lastFocusedBeforeModal;
+      const usable = target && typeof target.focus === 'function' && document.contains(target) &&
+        target !== document.body && target.offsetParent !== null && !target.disabled;
+      (usable ? target : document.getElementById('analyzeBtn')).focus();
       lastFocusedBeforeModal = null;
+    }
+
+    // "ตั้งค่า / เปลี่ยน API Key" button inside the inline error box
+    function openApiKeyModalFromError() {
+      openApiKeyModal(lastKeyErrorOptions || { pendingAnalysis: true });
     }
 
     function setApiKeySaving(saving) {
@@ -2114,7 +2192,8 @@
       event.preventDefault();
       if (isSavingApiKey) return;
 
-      const typedKey = document.getElementById('apiKeyInput').value.trim();
+      const keyInput = document.getElementById('apiKeyInput');
+      const typedKey = normalizeApiKey(keyInput.value);
       const existingKey = getApiKey();
       const key = typedKey || existingKey;
       const remember = document.getElementById('rememberKeyCheckbox').checked;
@@ -2122,12 +2201,12 @@
 
       if (!key) {
         showApiKeyModalError('กรุณากรอก Gemini API key ก่อนบันทึก');
-        document.getElementById('apiKeyInput').focus();
+        keyInput.focus();
         return;
       }
-      if (/\s/.test(key) || key.length < 20) {
-        showApiKeyModalError('รูปแบบ API key ไม่ถูกต้อง — กรุณาคัดลอก key จาก Google AI Studio มาวางใหม่ทั้งหมด (ต้องไม่มีช่องว่าง)');
-        document.getElementById('apiKeyInput').focus();
+      if (!isPlausibleApiKey(key)) {
+        showApiKeyModalError('รูปแบบ API key ไม่ถูกต้อง — กรุณาคัดลอก key จาก Google AI Studio มาวางใหม่ทั้งหมด (ต้องเป็นตัวอักษรภาษาอังกฤษ ตัวเลข หรือสัญลักษณ์ ไม่มีช่องว่าง และยาวอย่างน้อย 20 ตัวอักษร)');
+        keyInput.focus();
         return;
       }
       if (!isValidModelName(model)) {
@@ -2147,8 +2226,12 @@
       }
 
       if (result.status === 'invalid') {
+        if (key === existingKey) {
+          failedApiKey = key;
+          renderModalKeyStatus();
+        }
         showApiKeyModalError(result.message);
-        document.getElementById('apiKeyInput').focus();
+        keyInput.focus();
         return;
       }
       if (result.status === 'model-not-found') {
@@ -2158,18 +2241,23 @@
         return;
       }
 
-      saveApiKey(key, remember);
+      const remembered = saveApiKey(key, remember);
       saveModelName(model);
+      failedApiKey = '';
+      lastKeyErrorOptions = null;
       refreshApiKeyStatus();
+      broadcastKeyChange('save');
 
       const shouldRunAnalysis = pendingAnalysisAfterKey;
       pendingAnalysisAfterKey = false;
+      hideError(); // before closing, so focus is not returned to a button inside the (now hidden) error box
       closeApiKeyModal();
-      hideError();
 
-      showToast(result.status === 'ok'
+      let toast = result.status === 'ok'
         ? 'เชื่อมต่อ Gemini API สำเร็จ บันทึก API key แล้ว'
-        : 'บันทึก API key แล้ว (ยังตรวจสอบกับ Google ไม่ได้ในขณะนี้)');
+        : 'บันทึก API key แล้ว (ยังตรวจสอบกับ Google ไม่ได้ในขณะนี้)';
+      if (remember && !remembered) toast += ' — เบราว์เซอร์ไม่อนุญาตให้จดจำ จึงเก็บไว้ชั่วคราวเฉพาะหน้านี้';
+      showToast(toast);
 
       if (shouldRunAnalysis) {
         runEditorialAnalysis();
@@ -2179,9 +2267,11 @@
     function clearApiKey() {
       if (isSavingApiKey) return;
       forgetApiKey();
+      lastKeyErrorOptions = null;
       refreshApiKeyStatus();
+      broadcastKeyChange('forget');
       closeApiKeyModal();
-      showToast('ลบ API key ออกจากเบราว์เซอร์นี้แล้ว');
+      showToast('ลบ API key ออกจากเบราว์เซอร์นี้แล้ว (รวมถึงแท็บอื่นที่เปิดหน้านี้อยู่)');
     }
 
     // Keyboard support for the modal: Esc closes, Tab stays inside the dialog
@@ -2213,12 +2303,13 @@
     // GEMINI API ERRORS
     // ==========================================
     class GeminiApiError extends Error {
-      constructor(message, { status = 0, reason = '', apiStatus = '' } = {}) {
+      constructor(message, { status = 0, reason = '', apiStatus = '', googleMessage = '' } = {}) {
         super(message);
         this.name = 'GeminiApiError';
         this.status = status;
         this.reason = reason;
         this.apiStatus = apiStatus;
+        this.googleMessage = googleMessage; // Google's own error text, without our "API Error (…)" prefix
       }
     }
 
@@ -2252,11 +2343,19 @@
     }
 
     function describeKeyProblem(status, info) {
-      if (status === 400 || (info.reason || '').includes('API_KEY_INVALID')) {
+      const reason = info.reason || '';
+      const message = info.message || '';
+      const googleDetail = message ? `\nรายละเอียดจาก Google: ${message}` : '';
+      // New "AQ." keys from AI Studio that Google does not accept come back as 401 ACCESS_TOKEN_TYPE_UNSUPPORTED
+      if (/ACCESS_TOKEN_TYPE_UNSUPPORTED/.test(reason)) {
+        return 'API key ไม่ถูกต้อง หรือ Gemini API ยังไม่รับ key รูปแบบนี้ (ACCESS_TOKEN_TYPE_UNSUPPORTED) — ' +
+          'ตรวจสอบว่าคัดลอกมาครบถ้วน หรือลองสร้าง key ใหม่ใน Google AI Studio' + googleDetail;
+      }
+      if (status === 400 || status === 401 || /API_KEY_INVALID|API_KEY_EXPIRED/.test(reason) || /API key (not valid|expired)/i.test(message)) {
         return 'API key ไม่ถูกต้องหรือหมดอายุ — กรุณาตรวจสอบว่าคัดลอกมาครบถ้วน หรือสร้าง key ใหม่ที่ Google AI Studio';
       }
       return `API key นี้ไม่มีสิทธิ์เรียกใช้ Gemini API (${info.apiStatus || status}) — key อาจถูกจำกัดสิทธิ์ ถูกระงับ หรือโปรเจกต์ยังไม่ได้เปิดใช้ Generative Language API` +
-        (info.message ? `\nรายละเอียดจาก Google: ${info.message}` : '');
+        googleDetail;
     }
 
     // Translate any failure into a Thai title/message for the UI
@@ -2268,7 +2367,7 @@
       if (isKeyProblem(status, reason, message)) {
         return {
           title: 'API key ใช้งานไม่ได้',
-          message: describeKeyProblem(status, { reason, apiStatus: error.apiStatus, message }),
+          message: describeKeyProblem(status, { reason, apiStatus: error.apiStatus, message: error.googleMessage || message }),
           keyProblem: true
         };
       }
@@ -2353,7 +2452,7 @@
         }
         throw new GeminiApiError(
           info.message ? `API Error (${response.status}): ${info.message}` : `API Error (${response.status})`,
-          { status: response.status, reason: info.reason, apiStatus: info.apiStatus }
+          { status: response.status, reason: info.reason, apiStatus: info.apiStatus, googleMessage: info.message }
         );
       }
     }
@@ -2367,15 +2466,20 @@
         .join('')
         .trim();
 
+      // A response that stopped early (even with partial text) is truncated JSON → explain why instead of "bad format"
+      const finishReason = candidate && candidate.finishReason;
+      if (finishReason === 'MAX_TOKENS') {
+        throw new GeminiApiError('คำตอบของ Gemini ยาวเกินขีดจำกัดและถูกตัดกลางคัน (MAX_TOKENS) — กรุณาลดความยาวของข้อความ หรือแบ่งเป็นช่วง ๆ แล้วลองใหม่', { reason: 'INCOMPLETE' });
+      }
+      if (finishReason && finishReason !== 'STOP') {
+        throw new GeminiApiError(`Gemini หยุดการตอบกลับก่อนเสร็จสมบูรณ์ (${finishReason}) กรุณาปรับข้อความแล้วลองใหม่อีกครั้ง`, { reason: 'INCOMPLETE' });
+      }
+
       if (text) return text;
 
       const blockReason = result && result.promptFeedback && result.promptFeedback.blockReason;
       if (blockReason) {
         throw new GeminiApiError(`Gemini ปฏิเสธการประมวลผลข้อความนี้ (${blockReason}) กรุณาปรับข้อความแล้วลองใหม่`, { reason: 'BLOCKED' });
-      }
-      const finishReason = candidate && candidate.finishReason;
-      if (finishReason && finishReason !== 'STOP') {
-        throw new GeminiApiError(`Gemini หยุดการตอบกลับก่อนเสร็จสมบูรณ์ (${finishReason}) กรุณาลองใหม่อีกครั้ง`, { reason: 'INCOMPLETE' });
       }
       throw new GeminiApiError('ไม่ได้รับข้อมูลตอบกลับจากระบบ AI กรุณาลองใหม่อีกครั้ง', { reason: 'EMPTY' });
     }
@@ -2398,6 +2502,14 @@
       data.coachingLessons = Array.isArray(data.coachingLessons) ? data.coachingLessons : [];
       data.vocabUpgrades = Array.isArray(data.vocabUpgrades) ? data.vocabUpgrades : [];
       return data;
+    }
+
+    function setSampleButtonsDisabled(disabled) {
+      document.querySelectorAll('.sample-btn').forEach(btn => {
+        btn.disabled = disabled;
+        btn.classList.toggle('opacity-50', disabled);
+        btn.classList.toggle('cursor-not-allowed', disabled);
+      });
     }
 
     async function runEditorialAnalysis() {
@@ -2434,6 +2546,7 @@
 
       analyzeBtn.disabled = true;
       analyzeBtn.classList.add('opacity-60', 'cursor-not-allowed');
+      setSampleButtonsDisabled(true);
       loadingSection.classList.remove('hidden');
       resultsWorkspace.classList.add('opacity-40', 'pointer-events-none');
 
@@ -2448,7 +2561,7 @@
 
       const stepTimer2 = setTimeout(() => {
         loadingBar.style.width = '88%';
-        loadingStepText.textContent = "ขั้นตอนที่ 3/3: กำลังจัดทำบทวิพากย์เชิงลึกและบทเรียนสอนเขียนภาษาไทย...";
+        loadingStepText.textContent = "ขั้นตอนที่ 3/3: กำลังจัดทำบทวิพากษ์เชิงลึกและบทเรียนสอนเขียนภาษาไทย...";
       }, 3000);
 
       const systemInstruction = `You are a world-class English Executive Editor (senior editor at The Siam Times — Thailand's historic English-language newspaper, first published in Bangkok in 1864 — as well as an Oxford academic journal editor and a bilingual Thai-English linguistics coach).
@@ -2584,7 +2697,9 @@ ${userText}
         generationConfig: {
           responseMimeType: "application/json",
           responseSchema: responseSchema,
-          temperature: 0.4
+          // Google recommends leaving Gemini 3 models at their default temperature (1.0); lower values
+          // can cause looping. Older models keep the original, more conservative 0.4.
+          ...(/^gemini-3/i.test(modelName) ? {} : { temperature: 0.4 })
         }
       };
 
@@ -2611,8 +2726,13 @@ ${userText}
         const info = describeAnalysisError(error);
         showError(info.title, info.message, { showKeyAction: info.keyProblem });
         if (info.keyProblem) {
-          // Let the user fix the key (or model) right away; the analysis re-runs after saving
-          openApiKeyModal({ message: info.message, pendingAnalysis: true, openAdvanced: !!info.openAdvanced });
+          if (!info.openAdvanced && getApiKey() === apiKey) {
+            failedApiKey = apiKey; // the popup then shows this key as rejected instead of "in use"
+          }
+          // Let the user fix the key (or model) right away; the analysis re-runs after saving.
+          // The same options are reused by the "change key" button in the inline error box.
+          lastKeyErrorOptions = { message: info.message, pendingAnalysis: true, openAdvanced: !!info.openAdvanced };
+          openApiKeyModal(lastKeyErrorOptions);
         }
       } finally {
         isAnalyzing = false;
@@ -2620,15 +2740,18 @@ ${userText}
         clearTimeout(stepTimer2);
         analyzeBtn.disabled = false;
         analyzeBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+        setSampleButtonsDisabled(false);
         loadingSection.classList.add('hidden');
         resultsWorkspace.classList.remove('opacity-40', 'pointer-events-none');
       }
     }
 
     // ==========================================
-    // INITIALIZE ON WINDOW LOAD
+    // INITIALIZE
+    // Runs immediately (this script is at the end of <body>, and Tailwind + Lucide load synchronously
+    // in <head>), so the popup works even before slow web fonts finish and window "load" fires.
     // ==========================================
-    window.onload = function () {
+    (function initApp() {
       const textarea = document.getElementById('userInput');
       textarea.value = SAMPLE_TEXTS.environment.text;
       textarea.addEventListener('input', updateTextCounters);
@@ -2640,6 +2763,17 @@ ${userText}
       // API key popup wiring
       document.getElementById('apiKeyForm').addEventListener('submit', handleApiKeySubmit);
       document.addEventListener('keydown', handleModalKeydown);
+
+      // Keep every open tab in sync: localStorage changes (remembered key / model) and explicit deletes
+      window.addEventListener('storage', (event) => {
+        if (event.key === null || event.key === API_KEY_STORAGE_KEY || event.key === MODEL_STORAGE_KEY) {
+          handleExternalKeyChange(event.key === API_KEY_STORAGE_KEY && !event.newValue ? 'remove' : 'update');
+        }
+      });
+      if (keySyncChannel) {
+        keySyncChannel.onmessage = (event) => handleExternalKeyChange(event.data && event.data.type);
+      }
+
       refreshApiKeyStatus();
 
       if (window.lucide) {
@@ -2647,10 +2781,10 @@ ${userText}
       }
 
       // First visit (or key not saved): ask for the user's own Gemini API key
-      if (!getApiKey()) {
+      if (!getApiKey() && !isApiKeyModalOpen()) {
         openApiKeyModal();
       }
-    };
+    })();
   </script>
 </body>
 </html>
