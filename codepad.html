@@ -361,11 +361,12 @@
 </svg>
 
 <div id="app">
-  <!-- Top bar: Files · filename · Edit · full screen -->
+  <!-- Top bar: Files · filename · Copy · Edit · full screen -->
   <nav class="navbar">
     <div class="left"><button class="navbtn" id="filesBtn">Files</button></div>
     <button id="title" title="Rename file">index.html</button>
     <div class="right">
+      <button class="navbtn" id="copyBtn" aria-label="Copy code" title="Copy code">Copy</button>
       <button class="navbtn" id="editBtn">Edit</button>
       <button class="navbtn" id="fsBtn" aria-label="Toggle full screen" title="Full screen"><svg class="i"><use href="#i-expand"/></svg></button>
     </div>
@@ -459,63 +460,7 @@
 
   if (!window.CodeMirror) { $('#loadError').style.display = 'block'; return; }
 
-  /* ================= sample + snippets ================= */
-  const SAMPLE = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello, CodePad</title>
-
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #e9ecef;
-      color: #212529;
-      display: grid;
-      place-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-    /* Card styles */
-    .card {
-      background: #fff;
-      padding: 32px 40px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-    button {
-      font-size: 18px;
-      padding: 10px 22px;
-      border: 0;
-      border-radius: 10px;
-      background: #4a148c;
-      color: #fff;
-    }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h2>Hello from CodePad</h2>
-    <p>You clicked <strong id="count">0</strong> times.</p>
-    <button id="btn">Click me</button>
-  </div>
-
-  <script>
-    // Tap ▶ to run. Open the console to see the logs.
-    let count = 0;
-    const btn = document.getElementById('btn');
-    btn.addEventListener('click', () => {
-      count++;
-      document.getElementById('count').textContent = count;
-      console.log('Clicked', count, 'times');
-    });
-  <\/script>
-</body>
-</html>
-`;
-
+  /* ================= snippets ================= */
   const BOILERPLATE = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -575,7 +520,7 @@
 
   let files = store.get('codepad.files', null);
   if (!files || typeof files !== 'object' || !Object.keys(files).length) {
-    files = {}; files[uid()] = { name: 'index.html', content: SAMPLE, updated: Date.now() };
+    files = {}; files[uid()] = { name: 'index.html', content: '', updated: Date.now() };
   }
   let currentId = store.get('codepad.current', null);
   if (!files[currentId]) currentId = Object.keys(files).sort((a, b) => files[b].updated - files[a].updated)[0];
@@ -999,7 +944,7 @@
       row.querySelector('[data-a=del]').onclick = () => {
         if (!confirm('Delete “' + f.name + '”? This cannot be undone.')) return;
         delete files[id]; delete docs[id];
-        if (!Object.keys(files).length) files[uid()] = { name: 'index.html', content: BOILERPLATE, updated: Date.now() };
+        if (!Object.keys(files).length) files[uid()] = { name: 'index.html', content: '', updated: Date.now() };
         if (id === currentId) openFile(Object.keys(files).sort((a, b) => files[b].updated - files[a].updated)[0]);
         saveNow(); body.innerHTML = ''; renderFiles(body);
       };
@@ -1015,7 +960,7 @@
     $('#newFileBtn').onclick = () => {
       const n = prompt('New file name', uniqueName('untitled.html'));
       if (!n || !n.trim()) return;
-      const name = n.trim(); newFile(name, /\.html?$/i.test(name) ? BOILERPLATE : '');
+      const name = n.trim(); newFile(name, '');
       closeSheet(); setEditing(true);
     };
     $('#importBtn').onclick = () => $('#fileInput').click();
@@ -1152,6 +1097,7 @@
     });
   }
   $('#shareBtn').onclick = showShare;
+  $('#copyBtn').onclick = copyAll;
 
   /* ================= global keys ================= */
   document.addEventListener('keydown', (e) => {
