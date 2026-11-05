@@ -366,6 +366,7 @@
     <div class="left"><button class="navbtn" id="filesBtn">Files</button></div>
     <button id="title" title="Rename file">index.html</button>
     <div class="right">
+      <button class="navbtn" id="clearBtn" aria-label="Clear code" title="Clear code">Clear</button>
       <button class="navbtn" id="copyBtn" aria-label="Copy code" title="Copy code">Copy</button>
       <button class="navbtn" id="editBtn">Edit</button>
       <button class="navbtn" id="fsBtn" aria-label="Toggle full screen" title="Full screen"><svg class="i"><use href="#i-expand"/></svg></button>
@@ -1098,6 +1099,13 @@
   }
   $('#shareBtn').onclick = showShare;
   $('#copyBtn').onclick = copyAll;
+  $('#clearBtn').onclick = () => {
+    if (confirm('Are you sure you want to clear all code?')) {
+      cm.setValue('');
+      if (!editing) setEditing(true);
+      cm.focus();
+    }
+  };
 
   /* ================= global keys ================= */
   document.addEventListener('keydown', (e) => {
