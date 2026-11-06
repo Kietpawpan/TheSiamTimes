@@ -109,10 +109,11 @@
               <span><strong id="wordCount" class="text-stone-900">0</strong> words</span><span class="text-stone-300">|</span><span><strong id="charCount" class="text-stone-900">0</strong> chars</span>
             </div>
 
+            <!-- เพิ่มช่องกรอกรหัสลับที่นี่ -->
             <div class="flex flex-wrap items-center gap-3">
               <div class="flex items-center gap-2">
-                <label for="writingGoal" class="font-thai text-stone-600 text-xs font-medium">บริบทเสริม:</label>
-                <select id="writingGoal" class="rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-xs text-stone-800 font-thai focus:outline-none focus:ring-2 focus:ring-stone-800">
+                <label for="writingGoal" class="font-thai text-stone-600 text-xs font-medium shrink-0">บริบทเสริม:</label>
+                <select id="writingGoal" class="rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-xs text-stone-800 font-thai focus:outline-none focus:ring-2 focus:ring-stone-800 w-full sm:w-auto">
                   <option value="General improvement across all styles">ทั่วไป (วิเคราะห์รอบด้าน)</option>
                   <option value="Academic journal, thesis, or university essay">บทความวิชาการ / วิทยานิพนธ์</option>
                   <option value="Professional workplace email or daily communication">อีเมลทำงาน / สื่อสารทั่วไป</option>
@@ -120,16 +121,20 @@
                 </select>
               </div>
               <div class="flex items-center gap-2">
-                <label for="aiEngine" class="font-thai text-stone-600 text-xs font-medium">AI Engine:</label>
-                <select id="aiEngine" class="rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-xs text-stone-800 font-bold focus:outline-none focus:ring-2 focus:ring-stone-800">
-                  <option value="claude">Anthropic Claude (ภาษาสละสลวย)</option>
-                  <option value="gemini">Google Gemini (รวดเร็ว)</option>
+                <label for="aiEngine" class="font-thai text-stone-600 text-xs font-medium shrink-0">AI Engine:</label>
+                <select id="aiEngine" class="rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-xs text-stone-800 font-bold focus:outline-none focus:ring-2 focus:ring-stone-800 w-full sm:w-auto">
+                  <option value="claude">Anthropic Claude</option>
+                  <option value="gemini">Google Gemini</option>
                 </select>
+              </div>
+              <div class="flex items-center gap-2 relative">
+                <label for="secretKeyInput" class="font-thai text-stone-600 text-xs font-medium shrink-0"><i data-lucide="key" class="w-3.5 h-3.5 inline"></i> Secret Key:</label>
+                <input type="password" id="secretKeyInput" placeholder="รหัสผ่าน API" class="rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-800 w-full sm:w-32 tracking-widest">
               </div>
             </div>
           </div>
 
-          <div class="flex items-center gap-2.5 shrink-0">
+          <div class="flex items-center gap-2.5 shrink-0 mt-2 sm:mt-0">
             <button id="analyzeBtn" type="button" onclick="runEditorialAnalysis()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-stone-900 hover:bg-stone-800 active:scale-[0.99] text-amber-50 font-thai font-semibold text-sm sm:text-base shadow-md hover:shadow-lg transition cursor-pointer">
               <i data-lucide="wand-sparkles" class="w-4 h-4 text-amber-400"></i>
               <span>วิเคราะห์ เกลาสำนวน และตรวจ Proofread</span>
@@ -365,10 +370,9 @@
 
   <script>
     // =====================================
-    // 🔴 ใส่ Web App URL และ Secret Key ตรงนี้ 
+    // 🔴 ใส่ Web App URL ของ Apps Script ที่นี่
     // =====================================
-    const API_URL = "https://script.google.com/macros/s/AKfycbwMns8-dHqb414sTaF8GCxtCYioxev1uv97VJFNmaazn334uxX0G-qzpTvyqidYHtKX/exec"; 
-    const SECRET_KEY = "";
+    const API_URL = "YOUR_WEB_APP_URL_HERE"; 
     // =====================================
 
     let currentStyleCardMode = 'clean'; 
@@ -612,15 +616,15 @@
       document.getElementById('errorBox').classList.remove('hidden');
     }
 
-    // =====================================
-    // ฟังก์ชัน Fetch API ข้ามโดเมน
-    // =====================================
     async function runEditorialAnalysis() {
       const userText = document.getElementById('userInput').value.trim();
       const goal = document.getElementById('writingGoal').value;
       const ai = document.getElementById('aiEngine').value;
+      const secretKey = document.getElementById('secretKeyInput').value.trim();
       
-      if (!userText) return showError("ข้อความว่างเปล่า", "กรุณากรอกข้อความ");
+      if (!userText) return showError("ข้อความว่างเปล่า", "กรุณากรอกข้อความที่ต้องการวิเคราะห์");
+      if (!secretKey) return showError("ขาดรหัสผ่าน", "กรุณาระบุรหัสผ่าน API (Secret Key)");
+      
       hideError();
 
       const btn = document.getElementById('analyzeBtn');
@@ -633,10 +637,10 @@
         const response = await fetch(API_URL, {
           method: "POST",
           headers: {
-            "Content-Type": "text/plain;charset=utf-8" // ต้องใช้ text/plain สำหรับ Apps Script CORS
+            "Content-Type": "text/plain;charset=utf-8" 
           },
           body: JSON.stringify({
-            secretKey: SECRET_KEY,
+            secretKey: secretKey,
             userText: userText,
             writingGoal: goal,
             aiEngine: ai
@@ -651,7 +655,7 @@
           renderFullAnalysis(resData);
           showToast(`ประมวลผลผ่าน ${ai.toUpperCase()} เรียบร้อย`);
         } else {
-          throw new Error(jsonResponse.error || "เซิร์ฟเวอร์ขัดข้อง");
+          throw new Error(jsonResponse.error || "เซิร์ฟเวอร์ขัดข้อง (ตรวจสอบ Secret Key)");
         }
       } catch (err) {
         console.error("Editorial Analysis Error:", err);
@@ -666,6 +670,17 @@
     window.onload = () => {
       document.getElementById('userInput').addEventListener('input', updateTextCounters);
       loadSample('environment');
+      
+      // ดึง Secret Key จาก LocalStorage (ถ้าเคยกรอกไว้)
+      const savedKey = localStorage.getItem('lexicraft_secret_key');
+      if (savedKey) {
+        document.getElementById('secretKeyInput').value = savedKey;
+      }
+      
+      // บันทึก Secret Key ลง LocalStorage อัตโนมัติเมื่อพิมพ์
+      document.getElementById('secretKeyInput').addEventListener('input', function(e) {
+        localStorage.setItem('lexicraft_secret_key', e.target.value);
+      });
     };
   </script>
 </body>
