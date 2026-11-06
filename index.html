@@ -1195,10 +1195,35 @@
                 }
             });
 
+// 4. ส่วนสร้างรายละเอียดหน้าปัดนาฬิกาและสั่งให้เข็มเดิน
+            const markersContainer = document.getElementById('markers-container');
+            const dialElement = document.querySelector('.dial');
+            
+            // ชุดสีประจำวันสไตล์ Rolex (อาทิตย์ = 0 ถึง เสาร์ = 6)
+            const rolexDialColors = [
+                "radial-gradient(circle at 50% 45%, #bd2c3d 0%, #991d2a 58%, #6b1019 100%)", // 0: อาทิตย์ (แดง Coral Red/Cherry)
+                "radial-gradient(circle at 50% 45%, #ffd230 0%, #dbaf14 58%, #a38209 100%)", // 1: จันทร์ (เหลือง Yellow)
+                "radial-gradient(circle at 50% 45%, #ffb1c8 0%, #e68ca9 58%, #b3627d 100%)", // 2: อังคาร (ชมพู Candy Pink)
+                "radial-gradient(circle at 50% 45%, #117a43 0%, #0d6e3a 58%, #085029 100%)", // 3: พุธ (เขียว Lacquer Green)
+                "radial-gradient(circle at 50% 45%, #ff7830 0%, #db5914 58%, #a33e08 100%)", // 4: พฤหัสบดี (แสด Coral)
+                "radial-gradient(circle at 50% 45%, #76d6ff 0%, #4cb8e6 58%, #2785ad 100%)", // 5: ศุกร์ (ฟ้า Ice Blue/Turquoise)
+                "radial-gradient(circle at 50% 45%, #6a3979 0%, #50275d 58%, #31133a 100%)"  // 6: เสาร์ (ม่วง Red Grape)
+            ];
+            
+            if (dialElement) {
+                const currentDay = new Date().getDay();
+                dialElement.style.background = rolexDialColors[currentDay];
+            }
+
+            if (markersContainer) {
+                markersContainer.innerHTML = '';
+
+            /*
             // 4. ส่วนสร้างรายละเอียดหน้าปัดนาฬิกาและสั่งให้เข็มเดิน
             const markersContainer = document.getElementById('markers-container');
             if (markersContainer) {
                 markersContainer.innerHTML = '';
+                */
                 const radiusMinute = 138;
                 const radiusHour = 115;
 
