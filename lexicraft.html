@@ -26,6 +26,14 @@
   </script>
 
   <style>
+    @font-face {
+      font-family: 'Chomsky';
+      src: url('https://cdn.jsdelivr.net/gh/ctrlcctrlv/chomsky@master/Chomsky.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    
     body { background-color: #FAF8F5; color: #18181B; font-family: 'Inter', 'IBM Plex Sans Thai', sans-serif; }
     .nyt-double-rule { border-top: 3px double #18181B; }
     del.diff-del { background-color: #FEE2E2; color: #991B1B; text-decoration: line-through; text-decoration-color: #DC2626; padding: 1px 4px; border-radius: 4px; margin: 0 1px; font-weight: 500; }
@@ -109,7 +117,7 @@
               <span><strong id="wordCount" class="text-stone-900">0</strong> words</span><span class="text-stone-300">|</span><span><strong id="charCount" class="text-stone-900">0</strong> chars</span>
             </div>
 
-            <!-- เพิ่มช่องกรอกรหัสลับที่นี่ -->
+            <!-- ช่องกรอกรหัสลับ -->
             <div class="flex flex-wrap items-center gap-3">
               <div class="flex items-center gap-2">
                 <label for="writingGoal" class="font-thai text-stone-600 text-xs font-medium shrink-0">บริบทเสริม:</label>
@@ -169,6 +177,15 @@
 
     <!-- RESULTS WORKSPACE -->
     <div id="resultsWorkspace" class="space-y-10">
+
+      <!-- ปุ่มคัดลอกผลลัพธ์แบบไม่มีฟังก์ชันเพื่อเผยแพร่ -->
+      <div class="flex justify-end pt-2">
+        <button type="button" onclick="copyStaticWebVersion()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 active:scale-[0.98] text-white font-thai text-sm font-semibold shadow-lg transition cursor-pointer border border-stone-700">
+          <i data-lucide="braces" class="w-4 h-4 text-amber-400"></i>
+          <span>คัดลอก HTML โค้ดผลลัพธ์แบบคงที่ (เผยแพร่บนเว็บ)</span>
+        </button>
+      </div>
+
       <section id="section-styles" class="space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 nyt-double-rule pt-4">
           <div>
@@ -616,6 +633,91 @@
       document.getElementById('errorBox').classList.remove('hidden');
     }
 
+    // ==========================================
+    // ฟังก์ชันใหม่สำหรับการคัดลอก HTML ไปเผยแพร่
+    // ==========================================
+    function copyStaticWebVersion() {
+      // สร้าง Container เสมือนสำหรับจัดเรียงหน้าเว็บ
+      const exportContainer = document.createElement('div');
+      exportContainer.className = "space-y-8";
+
+      // 1. เติมข้อความพิเศษไว้ด้านบนสุด พร้อมใช้ฟอนต์ Chomsky
+      const customTitle = document.createElement('div');
+      customTitle.className = "text-center pb-6 border-b-2 border-stone-300 mb-8 mt-4";
+      customTitle.innerHTML = `<h2 class="text-5xl sm:text-6xl text-stone-900" style="font-family: 'Chomsky', serif;">THE SIAM TIMES</h2>`;
+      exportContainer.appendChild(customTitle);
+
+      // 2. คัดลอกชื่อแอปพลิเคชัน (Header)
+      const headerClone = document.querySelector('header').cloneNode(true);
+      headerClone.classList.remove('sticky', 'top-0', 'z-30'); // เอา fix ออกเพื่อไม่ให้ลอยในเว็บอื่น
+      exportContainer.appendChild(headerClone);
+
+      // 3. คัดลอกส่วนที่ 1 (ต้นฉบับภาษาอังกฤษของคุณ)
+      const section1Clone = document.querySelector('main > section:first-child').cloneNode(true);
+      
+      // ดึงข้อความจาก textarea จริง
+      const originalText = document.getElementById('userInput').value;
+      const taClone = section1Clone.querySelector('textarea');
+      if (taClone) {
+        // สร้าง div เสมือนกล่องข้อความเพื่อแสดงเนื้อหาแบบคงที่
+        const staticTextDiv = document.createElement('div');
+        staticTextDiv.className = taClone.className.replace(/focus:\S+|resize-y/g, '').trim();
+        staticTextDiv.classList.add('whitespace-pre-wrap', 'min-h-[120px]');
+        staticTextDiv.textContent = originalText;
+        taClone.parentNode.replaceChild(staticTextDiv, taClone);
+      }
+
+      // ลบส่วนฟอร์มหรือปุ่มควบคุมในส่วนที่ 1 ออกทั้งหมด
+      section1Clone.querySelectorAll('input').forEach(el => el.remove());
+      section1Clone.querySelectorAll('select').forEach(el => el.remove());
+      section1Clone.querySelectorAll('button').forEach(el => el.remove());
+      section1Clone.querySelectorAll('label').forEach(el => el.remove());
+      const errorBox = section1Clone.querySelector('#errorBox');
+      if (errorBox) errorBox.remove();
+      
+      exportContainer.appendChild(section1Clone);
+
+      // 4. คัดลอกส่วนผลลัพธ์การแก้ไข
+      const resultsClone = document.getElementById('resultsWorkspace').cloneNode(true);
+      exportContainer.appendChild(resultsClone);
+
+      // ลบปุ่มกดและเมนูตัวเลือกทั้งหมดเพื่อตัดการโต้ตอบ
+      exportContainer.querySelectorAll('button').forEach(btn => btn.remove());
+      exportContainer.querySelectorAll('select').forEach(sel => sel.remove());
+
+      // ลบแอตทริบิวต์ id และ onclick ออกทั้งหมด
+      exportContainer.querySelectorAll('*').forEach(el => {
+        el.removeAttribute('id');
+        el.removeAttribute('onclick');
+      });
+
+      // จัดเตรียมชุดคำสั่งทรัพยากรหลัก
+      const metaCharset = `<meta charset="UTF-8" />`;
+      const fonts = `<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">`;
+      const tailwindCDN = `<script src="https://cdn.tailwindcss.com"><\/script>`;
+      const tailwindCfg = `<script>tailwind.config={theme:{extend:{fontFamily:{serif:['Newsreader','Georgia','serif'],sans:['Inter','IBM Plex Sans Thai','sans-serif'],thai:['IBM Plex Sans Thai','Sarabun','sans-serif'],bodyThai:['Sarabun','IBM Plex Sans Thai','sans-serif']}}}}<\/script>`;
+      const customStyles = document.querySelector('style').outerHTML; // จะดึง @font-face Chomsky ไปด้วยอัตโนมัติ
+
+      // จัดโครงสร้างกล่องเพื่อให้ควบคุมรูปแบบได้เหมือนหน้าจอเดิม
+      const finalHTML = `
+${metaCharset}
+<div class="lexicraft-static-export" style="background-color: #FAF8F5; color: #18181B; padding: 2.5rem 0; font-family: 'Inter', 'IBM Plex Sans Thai', sans-serif;">
+  ${fonts}
+  ${tailwindCDN}
+  ${tailwindCfg}
+  ${customStyles}
+  <div style="max-width: 80rem; margin: 0 auto; padding: 0 1.5rem;">
+    ${exportContainer.innerHTML}
+  </div>
+</div>`;
+
+      navigator.clipboard.writeText(finalHTML.trim()).then(() => {
+        showToast("คัดลอก HTML โค้ดผลลัพธ์สำเร็จ นำไปแปะในโหมดโค้ดของเว็บได้เลย");
+      }).catch(() => {
+        showToast("เกิดข้อผิดพลาดในการคัดลอก");
+      });
+    }
+
     async function runEditorialAnalysis() {
       const userText = document.getElementById('userInput').value.trim();
       const goal = document.getElementById('writingGoal').value;
@@ -671,13 +773,11 @@
       document.getElementById('userInput').addEventListener('input', updateTextCounters);
       loadSample('environment');
       
-      // ดึง Secret Key จาก LocalStorage (ถ้าเคยกรอกไว้)
       const savedKey = localStorage.getItem('lexicraft_secret_key');
       if (savedKey) {
         document.getElementById('secretKeyInput').value = savedKey;
       }
       
-      // บันทึก Secret Key ลง LocalStorage อัตโนมัติเมื่อพิมพ์
       document.getElementById('secretKeyInput').addEventListener('input', function(e) {
         localStorage.setItem('lexicraft_secret_key', e.target.value);
       });
