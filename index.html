@@ -31,7 +31,7 @@
                         masthead: ['Chomsky', 'UnifrakturMaguntia', 'cursive'],
                     },
                     colors: {
-                        nyt: {
+                        brand: {
                             gray: '#dfdfdf',
                             text: '#333333',
                             dark: '#121212',
@@ -128,9 +128,9 @@
         .close-button:hover { background: #555; }
         
         /* =========================================
-           ROLEX CLOCK STYLES (UPDATED)
+           CLOCK STYLES
            ========================================= */
-        .rolex-container {
+        .clock-container {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -138,7 +138,7 @@
             margin-bottom: 5px;
         }
 
-        /* ปรับสีเขียว Lacquer Green พร้อม radial-gradient */
+        /* สีพื้นหน้าปัดเริ่มต้น (เขียว) พร้อม radial-gradient */
         .dial {
             width: 290px;
             height: 290px;
@@ -232,22 +232,22 @@
             border: none;
             box-shadow: 0 0.5px 1px rgba(0,0,0,0.25);
         }
-        
-        .tiny-crown {
+
+        /* ตัว S ของ The Siam Times ตรง 6 นาฬิกา */
+        .dial-logo {
             position: absolute;
-            width: 9px; 
-            height: 9px;
             left: 50%;
             top: 50%;
-            transform-origin: center;
             z-index: 4;
+            font-family: 'Chomsky', 'UnifrakturMaguntia', serif;
+            font-size: 13px;
+            line-height: 1;
+            color: #ffffff;
+            text-shadow: 0 0.5px 1px rgba(0,0,0,0.25);
+            white-space: nowrap;
         }
-        .tiny-crown svg {
-            width: 100%;
-            height: 100%;
-            fill: white;
-        }
-/* 5. ปรับสัดส่วนฟอนต์และระยะห่างตัวอักษรคำว่า ROLEX */
+
+        /* ปรับสัดส่วนฟอนต์และระยะห่างตัวอักษรชื่อวัน */
         .text-brand {
             font-family: 'Garamond', 'Baskerville', 'Times New Roman', serif;
             font-size: 14.5px;
@@ -298,7 +298,8 @@
             text-shadow: 0 1px 1.5px rgba(0,0,0,0.25);
         }
         
-        .swiss-text {
+        /* ข้อความ SIAM / MADE ตรง 6 นาฬิกา */
+        .made-text {
             position: absolute;
             color: rgba(255, 255, 255, 0.95);
             font-family: 'Arial', sans-serif;
@@ -902,7 +903,7 @@
                         <div>
                             <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4">Writing Lessons</h4>
                             <ul class="space-y-3 text-[13px] font-sans text-gray-800">
-                                <li><a href="691107Rolex.html" class="hover:underline">Grammar & Syntax</a></li>
+                                <li><a href="691107Grammar.html" class="hover:underline">Grammar & Syntax</a></li>
                                 <li><a href="#" class="hover:underline">Vocabulary Builder</a></li>
                                 <li><a href="#" class="hover:underline">Punctuation Rules</a></li>
                                 <li><a href="#" class="hover:underline">Style & Tone</a></li>
@@ -945,7 +946,7 @@
                         <h3 class="text-xl font-bold font-title mb-4 border-b border-gray-300 pb-2">About The Siam Times</h3>
                         <div class="text-[14px] text-gray-800 font-serif leading-relaxed space-y-3">
 
-                           <p><strong class="font-bold">Our Namesake</strong></p>
+                            <p><strong class="font-bold">Our Namesake</strong></p>
                             <p>The original Siam Times was the first English-language newspaper ever published in Siam. Founded in Bangkok on 28 July 1864 by John Hassett Chandler, an American resident who later served as U.S. consul, the weekly paper ran until December 1865. More than a century and a half later, we borrow its name to carry forward its pioneering spirit.</p>
                             
                             <p><strong class="font-bold">Heritage and Historical Disclaimer</strong></p>
@@ -1007,11 +1008,11 @@
 
                 <section class="md:col-span-8 flex flex-col">
                     <div class="text-center mb-3">
-                        <span class="text-[13px] font-sans border-b border-nyt-link text-gray-800 pb-[2px]">All stories are <strong class="font-bold">free to read</strong>.</span>
+                        <span class="text-[13px] font-sans border-b border-brand-link text-gray-800 pb-[2px]">All stories are <strong class="font-bold">free to read</strong>.</span>
                     </div>
 
                     <div class="relative group cursor-pointer border border-gray-200 mt-2">
-                        <img src="IMG_0046.jpeg" class="w-full h-auto object-cover" alt="Far Right Rally in Europe">
+                        <img src="IMG_0046.jpeg" class="w-full h-auto object-cover" alt="Bangkok and the Chao Phraya River in 1864">
                         
                         <div class="absolute bottom-2 left-2 md:bottom-6 md:left-6 bg-white/90 px-2 py-1 md:px-3 md:py-2 max-w-[80%] md:max-w-[65%] shadow-sm">
                             <p class="text-xs md:text-base font-serif text-black leading-snug">
@@ -1071,12 +1072,11 @@
             <aside class="lg:col-span-3 flex flex-col gap-6 lg:pl-2 mt-4 lg:mt-0">
                 
                 <!-- แสดงนาฬิกาในแถบด้านข้าง (Sidebar) -->
-                <div class="rolex-container mt-6 lg:mt-0">
+                <div class="clock-container mt-6 lg:mt-0">
    
                     <div class="dial">
-                     <div class="text-top">
-<div class="text-brand" id="dial-day">SATUR</div>
-                            
+                        <div class="text-top">
+                            <div class="text-brand" id="dial-day">SATUR</div>
                             <div class="text-model">GRANDSIRE ETERNAL</div>
                         </div>
                         
@@ -1084,10 +1084,7 @@
                             <div class="text-cert">THE SIAM TIMES<br/>SINCE 2026</div>
                         </div>
 
-                        <div id="markers-container">
-
-            
-                        </div>
+                        <div id="markers-container"></div>
                     
                         <div class="hand hour-hand" id="hour">
                             <div class="hand-tail"></div>
@@ -1115,7 +1112,7 @@
                 <article class="border-t border-gray-300 pt-6 lg:border-0 lg:pt-0">
                     <div class="relative mb-3 pt-2 pl-2">
                         <div class="absolute top-0 left-0 w-[95%] h-[95%] bg-gray-200 shadow-sm border border-gray-300 transform -rotate-3"></div>
-                        <img src="https://placehold.co/500x350/dddddd/555555?text=NetZero" class="relative w-full h-auto object-cover border border-gray-200 shadow-sm" alt="Lenox Hill Building">
+                        <img src="https://placehold.co/500x350/dddddd/555555?text=NetZero" class="relative w-full h-auto object-cover border border-gray-200 shadow-sm" alt="Net Zero by 2050">
                     </div>
                     <div class="text-[9px] text-right text-gray-500 uppercase font-sans mb-3 tracking-wide">By 2050</div>
                     
@@ -1205,12 +1202,13 @@
                         </div>
                         <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">QR Code Generator</h4>
                     </a>
+
                     <a href="lexicraft.html" class="block group text-center">
-    <div class="aspect-square bg-[#F3EFE6] flex items-center justify-center relative overflow-hidden mb-2">
-        <span class="text-4xl">🖋️</span>
-    </div>
-    <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Lexicraft</h4>
-</a>
+                        <div class="aspect-square bg-[#F3EFE6] flex items-center justify-center relative overflow-hidden mb-2">
+                            <span class="text-4xl">🖋️</span>
+                        </div>
+                        <h4 class="text-sm font-sans font-bold text-gray-900 group-hover:underline">Lexicraft</h4>
+                    </a>
 
                     <a href="socialListening4.html" class="block group text-center">
                         <div class="aspect-square bg-[#124b30] flex items-center justify-center relative overflow-hidden mb-2">
@@ -1314,59 +1312,31 @@
                 }
             });
 
-// 4. ส่วนสร้างรายละเอียดหน้าปัดนาฬิกาและสั่งให้เข็มเดิน
+            // 4. ส่วนสร้างรายละเอียดหน้าปัดนาฬิกาและสั่งให้เข็มเดิน
             const markersContainer = document.getElementById('markers-container');
             const dialElement = document.querySelector('.dial');
             
-            // ชุดสีประจำวันสไตล์ Rolex (อาทิตย์ = 0 ถึง เสาร์ = 6)
-            const rolexDialColors = [
-                "radial-gradient(circle at 50% 45%, #bd2c3d 0%, #991d2a 58%, #6b1019 100%)", // 0: อาทิตย์ (แดง Coral Red/Cherry)
-                "radial-gradient(circle at 50% 45%, #ffd230 0%, #dbaf14 58%, #a38209 100%)", // 1: จันทร์ (เหลือง Yellow)
-                "radial-gradient(circle at 50% 45%, #ffb1c8 0%, #e68ca9 58%, #b3627d 100%)", // 2: อังคาร (ชมพู Candy Pink)
-                "radial-gradient(circle at 50% 45%, #117a43 0%, #0d6e3a 58%, #085029 100%)", // 3: พุธ (เขียว Lacquer Green)
-                "radial-gradient(circle at 50% 45%, #ff7830 0%, #db5914 58%, #a33e08 100%)", // 4: พฤหัสบดี (แสด Coral)
-                "radial-gradient(circle at 50% 45%, #76d6ff 0%, #4cb8e6 58%, #2785ad 100%)", // 5: ศุกร์ (ฟ้า Ice Blue/Turquoise)
-                "radial-gradient(circle at 50% 45%, #6a3979 0%, #50275d 58%, #31133a 100%)"  // 6: เสาร์ (ม่วง Red Grape)
+            // ชุดสีหน้าปัดประจำวัน (อาทิตย์ = 0 ถึง เสาร์ = 6)
+            const dialColors = [
+                "radial-gradient(circle at 50% 45%, #bd2c3d 0%, #991d2a 58%, #6b1019 100%)", // 0: อาทิตย์ (แดง)
+                "radial-gradient(circle at 50% 45%, #ffd230 0%, #dbaf14 58%, #a38209 100%)", // 1: จันทร์ (เหลือง)
+                "radial-gradient(circle at 50% 45%, #ffb1c8 0%, #e68ca9 58%, #b3627d 100%)", // 2: อังคาร (ชมพู)
+                "radial-gradient(circle at 50% 45%, #117a43 0%, #0d6e3a 58%, #085029 100%)", // 3: พุธ (เขียว)
+                "radial-gradient(circle at 50% 45%, #ff7830 0%, #db5914 58%, #a33e08 100%)", // 4: พฤหัสบดี (แสด)
+                "radial-gradient(circle at 50% 45%, #76d6ff 0%, #4cb8e6 58%, #2785ad 100%)", // 5: ศุกร์ (ฟ้า)
+                "radial-gradient(circle at 50% 45%, #6a3979 0%, #50275d 58%, #31133a 100%)"  // 6: เสาร์ (ม่วง)
             ];
             
             if (dialElement) {
                 const currentDay = new Date().getDay();
-                dialElement.style.background = rolexDialColors[currentDay];
+                dialElement.style.background = dialColors[currentDay];
             }
 
             if (markersContainer) {
                 markersContainer.innerHTML = '';
 
-            /*
-            // 4. ส่วนสร้างรายละเอียดหน้าปัดนาฬิกาและสั่งให้เข็มเดิน
-            const markersContainer = document.getElementById('markers-container');
-            if (markersContainer) {
-                markersContainer.innerHTML = '';
-                */
                 const radiusMinute = 138;
                 const radiusHour = 115;
-
-                const crownSVG = `
-                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <g id="tiny-lotus-bud">
-                                <path d="M 0,3 C -6.8,2 -8.5,-4.5 -4.8,-12.5 C -6,-5.5 0,-17.5 0,-17.5 C 0,-17.5 6,-5.5 4.8,-12.5 C 8.5,-4.5 6.8,2 0,3 Z" fill="white" />
-                                <path d="M 0,3 C -5,2.2 -6,-5.5 0,-17.5 C 6,-5.5 5,2.2 0,3 Z" fill="white" />
-                            </g>
-                        </defs>
-                        <path d="M 48,82 L 48.8,24 L 51.2,24 L 52,82 Z" fill="white" />
-                        <path d="M 40.5,82 Q 36,55 31,28.5 L 33.5,27.8 Q 39,54.5 44.5,82 Z" fill="white" />
-                        <path d="M 59.5,82 Q 64,55 69,28.5 L 66.5,27.8 Q 61,54.5 55.5,82 Z" fill="white" />
-                        <path d="M 33.5,84 Q 25,62 15.8,39.5 L 18.2,38.3 Q 28,61 37.5,84 Z" fill="white" />
-                        <path d="M 66.5,84 Q 75,62 84.2,39.5 L 81.8,38.3 Q 72,61 62.5,84 Z" fill="white" />
-                        <use href="#tiny-lotus-bud" transform="translate(50, 24)" />
-                        <use href="#tiny-lotus-bud" transform="translate(32.2, 28.2) rotate(-15)" />
-                        <use href="#tiny-lotus-bud" transform="translate(67.8, 28.2) rotate(15)" />
-                        <use href="#tiny-lotus-bud" transform="translate(17, 39) rotate(-30)" />
-                        <use href="#tiny-lotus-bud" transform="translate(83, 39) rotate(30)" />
-                        <path d="M 20,84 C 19,79 26,75 34,77 C 39,74 46,75 50,78 C 54,75 61,74 66,77 C 74,75 81,79 80,84 C 79,91 66,95 50,95 C 34,95 21,91 20,84 Z" fill="white" />
-                    </svg>
-                `;
 
                 for (let i = 0; i < 60; i++) {
                     const angle = i * 6;
@@ -1378,7 +1348,7 @@
                         const textAngle = 173; 
                         const radText = (textAngle - 90) * (Math.PI / 180);
                         const txt = document.createElement('div');
-                        txt.className = 'swiss-text';
+                        txt.className = 'made-text';
                         txt.innerText = "MADE";
                         txt.style.left = (145 + radiusMinute * Math.cos(radText)) + 'px';
                         txt.style.top = (145 + radiusMinute * Math.sin(radText)) + 'px';
@@ -1391,7 +1361,7 @@
                         const textAngle = 187; 
                         const radText = (textAngle - 90) * (Math.PI / 180);
                         const txt = document.createElement('div');
-                        txt.className = 'swiss-text';
+                        txt.className = 'made-text';
                         txt.innerText = "SIAM";
                         txt.style.left = (145 + radiusMinute * Math.cos(radText)) + 'px';
                         txt.style.top = (145 + radiusMinute * Math.sin(radText)) + 'px';
@@ -1404,7 +1374,7 @@
                         const marker = document.createElement('div');
                         marker.className = 'marker';
 
-                        // เติมหลักชั่วโมงคู่ที่ 12 น. (i === 0) ร่วมกับ 3, 6, 9 น.
+                        // หลักชั่วโมงคู่ที่ 12, 3, 6, 9 นาฬิกา
                         if (i === 0 || i === 15 || i === 30 || i === 45) {
                             marker.classList.add('double');
                             marker.appendChild(document.createElement('div'));
@@ -1419,16 +1389,15 @@
                         markersContainer.appendChild(marker);
 
                         if (i === 30) {
-                            const crownRadius = radiusMinute;
-                            const xCrown = 145 + crownRadius * Math.cos(rad);
-                            const yCrown = 145 + crownRadius * Math.sin(rad);
-                            const tCrown = document.createElement('div');
-                            tCrown.className = 'tiny-crown';
-                            tCrown.innerHTML = crownSVG;
-                            tCrown.style.left = xCrown + 'px';
-                            tCrown.style.top = yCrown + 'px';
-                            tCrown.style.transform = `translate(-50%, -50%) rotate(0deg)`;
-                            markersContainer.appendChild(tCrown);
+                            // ตัว S ของ The Siam Times ตรง 6 นาฬิกา
+                            const logoRadius = radiusMinute;
+                            const logo = document.createElement('div');
+                            logo.className = 'dial-logo';
+                            logo.textContent = 'S';
+                            logo.style.left = (145 + logoRadius * Math.cos(rad)) + 'px';
+                            logo.style.top = (145 + logoRadius * Math.sin(rad)) + 'px';
+                            logo.style.transform = 'translate(-50%, -50%)';
+                            markersContainer.appendChild(logo);
                         } else {
                             const square = document.createElement('div');
                             square.className = 'minute-square';
@@ -1439,33 +1408,31 @@
                         }
                     } else {
                         const tick = document.createElement('div');
-                        const isFlankingSwissMade = (i === 28 || i === 32);
-                        tick.className = isFlankingSwissMade ? 'minute-tick long-tick' : 'minute-tick';
+                        const isFlankingMadeText = (i === 28 || i === 32);
+                        tick.className = isFlankingMadeText ? 'minute-tick long-tick' : 'minute-tick';
                         
-                        const tickRadius = isFlankingSwissMade ? (radiusMinute - 1.75) : radiusMinute;
+                        const tickRadius = isFlankingMadeText ? (radiusMinute - 1.75) : radiusMinute;
                         tick.style.left = (145 + tickRadius * Math.cos(rad)) + 'px';
                         tick.style.top = (145 + tickRadius * Math.sin(rad)) + 'px';
                         tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
                         markersContainer.appendChild(tick);
                     }
                 }
+
                 const waitlistStart = new Date(2024, 10, 2, 0, 0, 0);
+                const dayNames = ["SUNDA", "MONDA", "TUESD", "WEDNE", "THURS", "FRIDA", "SATUR"];
 
                 function updateClock() {
                     const now = new Date();
 
-
-                    // --- ส่วนที่ต้องเพิ่มใหม่ ---
-                    const dayNames = ["SUNDA", "MONDA", "TUESD", "WEDNE", "THURS", "FRIDA", "SATUR"];
+                    // ชื่อวันบนหน้าปัด
                     const currentDayStr = dayNames[now.getDay()];
                     const dialDayEl = document.getElementById('dial-day');
                     if (dialDayEl && dialDayEl.innerText !== currentDayStr) {
                         dialDayEl.innerText = currentDayStr;
                     }
-                    // ------------------------
 
-                  
-
+                    // ตัวนับเวลา Waiting List
                     const counterEl = document.getElementById('waitlist-counter');
                     if (counterEl) {
                         let years = now.getFullYear() - waitlistStart.getFullYear();
@@ -1500,6 +1467,7 @@
                         counterEl.innerText = `${years} yr ${months} m ${days} d + ${hours} : ${minutes} : ${seconds} `;
                     }
 
+                    // มุมของเข็ม
                     const ms = now.getMilliseconds();
                     const seconds = now.getSeconds();
                     const minutes = now.getMinutes();
@@ -1540,7 +1508,7 @@
                     requestAnimationFrame(updateClock);
                 }
 
-                // สั่งให้ฟังก์ชันเริ่มทำงานครั้งแรก
+                // เริ่มเดินนาฬิกา
                 requestAnimationFrame(updateClock);
             }
         });
