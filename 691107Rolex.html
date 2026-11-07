@@ -1,0 +1,431 @@
+<meta charset="UTF-8" />
+<div class="lexicraft-static-export" style="background-color: #FAF8F5; color: #18181B; padding: 2.5rem 0; font-family: 'Inter', 'IBM Plex Sans Thai', sans-serif;">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{fontFamily:{serif:['Newsreader','Georgia','serif'],sans:['Inter','IBM Plex Sans Thai','sans-serif'],thai:['IBM Plex Sans Thai','Sarabun','sans-serif'],bodyThai:['Sarabun','IBM Plex Sans Thai','sans-serif']}}}}</script>
+  <style>
+    @font-face {
+      font-family: 'Chomsky';
+      src: url('Chomsky.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    
+    body { background-color: #FAF8F5; color: #18181B; font-family: 'Inter', 'IBM Plex Sans Thai', sans-serif; }
+    .nyt-double-rule { border-top: 3px double #18181B; }
+    del.diff-del { background-color: #FEE2E2; color: #991B1B; text-decoration: line-through; text-decoration-color: #DC2626; padding: 1px 4px; border-radius: 4px; margin: 0 1px; font-weight: 500; }
+    ins.diff-ins { background-color: #DCFCE7; color: #166534; text-decoration: none; border-bottom: 2px solid #22C55E; padding: 1px 4px; border-radius: 4px; margin: 0 1px; font-weight: 600; }
+    .proof-highlight-active { background-color: #FEF08A; outline: 2px solid #EAB308; border-radius: 4px; padding: 1px 3px; transition: all 0.2s ease; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #F3EFE6; }
+    ::-webkit-scrollbar-thumb { background: #C7BEB0; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #A69C8E; }
+  </style>
+  <div style="max-width: 80rem; margin: 0 auto; padding: 0 1.5rem;">
+    <div class="text-center pb-6 border-b-2 border-stone-300 mb-8 mt-4"><h2 class="text-5xl sm:text-6xl text-stone-900" style="font-family: 'Chomsky', serif;">The Siam Times</h2></div><header class="bg-[#FAF8F5]/95 backdrop-blur-md border-b border-stone-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="hidden sm:flex items-center justify-between py-1.5 text-xs text-stone-500 border-b border-stone-200/80 font-sans">
+        <div class="flex items-center gap-3">
+          <span class="font-semibold text-stone-800 uppercase tracking-wider">LexiCraft Editorial Studio</span>
+          <span>•</span>
+          <span class="font-thai">ระบบเกลาภาษาอังกฤษ ตรวจไวยากรณ์ และโค้ชสอนเขียนเชิงลึก</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="inline-flex items-center gap-1.5 text-emerald-700 font-medium">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Live External Mode
+          </span>
+        </div>
+      </div>
+
+      <div class="py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-stone-900 text-amber-50 flex items-center justify-center shadow-sm shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="feather" aria-hidden="true" class="lucide lucide-feather w-5 h-5"><path d="M14.086 18.412A2 2 0 0112.67 19H5v-7.672a2 2 0 01.586-1.414L11.75 3.75a6 6 0 118.49 8.49z"></path><path d="M16 8 2 22"></path><path d="M17.488 15H9"></path></svg>
+          </div>
+          <div>
+            <h1 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 leading-none">The Style &amp; Proofreading Desk</h1>
+            <p class="text-xs sm:text-sm text-stone-600 font-thai mt-1">
+              ปรับแต่งประโยคและย่อหน้าเป็น <span class="font-semibold text-blue-900">Academic</span> • <span class="font-semibold text-teal-800">Everyday</span> • <span class="font-semibold text-stone-900">The Siam Times</span> พร้อมตรวจ Proofread
+            </p>
+          </div>
+        </div>
+
+        <nav class="flex items-center gap-1.5 self-stretch md:self-auto overflow-x-auto pb-1 md:pb-0">
+          <a href="#section-styles" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-200/70 hover:bg-stone-300/70 text-stone-800 transition whitespace-nowrap flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles w-3.5 h-3.5 text-amber-700"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg> 3 Standard Styles
+          </a>
+          <a href="#section-proofread" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-200/70 hover:bg-stone-300/70 text-stone-800 transition whitespace-nowrap flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-check-2" aria-hidden="true" class="lucide lucide-file-check-2 w-3.5 h-3.5 text-red-700"><path d="M10.5 22H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v6"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="m14 20 2 2 4-4"></path></svg> Proofread &amp; Markup
+          </a>
+          <a href="#section-coach" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-200/70 hover:bg-stone-300/70 text-stone-800 transition whitespace-nowrap flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="graduation-cap" aria-hidden="true" class="lucide lucide-graduation-cap w-3.5 h-3.5 text-emerald-700"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg> Critique &amp; Coach
+          </a>
+        </nav>
+      </div>
+    </div>
+  </header><section class="bg-white rounded-2xl border border-stone-200/90 shadow-sm overflow-hidden">
+      <div class="bg-stone-100/80 px-5 py-3.5 border-b border-stone-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-stone-900 text-white text-xs font-bold">1</span>
+          <h2 class="font-thai font-semibold text-stone-800 text-sm sm:text-base">ต้นฉบับภาษาอังกฤษของคุณ (Original Draft)</h2>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="text-xs text-stone-500 font-thai mr-1">ตัวอย่างข้อความ:</span>
+          
+        </div>
+      </div>
+
+      <div class="p-5 sm:p-6">
+        <div class="relative">
+          <div class="w-full rounded-xl border border-stone-300 bg-[#FCFBF9] p-4 text-base sm:text-lg text-stone-900 placeholder:text-stone-400 transition leading-relaxed font-sans whitespace-pre-wrap min-h-[120px]">If Rolex had produced dress watches like 1908 or Cellini, and sell them at a much lower price, I am sure they would be much more popular than Submariner.</div>
+          
+        </div>
+
+        <div class="mt-4 flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-4">
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-3 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-600 w-fit">
+              <span><strong class="text-stone-900">29</strong> words</span><span class="text-stone-300">|</span><span><strong class="text-stone-900">153</strong> chars</span>
+            </div>
+
+            <!-- ช่องกรอกรหัสลับ -->
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="flex items-center gap-2">
+                
+                
+              </div>
+              <div class="flex items-center gap-2">
+                
+                
+              </div>
+              <div class="flex items-center gap-2 relative">
+                
+                
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5 shrink-0 mt-2 sm:mt-0">
+            
+          </div>
+        </div>
+
+        
+      </div>
+    </section><div class="space-y-10">
+
+      <!-- ปุ่มคัดลอกผลลัพธ์แบบไม่มีฟังก์ชันเพื่อเผยแพร่ -->
+      <div class="flex justify-end pt-2">
+        
+      </div>
+
+      <section class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 nyt-double-rule pt-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-stone-900 text-white text-xs font-bold">2</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-amber-800">Multi-Style Transformation</span>
+            </div>
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900 mt-1">Three Standard English Styles</h2>
+          </div>
+          <div class="flex items-center gap-1.5 bg-stone-200/80 p-1 rounded-xl self-start sm:self-auto">
+            
+            
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <article class="bg-white rounded-2xl border border-stone-200/90 shadow-sm flex flex-col overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-950 to-slate-900 text-white px-5 py-4 flex items-center justify-between">
+              <div><h3 class="font-serif font-bold text-lg leading-tight">Academic English</h3><p class="text-[11px] text-blue-200 font-thai">สำนวนวิชาการ</p></div>
+            </div>
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 min-h-[145px]">
+                <p class="font-serif text-[17px] leading-relaxed text-stone-900">Had Rolex manufactured dress watches such as the 1908 or the Cellini and offered them at substantially lower price points, it is reasonable to conclude that they would have achieved greater popularity than the Submariner.</p>
+              </div>
+              <div class="flex items-center justify-between pt-1">
+                
+                
+              </div>
+              <div class="border-t border-stone-200 pt-3">
+                <p class="text-xs sm:text-sm text-stone-700 font-bodyThai leading-relaxed mb-2">ใช้โครงสร้าง inverted conditional (Had Rolex manufactured...) ซึ่งเป็นทางการและพบบ่อยในงานวิชาการ เลือกใช้คำนามและกริยาที่เป็นทางการ เช่น manufactured, offered, price points และใช้ 'it is reasonable to conclude that' แทน 'I am sure' เพื่อให้ฟังเป็นข้อสรุปที่มีเหตุผล ไม่ใช่ความรู้สึกส่วนตัว</p>
+                <div class="flex flex-wrap gap-1.5"><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">Had Rolex manufactured...</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">such as</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">substantially lower price points</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">it is reasonable to conclude that</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">would have achieved greater popularity</span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-2xl border border-stone-200/90 shadow-sm flex flex-col overflow-hidden">
+            <div class="bg-gradient-to-r from-teal-900 to-emerald-900 text-white px-5 py-4 flex items-center justify-between">
+              <div><h3 class="font-serif font-bold text-lg leading-tight">Everyday English</h3><p class="text-[11px] text-teal-100 font-thai">สำนวนธรรมชาติ</p></div>
+            </div>
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div class="p-4 rounded-xl bg-teal-50/30 border border-teal-200/70 min-h-[145px]">
+                <p class="font-sans text-[16px] leading-relaxed text-stone-900">If Rolex made dress watches like the 1908 or the Cellini at a much lower price, I'm sure they'd be more popular than the Submariner.</p>
+              </div>
+              <div class="flex items-center justify-between pt-1">
+                
+                
+              </div>
+              <div class="border-t border-stone-200 pt-3">
+                <p class="text-xs sm:text-sm text-stone-700 font-bodyThai leading-relaxed mb-2">ประโยคสั้นและเป็นธรรมชาติ ใช้ past simple + would (second conditional) ซึ่งเป็นรูปแบบที่คนพูดกันทั่วไปเมื่อพูดถึงสถานการณ์สมมติ ใช้ contractions (I'm, they'd) ทำให้อ่านเหมือนคุยกัน และรวม 'produced and sold' เป็น 'made ... at a much lower price' เพื่อให้กระชับ</p>
+                <div class="flex flex-wrap gap-1.5"><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">If Rolex made...</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">like the 1908 or the Cellini</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">at a much lower price</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">I'm sure they'd be</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">more popular than</span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-2xl border border-stone-200/90 shadow-sm flex flex-col overflow-hidden">
+            <div class="bg-gradient-to-r from-stone-900 via-neutral-900 to-stone-800 text-amber-50 px-5 py-4 flex items-center justify-between">
+              <div><h3 class="font-serif font-bold text-lg leading-tight">The Siam Times</h3><p class="text-[11px] text-stone-300 font-thai">วารสารศาสตร์</p></div>
+            </div>
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div class="p-4 rounded-xl bg-[#FAF8F5] border border-stone-300/80 min-h-[145px]">
+                <p class="font-serif text-[17px] leading-relaxed text-stone-900">Cut the price of the 1908 or the Cellini sharply, and I'm convinced Rolex's dress watches would leave the Submariner in the shade.</p>
+              </div>
+              <div class="flex items-center justify-between pt-1">
+                
+                
+              </div>
+              <div class="border-t border-stone-200 pt-3">
+                <p class="text-xs sm:text-sm text-stone-700 font-bodyThai leading-relaxed mb-2">สไตล์ NYT เน้นความกระชับ น้ำเสียงมั่นใจ และภาพที่ชัดเจน เริ่มด้วยประโยคคำสั่ง (Cut the price...) เพื่อดึงความสนใจ แล้วจบด้วยสำนวน 'leave ... in the shade' ที่ให้ภาพพจน์ แทนคำว่า 'much more popular' ที่ค่อนข้างจืด ทำให้ประโยคมีชีวิตชีวาและเป็นมุมมองของผู้เขียนอย่างชัดเจน</p>
+                <div class="flex flex-wrap gap-1.5"><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">Cut the price... sharply</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">I'm convinced</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">leave ... in the shade</span><span class="inline-flex px-2 py-0.5 rounded text-[11px] border border-stone-300 bg-white shadow-sm">dress watches</span></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="space-y-5">
+        <div class="nyt-double-rule pt-4 flex flex-col sm:flex-row justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-800 text-white text-xs font-bold">3</span>
+              <span class="text-xs font-bold uppercase tracking-widest text-red-800">Proofreading &amp; Redline Markup</span>
+            </div>
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900 mt-1">Proofread &amp; Track Changes</h2>
+          </div>
+          <div class="flex items-center gap-2 self-start sm:self-auto">
+            <label class="text-xs font-thai font-medium text-stone-600">เทียบกับ:</label>
+            
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 bg-white rounded-2xl border border-stone-200/90 shadow-sm p-5 sm:p-6 flex flex-col justify-between space-y-5">
+            <div class="p-4 rounded-xl bg-[#FCFBF9] border border-stone-200/90 font-serif text-lg leading-loose text-stone-900"><span>If Rolex had produced dress watches like</span> <ins class="diff-ins">the</ins> <span>1908 or</span> <del class="diff-del">Cellini,</del> <ins class="diff-ins">the Cellini</ins> <span>and</span> <del class="diff-del">sell</del> <ins class="diff-ins">had sold</ins> <span>them at a much lower price, I am sure they would</span> <del class="diff-del">be</del> <ins class="diff-ins">have been</ins> <span>much more popular than</span> <ins class="diff-ins">the</ins> <span>Submariner.</span></div>
+            <div class="pt-2">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase text-stone-500">Clean Version</span>
+                
+              </div>
+              <div class="p-4 rounded-xl bg-emerald-50/40 border border-emerald-200/80 font-sans text-base leading-relaxed text-stone-800">If Rolex had produced dress watches like the 1908 or the Cellini and had sold them at a much lower price, I am sure they would have been much more popular than the Submariner.</div>
+            </div>
+          </div>
+          <div class="lg:col-span-5 bg-white rounded-2xl border border-stone-200/90 shadow-sm p-5 sm:p-6 flex flex-col">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-thai font-bold text-stone-900">Proofreading Log</h3>
+              <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-stone-900 text-white">7 จุด</span>
+            </div>
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              
+              
+              
+            </div>
+            <div class="space-y-3 max-h-[400px] overflow-y-auto pr-1 flex-1">
+        <div class="p-3 rounded-xl border border-stone-200 bg-[#FCFBF9] hover:border-amber-400 cursor-pointer">
+          <div class="mb-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-200">Grammar</span></div>
+          <div class="text-sm font-sans mb-1"><del class="diff-del">and sell them</del> → <ins class="diff-ins">and had sold them</ins></div>
+          <p class="text-xs text-stone-700 font-thai">ประโยคนี้ใช้ had produced (past perfect) จึงต้องใช้รูปกริยาให้ขนานกัน (parallel structure) เป็น had sold ไม่ใช่ sell ที่เป็นรูป base form</p>
+        </div>
+      
+        <div class="p-3 rounded-xl border border-stone-200 bg-[#FCFBF9] hover:border-amber-400 cursor-pointer">
+          <div class="mb-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-200">Grammar</span></div>
+          <div class="text-sm font-sans mb-1"><del class="diff-del">If Rolex had produced ... I am sure they would be</del> → <ins class="diff-ins">If Rolex had produced ... I am sure they would have been</ins></div>
+          <p class="text-xs text-stone-700 font-thai">Third conditional ต้องเป็น If + had + V3, ... would have + V3 ในประโยคเดิมผสมรูปแบบผิด (had produced + would be) ถ้าจะพูดถึงปัจจุบัน ให้เปลี่ยนเป็น second conditional: If Rolex made ... they would be ...</p>
+        </div>
+      
+        <div class="p-3 rounded-xl border border-stone-200 bg-[#FCFBF9] hover:border-amber-400 cursor-pointer">
+          <div class="mb-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-200">Grammar</span></div>
+          <div class="text-sm font-sans mb-1"><del class="diff-del">like 1908 or Cellini</del> → <ins class="diff-ins">like the 1908 or the Cellini</ins></div>
+          <p class="text-xs text-stone-700 font-thai">ชื่อรุ่นนาฬิกาที่เป็นชื่อเฉพาะของรุ่นสินค้า มักใช้ the นำหน้า เช่น the Submariner, the Cellini, the 1908 เพราะหมายถึงรุ่นที่เฉพาะเจาะจง</p>
+        </div>
+      
+        <div class="p-3 rounded-xl border border-stone-200 bg-[#FCFBF9] hover:border-amber-400 cursor-pointer">
+          <div class="mb-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-200">Grammar</span></div>
+          <div class="text-sm font-sans mb-1"><del class="diff-del">than Submariner</del> → <ins class="diff-ins">than the Submariner</ins></div>
+          <p class="text-xs text-stone-700 font-thai">ขาด article the หน้าชื่อรุ่น Submariner ใช้ the เมื่อพูดถึงรุ่นสินค้าที่ผู้อ่านรู้จักอยู่แล้ว</p>
+        </div>
+      
+        <div class="p-3 rounded-xl border border-stone-200 bg-[#FCFBF9] hover:border-amber-400 cursor-pointer">
+          <div class="mb-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-200">Punctuation</span></div>
+          <div class="text-sm font-sans mb-1"><del class="diff-del">Cellini, and sell</del> → <ins class="diff-ins">Cellini and had sold</ins></div>
+          <p class="text-xs text-stone-700 font-thai">ไม่ต้องใส่ comma ก่อน and เมื่อเชื่อมสองกริยาที่มีประธานเดียวกัน (Rolex had produced ... and had sold ...)</p>
+        </div>
+      
+        <div class="p-3 rounded-xl border border-stone-200 bg-[#FCFBF9] hover:border-amber-400 cursor-pointer">
+          <div class="mb-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-200">Style/Tone</span></div>
+          <div class="text-sm font-sans mb-1"><del class="diff-del">much more popular</del> → <ins class="diff-ins">far more popular / much more popular</ins></div>
+          <p class="text-xs text-stone-700 font-thai">much more popular ไม่ผิด แต่ซ้ำกับ much lower price ในประโยคเดียวกัน ลองใช้ far more, considerably more หรือ significantly more เพื่อลดการซ้ำและให้ประโยคลื่นไหลขึ้น</p>
+        </div>
+      
+        <div class="p-3 rounded-xl border border-stone-200 bg-[#FCFBF9] hover:border-amber-400 cursor-pointer">
+          <div class="mb-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-200">Clarity/Flow</span></div>
+          <div class="text-sm font-sans mb-1"><del class="diff-del">If Rolex had produced dress watches like 1908 or Cellini</del> → <ins class="diff-ins">If Rolex priced dress watches like the 1908 or the Cellini much lower</ins></div>
+          <p class="text-xs text-stone-700 font-thai">Rolex ผลิตรุ่น 1908 และ Cellini อยู่แล้วในความเป็นจริง ประโยคเดิมจึงอาจทำให้เข้าใจว่า Rolex ไม่เคยผลิตเลย ถ้าต้องการสื่อว่าประเด็นอยู่ที่ราคา ควรเน้นที่ priced/sold at a lower price</p>
+        </div>
+      </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="space-y-6">
+        <div class="nyt-double-rule pt-4">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-800 text-white text-xs font-bold">4</span>
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-800">Critique &amp; Coach</span>
+          </div>
+          <h2 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900 mt-1">วิพากย์ &amp; บทเรียนสอนเขียน</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-4 bg-white rounded-2xl border border-stone-200/90 shadow-sm p-6">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold uppercase text-stone-500">Score</span>
+              <span class="px-2 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">CEFR: B1+ to B2</span>
+            </div>
+            <div class="mt-4 flex items-baseline gap-3">
+              <span class="font-serif text-6xl font-bold text-stone-900">68</span>
+              <div class="text-xs text-stone-500 font-thai">
+                <div class="font-bold text-stone-800">/ 100</div>
+                <div>-</div>
+              </div>
+            </div>
+            <div class="mt-6 space-y-3">
+              <div class="font-thai">
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="capitalize">clarity</span><span>70/100</span></div>
+          <div class="w-full h-2 bg-stone-200 rounded-full"><div class="h-full bg-stone-800 rounded-full" style="width:70%"></div></div>
+        </div>
+      
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="capitalize">grammar</span><span>60/100</span></div>
+          <div class="w-full h-2 bg-stone-200 rounded-full"><div class="h-full bg-stone-800 rounded-full" style="width:60%"></div></div>
+        </div>
+      
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="capitalize">vocabulary</span><span>68/100</span></div>
+          <div class="w-full h-2 bg-stone-200 rounded-full"><div class="h-full bg-stone-800 rounded-full" style="width:68%"></div></div>
+        </div>
+      
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="capitalize">tone</span><span>74/100</span></div>
+          <div class="w-full h-2 bg-stone-200 rounded-full"><div class="h-full bg-stone-800 rounded-full" style="width:74%"></div></div>
+        </div>
+      </div>
+            </div>
+            <div class="mt-4 p-4 rounded-xl bg-stone-100/90 border border-stone-200/80">
+              <div class="text-xs font-thai font-bold text-stone-800 mb-1">Editor's Verdict</div>
+              <p class="text-xs sm:text-sm text-stone-700 font-bodyThai">ความคิดชัดเจนและมีโครงสร้างแบบ conditional ที่ถูกทิศทาง แต่ยังมีข้อผิดพลาดด้านไวยากรณ์ที่สำคัญคือ tense ไม่สอดคล้องกัน (had produced ... sell ... would be) และขาด article หน้าชื่อรุ่น นอกจากนี้ความหมายอาจคลุมเครือเพราะ Rolex ผลิตรุ่นเหล่านี้อยู่แล้ว ถ้าแก้เรื่อง conditional และ the ได้ ประโยคนี้จะอยู่ในระดับ B2+ ได้ทันที</p>
+            </div>
+          </div>
+
+          <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-2xl border border-stone-200 p-6 flex flex-col">
+              <h3 class="font-thai font-bold text-stone-900 border-b pb-2 mb-3">จุดแข็ง (Strengths)</h3>
+              <ul class="space-y-2 flex-1 font-bodyThai text-sm text-stone-700"><li>✓ มีประโยค conditional ที่แสดงความคิดเห็นเชิงสมมติอย่างชัดเจน</li><li>✓ เปรียบเทียบสองสิ่งด้วย more popular than ได้ถูกต้อง</li><li>✓ ใช้ dress watches ซึ่งเป็นคำศัพท์เฉพาะวงการได้เหมาะสม</li><li>✓ ใช้ I am sure เพื่อแสดงจุดยืนของผู้เขียนได้ชัด</li></ul>
+            </div>
+            <div class="bg-white rounded-2xl border border-stone-200 p-6 flex flex-col">
+              <h3 class="font-thai font-bold text-stone-900 border-b pb-2 mb-3">จุดที่ควรปรับปรุง (Weaknesses)</h3>
+              <ul class="space-y-2 flex-1 font-bodyThai text-sm text-stone-700"><li>! รูปกริยาไม่ขนานกัน (had produced ... and sell)</li><li>! ผสม tense ของ conditional (had produced ... would be)</li><li>! ขาด the หน้า 1908, Cellini และ Submariner</li><li>! ใช้ comma ก่อน and โดยไม่จำเป็น</li><li>! ประโยคอาจไม่ชัดว่าเรื่องคือราคา ไม่ใช่การผลิตรุ่นเหล่านี้</li></ul>
+            </div>
+            <div class="md:col-span-2 bg-gradient-to-br from-stone-900 to-stone-800 text-amber-50 rounded-2xl p-6">
+              <h3 class="font-thai font-bold text-white mb-2">วิเคราะห์ความต่างของ 3 สำนวน</h3>
+              <p class="font-bodyThai text-sm text-stone-200">Academic เน้นความเป็นทางการและการสรุปอย่างมีเหตุผล (Had Rolex..., it is reasonable to conclude) Everyday เน้นความกระชับและเป็นธรรมชาติ (I'm sure they'd be) ส่วน NYT เน้นน้ำเสียงมั่นใจและภาพพจน์ (leave ... in the shade) เลือกใช้ตามผู้อ่าน: รายงานหรือบทความวิชาการใช้ Academic, โพสต์รีวิวหรือแชทใช้ Everyday, คอลัมน์หรือบทความแสดงความเห็นใช้ NYT</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-6 bg-white rounded-2xl border border-stone-200 p-6">
+            <h3 class="font-thai font-bold text-stone-900 border-b pb-2 mb-4">บทเรียนสอนเขียน</h3>
+            <div class="space-y-4">
+        <div class="p-3 border rounded-xl mb-3">
+          <h4 class="font-bold text-sm">Conditional ต้องจับคู่ tense ให้ถูก</h4>
+          <p class="text-xs text-stone-600 mb-2">Second conditional: If + past simple, would + V1 (สมมติเกี่ยวกับปัจจุบัน/อนาคต) Third conditional: If + had + V3, would have + V3 (สมมติเกี่ยวกับอดีต) อย่าผสมกันโดยไม่ตั้งใจ เพราะผู้อ่านจะสับสนว่าพูดถึงเวลาไหน</p>
+          <div class="text-[11px] grid grid-cols-2 gap-2"><div class="bg-red-50 p-2">❌ If Rolex had produced dress watches ..., they would be more popular.</div><div class="bg-green-50 p-2">✅ If Rolex had produced dress watches ..., they would have been more popular.</div></div>
+        </div>
+      
+        <div class="p-3 border rounded-xl mb-3">
+          <h4 class="font-bold text-sm">Parallel structure: กริยาที่เชื่อมด้วย and ต้องรูปแบบเดียวกัน</h4>
+          <p class="text-xs text-stone-600 mb-2">เมื่อเชื่อมกริยาสองตัวด้วย and ให้ใช้ tense/รูปแบบเดียวกัน ถ้าตัวแรกเป็น had produced ตัวที่สองควรเป็น had sold (หรือจะละ had ไว้ได้ในการเขียนที่เป็นทางการ: had produced and sold)</p>
+          <div class="text-[11px] grid grid-cols-2 gap-2"><div class="bg-red-50 p-2">❌ If Rolex had produced watches, and sell them cheaply, ...</div><div class="bg-green-50 p-2">✅ If Rolex had produced watches and sold them cheaply, ...</div></div>
+        </div>
+      
+        <div class="p-3 border rounded-xl mb-3">
+          <h4 class="font-bold text-sm">ชื่อรุ่นสินค้ามักต้องมี the</h4>
+          <p class="text-xs text-stone-600 mb-2">เมื่อพูดถึงรุ่นเฉพาะของสินค้า ภาษาอังกฤษมักใช้ the นำหน้า เช่น the iPhone, the Submariner, the Cellini ถ้าพูดถึงชื่อแบรนด์ (Rolex) ไม่ต้องใช้ the</p>
+          <div class="text-[11px] grid grid-cols-2 gap-2"><div class="bg-red-50 p-2">❌ more popular than Submariner</div><div class="bg-green-50 p-2">✅ more popular than the Submariner</div></div>
+        </div>
+      
+        <div class="p-3 border rounded-xl mb-3">
+          <h4 class="font-bold text-sm">ทำให้ประเด็นหลักชัดเจนด้วยโครงสร้างประโยค</h4>
+          <p class="text-xs text-stone-600 mb-2">ถ้าประเด็นคือ 'ราคา' ควรวางราคาไว้ที่ตำแหน่งสำคัญของประโยค เช่น priced ... much lower หรือ at a much lower price ผู้อ่านจะเข้าใจทันทีว่าสิ่งที่เปลี่ยนคือราคา ไม่ใช่การผลิตรุ่นใหม่</p>
+          <div class="text-[11px] grid grid-cols-2 gap-2"><div class="bg-red-50 p-2">❌ If Rolex had produced dress watches like 1908 or Cellini, ...</div><div class="bg-green-50 p-2">✅ If Rolex had priced the 1908 and the Cellini much lower, ...</div></div>
+        </div>
+      </div>
+          </div>
+          <div class="lg:col-span-6 bg-white rounded-2xl border border-stone-200 p-6 flex flex-col">
+            <h3 class="font-thai font-bold text-stone-900 border-b pb-2 mb-4">ตารางอัปเกรดคำศัพท์</h3>
+            <div class="overflow-x-auto flex-1">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b text-[11px] uppercase text-stone-500 font-sans">
+                    <th class="py-2 px-2 bg-stone-50">Original</th>
+                    <th class="py-2 px-2 bg-teal-50">Everyday</th>
+                    <th class="py-2 px-2 bg-blue-50">Academic</th>
+                    <th class="py-2 px-2 bg-stone-100">NYT</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-200 text-sm">
+        <tr>
+          <td class="p-2"><del class="text-red-700">much more popular</del><br><span class="text-[10px] text-stone-400">far more coveted เน้นความอยากได้ ส่วน more widely favored เน้นความนิยมในวงกว้าง เหมาะกับงานเขียนเชิงวิเคราะห์</span></td>
+          <td class="p-2 text-teal-800">a lot more popular / way more popular</td>
+          <td class="p-2 text-blue-900">considerably more widely favored</td>
+          <td class="p-2 font-serif">far more coveted</td>
+        </tr>
+      
+        <tr>
+          <td class="p-2"><del class="text-red-700">I am sure</del><br><span class="text-[10px] text-stone-400">I am sure ฟังหนักแน่นแต่เป็นความรู้สึกส่วนตัว I suspect ฟังนุ่มนวลและสุภาพกว่า ส่วน it is reasonable to assume เหมาะกับงานวิชาการ</span></td>
+          <td class="p-2 text-teal-800">I'm pretty sure / I bet</td>
+          <td class="p-2 text-blue-900">it is reasonable to assume that</td>
+          <td class="p-2 font-serif">I'm convinced / I suspect</td>
+        </tr>
+      
+        <tr>
+          <td class="p-2"><del class="text-red-700">a much lower price</del><br><span class="text-[10px] text-stone-400">price tag ให้ความรู้สึกเป็นภาพ เหมาะกับสไตล์สื่อมวลชน ส่วน price point เป็นศัพท์การตลาดที่นิยมในงานวิชาการและธุรกิจ</span></td>
+          <td class="p-2 text-teal-800">a lot cheaper</td>
+          <td class="p-2 text-blue-900">a substantially reduced price point</td>
+          <td class="p-2 font-serif">a far friendlier price tag</td>
+        </tr>
+      
+        <tr>
+          <td class="p-2"><del class="text-red-700">produced</del><br><span class="text-[10px] text-stone-400">made เป็นคำพื้นฐานที่เป็นธรรมชาติที่สุด manufactured เน้นการผลิตเชิงอุตสาหกรรม rolled out เน้นการเปิดตัวสู่ตลาด</span></td>
+          <td class="p-2 text-teal-800">made</td>
+          <td class="p-2 text-blue-900">manufactured</td>
+          <td class="p-2 font-serif">turned out / rolled out</td>
+        </tr>
+      
+        <tr>
+          <td class="p-2"><del class="text-red-700">more popular than</del><br><span class="text-[10px] text-stone-400">outsell เน้นยอดขายโดยตรง eclipse ให้ภาพว่าสิ่งหนึ่งบดบังอีกสิ่งหนึ่งจนหมดความโดดเด่น</span></td>
+          <td class="p-2 text-teal-800">outsell</td>
+          <td class="p-2 text-blue-900">surpass in popularity</td>
+          <td class="p-2 font-serif">eclipse</td>
+        </tr>
+      </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
