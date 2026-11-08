@@ -1,0 +1,55 @@
+# Checks the Pollution Control Department's announcements every morning. When some are
+# not in standards.json yet, opens a pull request with draft entries for review.
+# Nothing reaches the site (pollutionStandards.html) until that pull request is merged.
+#
+# Needs: Settings → Actions → General → Workflow permissions →
+#        "Allow GitHub Actions to create and approve pull requests" ticked.
+name: Draft new pollution standards
+
+on:
+  schedule:
+    - cron: '37 23 * * *' # 06:37 Bangkok time
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: draft-new-standards
+  cancel-in-progress: false
+
+env:
+  PR_BRANCH: auto/new-standards
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # While a draft PR is open, leave it alone so edits made during review are not overwritten.
+      - name: Check for a draft PR waiting for review
+        id: pending
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          open=$(gh pr list --head "$PR_BRANCH" --state open --json number --jq length)
+          echo "open=$open" >> "$GITHUB_OUTPUT"
+          if [ "$open" != "0" ]; then echo "A draft PR is still open; skipping."; fi
+
+      - name: Draft entries for new announcements
+        id: draft
+        if: steps.pending.outputs.open == '0'
+        run: node scripts/draft_new_standards.mjs standards.json
+
+      - name: Open pull request
+        if: steps.pending.outputs.open == '0' && steps.draft.outputs.count != '0'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: ${{ env.PR_BRANCH }}
+          delete-branch: true
+          add-paths: standards.json
+          commit-message: "Draft ${{ steps.draft.outputs.count }} new standard(s) from the Pollution Control Department"
+          title: "ร่างรายการใหม่ ${{ steps.draft.outputs.count }} ฉบับจากกรมควบคุมมลพิษ (รอตรวจ)"
+          body-path: pr-body.md
