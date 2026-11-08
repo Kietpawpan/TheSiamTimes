@@ -499,6 +499,11 @@
                     <button data-target="english-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">English <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
                     <button data-target="about-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">About Us <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
                     <button data-target="disclaimer-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Disclaimer <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+
+<!-- เพิ่มบรรทัดนี้ -->
+<button data-target="privacy-menu" class="nav-btn hover:underline flex items-center gap-1 py-1 focus:outline-none">Privacy <svg class="w-2 h-2 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg></button>
+
+
                     <a href="License.txt" target="_blank" class="hover:underline flex items-center gap-1 py-1 focus:outline-none">License</a>
                 </nav>
             </div>
@@ -977,6 +982,28 @@
 
             </div>
 
+<!-- Mega Menu: Privacy Policy -->
+<div id="privacy-menu" class="mega-menu hidden bg-white border-b border-gray-300 shadow-xl px-4 py-8 text-left">
+    <div class="max-w-[800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- ฝั่งภาษาอังกฤษ -->
+        <div>
+            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4 border-b border-gray-300 pb-2">Privacy Policy (English)</h4>
+            <p class="text-[13px] text-gray-800 font-sans leading-relaxed text-justify-newspaper">
+                At The Siam Times your privacy is our priority. We are committed to protecting your personal information. We do not sell or share your data with third parties. Any data collected is used solely to enhance your reading experience and deliver relevant content.
+            </p>
+            <a href="privacy-en.html" class="inline-block mt-3 text-brand-link hover:underline font-bold text-[12px] font-sans">Read Full Policy &rarr;</a>
+        </div>
+        <!-- ฝั่งภาษาไทย -->
+        <div>
+            <h4 class="text-[11px] font-bold tracking-widest text-gray-500 uppercase font-sans mb-4 border-b border-gray-300 pb-2">นโยบายความเป็นส่วนตัว (Thai)</h4>
+            <p class="text-[13px] text-gray-800 font-sans leading-relaxed text-justify-newspaper">
+                The Siam Times ให้ความสำคัญกับความเป็นส่วนตัวของท่านเป็นที่สุด เรามุ่งมั่นที่จะปกป้องข้อมูลส่วนบุคคลของท่านและจะไม่มีการขายหรือแบ่งปันข้อมูลให้กับบุคคลที่สาม ข้อมูลที่รวบรวมจะถูกนำมาใช้เพื่อพัฒนาประสบการณ์การอ่านของท่านเท่านั้น
+            </p>
+            <a href="privacy-th.html" class="inline-block mt-3 text-brand-link hover:underline font-bold text-[12px] font-sans">อ่านนโยบายฉบับเต็ม &rarr;</a>
+        </div>
+    </div>
+</div>
+
             <div class="border-b border-gray-300 mb-6"></div>
         </header>
 
@@ -1229,10 +1256,16 @@
             </aside>
 
         </main>
+<footer class="border-t border-double-thin py-6 text-center text-xs font-sans text-gray-500 mt-10">
+    <div class="mb-3 space-x-3">
+        <a href="privacy-en.html" class="hover:text-gray-900 transition-colors">Privacy Policy</a>
+        <span>|</span>
+        <a href="privacy-th.html" class="hover:text-gray-900 transition-colors">นโยบายความเป็นส่วนตัว</a>
+    </div>
+ &copy; <span id="footer-year">2026</span> The Siam Times. All rights reserved.
+</footer>
         
-        <footer class="border-t border-double-thin py-6 text-center text-xs font-sans text-gray-500 mt-10">
-            <p>&copy; <span id="footer-year">2026</span> The Siam Times. All rights reserved.</p>
-        </footer>
+
     </div>
     
     <script>
