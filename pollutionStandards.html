@@ -305,10 +305,15 @@
             }
             latestList.innerHTML = items.map(law => {
                 let tag = '';
-                if (!isDraft(law) && isStandard(law)) {
-                    tag = findEntry(law)
-                        ? '<span class="inline-block mt-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full px-2 py-0.5">✓ อยู่ในฐานข้อมูลแล้ว</span>'
-                        : '<span class="inline-block mt-1 text-xs font-semibold text-orange-700 bg-orange-100 rounded-full px-2 py-0.5">+ ยังไม่อยู่ในฐานข้อมูล</span>';
+                if (!isDraft(law)) {
+                    if (findEntry(law)) {
+                        tag = '<span class="inline-block mt-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full px-2 py-0.5">✓ อยู่ในฐานข้อมูลแล้ว</span>';
+                    } else if (isStandard(law)) {
+                        tag = '<span class="inline-block mt-1 text-xs font-semibold text-orange-700 bg-orange-100 rounded-full px-2 py-0.5">+ ยังไม่อยู่ในฐานข้อมูล</span>';
+                    } else {
+                        // Rosters, policies, appointments, acts, etc. are not standards, so the database skips them on purpose.
+                        tag = '<span class="inline-block mt-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded-full px-2 py-0.5" title="ประกาศประเภทนี้ (เช่น บัญชีรายชื่อ นโยบาย การแต่งตั้ง) ไม่ใช่มาตรฐานควบคุมมลพิษ จึงไม่นำเข้าฐานข้อมูล">ไม่ใช่ประกาศมาตรฐาน · ไม่นำเข้าฐานข้อมูล</span>';
+                    }
                 }
                 return `<li class="py-3">
                     <p class="text-xs text-gray-500">${shortDate(law.posted)}</p>
