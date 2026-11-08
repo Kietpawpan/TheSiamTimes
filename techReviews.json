@@ -1,7 +1,13 @@
 {
- "generated": "2026-11-08T06:16:21Z",
+ "generated": "2026-11-08T13:39:38Z",
  "source": "Google News",
  "items": [
+  {
+   "title": "China’s Clean-Tech Manufacturing Boom Is Reshaping the Global Climate Fight",
+   "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPd2FyYkZfLTZTSXhpX3FjcnJQLWFpWDNXcnJnWEcxck03NVJ6SWstQVdiSEN3cGtNWm9PSEFFYkNtQ05zTTV2T0lfNGtiekM1SlpUNzZtWnUzaWtwRU9ET1lZby1Qbm1WRVZrUF80ZnQ1b19nU1MyM0RqUUpTZE94QmpKeEEzUkRqcm1FYW1jYWM1bUJ3elhFMU1kaHFGd0NNZ3Q1TjdB?oc=5",
+   "source": "The China-Global South Project",
+   "pubDate": "2026-11-08T06:12:57Z"
+  },
   {
    "title": "How China’s clean-tech push is reshaping global climate finance",
    "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPcDdsYm04dGh2MlJnTzBaWlY5Z29ITzNSRjNwQ1JzVUw3WmJtUTFZOEdvN1B3Z2lJWmVfZUtZZkx6SjJHVkhvVDZWaldaek1YTGtocUNwR0xxLU41VUZuOUFQYnN4VjU0OUV3R3ZPYTU3R2dBT0JvX2tmYXFhSjVRbDJ2R2JJOGlW?oc=5",
@@ -13,6 +19,12 @@
    "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTFBXenVlSEIwUk9UN1RtdUFuSUdCQlpLWGUwYjREWl85cUlTWmtVUXl4REVoRTRReGVqNEkwbWFJVE9mRFRlSWZ0dWdvZ3lGYkw3UVBkOFRUTVl6U2pXTTRpZ0JVTmxDbHQ4T1Jqak9IQVdsVy1xZmg1RVpRYw?oc=5",
    "source": "Xinhua",
    "pubDate": "2026-11-07T23:29:21Z"
+  },
+  {
+   "title": "Climate-related fundraising is feeling a chill",
+   "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNc2s2QnhrNklRTGRxVFRMTWJUWndwdDJkck9mY0VMeVNCckJzMEM1dEJpa3B3dDZxYThjVThQQm1qSTkyRjd5T2lKajBKaWVQYkRwdVQ0MHB5Y3dCN08tNEpxN285cThTTHlTR2FtRnVEcGZ0Y3B5TEtEM1FlS3FsYXJiS2Z2ZTQ4SmxBRlhPcTE4bTZST3Z0bVIwUHg?oc=5",
+   "source": "PEI Private Equity",
+   "pubDate": "2026-11-07T18:57:26Z"
   },
   {
    "title": "Turkcell to showcase green technology investments at COP31 | Daily Sabah",
@@ -99,6 +111,12 @@
    "pubDate": "2026-11-06T12:25:31Z"
   },
   {
+   "title": "Bawumia holds talks with Japanese institutions on technology, healthcare and infrastructure",
+   "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQMTh3dlJMcXZTTExBb2JYQXBibUMxZU5zX2tjSlRYc3g3SWdnWWt1c1N0VlNTeUM2ekVRNlVnUVp6dXQ0UmxKQ2U5dUI0bng3N3Z2TUtMeG56ZmZXa3pMUmpOcUZBcjRkcW9NY29ocDM4bVVoMTA2Z20yOXE5SWFpakZPS3FJbkwxbmw5V21lZDF1UlZPeEZzZjB2VE9nMXpfcVlROE15eWFzWkxtaEhnRkJKUDQyaEQ5UTA0?oc=5",
+   "source": "MyJoyOnline",
+   "pubDate": "2026-11-06T12:03:44Z"
+  },
+  {
    "title": "AI Geo Navigators showcases climate-tech and geospatial intelligence solutions at SIE 2026",
    "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPSU9sR2FJUUVORWU2REZTclhnQk1OWlpUc040Vi1tLXpuWEF0T1A4aTBaQ1Q2aEt1bnJla0Q1d3FmS0dmdHBOSmZzdjJ3TXFGMGx1cG5TSmFvNGRGVExHZkptN0NFeEFiNVFzaXE1eXRoX0I1TTN4dnBUcjRIUm9BRlZIX1l3ems1NHRNcDFKbC1QYThQQnVEZXByUjRraTV5Z1lXQmtjVjJuNG02ZWw4bmlyZGdaSEZuRHdlSE5CWVFYR3R1?oc=5",
    "source": "sabahnews.net",
@@ -106,9 +124,9 @@
   },
   {
    "title": "China Environmental Technology Proposes Capital Reorganisation",
-   "link": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxNTjkyWXpIb2VwR1lfNEFWNUlpdEUzMzdYdjlfS1hiNU91SDhMa2dSY1VVdkgyT0hGQnl2NWdzb3lidVdMUENlV2dYTUVtai1YSnBwWHM5Y2JNSGRNWlRFNFdLZi1zYlFXVVV5dEVDbm5PTllmSTlzbXZnN2RGdE5VbkFsNVVCZ0JWS3JuekI1RDlVTlJ1eWY5T1lVblk4NnpzOG9NdC1vY1RCU21IMzNQVV9kbl9OMFRMaEhUQkszaTY4NllCdHRwXzEzdFhaU3Z6TldHR2dqUFBCUDBaNHJuY28tdTNjQVBqWkkyLQ?oc=5",
+   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNbktFa0pVb2J5cHBrV1c5Rl9NRjgtMVJGc0VPSVhLRGJGYjZPZ2tnLW5qOERIQTdtSklfWGFGeW1DcGxpUmFtSzdtSVZUaUtqZDBNcVp1YjE1VEFhdWFER2N3MlpkaFowZGlYb1lVcVl4azhkZVJrUWtOTUsyUkxRNlljQ3kyMnhZa3lzankzZmxxZ0NRZWl6b3RUMVlDNjg2U2o1WWVxZXBJUjlkdVZLLVdKQVg?oc=5",
    "source": "TipRanks",
-   "pubDate": "2026-11-06T10:48:03Z"
+   "pubDate": "2026-11-06T10:54:18Z"
   },
   {
    "title": "“Helping the low-carbon transition” ... BNK Financial Group expands support for climate tech companies",
@@ -187,6 +205,12 @@
    "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNcTlfRlZoUkVDejNuQ1ZFX1g3VWlaTkdPZ2FYUHQxUkVGdWVRNldZV0tqVGVDekN6TEV2VG1idzZQMzREQlhpMTJhUjlrQmctSHZpbmFUV19QOHhGSlBFcjY4WldnaExLalZleTBCTUZPcFZIOWN1dE5MU1VLZHJWWWRYQjFyQ3JRcUZoRGs1VUhRbkZIaVlnOE5DRnhObGg1?oc=5",
    "source": "EnergyNow",
    "pubDate": "2026-11-05T23:02:19Z"
+  },
+  {
+   "title": "Cleantech Biofuels, Inc. (CLTH) Seasonal returns chart",
+   "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE9mNEZ3Y216enZsQkdveU0wVjlUSjZ2V29Yb2JyYk82YkxObGxOVGQ0dWpwWFdmNUpOdjR4bjlXLUlKb3FNV21mMmJJc0l0OVgyMkQ1VEVnUlZPZGVuanFkVi13?oc=5",
+   "source": "Yahoo Finance UK",
+   "pubDate": "2026-11-05T21:00:00Z"
   },
   {
    "title": "Two Climate-Tech Startups Join Growing Cluster At Discovery Park",
@@ -297,6 +321,12 @@
    "pubDate": "2026-11-05T08:00:00Z"
   },
   {
+   "title": "EU carbon tax an opportunity for Indian, German businesses to collaborate on clean tech—German diplomat",
+   "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNVjI5R1N3UXcxekg3T1BaOEZXcmxXMWhxbEJmTzFJQXFKbE5RejQxRmlHTXllUkI1NzdQRU5VNjFxWmhVNXpWbVhCVlg0dkk1c3FKUzByMFZEaGU4NkNLYy1SSXNWRG5PMWJENFMtcmpsQnFjNm1ITEtyVHFHOEJ5M1c0MEdaWGNBbEcxNUZmaUk4V1A2NTIzV1hocmxwS1UwdXhGM0YwTV9ESkgtUVV5aXkwY1ZzMDFUMmV2YWJmNHpVanJTRzV6WWZOdVBiaDhGbE1WNlhBenXSAd4BQVVfeXFMTzkzcE5aSlQ2R2MyT0QtcFg1YTIyVGNQUXdRcjUzbWFEWjBwLXJFUGhjQWJDakVYMlRmZTh2QmQwVDNRSTV4MXlrTHBzS0FMMUVHZ2pkOUxHZTJGdGoxbWphQ2dTbXRnME02NktVTFpiR1h5bFNUNHFJNld5cW9kbzRvNnNSVElfWm1pbnphc2VNdjk1QW9jSUZOTHY3X1dRTEFXLS1kZmNtU2dSODU0dGZOekpiLXhtNHYycmxzZEZDLXJJVkhIbUJkUldjTTFhNUxxNDYySDRLbDFhOF9R?oc=5",
+   "source": "ThePrint",
+   "pubDate": "2026-11-05T07:38:47Z"
+  },
+  {
    "title": "Meet The Six Startups From RDCW’s Climate Tech Showcase & Social",
    "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOaTdkVE4zUTdfSjB0Tl9KQnY3c1R2TzE1UGdlM29EWmJpTUJ3bWhYbjlySW9scVVSSWpYRHBraGRFRzl1R0RjUkE2Z2FpZS0zdE1WdWd1RzlyZkQwdUFvNG13ZnpCZVdfNkNYSkluS2xzU002OVRLeFE0R2llQWU0eDZXUFctc09FWUx4NVRoT1lnakJPdWRZSzhn?oc=5",
    "source": "GrepBeat",
@@ -309,12 +339,6 @@
    "pubDate": "2026-11-05T05:47:20Z"
   },
   {
-   "title": "CleanTech Vanadium Mining Corp. (CTV.V) Seasonal returns chart - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE9QZFpPTHNtQkdIRnNmaEZYNW1fVEVKaDBFUE1VbkpLbENVSVdqank0TXo1Q1NvM2hrbTRGZnByNnZMRmpsaE51S2hoX3kwM29SWERsSUQ5TnNfVl8wOVFHVk1rSQ?oc=5",
-   "source": "Yahoo Finance Singapore",
-   "pubDate": "2026-11-05T05:14:02Z"
-  },
-  {
    "title": "Cleantech Startup altM Raises $10.3 Mn To Scale Manufacturing",
    "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQd01jXzQ0X2ozTElyODBLVTFFR2JFZU1nMWgzMEFFYjFmNk90bU5RbzdMaVM4a1g2dnRHcEcwMUsyaVlYNVpSN09IVlQzU09WOGdvUUVqSmVlZU04b2FSR184eVU5a3FKN21MZDF3RkY2ZlFpS2RCQVc4Z1B4OHFtNzQxTDhDYWNlaHk1Sg?oc=5",
    "source": "Inc42",
@@ -325,6 +349,12 @@
    "link": "https://news.google.com/rss/articles/CBMihwFBVV95cUxOUnJzYUZ3YW4zemtJZlFpSkpqSHNlU3EzSWFJXzNkdDhFWEJOQjVsVW5DVkRGbVNmbkhEZGd3ZmRMMUpsbElYVGRvUlhIdEFzd1YwTTdKYWlaeExnaHJpbFlnSmwtRVczalpHRi1uNnItYVUzODRnUWV1dHBLb0NLcEhTNWNZRVU?oc=5",
    "source": "Vietnam.vn",
    "pubDate": "2026-11-05T00:19:29Z"
+  },
+  {
+   "title": "NTPC Green Energy eyes 60 GW renewable capacity by 2032, expands clean tech footprint",
+   "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxNMzVab091T2dBY2ZwVFJQam01eG5MZlg4ampQZ1dPNVZidkpKcWlwaXlzNHZRUExwdS1HMm1FZ3BXcGNncV81ZDdrZGtOdGdHa04zWG5EM3hFSHNBLVVGc1JKb3J1MmNMTUY3ZmJxTTB4TDZPR2lXYnkxcm1nNEYzbEJWbFI5ZEdXbXd1STBtSVNoV2FBTFRZTDlheDIxSkZCek9rSWt5WFM2ZXpRTXJjbF8xMkc1TkdzRUstWVlkSDk5R3U0a0ZWeUJ3?oc=5",
+   "source": "Big News Network.com",
+   "pubDate": "2026-11-04T16:04:00Z"
   },
   {
    "title": "Explore innovation at ECOMONDO 2026 – The Green Technology Expo! | 3–6 November 2026 – Rimini Expo Centre, Italy",
@@ -363,6 +393,12 @@
    "pubDate": "2026-11-04T09:43:18Z"
   },
   {
+   "title": "Envision Fuels World's First Ammonia-Fuelled VLAC with Green Ammonia",
+   "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPTTdXNVpTdVhHa29TRDR0MHFkbzdJMkxiTGpkdTJ0a0ZQSk1BRWtJQ3Y2X3Y5bXdEbHhXWUcybkJnME1YMUE4TldscE94b3otYVdyd1U2SUs4TEhQb3VJLVpWQ2hSMXIyV0Y2T3hxVUJCT1J1RUlqdVNBMDltY3hQdkRlbXRPZExnNDJWOEpVci02bGtFSVJ5aFhEakxYd1hpeGhLX2pzcGRCTE1PRGNB?oc=5",
+   "source": "Ship & Bunker",
+   "pubDate": "2026-11-04T06:00:08Z"
+  },
+  {
    "title": "Global Echo: “Solving the Maritime Industry’s Challenges With Breakthrough Environmental Technology”",
    "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE5fQi1MUU1uMUtmdHNmRl9WNkEyUnNPOHJBLUx1Skdaci1qZ2tKT05ocnV3MUN3YnNCaEZHbk9SSFdXdnZaY05TSDdkS0xCaVBXaUZxY25mQ2QxUXRBb0xHdkxBUEdSZw?oc=5",
    "source": "동아일보",
@@ -393,10 +429,10 @@
    "pubDate": "2026-11-03T20:11:34Z"
   },
   {
-   "title": "JE Cleantech Holdings Limited (JCSE) Seasonal returns chart",
-   "link": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE5WMTA3UENzRFNVT3F0ZWk4UTAtVGlkQ09jMFVfVWlxcVJDOUw0d0l1cnZoVUxGemZaRnhkWjB6Vnk3WXhsUVFzbHRvbTVCMjlsU3Nhei11NUFzWFZxcnlxQy1B?oc=5",
-   "source": "Yahoo Finance UK",
-   "pubDate": "2026-11-03T17:31:11Z"
+   "title": "Bawumia eyes 3R's Japanese tech that removes mercury, cleans soil and recycles water to end galamsey",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNOG43b19rWTA5QmdXREhzTWRMdU1tRFhvUll0dE1nakk1ZmlXWVFGaDZ3bDJ5QXh6X2pic0NEc2pLTU40VkZtNHpMSUNhdkVhNmNqeHZlenMtNkxvUGczazFYYmJHR2F6Zm9GY2EyNUdMSm56MHZQelYtQlhBcnAzY0E0VWVyQ1lZYUhXVjMzZWNMMm5Ka2pvN25GTdIBmgFBVV95cUxPTHNwS2duUWtzeVZRZV9rQ2pDVjVHbGRNc3MxWnQ3SG16Q0x0U1VYS2NHQXc3YTVlRENQWVhuTDEwSFlzVVd3bVlLX2NmS0Jaem0yT08tbExrVUVXVGc2X19EdlpEcW1WYk9pSnVjNnkwTXdaSEFRblNIZGJPTjZqT1NaVjIwSnBjU3Z6R0tRTGVTOVRSSlQ0dk5n?oc=5",
+   "source": "Modern Ghana",
+   "pubDate": "2026-11-03T18:18:00Z"
   },
   {
    "title": "Amazon Sustainability Deep Tech Accelerator Announced to Fast-Track Adoption of Breakthrough Technologies",
@@ -409,6 +445,12 @@
    "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE5BZzBQRmxFZEFZektvaGY3S1JPa3RadzRnVk9zeFZtYXF2UmFfV3o2TmlabFJhcDRiN0tKTEY0WkhUSUdBbXFYcGVadlF1MW0xNUlyTUJpN0c1UTBjSGZMNXB5LV91dU5JU2NFWms3VlQwWnk4Vjd0Nw?oc=5",
    "source": "ジェトロ（日本貿易振興機構）",
    "pubDate": "2026-11-03T16:02:15Z"
+  },
+  {
+   "title": "Dr Bawumia explores Japanese technology to tackle galamsey pollution",
+   "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxPNTdKVHBabDhpUkJxS3BWU3g5YldFblBxMm04XzBvSkxuZXB2a3pFWHB3UnpfaUktd0EydEMyLTZaaHVZTC05UEhqbDNrSWVnbnJPdFFyWk53ZXRIMzZ4RFZOUHdrWWh1U0poUW1xVlZpV1NFYUppUmxyUkxtYUladnVwc2o4a2F1MmV2STFhQ1hPdFBZVlRaaFNvOXpaZw?oc=5",
+   "source": "MyJoyOnline",
+   "pubDate": "2026-11-03T15:26:07Z"
   },
   {
    "title": "China Environmental Technology Revises Restructuring and Rights Issue Timetable",
@@ -466,9 +508,9 @@
   },
   {
    "title": "Envision Green Ammonia Successfully Fuels the World's First VLAC",
-   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOeGZtNmtMeERvT3ZyVm1WV0c4bS1VeDJjRTZpNG1JV0ZseTQ0RnBXdUVhVmRmOWFsMm1VZVVfMWpxWlFCcS1nTVdpUm5tanFjOTUxeDYtSGljYVg0RFhEdTlZYV9yZ21LUHV1enhBQkswdlNySDBkdWlUSy1jTW9Nd3doVmZsQ25OVmhrODctMFFhdHc2?oc=5",
-   "source": "Yahoo! Finance Canada",
-   "pubDate": "2026-11-03T07:27:00Z"
+   "link": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxPOHhFTlplUUpSTUwwZTAyT1U5dkZyb3BMcjJXUkdhR1RDaVliT2QxN3FVMUE1aDJDbUMtVUladFNsQ3RGeHpJVGo5QVZ0NnJ0Slp3S042WUM5SlRTSTdEVUlmeFhYWWRHcWl6RHRXb1A3SWcyOGVfSTQ4TU9wanpzZk1iRUZJV002OWVXbWllNTVWQndjazV5aEZQaEkyWHRVYkI4SndKOGpOdTFaQXM3WVZUZTJrd3o2N2lv?oc=5",
+   "source": "PR Newswire",
+   "pubDate": "2026-11-03T07:41:00Z"
   },
   {
    "title": "Green Technology Metals (ASX:GT1) Shares Slide: What's Behind the Move?",
@@ -589,30 +631,6 @@
    "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQLWpNRnJHdTh4eUVvUXpVM1dCZHJUNzlkNE1xNFk3ak9XU2Z4UGxtT3NIaFUtNktVTEZKSXpuTXJlS0tjaHROZlJxTUNWaHgyaHdibmlUd25LQVRaTTNaVk41MF9tZDJPbnRnbTNWZlJHSVVhR2l1WjM2NUo2Q0JGQ2ZTS3hidXB6R3RMLXpfWXdRS3daUzVSaXpnREpKRjg?oc=5",
    "source": "Vietnam Investment Review - VIR",
    "pubDate": "2026-11-02T02:23:21Z"
-  },
-  {
-   "title": "Victorian auto manufacturer scores $6.77 million from ARENA to make portable batteries",
-   "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxQS1VaYmJBTjQ0UEoybUhXeUEtRmFjamhocTZIU3pPQnNMbDRqYTFvUWVqeUdwaTB0QnNuQUpZYUwtZU5FaDVKcXBybG1qRUdORnV2NlRMOUxHUkdTVk9EWXhac3BjOUFwci1tV0NlSmV5bmpqcko4MzUzbXFsYmx0akxGcGlldWNxMTY4WDZhV2UtWXQtU002MzA4MFZnSGhrUHh5SnFtU0dRbTEySUtfYld4WWlvSV9nOEtsdVM3d2xEOVFueXdMZWNLVC1aZE0?oc=5",
-   "source": "Startup Daily",
-   "pubDate": "2026-11-01T22:25:00Z"
-  },
-  {
-   "title": "The dollar is being propped up by oil, but China’s green technologies are strengthening the yuan’s role",
-   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxQV011d08zd0lhRTFuZW1zSElEUVdBaVJUaG10UW1Ya0NpOG1rTzkwaDh6REdmQjVKMGhSbkVfTmozZHRrZzZ5STdRUlVEbWZFVDU3bF9mbzZ6MDhNTkRHUnRHeDJ4VGtmRjRZMHpRallXSGtaTTNGWlZIMWJweU9PS2RUSWFJWVIyRkc0ODFKRF9mS2pJRDlaTno0QVdDTl9FVmpjMENFQUltcTN5UmVNZGNfbXJwbV9kaXJ0SHZCeU9ib3A2eWk2aXdrTQ?oc=5",
-   "source": "logos-pres.md",
-   "pubDate": "2026-11-01T12:44:20Z"
-  },
-  {
-   "title": "From EVs to hydrogen, Asia's green tech sector perseveres amid financing hurdles",
-   "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNX1ByYmVlWVVhYW5PaTFpaG5KR201NVdjSWNpb0NEa0s4THVMRVpGQUk0NzFUd1RqbGktTlpLU29GSndGeVg2Mzh3aURHTWpMWUt3c1RQcVlxLXNwaGUyLVJLNmpkeU5NNW9qOWVFVDY3Vm80RlVTUWlsdVF6U2ZVYV9KQjJLTU1mdl9kVzBicWthYlpHQzF5UzN6UXZyOFdZaTcxRmRCZ3U4Q2NGOS1QWkZQWW5vMVJMOUt1U0RXTQ?oc=5",
-   "source": "Singapore Economic Development Board (EDB)",
-   "pubDate": "2026-11-01T07:00:00Z"
-  },
-  {
-   "title": "Singapore’s climate tech startups are set to clean up",
-   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxNRFV1Vjg1QnFuaXRwNW1naVFpaHRlMUJtRVNGUWZDZDR5QWtLcWFWOWF2Y3BOdmlCY3NhYWN4UmtpSDhieGNrMnBBZ1VobDA4ZkdoOUF5aWwzT2xWdFVQYkhiMDZIdml0NDVqWDFteHlHTEF6ZzY0VDNKTlBReHVBbXdaeDFNOGdpN2VhVmhtZl85a0x5WlY4Vg?oc=5",
-   "source": "Singapore Economic Development Board (EDB)",
-   "pubDate": "2026-11-01T07:00:00Z"
   }
  ]
 }
