@@ -5,6 +5,13 @@
 //
 //   node scripts/draft_new_standards.mjs [standards.json]
 //
+// Two ways to get the announcements:
+// - From an issue (what the workflow does): GitHub's servers can't reach pcd.go.th, so the
+//   "ร่างรายการ" button on pollutionStandards.html collects them in your browser and opens a
+//   pre-filled issue. The workflow passes the issue text in $ISSUE_BODY (and its number in
+//   $ISSUE_NUMBER); the JSON block in it is used instead of the PCD feed.
+// - From the PCD feed directly, when $ISSUE_BODY is not set (works from a computer in Thailand).
+//
 // Writes the PR description to pr-body.md (or $PR_BODY_FILE) and, on GitHub Actions,
 // sets the output "count" to the number of new entries.
 //
@@ -85,6 +92,26 @@ async function fetchText(url) {
     return response.text();
 }
 
+// Announcements sent from the page via an issue: [{id, date, title, link, pdf, types}, ...]
+const PCD_URL = /^https:\/\/(www\.)?pcd\.go\.th\//;
+function postsFromIssue(text) {
+    const block = String(text).match(/```json\s*([\s\S]*?)```/);
+    if (!block) throw new Error('No ```json block in the issue.');
+    const list = JSON.parse(block[1]);
+    if (!Array.isArray(list) || !list.length || list.length > 50) throw new Error('The JSON block must be a list of 1–50 announcements.');
+    return list.map(p => {
+        if (!Number.isInteger(p.id) || p.id <= 0) throw new Error(`Bad id: ${p.id}`);
+        if (!/^\d{4}-\d{2}-\d{2}T/.test(p.date || '')) throw new Error(`Bad date for ${p.id}`);
+        if (typeof p.title !== 'string' || !p.title.trim() || p.title.length > 600) throw new Error(`Bad title for ${p.id}`);
+        if (!PCD_URL.test(p.link || '')) throw new Error(`Link for ${p.id} is not on pcd.go.th`);
+        if (p.pdf && !PCD_URL.test(p.pdf)) throw new Error(`PDF for ${p.id} is not on pcd.go.th`);
+        const types = Array.isArray(p.types) ? p.types.filter(Number.isInteger) : [];
+        return { id: p.id, title: { rendered: p.title }, date: p.date, lawstype: types, link: p.link, content: { rendered: p.pdf || '' } };
+    });
+}
+const fromIssue = Boolean(process.env.ISSUE_BODY);
+const issueNumber = process.env.ISSUE_NUMBER;
+
 const original = await readFile(DB_PATH, 'utf8');
 const db = JSON.parse(original);
 if (formatDatabase(db) !== original) {
@@ -104,7 +131,7 @@ const findEntry = law => {
     return close ? close.entry : null;
 };
 
-const posts = JSON.parse(await fetchText(API)).map(x => ({
+const posts = (fromIssue ? postsFromIssue(process.env.ISSUE_BODY) : JSON.parse(await fetchText(API))).map(x => ({
     id: x.id,
     title: decodeEntities(x.title.rendered).replace(/\s+/g, ' ').trim(),
     date: x.date,
@@ -112,7 +139,7 @@ const posts = JSON.parse(await fetchText(API)).map(x => ({
     link: x.link,
     content: x.content?.rendered || '',
 }));
-console.log(`PCD: ${posts.length} posts`);
+console.log(`${fromIssue ? `Issue #${issueNumber}` : 'PCD'}: ${posts.length} posts`);
 
 const missing = posts.filter(l => !isDraft(l) && isStandard(l) && !ignored.has(l.id) && !findEntry(l))
     .sort((a, b) => b.date.localeCompare(a.date));
@@ -122,7 +149,7 @@ const nextNumber = {};
 const drafts = [];
 for (const law of missing) {
     let pdf = findPdf(law.content);
-    if (!pdf) {
+    if (!pdf && !fromIssue) {
         try { pdf = findPdf(await fetchText(law.link)); } catch (error) { console.warn(`! ${law.link}: ${error.message}`); }
     }
     const year = titleYear(law.title) ?? (+law.date.slice(0, 4) + 543);
@@ -151,14 +178,15 @@ if (drafts.length) {
 }
 
 const body = [
-    `ระบบพบประกาศใหม่บนเว็บกรมควบคุมมลพิษ **${drafts.length} ฉบับ** ที่ยังไม่อยู่ใน \`standards.json\` จึงร่างรายการไว้ให้ตรวจ`,
+    `ร่างรายการประกาศใหม่จากกรมควบคุมมลพิษ **${drafts.length} ฉบับ** ที่ยังไม่อยู่ใน \`standards.json\` ไว้ให้ตรวจ`,
+    ...(issueNumber ? ['', `Closes #${issueNumber}`] : []),
     '',
     ...drafts.flatMap(({ entry, law, pdf, related }, i) => [
         `### ${i + 1}. ${entry.title}`,
         '',
         `- รหัส \`${entry.id}\` · ปี ${entry.year} · \`pcdId: ${law.id}\``,
         `- โพสต์บนเว็บ คพ.: ${law.link}`,
-        pdf ? `- ไฟล์ PDF: ${pdf}` : '- ⚠️ ไม่พบไฟล์ PDF ในโพสต์ จึงใส่ลิงก์หน้าโพสต์ไว้แทน',
+        pdf ? `- ไฟล์ PDF: ${pdf}` : '- ⚠️ ไม่พบไฟล์ PDF ในโพสต์ จึงใส่ลิงก์หน้าโพสต์ไว้แทน — เปิดโพสต์แล้วคัดลอกลิงก์ PDF มาใส่ใน `link`',
         `- วันที่ในร่าง (\`${entry.date}\`) คือวันที่ คพ. โพสต์ ไม่ใช่วันที่ลงนามหรือวันที่ลงราชกิจจานุเบกษา`,
         related.length
             ? `- อาจยกเลิกฉบับเดิม (เรื่องเดียวกัน): ${related.map(e => `\`${e.id}\` ${e.title}`).join(' · ')} — ถ้าใช่ ให้ใส่ \`"cancelledBy": "${entry.id}"\` ที่รายการนั้น`
@@ -176,7 +204,7 @@ const body = [
     '',
     'ถ้าไม่ต้องการเพิ่มรายการใด: ลบบรรทัดนั้นออกจาก PR แล้วเพิ่ม `pcdId` ลงใน `"ignoredPcdIds"` ที่ต้นไฟล์ `standards.json` ระบบจะไม่เสนอรายการนั้นอีก',
     '',
-    '_PR นี้สร้างโดย GitHub Action `draft-new-standards` ระหว่างที่ PR นี้ยังเปิดอยู่ ระบบจะไม่สร้างหรือแก้ PR ใหม่ทับ_',
+    `_PR นี้สร้างโดย GitHub Action \`draft-new-standards\`${issueNumber ? ` จาก issue #${issueNumber}` : ''} ระหว่างที่ PR นี้ยังเปิดอยู่ ระบบจะไม่สร้างหรือแก้ PR ร่างอื่นทับ_`,
 ].join('\n');
 await writeFile(PR_BODY_FILE, body + '\n');
 

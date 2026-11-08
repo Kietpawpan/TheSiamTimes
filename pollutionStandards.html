@@ -51,7 +51,10 @@
             <section id="latestSection" class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-4 sm:p-6 mb-8">
                 <div class="flex flex-wrap items-baseline justify-between gap-2 mb-3">
                     <h2 class="text-xl font-semibold text-violet-700">ล่าสุดจากกรมควบคุมมลพิษ</h2>
-                    <p id="latestStatus" class="text-sm text-gray-500">กำลังตรวจสอบ...</p>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <p id="latestStatus" class="text-sm text-gray-500">กำลังตรวจสอบ...</p>
+                        <button id="draftAll" type="button" class="hidden px-3 py-1 text-xs font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-full transition"></button>
+                    </div>
                 </div>
                 <div class="flex gap-2 mb-4">
                     <button data-kind="final" class="latest-tab px-4 py-2 text-sm font-medium bg-gray-200 text-gray-800 rounded-full hover:bg-violet-200 transition active-filter">ประกาศ</button>
@@ -298,6 +301,47 @@
         let latestKind = 'final';
         const latestList = document.getElementById('latestList');
         const latestStatus = document.getElementById('latestStatus');
+        const draftAllButton = document.getElementById('draftAll');
+
+        // ---- "ร่างรายการ": your browser can reach pcd.go.th, GitHub's servers can't. So the browser
+        // collects the details and opens a pre-filled GitHub issue; when you submit it, the
+        // "Draft new pollution standards" workflow turns it into a pull request for review.
+        const GITHUB_REPO = 'Kietpawpan/TheSiamTimes';
+        const DRAFT_TITLE_PREFIX = '[ร่างรายการ]';
+        const MAX_ISSUE_URL = 8000;
+        const findPdf = html => {
+            const all = [...String(html).matchAll(/https?:\/\/[^"'\s<>]+?\.pdf/gi)].map(m => m[0]);
+            return all.find(u => u.includes('/wp-content/uploads/')) || all[0] || '';
+        };
+        const isMissing = law => !isDraft(law) && isStandard(law) && !isIgnored(law) && !findEntry(law);
+        const draftIssueUrl = laws => {
+            const posts = laws.map(l => ({ id: l.id, date: l.date, title: l.title, link: l.link, pdf: l.pdf, types: l.types }));
+            const title = `${DRAFT_TITLE_PREFIX} ${laws.length === 1 ? laws[0].title.slice(0, 80) : `${laws.length} ฉบับจากกรมควบคุมมลพิษ`}`;
+            // Thai text is long once URL-encoded, so keep the body short: one compact line per announcement.
+            const body = [
+                'กด **Submit new issue** แล้วระบบจะเปิด Pull Request ร่างรายการใน `standards.json` ให้ตรวจภายในไม่กี่นาที (โปรดอย่าแก้ข้อมูลด้านล่าง)',
+                '',
+                '```json',
+                '[\n' + posts.map(post => JSON.stringify(post)).join(',\n') + '\n]',
+                '```',
+            ].join('\n');
+            return `https://github.com/${GITHUB_REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+        };
+        const openDraft = laws => {
+            const url = draftIssueUrl(laws);
+            if (url.length > MAX_ISSUE_URL) {
+                alert('รายการยาวเกินกว่าจะส่งในครั้งเดียว โปรดกด "ร่างรายการ" ทีละฉบับ');
+                return;
+            }
+            window.open(url, '_blank', 'noopener');
+        };
+        latestList.addEventListener('click', e => {
+            const button = e.target.closest('[data-draft]');
+            if (!button) return;
+            const law = latest.find(l => String(l.id) === button.dataset.draft);
+            if (law) openDraft([law]);
+        });
+        draftAllButton.addEventListener('click', () => openDraft(latest.filter(isMissing)));
 
         const renderLatest = () => {
             const items = latest.filter(l => (latestKind === 'draft') === isDraft(l)).slice(0, 8);
@@ -311,7 +355,8 @@
                     if (findEntry(law)) {
                         tag = '<span class="inline-block mt-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full px-2 py-0.5">✓ อยู่ในฐานข้อมูลแล้ว</span>';
                     } else if (isStandard(law) && !isIgnored(law)) {
-                        tag = '<span class="inline-block mt-1 text-xs font-semibold text-orange-700 bg-orange-100 rounded-full px-2 py-0.5">+ ยังไม่อยู่ในฐานข้อมูล</span>';
+                        tag = '<span class="inline-block mt-1 text-xs font-semibold text-orange-700 bg-orange-100 rounded-full px-2 py-0.5">+ ยังไม่อยู่ในฐานข้อมูล</span>' +
+                            `<button type="button" data-draft="${law.id}" class="inline-block mt-1 ml-2 text-xs font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-full px-3 py-0.5 transition" title="เปิดหน้า GitHub เพื่อให้ระบบสร้าง Pull Request ร่างรายการนี้">ร่างรายการ</button>`;
                     } else if (isIgnored(law)) {
                         tag = '<span class="inline-block mt-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded-full px-2 py-0.5" title="ผู้ดูแลเลือกไม่นำประกาศนี้เข้าฐานข้อมูล (standards.json → ignoredPcdIds)">ไม่นำเข้าฐานข้อมูล</span>';
                     } else {
@@ -336,16 +381,20 @@
 
         const loadLatest = async () => {
             try {
-                const response = await fetch('https://www.pcd.go.th/wp-json/wp/v2/laws?per_page=30&_fields=id,date,title,lawstype,link');
+                const response = await fetch('https://www.pcd.go.th/wp-json/wp/v2/laws?per_page=30&_fields=id,date,title,lawstype,link,content');
                 if (!response.ok) throw new Error(response.status);
                 latest = (await response.json()).map(x => ({
                     id: x.id,
                     title: decodeEntities(x.title.rendered).replace(/\s+/g, ' ').trim(),
                     posted: new Date(x.date + '+07:00'),
+                    date: x.date,
                     types: x.lawstype || [],
                     link: x.link,
+                    pdf: findPdf(x.content?.rendered),
                 }));
-                const missing = latest.filter(l => !isDraft(l) && isStandard(l) && !isIgnored(l) && !findEntry(l)).length;
+                const missing = latest.filter(isMissing).length;
+                draftAllButton.classList.toggle('hidden', missing < 2);
+                draftAllButton.textContent = `ร่างทั้งหมด ${missing} ฉบับ`;
                 latestStatus.textContent = `ตรวจสอบเมื่อ ${new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.` +
                     (missing ? ` · ${missing} ฉบับยังไม่อยู่ในฐานข้อมูล` : ' · ประกาศล่าสุดอยู่ในฐานข้อมูลครบแล้ว');
                 renderLatest();
