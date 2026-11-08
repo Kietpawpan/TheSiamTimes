@@ -1,19 +1,24 @@
-# Checks the Pollution Control Department's announcements every morning. When some are
-# not in standards.json yet, opens a pull request with draft entries for review.
-# Nothing reaches the site (pollutionStandards.html) until that pull request is merged.
+# Turns a "[ร่างรายการ]" issue into a pull request with draft standards.json entries.
 #
+# GitHub's servers can't reach pcd.go.th (the connection times out), so the check runs in your
+# browser instead: on pollutionStandards.html, announcements not in the database have a
+# "ร่างรายการ" button that opens a pre-filled issue. Submitting it starts this workflow, which
+# drafts the entries (scripts/draft_new_standards.mjs) and opens a pull request for review.
+# Nothing reaches the site until that pull request is merged.
+#
+# Only issues opened by the repository owner, members or collaborators are acted on.
 # Needs: Settings → Actions → General → Workflow permissions →
 #        "Allow GitHub Actions to create and approve pull requests" ticked.
 name: Draft new pollution standards
 
 on:
-  schedule:
-    - cron: '37 23 * * *' # 06:37 Bangkok time
-  workflow_dispatch:
+  issues:
+    types: [opened, reopened]
 
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 concurrency:
   group: draft-new-standards
@@ -24,26 +29,38 @@ env:
 
 jobs:
   draft:
+    if: >-
+      startsWith(github.event.issue.title, '[ร่างรายการ]') &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
     steps:
       - uses: actions/checkout@v4
 
       # While a draft PR is open, leave it alone so edits made during review are not overwritten.
       - name: Check for a draft PR waiting for review
         id: pending
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          open=$(gh pr list --head "$PR_BRANCH" --state open --json number --jq length)
-          echo "open=$open" >> "$GITHUB_OUTPUT"
-          if [ "$open" != "0" ]; then echo "A draft PR is still open; skipping."; fi
+          url=$(gh pr list --head "$PR_BRANCH" --state open --json url --jq '.[0].url // ""')
+          if [ -n "$url" ]; then
+            echo "open=1" >> "$GITHUB_OUTPUT"
+            gh issue comment "$ISSUE_NUMBER" --body "ยังมี Pull Request ร่างรายการที่รอตรวจอยู่: $url
+          โปรด Merge หรือปิด PR นั้นก่อน แล้วกด **Close issue** และ **Reopen issue** นี้ ระบบจะร่างรายการให้ใหม่"
+          else
+            echo "open=0" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Draft entries for new announcements
+      - name: Draft entries from the issue
         id: draft
         if: steps.pending.outputs.open == '0'
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: node scripts/draft_new_standards.mjs standards.json
 
       - name: Open pull request
+        id: pr
         if: steps.pending.outputs.open == '0' && steps.draft.outputs.count != '0'
         uses: peter-evans/create-pull-request@v7
         with:
@@ -53,3 +70,21 @@ jobs:
           commit-message: "Draft ${{ steps.draft.outputs.count }} new standard(s) from the Pollution Control Department"
           title: "ร่างรายการใหม่ ${{ steps.draft.outputs.count }} ฉบับจากกรมควบคุมมลพิษ (รอตรวจ)"
           body-path: pr-body.md
+
+      - name: Tell the issue where the pull request is
+        if: steps.pr.outputs.pull-request-url != ''
+        env:
+          PR_URL: ${{ steps.pr.outputs.pull-request-url }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body "เปิด Pull Request ร่างรายการแล้ว: $PR_URL
+          ตรวจและแก้ \`date\` \`ref\` \`cancelledBy\` ตามรายการในคำอธิบาย PR แล้วกด Merge — issue นี้จะปิดเองเมื่อ Merge"
+
+      - name: Nothing new to add
+        if: steps.pending.outputs.open == '0' && steps.draft.outputs.count == '0'
+        run: |
+          gh issue close "$ISSUE_NUMBER" --comment "ประกาศในคำขอนี้อยู่ในฐานข้อมูลแล้ว หรือไม่ใช่ประกาศมาตรฐาน จึงไม่มีรายการต้องเพิ่ม"
+
+      - name: Report a failure on the issue
+        if: failure()
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body "ร่างรายการไม่สำเร็จ ดูรายละเอียดได้ที่ ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
