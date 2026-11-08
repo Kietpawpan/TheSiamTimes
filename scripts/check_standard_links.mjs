@@ -1,30 +1,26 @@
 #!/usr/bin/env node
-// ตรวจสอบลิงก์เอกสารทั้งหมดใน pollutionStandards.html
-// ใช้งาน:  node scripts/check_standard_links.mjs [path/to/pollutionStandards.html] [--base=https://example.go.th/docs/]
-//   --base  ที่อยู่ของไฟล์ PDF ภายใน (ลิงก์ที่ไม่ขึ้นต้นด้วย http) ถ้าไม่ระบุจะตรวจว่ามีไฟล์อยู่ในโฟลเดอร์เดียวกับ HTML
+// ตรวจสอบลิงก์เอกสารทั้งหมดใน standards.json (ข้อมูลของ pollutionStandards.html และแอป iOS)
+// ใช้งาน:  node scripts/check_standard_links.mjs [path/to/standards.json] [--base=https://example.go.th/docs/]
+//   --base  ที่อยู่ของไฟล์ PDF ภายใน (ลิงก์ที่ไม่ขึ้นต้นด้วย http) ถ้าไม่ระบุจะตรวจว่ามีไฟล์อยู่ในโฟลเดอร์เดียวกับ standards.json
 // ต้องใช้ Node.js 18 ขึ้นไป (มี fetch ในตัว) และต้องเชื่อมต่ออินเทอร์เน็ตได้
 import { readFile, access } from 'node:fs/promises';
 import path from 'node:path';
 
 const args = process.argv.slice(2);
-const htmlPath = args.find(a => !a.startsWith('--')) || 'pollutionStandards.html';
+const htmlPath = args.find(a => !a.startsWith('--')) || 'standards.json';
 const base = (args.find(a => a.startsWith('--base=')) || '').slice('--base='.length);
 const CONCURRENCY = 4;
 const TIMEOUT_MS = 30000;
 
-const html = await readFile(htmlPath, 'utf8');
-const entries = [];
-const itemRe = /\{\s*year:\s*(\d{4}),\s*title:\s*(["'])(.*?)\2,[^\n]*?\blink:\s*"([^"]*)"([^\n]*)/g;
-for (const m of html.matchAll(itemRe)) {
-    const [, year, , title, link, rest] = m;
-    const pending = /pending:\s*true/.test(rest);
-    if (link) entries.push({ year, title, url: link, pending });
-    const alt = rest.match(/altLinks:\s*\[([^\]]*)\]/);
-    if (alt) for (const a of alt[1].matchAll(/"([^"]+)"/g)) entries.push({ year, title, url: a[1], pending, alt: true });
+const database = JSON.parse(await readFile(htmlPath, 'utf8'));
+const entries = database.entries
+    .filter(e => e.link)
+    .map(e => ({ year: e.year, title: `${e.id} ${e.title}`, url: e.link }));
+const ids = new Set(database.entries.map(e => e.id));
+for (const e of database.entries) {
+    if (e.cancelledBy && !ids.has(e.cancelledBy)) console.log(`! ${e.id}: cancelledBy "${e.cancelledBy}" ไม่มีในข้อมูล`);
 }
-
-const pendingCount = (html.match(/pending:\s*true/g) || []).length;
-console.log(`พบลิงก์ ${entries.length} รายการ (รายการรอตรวจสอบ ${pendingCount} รายการ)\n`);
+console.log(`พบลิงก์ ${entries.length} รายการ จาก ${database.entries.length} ประกาศ\n`);
 
 async function check(entry) {
     const isRemote = /^https?:\/\//i.test(entry.url);
@@ -74,7 +70,7 @@ console.log(`\n\nใช้งานได้ ${results.length - broken.length} /
 if (broken.length) {
     console.log('\nลิงก์ที่มีปัญหา:');
     for (const b of broken.sort((a, b) => b.year - a.year)) {
-        console.log(`- [${b.year}] ${b.title.slice(0, 80)}${b.alt ? ' (ลิงก์สำรอง)' : ''}\n    ${b.url}\n    สถานะ: ${b.status}`);
+        console.log(`- [${b.year}] ${b.title.slice(0, 80)}\n    ${b.url}\n    สถานะ: ${b.status}`);
     }
     process.exitCode = 1;
 }
