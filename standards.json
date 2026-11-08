@@ -1,6 +1,7 @@
 {
   "updated": "2026-11-08",
   "source": "https://kietpawpan.github.io/standards/",
+  "ignoredPcdIds": [],
   "entries": [
     {"id": "2569-03", "year": 2569, "title": "แนวทางการเก็บและวิเคราะห์ไมโครพลาสติกในน้ำและตะกอนดินในแหล่งน้ำผิวดิน พ.ศ. ๒๕๖๙", "date": "๙ ก.ย. ๒๕๖๙", "ref": "-", "link": "https://www.pcd.go.th/wp-content/uploads/2026/09/pcdnew-2026-09-10_04-18-16_668683.pdf", "pcdId": 42124},
     {"id": "2569-02", "year": 2569, "title": "กำหนดจุดตรวจวัดคุณภาพน้ำในแหล่งน้ำผิวดิน พ.ศ. ๒๕๖๙", "date": "๑๒ มิ.ย. ๒๕๖๙", "ref": "-", "link": "https://www.pcd.go.th/wp-content/uploads/2026/06/pcdnew-2026-06-29_02-48-44_165660.pdf", "pcdId": 40582},
