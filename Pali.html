@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แปลไทยเป็นบาลี</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Trirong:ital,wght@0,400;0,600;1,400&family=Noto+Sans+Thai+Looped:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --page: #E7E5DF; --surface: #F6F5F1; --text: #2A2522; --muted: #6B625B; --line: #CFCAC0;
+  --lacquer: #6E1D1A; --lacquer-deep: #4F1412; --gold: #D2AE57;
+  --leaf: #DCC797; --leaf-edge: #B99E62; --leaf-ink: #2E2216; --focus: #1F5F8B; --error: #B3261E;
+  --display: "Trirong", "Noto Serif Thai", "Thonburi", Georgia, serif;
+  --ui: "Noto Sans Thai Looped", "Noto Sans Thai", "Leelawadee UI", "Thonburi", system-ui, sans-serif;
+  color-scheme: light;
+  box-sizing: border-box;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #241615; --surface: #2F1E1C; --text: #EFE7DA; --muted: #B9A99A; --line: #4A3431;
+    --lacquer: #5A1714; --lacquer-deep: #3E0F0D; --gold: #D9B866;
+    --leaf: #CDB683; --leaf-edge: #9C834F; --leaf-ink: #2A1E12; --focus: #8CC4EA; --error: #F2A49D;
+    color-scheme: dark;
+  }
+}
+*, *::before, *::after { box-sizing: inherit; }
+body { margin: 0; background: var(--page); color: var(--text); font-family: var(--ui); font-size: 1rem; line-height: 1.7; -webkit-text-size-adjust: 100%; }
+header {
+  background: var(--lacquer);
+  background-image: radial-gradient(circle at 20% 0%, rgba(210,174,87,.18), transparent 55%);
+  color: var(--gold); padding: 2.2rem 1.25rem 2.6rem; border-bottom: 3px double var(--gold);
+}
+.wrap { max-width: 44rem; margin: 0 auto; }
+header h1 { font-family: var(--display); font-weight: 600; margin: 0; font-size: clamp(2rem, 8vw, 3rem); line-height: 1.25; }
+header p { margin: .4rem 0 0; color: #EBD9AE; font-size: .98rem; max-width: 34rem; }
+main { padding: 1.5rem 1.25rem 3rem; }
+label.field { display: block; font-weight: 600; margin-bottom: .4rem; }
+input[type="password"] {
+  width: 100%; font: inherit; font-size: 1.1rem; line-height: 1.6; color: var(--text); 
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; 
+  padding: .6rem .9rem; margin-bottom: 1.2rem;
+}
+textarea {
+  width: 100%; min-height: 6.5rem; resize: vertical; font: inherit; font-size: 1.1rem; line-height: 1.6; color: var(--text);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .8rem .9rem;
+}
+textarea:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.examples { display: flex; flex-wrap: wrap; gap: .45rem; margin: .8rem 0 1.1rem; }
+.examples span { width: 100%; color: var(--muted); font-size: .9rem; }
+.chip { font: inherit; font-size: .92rem; color: var(--text); cursor: pointer; background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: .25rem .8rem; }
+.chip:hover { border-color: var(--lacquer); }
+.actions { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+.primary { font: inherit; font-weight: 600; font-size: 1.05rem; cursor: pointer; background: var(--lacquer); color: #F7E7BE; border: 1px solid var(--lacquer-deep); border-radius: 10px; padding: .65rem 1.4rem; }
+.primary:hover { background: var(--lacquer-deep); }
+.primary:disabled { opacity: .55; cursor: default; }
+.ghost { font: inherit; font-size: .95rem; cursor: pointer; color: var(--text); background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: .55rem 1rem; text-decoration: none; display: inline-block; line-height: 1.5; }
+.ghost:hover { border-color: var(--text); }
+.ghost:disabled { opacity: .55; cursor: default; }
+.status { color: var(--muted); font-size: .95rem; margin: 1rem 0 0; min-height: 1.5em; }
+.status.error { color: var(--error); }
+
+.result { margin-top: 1.6rem; }
+.leaf {
+  position: relative;
+  background: repeating-linear-gradient(180deg, rgba(120,90,40,.07) 0 1px, transparent 1px 5px), linear-gradient(180deg, #E6D3A6, var(--leaf) 45%, #CDB47D);
+  border: 1px solid var(--leaf-edge); border-radius: 18px / 50%;
+  padding: 1.6rem 3.4rem 1.4rem; color: var(--leaf-ink); text-align: center;
+  box-shadow: 0 1px 0 rgba(255,255,255,.4) inset, 0 6px 18px -10px rgba(60,30,10,.55);
+}
+.leaf::before, .leaf::after { content: ""; position: absolute; top: 50%; width: 11px; height: 11px; margin-top: -5.5px; border-radius: 50%; background: var(--page); box-shadow: inset 0 1px 2px rgba(0,0,0,.45); }
+.leaf::before { left: 1.25rem; }
+.leaf::after { right: 1.25rem; }
+.pali { font-family: var(--display); font-weight: 600; font-size: clamp(1.6rem, 6.5vw, 2.5rem); line-height: 1.55; margin: 0; overflow-wrap: anywhere; }
+.roman { font-style: italic; margin: .35rem 0 0; font-size: 1rem; opacity: .8; }
+.nice { margin: .75rem auto 0; max-width: 30rem; padding-top: .65rem; font-size: .95rem; line-height: 1.65; border-top: 1px solid rgba(46,34,22,.25); }
+.english { margin: .35rem auto 0; max-width: 30rem; font-family: var(--display); font-style: italic; font-size: .98rem; line-height: 1.55; opacity: .85; }
+.source { margin: .6rem 0 0; font-size: .9rem; opacity: .85; }
+.leaf-tools { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
+.opt { display: flex; justify-content: flex-end; align-items: center; gap: .45rem; margin-top: .55rem; font-size: .9rem; color: var(--muted); cursor: pointer; }
+.opt input { width: 1.05rem; height: 1.05rem; margin: 0; accent-color: var(--lacquer); }
+
+.meaning { margin: 1.4rem 0 0; }
+.meaning h2, .words h2, .history h2, .sheet h2 { font-family: var(--display); font-weight: 600; font-size: 1.25rem; margin: 0 0 .4rem; }
+.meaning p { margin: 0 0 .3rem; }
+.meaning .note { color: var(--muted); font-size: .95rem; }
+.words { margin-top: 1.6rem; }
+.words ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.words li { display: grid; grid-template-columns: minmax(7rem, 30%) 1fr; gap: .2rem 1rem; padding: .75rem 0; border-bottom: 1px solid var(--line); }
+.w-pali { font-family: var(--display); font-weight: 600; font-size: 1.3rem; line-height: 1.4; }
+.w-roman { display: block; font-family: var(--ui); font-weight: 400; font-style: italic; font-size: .85rem; color: var(--muted); }
+.w-mean { margin: 0; }
+.w-gram { margin: 0; color: var(--muted); font-size: .9rem; }
+@media (max-width: 30rem) {
+  .words li { grid-template-columns: 1fr; }
+  .leaf { padding: 1.4rem 2.6rem 1.2rem; }
+  .leaf::before { left: .9rem; } .leaf::after { right: .9rem; }
+}
+.history { margin-top: 2.4rem; }
+.history ul { list-style: none; margin: 0; padding: 0; }
+.history li + li { border-top: 1px solid var(--line); }
+.history button { display: block; width: 100%; text-align: left; font: inherit; color: var(--text); cursor: pointer; background: none; border: 0; padding: .6rem 0; }
+.history .h-th { display: block; color: var(--muted); font-size: .9rem; }
+.history .h-pa { display: block; font-family: var(--display); font-size: 1.12rem; }
+.hint { color: var(--muted); font-size: .88rem; margin-top: 2rem; }
+
+.sheet { position: fixed; inset: 0; background: rgba(20,8,6,.72); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 10; }
+.sheet-box { background: var(--surface); border-radius: 14px; padding: 1.1rem; max-width: 34rem; width: 100%; max-height: 100%; overflow: auto; }
+.sheet img { display: block; width: 100%; height: auto; border-radius: 6px; -webkit-touch-callout: default; }
+.sheet-hint { color: var(--muted); font-size: .9rem; margin: .6rem 0 .8rem; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: no-preference) {
+  .leaf.reveal { animation: unroll .5s ease-out; }
+  @keyframes unroll { from { clip-path: inset(0 50% 0 50% round 18px); } to { clip-path: inset(0 0 0 0 round 18px); } }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>แปลไทยเป็นบาลี</h1>
+    <p>พิมพ์ข้อความภาษาไทย แล้วรับคำแปลภาษาบาลีเขียนด้วยอักษรไทย พร้อมแยกศัพท์และวิภัตติ</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <label class="field" for="secretKey">รหัสผ่าน (Secret Key)</label>
+  <input type="password" id="secretKey" placeholder="กรอกรหัสผ่านเพื่อใช้งาน">
+
+  <label class="field" for="src">ข้อความภาษาไทย</label>
+  <textarea id="src" placeholder="เช่น ความไม่ประมาทเป็นหนทางสู่อมตะ"></textarea>
+  <div class="examples" id="examples"><span>ลองตัวอย่าง</span></div>
+  <div class="actions">
+    <button class="primary" id="go" type="button">แปลเป็นบาลี</button>
+    <button class="ghost" id="stop" type="button" hidden>ยกเลิก</button>
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+
+  <section class="result" id="result" hidden>
+    <div class="leaf" id="leaf">
+      <p class="pali" id="pali" lang="pi"></p>
+      <p class="roman" id="roman"></p>
+      <p class="nice" id="nice"></p>
+      <p class="english" id="english" lang="en"></p>
+      <p class="source" id="source"></p>
+    </div>
+    <div class="leaf-tools">
+      <button class="ghost" id="saveImg" type="button">บันทึกเป็นภาพ</button>
+      <button class="ghost" id="copy" type="button">คัดลอกคำบาลี</button>
+      <button class="ghost" id="again" type="button">แปลอีกแบบ</button>
+    </div>
+    <label class="opt"><input type="checkbox" id="credit"> <span id="creditLabel"></span></label>
+
+    <div class="meaning" id="meaning">
+      <h2>แปลโดยพยัญชนะ</h2>
+      <p id="literal"></p>
+      <p class="note" id="note"></p>
+    </div>
+    <div class="words" id="wordsBox">
+      <h2>แยกศัพท์</h2>
+      <ol id="words"></ol>
+    </div>
+  </section>
+
+  <section class="history" id="history" hidden>
+    <h2>ที่แปลไว้ล่าสุด</h2>
+    <ul id="historyList"></ul>
+  </section>
+
+  <p class="hint">คำแปลสร้างโดย Claude ถ้าจะใช้ในงานพิธีหรือจารึก ควรให้ผู้รู้บาลีตรวจทานอีกครั้ง</p>
+</main>
+
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet-box">
+    <h2 id="sheetTitle">ภาพพร้อมแชร์</h2>
+    <img id="sheetImg" alt="ภาพใบลานคำบาลีพร้อมคำแปล">
+    <p class="sheet-hint">บนมือถือ กดค้างที่ภาพเพื่อบันทึกลงเครื่องหรือส่งต่อใน LINE</p>
+    <div class="actions">
+      <button class="primary" id="shareBtn" type="button" hidden>แชร์</button>
+      <a class="ghost" id="dlLink" href="#" download="pali.png">ดาวน์โหลด</a>
+      <button class="ghost" id="closeSheet" type="button">ปิด</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ==========================================
+  // กำหนด Web App URL ที่ได้จาก Apps Script ตรงนี้
+  // ==========================================
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxgBxYlbxDukD3TBPdRan9kQpSbFiNMWegwNsvKvbFAcTFnm-jvUb4l2v-_tRrthXRByw/exec";
+
+  var EXAMPLES = ["ความไม่ประมาทเป็นหนทางสู่อมตะ", "ตนแลเป็นที่พึ่งแห่งตน", "ความอดทนเป็นตบะอย่างยิ่ง", "นิพพานเป็นสุขอย่างยิ่ง", "ขอให้ท่านจงมีความสุข"];
+  var HISTORY_KEY = "thai-pali-history";
+  var CREDIT_KEY = "thai-pali-credit";
+  var KEY_SAVE = "thai-pali-secret"; // สำหรับจำรหัสผ่านไว้ในเครื่อง
+  var $ = function (id) { return document.getElementById(id); };
+  var src = $("src"), go = $("go"), stop = $("stop"), status = $("status");
+  var current = null, requestId = 0, shareFile = null, abortController = null;
+
+  // โหลดรหัสผ่านที่เคยพิมพ์ไว้
+  try { var savedKey = localStorage.getItem(KEY_SAVE); if(savedKey) $("secretKey").value = savedKey; } catch(e){}
+
+  EXAMPLES.forEach(function (t) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = t;
+    b.addEventListener("click", function () { src.value = t; src.focus(); });
+    $("examples").appendChild(b);
+  });
+
+  function setStatus(msg, isError) { status.textContent = msg; status.classList.toggle("error", !!isError); }
+
+  var ERRORS = {
+    WRONG_SECRET: "รหัสผ่านไม่ถูกต้อง",
+    ACCESS_DENIED: "บัญชีนี้ไม่มีสิทธิ์ใช้งาน",
+    NO_KEY: "ยังไม่ได้ตั้งค่า ANTHROPIC_API_KEY ใน Backend",
+    BAD_KEY: "API key ฝั่งเซิร์ฟเวอร์ไม่ถูกต้อง",
+    BUSY: "บริการแปลมีผู้ใช้มาก ลองใหม่อีกสักครู่",
+    BAD_JSON: "ได้คำตอบที่อ่านไม่ออก กด “แปลเป็นบาลี” อีกครั้ง",
+    TOO_LONG: "ข้อความยาวเกินไป ลองแบ่งเป็นช่วงสั้น ๆ",
+    EMPTY: "พิมพ์ข้อความภาษาไทยก่อน"
+  };
+
+  function errorText(err) {
+    var m = String((err && err.message) || err || "");
+    for (var k in ERRORS) if (m.indexOf(k) !== -1) return ERRORS[k];
+    if (/API_\d+/.test(m)) return "บริการแปลตอบกลับผิดพลาด (" + m.match(/API_\d+/)[0] + ")";
+    return "การเชื่อมต่อขัดข้อง กด “แปลเป็นบาลี” อีกครั้ง";
+  }
+
+  function translate(variant) {
+    if (SCRIPT_URL === "YOUR_WEB_APP_URL_HERE") {
+      setStatus("ยังไม่ได้ตั้งค่า SCRIPT_URL ในโค้ด HTML", true);
+      return;
+    }
+
+    var secret = $("secretKey").value.trim();
+    if (!secret) { setStatus("กรุณากรอกรหัสผ่าน", true); $("secretKey").focus(); return; }
+
+    var thai = src.value.trim();
+    if (!thai) { setStatus(ERRORS.EMPTY, true); src.focus(); return; }
+    
+    // บันทึกรหัสผ่านไว้ใช้ครั้งต่อไป
+    try { localStorage.setItem(KEY_SAVE, secret); } catch(e){}
+
+    var id = ++requestId;
+    go.disabled = true; stop.hidden = false;
+    setStatus("กำลังแปล… อาจใช้เวลาครู่หนึ่ง");
+
+    // สร้าง AbortController สำหรับปุ่ม "ยกเลิก"
+    abortController = new AbortController();
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        thai: thai,
+        variant: !!variant,
+        secretKey: secret
+      }),
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8' 
+      },
+      signal: abortController.signal
+    })
+    .then(function(response) {
+      if (!response.ok) throw new Error("การเชื่อมต่อขัดข้อง (HTTP " + response.status + ")");
+      return response.json();
+    })
+    .then(function(data) {
+      if (id !== requestId) return;
+      done();
+      
+      // ตรวจสอบว่า Backend ส่ง Error กลับมาหรือไม่
+      if (data.error) {
+        setStatus(errorText(data.error), true);
+        return;
+      }
+
+      var res = normalize(data, thai);
+      if (!res.pali) { setStatus(ERRORS.BAD_JSON, true); return; }
+      current = res; render(res, true); saveHistory(res); setStatus("");
+    })
+    .catch(function(err) {
+      if (err.name === 'AbortError') return; // กรณีกดยกเลิก
+      if (id !== requestId) return;
+      done(); setStatus(errorText(err), true);
+    });
+  }
+
+  function done() { go.disabled = false; stop.hidden = true; }
+  
+  stop.addEventListener("click", function () { 
+    requestId++; 
+    done(); 
+    if (abortController) abortController.abort();
+    setStatus("ยกเลิกแล้ว"); 
+  });
+
+  function str(v) { return typeof v === "string" ? v.trim() : ""; }
+  function normalize(d, thai) {
+    d = d && typeof d === "object" ? d : {};
+    var words = Array.isArray(d.words) ? d.words.filter(function (w) { return w && typeof w === "object"; }).map(function (w) {
+      return { pali: str(w.pali), roman: str(w.roman), meaning: str(w.meaning), grammar: str(w.grammar) };
+    }).filter(function (w) { return w.pali; }) : [];
+    return { thai: thai, pali: str(d.pali), roman: str(d.roman), nice: str(d.nice), english: str(d.english),
+             source: str(d.source), literal: str(d.literal), note: str(d.note), words: words };
+  }
+
+  function show(id, text) { $(id).textContent = text; $(id).hidden = !text; }
+  function render(r, animate) {
+    $("result").hidden = false;
+    $("pali").textContent = r.pali;
+    show("roman", r.roman); show("nice", r.nice); show("english", r.english);
+    show("source", r.source ? "ที่มา: " + r.source : "");
+    $("literal").textContent = r.literal; show("note", r.note);
+    $("meaning").hidden = !r.literal && !r.note;
+    var ol = $("words"); ol.textContent = "";
+    r.words.forEach(function (w) {
+      var li = document.createElement("li");
+      var a = document.createElement("div"); a.className = "w-pali"; a.lang = "pi"; a.textContent = w.pali;
+      if (w.roman) { var s = document.createElement("span"); s.className = "w-roman"; s.textContent = w.roman; a.appendChild(s); }
+      var b = document.createElement("div");
+      var m = document.createElement("p"); m.className = "w-mean"; m.textContent = w.meaning;
+      var g = document.createElement("p"); g.className = "w-gram"; g.textContent = w.grammar;
+      b.appendChild(m); b.appendChild(g); li.appendChild(a); li.appendChild(b); ol.appendChild(li);
+    });
+    $("wordsBox").hidden = r.words.length === 0;
+    var leaf = $("leaf");
+    if (animate) { leaf.classList.remove("reveal"); void leaf.offsetWidth; leaf.classList.add("reveal"); }
+    $("copy").textContent = "คัดลอกคำบาลี";
+  }
+
+  // History
+  function loadHistory() { try { var v = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); return Array.isArray(v) ? v : []; } catch (_) { return []; } }
+  function saveHistory(r) {
+    var h = loadHistory().filter(function (x) { return x && !(x.thai === r.thai && x.pali === r.pali); });
+    h.unshift(r); h = h.slice(0, 12);
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); } catch (_) {}
+    renderHistory(h);
+  }
+  function renderHistory(h) {
+    var ul = $("historyList"); ul.textContent = "";
+    h.forEach(function (r) {
+      if (!r || !r.pali) return;
+      var li = document.createElement("li"), b = document.createElement("button"); b.type = "button";
+      var t = document.createElement("span"); t.className = "h-th"; t.textContent = r.thai || "";
+      var p = document.createElement("span"); p.className = "h-pa"; p.textContent = r.pali;
+      b.appendChild(t); b.appendChild(p);
+      b.addEventListener("click", function () {
+        var n = normalize(r, r.thai || ""); current = n; src.value = n.thai; render(n, true); setStatus("");
+        $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      li.appendChild(b); ul.appendChild(li);
+    });
+    $("history").hidden = ul.children.length === 0;
+  }
+  renderHistory(loadHistory());
+
+  // Copy
+  $("copy").addEventListener("click", function () {
+    if (!current) return;
+    var text = current.pali;
+    function fallback() {
+      var ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand("copy"); } catch (_) {}
+      ta.remove(); $("copy").textContent = ok ? "คัดลอกแล้ว" : "คัดลอกไม่ได้ ให้เลือกข้อความเอง";
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { $("copy").textContent = "คัดลอกแล้ว"; }, fallback);
+    } else fallback();
+  });
+
+  // Credit option
+  var creditBox = $("credit");
+  function creditText() { return "© " + new Date().getFullYear() + " The Siam Times"; }
+  $("creditLabel").textContent = "ใส่ " + creditText() + " ที่มุมล่างของภาพ";
+  try { var cv = localStorage.getItem(CREDIT_KEY); creditBox.checked = cv === null ? true : cv === "1"; } catch (_) { creditBox.checked = true; }
+  creditBox.addEventListener("change", function () { try { localStorage.setItem(CREDIT_KEY, creditBox.checked ? "1" : "0"); } catch (_) {} });
+
+  // Image
+  function segments(text, bySpace) {
+    if (!bySpace && window.Intl && Intl.Segmenter) {
+      return Array.from(new Intl.Segmenter("th", { granularity: "word" }).segment(text), function (s) { return s.segment; });
+    }
+    return text.split(/(\s+)/);
+  }
+  function wrap(ctx, text, max, bySpace) {
+    var lines = [], line = "";
+    segments(text, bySpace).forEach(function (s) {
+      var t = line + s;
+      if (line.trim() && ctx.measureText(t.trim()).width > max) { lines.push(line.trim()); line = s.replace(/^\s+/, ""); }
+      else line = t;
+    });
+    if (line.trim()) lines.push(line.trim());
+    return lines;
+  }
+  function roundPath(ctx, x, y, w, h, r) {
+    r = Math.min(r, h / 2, w / 2);
+    ctx.beginPath(); ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  function loadFonts(r) {
+    if (!document.fonts || !document.fonts.load) return Promise.resolve();
+    return Promise.all([
+      document.fonts.load('600 64px "Trirong"', r.pali),
+      document.fonts.load('400 34px "Noto Sans Thai Looped"', r.nice || "ก"),
+      document.fonts.load('italic 400 30px "Trirong"', r.english || "a")
+    ]).catch(function () {});
+  }
+  function drawImage(r, credit) {
+    var W = 1080, LX = 60, LW = 960, TW = 740;
+    var F_PALI = '600 64px "Trirong", "Noto Serif Thai", serif';
+    var F_ROMAN = 'italic 30px "Noto Sans Thai Looped", sans-serif';
+    var F_NICE = '34px "Noto Sans Thai Looped", "Noto Sans Thai", sans-serif';
+    var F_EN = 'italic 30px "Trirong", Georgia, serif';
+    var F_SRC = '26px "Noto Sans Thai Looped", sans-serif';
+    var c = document.createElement("canvas"), ctx = c.getContext("2d");
+    ctx.font = F_PALI; var paliL = wrap(ctx, r.pali, TW, true);
+    ctx.font = F_ROMAN; var romL = r.roman ? wrap(ctx, r.roman, TW, true) : [];
+    ctx.font = F_NICE; var niceL = r.nice ? wrap(ctx, r.nice, TW, false) : [];
+    ctx.font = F_EN; var enL = r.english ? wrap(ctx, r.english, TW, true) : [];
+    ctx.font = F_SRC; var srcL = r.source ? wrap(ctx, "ที่มา: " + r.source, TW, false) : [];
+    var leafH = 70 + paliL.length * 100 + (romL.length ? 10 + romL.length * 46 : 0)
+      + ((niceL.length || enL.length) ? 50 + niceL.length * 58 + (enL.length ? (niceL.length ? 12 : 0) + enL.length * 46 : 0) : 0)
+      + (srcL.length ? 22 + srcL.length * 40 : 0) + 64;
+    var H = Math.max(leafH + 240, 720), LY = Math.round((H - leafH) / 2);
+    c.width = W; c.height = H;
+
+    ctx.fillStyle = "#6E1D1A"; ctx.fillRect(0, 0, W, H);
+    var glow = ctx.createRadialGradient(W * 0.2, 0, 0, W * 0.2, 0, W * 0.9);
+    glow.addColorStop(0, "rgba(210,174,87,.22)"); glow.addColorStop(1, "rgba(210,174,87,0)");
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "#D2AE57"; ctx.lineWidth = 3; ctx.strokeRect(24, 24, W - 48, H - 48);
+    ctx.lineWidth = 1.5; ctx.strokeRect(34, 34, W - 68, H - 68);
+
+    ctx.save();
+    ctx.shadowColor = "rgba(30,8,4,.5)"; ctx.shadowBlur = 30; ctx.shadowOffsetY = 12;
+    roundPath(ctx, LX, LY, LW, leafH, 56);
+    var g = ctx.createLinearGradient(0, LY, 0, LY + leafH);
+    g.addColorStop(0, "#E6D3A6"); g.addColorStop(0.45, "#DCC797"); g.addColorStop(1, "#CDB47D");
+    ctx.fillStyle = g; ctx.fill(); ctx.restore();
+    ctx.save(); roundPath(ctx, LX, LY, LW, leafH, 56); ctx.clip();
+    ctx.strokeStyle = "rgba(120,90,40,.08)"; ctx.lineWidth = 1;
+    for (var yy = LY + 3; yy < LY + leafH; yy += 6) { ctx.beginPath(); ctx.moveTo(LX, yy + 0.5); ctx.lineTo(LX + LW, yy + 0.5); ctx.stroke(); }
+    ctx.restore();
+    roundPath(ctx, LX, LY, LW, leafH, 56); ctx.strokeStyle = "#B99E62"; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = "#5A1714";
+    [LX + 52, LX + LW - 52].forEach(function (x) { ctx.beginPath(); ctx.arc(x, LY + leafH / 2, 10, 0, Math.PI * 2); ctx.fill(); });
+
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    var y = LY + 70;
+    ctx.fillStyle = "#2E2216"; ctx.font = F_PALI;
+    paliL.forEach(function (l) { ctx.fillText(l, W / 2, y + 44); y += 100; });
+    if (romL.length) {
+      y += 10; ctx.font = F_ROMAN; ctx.fillStyle = "rgba(46,34,22,.75)";
+      romL.forEach(function (l) { ctx.fillText(l, W / 2, y + 23); y += 46; });
+    }
+    if (niceL.length || enL.length) {
+      y += 24; ctx.strokeStyle = "rgba(46,34,22,.3)"; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(W / 2 - 110, y); ctx.lineTo(W / 2 + 110, y); ctx.stroke();
+      y += 26; ctx.font = F_NICE; ctx.fillStyle = "#2E2216";
+      niceL.forEach(function (l) { ctx.fillText(l, W / 2, y + 29); y += 58; });
+      if (enL.length) {
+        if (niceL.length) y += 12;
+        ctx.font = F_EN; ctx.fillStyle = "rgba(46,34,22,.82)";
+        enL.forEach(function (l) { ctx.fillText(l, W / 2, y + 23); y += 46; });
+      }
+    }
+    if (srcL.length) {
+      y += 22; ctx.font = F_SRC; ctx.fillStyle = "rgba(46,34,22,.7)";
+      srcL.forEach(function (l) { ctx.fillText(l, W / 2, y + 20); y += 40; });
+    }
+    if (credit) {
+      ctx.textAlign = "right"; ctx.textBaseline = "alphabetic";
+      ctx.font = '24px "Noto Sans Thai Looped", sans-serif'; ctx.fillStyle = "#D2AE57";
+      ctx.fillText(creditText(), W - 58, H - 54);
+    }
+    return c;
+  }
+  function dataUrlToFile(url, name) {
+    var bin = atob(url.split(",")[1]), arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new File([arr], name, { type: "image/png" });
+  }
+
+  $("saveImg").addEventListener("click", function () {
+    if (!current) return;
+    var btn = $("saveImg"); btn.disabled = true; btn.textContent = "กำลังสร้างภาพ…";
+    loadFonts(current).then(function () {
+      var canvas = drawImage(current, creditBox.checked);
+      var url = canvas.toDataURL("image/png");
+      var name = "บาลี " + current.pali.replace(/[\\/:*?"<>|]/g, "").slice(0, 24).trim() + ".png";
+      $("sheetImg").src = url;
+      $("dlLink").href = url; $("dlLink").setAttribute("download", name);
+      shareFile = null;
+      try {
+        var f = dataUrlToFile(url, name);
+        if (navigator.canShare && navigator.canShare({ files: [f] })) shareFile = f;
+      } catch (_) {}
+      $("shareBtn").hidden = !shareFile;
+      $("sheet").hidden = false; $("closeSheet").focus();
+    }).catch(function () {
+      setStatus("สร้างภาพไม่สำเร็จ ลองกดอีกครั้ง", true);
+    }).then(function () { btn.disabled = false; btn.textContent = "บันทึกเป็นภาพ"; });
+  });
+  $("shareBtn").addEventListener("click", function () {
+    if (!shareFile) return;
+    navigator.share({ files: [shareFile], title: current ? current.pali : "" }).catch(function (e) {
+      if (!e || e.name !== "AbortError") { $("shareBtn").hidden = true; }
+    });
+  });
+  function closeSheet() { $("sheet").hidden = true; $("saveImg").focus(); }
+  $("closeSheet").addEventListener("click", closeSheet);
+  $("sheet").addEventListener("click", function (e) { if (e.target === $("sheet")) closeSheet(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("sheet").hidden) closeSheet(); });
+
+  go.addEventListener("click", function () { translate(false); });
+  $("again").addEventListener("click", function () { if (current) { src.value = current.thai; translate(true); } });
+  
+  // ให้ช่องกด Enter ทำงานได้ทั้งช่องข้อความและรหัสผ่าน
+  src.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); if (!go.disabled) translate(false); }
+  });
+  $("secretKey").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        if(src.value.trim() === "") src.focus();
+        else if(!go.disabled) translate(false);
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
