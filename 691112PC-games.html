@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>The Siam Times</title>
+            <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Lora&family=Playfair+Display:wght@400;900&family=Pridi:wght@700&family=Sarabun:wght@400;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+            <style>
+                
+        body { 
+            font-family: Lora; 
+            background: #e9ecef; 
+            padding: 20px; 
+            margin: 0;
+            color: #212529;
+        }
+        h2 { 
+            text-align: center; 
+            color: #343a40; 
+            font-family: 'Playfair Display';
+        }
+        
+        /* Loader Styles */
+        .loader-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+        .spinner {
+            border: 6px solid #e9ecef;
+            border-top: 6px solid #6f42c1;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        .loader-text { 
+            margin-top: 20px; 
+            font-weight: bold; 
+            font-family: 'Sarabun', sans-serif; 
+            color: #495057;
+            font-size: 18px;
+        }
+
+        .container { 
+            display: flex; 
+            gap: 20px; 
+            margin-bottom: 20px; 
+        }
+        .box { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        textarea { 
+            width: 100%; 
+            height: 250px; 
+            padding: 12px; 
+            font-size: 16px; 
+            border: 1px solid #ced4da; 
+            border-radius: 8px; 
+            resize: vertical; 
+            box-sizing: border-box;
+            line-height: 1.6;
+            font-family: Lora;
+        }
+        
+        .ai-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .ai-controls select, .ai-controls input[type="file"], .ai-controls input[type="text"] {
+            padding: 8px 10px;
+            font-size: 15px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            font-family: Lora;
+            background: #f8f9fa;
+        }
+        
+        .btn-ai {
+            background: #6f42c1;
+            padding: 10px 20px;
+            align-self: flex-end;
+            margin-top: 15px; 
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .btn-ai:hover {
+            background: #59339d;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        button { 
+            padding: 12px 25px; 
+            font-size: 16px; 
+            font-weight: bold;
+            cursor: pointer; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .btn-proofread { background: #0d6efd; }
+        .btn-proofread:hover { background: #0b5ed7; }
+        .btn-nyt { background: #212529; font-family: 'Playfair Display'; }
+        .btn-nyt:hover { background: #f8f9fa; color: #212529; border: 1px solid #212529; }
+        .btn-thai { background: #b91d1d; font-family: 'Sarabun'; }
+        .btn-thai:hover { background: #f8f9fa; color: #b91d1d; border: 1px solid #b91d1d; }
+        
+        .result-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px #0000000d; 
+            min-height: 200px; 
+            font-size: 18px; 
+            line-height: 2; 
+            white-space: pre-wrap;
+            display: block; 
+        }
+        del { text-decoration: line-through; color: #dc3545; background: #f8d7da; padding: 2px 4px; border-radius: 4px; }
+        ins { text-decoration: none; color: #198754; background: #d1e7dd; padding: 2px 4px; border-bottom: 2px dashed #198754; font-weight: bold; }
+        
+        .newspaper-container {
+            background: #fdfbf7; 
+            padding: 40px 60px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 10px 30px #0000001a;
+            display: none; 
+            max-width: 1000px;
+            margin: 0 auto;
+            color: #212529;
+            position: relative;
+        }
+
+        .nyt-top-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        @font-face {
+            font-family: 'Chomsky';
+            src: url('Chomsky.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .nyt-slogan-box {
+            position: absolute;
+            left: 0;
+            border: 1px solid #212529;
+            padding: 16px 18px;
+            font-family: Lora, 'Chomsky';
+            font-size: 11px;
+            text-align: center;
+            font-style: normal;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .nyt-header { text-align: center; font-family: 'Chomsky'; font-size: 70px; color: #212529; line-height: 1; }
+        .nyt-date-line { font-family: Lora; font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; border-top: 1px solid #212529; border-bottom: 2px solid #212529; padding: 8px 0; margin-bottom: 35px; font-weight: bold; letter-spacing: 1px; }
+        .nyt-title { font-family: 'Newsreader'; font-size: 52px; font-weight: 900; line-height: 1.1; text-align: left; margin-top: 0; margin-bottom: 20px; }
+        
+        .nyt-image-container {
+            margin: 5px 0 15px 0;
+            text-align: center;
+            break-inside: avoid;
+            width: 100%;
+        }
+
+        .nyt-image {
+            max-width: 100%;
+            height: auto;
+            box-sizing: border-box;
+        }
+        
+        .nyt-image-caption {
+            text-align: left;
+            font-size: 13px;
+            margin-top: 8px;
+            color: #495057;
+            font-family: inherit;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .nyt-content { font-family: Newsreader; font-size: 16px; line-height: 1.7; column-count: 3; column-gap: 25px; column-rule: 3px solid #6c757d; text-align: justify; }
+        .nyt-content p { margin-top: 0; margin-bottom: 1.2em; text-indent: 2em; }
+        
+        .nyt-inline-subheading {
+            font-family: 'Newsreader';
+            font-size: 20px;
+            text-align: center;
+            padding: 10px 0;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            break-inside: avoid;
+            position: relative;
+        }
+        
+        .nyt-inline-subheading::before,
+        .nyt-inline-subheading::after {
+            content: '';
+            position: absolute;
+            left: 25%;
+            width: 50%;
+            height: 1px;
+            background-color: #6c757d;
+        }
+        
+        .nyt-inline-subheading::before { top: 0; }
+        .nyt-inline-subheading::after { bottom: 0; }
+
+        .nyt-footer {
+            text-align: left;
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 30px;
+            padding-top: 10px;
+            font-style: italic;
+        }
+        
+        .lang-th .nyt-header { font-family: 'Chonburi'; font-size: 55px; }
+        .lang-th .nyt-date-line { font-family: 'Sarabun'; font-size: 14px; }
+        .lang-th .nyt-title { font-family: 'Pridi'; font-size: 44px;}
+        .lang-th .nyt-content { font-family: 'Sarabun'; font-size: 18px; }
+        .lang-th .nyt-image-caption { font-size: 16px; font-family: 'Sarabun'; }
+        .lang-th .nyt-inline-subheading { font-family: 'Pridi'; font-size: 22px; font-weight: 700; }
+        .lang-th .nyt-slogan-box { display: none; }
+        .lang-th .nyt-footer { font-family: 'Sarabun'; }
+        .lang-en .nyt-footer { font-family: Lora; }
+
+        @media screen and (max-width: 768px) {
+            .container { flex-direction: column; }
+            .ai-controls { align-items: stretch; padding: 20px; }
+            .control-group { width: 100%; margin-bottom: 5px;}
+            .btn-ai { width: 100%; margin-top: 10px; }
+            .btn-group { flex-direction: column; width: 100%; }
+            .btn-group button { width: 100%; }
+            
+            .newspaper-container { padding: 20px; }
+            .nyt-content { column-count: 1; text-align: left; }
+            .nyt-content p { text-indent: 1.5em; }
+            .nyt-slogan-box { display: none; }
+            .nyt-header { font-size: 45px; }
+            .lang-th .nyt-header { font-size: 40px; }
+            .nyt-title { font-size: 36px; text-align: center; }
+            .lang-th .nyt-title { font-size: 32px; }
+            .nyt-date-line { font-size: 10px; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+        }
+
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .box-header label {
+            margin-bottom: 0;
+        }
+        .btn-action-group {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-copy {
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #198754;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px #0000001a;
+        }
+        .btn-copy:hover {
+            background: #157347;
+        }
+        .btn-fetch {
+            background: #0d6efd;
+        }
+        .btn-fetch:hover {
+            background: #0b5ed7;
+        }
+        .btn-clear {
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px #0000001a;
+        }
+        .btn-clear:hover {
+            background: #bb2d3b;
+        }
+
+        /* Styles for Popup (Dialog) & Info Button */
+        .info-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 6px;
+            color: #6c757d; 
+            vertical-align: middle;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.3s;
+            box-shadow: none;
+        }
+        .info-button:hover { 
+            color: #212529; 
+            background: transparent;
+        }
+        .info-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        dialog.credit-popup {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #212529;
+            text-align: left;
+        }
+        
+        dialog.credit-popup::backdrop { background: rgba(0, 0, 0, 0.6); }
+        .close-button {
+            margin-top: 15px;
+            padding: 8px 12px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .close-button:hover { background: #555; }
+
+        /* Authentication Overlay Styles */
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px #0000001a;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            font-family: Lora;
+        }
+        .auth-box h2 {
+            margin-top: 0;
+            color: #343a40;
+            font-family: 'Playfair Display';
+        }
+        .auth-box p {
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            font-family: Lora;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        .auth-box button {
+            width: 100%;
+            background: #6f42c1;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px #0000001a;
+            transition: all 0.3s;
+        }
+        .auth-box button:hover {
+            background: #59339d;
+        }
+        #auth-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 15px;
+            display: none;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+        #main-app {
+            display: none;
+        }
+    
+                body { background: #e9ecef; margin: 0; padding: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="newspaper-container lang-en" id="result-newspaper" style="display: block; margin: 40px auto;">
+            <div class="nyt-top-row">
+                <div class="nyt-slogan-box">
+                    "All the News<br>That's Nice to Post"
+                </div>
+                <div class="nyt-header">The Siam Times</div>
+            </div>
+            <div class="nyt-date-line"><span>VOL. I</span><span>BANGKOK, THURSDAY, NOVEMBER 12, 2026</span><span>NO. 8</span></div>
+            
+            <div class="nyt-title" id="nyt-title-display">From Beige Boxes to Memory Shortages: Three Decades of PC Gaming</div>
+
+            <div class="nyt-content" id="nyt-body"><div class="nyt-inline-subheading">The PC has outlived floppy disks, dial-up modems and the console wars. In 2026 it faces a new rival for its parts: artificial intelligence.</div><p>On November 19, the most anticipated video game of the decade, Grand Theft Auto VI, arrives on PlayStation 5 and Xbox Series X|S. PC players are not invited. Rockstar Games has announced no computer version, and if past releases are a guide, they will wait a year or more.</p><p>It is a familiar position for the platform. The PC is often last in line for the biggest blockbusters, yet it is where much of gaming's future was first worked out. The shooter, the online world, the esports arena and the indie hit all grew up on a desk, not under a television.</p><p>That tension defines 2026. PC players have rarely had a stronger line-up of games, or a costlier one to keep up with. To see how we got here, it helps to start with the beige box.</p><p><strong>The beige box era</strong></p><p>In the early 1990s, playing a PC game often meant typing commands into MS-DOS and editing system files by hand to free enough memory for it to start. Boot disks were common. So was frustration.</p><p>Two pieces of hardware changed that. The CD-ROM drive let games outgrow stacks of floppy disks, making room for recorded speech, orchestral scores and the full-motion video of Myst and Command &amp; Conquer. Then came 3D accelerator cards such as the 3dfx Voodoo, which turned the blocky graphics of Quake into smooth, filtered 3D.</p><p>The decade also set the PC's genres. id Software's Doom (1993) popularised the first-person shooter and the deathmatch. By 1998, Valve's Half-Life showed that a shooter could tell its whole story without cutting away to a film.</p><p>The mouse made the PC home to genres consoles struggled with. LucasArts' point-and-click adventures, mostly comic, from The Secret of Monkey Island to Grim Fandango, rewarded wit as much as reflexes. Warcraft II, Age of Empires and StarCraft turned real-time strategy into fast-moving digital chess. Late in the decade, Fallout, Baldur's Gate and Planescape: Torment revived the role-playing game with branching stories and difficult moral choices.</p><p>Playing together took effort. Dial-up modems were slow and busy signals common, so players carried heavy CRT monitors and tower cases to each other's homes for weekend LAN parties. Getting the network running could take hours, and that was part of the ritual.</p><p><strong>Online, and into the internet café</strong></p><p>Broadband turned the PC from a machine into a network. In much of Asia, that network lived not in bedrooms but in internet cafés.</p><p>In South Korea, the "PC bang" helped make StarCraft a televised sport with professional players. In Thailand, shophouse net cafés became after-school clubs where students paid by the hour to play Counter-Strike, Ragnarok Online and, later, Special Force. For many Thai players, their first PC game was played on a computer they did not own.</p><p>The era also showed how much of PC gaming came from players themselves. Counter-Strike began as a fan-made modification of Half-Life. The map editor in Blizzard's Warcraft III (2002) produced Defense of the Ancients, or DotA, the ancestor of today's MOBA games.</p><p>Other shifts came from the companies. Valve launched Steam in 2003, and Half-Life 2 (2004) required it to activate. Players complained at first, but digital distribution had arrived. The same year, World of Warcraft turned the online role-playing game from a niche hobby into a mass habit.</p><p>Hardware kept the PC's reputation for excess alive. Crytek's Crysis (2007) was so demanding that "But can it run Crysis?" became a running joke for more than a decade.</p><p><strong>The broadcast decade</strong></p><p>In the 2010s, digital storefronts lowered the cost of reaching players, and small teams took advantage. Minecraft left beta in 2011 and became a generation's sandbox. Stardew Valley (2016), built largely by one developer, Eric Barone, sold in the millions. The Binding of Isaac helped popularise the roguelike games that still fill Steam's charts.</p><p>Players also began watching as much as playing. Twitch made streaming a career. League of Legends, Dota 2 and Counter-Strike: Global Offensive moved esports from hotel ballrooms into sold-out arenas.</p><p>The decade's biggest new idea was the battle royale. PlayerUnknown's Battlegrounds set Steam records in 2017 by dropping 100 players onto a shrinking island. Epic Games released a free battle royale mode for Fortnite the same year, and in 2018 opened the Epic Games Store to compete with Steam.</p><p>The tools around games improved too. Discord (2015) replaced older voice-chat programs, and fast 144Hz monitors became standard for competitive players. In 2018, Nvidia's RTX 20-series cards brought real-time ray tracing to home PCs, a technology that would come to define the next decade.</p><p><strong>Pandemic, AI and the pocket PC</strong></p><p>The 2020s opened with lockdowns that sent demand for gaming PCs soaring just as a chip shortage and a cryptocurrency mining boom swallowed graphics cards. For two years, many players held on to ageing hardware or paid scalpers' prices.</p><p>When supply recovered, the way games were drawn had changed. Upscaling tools such as Nvidia's DLSS and AMD's FSR, which use algorithms and AI to sharpen lower-resolution images, went from optional extras to near necessities for running heavy ray-traced games.</p><p>The bigger change was in form. Valve's Steam Deck (2022) was not the first handheld PC, but it was the first to reach a mass audience. ASUS and Lenovo soon followed with their own. A player's Steam library could now go on a train or a plane.</p><p>The walls between platforms also lowered. Sony brought Horizon Zero Dawn, God of War, Marvel's Spider-Man and Ghost of Tsushima to PC. Microsoft released its Xbox games on Windows through Game Pass.</p><p>Players, meanwhile, rewarded depth over endless monetisation. While many big-budget live-service projects failed, FromSoftware's Elden Ring (2022) and Larian Studios' Baldur's Gate 3 (2023) dominated the conversation. Co-operative hits such as Lethal Company and Helldivers 2 showed that playing with friends could still go viral.</p><p><strong>2026: great games, costly parts</strong></p><p>On the software side, 2026 has been generous. Capcom's Resident Evil Requiem arrived on February 27 as the first game on its RE Engine to offer full path tracing on PC. On March 5, Bungie's extraction shooter Marathon launched to generally favourable reviews, though its player numbers fell after launch, and Slay the Spire 2 entered early access with four-player co-op. Death Stranding 2: On the Beach followed on PC on March 19, with ultrawide and upscaling support.</p><p>The demands of these games keep rising. A growing number of releases require graphics cards with hardware ray tracing, following Indiana Jones and the Great Circle (2024) and Doom: The Dark Ages (2025). Cards with 8GB of video memory now struggle at higher settings, and 32GB of system memory is increasingly recommended.</p><p>The year's defining story, however, is cost. The AI boom has pulled the world's memory supply towards data centres, driving up the price of RAM, storage drives and graphics cards. Valve's new Steam Machine was delayed partly because of the shortage, and some industry forecasts expect high prices to last into 2027 or beyond.</p><p>For readers in Thailand weighing an upgrade, the practical advice is patience. Upscaling and lower settings can stretch an existing card. Handheld PCs offer a cheaper route into recent games. Second-hand parts can save money, but only from sellers who allow testing first.</p><p><strong>What comes next</strong></p><p>Next week, console players will be driving through Rockstar's Vice City while PC players wait, as they did for Grand Theft Auto V. In the short term, the PC will look like the platform left behind.</p><p>Its history suggests otherwise. The PC has been late to blockbusters before, yet the shooter, the online world, the MOBA, the battle royale and the indie boom all took shape there first. Shortages have come and gone, from the crypto rush to the pandemic.</p><p>The memory crunch will pass too, though perhaps slowly. When it does, the games that define the next decade will most likely have started, once again, on a PC.</p></div>
+
+            <div class="nyt-footer" id="nyt-footer-display">© 2026 The Siam Times. All rights reserved. Images and referenced information remain the copyright of their respective sources as credited within the content.</div>
+        </div>
+        </body>
+        </html>
