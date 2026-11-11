@@ -148,6 +148,7 @@ textarea:focus-visible, button:focus-visible, a:focus-visible, input:focus-visib
     <div class="leaf-tools">
       <button class="ghost" id="saveImg" type="button">บันทึกเป็นภาพ</button>
       <button class="ghost" id="copy" type="button">คัดลอกคำบาลี</button>
+      <button class="ghost" id="copyHtml" type="button">คัดลอก HTML</button>
       <button class="ghost" id="again" type="button">แปลอีกแบบ</button>
     </div>
     <label class="opt"><input type="checkbox" id="credit"> <span id="creditLabel"></span></label>
@@ -329,6 +330,7 @@ textarea:focus-visible, button:focus-visible, a:focus-visible, input:focus-visib
     var leaf = $("leaf");
     if (animate) { leaf.classList.remove("reveal"); void leaf.offsetWidth; leaf.classList.add("reveal"); }
     $("copy").textContent = "คัดลอกคำบาลี";
+    $("copyHtml").textContent = "คัดลอก HTML";
   }
 
   // History
@@ -370,6 +372,75 @@ textarea:focus-visible, button:focus-visible, a:focus-visible, input:focus-visib
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () { $("copy").textContent = "คัดลอกแล้ว"; }, fallback);
     } else fallback();
+  });
+
+  // Copy HTML
+  $("copyHtml").addEventListener("click", function () {
+    if (!current) return;
+    var btn = $("copyHtml");
+    
+    // สร้างโครงสร้าง HTML ฉบับเต็มที่มี meta charset="utf-8" ป้องกันปัญหาภาษาต่างดาว
+    // และใส่ link ดึงฟอนต์ Chomsky เพื่อให้ The Siam Times แสดงผลได้ถูกต้อง
+    var htmlContent = '<!DOCTYPE html>\n' +
+      '<html lang="th">\n' +
+      '<head>\n' +
+      '  <meta charset="utf-8">\n' +
+      '  <title>The Siam Times - ' + current.pali + '</title>\n' +
+      '  <link href="https://fonts.cdnfonts.com/css/chomsky" rel="stylesheet">\n' +
+      '</head>\n' +
+      '<body style="background: #E7E5DF; padding: 20px; margin: 0; font-family: Tahoma, sans-serif;">\n' +
+      '  <div style="max-width: 600px; margin: 0 auto; padding: 30px; background: #F6F5F1; color: #2A2522; border: 1px solid #CFCAC0; border-radius: 10px;">\n' +
+      '    <div style="font-family: \'Chomsky\', serif; font-size: 3rem; text-align: center; border-bottom: 2px solid #2A2522; padding-bottom: 15px; margin-bottom: 25px;">The Siam Times</div>\n' +
+      '    <div style="text-align: center;">\n' +
+      '      <h3 style="font-size: 2.2rem; margin: 0 0 10px; font-weight: normal; color: #6E1D1A;">' + current.pali + '</h3>\n' +
+      (current.roman ? '      <p style="font-style: italic; margin: 0 0 20px; opacity: 0.8;">' + current.roman + '</p>\n' : '') +
+      (current.nice ? '      <div style="border-top: 1px solid #CFCAC0; padding-top: 15px; margin: 15px auto; max-width: 80%; font-size: 1.1rem; line-height: 1.6;">' + current.nice + '</div>\n' : '') +
+      (current.english ? '      <p style="font-family: Georgia, serif; font-style: italic; margin: 15px 0 0; opacity: 0.85;">' + current.english + '</p>\n' : '') +
+      (current.source ? '      <p style="font-size: 0.9rem; margin: 15px 0 0; opacity: 0.7;">ที่มา: ' + current.source + '</p>\n' : '') +
+      '    </div>\n';
+
+    // เพิ่มส่วนแปลโดยพยัญชนะและอธิบาย
+    if (current.literal || current.note) {
+      htmlContent += '    <div style="margin-top: 30px; text-align: left;">\n' +
+                     '      <h4 style="font-size: 1.2rem; margin: 0 0 10px; border-bottom: 1px solid #CFCAC0; padding-bottom: 5px;">แปลโดยพยัญชนะ</h4>\n' +
+                     (current.literal ? '      <p style="margin: 0 0 10px;">' + current.literal + '</p>\n' : '') +
+                     (current.note ? '      <p style="font-size: 0.95rem; color: #6B625B; margin: 0;">' + current.note + '</p>\n' : '') +
+                     '    </div>\n';
+    }
+
+    // เพิ่มส่วนแยกศัพท์และไวยากรณ์
+    if (current.words && current.words.length > 0) {
+      htmlContent += '    <div style="margin-top: 30px; text-align: left;">\n' +
+                     '      <h4 style="font-size: 1.2rem; margin: 0 0 10px; border-bottom: 1px solid #CFCAC0; padding-bottom: 5px;">แยกศัพท์</h4>\n' +
+                     '      <ul style="list-style: none; margin: 0; padding: 0;">\n';
+      current.words.forEach(function(w) {
+        htmlContent += '        <li style="padding: 12px 0; border-bottom: 1px dashed #CFCAC0;">\n' +
+                       '          <div style="font-size: 1.15rem; font-weight: bold; color: #6E1D1A;">' + w.pali +
+                       (w.roman ? ' <span style="font-weight: normal; font-style: italic; font-size: 0.95rem; color: #6B625B;">' + w.roman + '</span>' : '') +
+                       '</div>\n' +
+                       '          <div style="margin: 5px 0 0;">' + w.meaning + '</div>\n' +
+                       '          <div style="font-size: 0.9rem; color: #6B625B; margin: 3px 0 0;">' + w.grammar + '</div>\n' +
+                       '        </li>\n';
+      });
+      htmlContent += '      </ul>\n    </div>\n';
+    }
+
+    htmlContent += '  </div>\n</body>\n</html>';
+
+    function fallbackHTML() {
+      var ta = document.createElement("textarea"); ta.value = htmlContent; ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand("copy"); } catch (_) {}
+      ta.remove(); btn.textContent = ok ? "คัดลอก HTML แล้ว" : "คัดลอกไม่ได้";
+      setTimeout(function() { btn.textContent = "คัดลอก HTML"; }, 2500);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(htmlContent).then(function () {
+        btn.textContent = "คัดลอก HTML แล้ว";
+        setTimeout(function() { btn.textContent = "คัดลอก HTML"; }, 2500);
+      }, fallbackHTML);
+    } else fallbackHTML();
   });
 
   // Credit option
