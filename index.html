@@ -307,28 +307,22 @@
         }
 
         .r1908-tick.major {
-            width: 2.6px;
+            width: 2.3px;
             height: 7.5px;
             background: linear-gradient(135deg, #ffffff 0%, #e2e6ea 100%);
             box-shadow: 0.4px 0.6px 1px rgba(0,0,0,0.35);
         }
 
-        /* หลักชั่วโมงทรงแท่งเจียระไนเหลี่ยมเพชร */
+        /* หลักชั่วโมงทรงแท่งเรียวเจียระไนเหลี่ยมเพชร (กว้างด้านนอก เรียวแหลมเข้าหาจุดกึ่งกลาง แบบ 1908 ของจริง) */
         .r1908-baton {
             position: absolute;
-            width: 5.2px;
-            height: 28px;
+            width: 4.6px;
+            height: 34.3px;
             left: 50%;
             top: 50%;
             transform-origin: center;
             z-index: 5;
-            clip-path: polygon(22% 0%, 78% 0%, 100% 8%, 100% 92%, 78% 100%, 22% 100%, 0% 92%, 0% 8%);
-        }
-
-        .r1908-baton.short-six {
-            width: 4.4px;
-            height: 7.5px;
-            clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+            clip-path: polygon(16% 0%, 84% 0%, 100% 4%, 63% 100%, 37% 100%, 0% 4%);
         }
 
         /* ตัวเลข 12 3 และ 9 แบบโลหะ 3 มิติ */
@@ -387,56 +381,54 @@
             pointer-events: none;
         }
 
+        /* ขีดแบ่งในรางวงกลมวินาที: 12 ขีด (ทุก 5 วินาที) ขีดหนาทุก 10 วินาที แบบของจริง */
         .r1908-sub-tick {
             position: absolute;
             left: 50%;
             top: 50%;
             width: 0.9px;
             height: 5.2px;
-            background-color: rgba(255, 255, 255, 0.82);
+            background-color: rgba(255, 255, 255, 0.85);
             transform-origin: center;
         }
 
         .r1908-sub-tick.major {
-            width: 1.6px;
+            width: 2.2px;
             height: 5.2px;
             background-color: #ffffff;
+            box-shadow: 0.3px 0.4px 0.6px rgba(0,0,0,0.3);
         }
 
-        /* หมุดยึดเข็มวินาทีในวงกลมด้านล่าง (z-index: 9 อยู่บนเข็มวินาทีเล็ก z-index: 8 แต่อยู่ใต้เข็มชั่วโมง z-index: 11 และเข็มนาที z-index: 12) */
+        /* ตัวเลข 20 40 60 ด้านในวงกลมวินาที (ตั้งตรง ฟอนต์มีเชิง) */
+        .r1908-sub-num {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            font-family: 'Times New Roman', Times, 'Newsreader', serif;
+            font-size: 12.5px;
+            font-weight: 400;
+            line-height: 1;
+            letter-spacing: -0.2px;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 0.6px 1px rgba(0, 0, 0, 0.35);
+            pointer-events: none;
+        }
+
+        /* หมุดเล็กกลางดุมเข็มวินาที (z-index: 9 อยู่บนดุมเข็มวินาทีเล็ก z-index: 8 แต่อยู่ใต้เข็มชั่วโมง z-index: 11 และเข็มนาที z-index: 12) */
         .r1908-sub-pivot {
             position: absolute;
             left: 145px;
             top: 213px;
-            width: 5.5px;
-            height: 5.5px;
+            width: 2.4px;
+            height: 2.4px;
             transform: translate(-50%, -50%);
             border-radius: 50%;
-            background: conic-gradient(
-                from 125deg,
-                #ffffff 0deg,
-                #b8bfc6 50deg,
-                #3e4348 100deg,
-                #ffffff 190deg,
-                #52585e 260deg,
-                #ffffff 360deg
-            );
-            border: 0.4px solid #3a3e42;
-            box-shadow: 0.8px 1.2px 1.8px rgba(0,0,0,0.6), inset 0.3px 0.3px 0.5px rgba(255,255,255,0.9);
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, #cfd5db 45%, #5b6168 100%);
+            border: 0.45px solid #2a2e32;
+            box-shadow: 0.3px 0.4px 0.6px rgba(0,0,0,0.45);
             z-index: 9;
             pointer-events: none;
-        }
-
-        .r1908-sub-pivot::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 2.2px;
-            height: 2.2px;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #ffffff 0%, #aeb5bc 55%, #2a2e32 100%);
         }
 
         /* =========================================
@@ -682,69 +674,110 @@
         /* =========================================
            ชุดเข็มโหมด Rolex 1908
            ========================================= */
-        /* เข็มชั่วโมง Rolex 1908 (z-index: 11) */
+        /* เข็มชั่วโมง Rolex 1908 (z-index: 11)
+           รูปทรงตามของจริง: ดุมกลมรอบจุดหมุน (ไม่มีหางยื่นเลยจุดหมุน) ก้านเรียว วงแหวนใหญ่ และปลายหอกแหลมสั้น
+           พิกัดใน viewBox 28x95: จุดหมุนอยู่ที่ (14, 87) ปลายเข็มห่างจุดหมุน 86.4px ศูนย์กลางวงแหวนห่าง 55.7px */
         .dial.rolex-1908 .hour-hand {
-            width: 24px;
-            height: 104px;
-            bottom: calc(50% - 18px);
-            margin-left: -12px;
-            transform-origin: 50% 86px;
+            width: 28px;
+            height: 95px;
+            bottom: calc(50% - 8px);
+            margin-left: -14px;
+            transform-origin: 50% 87px;
             z-index: 11;
         }
         .dial.rolex-1908 .hour-hand::before {
             clip-path: none;
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 104'%3E%3Cpath fill-rule='evenodd' fill='black' d='M 12 1 L 14.3 23.2 A 8.8 8.8 0 1 1 9.7 23.2 Z M 12 25.3 A 6.2 6.2 0 1 0 12 37.7 A 6.2 6.2 0 1 0 12 25.3 Z M 9.5 39.2 L 14.5 39.2 L 16.2 101 L 12 104 L 7.8 101 Z'/%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 104'%3E%3Cpath fill-rule='evenodd' fill='black' d='M 12 1 L 14.3 23.2 A 8.8 8.8 0 1 1 9.7 23.2 Z M 12 25.3 A 6.2 6.2 0 1 0 12 37.7 A 6.2 6.2 0 1 0 12 25.3 Z M 9.5 39.2 L 14.5 39.2 L 16.2 101 L 12 104 L 7.8 101 Z'/%3E%3C/svg%3E");
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 95'%3E%3Cpath d='M 14 0.6 C 14.6 7 15.9 14 16.6 19.6 L 11.4 19.6 C 12.1 14 13.4 7 14 0.6 Z'/%3E%3Cpath fill-rule='evenodd' d='M 0.8 31.3 A 13.2 13.2 0 1 1 27.2 31.3 A 13.2 13.2 0 1 1 0.8 31.3 Z M 3.8 31.3 A 10.2 10.2 0 1 0 24.2 31.3 A 10.2 10.2 0 1 0 3.8 31.3 Z'/%3E%3Cpath d='M 12.1 43 L 15.9 43 L 16.4 87 L 11.6 87 Z'/%3E%3Ccircle cx='14' cy='87' r='8'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 95'%3E%3Cpath d='M 14 0.6 C 14.6 7 15.9 14 16.6 19.6 L 11.4 19.6 C 12.1 14 13.4 7 14 0.6 Z'/%3E%3Cpath fill-rule='evenodd' d='M 0.8 31.3 A 13.2 13.2 0 1 1 27.2 31.3 A 13.2 13.2 0 1 1 0.8 31.3 Z M 3.8 31.3 A 10.2 10.2 0 1 0 24.2 31.3 A 10.2 10.2 0 1 0 3.8 31.3 Z'/%3E%3Cpath d='M 12.1 43 L 15.9 43 L 16.4 87 L 11.6 87 Z'/%3E%3Ccircle cx='14' cy='87' r='8'/%3E%3C/svg%3E");
             -webkit-mask-size: 100% 100%;
             mask-size: 100% 100%;
             -webkit-mask-repeat: no-repeat;
             mask-repeat: no-repeat;
         }
-        /* แสงขอบวงกลม 3 มิติของเข็มชั่วโมง Rolex 1908 */
+        /* ผิววงแหวนขัดเงา: แสงสะท้อนหมุนตามทิศแสงจริง (--hour-ring-bg) พร้อมขอบลบมุมด้านในและด้านนอก */
         .dial.rolex-1908 .hour-hand::after {
-            top: 22.7px;
+            top: 18.1px;
             left: 50%;
-            width: 17.6px;
-            height: 17.6px;
+            width: 26.4px;
+            height: 26.4px;
             transform: translateX(-50%);
             border-radius: 50%;
-            background: transparent;
-            border: 1.3px solid rgba(255, 255, 255, 0.72);
-            box-shadow:
-                inset 0.8px 0.8px 1.2px rgba(0, 0, 0, 0.45),
-                inset -0.6px -0.6px 1px rgba(255, 255, 255, 0.9),
-                0 0 0.6px rgba(0, 0, 0, 0.35);
+            border: none;
+            box-sizing: border-box;
+            background:
+                radial-gradient(circle closest-side, rgba(0,0,0,0.42) 10.2px, rgba(0,0,0,0) 11.1px, rgba(0,0,0,0) 12.3px, rgba(0,0,0,0.38) 13.2px),
+                var(--hour-ring-bg);
+            -webkit-mask-image: radial-gradient(circle closest-side, transparent 10.05px, #000 10.35px, #000 12.9px, transparent 13.2px);
+            mask-image: radial-gradient(circle closest-side, transparent 10.05px, #000 10.35px, #000 12.9px, transparent 13.2px);
+            box-shadow: none;
             pointer-events: none;
         }
 
-        /* เข็มนาที Rolex 1908 (z-index: 12) */
+        /* เข็มนาที Rolex 1908 (z-index: 12)
+           ทรงดาบเรียวยาว: แคบที่โคน ค่อย ๆ กว้างขึ้นจนกว้างสุดราว 3/4 ของความยาว แล้วเรียวแหลมถึงขอบในของรางนาที
+           พิกัดใน viewBox 13x136.5: จุดหมุนอยู่ที่ (6.5, 130) ดุมกลมรัศมี 6.5px ไม่มีหางยื่นเลยจุดหมุน */
         .dial.rolex-1908 .minute-hand {
-            width: 9px;
-            height: 152px;
-            bottom: calc(50% - 22px);
-            margin-left: -4.5px;
+            width: 13px;
+            height: 136.5px;
+            bottom: calc(50% - 6.5px);
+            margin-left: -6.5px;
             transform-origin: 50% 130px;
             z-index: 12;
         }
         .dial.rolex-1908 .minute-hand::before {
-            clip-path: polygon(50% 0%, 88% 12%, 100% 86%, 72% 100%, 28% 100%, 0% 86%, 12% 12%);
+            clip-path: none;
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 136.5'%3E%3Cpath d='M 6.5 0.5 C 7.3 10 8.8 24 9 35 Q 9.05 58 8.2 126 L 4.8 126 Q 3.95 58 4 35 C 4.2 24 5.7 10 6.5 0.5 Z'/%3E%3Ccircle cx='6.5' cy='130' r='6.5'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 136.5'%3E%3Cpath d='M 6.5 0.5 C 7.3 10 8.8 24 9 35 Q 9.05 58 8.2 126 L 4.8 126 Q 3.95 58 4 35 C 4.2 24 5.7 10 6.5 0.5 Z'/%3E%3Ccircle cx='6.5' cy='130' r='6.5'/%3E%3C/svg%3E");
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
         }
         .dial.rolex-1908 .minute-hand::after {
             display: none;
         }
 
-        /* เข็มวินาที Rolex 1908 (z-index: 8 อยู่ใต้หมุดยึดเข็มวินาทีเล็ก z-index: 9 และอยู่ใต้เข็มชั่วโมง z-index: 11 กับเข็มนาที z-index: 12) */
+        /* เข็มวินาทีเล็ก Rolex 1908 (z-index: 8 อยู่ใต้หมุดเล็ก z-index: 9 และอยู่ใต้เข็มชั่วโมง z-index: 11 กับเข็มนาที z-index: 12)
+           ทรงเข็มเรียวปลายแหลม มีดุมกลมที่จุดหมุน ไม่มีหางยื่นเลยจุดหมุน ปลายเข็มจรดกลางรางวินาที
+           พิกัดใน viewBox 10.4x45.2: จุดหมุนอยู่ที่ (5.2, 40) ตรงกับศูนย์กลางวงกลมวินาที (145, 213) */
         .dial.rolex-1908 .second-hand {
-            width: 4.2px;
-            height: 49px;
-            top: 175px;
+            width: 10.4px;
+            height: 45.2px;
+            top: 173px;
             bottom: auto;
-            margin-left: -2.1px;
-            transform-origin: 50% 38px;
+            margin-left: -5.2px;
+            transform-origin: 50% 40px;
             z-index: 8;
         }
         .dial.rolex-1908 .second-hand::before {
-            clip-path: polygon(50% 0%, 76% 74%, 100% 92%, 50% 100%, 0% 92%, 24% 74%);
+            clip-path: none;
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10.4 45.2'%3E%3Cpath d='M 5.2 0.5 L 6.1 6 L 6.6 36 L 3.8 36 L 4.3 6 Z'/%3E%3Ccircle cx='5.2' cy='40' r='5.2'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10.4 45.2'%3E%3Cpath d='M 5.2 0.5 L 6.1 6 L 6.6 36 L 3.8 36 L 4.3 6 Z'/%3E%3Ccircle cx='5.2' cy='40' r='5.2'/%3E%3C/svg%3E");
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+        }
+
+        /* ฝาครอบจุดหมุนกลางแบบโดมขัดเงา (โหมด Rolex 1908) วางทับดุมเข็มนาทีและเข็มชั่วโมง */
+        .dial.rolex-1908 .pivot {
+            width: 10.6px;
+            height: 10.6px;
+            background: radial-gradient(circle at 36% 32%, #ffffff 0%, #f4f6f8 22%, #d5dbe0 48%, #9ea6ad 74%, #5d646a 92%, #3e4348 100%);
+            border: 0.5px solid #33373b;
+            box-shadow:
+                0.9px 1.4px 2px rgba(0,0,0,0.55),
+                inset -0.6px -0.8px 1px rgba(0,0,0,0.25);
+        }
+        .dial.rolex-1908 .pivot::after {
+            top: 32%;
+            left: 36%;
+            width: 3.8px;
+            height: 2.4px;
+            border: none;
+            box-shadow: none;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 100%);
+            transform: translate(-50%, -50%) rotate(-35deg);
         }
 
         /* หมุดยึดเข็มตรงกลาง (3D Polished Cap & Pin) */
@@ -1958,7 +1991,7 @@
                     markersContainer.appendChild(innerRing);
 
                     const radiusTrack = 135.25;
-                    const radiusBaton = 111;
+                    const radiusBaton = 108.6; // หลักชั่วโมงยาวจากรัศมี 91.5 ถึง 125.8 ตามสัดส่วนของจริง
                     const radiusNumeral = 109;
 
                     for (let i = 0; i < 60; i++) {
@@ -2026,16 +2059,7 @@
                                 );
                                 markersContainer.appendChild(numWrap);
                             } else if (hourNum === 6) {
-                                // ขีดหลักชั่วโมงสั้นใต้หน้าปัดวินาทีย่อยตรง 6 นาฬิกา
-                                const shortBaton = document.createElement('div');
-                                shortBaton.className = 'r1908-baton short-six';
-                                const rSix = 123;
-                                shortBaton.style.left = (145 + rSix * Math.cos(rad)) + 'px';
-                                shortBaton.style.top = (145 + rSix * Math.sin(rad)) + 'px';
-                                shortBaton.style.background = getHandGradient(angle);
-                                shortBaton.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
-                                shortBaton.style.filter = 'drop-shadow(0.8px 1.2px 1.2px rgba(0,0,0,0.55))';
-                                markersContainer.appendChild(shortBaton);
+                                // ตำแหน่ง 6 นาฬิกาไม่มีหลักชั่วโมง เพราะเป็นที่ตั้งของวงกลมวินาที (เหมือนของจริง)
                             } else {
                                 // หลักชั่วโมงแท่งโลหะเจียระไนเหลี่ยมเพชร 3 มิติ
                                 const baton = document.createElement('div');
@@ -2077,17 +2101,31 @@
                     subRingInner.className = 'r1908-subdial-ring-inner';
                     subdial.appendChild(subRingInner);
 
-                    const subTrackRadius = 39.4;
-                    for (let j = 0; j < 60; j++) {
-                        const sAngle = j * 6;
+                    // ขีดแบ่งรางวินาที 12 ขีด (ทุก 5 วินาที) ขีดหนาทุก 10 วินาที ขีดบางคั่นกลาง เหมือนของจริง
+                    const subTrackRadius = 38.9;
+                    for (let j = 0; j < 12; j++) {
+                        const sAngle = j * 30;
                         const sRad = (sAngle - 90) * (Math.PI / 180);
                         const sTick = document.createElement('div');
-                        sTick.className = (j % 5 === 0) ? 'r1908-sub-tick major' : 'r1908-sub-tick';
+                        sTick.className = (j % 2 === 0) ? 'r1908-sub-tick major' : 'r1908-sub-tick';
                         sTick.style.left = (44 + subTrackRadius * Math.cos(sRad)) + 'px';
                         sTick.style.top = (44 + subTrackRadius * Math.sin(sRad)) + 'px';
                         sTick.style.transform = `translate(-50%, -50%) rotate(${sAngle}deg)`;
                         subdial.appendChild(sTick);
                     }
+
+                    // ตัวเลข 60 20 40 ตั้งตรงด้านในราง ตรงตำแหน่ง 60 20 และ 40 วินาที
+                    const subNumRadius = 28.9;
+                    [['60', 0], ['20', 120], ['40', 240]].forEach(([label, nAngle]) => {
+                        const nRad = (nAngle - 90) * (Math.PI / 180);
+                        const num = document.createElement('div');
+                        num.className = 'r1908-sub-num';
+                        num.textContent = label;
+                        num.style.left = (44 + subNumRadius * Math.cos(nRad)) + 'px';
+                        num.style.top = (44 + subNumRadius * Math.sin(nRad)) + 'px';
+                        num.style.transform = 'translate(-50%, -56%)';
+                        subdial.appendChild(num);
+                    });
 
                     markersContainer.appendChild(subdial);
 
@@ -2178,6 +2216,14 @@
                     `;
                 }
 
+                // ผิววงแหวนขัดเงาของเข็มชั่วโมง 1908: จุดสว่างหันเข้าหาแหล่งแสงเสมอไม่ว่าเข็มจะชี้ทางใด
+                function getRingGradient(angle) {
+                    const from = (LIGHT_ANGLE - angle).toFixed(2);
+                    return `conic-gradient(from ${from}deg,
+                        #ffffff 0deg, #e8ecef 35deg, #a6aeb5 90deg, #5c6268 150deg,
+                        #41464b 180deg, #5c6268 210deg, #a6aeb5 270deg, #e8ecef 325deg, #ffffff 360deg)`;
+                }
+
                 // คำนวณเงาตกกระทบ 2 ชั้นตามระดับความสูงของเข็มแต่ละชั้น
                 function getLayeredShadow(angle, distance, blurMain, opacityMain, opacityTight) {
                     const relRad = (angle - LIGHT_ANGLE) * Math.PI / 180;
@@ -2250,6 +2296,7 @@
 
                     // อัปเดตแสงสะท้อนบนผิวเข็มแบบ Real-time
                     document.documentElement.style.setProperty('--hour-bg', getHandGradient(hoursDeg));
+                    document.documentElement.style.setProperty('--hour-ring-bg', getRingGradient(hoursDeg));
                     document.documentElement.style.setProperty('--minute-bg', getHandGradient(minutesDeg));
                     document.documentElement.style.setProperty('--second-bg', getSecondHandGradient(secondsDeg));
 
