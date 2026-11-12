@@ -145,6 +145,24 @@
     .pill.on { background: var(--tint); color: #fff; }
     #searchCount { font-size: 13px; color: var(--text-2); min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; }
 
+    /* ---------- extension selector pills ---------- */
+    .ext-bar {
+      display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+      padding: 6px 2px 4px; margin-bottom: 4px;
+    }
+    .ext-bar::-webkit-scrollbar { display: none; }
+    .ext-pill {
+      flex: none; height: 32px; padding: 0 12px; border-radius: 16px;
+      background: var(--fill); color: var(--text); font-size: 14px; font-weight: 500;
+      font-family: var(--mono); transition: background .15s, color .15s;
+    }
+    .ext-pill.active { background: var(--tint); color: #fff; font-weight: 600; }
+    .ext-badge {
+      display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 600;
+      padding: 2px 6px; border-radius: 5px; background: var(--fill); color: var(--tint);
+      margin-left: 6px; vertical-align: middle; text-transform: uppercase;
+    }
+
     /* ---------- editor ---------- */
     #main { flex: 1; min-height: 0; display: flex; position: relative; }
     #editorWrap { flex: 1; min-width: 0; position: relative; }
@@ -364,7 +382,7 @@
   <!-- Top bar: Files · filename · Copy · Edit · full screen -->
   <nav class="navbar">
     <div class="left"><button class="navbtn" id="filesBtn">Files</button></div>
-    <button id="title" title="Rename file">index.html</button>
+    <button id="title" title="Rename or change file extension">index.html</button>
     <div class="right">
       <button class="navbtn" id="clearBtn" aria-label="Clear code" title="Clear code">Clear</button>
       <button class="navbtn" id="copyBtn" aria-label="Copy code" title="Copy code">Copy</button>
@@ -436,7 +454,7 @@
   <div class="body" id="sheetBody"></div>
 </div></div>
 
-<input type="file" id="fileInput" accept=".html,.htm,.js,.mjs,.css,.json,.txt,.svg,.xml,.md,text/*" multiple hidden>
+<input type="file" id="fileInput" accept=".html,.htm,.gs,.js,.mjs,.cjs,.css,.txt,.json,.svg,.xml,.md,text/*,application/octet-stream" multiple hidden>
 <div id="toast"></div>
 
 <script>
@@ -460,6 +478,19 @@
   if (isTouch) document.body.classList.add('touch');
 
   if (!window.CodeMirror) { $('#loadError').style.display = 'block'; return; }
+
+  /* ================= supported file extensions ================= */
+  const FILE_TYPES = [
+    { ext: 'all',  label: 'All',   accept: '.html,.htm,.gs,.js,.mjs,.cjs,.css,.txt,.json,.svg,.xml,.md,text/*,application/octet-stream' },
+    { ext: 'html', label: '.html', accept: '.html,.htm,text/html' },
+    { ext: 'gs',   label: '.gs',   accept: '.gs,.js,text/javascript,text/plain,application/octet-stream' },
+    { ext: 'js',   label: '.js',   accept: '.js,.mjs,.cjs,text/javascript,application/javascript' },
+    { ext: 'css',  label: '.css',  accept: '.css,text/css' },
+    { ext: 'txt',  label: '.txt',  accept: '.txt,.md,.log,text/plain' },
+    { ext: 'json', label: '.json', accept: '.json,application/json' }
+  ];
+  const EDITABLE_EXTS = ['html', 'gs', 'js', 'css', 'txt', 'json'];
+  let activeExtFilter = 'all';
 
   /* ================= snippets ================= */
   const BOILERPLATE = `<!DOCTYPE html>
@@ -510,7 +541,9 @@
     { group: 'JavaScript', name: 'Async function', code: 'async function main() {\n  try {\n    \n  } catch (err) {\n    console.error(err);\n  }\n}\nmain();\n' },
     { group: 'JavaScript', name: 'Canvas animation loop', code: "const c = document.getElementById('c');\nconst ctx = c.getContext('2d');\nlet t = 0;\nfunction draw() {\n  ctx.clearRect(0, 0, c.width, c.height);\n  ctx.beginPath();\n  ctx.arc(200 + Math.cos(t) * 100, 150, 20, 0, Math.PI * 2);\n  ctx.fill();\n  t += 0.03;\n  requestAnimationFrame(draw);\n}\ndraw();\n" },
     { group: 'JavaScript', name: 'localStorage', code: "localStorage.setItem('key', JSON.stringify(value));\nconst saved = JSON.parse(localStorage.getItem('key'));\n" },
-    { group: 'JavaScript', name: 'setInterval', code: 'const timer = setInterval(() => {\n  \n}, 1000);\n' }
+    { group: 'JavaScript', name: 'setInterval', code: 'const timer = setInterval(() => {\n  \n}, 1000);\n' },
+    { group: 'Google Apps Script (.gs)', name: 'doGet Web App', code: "function doGet(e) {\n  return HtmlService.createHtmlOutputFromFile('index')\n    .setTitle('Web App')\n    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);\n}\n" },
+    { group: 'Google Apps Script (.gs)', name: 'Read Active Sheet', code: "function myFunction() {\n  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();\n  const data = sheet.getDataRange().getValues();\n  Logger.log(data);\n}\n" }
   ];
 
   /* ================= state ================= */
@@ -537,9 +570,10 @@
   const saveSettings = () => store.set('codepad.settings', settings);
 
   function ext(name) { const m = /\.([a-z0-9]+)$/i.exec(name || ''); return m ? m[1].toLowerCase() : ''; }
+  function baseName(name) { return String(name || 'untitled').replace(/\.[^.]+$/, '') || 'untitled'; }
   function modeFor(name) {
     switch (ext(name)) {
-      case 'js': case 'mjs': case 'cjs': return 'javascript';
+      case 'gs': case 'js': case 'mjs': case 'cjs': return 'javascript';
       case 'json': return { name: 'javascript', json: true };
       case 'css': return 'css';
       case 'svg': case 'xml': return 'xml';
@@ -597,7 +631,6 @@
   }
 
   function toggleComment(c) {
-    // simple line-comment toggle that understands the mode under the cursor
     const from = c.getCursor('from'), to = c.getCursor('to');
     const inner = CodeMirror.innerMode(c.getMode(), c.getTokenAt(from).state).mode.name;
     const [open, close] = inner === 'javascript' ? ['// ', ''] : inner === 'css' ? ['/* ', ' */'] : ['<!-- ', ' -->'];
@@ -668,7 +701,6 @@
   document.addEventListener('webkitfullscreenchange', fsChanged);
   $('#fsBtn').onclick = toggleFs;
 
-  // Keep the toolbars above the on-screen keyboard (iOS / iPadOS)
   const vv = window.visualViewport;
   function fitViewport() {
     if (!vv) return;
@@ -683,7 +715,7 @@
   const keysEl = $('#keys');
   const mk = (label, fn, cls) => {
     const b = document.createElement('button'); b.textContent = label; if (cls) b.className = cls;
-    b.addEventListener('pointerdown', (e) => e.preventDefault());   // keep the keyboard open
+    b.addEventListener('pointerdown', (e) => e.preventDefault());
     b.addEventListener('mousedown', (e) => e.preventDefault());
     b.addEventListener('click', () => { fn(); cm.focus(); });
     keysEl.appendChild(b);
@@ -744,7 +776,7 @@
     document.body.classList.add('searching');
     const sel = cm.getSelection();
     if (sel && !sel.includes('\n')) { $('#findInput').value = sel; searchState.query = sel; refreshSearch(); }
-    $('#findInput').focus(); $('#findInput').select();   // synchronous so iOS shows the keyboard
+    $('#findInput').focus(); $('#findInput').select();
     setTimeout(() => cm.refresh(), 30);
   }
   function closeSearch() {
@@ -789,21 +821,23 @@
   };
 
   /* ================= run ================= */
-  const CONSOLE_HOOK = '<script>(function(){var P=parent;function f(v){try{if(v instanceof Error)return v.stack||String(v);if(typeof v==="function")return String(v);if(v&&typeof v==="object"){if(v.nodeType===1)return v.outerHTML.slice(0,300);return JSON.stringify(v,null,2)}return String(v)}catch(e){return String(v)}}function s(t,a){try{P.postMessage({__codepad:1,type:t,args:[].map.call(a,f)},"*")}catch(e){}}["log","info","warn","error","debug","table"].forEach(function(k){var o=console[k];console[k]=function(){s(k==="debug"||k==="table"?"log":k,arguments);if(o)o.apply(console,arguments)}});addEventListener("error",function(e){s("error",[e.message+(e.lineno?"  (line "+e.lineno+")":"")])});addEventListener("unhandledrejection",function(e){s("error",["Uncaught (in promise) "+f(e.reason)])})})();<\/script>';
+  const CONSOLE_HOOK = '<script>(function(){var P=parent;function f(v){try{if(v instanceof Error)return v.stack||String(v);if(typeof v==="function")return String(v);if(v&&typeof v==="object"){if(v.nodeType===1)return v.outerHTML.slice(0,300);return JSON.stringify(v,null,2)}return String(v)}catch(e){return String(v)}}function s(t,a){try{P.postMessage({__codepad:1,type:t,args:[].map.call(a,f)},"*")}catch(e){}}["log","info","warn","error","debug","table"].forEach(function(k){var o=console[k];console[k]=function(){s(k==="debug"||k==="table"?"log":k,arguments);if(o)o.apply(console,arguments)}});window.Logger={log:function(){console.log.apply(console,arguments)},clear:function(){}};addEventListener("error",function(e){s("error",[e.message+(e.lineno?"  (line "+e.lineno+")":"")])});addEventListener("unhandledrejection",function(e){s("error",["Uncaught (in promise) "+f(e.reason)])})})();<\/script>';
 
   function buildDoc(withHook) {
     const f = files[currentId], code = cm.getValue(), e = ext(f.name);
     const hook = withHook ? CONSOLE_HOOK : '';
     const shell = (head, body) => '<!DOCTYPE html><html><head><meta charset="UTF-8">' + hook +
       '<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>' + esc(f.name) + '</title>' + head + '</head><body>' + body + '</body></html>';
-    if (e === 'js' || e === 'mjs' || e === 'cjs') return shell('', '<script' + (e === 'mjs' ? ' type="module"' : '') + '>\n' + code.replace(/<\/script/gi, '<\\/script') + '\n<\/script>');
+    if (e === 'gs' || e === 'js' || e === 'mjs' || e === 'cjs') {
+      const info = e === 'gs' ? '<div style="font:13px/1.4 ui-monospace,monospace;color:#666;padding:12px">Running Google Apps Script (.gs) — open Console to view Logger.log / console.log output.</div>' : '';
+      return shell('', info + '<script' + (e === 'mjs' ? ' type="module"' : '') + '>\n' + code.replace(/<\/script/gi, '<\\/script') + '\n<\/script>');
+    }
     if (e === 'css') return shell('<style>' + code + '</style>', '<h1>Heading</h1><p>Paragraph with a <a href="#">link</a>.</p><button>Button</button>');
     if (e === 'json' || e === 'txt' || e === 'md') {
       let t = code; if (e === 'json') { try { t = JSON.stringify(JSON.parse(code), null, 2); } catch (err) { t = 'Invalid JSON: ' + err.message + '\n\n' + code; } }
       return shell('<style>body{font:14px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;margin:16px}</style>', esc(t));
     }
     if (!withHook) return code;
-    // insert the console hook right after <head> (or <html>) on the same line, so line numbers stay correct
     let m = /<head(\s[^>]*)?>/i.exec(code) || /<html(\s[^>]*)?>/i.exec(code);
     if (m) { const i = m.index + m[0].length; return code.slice(0, i) + hook + code.slice(i); }
     m = /<!doctype[^>]*>/i.exec(code);
@@ -816,8 +850,10 @@
   function run() {
     saveNow();
     clearLogs();
+    const e = ext(files[currentId].name);
     $('#runTitle').textContent = files[currentId].name;
     document.body.classList.add('running');
+    if (e === 'gs' || e === 'js' || e === 'mjs' || e === 'cjs') document.body.classList.add('console-open');
     cm.getInputField().blur();
     runFrame.srcdoc = buildDoc(true);
   }
@@ -880,7 +916,6 @@
     } catch (err) { addLog('error', [String(err)]); }
   });
 
-  // live split preview (wide screens)
   let splitTimer;
   function updateSplitSoon(delay) {
     clearTimeout(splitTimer);
@@ -899,7 +934,7 @@
   $('#sheetClose').onclick = closeSheet;
   $('#backdrop').addEventListener('click', (e) => { if (e.target.id === 'backdrop') closeSheet(); });
 
-  // ---- Files
+  // ---- Files & Extension Picker
   function fmtDate(t) {
     const d = new Date(t), now = new Date();
     return d.toDateString() === now.toDateString() ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : d.toLocaleDateString();
@@ -917,27 +952,155 @@
     while (names.has(m[1] + ' ' + i + (m[2] || ''))) i++;
     return m[1] + ' ' + i + (m[2] || '');
   }
-  function renameFile(id) {
-    const f = files[id];
-    const n = prompt('File name (use .html, .js, .css, .json…)', f.name);
-    if (!n || !n.trim() || n.trim() === f.name) return;
-    f.name = n.trim(); f.updated = Date.now();
-    if (id === currentId) cm.setOption('mode', modeFor(f.name)); else delete docs[id];
-    if (id === currentId) { $('#title').textContent = f.name; document.title = f.name + ' — CodePad'; }
-    saveNow();
+
+  function triggerFileOpen(filterExt) {
+    const input = $('#fileInput');
+    const typeObj = FILE_TYPES.find((t) => t.ext === (filterExt || activeExtFilter)) || FILE_TYPES[0];
+    // On touch devices (iOS/Android), custom extensions like .gs may be greyed out if accept is restrictive
+    if (isTouch && (typeObj.ext === 'all' || typeObj.ext === 'gs')) {
+      input.removeAttribute('accept');
+    } else {
+      input.setAttribute('accept', typeObj.accept);
+    }
+    input.click();
   }
+
+  function showFileNameDialog(opts) {
+    const initialName = opts.initialName || 'untitled.html';
+    let currentExt = ext(initialName) || 'html';
+    openSheet(opts.title || 'File Name', (body) => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div class="group-title">File name</div>
+        <div class="group" style="padding:10px 12px">
+          <input class="field" id="fnInput" style="width:100%" value="${esc(initialName)}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="group-title">Select extension</div>
+        <div class="ext-bar" id="fnExts"></div>
+        <div class="group" style="margin-top:14px">
+          <button class="row" id="fnSave" style="justify-content:center;color:var(--tint);font-weight:600">${esc(opts.confirmText || 'Save')}</button>
+        </div>
+      `;
+      body.appendChild(wrap);
+      const inp = wrap.querySelector('#fnInput');
+      const extBar = wrap.querySelector('#fnExts');
+
+      function renderExtPills() {
+        extBar.innerHTML = '';
+        EDITABLE_EXTS.forEach((x) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'ext-pill' + (currentExt === x ? ' active' : '');
+          b.textContent = '.' + x;
+          b.onclick = () => {
+            currentExt = x;
+            inp.value = baseName(inp.value.trim()) + '.' + x;
+            renderExtPills();
+            inp.focus();
+          };
+          extBar.appendChild(b);
+        });
+      }
+      inp.addEventListener('input', () => {
+        const e = ext(inp.value.trim());
+        if (e && EDITABLE_EXTS.includes(e)) { currentExt = e; renderExtPills(); }
+      });
+      renderExtPills();
+
+      const submit = () => {
+        let val = inp.value.trim();
+        if (!val) return;
+        if (!ext(val)) val += '.' + currentExt;
+        opts.onConfirm(val);
+      };
+      wrap.querySelector('#fnSave').onclick = submit;
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+      setTimeout(() => {
+        inp.focus();
+        const dot = inp.value.lastIndexOf('.');
+        inp.setSelectionRange(0, dot > 0 ? dot : inp.value.length);
+      }, 40);
+    }, opts.onBack ? '<button class="navbtn" id="fnBack">Back</button>' : '');
+    if (opts.onBack && $('#fnBack')) $('#fnBack').onclick = opts.onBack;
+  }
+
+  function renameFile(id, fromFilesSheet) {
+    const f = files[id];
+    showFileNameDialog({
+      title: 'Rename File',
+      initialName: f.name,
+      confirmText: 'Rename',
+      onBack: fromFilesSheet ? () => showFiles() : null,
+      onConfirm: (newName) => {
+        if (newName && newName !== f.name) {
+          f.name = newName;
+          f.updated = Date.now();
+          if (id === currentId) {
+            cm.setOption('mode', modeFor(f.name));
+            $('#title').textContent = f.name;
+            document.title = f.name + ' — CodePad';
+          } else {
+            delete docs[id];
+          }
+          saveNow();
+        }
+        if (fromFilesSheet) showFiles(); else closeSheet();
+      }
+    });
+  }
+
   function renderFiles(body) {
-    const ids = Object.keys(files).sort((a, b) => files[b].updated - files[a].updated);
+    // Extension filter bar
+    const filterTitle = document.createElement('div');
+    filterTitle.className = 'group-title';
+    filterTitle.style.marginTop = '6px';
+    filterTitle.textContent = 'File Type (.html .gs .js .css .txt)';
+    body.appendChild(filterTitle);
+
+    const extBar = document.createElement('div');
+    extBar.className = 'ext-bar';
+    FILE_TYPES.forEach((t) => {
+      const b = document.createElement('button');
+      b.className = 'ext-pill' + (activeExtFilter === t.ext ? ' active' : '');
+      b.textContent = t.label;
+      b.onclick = () => {
+        activeExtFilter = t.ext;
+        body.innerHTML = '';
+        renderFiles(body);
+      };
+      extBar.appendChild(b);
+    });
+    body.appendChild(extBar);
+
+    const allIds = Object.keys(files).sort((a, b) => files[b].updated - files[a].updated);
+    const ids = activeExtFilter === 'all'
+      ? allIds
+      : allIds.filter((id) => {
+          const e = ext(files[id].name);
+          if (activeExtFilter === 'html') return e === 'html' || e === 'htm';
+          if (activeExtFilter === 'js') return e === 'js' || e === 'mjs' || e === 'cjs';
+          return e === activeExtFilter;
+        });
+
     const g = document.createElement('div'); g.className = 'group';
+    if (!ids.length) {
+      const empty = document.createElement('div');
+      empty.className = 'row';
+      empty.style.color = 'var(--text-2)';
+      empty.textContent = 'No ' + (activeExtFilter === 'all' ? '' : '.' + activeExtFilter + ' ') + 'files yet.';
+      g.appendChild(empty);
+    }
     ids.forEach((id) => {
       const f = files[id];
+      const fileExt = ext(f.name) || 'txt';
       const row = document.createElement('div'); row.className = 'row' + (id === currentId ? ' current' : '');
       row.innerHTML = '<span class="ico"><svg class="i"><use href="#i-doc"/></svg></span>' +
-        '<button class="grow" style="text-align:left"><span class="name">' + esc(f.name) + '</span><span class="sub">' +
+        '<button class="grow" style="text-align:left"><span class="name">' + esc(f.name) +
+        '<span class="ext-badge">.' + esc(fileExt) + '</span></span><span class="sub">' +
         fmtDate(f.updated) + ' · ' + fmtSize(new Blob([f.content]).size) + '</span></button>' +
         '<button class="act" data-a="ren">Rename</button><button class="act" data-a="dup">Copy</button><button class="act del" data-a="del">Delete</button>';
       row.querySelector('.grow').onclick = () => { openFile(id); closeSheet(); };
-      row.querySelector('[data-a=ren]').onclick = () => { renameFile(id); body.innerHTML = ''; renderFiles(body); };
+      row.querySelector('[data-a=ren]').onclick = () => renameFile(id, true);
       row.querySelector('[data-a=dup]').onclick = () => {
         const nid = uid(); files[nid] = { name: uniqueName(f.name), content: f.content, updated: Date.now() };
         saveNow(); body.innerHTML = ''; renderFiles(body);
@@ -953,21 +1116,30 @@
     });
     body.appendChild(g);
     const p = document.createElement('p'); p.className = 'hint';
-    p.textContent = 'Files are saved automatically in this browser. Use Share → Download to keep a copy on your device.';
+    const openLabel = activeExtFilter === 'all' ? 'any supported file (.html .gs .js .css .txt)' : '.' + activeExtFilter + ' files';
+    p.textContent = 'Tap Open… to import ' + openLabel + ' from your device. Files are saved automatically in this browser.';
     body.appendChild(p);
   }
   function showFiles() {
     openSheet('Files', renderFiles, '<button class="navbtn" id="newFileBtn">New</button>&nbsp;&nbsp;&nbsp;<button class="navbtn" id="importBtn">Open…</button>');
     $('#newFileBtn').onclick = () => {
-      const n = prompt('New file name', uniqueName('untitled.html'));
-      if (!n || !n.trim()) return;
-      const name = n.trim(); newFile(name, '');
-      closeSheet(); setEditing(true);
+      const defaultExt = activeExtFilter === 'all' ? 'html' : activeExtFilter;
+      showFileNameDialog({
+        title: 'New File',
+        initialName: uniqueName('untitled.' + defaultExt),
+        confirmText: 'Create',
+        onBack: () => showFiles(),
+        onConfirm: (name) => {
+          newFile(uniqueName(name), '');
+          closeSheet();
+          setEditing(true);
+        }
+      });
     };
-    $('#importBtn').onclick = () => $('#fileInput').click();
+    $('#importBtn').onclick = () => triggerFileOpen(activeExtFilter);
   }
   $('#filesBtn').onclick = showFiles;
-  $('#title').onclick = () => renameFile(currentId);
+  $('#title').onclick = () => renameFile(currentId, false);
   $('#fileInput').addEventListener('change', async (e) => {
     const list = [...e.target.files]; if (!list.length) return;
     for (const file of list) newFile(uniqueName(file.name), await file.text());
@@ -993,7 +1165,6 @@
           const text = s.code.replace(/\n(?=.)/g, '\n' + (cm.getLine(cur.line).trim() ? '' : indent));
           const start = cm.indexFromPos(cur);
           cm.replaceSelection(text);
-          // put the cursor at the first "empty" spot inside the snippet
           const holes = [/\n(\s*)\n/, /''|""|><|\(\)/];
           for (const re of holes) {
             const m = re.exec(text);
@@ -1053,7 +1224,18 @@
 
   // ---- Share / export
   function mimeFor(name) {
-    return ({ js: 'text/javascript', mjs: 'text/javascript', css: 'text/css', json: 'application/json', svg: 'image/svg+xml', xml: 'application/xml', txt: 'text/plain', md: 'text/markdown' })[ext(name)] || 'text/html';
+    return ({
+      gs: 'text/plain',
+      js: 'text/javascript',
+      mjs: 'text/javascript',
+      cjs: 'text/javascript',
+      css: 'text/css',
+      json: 'application/json',
+      svg: 'image/svg+xml',
+      xml: 'application/xml',
+      txt: 'text/plain',
+      md: 'text/markdown'
+    })[ext(name)] || 'text/html';
   }
   function download() {
     const f = files[currentId];
@@ -1084,7 +1266,7 @@
       ['i-download', 'Download “' + files[currentId].name + '”', download],
       ['i-copy', 'Copy all code', copyAll],
       ['i-external', 'Run in a new tab', openInTab],
-      ['i-folder', 'Open file from device…', () => $('#fileInput').click()]
+      ['i-folder', 'Open file from device…', () => triggerFileOpen('all')]
     ];
     openSheet('Share', (body) => {
       const g = document.createElement('div'); g.className = 'group';
@@ -1128,7 +1310,7 @@
   /* ================= start ================= */
   applySettings();
   openFile(currentId);
-  setEditing(!isTouch);   // desktop: type straight away · touch: read first, tap Edit
+  setEditing(!isTouch);
   if (!isTouch) cm.setCursor(0, 0);
 })();
 </script>
