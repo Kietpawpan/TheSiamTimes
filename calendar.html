@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2570Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --font: "IBM Plex Sans", "IBM Plex Sans Thai", "Sarabun", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --bg: #F3F5F8;
+    --bg-alt: #ECEFF3;
+    --surface: #FFFFFF;
+    --hover: #F7F9FB;
+    --ink: #18202E;
+    --muted: #5B6577;
+    --line: #DCE1E8;
+    --accent: #1F5F7A;
+    --accent-ink: #1B5670;
+    --accent-soft: #E4EEF2;
+    --on-accent: #FFFFFF;
+    --today: #E39B2D;
+    --on-today: #241500;
+    --danger: #B3261E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #0F141B;
+      --bg-alt: #131A23;
+      --surface: #18202B;
+      --hover: #1D2733;
+      --ink: #E7EBF1;
+      --muted: #98A3B3;
+      --line: #2A3442;
+      --accent: #6FB6D3;
+      --accent-ink: #8CC7DF;
+      --accent-soft: #1C3240;
+      --on-accent: #0B1A22;
+      --today: #F0B04A;
+      --on-today: #241500;
+      --danger: #F2857C;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body { font-family: var(--font); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .app { max-width: 1180px; margin: 0 auto; padding: 28px 20px 56px; }
+
+  /* Header */
+  .top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; margin-bottom: 22px; }
+  .title h1 { margin: 0; font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 600; letter-spacing: -0.025em; line-height: 0.95; }
+  .years { margin-top: 8px; color: var(--muted); font-size: 1.05rem; display: flex; gap: 14px; }
+  .years b { color: var(--ink); font-weight: 500; }
+  .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 14px; min-height: 40px; cursor: pointer; }
+  .btn:hover { border-color: var(--muted); }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .btn.icon { width: 40px; padding: 0; display: inline-grid; place-items: center; font-size: 1.15rem; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 500; }
+  .btn.primary:hover { filter: brightness(1.07); }
+  .btn.danger { background: transparent; color: var(--danger); border-color: currentColor; }
+  .btn.link { border-color: transparent; background: transparent; color: var(--accent-ink); padding: 6px 8px; min-height: 0; }
+
+  .status { margin: 0 0 14px; padding: 10px 14px; border-radius: 8px; background: var(--accent-soft); display: none; align-items: center; justify-content: space-between; gap: 12px; }
+  .status.show { display: flex; }
+  .status.err { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+
+  /* Month grid */
+  .weekdays, .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .weekdays div { padding: 0 8px 8px; color: var(--muted); font-size: .85rem; }
+  .grid { gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .day { background: var(--surface); border: 0; border-radius: 0; text-align: left; padding: 6px 6px 8px; min-height: 118px;
+         display: flex; flex-direction: column; align-items: stretch; gap: 3px; cursor: pointer; min-width: 0; }
+  .day:hover { background: var(--hover); }
+  .day.out { background: var(--bg-alt); color: var(--muted); }
+  .day.out .chip { opacity: .7; }
+  .num { font-size: .9rem; font-weight: 500; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; margin-bottom: 2px; font-variant-numeric: tabular-nums; }
+  .day.today .num { background: var(--today); color: var(--on-today); font-weight: 600; }
+  .chip { display: block; font-size: .8rem; line-height: 1.3; padding: 3px 6px; border-radius: 4px; background: var(--accent-soft);
+          border-left: 3px solid var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip time { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--accent-ink); margin-right: 5px; }
+  .more { font-size: .78rem; color: var(--muted); padding-left: 6px; }
+  .dots { display: none; gap: 3px; justify-content: center; }
+  .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  /* Month agenda (small screens) */
+  .agenda { display: none; margin-top: 28px; }
+  .agenda h2 { font-size: 1.1rem; font-weight: 600; margin: 0 0 6px; }
+  .agenda-day { border-top: 1px solid var(--line); padding: 10px 0; display: grid; grid-template-columns: 52px 1fr; gap: 12px; cursor: pointer; }
+  .agenda-day .d { font-size: 1.5rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+  .agenda-day .d small { display: block; font-size: .75rem; font-weight: 400; color: var(--muted); margin-top: 4px; }
+  .agenda-day p { margin: 0 0 3px; }
+  .agenda-day time { font-weight: 600; color: var(--accent-ink); margin-right: 6px; font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 640px) {
+    .app { padding: 18px 12px 40px; }
+    .day { min-height: 60px; align-items: center; padding: 6px 2px; }
+    .chip, .more { display: none; }
+    .dots { display: flex; }
+    .weekdays div { text-align: center; padding: 0 0 6px; }
+    .agenda { display: block; }
+    .controls { width: 100%; }
+    .controls .grow { flex: 1; }
+  }
+
+  /* Dialog */
+  dialog { border: 0; border-radius: 14px; padding: 0; width: min(540px, calc(100vw - 24px)); max-height: calc(100dvh - 40px);
+           background: var(--surface); color: var(--ink); box-shadow: 0 24px 64px rgba(5, 12, 22, .28); }
+  dialog::backdrop { background: rgba(8, 14, 24, .45); }
+  .dlg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 20px 12px; position: sticky; top: 0; background: var(--surface); z-index: 1; }
+  .dlg-head h2 { margin: 0; font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; }
+  .dlg-head .sub { color: var(--muted); font-size: .9rem; margin-top: 2px; }
+  .dlg-body { padding: 0 20px 22px; }
+  .flash { margin: 0 0 10px; color: var(--accent-ink); font-weight: 500; }
+  .empty { color: var(--muted); margin: 6px 0 16px; }
+
+  .event { display: grid; grid-template-columns: 58px 1fr auto; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .event:last-of-type { border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+  .event .t { font-weight: 600; color: var(--accent-ink); font-variant-numeric: tabular-nums; padding-top: 1px; }
+  .event .t.none { color: var(--muted); font-weight: 400; font-size: .85rem; }
+  .event h3 { margin: 0; font-size: 1rem; font-weight: 600; overflow-wrap: anywhere; }
+  .meta { margin: 3px 0 0; color: var(--muted); font-size: .9rem; overflow-wrap: anywhere; }
+  .meta a { color: var(--accent-ink); }
+  .meta .code { color: var(--ink); font-variant-numeric: tabular-nums; user-select: all; }
+
+  form .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  label { font-size: .88rem; color: var(--muted); }
+  input { font-size: 16px; padding: 9px 11px; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); width: 100%; }
+  input:focus { border-color: var(--accent); }
+  .hint { font-size: .8rem; color: var(--muted); }
+  .secret { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 4px; }
+  .msg { min-height: 1.3em; margin: 4px 0 0; font-size: .92rem; }
+  .msg.err { color: var(--danger); }
+  .actions { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .actions .end { display: flex; gap: 8px; margin-left: auto; }
+
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="title">
+      <h1 id="monthName">Calendar</h1>
+      <div class="years"><b id="yearCE"></b><span id="yearBE"></span></div>
+    </div>
+    <div class="controls">
+      <button class="btn icon" id="prevBtn" aria-label="Previous month">‹</button>
+      <button class="btn" id="todayBtn">Today</button>
+      <button class="btn icon" id="nextBtn" aria-label="Next month">›</button>
+      <button class="btn icon" id="reloadBtn" aria-label="Reload events from the sheet" title="Reload events">↻</button>
+      <button class="btn primary grow" id="addBtn">Add event</button>
+    </div>
+  </header>
+
+  <div class="status" id="status" role="status"><span id="statusText"></span><button class="btn link" id="retryBtn" hidden>Try again</button></div>
+
+  <div class="weekdays" id="weekdays" aria-hidden="true"></div>
+  <div class="grid" id="grid"></div>
+
+  <section class="agenda" id="agenda" aria-label="Events this month"></section>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <div class="dlg-head">
+    <div><h2 id="dlgTitle"></h2><div class="sub" id="dlgSub"></div></div>
+    <button class="btn icon" id="closeBtn" aria-label="Close">✕</button>
+  </div>
+  <div class="dlg-body" id="dlgBody"></div>
+</dialog>
+
+<script>
+  // Paste your Apps Script web app URL here (Deploy → Manage deployments → Web app URL, ends in /exec)
+  const API_URL = 'https://script.google.com/macros/s/AKfycbzeT4EIj0pKUNq8Yyzcma7HLldBY_lj7l3ceBIAukaa3GYAmK5WxMKCJGGjMt2AvFuwLQ/exec';
+
+  const WEEK_START = 0; // 0 = weeks start on Sunday, 1 = Monday
+  const MAX_CHIPS = 3;
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const DAYS_LONG = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  const now = new Date();
+  const state = {
+    y: now.getFullYear(), m: now.getMonth(),
+    events: [], byDate: {}, loaded: false,
+    code: '',          // secret code, kept in memory only until the page is closed
+    day: null,         // date open in the dialog
+    editing: null,     // event being edited, or null when adding
+    flash: ''
+  };
+
+  const $ = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2, '0');
+  const iso = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
+  const todayKey = () => { const t = new Date(); return iso(t.getFullYear(), t.getMonth(), t.getDate()); };
+  const parseKey = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const errText = e => String((e && e.message) || e || 'Something went wrong.').replace(/^(Exception|Error):\s*/, '');
+  const longDate = k => { const d = parseKey(k); return `${DAYS_LONG[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+
+  /* ---------- API calls to the Apps Script web app ---------- */
+
+  async function api(method, payload) {
+    if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(API_URL) || API_URL.includes('PASTE_YOUR')) {
+      throw new Error('Set API_URL in index.html to your Apps Script web app URL.');
+    }
+    let res;
+    try {
+      res = method === 'GET'
+        ? await fetch(API_URL + '?action=events&t=' + Date.now())
+        // text/plain keeps this a simple request, so no CORS preflight is sent
+        : await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+    } catch (e) {
+      throw new Error('Could not reach the Apps Script web app. Check API_URL and that the deployment’s access is set to Anyone.');
+    }
+    let data;
+    try { data = await res.json(); }
+    catch (e) { throw new Error('The web app did not answer with data. Check that the deployment’s access is set to Anyone.'); }
+    if (!data.ok) throw new Error(data.error || 'The request failed.');
+    return data;
+  }
+
+  const run = (fn, ...args) => {
+    if (fn === 'getEvents') return api('GET');
+    if (fn === 'saveEvent') return api('POST', { action: 'save', event: args[0], code: args[1] });
+    if (fn === 'deleteEvent') return api('POST', { action: 'delete', row: args[0], original: args[1], code: args[2] });
+    return Promise.reject(new Error('Unknown call: ' + fn));
+  };
+
+  function linkHref(l) {
+    if (/^https?:\/\//i.test(l)) return l;
+    if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(l)) return 'https://' + l;
+    return null;
+  }
+
+  /* ---------- Data ---------- */
+
+  function setEvents(res) {
+    state.events = (res && res.events) || [];
+    state.byDate = {};
+    for (const e of state.events) (state.byDate[e.date] = state.byDate[e.date] || []).push(e);
+    for (const k in state.byDate) state.byDate[k].sort((a, b) => (a.time || '').localeCompare(b.time || '') || a.row - b.row);
+    state.loaded = true;
+  }
+
+  function showStatus(text, isErr) {
+    const s = $('status');
+    s.classList.toggle('show', !!text);
+    s.classList.toggle('err', !!isErr);
+    $('statusText').textContent = text || '';
+    $('retryBtn').hidden = !isErr;
+  }
+
+  async function load() {
+    showStatus('Loading events from the sheet…');
+    try {
+      setEvents(await run('getEvents'));
+      showStatus('');
+    } catch (e) {
+      showStatus('Could not load events: ' + errText(e), true);
+    }
+    render();
+  }
+
+  /* ---------- Month view ---------- */
+
+  function render() {
+    $('monthName').textContent = MONTHS[state.m];
+    $('yearCE').textContent = state.y;
+    $('yearBE').textContent = 'พ.ศ. ' + (state.y + 543);
+    document.title = `${MONTHS[state.m]} ${state.y} – 2570Calendar`;
+
+    $('weekdays').innerHTML = Array.from({ length: 7 }, (_, i) => `<div>${DAYS[(i + WEEK_START) % 7]}</div>`).join('');
+
+    const first = new Date(state.y, state.m, 1);
+    const offset = (first.getDay() - WEEK_START + 7) % 7;
+    const inMonth = new Date(state.y, state.m + 1, 0).getDate();
+    const cells = Math.ceil((offset + inMonth) / 7) * 7;
+    const today = todayKey();
+    let html = '';
+
+    for (let i = 0; i < cells; i++) {
+      const d = new Date(state.y, state.m, 1 - offset + i);
+      const key = iso(d.getFullYear(), d.getMonth(), d.getDate());
+      const list = state.byDate[key] || [];
+      const cls = ['day'];
+      if (d.getMonth() !== state.m) cls.push('out');
+      if (key === today) cls.push('today');
+
+      const chips = list.slice(0, MAX_CHIPS).map(e =>
+        `<span class="chip">${e.time ? `<time>${esc(e.time)}</time>` : ''}${esc(e.event)}</span>`).join('');
+      const more = list.length > MAX_CHIPS ? `<span class="more">${list.length - MAX_CHIPS} more</span>` : '';
+      const dots = list.slice(0, 3).map(() => '<i></i>').join('');
+      const label = `${longDate(key)}${list.length ? `, ${list.length} event${list.length > 1 ? 's' : ''}` : ''}`;
+
+      html += `<button class="${cls.join(' ')}" data-date="${key}" aria-label="${esc(label)}">
+        <span class="num">${d.getDate()}</span>${chips}${more}<span class="dots">${dots}</span></button>`;
+    }
+    $('grid').innerHTML = html;
+    renderAgenda();
+  }
+
+  function renderAgenda() {
+    const prefix = `${state.y}-${pad(state.m + 1)}-`;
+    const keys = Object.keys(state.byDate).filter(k => k.startsWith(prefix)).sort();
+    let html = `<h2>This month</h2>`;
+    if (!keys.length) {
+      html += `<p class="empty">${state.loaded ? 'No events this month. Tap a day to add one.' : ''}</p>`;
+    }
+    for (const k of keys) {
+      const d = parseKey(k);
+      html += `<div class="agenda-day" data-date="${k}" role="button" tabindex="0">
+        <div class="d">${d.getDate()}<small>${DAYS[d.getDay()]}</small></div>
+        <div>${state.byDate[k].map(e => `<p>${e.time ? `<time>${esc(e.time)}</time>` : ''}${esc(e.event)}</p>`).join('')}</div>
+      </div>`;
+    }
+    $('agenda').innerHTML = html;
+  }
+
+  /* ---------- Dialog: day view ---------- */
+
+  function openDay(key) {
+    state.day = key;
+    state.editing = null;
+    renderDay();
+    if (!$('dlg').open) $('dlg').showModal();
+  }
+
+  function renderDay() {
+    const key = state.day;
+    const list = state.byDate[key] || [];
+    $('dlgTitle').textContent = longDate(key);
+    $('dlgSub').textContent = list.length ? `${list.length} event${list.length > 1 ? 's' : ''}` : '';
+
+    let html = state.flash ? `<p class="flash" role="status">${esc(state.flash)}</p>` : '';
+    state.flash = '';
+
+    if (!list.length) html += `<p class="empty">Nothing scheduled on this day.</p>`;
+    for (const e of list) {
+      const href = e.link && linkHref(e.link);
+      const link = e.link ? `<p class="meta">${href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(e.link)}</a>` : esc(e.link)}</p>` : '';
+      html += `<div class="event">
+        <div class="t ${e.time ? '' : 'none'}">${e.time ? esc(e.time) : 'No time'}</div>
+        <div>
+          <h3>${esc(e.event)}</h3>
+          ${e.who ? `<p class="meta">${esc(e.who)}</p>` : ''}
+          ${link}
+          ${e.passcode ? `<p class="meta">Passcode <span class="code">${esc(e.passcode)}</span></p>` : ''}
+        </div>
+        <div><button class="btn link" data-edit="${e.row}">Edit</button></div>
+      </div>`;
+    }
+    html += `<button class="btn primary" id="addHere">Add event on this day</button>`;
+    $('dlgBody').innerHTML = html;
+  }
+
+  /* ---------- Dialog: add / edit form ---------- */
+
+  function openForm(ev, dateKey) {
+    state.editing = ev || null;
+    const v = ev || { date: dateKey || todayKey(), time: '', event: '', who: '', link: '', passcode: '' };
+    state.day = v.date;
+    $('dlgTitle').textContent = ev ? 'Edit event' : 'Add event';
+    $('dlgSub').textContent = ev ? longDate(ev.date) : '';
+    const timeOk = /^\d{2}:\d{2}$/.test(v.time || '');
+
+    $('dlgBody').innerHTML = `
+      <form id="evForm" novalidate>
+        <div class="pair">
+          <div class="field"><label for="fDate">Date</label><input id="fDate" type="date" required value="${esc(v.date)}"></div>
+          <div class="field"><label for="fTime">Start time</label><input id="fTime" type="time" value="${timeOk ? esc(v.time) : ''}"></div>
+        </div>
+        ${v.time && !timeOk ? `<p class="hint">The sheet has “${esc(v.time)}” as the time. Pick a time, or leave it empty.</p>` : ''}
+        <div class="field"><label for="fEvent">Event</label><input id="fEvent" required maxlength="200" value="${esc(v.event)}"></div>
+        <div class="field"><label for="fWho">Who</label><input id="fWho" maxlength="200" value="${esc(v.who)}"></div>
+        <div class="field"><label for="fLink">Link</label><input id="fLink" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="1000" value="${esc(v.link)}" placeholder="https://"></div>
+        <div class="field"><label for="fPass">Passcode</label><input id="fPass" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="100" value="${esc(v.passcode)}"></div>
+        <div class="field secret">
+          <label for="fCode">Secret code</label>
+          <input id="fCode" type="password" autocomplete="off" required value="${esc(state.code)}">
+          <span class="hint">Needed to save or delete. Kept only until you close this page.</span>
+        </div>
+        <p class="msg" id="fMsg" role="status"></p>
+        <div class="actions">
+          ${ev ? `<button type="button" class="btn danger" id="delBtn">Delete event</button>` : ''}
+          <div class="end">
+            <button type="button" class="btn" id="cancelBtn">Cancel</button>
+            <button type="submit" class="btn primary" id="saveBtn">Save event</button>
+          </div>
+        </div>
+      </form>`;
+
+    if (!$('dlg').open) $('dlg').showModal();
+    $('fEvent').focus();
+  }
+
+  function formMsg(text, isErr) {
+    const m = $('fMsg');
+    if (!m) return;
+    m.textContent = text || '';
+    m.classList.toggle('err', !!isErr);
+  }
+
+  function setBusy(on) {
+    for (const id of ['saveBtn', 'delBtn', 'cancelBtn']) { const b = $(id); if (b) b.disabled = on; }
+  }
+
+  function original(ev) {
+    return { date: ev.date, time: ev.time, event: ev.event };
+  }
+
+  async function afterWrite(res, dateKey, message) {
+    setEvents(res);
+    const d = parseKey(dateKey);
+    state.y = d.getFullYear(); state.m = d.getMonth();
+    state.flash = message;
+    render();
+    openDay(dateKey);
+  }
+
+  async function handleWriteError(e) {
+    const text = errText(e);
+    formMsg(text, true);
+    if (/changed in the sheet/.test(text)) {
+      try { setEvents(await run('getEvents')); render(); } catch (_) {}
+    }
+  }
+
+  async function submitForm(evt) {
+    evt.preventDefault();
+    const data = {
+      date: $('fDate').value,
+      time: $('fTime').value,
+      event: $('fEvent').value.trim(),
+      who: $('fWho').value.trim(),
+      link: $('fLink').value.trim(),
+      passcode: $('fPass').value.trim()
+    };
+    const code = $('fCode').value;
+    if (!data.date) return formMsg('Choose a date.', true);
+    if (!data.event) { $('fEvent').focus(); return formMsg('Enter an event name.', true); }
+    if (!code) { $('fCode').focus(); return formMsg('Enter the secret code to save.', true); }
+    if (state.editing) { data.row = state.editing.row; data.original = original(state.editing); }
+
+    setBusy(true);
+    formMsg('Saving to the sheet…');
+    try {
+      const res = await run('saveEvent', data, code);
+      state.code = code;
+      await afterWrite(res, data.date, state.editing ? 'Changes saved.' : 'Event added.');
+    } catch (e) {
+      await handleWriteError(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  let deleteArmed = null;
+  async function deleteCurrent() {
+    const btn = $('delBtn');
+    const code = $('fCode').value;
+    if (!code) { $('fCode').focus(); return formMsg('Enter the secret code to delete.', true); }
+    if (!deleteArmed) {
+      btn.textContent = 'Tap again to delete';
+      deleteArmed = setTimeout(() => { deleteArmed = null; if ($('delBtn')) $('delBtn').textContent = 'Delete event'; }, 4000);
+      return;
+    }
+    clearTimeout(deleteArmed); deleteArmed = null;
+    const ev = state.editing;
+    setBusy(true);
+    formMsg('Deleting…');
+    try {
+      const res = await run('deleteEvent', ev.row, original(ev), code);
+      state.code = code;
+      await afterWrite(res, ev.date, 'Event deleted.');
+    } catch (e) {
+      await handleWriteError(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /* ---------- Wiring ---------- */
+
+  $('prevBtn').onclick = () => { state.m--; if (state.m < 0) { state.m = 11; state.y--; } render(); };
+  $('nextBtn').onclick = () => { state.m++; if (state.m > 11) { state.m = 0; state.y++; } render(); };
+  $('todayBtn').onclick = () => { const t = new Date(); state.y = t.getFullYear(); state.m = t.getMonth(); render(); };
+  $('reloadBtn').onclick = load;
+  $('retryBtn').onclick = load;
+  $('addBtn').onclick = () => {
+    const t = new Date();
+    const inView = t.getFullYear() === state.y && t.getMonth() === state.m;
+    openForm(null, inView ? todayKey() : iso(state.y, state.m, 1));
+  };
+
+  $('grid').addEventListener('click', e => { const b = e.target.closest('[data-date]'); if (b) openDay(b.dataset.date); });
+  $('agenda').addEventListener('click', e => { const b = e.target.closest('[data-date]'); if (b) openDay(b.dataset.date); });
+  $('agenda').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const b = e.target.closest('[data-date]'); if (b) { e.preventDefault(); openDay(b.dataset.date); }
+  });
+
+  const dlg = $('dlg');
+  $('closeBtn').onclick = () => dlg.close();
+  dlg.addEventListener('click', e => {
+    if (e.target === dlg) return dlg.close();
+    if (e.target.id === 'addHere') return openForm(null, state.day);
+    if (e.target.id === 'cancelBtn') return state.editing || state.day ? openDay(state.day) : dlg.close();
+    if (e.target.id === 'delBtn') return deleteCurrent();
+    const edit = e.target.closest('[data-edit]');
+    if (edit) {
+      const ev = state.events.find(x => String(x.row) === edit.dataset.edit);
+      if (ev) openForm(ev);
+    }
+  });
+  dlg.addEventListener('submit', e => { if (e.target.id === 'evForm') submitForm(e); });
+  dlg.addEventListener('close', () => { state.editing = null; if (deleteArmed) { clearTimeout(deleteArmed); deleteArmed = null; } });
+
+  render();
+  load();
+</script>
+</body>
+</html>
