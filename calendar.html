@@ -155,6 +155,17 @@
   .meta a { color: var(--accent-ink); }
   .meta .code { color: var(--ink); font-variant-numeric: tabular-nums; user-select: all; }
 
+  /* Hidden link / passcode */
+  .meta .k { color: var(--muted); margin-right: 6px; }
+  .mask { display: inline-block; padding: 0 6px; border-radius: 4px; background: var(--bg-alt); color: var(--ink);
+          letter-spacing: .2em; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+  .mask:hover { background: var(--hover); }
+  .pk { margin: 8px 0 4px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+  .pk-row { display: flex; gap: 8px; margin-top: 6px; }
+  .pk-row input { flex: 1; min-width: 0; }
+  .masked-field { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-height: 44px; }
+  .masked-field .mask { font-size: 1.05rem; padding: 6px 10px; }
+
   /* Form */
   form .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
   label, .lab { font-size: .88rem; color: var(--muted); }
@@ -241,7 +252,7 @@
 
 <script>
   // Paste your Apps Script web app URL here (Deploy → Manage deployments → Web app URL, ends in /exec)
-  const API_URL = 'https://script.google.com/macros/s/AKfycbzeT4EIj0pKUNq8Yyzcma7HLldBY_lj7l3ceBIAukaa3GYAmK5WxMKCJGGjMt2AvFuwLQ/exec';
+  const API_URL = 'https://script.google.com/macros/s/PASTE_YOUR_DEPLOYMENT_ID/exec';
 
   const WEEK_START = 0; // 0 = weeks start on Sunday, 1 = Monday
   const MAX_CHIPS = 3;  // event rows shown per day before "N more"
@@ -259,7 +270,9 @@
     code: '',          // secret code, kept in memory only until the page is closed
     day: null,         // date open in the dialog
     editing: null,     // event being edited, or null when adding
-    flash: ''
+    flash: '',
+    priv: {},          // row → { link, passcode } shown after the pass key was accepted
+    passKey: ''        // pass key, kept in memory only until the page is closed
   };
   let f = null;        // add/edit form state
 
@@ -294,6 +307,21 @@
     return null;
   }
 
+  // A link can be a URL or a Zoom meeting ID (9–11 digits, spaces or dashes allowed, "Zoom ID:" prefix allowed)
+  function zoomId(l) {
+    const d = String(l).replace(/^\s*(zoom)?\s*(meeting)?\s*(id)?\s*[:#]?\s*/i, '').replace(/[\s-]/g, '');
+    return /^\d{9,11}$/.test(d) ? d : null;
+  }
+  const fmtZoom = d => d.length === 11 ? `${d.slice(0, 3)} ${d.slice(3, 7)} ${d.slice(7)}` : `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
+  function linkView(l) {
+    const z = zoomId(l);
+    if (z) return `Zoom ID <span class="code">${fmtZoom(z)}</span> &nbsp;<a href="https://zoom.us/j/${z}" target="_blank" rel="noopener">Open in Zoom</a>`;
+    const href = linkHref(l);
+    return href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(l)}</a>` : esc(l);
+  }
+  const mask = (attr, label) =>
+    `<span class="mask" role="button" tabindex="0" ${attr} aria-label="${label} hidden. Double-tap to show." title="Double-tap to show">••••</span>`;
+
   /* ---------- API calls to the Apps Script web app ---------- */
 
   async function api(method, payload) {
@@ -319,12 +347,14 @@
   const getEvents = () => api('GET');
   const saveEvent = (event, code) => api('POST', { action: 'save', event, code });
   const deleteEvent = (row, original, code) => api('POST', { action: 'delete', row, original, code });
+  const revealPrivate = (row, original, passKey) => api('POST', { action: 'reveal', row, original, passKey });
 
   /* ---------- Data ---------- */
 
   function setEvents(res) {
     state.events = (res && res.events) || [];
     state.byDate = {};
+    state.priv = {};
     for (const e of state.events) {
       e.end = e.endDate && e.endDate > e.date ? e.endDate : e.date;
       e.multi = e.end !== e.date;
@@ -485,8 +515,10 @@
     state.flash = '';
 
     if (!list.length) html += `<p class="empty">Nothing scheduled on this day.</p>`;
+    let anyHidden = false;
     for (const e of list) {
-      const href = e.link && linkHref(e.link);
+      const pv = state.priv[e.row];
+      if (!pv && (e.hasLink || e.hasPasscode)) anyHidden = true;
       const ongoing = e.multi && key !== e.date;
       const t = ongoing ? 'Ongoing' : (e.time || 'No time');
       html += `<div class="event ${colorClass(e)}">
@@ -495,12 +527,14 @@
           <h3>${esc(nameOf(e))}</h3>
           ${e.multi ? `<p class="meta">${esc(rangeLabel(e.date, e.end))} (${plural(diffDays(e.date, e.end) + 1, 'day')})</p>` : ''}
           ${e.who ? `<p class="meta">${esc(e.who)}</p>` : ''}
-          ${e.link ? `<p class="meta">${href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(e.link)}</a>` : esc(e.link)}</p>` : ''}
-          ${e.passcode ? `<p class="meta">Passcode <span class="code">${esc(e.passcode)}</span></p>` : ''}
+          ${e.hasLink ? `<p class="meta"><span class="k">Link</span>${pv ? linkView(pv.link) : mask(`data-reveal="${e.row}"`, 'Link')}</p>` : ''}
+          ${e.hasPasscode ? `<p class="meta"><span class="k">Passcode</span>${pv ? `<span class="code">${esc(pv.passcode)}</span>` : mask(`data-reveal="${e.row}"`, 'Passcode')}</p>` : ''}
+          <div class="pk-slot" data-slot="${e.row}"></div>
         </div>
         <div><button class="btn link" data-edit="${e.row}">Edit</button></div>
       </div>`;
     }
+    if (anyHidden) html += `<p class="hint">Double-tap •••• to show a link or passcode.</p>`;
     html += `<button class="btn primary" id="addHere">Add event on this day</button>`;
     $('dlgBody').innerHTML = html;
   }
@@ -543,8 +577,9 @@
         ${v.time && !tm ? `<p class="hint">The sheet has “${esc(v.time)}” as the time. Pick a time, or it will be left empty.</p>` : ''}
 
         <div class="field"><label for="fWho">Who</label><input id="fWho" maxlength="200" value="${esc(v.who)}"></div>
-        <div class="field"><label for="fLink">Link</label><input id="fLink" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="1000" value="${esc(v.link)}" placeholder="https://"></div>
-        <div class="field"><label for="fPass">Passcode</label><input id="fPass" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="100" value="${esc(v.passcode)}"></div>
+        <div class="field" id="linkField"></div>
+        <div class="field" id="passField"></div>
+        <div class="pk-slot" id="formPk"></div>
         <div class="field secret">
           <label for="fCode">Secret code</label>
           <input id="fCode" type="password" autocomplete="off" required value="${esc(state.code)}">
@@ -560,10 +595,113 @@
         </div>
       </form>`;
 
+    // Link and passcode stay masked until revealed with the pass key; "Replace" swaps in an empty box
+    const pv = ev && state.priv[ev.row];
+    f.mode = {
+      link: ev && ev.hasLink && !pv ? 'hidden' : 'edit',
+      passcode: ev && ev.hasPasscode && !pv ? 'hidden' : 'edit'
+    };
     renderEmoji(); renderColor(); renderDatePick(); renderTimePick();
+    renderPrivField('link', pv ? pv.link : '');
+    renderPrivField('passcode', pv ? pv.passcode : '');
     if (!$('dlg').open) $('dlg').showModal();
     $('dlgBody').scrollTop = 0;
     if (!ev) $('fEvent').focus();
+  }
+
+  function renderPrivField(name, value) {
+    const isLink = name === 'link';
+    const label = isLink ? 'Link or Zoom ID' : 'Passcode';
+    const box = $(isLink ? 'linkField' : 'passField');
+    if (f.mode[name] === 'hidden') {
+      box.innerHTML = `<span class="lab">${label}</span>
+        <div class="masked-field">${mask(`data-reveal-form="${name}"`, label)}
+          <span class="hint">Double-tap to show. Left as is, it stays unchanged.</span>
+          <button type="button" class="btn link" data-replace="${name}">Replace</button></div>`;
+    } else {
+      const id = isLink ? 'fLink' : 'fPass';
+      box.innerHTML = `<label for="${id}">${label}</label>
+        <input id="${id}" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="${isLink ? 1000 : 100}"
+          value="${esc(value)}" ${isLink ? 'placeholder="https://… or 123 4567 8901"' : ''}>`;
+    }
+  }
+
+  /* ---------- Revealing links and passcodes ---------- */
+
+  let lastTap = { id: '', t: 0 };
+  function doubleTapped(id) {
+    const t = Date.now();
+    const ok = lastTap.id === id && t - lastTap.t < 500;
+    lastTap = ok ? { id: '', t: 0 } : { id, t };
+    return ok;
+  }
+
+  async function loadPrivate(ev, key) {
+    const res = await revealPrivate(ev.row, original(ev), key);
+    state.passKey = key;
+    return (state.priv[ev.row] = res.private);
+  }
+
+  function askPassKey(slot, fn, note) {
+    document.querySelectorAll('.pk-slot').forEach(x => { x.innerHTML = ''; });
+    return new Promise(resolve => {
+      slot.innerHTML = `<div class="pk">
+        <label for="pkIn">Pass key</label>
+        <div class="pk-row">
+          <input id="pkIn" type="password" autocomplete="off">
+          <button type="button" class="btn primary" id="pkGo">Show</button>
+          <button type="button" class="btn" id="pkNo">Cancel</button>
+        </div>
+        <p class="msg ${note ? 'err' : ''}" id="pkMsg" role="status">${esc(note || '')}</p></div>`;
+      const input = slot.querySelector('#pkIn');
+      const msg = (t, err) => { const m = slot.querySelector('#pkMsg'); if (m) { m.textContent = t; m.classList.toggle('err', !!err); } };
+      const go = async () => {
+        if (!input.value) return msg('Enter the pass key.', true);
+        slot.querySelector('#pkGo').disabled = true;
+        msg('Checking…');
+        try {
+          const r = await fn(input.value);
+          slot.innerHTML = '';
+          resolve(r);
+        } catch (e) {
+          msg(errText(e), true);
+          const b = slot.querySelector('#pkGo'); if (b) b.disabled = false;
+          input.select();
+        }
+      };
+      slot.querySelector('#pkGo').onclick = go;
+      slot.querySelector('#pkNo').onclick = () => { slot.innerHTML = ''; resolve(null); };
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+      input.focus();
+    });
+  }
+
+  async function getPrivate(ev, slot) {
+    if (state.priv[ev.row]) return state.priv[ev.row];
+    let note = '';
+    if (state.passKey) {
+      try { return await loadPrivate(ev, state.passKey); }
+      catch (e) { note = errText(e); if (/pass key/.test(note)) state.passKey = ''; }
+    }
+    return askPassKey(slot, key => loadPrivate(ev, key), note);
+  }
+
+  async function revealFrom(el) {
+    if (el.dataset.reveal) {
+      const ev = state.events.find(x => String(x.row) === el.dataset.reveal);
+      const slot = ev && $('dlgBody').querySelector(`[data-slot="${ev.row}"]`);
+      if (!slot) return;
+      const p = await getPrivate(ev, slot);
+      if (p && $('dlg').open && !f && state.day) renderDay();
+    } else if (f && state.editing) {
+      const ev = state.editing;
+      const p = await getPrivate(ev, $('formPk'));
+      if (p && f && state.editing === ev) {
+        for (const name of ['link', 'passcode']) {
+          if (f.mode[name] === 'hidden') { f.mode[name] = 'edit'; renderPrivField(name, p[name]); }
+        }
+      }
+    }
   }
 
   function renderEmoji() {
@@ -676,8 +814,10 @@
       time: f.hour == null ? '' : `${pad(f.hour)}:${pad(f.minute || 0)}`,
       event: $('fEvent').value.trim(),
       who: $('fWho').value.trim(),
-      link: $('fLink').value.trim(),
-      passcode: $('fPass').value.trim(),
+      link: f.mode.link === 'edit' ? $('fLink').value.trim() : '',
+      passcode: f.mode.passcode === 'edit' ? $('fPass').value.trim() : '',
+      keepLink: f.mode.link === 'hidden',
+      keepPasscode: f.mode.passcode === 'hidden',
       emoji: f.emoji,
       color: f.color
     };
@@ -751,6 +891,11 @@
   $('closeBtn').onclick = () => dlg.close();
   dlg.addEventListener('click', e => {
     if (e.target === dlg) return dlg.close();
+    const m = e.target.closest('[data-reveal], [data-reveal-form]');
+    if (m) {
+      if (doubleTapped(m.dataset.reveal || 'form-' + m.dataset.revealForm)) revealFrom(m);
+      return;
+    }
     const b = e.target.closest('button');
     if (!b) return;
     const kb = e.detail === 0; // activated from the keyboard
@@ -770,6 +915,11 @@
         if (f.hour == null) f.hour = 9;   // minute tapped first: assume a morning hour, easy to change
         renderTimePick(); return refocus(`[data-minute="${f.minute}"]`, kb);
       }
+      if (b.dataset.replace) {
+        const name = b.dataset.replace;
+        f.mode[name] = 'edit'; renderPrivField(name, '');
+        return $(name === 'link' ? 'fLink' : 'fPass').focus();
+      }
       if ('clearTime' in b.dataset) { f.hour = null; f.minute = null; renderTimePick(); return refocus('[data-hour="0"]', kb); }
     }
 
@@ -780,6 +930,10 @@
       const ev = state.events.find(x => String(x.row) === b.dataset.edit);
       if (ev) openForm(ev);
     }
+  });
+  dlg.addEventListener('keydown', e => {
+    const m = e.target.closest && e.target.closest('[data-reveal], [data-reveal-form]');
+    if (m && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); revealFrom(m); }
   });
   dlg.addEventListener('change', e => {
     if (e.target.id === 'fMulti' && f) {
