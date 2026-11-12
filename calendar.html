@@ -21,10 +21,14 @@
     --accent: #1F5F7A;
     --accent-ink: #1B5670;
     --accent-soft: #E4EEF2;
+    --span-bg: #D3E5EC;
     --on-accent: #FFFFFF;
     --today: #E39B2D;
     --on-today: #241500;
     --danger: #B3261E;
+    --c-green: #1E7A3C;
+    --c-blue: #1F57C3;
+    --c-red: #C42B2B;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -39,10 +43,14 @@
       --accent: #6FB6D3;
       --accent-ink: #8CC7DF;
       --accent-soft: #1C3240;
+      --span-bg: #23485C;
       --on-accent: #0B1A22;
       --today: #F0B04A;
       --on-today: #241500;
       --danger: #F2857C;
+      --c-green: #6CCB8A;
+      --c-blue: #8DB2F7;
+      --c-red: #F28B82;
     }
   }
 
@@ -51,6 +59,11 @@
   body { font-family: var(--font); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
   button, input { font: inherit; color: inherit; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .c-black { --ev: var(--ink);     --evbar: var(--accent); }
+  .c-green { --ev: var(--c-green); --evbar: var(--c-green); }
+  .c-blue  { --ev: var(--c-blue);  --evbar: var(--c-blue); }
+  .c-red   { --ev: var(--c-red);   --evbar: var(--c-red); }
 
   .app { max-width: 1180px; margin: 0 auto; padding: 28px 20px 56px; }
 
@@ -78,19 +91,28 @@
   .weekdays, .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
   .weekdays div { padding: 0 8px 8px; color: var(--muted); font-size: .85rem; }
   .grid { gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  .day { background: var(--surface); border: 0; border-radius: 0; text-align: left; padding: 6px 6px 8px; min-height: 118px;
-         display: flex; flex-direction: column; align-items: stretch; gap: 3px; cursor: pointer; min-width: 0; }
+  .day { background: var(--surface); padding: 6px 6px 8px; min-height: 124px; min-width: 0;
+         display: flex; flex-direction: column; align-items: stretch; gap: 3px; cursor: pointer; }
   .day:hover { background: var(--hover); }
   .day.out { background: var(--bg-alt); color: var(--muted); }
-  .day.out .chip { opacity: .7; }
   .num { font-size: .9rem; font-weight: 500; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; margin-bottom: 2px; font-variant-numeric: tabular-nums; }
   .day.today .num { background: var(--today); color: var(--on-today); font-weight: 600; }
-  .chip { display: block; font-size: .8rem; line-height: 1.3; padding: 3px 6px; border-radius: 4px; background: var(--accent-soft);
-          border-left: 3px solid var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .chip time { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--accent-ink); margin-right: 5px; }
+
+  .chip { display: block; position: relative; font-size: .8rem; line-height: 1.3; padding: 3px 6px; border-radius: 4px;
+          background: var(--accent-soft); border-left: 3px solid var(--evbar); color: var(--ev);
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip time { font-variant-numeric: tabular-nums; font-weight: 600; margin-right: 5px; }
+  .chip.gap { visibility: hidden; }
+  /* Multi-day bars: each day's piece reaches into its neighbours so the pieces join into one bar */
+  .chip.span { background: var(--span-bg); overflow: visible; z-index: 1; font-weight: 500; }
+  .chip.span.head { z-index: 2; }
+  .chip.cont-l { margin-left: -7px; border-left: 0; padding-left: 9px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .chip.cont-r { margin-right: -7px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  .chip .lbl { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .more { font-size: .78rem; color: var(--muted); padding-left: 6px; }
   .dots { display: none; gap: 3px; justify-content: center; }
-  .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--evbar); }
+  .dots i.long { width: 13px; }
 
   /* Month agenda (small screens) */
   .agenda { display: none; margin-top: 28px; }
@@ -98,8 +120,9 @@
   .agenda-day { border-top: 1px solid var(--line); padding: 10px 0; display: grid; grid-template-columns: 52px 1fr; gap: 12px; cursor: pointer; }
   .agenda-day .d { font-size: 1.5rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
   .agenda-day .d small { display: block; font-size: .75rem; font-weight: 400; color: var(--muted); margin-top: 4px; }
-  .agenda-day p { margin: 0 0 3px; }
-  .agenda-day time { font-weight: 600; color: var(--accent-ink); margin-right: 6px; font-variant-numeric: tabular-nums; }
+  .agenda-day p { margin: 0 0 4px; color: var(--ev); }
+  .agenda-day time { font-weight: 600; margin-right: 6px; font-variant-numeric: tabular-nums; }
+  .agenda-day .range { color: var(--muted); font-size: .85rem; margin-left: 6px; }
 
   @media (max-width: 640px) {
     .app { padding: 18px 12px 40px; }
@@ -113,38 +136,75 @@
   }
 
   /* Dialog */
-  dialog { border: 0; border-radius: 14px; padding: 0; width: min(540px, calc(100vw - 24px)); max-height: calc(100dvh - 40px);
+  dialog { border: 0; border-radius: 14px; padding: 0; width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 40px);
            background: var(--surface); color: var(--ink); box-shadow: 0 24px 64px rgba(5, 12, 22, .28); }
   dialog::backdrop { background: rgba(8, 14, 24, .45); }
-  .dlg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 20px 12px; position: sticky; top: 0; background: var(--surface); z-index: 1; }
+  .dlg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 20px 12px; position: sticky; top: 0; background: var(--surface); z-index: 3; }
   .dlg-head h2 { margin: 0; font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; }
   .dlg-head .sub { color: var(--muted); font-size: .9rem; margin-top: 2px; }
   .dlg-body { padding: 0 20px 22px; }
   .flash { margin: 0 0 10px; color: var(--accent-ink); font-weight: 500; }
   .empty { color: var(--muted); margin: 6px 0 16px; }
 
-  .event { display: grid; grid-template-columns: 58px 1fr auto; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .event { display: grid; grid-template-columns: 62px 1fr auto; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); }
   .event:last-of-type { border-bottom: 1px solid var(--line); margin-bottom: 16px; }
-  .event .t { font-weight: 600; color: var(--accent-ink); font-variant-numeric: tabular-nums; padding-top: 1px; }
+  .event .t { font-weight: 600; color: var(--ev); font-variant-numeric: tabular-nums; padding-top: 1px; }
   .event .t.none { color: var(--muted); font-weight: 400; font-size: .85rem; }
-  .event h3 { margin: 0; font-size: 1rem; font-weight: 600; overflow-wrap: anywhere; }
+  .event h3 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--ev); overflow-wrap: anywhere; }
   .meta { margin: 3px 0 0; color: var(--muted); font-size: .9rem; overflow-wrap: anywhere; }
   .meta a { color: var(--accent-ink); }
   .meta .code { color: var(--ink); font-variant-numeric: tabular-nums; user-select: all; }
 
-  form .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  label { font-size: .88rem; color: var(--muted); }
-  input { font-size: 16px; padding: 9px 11px; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); width: 100%; }
+  /* Form */
+  form .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+  label, .lab { font-size: .88rem; color: var(--muted); }
+  input:not([type="checkbox"]) { font-size: 16px; padding: 9px 11px; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); width: 100%; }
   input:focus { border-color: var(--accent); }
   .hint { font-size: .8rem; color: var(--muted); }
-  .secret { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 4px; }
+  .lab-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .check { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-size: .92rem; cursor: pointer; min-height: 36px; }
+  .check input { width: 20px; height: 20px; accent-color: var(--accent); margin: 0; }
+
+  .opts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .opt { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; min-width: 44px; min-height: 42px; padding: 4px 10px; cursor: pointer; font-size: 1.1rem; }
+  .opt.word { font-size: .9rem; }
+  .opt.color { font-size: .95rem; font-weight: 600; color: var(--ev); min-width: 72px; }
+  .opt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+
+  .mp { border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+  .mp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .mp-head b { font-weight: 600; }
+  .mp-week, .mp-days { display: grid; grid-template-columns: repeat(7, 1fr); }
+  .mp-week span { text-align: center; font-size: .78rem; color: var(--muted); padding: 2px 0 4px; }
+  .pd { border: 0; background: transparent; min-height: 42px; border-radius: 8px; cursor: pointer; font-variant-numeric: tabular-nums; font-size: 1rem; }
+  .pd:hover { background: var(--hover); }
+  .pd.today { box-shadow: inset 0 0 0 2px var(--today); }
+  .pd.mid { background: var(--accent-soft); border-radius: 0; }
+  .pd.start, .pd.end { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .summary { margin: 2px 0 0; font-size: .92rem; }
+  .summary.ask { color: var(--accent-ink); font-weight: 500; }
+
+  .tp-head { display: flex; align-items: baseline; gap: 12px; }
+  .tp-head b { font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tp-head b.none { font-size: 1rem; font-weight: 500; color: var(--muted); }
+  .tp-sub { font-size: .8rem; color: var(--muted); margin: 6px 0 2px; }
+  .hours, .mins { display: grid; gap: 4px; }
+  .hours { grid-template-columns: repeat(8, 1fr); }
+  .mins { grid-template-columns: repeat(10, 1fr); }
+  .tb { min-height: 38px; padding: 0; border: 1px solid var(--line); background: var(--bg); border-radius: 6px; cursor: pointer; font-variant-numeric: tabular-nums; font-size: .9rem; }
+  .tb:hover { border-color: var(--muted); }
+  .tb[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+
+  .secret { border-top: 1px solid var(--line); padding-top: 16px; }
   .msg { min-height: 1.3em; margin: 4px 0 0; font-size: .92rem; }
   .msg.err { color: var(--danger); }
   .actions { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
   .actions .end { display: flex; gap: 8px; margin-left: auto; }
 
-  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (max-width: 420px) {
+    .hours { grid-template-columns: repeat(6, 1fr); }
+    .mins { grid-template-columns: repeat(6, 1fr); }
+  }
 </style>
 </head>
 <body>
@@ -181,11 +241,14 @@
 
 <script>
   // Paste your Apps Script web app URL here (Deploy → Manage deployments → Web app URL, ends in /exec)
-  const API_URL = 'https://script.google.com/macros/s/AKfycbzeT4EIj0pKUNq8Yyzcma7HLldBY_lj7l3ceBIAukaa3GYAmK5WxMKCJGGjMt2AvFuwLQ/exec';
+  const API_URL = 'https://script.google.com/macros/s/PASTE_YOUR_DEPLOYMENT_ID/exec';
 
   const WEEK_START = 0; // 0 = weeks start on Sunday, 1 = Monday
-  const MAX_CHIPS = 3;
+  const MAX_CHIPS = 3;  // event rows shown per day before "N more"
+  const EMOJIS = ['⚠️', '❗', '⭐', '🔥', '📌', '✅', '🎉', '🎂', '✈️', '🏥', '💼', '📞'];
+  const COLORS = [['black', 'Black'], ['green', 'Green'], ['blue', 'Blue'], ['red', 'Red']];
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MON = MONTHS.map(m => m.slice(0, 3));
   const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const DAYS_LONG = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
@@ -198,15 +261,38 @@
     editing: null,     // event being edited, or null when adding
     flash: ''
   };
+  let f = null;        // add/edit form state
+
+  /* ---------- Helpers ---------- */
 
   const $ = id => document.getElementById(id);
   const pad = n => String(n).padStart(2, '0');
-  const iso = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
-  const todayKey = () => { const t = new Date(); return iso(t.getFullYear(), t.getMonth(), t.getDate()); };
+  const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const parseKey = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addDays = (k, n) => { const d = parseKey(k); d.setDate(d.getDate() + n); return keyOf(d); };
+  const diffDays = (a, b) => Math.round((parseKey(b) - parseKey(a)) / 864e5);
+  const todayKey = () => keyOf(new Date());
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const errText = e => String((e && e.message) || e || 'Something went wrong.').replace(/^(Exception|Error):\s*/, '');
   const longDate = k => { const d = parseKey(k); return `${DAYS_LONG[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+  const colorClass = e => 'c-' + ((e && e.color) || 'black');
+  const nameOf = e => (e.emoji ? e.emoji + ' ' : '') + e.event;
+  const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+
+  function rangeLabel(a, b) {
+    const A = parseKey(a), B = parseKey(b);
+    if (A.getFullYear() === B.getFullYear()) {
+      if (A.getMonth() === B.getMonth()) return `${A.getDate()}–${B.getDate()} ${MONTHS[A.getMonth()]} ${A.getFullYear()}`;
+      return `${A.getDate()} ${MON[A.getMonth()]} – ${B.getDate()} ${MON[B.getMonth()]} ${B.getFullYear()}`;
+    }
+    return `${A.getDate()} ${MON[A.getMonth()]} ${A.getFullYear()} – ${B.getDate()} ${MON[B.getMonth()]} ${B.getFullYear()}`;
+  }
+
+  function linkHref(l) {
+    if (/^https?:\/\//i.test(l)) return l;
+    if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(l)) return 'https://' + l;
+    return null;
+  }
 
   /* ---------- API calls to the Apps Script web app ---------- */
 
@@ -230,26 +316,29 @@
     return data;
   }
 
-  const run = (fn, ...args) => {
-    if (fn === 'getEvents') return api('GET');
-    if (fn === 'saveEvent') return api('POST', { action: 'save', event: args[0], code: args[1] });
-    if (fn === 'deleteEvent') return api('POST', { action: 'delete', row: args[0], original: args[1], code: args[2] });
-    return Promise.reject(new Error('Unknown call: ' + fn));
-  };
-
-  function linkHref(l) {
-    if (/^https?:\/\//i.test(l)) return l;
-    if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(l)) return 'https://' + l;
-    return null;
-  }
+  const getEvents = () => api('GET');
+  const saveEvent = (event, code) => api('POST', { action: 'save', event, code });
+  const deleteEvent = (row, original, code) => api('POST', { action: 'delete', row, original, code });
 
   /* ---------- Data ---------- */
 
   function setEvents(res) {
     state.events = (res && res.events) || [];
     state.byDate = {};
-    for (const e of state.events) (state.byDate[e.date] = state.byDate[e.date] || []).push(e);
-    for (const k in state.byDate) state.byDate[k].sort((a, b) => (a.time || '').localeCompare(b.time || '') || a.row - b.row);
+    for (const e of state.events) {
+      e.end = e.endDate && e.endDate > e.date ? e.endDate : e.date;
+      e.multi = e.end !== e.date;
+      const n = Math.min(diffDays(e.date, e.end), 400);
+      for (let i = 0; i <= n; i++) {
+        const k = addDays(e.date, i);
+        (state.byDate[k] = state.byDate[k] || []).push(e);
+      }
+    }
+    for (const k in state.byDate) {
+      state.byDate[k].sort((a, b) =>
+        (b.multi - a.multi) || a.date.localeCompare(b.date) || b.end.localeCompare(a.end) ||
+        (a.time || '').localeCompare(b.time || '') || a.row - b.row);
+    }
     state.loaded = true;
   }
 
@@ -264,7 +353,7 @@
   async function load() {
     showStatus('Loading events from the sheet…');
     try {
-      setEvents(await run('getEvents'));
+      setEvents(await getEvents());
       showStatus('');
     } catch (e) {
       showStatus('Could not load events: ' + errText(e), true);
@@ -279,49 +368,98 @@
     $('yearCE').textContent = state.y;
     $('yearBE').textContent = 'พ.ศ. ' + (state.y + 543);
     document.title = `${MONTHS[state.m]} ${state.y} – 2570Calendar`;
-
     $('weekdays').innerHTML = Array.from({ length: 7 }, (_, i) => `<div>${DAYS[(i + WEEK_START) % 7]}</div>`).join('');
 
     const first = new Date(state.y, state.m, 1);
     const offset = (first.getDay() - WEEK_START + 7) % 7;
     const inMonth = new Date(state.y, state.m + 1, 0).getDate();
-    const cells = Math.ceil((offset + inMonth) / 7) * 7;
+    const weeks = Math.ceil((offset + inMonth) / 7);
+    const startKey = keyOf(new Date(state.y, state.m, 1 - offset));
     const today = todayKey();
     let html = '';
 
-    for (let i = 0; i < cells; i++) {
-      const d = new Date(state.y, state.m, 1 - offset + i);
-      const key = iso(d.getFullYear(), d.getMonth(), d.getDate());
-      const list = state.byDate[key] || [];
-      const cls = ['day'];
-      if (d.getMonth() !== state.m) cls.push('out');
-      if (key === today) cls.push('today');
+    for (let w = 0; w < weeks; w++) {
+      const keys = Array.from({ length: 7 }, (_, i) => addDays(startKey, w * 7 + i));
 
-      const chips = list.slice(0, MAX_CHIPS).map(e =>
-        `<span class="chip">${e.time ? `<time>${esc(e.time)}</time>` : ''}${esc(e.event)}</span>`).join('');
-      const more = list.length > MAX_CHIPS ? `<span class="more">${list.length - MAX_CHIPS} more</span>` : '';
-      const dots = list.slice(0, 3).map(() => '<i></i>').join('');
-      const label = `${longDate(key)}${list.length ? `, ${list.length} event${list.length > 1 ? 's' : ''}` : ''}`;
+      // Give each multi-day event in this week a fixed row ("lane") so its pieces line up across days
+      const multis = [], seen = new Set();
+      for (const k of keys) for (const e of (state.byDate[k] || [])) {
+        if (e.multi && !seen.has(e)) { seen.add(e); multis.push(e); }
+      }
+      multis.sort((a, b) => a.date.localeCompare(b.date) || b.end.localeCompare(a.end) || a.row - b.row);
+      const laneEnd = [], seg = new Map();
+      for (const e of multis) {
+        const s = Math.max(0, diffDays(keys[0], e.date));
+        const en = Math.min(6, diffDays(keys[0], e.end));
+        let l = laneEnd.findIndex(x => x < s);
+        if (l < 0) { l = laneEnd.length; laneEnd.push(en); } else laneEnd[l] = en;
+        seg.set(e, { l, s, en });
+      }
 
-      html += `<button class="${cls.join(' ')}" data-date="${key}" aria-label="${esc(label)}">
-        <span class="num">${d.getDate()}</span>${chips}${more}<span class="dots">${dots}</span></button>`;
+      for (let i = 0; i < 7; i++) {
+        const key = keys[i];
+        const list = state.byDate[key] || [];
+        const slots = new Array(laneEnd.length).fill(null);
+        for (const [e, g] of seg) if (g.s <= i && i <= g.en) slots[g.l] = e;
+        const singles = list.filter(e => !e.multi);
+        for (let j = 0; j < slots.length && singles.length; j++) if (!slots[j]) slots[j] = singles.shift();
+        slots.push(...singles);
+        while (slots.length && !slots[slots.length - 1]) slots.pop();
+
+        const shown = slots.slice(0, MAX_CHIPS);
+        const hidden = slots.slice(MAX_CHIPS).filter(Boolean).length;
+        const chips = shown.map(e => e ? chipHtml(e, key, i, seg.get(e)) : '<span class="chip gap" aria-hidden="true">&nbsp;</span>').join('');
+        const more = hidden ? `<span class="more">${hidden} more</span>` : '';
+        const dots = list.slice(0, 3).map(e => `<i class="${colorClass(e)}${e.multi ? ' long' : ''}"></i>`).join('');
+
+        const cls = ['day'];
+        if (parseKey(key).getMonth() !== state.m) cls.push('out');
+        if (key === today) cls.push('today');
+        const label = longDate(key) + (list.length ? ', ' + plural(list.length, 'event') : '');
+
+        html += `<div class="${cls.join(' ')}" role="button" tabindex="0" data-date="${key}" aria-label="${esc(label)}">
+          <span class="num" aria-hidden="true">${parseKey(key).getDate()}</span>${chips}${more}<span class="dots" aria-hidden="true">${dots}</span></div>`;
+      }
     }
     $('grid').innerHTML = html;
     renderAgenda();
   }
 
+  function chipHtml(e, key, i, g) {
+    const time = e.time ? `<time>${esc(e.time)}</time>` : '';
+    if (!e.multi) return `<span class="chip ${colorClass(e)}" aria-hidden="true">${time}${esc(nameOf(e))}</span>`;
+
+    const isStart = key === e.date, isEnd = key === e.end;
+    const head = isStart || i === 0; // name shows on the first day and again at the start of each week row
+    const cls = ['chip', 'span', colorClass(e)];
+    if (!isStart) cls.push('cont-l');
+    if (!isEnd) cls.push('cont-r');
+    if (head) cls.push('head');
+    const n = g.en - i + 1; // days this bar covers from here to the end of the week
+    const lbl = head
+      ? `<span class="lbl" style="width:calc(${n} * 100% + ${(n - 1) * 16}px)">${isStart ? time : ''}${esc(nameOf(e))}</span>`
+      : '&nbsp;';
+    return `<span class="${cls.join(' ')}" aria-hidden="true">${lbl}</span>`;
+  }
+
   function renderAgenda() {
-    const prefix = `${state.y}-${pad(state.m + 1)}-`;
-    const keys = Object.keys(state.byDate).filter(k => k.startsWith(prefix)).sort();
-    let html = `<h2>This month</h2>`;
-    if (!keys.length) {
-      html += `<p class="empty">${state.loaded ? 'No events this month. Tap a day to add one.' : ''}</p>`;
+    const mStart = keyOf(new Date(state.y, state.m, 1));
+    const mEnd = keyOf(new Date(state.y, state.m + 1, 0));
+    const groups = {};
+    for (const e of state.events) {
+      if (e.date > mEnd || e.end < mStart) continue;
+      const k = e.date < mStart ? mStart : e.date;
+      (groups[k] = groups[k] || []).push(e);
     }
+    const keys = Object.keys(groups).sort();
+    let html = `<h2>This month</h2>`;
+    if (!keys.length) html += `<p class="empty">${state.loaded ? 'No events this month. Tap a day to add one.' : ''}</p>`;
     for (const k of keys) {
       const d = parseKey(k);
+      const items = groups[k].sort((a, b) => (b.multi - a.multi) || (a.time || '').localeCompare(b.time || ''));
       html += `<div class="agenda-day" data-date="${k}" role="button" tabindex="0">
         <div class="d">${d.getDate()}<small>${DAYS[d.getDay()]}</small></div>
-        <div>${state.byDate[k].map(e => `<p>${e.time ? `<time>${esc(e.time)}</time>` : ''}${esc(e.event)}</p>`).join('')}</div>
+        <div>${items.map(e => `<p class="${colorClass(e)}">${e.time && e.date === k ? `<time>${esc(e.time)}</time>` : ''}${esc(nameOf(e))}${e.multi ? `<span class="range">${esc(rangeLabel(e.date, e.end))}</span>` : ''}</p>`).join('')}</div>
       </div>`;
     }
     $('agenda').innerHTML = html;
@@ -332,6 +470,7 @@
   function openDay(key) {
     state.day = key;
     state.editing = null;
+    f = null;
     renderDay();
     if (!$('dlg').open) $('dlg').showModal();
   }
@@ -340,7 +479,7 @@
     const key = state.day;
     const list = state.byDate[key] || [];
     $('dlgTitle').textContent = longDate(key);
-    $('dlgSub').textContent = list.length ? `${list.length} event${list.length > 1 ? 's' : ''}` : '';
+    $('dlgSub').textContent = list.length ? plural(list.length, 'event') : '';
 
     let html = state.flash ? `<p class="flash" role="status">${esc(state.flash)}</p>` : '';
     state.flash = '';
@@ -348,13 +487,15 @@
     if (!list.length) html += `<p class="empty">Nothing scheduled on this day.</p>`;
     for (const e of list) {
       const href = e.link && linkHref(e.link);
-      const link = e.link ? `<p class="meta">${href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(e.link)}</a>` : esc(e.link)}</p>` : '';
-      html += `<div class="event">
-        <div class="t ${e.time ? '' : 'none'}">${e.time ? esc(e.time) : 'No time'}</div>
+      const ongoing = e.multi && key !== e.date;
+      const t = ongoing ? 'Ongoing' : (e.time || 'No time');
+      html += `<div class="event ${colorClass(e)}">
+        <div class="t ${e.time && !ongoing ? '' : 'none'}">${esc(t)}</div>
         <div>
-          <h3>${esc(e.event)}</h3>
+          <h3>${esc(nameOf(e))}</h3>
+          ${e.multi ? `<p class="meta">${esc(rangeLabel(e.date, e.end))} (${plural(diffDays(e.date, e.end) + 1, 'day')})</p>` : ''}
           ${e.who ? `<p class="meta">${esc(e.who)}</p>` : ''}
-          ${link}
+          ${e.link ? `<p class="meta">${href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(e.link)}</a>` : esc(e.link)}</p>` : ''}
           ${e.passcode ? `<p class="meta">Passcode <span class="code">${esc(e.passcode)}</span></p>` : ''}
         </div>
         <div><button class="btn link" data-edit="${e.row}">Edit</button></div>
@@ -368,20 +509,39 @@
 
   function openForm(ev, dateKey) {
     state.editing = ev || null;
-    const v = ev || { date: dateKey || todayKey(), time: '', event: '', who: '', link: '', passcode: '' };
+    const v = ev || { date: dateKey || todayKey(), endDate: '', time: '', event: '', who: '', link: '', passcode: '', emoji: '', color: 'black' };
+    const tm = /^(\d{2}):(\d{2})$/.exec(v.time || '');
+    const d = parseKey(v.date);
+    f = {
+      date: v.date, endDate: ev && ev.multi ? ev.end : '', multi: !!(ev && ev.multi),
+      hour: tm ? +tm[1] : null, minute: tm ? +tm[2] : null,
+      emoji: v.emoji || '', color: v.color || 'black',
+      py: d.getFullYear(), pm: d.getMonth()
+    };
     state.day = v.date;
     $('dlgTitle').textContent = ev ? 'Edit event' : 'Add event';
-    $('dlgSub').textContent = ev ? longDate(ev.date) : '';
-    const timeOk = /^\d{2}:\d{2}$/.test(v.time || '');
+    $('dlgSub').textContent = '';
 
     $('dlgBody').innerHTML = `
       <form id="evForm" novalidate>
-        <div class="pair">
-          <div class="field"><label for="fDate">Date</label><input id="fDate" type="date" required value="${esc(v.date)}"></div>
-          <div class="field"><label for="fTime">Start time</label><input id="fTime" type="time" value="${timeOk ? esc(v.time) : ''}"></div>
-        </div>
-        ${v.time && !timeOk ? `<p class="hint">The sheet has “${esc(v.time)}” as the time. Pick a time, or leave it empty.</p>` : ''}
         <div class="field"><label for="fEvent">Event</label><input id="fEvent" required maxlength="200" value="${esc(v.event)}"></div>
+
+        <div class="field"><span class="lab" id="emojiLab">Emoji</span><div class="opts" id="emojiPick" role="group" aria-labelledby="emojiLab"></div></div>
+
+        <div class="field"><span class="lab" id="colorLab">Text color</span><div class="opts" id="colorPick" role="group" aria-labelledby="colorLab"></div></div>
+
+        <div class="field">
+          <div class="lab-row">
+            <span class="lab">Date</span>
+            <label class="check"><input type="checkbox" id="fMulti" ${f.multi ? 'checked' : ''}> More than one day</label>
+          </div>
+          <div class="mp" id="datePick"></div>
+          <p class="summary" id="dateSum" aria-live="polite"></p>
+        </div>
+
+        <div class="field" id="timePick"></div>
+        ${v.time && !tm ? `<p class="hint">The sheet has “${esc(v.time)}” as the time. Pick a time, or it will be left empty.</p>` : ''}
+
         <div class="field"><label for="fWho">Who</label><input id="fWho" maxlength="200" value="${esc(v.who)}"></div>
         <div class="field"><label for="fLink">Link</label><input id="fLink" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="1000" value="${esc(v.link)}" placeholder="https://"></div>
         <div class="field"><label for="fPass">Passcode</label><input id="fPass" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="100" value="${esc(v.passcode)}"></div>
@@ -400,8 +560,82 @@
         </div>
       </form>`;
 
+    renderEmoji(); renderColor(); renderDatePick(); renderTimePick();
     if (!$('dlg').open) $('dlg').showModal();
-    $('fEvent').focus();
+    $('dlgBody').scrollTop = 0;
+    if (!ev) $('fEvent').focus();
+  }
+
+  function renderEmoji() {
+    $('emojiPick').innerHTML =
+      `<button type="button" class="opt word" data-emoji="" aria-pressed="${!f.emoji}">None</button>` +
+      EMOJIS.map(x => `<button type="button" class="opt" data-emoji="${x}" aria-pressed="${f.emoji === x}">${x}</button>`).join('');
+  }
+
+  function renderColor() {
+    $('colorPick').innerHTML = COLORS.map(([v, label]) =>
+      `<button type="button" class="opt color c-${v}" data-color="${v}" aria-pressed="${f.color === v}">${label}</button>`).join('');
+  }
+
+  function renderDatePick() {
+    const y = f.py, m = f.pm;
+    const offset = (new Date(y, m, 1).getDay() - WEEK_START + 7) % 7;
+    const n = new Date(y, m + 1, 0).getDate();
+    const today = todayKey();
+    let days = '<span></span>'.repeat(offset);
+    for (let d = 1; d <= n; d++) {
+      const k = keyOf(new Date(y, m, d));
+      const cls = ['pd'];
+      if (k === today) cls.push('today');
+      if (k === f.date) cls.push('start');
+      else if (f.multi && f.endDate && k === f.endDate) cls.push('end');
+      else if (f.multi && f.endDate && k > f.date && k < f.endDate) cls.push('mid');
+      const sel = cls.includes('start') || cls.includes('end');
+      days += `<button type="button" class="${cls.join(' ')}" data-pick="${k}" aria-pressed="${sel}" aria-label="${esc(longDate(k))}">${d}</button>`;
+    }
+    $('datePick').innerHTML = `
+      <div class="mp-head">
+        <button type="button" class="btn icon" data-pnav="-1" aria-label="Previous month">‹</button>
+        <b>${MONTHS[m]} ${y}</b>
+        <button type="button" class="btn icon" data-pnav="1" aria-label="Next month">›</button>
+      </div>
+      <div class="mp-week" aria-hidden="true">${Array.from({ length: 7 }, (_, i) => `<span>${DAYS[(i + WEEK_START) % 7]}</span>`).join('')}</div>
+      <div class="mp-days">${days}</div>`;
+
+    const sum = $('dateSum');
+    sum.classList.remove('ask');
+    if (!f.multi) sum.textContent = longDate(f.date);
+    else if (!f.endDate) { sum.textContent = `Starts ${longDate(f.date)}. Now tap the last day.`; sum.classList.add('ask'); }
+    else sum.textContent = `${rangeLabel(f.date, f.endDate)} (${plural(diffDays(f.date, f.endDate) + 1, 'day')})`;
+  }
+
+  function pickDate(k) {
+    if (!f.multi) { f.date = k; f.endDate = ''; }
+    else if (f.endDate || k < f.date) { f.date = k; f.endDate = ''; }  // start a new range
+    else if (k > f.date) f.endDate = k;
+    renderDatePick();
+  }
+
+  function renderTimePick() {
+    const set = f.hour != null;
+    const shown = set ? `${pad(f.hour)}:${pad(f.minute || 0)}` : 'No start time';
+    let hours = '', mins = '';
+    for (let h = 0; h < 24; h++) hours += `<button type="button" class="tb" data-hour="${h}" aria-pressed="${f.hour === h}">${pad(h)}</button>`;
+    for (let mi = 0; mi < 60; mi++) mins += `<button type="button" class="tb" data-minute="${mi}" aria-pressed="${set && f.minute === mi}">${pad(mi)}</button>`;
+    $('timePick').innerHTML = `
+      <div class="tp-head"><span class="lab">Start time</span><b class="${set ? '' : 'none'}" aria-live="polite">${shown}</b>
+        ${set ? '<button type="button" class="btn link" data-clear-time>Clear</button>' : ''}</div>
+      <div class="tp-sub" id="hLab">Hour (24-hour clock)</div>
+      <div class="hours" role="group" aria-labelledby="hLab">${hours}</div>
+      <div class="tp-sub" id="mLab">Minute</div>
+      <div class="mins" role="group" aria-labelledby="mLab">${mins}</div>`;
+  }
+
+  // Re-rendering a picker replaces its buttons; put keyboard focus back on the one that was pressed
+  function refocus(selector, wasKeyboard) {
+    if (!wasKeyboard) return;
+    const el = $('dlgBody').querySelector(selector);
+    if (el) el.focus();
   }
 
   function formMsg(text, isErr) {
@@ -415,11 +649,9 @@
     for (const id of ['saveBtn', 'delBtn', 'cancelBtn']) { const b = $(id); if (b) b.disabled = on; }
   }
 
-  function original(ev) {
-    return { date: ev.date, time: ev.time, event: ev.event };
-  }
+  const original = ev => ({ date: ev.date, time: ev.time, event: ev.event });
 
-  async function afterWrite(res, dateKey, message) {
+  function afterWrite(res, dateKey, message) {
     setEvents(res);
     const d = parseKey(dateKey);
     state.y = d.getFullYear(); state.m = d.getMonth();
@@ -432,32 +664,35 @@
     const text = errText(e);
     formMsg(text, true);
     if (/changed in the sheet/.test(text)) {
-      try { setEvents(await run('getEvents')); render(); } catch (_) {}
+      try { setEvents(await getEvents()); render(); } catch (_) {}
     }
   }
 
   async function submitForm(evt) {
     evt.preventDefault();
     const data = {
-      date: $('fDate').value,
-      time: $('fTime').value,
+      date: f.date,
+      endDate: f.multi ? f.endDate : '',
+      time: f.hour == null ? '' : `${pad(f.hour)}:${pad(f.minute || 0)}`,
       event: $('fEvent').value.trim(),
       who: $('fWho').value.trim(),
       link: $('fLink').value.trim(),
-      passcode: $('fPass').value.trim()
+      passcode: $('fPass').value.trim(),
+      emoji: f.emoji,
+      color: f.color
     };
     const code = $('fCode').value;
-    if (!data.date) return formMsg('Choose a date.', true);
     if (!data.event) { $('fEvent').focus(); return formMsg('Enter an event name.', true); }
+    if (f.multi && !f.endDate) return formMsg('Tap the last day of the event, or untick “More than one day”.', true);
     if (!code) { $('fCode').focus(); return formMsg('Enter the secret code to save.', true); }
     if (state.editing) { data.row = state.editing.row; data.original = original(state.editing); }
 
     setBusy(true);
     formMsg('Saving to the sheet…');
     try {
-      const res = await run('saveEvent', data, code);
+      const res = await saveEvent(data, code);
       state.code = code;
-      await afterWrite(res, data.date, state.editing ? 'Changes saved.' : 'Event added.');
+      afterWrite(res, data.date, state.editing ? 'Changes saved.' : 'Event added.');
     } catch (e) {
       await handleWriteError(e);
     } finally {
@@ -480,9 +715,9 @@
     setBusy(true);
     formMsg('Deleting…');
     try {
-      const res = await run('deleteEvent', ev.row, original(ev), code);
+      const res = await deleteEvent(ev.row, original(ev), code);
       state.code = code;
-      await afterWrite(res, ev.date, 'Event deleted.');
+      afterWrite(res, ev.date, 'Event deleted.');
     } catch (e) {
       await handleWriteError(e);
     } finally {
@@ -500,31 +735,64 @@
   $('addBtn').onclick = () => {
     const t = new Date();
     const inView = t.getFullYear() === state.y && t.getMonth() === state.m;
-    openForm(null, inView ? todayKey() : iso(state.y, state.m, 1));
+    openForm(null, inView ? todayKey() : keyOf(new Date(state.y, state.m, 1)));
   };
 
-  $('grid').addEventListener('click', e => { const b = e.target.closest('[data-date]'); if (b) openDay(b.dataset.date); });
-  $('agenda').addEventListener('click', e => { const b = e.target.closest('[data-date]'); if (b) openDay(b.dataset.date); });
-  $('agenda').addEventListener('keydown', e => {
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    const b = e.target.closest('[data-date]'); if (b) { e.preventDefault(); openDay(b.dataset.date); }
-  });
+  for (const id of ['grid', 'agenda']) {
+    $(id).addEventListener('click', e => { const b = e.target.closest('[data-date]'); if (b) openDay(b.dataset.date); });
+    $(id).addEventListener('keydown', e => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const b = e.target.closest('[data-date]');
+      if (b) { e.preventDefault(); openDay(b.dataset.date); }
+    });
+  }
 
   const dlg = $('dlg');
   $('closeBtn').onclick = () => dlg.close();
   dlg.addEventListener('click', e => {
     if (e.target === dlg) return dlg.close();
-    if (e.target.id === 'addHere') return openForm(null, state.day);
-    if (e.target.id === 'cancelBtn') return state.editing || state.day ? openDay(state.day) : dlg.close();
-    if (e.target.id === 'delBtn') return deleteCurrent();
-    const edit = e.target.closest('[data-edit]');
-    if (edit) {
-      const ev = state.events.find(x => String(x.row) === edit.dataset.edit);
+    const b = e.target.closest('button');
+    if (!b) return;
+    const kb = e.detail === 0; // activated from the keyboard
+
+    if (f) {
+      if ('emoji' in b.dataset) { f.emoji = b.dataset.emoji; renderEmoji(); return refocus(`[data-emoji="${f.emoji}"]`, kb); }
+      if (b.dataset.color) { f.color = b.dataset.color; renderColor(); return refocus(`[data-color="${f.color}"]`, kb); }
+      if (b.dataset.pnav) {
+        const d = new Date(f.py, f.pm + Number(b.dataset.pnav), 1);
+        f.py = d.getFullYear(); f.pm = d.getMonth();
+        renderDatePick(); return refocus(`[data-pnav="${b.dataset.pnav}"]`, kb);
+      }
+      if (b.dataset.pick) { const k = b.dataset.pick; pickDate(k); return refocus(`[data-pick="${k}"]`, kb); }
+      if (b.dataset.hour) { f.hour = +b.dataset.hour; if (f.minute == null) f.minute = 0; renderTimePick(); return refocus(`[data-hour="${f.hour}"]`, kb); }
+      if (b.dataset.minute) {
+        f.minute = +b.dataset.minute;
+        if (f.hour == null) f.hour = 9;   // minute tapped first: assume a morning hour, easy to change
+        renderTimePick(); return refocus(`[data-minute="${f.minute}"]`, kb);
+      }
+      if ('clearTime' in b.dataset) { f.hour = null; f.minute = null; renderTimePick(); return refocus('[data-hour="0"]', kb); }
+    }
+
+    if (b.id === 'addHere') return openForm(null, state.day);
+    if (b.id === 'cancelBtn') return openDay(state.editing ? state.editing.date : state.day);
+    if (b.id === 'delBtn') return deleteCurrent();
+    if (b.dataset.edit) {
+      const ev = state.events.find(x => String(x.row) === b.dataset.edit);
       if (ev) openForm(ev);
     }
   });
+  dlg.addEventListener('change', e => {
+    if (e.target.id === 'fMulti' && f) {
+      f.multi = e.target.checked;
+      if (!f.multi) f.endDate = '';
+      renderDatePick();
+    }
+  });
   dlg.addEventListener('submit', e => { if (e.target.id === 'evForm') submitForm(e); });
-  dlg.addEventListener('close', () => { state.editing = null; if (deleteArmed) { clearTimeout(deleteArmed); deleteArmed = null; } });
+  dlg.addEventListener('close', () => {
+    state.editing = null; f = null;
+    if (deleteArmed) { clearTimeout(deleteArmed); deleteArmed = null; }
+  });
 
   render();
   load();
