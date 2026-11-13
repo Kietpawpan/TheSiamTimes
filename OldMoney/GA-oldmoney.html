@@ -204,6 +204,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .tip span { display: block; color: var(--muted); font-size: 14px; font-style: italic; margin-top: 2px; }
 .tip .btn { flex: 0 0 auto; white-space: nowrap; }
 .tip .btn em { font-style: normal; color: var(--good); margin-left: 4px; }
+.tip.applied { background: #eef3ea; }
+.tip.applied span { color: var(--good); font-style: normal; font-weight: 600; }
+.tip.done { opacity: .55; }
+.tips-new { margin: -6px 0 16px; }
 .seg { display: flex; gap: 4px; padding: 3px; background: var(--well); border-radius: 999px; margin: 10px 0 12px; }
 .seg button { flex: 1; border: 0; background: transparent; padding: 8px 6px; border-radius: 999px; font: 600 11px/1.1 var(--font-label); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
@@ -1878,6 +1882,7 @@ function suggestions(L, occ, max = 4) {
   const usable = it => fitsModel(it, model) && !it.trap;
   ['top', 'dress', 'bottom', 'outer', 'shoes'].forEach(slot => {
     if (slot === 'dress' && model === 'man') return;
+    if ((slot === 'top' || slot === 'bottom') && L.dress) return;
     ITEMS.filter(i => i.slot === slot && usable(i)).forEach(it => it.colors.forEach(c => {
       const cur = L[slot];
       if (cur && cur.id === it.id) { if (cur.color !== c) consider('item:' + it.id, { kind: 'recolor', it, color: c, from: cur.color, fn: C => lookRecolor(C, it, c) }); }
@@ -1906,7 +1911,7 @@ function describeMove(m, L, occ) {
   else {
     const s = m.it.slot, cur = s === 'acc' ? null : L[s];
     if (cur) text = `Swap the ${nm(ITEM[cur.id])} for the ${col(m.it, m.color)}${nm(m.it)}.`;
-    else if (s === 'dress' && (L.top || L.bottom)) text = `Change into the ${col(m.it, m.color)}${nm(m.it)}.`;
+    else if (s === 'dress' && (L.top || L.bottom)) text = `Change into the ${col(m.it, m.color)}${nm(m.it)} instead of the ${[L.top, L.bottom].filter(Boolean).map(w => nm(ITEM[w.id])).join(' and the ')}.`;
     else if ((s === 'top' || s === 'bottom') && L.dress) text = `Swap the ${nm(ITEM[L.dress.id])} for the ${col(m.it, m.color)}${nm(m.it)}.`;
     else if (m.it.group && L.acc.some(a => ITEM[a.id] && ITEM[a.id].group === m.it.group)) text = `Swap the ${nm(ITEM[L.acc.find(a => ITEM[a.id] && ITEM[a.id].group === m.it.group).id])} for the ${col(m.it, m.color)}${nm(m.it)}.`;
     else text = `Add the ${col(m.it, m.color)}${nm(m.it)}.`;
@@ -1935,8 +1940,56 @@ function adviceOccasion() {
   if (OCC[state.scene]) return OCC[state.scene];
   return OCCASIONS.map(o => ({ o, t: evaluate(state.look, o).total })).sort((a, b) => b.t - a.t)[0].o;
 }
-function tipsHTML(tips, attr) {
-  return `<ul class="tips">${tips.map((t, i) => `<li class="tip"><div><b>${t.text}</b><span>${t.why}</span></div><button class="btn" ${attr}="${i}">Apply <em>+${t.gain}</em></button></li>`).join('')}</ul>`;
+/* The list stays put while you work through it. Apply changes only the piece a tip names and marks
+   the tip Applied, with Undo to put that piece back. The other tips keep their place; only their
+   points are refreshed. New suggestions replaces the list on request, or after you change the
+   outfit by hand. */
+let TIPSET = null;
+const lookSig = () => JSON.stringify(state.look);
+function tipSet(occ, max) {
+  const key = state.model + ':' + occ.id;
+  if (!TIPSET || TIPSET.key !== key || TIPSET.sig !== lookSig()) TIPSET = { key, occ, tips: suggestions(state.look, occ, max), sig: lookSig() };
+  return TIPSET;
+}
+function refreshTips(set) {
+  const L = state.look, base = evaluate(L, set.occ);
+  set.tips.forEach(t => {
+    if (t.applied) return;
+    const C = cloneLook(L); t.fn(C);
+    const e = evaluate(C, set.occ);
+    t.gain = e.total - base.total; t.done = t.gain < 1;
+    if (!t.done) Object.assign(t, { e, base }, describeMove(t, L, set.occ));
+  });
+  set.sig = lookSig();
+}
+function applyTip(set, i) {
+  const t = set.tips[i];
+  t.before = cloneLook(state.look); t.fn(state.look); t.after = cloneLook(state.look); t.applied = true; t.won = t.gain;
+  if (t.it && t.color) state.colorPref[t.it.id] = t.color;
+  refreshTips(set);
+}
+function undoTip(set, i) {
+  const t = set.tips[i], L = state.look, B = t.before, A = t.after;
+  ['top', 'bottom', 'dress', 'outer', 'shoes', 'hair'].forEach(k => { if (JSON.stringify(A[k]) !== JSON.stringify(B[k])) L[k] = B[k] == null ? null : JSON.parse(JSON.stringify(B[k])); });
+  const had = (list, id) => list.some(x => x.id === id);
+  A.acc.filter(a => !had(B.acc, a.id)).forEach(a => { L.acc = L.acc.filter(x => x.id !== a.id); });
+  B.acc.filter(b => !had(A.acc, b.id)).forEach(b => lookWear(L, ITEM[b.id], b.color));
+  A.acc.forEach(a => { const b = B.acc.find(x => x.id === a.id); if (b && b.color !== a.color) lookRecolor(L, ITEM[a.id], b.color); });
+  t.applied = false;
+  refreshTips(set);
+}
+function tipsHTML(set, attr) {
+  return `<ul class="tips">${set.tips.map((t, i) => t.applied
+    ? `<li class="tip applied"><div><b>${t.text}</b><span>Applied · +${t.won} points</span></div><button class="btn" data-undo="${i}">Undo</button></li>`
+    : t.done
+      ? `<li class="tip done"><div><b>${t.text}</b><span>No longer needed with the changes you have made.</span></div></li>`
+      : `<li class="tip"><div><b>${t.text}</b><span>${t.why}</span></div><button class="btn" ${attr}="${i}">Apply <em>+${t.gain}</em></button></li>`).join('')}</ul>
+    <button class="btn small tips-new" data-newtips>New suggestions</button>`;
+}
+function bindTips(root, set, attr, rerender) {
+  root.querySelectorAll(`[${attr}]`).forEach(b => b.onclick = () => { const t = set.tips[+b.getAttribute(attr)]; applyTip(set, +b.getAttribute(attr)); changed(true); toast(`Applied: +${t.won} points`); rerender(); });
+  root.querySelectorAll('[data-undo]').forEach(b => b.onclick = () => { undoTip(set, +b.dataset.undo); changed(true); toast('Undone'); rerender(); });
+  root.querySelectorAll('[data-newtips]').forEach(b => b.onclick = () => { TIPSET = null; rerender(); });
 }
 
 const DRESS_CODE = {
@@ -1971,11 +2024,11 @@ function openGuide() {
   const tab = state.guideTab || 'look', c = $('guideCard'), L = state.look;
   let body = '';
   if (tab === 'look') {
-    const e = evaluate(L, occ), tips = suggestions(L, occ, 4);
+    const e = evaluate(L, occ), set = tipSet(occ, 4);
+    state._gset = set;
     body = `<p class="sub">${WHO[state.model]} at ${occ.short} · now ${e.total} / 100 <span class="mini-stars">${starsHTML(e.stars)}</span></p>` +
-      (tips.length ? tipsHTML(tips, 'data-gtip') : `<p class="empty">Nothing left to change: this look already scores ${e.total}.</p>`) +
+      (set.tips.length ? tipsHTML(set, 'data-gtip') : `<p class="empty">Nothing left to change: this look already scores ${e.total}.</p>`) +
       `<p class="note"><b>At ${occ.short}:</b> ${DRESS_CODE[occ.id].tip}</p>`;
-    state._gtips = tips;
   } else if (tab === 'code') {
     const col = model => `<div><h4>${model === 'man' ? 'The gentleman' : 'The lady'}</h4><div class="chips">${DRESS_CODE[occ.id][model].map(id => {
       const it = ITEM[id], worn = wornIn(state.lookBy[model], it);
@@ -1992,11 +2045,7 @@ function openGuide() {
   c.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { $('guideVeil').hidden = true; });
   c.querySelectorAll('[data-gtab]').forEach(b => b.onclick = () => { state.guideTab = b.dataset.gtab; openGuide(); });
   c.querySelectorAll('[data-gocc]').forEach(b => b.onclick = () => { state.guideOcc = b.dataset.gocc; openGuide(); });
-  c.querySelectorAll('[data-gtip]').forEach(b => b.onclick = () => {
-    const t = state._gtips[+b.dataset.gtip]; t.fn(state.look);
-    if (t.it && t.color) state.colorPref[t.it.id] = t.color;
-    changed(true); toast(`+${t.gain} points`); openGuide();
-  });
+  if (tab === 'look') bindTips(c, state._gset, 'data-gtip', () => { const st = c.scrollTop; openGuide(); c.scrollTop = st; });
   c.querySelectorAll('[data-wear]').forEach(b => b.onclick = () => {
     const [model, id] = b.dataset.wear.split(':'), it = ITEM[id];
     if (state.model !== model) { state.model = model; renderTabs(); renderInvite(); }
@@ -2011,19 +2060,21 @@ function changed(panel) { persist(); renderStage(); if (panel) { const st = $('p
 /* ---- Result ---- */
 function starsHTML(n) { return '★'.repeat(n) + `<span class="off">${'★'.repeat(5 - n)}</span>`; }
 const WHO = { woman: 'The lady', man: 'The gentleman' };
-function showResult() {
+function showResult(opts = {}) {
   let occ, e, heading;
   if (state.mode === 'season') {
     occ = OCC[state.occ]; e = evaluate(state.look, occ); heading = `${WHO[state.model]} · ${occ.name}`;
     if (!state.best[occ.id] || e.stars > state.best[occ.id]) state.best[occ.id] = e.stars;
     state.lastResult = { occ: occ.id, stars: e.stars };
   } else {
-    const all = OCCASIONS.map(o => ({ o, e: evaluate(state.look, o) })).sort((a, b) => b.e.total - a.e.total);
-    occ = all[0].o; e = all[0].e; heading = `${WHO[state.model]} belongs at: ${occ.name}`;
+    if (opts.again && OCC[state.resultOcc]) { occ = OCC[state.resultOcc]; e = evaluate(state.look, occ); }
+    else { const all = OCCASIONS.map(o => ({ o, e: evaluate(state.look, o) })).sort((a, b) => b.e.total - a.e.total); occ = all[0].o; e = all[0].e; }
+    state.resultOcc = occ.id;
+    heading = `${WHO[state.model]} belongs at: ${occ.name}`;
     state.lastResult = { occ: occ.id, stars: e.stars };
   }
   persist();
-  const tips = e.total < 100 ? suggestions(state.look, occ, 3) : [];
+  const set = tipSet(occ, 3);
   const idx = OCCASIONS.findIndex(o => o.id === state.occ);
   const next = OCCASIONS[(idx + 1) % OCCASIONS.length];
   const allDone = OCCASIONS.every(o => state.best[o.id] >= 4);
@@ -2041,7 +2092,7 @@ function showResult() {
     </div>
     <ul class="critique">${e.plus.map(t => `<li class="plus">${t}</li>`).join('')}${e.minus.map(t => `<li class="minus">${t}</li>`).join('')}${!e.plus.length && !e.minus.length ? '<li class="plus">Nothing to add.</li>' : ''}</ul>
     <p class="byline">“${VERDICTS[e.stars]}” — The Siam Times style desk</p>
-    ${tips.length ? `<h3 class="tips-head">How to improve</h3>${tipsHTML(tips, 'data-rtip')}` : ''}
+    ${set.tips.length ? `<h3 class="tips-head">How to improve</h3>${tipsHTML(set, 'data-rtip')}` : ''}
     ${state.mode === 'season' && allDone ? '<p class="sub">Four stars or better at every invitation. You have finished the Season.</p>' : ''}
     <div class="row-btns">
       <button class="btn" data-close>Keep styling</button>
@@ -2050,17 +2101,13 @@ function showResult() {
       ${state.mode === 'season' ? `<button class="btn primary" id="resNext">Next: ${next.kicker}</button>` : ''}
     </div>`;
   $('resultVeil').hidden = false;
-  chime(e.stars);
+  if (!opts.again) chime(e.stars);
   $('resultCard').querySelectorAll('[data-close]').forEach(b => b.onclick = closeResult);
   $('resSave').onclick = () => { saveLook(); closeResult(); };
   $('resGuide').onclick = () => { closeResult(); state.guideOcc = occ.id; state.guideTab = 'look'; openGuide(); };
-  $('resultCard').querySelectorAll('[data-rtip]').forEach(b => b.onclick = () => {
-    const t = tips[+b.dataset.rtip]; t.fn(state.look);
-    if (t.it && t.color) state.colorPref[t.it.id] = t.color;
-    changed(true); showResult();
-  });
+  bindTips($('resultCard'), set, 'data-rtip', () => { const st = $('resultCard').scrollTop; showResult({ again: true }); $('resultCard').scrollTop = st; });
   const nb = $('resNext'); if (nb) nb.onclick = () => { state.occ = next.id; persist(); closeResult(); renderInvite(); renderStage(); };
-  $('resultCard').querySelector('.btn').focus();
+  if (!opts.again) $('resultCard').querySelector('.btn').focus();
 }
 function closeResult() { $('resultVeil').hidden = true; renderInvite(); }
 
