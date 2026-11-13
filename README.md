@@ -15,4 +15,4 @@ This modern revival seeks to marry the authoritative weight of the past with the
 
   
 
-> "All the News That’s Nice to Print."
+> "All the News That’s Nice to Post."
