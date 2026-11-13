@@ -77,6 +77,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 420px); min-height: 0; }
 .stage-col { position: relative; display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 .stage { position: relative; flex: 1; min-height: 0; overflow: hidden; background: #e9e1d2; }
+.stage::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: soft-light; opacity: .5;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7 .14' numOctaves='3' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23b)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23c)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 45%, rgba(255, 255, 255, 0) 55%, rgba(30, 18, 8, .55) 100%);
+  background-size: 260px 260px, 160px 160px, 100% 100%;
+}
 .stage svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
 .invite {
@@ -119,6 +127,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
   font: 600 12px/1 var(--font-label); letter-spacing: .08em; text-transform: uppercase;
 }
 .btn:hover { border-color: var(--ink); }
+.btn[aria-pressed="true"] { border-color: var(--ink); background: #fff; }
+.btn[aria-pressed="true"]::before { content: "✓ "; }
+.scene .fig:not(.on) { cursor: pointer; }
 .btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
 .btn.primary:hover { background: #2c3c60; }
 
@@ -258,6 +269,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
         </div>
       </div>
       <div class="actions">
+        <button class="btn" id="btnCouple" aria-pressed="true" title="Show the lady and the gentleman together">Couple view</button>
         <button class="btn" id="btnValet" title="Let the valet dress you for this occasion">Valet’s pick</button>
         <button class="btn" id="btnReset">Start over</button>
         <button class="btn" id="btnSave">Save look</button>
@@ -307,7 +319,7 @@ const SKIN = {
 };
 const HAIRC = {
   blonde: ['Blonde', '#D6B379'], honey: ['Honey', '#B4854B'], chestnut: ['Chestnut', '#774829'],
-  brunette: ['Brunette', '#3F2B1F'], black: ['Black', '#1D1917'], auburn: ['Auburn', '#8A3A20'], silver: ['Silver', '#C9C5BE'],
+  brunette: ['Brunette', '#3F2B1F'], black: ['Black', '#1D1917'], auburn: ['Auburn', '#8A3A20'], silver: ['Silver', '#C9C5BE'], saltpepper: ['Salt & pepper', '#77716B'],
 };
 const LIPS = { rose: ['Rose', '#B46D69'], nude: ['Nude', '#B98370'], berry: ['Berry', '#8E3A4A'], red: ['Classic red', '#A3262E'] };
 
@@ -453,7 +465,7 @@ function eyesSVG(look, man) {
   const brow = mix(hex(look.hairColor), '#2b1d16', .35);
   const lid = man ? dk(s, .22) : mix(dk(s, .22), '#7d6255', .45);
   const one = `<ellipse cx="187" cy="102.6" rx="8.6" ry="4.4" fill="${lid}" opacity="${man ? .3 : .45}" filter="url(#soft)"/>
-    <path d="M180.6,105.2 Q184,101.3 187.6,101.1 Q191.5,101.4 194.2,104.9 Q190.6,108.3 187.1,108.4 Q183.1,108.2 180.6,105.2Z" fill="#f6f1ea"/>
+    <path d="M180.6,105.2 Q184,101.3 187.6,101.1 Q191.5,101.4 194.2,104.9 Q190.6,108.3 187.1,108.4 Q183.1,108.2 180.6,105.2Z" fill="#EDE6DC"/>
     <circle cx="187.6" cy="104.8" r="3.05" fill="${iris}"/><circle cx="187.6" cy="104.8" r="1.25" fill="#140d09"/>
     <path d="M180.6,105.2 Q184,101.3 187.6,101.1 Q191.5,101.4 194.2,104.9 Q191,102.7 187.6,102.6 Q184,102.7 180.6,105.2Z" fill="${dk(s, .4)}" opacity=".35"/>
     <path d="M180.2,105.4 Q184,100.7 187.6,100.6 Q191.7,100.8 194.6,104.7" fill="none" stroke="#24180f" stroke-width="${man ? 1.25 : 1.6}" stroke-linecap="round"/>
@@ -462,7 +474,7 @@ function eyesSVG(look, man) {
     (man ? '' : `<path d="M194.4,104.6 l2.2,-1.3 M190.8,101.4 l.9,-1.5 M192.8,102.6 l1.3,-1.3" stroke="#24180f" stroke-width=".6" stroke-linecap="round" opacity=".85"/>`) +
     (man ? `<path d="M178.4,96.2 Q183.6,92.2 190.8,92 Q195,92.1 196.4,94.4 Q191,94.3 186,95.6 Q181.6,96.8 178.4,96.2Z" fill="${brow}"/>`
       : `<path d="M179.2,96.6 Q184,92.2 190.8,92.3 Q194,92.7 195.4,94.3 Q190.6,93.9 186,94.8 Q182,95.8 179.2,96.6Z" fill="${brow}"/>`);
-  return pair(one) + `<circle cx="188.7" cy="103.7" r=".85" fill="#fff"/><circle cx="213.5" cy="103.7" r=".85" fill="#fff"/>`;
+  return pair(`<g transform="translate(187.6 104.6) scale(.9) translate(-187.6 -104.6)">${one}</g>`) + `<circle cx="188.7" cy="103.7" r=".85" fill="#fff"/><circle cx="213.5" cy="103.7" r=".85" fill="#fff"/>`;
 }
 function noseSVG(s, man) {
   const k = man ? 1.5 : 0, y = v => f1(v + k);
@@ -471,6 +483,17 @@ function noseSVG(s, man) {
     Ln(`M197.6,${y(122.4)} Q200,${y(123.6)} 202.4,${y(122.4)}`, dk(s, .3), .8) +
     `<ellipse cx="200.6" cy="${y(118.2)}" rx="1.7" ry="1.3" fill="#fff" opacity=".28"/>` +
     `<path d="M197,${y(124)} Q200,${y(126)} 203,${y(124)}" stroke="${dk(s, .2)}" stroke-width="2" fill="none" opacity=".25" filter="url(#soft)"/>`;
+}
+/* Cheekbones, smile lines, a soft smile: the faces read as grown-ups. */
+function faceDetail(s, lip, man, beard) {
+  const k = man ? 1 : 0;
+  return pair(
+    `<path d="M193.6,121.8 Q189.6,127 191,${133 + k}" stroke="${dk(s, .3)}" stroke-width="1.3" fill="none" opacity="${beard === 'beard' ? 0 : man ? .32 : .2}" filter="url(#soft)"/>` +
+    `<ellipse cx="181" cy="111" rx="6.5" ry="2.6" fill="#fff" opacity=".13" filter="url(#soft)"/>` +
+    `<path d="M181.5,108.6 Q187,111.4 193,108.8" stroke="${dk(s, .25)}" stroke-width="1" fill="none" opacity="${man ? .3 : .18}" filter="url(#soft)"/>` +
+    Ln(man ? 'M193.4,131.4 Q192.2,131 191.6,129.9' : 'M192.6,129.9 Q191.5,129.6 190.9,128.5', dk(lip, .42), .75)) +
+    Ln(`M198.7,${124.8 + k} L199.1,${127.4 + k} M201.3,${124.8 + k} L200.9,${127.4 + k}`, dk(s, .16), .6, ' opacity=".5"') +
+    `<ellipse cx="200" cy="${140.5 + k}" rx="5" ry="2.4" fill="#fff" opacity=".1"/>`;
 }
 const chinShade = s => `<ellipse cx="200" cy="138.6" rx="5" ry="1.5" fill="${dk(s, .22)}" opacity=".35" filter="url(#soft)"/>`;
 
@@ -497,6 +520,7 @@ function drawBody(look) {
      <path d="M192.4,129.8 Q196,130.9 200,130.9 Q204,130.9 207.6,129.8 Q205.2,134.8 200,135.1 Q194.8,134.8 192.4,129.8Z" fill="${lip}"/>`,
     Ln('M192,129.7 Q196,131.1 200,131 Q204,131.1 208,129.7', dk(lip, .4), .7),
     Ln('M197,132.8 Q200,133.6 203,132.8', '#fff', 1, ' opacity=".38"'),
+    faceDetail(s, lip, false),
     chinShade(s),
   ].join('')];
 }
@@ -558,12 +582,12 @@ const ITEMS = [
       S(sym([[200, 184], [186, 177], [166, 183], [148, 191], [145, 212], [158, 240], [163, 300], [162, 360], [156, 404, 'c'], [200, 406]]), pat('cable', c), c) +
       S(sym([[200, 390], [158, 388, 'c'], [156, 404, 'c'], [200, 406]]), pat('rib', c), c) +
       P('M183,178 Q200,195 217,178 L213,173 Q200,186 187,173Z', pat('rib', c), dk(c, .3)) },
-  { id: 'turtle', name: 'Cashmere turtleneck', slot: 'top', layer: 4, colors: ['camel', 'oat', 'charcoal', 'black', 'cream'], tags: ['country', 'ivy', 'gala'],
-    desc: 'Fine-gauge cashmere with a folded roll neck.',
+  { id: 'turtle', name: 'Cashmere turtleneck', slot: 'top', layer: 2.5, colors: ['camel', 'oat', 'charcoal', 'black', 'cream'], tags: ['country', 'ivy', 'gala'],
+    desc: 'Fine-gauge cashmere with a folded roll neck, tucked in.',
     draw: c => pair(S([[147, 189], [136, 236], [127, 310], [120, 412, 'c'], [141, 414, 'c'], [148, 312], [154, 264], [161, 238]], c, c)) +
-      S(sym([[200, 186], [186, 180], [166, 184], [148, 191], [145, 212], [159, 240], [165, 300], [164, 360], [157, 398, 'c'], [200, 400]]), c, c) +
+      S(sym([[200, 186], [186, 180], [166, 184], [148, 191], [145, 212], [159, 240], [165, 300], [167, 334, 'c'], [200, 336]]), c, c) +
       P('M187,138 L186,183 Q200,190 214,183 L213,138 Q200,145 187,138Z', pat('rib', c), dk(c, .3)) +
-      Ln('M186,160 Q200,167 214,160', dk(c, .25)) + Ln('M174,250 Q178,300 176,380', dk(c, .08)) },
+      Ln('M186,160 Q200,167 214,160', dk(c, .25)) + Ln('M174,250 Q178,290 176,330', dk(c, .08)) },
   { id: 'hoodie', name: 'Logo hoodie', slot: 'top', layer: 4, colors: ['fuchsia', 'black'], tags: [], trap: true,
     desc: 'A giant logo across the chest. Very loud.',
     draw: c => P('M175,182 C176,160 224,160 225,182 C214,192 186,192 175,182Z', dk(c, .15), dk(c, .3)) +
@@ -711,7 +735,7 @@ const ITEMS = [
     desc: 'Quiet sparkle for evening only.',
     draw: () => pair(`<circle cx="170.5" cy="116" r="2" fill="#fff" stroke="#9fb6c6" stroke-width=".6"/>` + Ln('M170.5,118 V127', '#BCC1C6', .9) +
       P('M170.5,126 Q174,131 172.6,134 Q170.5,137 168.4,134 Q167,131 170.5,126Z', '#f4fbff', '#9fb6c6', .6)) },
-  { id: 'scarf', name: 'Silk carré scarf', slot: 'acc', layer: 6, colors: ['navy', 'burgundy', 'bottle', 'sky'], tags: ['polo', 'country', 'sailing', 'ivy'], box: '160 150 80 110',
+  { id: 'scarf', name: 'Silk carré scarf', slot: 'acc', layer: 6, colors: ['navy', 'burgundy', 'bottle', 'sky', 'camel', 'chocolate'], tags: ['polo', 'country', 'sailing', 'ivy'], box: '160 150 80 110',
     desc: 'A printed silk square, knotted at the throat.',
     draw: c => { const f = pat('carre', c);
       return P('M185,166 L183,182 Q200,191 217,182 L215,166 Q200,174 185,166Z', f, dk(c, .3)) +
@@ -784,6 +808,40 @@ const HAIR = [
    The gentleman: his own body, wardrobe and hair. Shoes, sunglasses and the
    trap pieces are shared with the lady (who: 'u').
    ===================================================================== */
+/* ---- Pieces from the country-house look: tweed, tartan, tattersall, a waistcoat and a cane ---- */
+Object.assign(PATTERNS, {
+  tatt: (id, c) => `<pattern id="${id}" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="${c}"/><path d="M0 .5 H10 M.5 0 V10" stroke="#9A3B33" stroke-width=".55"/><path d="M0 5.5 H10 M5.5 0 V10" stroke="#3F6B4A" stroke-width=".55"/></pattern>`,
+  wpane: (id, c) => `<pattern id="${id}" width="24" height="24" patternUnits="userSpaceOnUse"><rect width="24" height="24" fill="${c}"/>
+    <path d="M0 3 L3 0 M0 9 L9 0 M0 15 L15 0 M0 21 L21 0 M3 24 L24 3 M9 24 L24 9 M15 24 L24 15 M21 24 L24 21" stroke="${lt(c, .12)}" stroke-width=".7"/>
+    <path d="M0 1 H24 M1 0 V24" stroke="${mix(c, '#C8743A', .55)}" stroke-width="1.1"/><path d="M0 13 H24 M13 0 V24" stroke="${dk(c, .3)}" stroke-width=".8"/></pattern>`,
+  tartan: (id, c) => { const a = { '#5E6448': '#C9A04A', '#1E2B47': '#3F6B4A', '#6A2433': '#1E2B47' }[c] || '#C9A04A';
+    return `<pattern id="${id}" width="28" height="28" patternUnits="userSpaceOnUse"><rect width="28" height="28" fill="${c}"/>
+    <rect width="10" height="28" fill="${dk(c, .35)}" opacity=".55"/><rect width="28" height="10" fill="${dk(c, .35)}" opacity=".55"/>
+    <path d="M19 0 V28 M0 19 H28" stroke="${a}" stroke-width="1.2"/><path d="M5 0 V28 M0 5 H28" stroke="${lt(c, .25)}" stroke-width=".6" opacity=".8"/></pattern>`; },
+});
+COL.chestnut = ['Chestnut', '#7B3F22']; NEUTRAL.add('chestnut');
+const MIDI = sym([[200, 316], [168, 316, 'c'], [161, 350], [152, 420], [143, 520], [136, 604, 'c'], [168, 608], [200, 610]]);
+ITEMS.push(
+  { id: 'checkjacket', name: 'Check hacking jacket', slot: 'outer', layer: 5, colors: ['tweedGreen', 'navy', 'tweedBrown'], tags: ['country', 'polo', 'ivy'],
+    desc: 'Tweed with a windowpane over-check, flap pockets and leather buttons.',
+    draw: c => { const f = pat('wpane', c);
+      return BACK_COLLAR(c) + pair(S(SLEEVE_OUT, f, c)) + pair(S(BLAZER_PANEL, f, c) + P('M157,384 L186,388 L185,399 L157,395Z', f, dk(c, .45), 1)) +
+        LAPEL(c, f) + btn(200, 346, '#5A3A28') + btn(200, 372, '#5A3A28') + btn(200, 398, '#5A3A28'); } },
+  { id: 'tartan', name: 'Tartan midi skirt', slot: 'bottom', layer: 3, colors: ['tweedGreen', 'navy', 'burgundy'], tags: ['country', 'ivy'],
+    desc: 'Pleated wool tartan, below the knee.',
+    draw: c => S(MIDI, pat('tartan', c), c) + pair(Ln('M181,330 L172,606 M190,330 L188,608 M172,338 L155,604 M165,350 L142,600', dk(c, .35))) +
+      Ln('M200,330 V610', dk(c, .35)) + Ln('M168,327 Q200,330 232,327', dk(c, .35)) },
+  { id: 'brooch', name: 'Gold brooch', slot: 'acc', layer: 6.3, colors: ['gold'], tags: ['any', 'country', 'ivy', 'gala'], box: '196 216 44 48',
+    desc: 'A small gold spray with a pearl, pinned to the lapel.',
+    draw: c => [[218, 236], [212.5, 240], [223.5, 240], [214.5, 246], [221.5, 246]].map(([x, y]) => dot(x, y, 2.4, ` fill="${c}" stroke="${dk(c, .35)}" stroke-width=".5"`)).join('') +
+      dot(218, 242, 2.2, ' fill="#F4EFE6" stroke="#cbbfa9" stroke-width=".5"') + Ln('M218,248 L216,257', dk(c, .2), 1.2) },
+);
+HAIR.push({ id: 'coiffed', name: 'Coiffed bob', tags: ['country', 'ivy', 'polo', 'gala', 'any'],
+  back: c => P('M158,98 C150,128 152,158 158,174 L242,174 C248,158 250,128 242,98Z', dk(c, .12)),
+  front: c => P('M200,54 C172,54 155,74 154,104 C152,128 156,148 151,162 C149,171 156,177 167,175 C177,173 183,166 181,157 C177,145 175,126 177,111 C178,99 182,91 188,88 C199,90 213,97 226,112 C229,126 226,142 220,156 C219,166 226,173 236,175 C247,176 253,169 249,160 C245,148 248,128 246,104 C244,74 228,54 200,54Z', hf(c), dk(c, .3), .8) +
+    Ln('M188,60 Q168,72 161,104 Q157,132 159,162 M212,58 Q236,70 242,104 Q246,132 242,162 M188,88 Q207,93 225,110 M196,62 Q186,74 188,88', dk(c, .22), .9) +
+    Ln('M160,150 Q164,168 176,170 M240,150 Q236,168 224,170', lt(c, .25), 1.4, ' opacity=".6"') });
+
 ['loafers', 'boots', 'boatshoes', 'plimsolls', 'trainers', 'sunglasses', 'logobag', 'chains'].forEach(id => { ITEMS.find(i => i.id === id).who = 'u'; });
 ITEMS.forEach(i => { i.who = i.who || 'w'; });
 HAIR.forEach(h => { h.who = 'w'; });
@@ -795,7 +853,7 @@ const M_FINGERS = 'M116.5,450 Q117.5,457 118.5,462 M121.5,451 Q122,458 122.6,464
 const M_LEG = [[154, 404], [156, 470], [158, 525], [161, 562], [162, 600], [165, 650], [169, 700], [171, 714, 'c'], [193, 714, 'c'], [194, 700], [195, 652], [195.6, 604], [195.4, 566], [197, 520], [199, 470], [200, 438, 'c']];
 const M_TORSO = sym([[200, 174], [184, 177], [160, 182], [140, 190], [136, 210], [150, 240], [156, 300], [158, 330], [156, 370], [154, 404], [158, 424], [178, 434], [200, 438, 'c']]);
 const M_FOOT = [[171, 710], [166, 730], [167, 748, 'c'], [195, 748, 'c'], [195, 728], [193, 710]];
-const M_HEAD = 'M170,98 C170,71 185,65 200,65 C215,65 230,71 230,98 C230,120 225,133 215,140 C209,145 191,145 185,140 C175,133 170,120 170,98Z';
+const M_HEAD = 'M170,98 C170,71 185,65 200,65 C215,65 230,71 230,98 C230,114 229.5,124 226,131.5 C222,139.5 211.5,145.5 200,146 C188.5,145.5 178,139.5 174,131.5 C170.5,124 170,114 170,98Z';
 const M_NECK = 'M186,128 L185,182 Q200,187 215,182 L214,128Z';
 const M_EAR = 'M170.6,97 C164.6,96.4 163.6,104.5 165.2,110 C166.3,114.5 169,117 171.8,116Z';
 const BEARDS = { none: 'Clean-shaven', stubble: 'Stubble', beard: 'Short beard' };
@@ -828,12 +886,13 @@ function drawBodyM(look) {
   ].join(''), [
     pair(P(M_EAR, s, line, .9) + Ln('M169.6,101 Q167.2,106 169.6,111.5', dk(s, .28), .8)),
     `<path d="${M_HEAD}" fill="${s}" stroke="${line}" stroke-width=".9"/><path d="${M_HEAD}" fill="url(#faceL)"/>`,
-    pair(`<path d="M173,116 Q178,134 194,143" stroke="${dk(s, .3)}" stroke-width="5" fill="none" opacity=".16" filter="url(#soft)"/><ellipse cx="182" cy="119" rx="7" ry="4" fill="#d98a7c" opacity=".12" filter="url(#soft)"/>`),
+    pair(`<path d="M172.5,112 Q174,130 186,140 Q192,144.5 199,145.5" stroke="${dk(s, .32)}" stroke-width="5" fill="none" opacity=".22" filter="url(#soft)"/><path d="M177,98 Q186,95.5 195,97" stroke="${dk(s, .3)}" stroke-width="3" fill="none" opacity=".2" filter="url(#soft)"/><ellipse cx="182" cy="119" rx="7" ry="4" fill="#d98a7c" opacity=".12" filter="url(#soft)"/>`),
     eyesSVG(look, true), noseSVG(s, true), beardSVG(look),
     `<path d="M193,131.2 Q196.5,129.6 200,130.3 Q203.5,129.6 207,131.2 Q200,132.2 193,131.2Z" fill="${dk(lip, .12)}"/>
      <path d="M193.6,131.4 Q200,132.6 206.4,131.4 Q204,134.8 200,135 Q196,134.8 193.6,131.4Z" fill="${lip}"/>`,
     Ln('M193,131.3 Q200,132.4 207,131.3', dk(lip, .42), .8),
     Ln('M198,133.6 Q200,134 202,133.6', '#fff', .9, ' opacity=".3"'),
+    faceDetail(s, lip, true, look.beard),
     look.beard === 'beard' ? '' : chinShade(s),
   ].join('')];
 }
@@ -897,11 +956,11 @@ const M_ITEMS = [
 
   /* Bottoms */
   { id: 'm-chinos', name: 'Chinos', slot: 'bottom', layer: 3, colors: ['stone', 'navy', 'white', 'oat'], tags: ['polo', 'sailing', 'ivy'],
-    desc: 'Pressed cotton twill, a half-break over the shoe.',
-    draw: c => S(M_TROUSER, c, c) + M_WAIST(c) + pair(Ln('M176,410 L178,720', dk(c, .14)) + Ln('M160,346 L168,372', dk(c, .25))) },
+    desc: 'Pressed cotton twill with turn-ups.',
+    draw: c => S(M_TROUSER, c, c) + M_WAIST(c) + pair(Ln('M176,410 L178,708', dk(c, .14)) + Ln('M160,346 L168,372', dk(c, .25))) + pair(S([[161.6, 709, 'c'], [162, 724, 'c'], [196, 724, 'c'], [196.3, 709, 'c']], c, c) + Ln('M163,692 Q179,699 195,692', dk(c, .2))) },
   { id: 'm-flannels', name: 'Flannel trousers', slot: 'bottom', layer: 3, colors: ['flannel', 'charcoal', 'oat'], tags: ['ivy', 'country', 'polo'],
     desc: 'Grey wool flannel with a sharp crease.',
-    draw: c => S(M_TROUSER, c, c) + M_WAIST(c) + pair(Ln('M176,350 L178,720', dk(c, .2), 1.2) + Ln('M160,346 L168,372', dk(c, .25))) },
+    draw: c => S(M_TROUSER, c, c) + M_WAIST(c) + pair(Ln('M176,350 L178,708', dk(c, .2), 1.2) + Ln('M160,346 L168,372', dk(c, .25))) + pair(S([[161.6, 709, 'c'], [162, 724, 'c'], [196, 724, 'c'], [196.3, 709, 'c']], c, c) + Ln('M163,692 Q179,699 195,692', dk(c, .2))) },
   { id: 'm-cords', name: 'Corduroy trousers', slot: 'bottom', layer: 3, colors: ['chocolate', 'bottle', 'camel', 'burgundy'], tags: ['country', 'ivy'],
     desc: 'Wide-wale cord for muddy lanes and libraries.',
     draw: c => S(M_TROUSER, pat('cord', c), c) + M_WAIST(c) },
@@ -924,7 +983,7 @@ const M_ITEMS = [
   { id: 'm-tweed', name: 'Tweed sports jacket', slot: 'outer', layer: 5, colors: ['tweedBrown', 'tweedGreen', 'tweedGrey'], tags: ['country', 'polo', 'ivy'],
     desc: 'Herringbone tweed with leather buttons.',
     draw: c => { const f = pat('herring', c);
-      return BACK_COLLAR(c) + pair(S(MS_OUT, f, c)) + pair(S(M_BLAZER, f, c) + Ln('M152,396 L180,408', dk(c, .4), 1.6)) + M_LAPEL(c, f) +
+      return BACK_COLLAR(c) + pair(S(MS_OUT, f, c)) + pair(S(M_BLAZER, f, c) + P('M151,398 L181,402 L180,413 L151,409Z', f, dk(c, .45), 1)) + M_LAPEL(c, f) +
         btn(200, 360, '#5A3A28') + btn(200, 388, '#5A3A28') + btn(200, 416, '#5A3A28'); } },
   { id: 'm-gilet', name: 'Quilted gilet', slot: 'outer', layer: 5, colors: ['bottle', 'navy', 'chocolate'], tags: ['country', 'polo'],
     desc: 'Diamond-quilted, with a cord collar.',
@@ -1000,13 +1059,39 @@ const M_ITEMS = [
     draw: c => `<ellipse cx="200" cy="86" rx="54" ry="9" fill="${c}" stroke="${dk(c, .3)}"/>` +
       P('M172,86 C171,60 186,50 200,50 C214,50 229,60 228,86Z', c, dk(c, .3)) + P('M174,72 Q200,77 226,72 L227,82 Q200,87 173,82Z', '#1E2B47') + Ln('M190,54 Q200,60 210,54', dk(c, .25)) },
 ];
+M_ITEMS.push(
+  { id: 'm-tattersall', name: 'Tattersall shirt', slot: 'top', layer: 2.5, colors: ['cream', 'white', 'sky'], tags: ['country', 'polo', 'ivy'],
+    desc: 'Country check in fine cotton, worn with a tie and tweed.',
+    draw: c => { const f = pat('tatt', c);
+      return pair(S(MS_SHIRT, f, c) + M_CUFF(c)) + S(M_SHIRT(202), f, c) + Ln('M200,206 V340', dk(c, .25)) +
+        [228, 258, 288, 318].map(y => btn(200, y, lt(c, .5), 1.6)).join('') + pair(S([[189, 174], [179, 192, 'c'], [198, 204, 'c'], [197, 184]], f, c)); } },
+  { id: 'm-brogues', name: 'Oxford brogues', slot: 'shoes', layer: 2, colors: ['chestnut', 'chocolate', 'black'], tags: ['country', 'ivy', 'polo'],
+    desc: 'Polished calf with a punched toe cap.',
+    draw: c => { const p = [[170, 712], [165, 732], [167, 748, 'c'], [196, 748, 'c'], [196, 732], [193, 712]];
+      let holes = ''; for (let i = 1; i < 9; i++) { const t = i / 9, x = 167 + 29 * t, y = (1 - t) ** 2 * 732 + 2 * (1 - t) * t * 726 + t * t * 732; holes += dot(f1(x), f1(y), .55, ` fill="${dk(c, .5)}"`); }
+      return fpair(S(p, c, c) + sheen(p) + Ln('M167,734 Q181,728 196,734', dk(c, .4), .9) + holes + Ln('M176,716 L188,720 M176,721 L188,725', dk(c, .55), .9) + Ln('M167,746 L196,746', dk(c, .55), 2)); } },
+  { id: 'm-silktie', name: 'Silk tie', slot: 'acc', layer: 2.7, colors: ['burgundy', 'navy', 'bottle', 'camel'], tags: ['country', 'ivy', 'polo'], box: '150 160 100 180',
+    desc: 'Plain heavy silk, tied in a four-in-hand.',
+    draw: c => { const tie = 'M195,184 H205 L207,196 L211,302 L200,318 L189,302 L193,196Z';
+      return P(tie, c, dk(c, .3)) + `<path d="${tie}" fill="url(#sheen)"/>` + P('M194,182 H206 L204,196 H196Z', dk(c, .08), dk(c, .3)); } },
+  { id: 'm-waistcoat', name: 'Waistcoat', slot: 'acc', layer: 4.5, colors: ['oat', 'camel', 'tweedBrown', 'flannel', 'charcoal'], tags: ['country', 'ivy', 'polo'], box: '130 170 140 230',
+    desc: 'Six buttons, worn under the jacket, the bottom one left undone.',
+    draw: c => { const f = c === hex('tweedBrown') ? pat('herring', c) : c;
+      const L = [[188, 184], [166, 188], [160, 196, 'c'], [156, 222], [151, 244, 'c'], [155, 300], [157, 340], [160, 372], [171, 383, 'c'], [200, 371, 'c'], [200, 258, 'c'], [190, 200]];
+      return pair(S(L, f, c) + Ln('M165,324 L184,322', dk(c, .4), 1.4) + Ln('M164,262 L180,260', dk(c, .4), 1.2)) +
+        [272, 290, 308, 326, 344, 361].map(y => btn(200, y, dk(c, .45), 2.2)).join(''); } },
+  { id: 'm-cane', name: 'Walking cane', slot: 'acc', layer: .9, colors: ['chestnut', 'chocolate', 'black'], tags: ['country', 'polo'], box: '84 400 76 360',
+    desc: 'Hardwood with a brass collar, for the walk to the stables.',
+    draw: c => `<path d="M118.5,432 L116.6,746 L121.4,746 L123.5,432Z" fill="${c}" stroke="${dk(c, .35)}" stroke-width=".7"/>` + Ln('M119.6,440 L118.3,742', lt(c, .3), .9) +
+      Ln('M120,436 C118,422 130,416 134,426', c, 4.6) + `<rect x="117.4" y="467" width="6.4" height="5" fill="#C8A253" stroke="#8E6F2E" stroke-width=".5"/><rect x="116" y="741" width="5.8" height="7" fill="#C8A253"/>` },
+);
 M_ITEMS.forEach(i => { i.who = 'm'; ITEMS.push(i); });
 
 const mBack = c => pair(P('M171,84 C168,96 168,106 170,116 L176,112 L176,90Z', hf(c)));
 const HAIR_M = [
-  { id: 'm-sidepart', name: 'Side part', tags: ['any', 'gala', 'ivy', 'polo'], back: mBack,
-    front: c => P('M168,106 C163,74 182,58 202,58 C224,58 238,74 233,104 C231,92 227,84 220,79 C206,80 192,82 182,77 C174,84 170,94 168,106Z', hf(c), dk(c, .3), .8) +
-      Ln('M182,77 Q176,66 186,61 M196,78 Q206,64 224,68 M206,79 Q218,70 230,82', dk(c, .22), .9) },
+  { id: 'm-sidepart', name: 'Swept side part', tags: ['any', 'gala', 'ivy', 'polo'], back: mBack,
+    front: c => P('M167,108 C161,76 178,50 204,50 C230,50 243,68 234,104 C232,93 229,86 224,81 C212,77 198,79 187,73 C179,82 171,93 167,108Z', hf(c), dk(c, .3), .8) +
+      Ln('M187,73 Q194,56 220,56 M193,76 Q206,60 230,66 M201,78 Q216,66 234,84 M187,73 Q176,66 171,92', dk(c, .22), .9) },
   { id: 'm-swept', name: 'Swept back', tags: ['gala', 'polo', 'sailing'], back: mBack,
     front: c => P('M169,102 C165,70 184,54 202,54 C222,54 237,70 232,102 C228,86 220,76 200,74 C186,74 174,84 169,102Z', hf(c), dk(c, .3), .8) +
       Ln('M180,80 Q190,62 212,60 M196,74 Q206,60 226,66 M214,76 Q226,72 230,90', dk(c, .22), .9) },
@@ -1074,7 +1159,17 @@ const SIGNS = {
   tennis: { y: 386, bg: '#1F3527', fg: '#F4EFE3', rim: '#C8A253', sub: 'THE LAWN CLUB', subFg: '#C8A253' },
   gala: { y: 470, h: 62, bg: '#2B0F15', fg: '#DDBB6E', rim: '#C9A35A', sub: 'OPENING NIGHT', posts: 172, postCol: '#B8924A' },
 };
-const scene = k => SCENES[k]() + signBoard(SIGNS[k]);
+const scene = (k, couple) => SCENES[k]() + signBoard(couple ? Object.assign({}, SIGNS[k], { x: -66, w: 124 }) : SIGNS[k]);
+/* Couple view: the gentleman on the left, the lady on the right, a little smaller; the one being
+   dressed stands in front with a brass ring at the feet. Tap the other to dress them instead. */
+const COUPLE = { man: [163, .79], woman: [311, .755] };
+function stageMarkup(sc) {
+  if (!state.couple) return scene(sc) + figureMarkup(state.look);
+  const order = state.model === 'man' ? ['woman', 'man'] : ['man', 'woman'];
+  return scene(sc, true) + order.map(m => `<g data-model="${m}" class="fig${m === state.model ? ' on' : ''}" transform="translate(${COUPLE[m][0]} 748) scale(${COUPLE[m][1]}) translate(-200 -748)">` +
+    (m === state.model ? '<ellipse cx="200" cy="754" rx="110" ry="15" fill="none" stroke="#C8A253" stroke-width="2.6" opacity=".8"/>' : '') +
+    `${figureMarkup(state.lookBy[m])}</g>`).join('');
+}
 
 const SCENES = {
   atelier() {
@@ -1112,15 +1207,68 @@ const SCENES = {
     return s;
   },
   country() {
-    let s = `<rect x="${W0}" y="0" width="${WW}" height="560" fill="#D5DEE2"/>
-      <path d="M${W0},470 Q-500,400 -200,450 Q100,380 400,440 Q700,390 ${W1},450 L${W1},640 L${W0},640Z" fill="#9BAE85"/>`;
-    s += `<rect x="250" y="368" width="260" height="96" fill="#CDBFA3"/><path d="M240,370 L380,320 L520,370Z" fill="#5C5E62"/><rect x="360" y="330" width="40" height="30" fill="#CDBFA3"/>`;
-    for (let i = 0; i < 6; i++) for (let j = 0; j < 2; j++) s += `<rect x="${268 + i * 40}" y="${384 + j * 38}" width="14" height="24" fill="#56656D"/>`;
-    s += `<path d="M${W0},520 Q-400,470 -100,510 Q200,460 500,520 Q800,480 ${W1},520 L${W1},660 L${W0},660Z" fill="#748E62"/>`;
-    const r = rng(11); [-420, -300, -180, 560, 680, 820].forEach(x => { s += `<rect x="${x - 4}" y="440" width="8" height="70" fill="#4d3a2b"/><ellipse cx="${x}" cy="${430 - r() * 10}" rx="${36 + r() * 12}" ry="${44 + r() * 10}" fill="#56704C"/>`; });
-    s += `<rect x="${W0}" y="640" width="${WW}" height="180" fill="#C7B99D"/>`;
-    for (let i = 0; i < 260; i++) s += `<circle cx="${f1(W0 + r() * WW)}" cy="${f1(646 + r() * 170)}" r="${f1(.8 + r() * 1.6)}" fill="${r() > .5 ? '#ad9f84' : '#ddd1b8'}"/>`;
-    s += `<path d="M${W0},640 H${W1} V628 Q${W1 - 60},610 ${W1 - 120},628 H${W0}Z" fill="#5D7650"/>`;
+    // An English country house in autumn: oak, ivy-clad brick, a gravel sweep and a vintage saloon.
+    const r = rng(11);
+    let s = `<defs><linearGradient id="skyC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C3CDD1"/><stop offset="1" stop-color="#ECE6D6"/></linearGradient>
+      <linearGradient id="brickC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9E5C45"/><stop offset="1" stop-color="#814636"/></linearGradient>
+      <linearGradient id="carC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46685A"/><stop offset=".55" stop-color="#2A4337"/><stop offset="1" stop-color="#1E3027"/></linearGradient>
+      <pattern id="gravelC" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#CBBC9C"/><circle cx="3" cy="3" r="1.1" fill="#AE9F80"/><circle cx="9" cy="8" r=".9" fill="#E4D9C0"/><circle cx="6" cy="10.5" r=".7" fill="#9F9072"/><circle cx="10" cy="2" r=".6" fill="#E4D9C0"/></pattern></defs>
+      <rect x="${W0}" y="0" width="${WW}" height="560" fill="url(#skyC)"/>`;
+    [[-640, 120, 170], [-300, 80, 150], [110, 56, 190], [520, 104, 160], [880, 70, 180]].forEach(([x, y, w]) => {
+      s += `<ellipse cx="${x}" cy="${y}" rx="${w}" ry="${f1(w * .26)}" fill="#fff" opacity=".55"/><ellipse cx="${f1(x + w * .3)}" cy="${y - 16}" rx="${f1(w * .55)}" ry="${f1(w * .22)}" fill="#fff" opacity=".5"/>`;
+    });
+    const autumn = ['#9C7A3C', '#B38842', '#7E7A45', '#A0592C', '#6E6A3A', '#C29A4E', '#8A6A34'];
+    for (let x = W0; x < W1; x += 30) s += `<ellipse cx="${x}" cy="${f1(470 - r() * 30)}" rx="${f1(28 + r() * 22)}" ry="${f1(34 + r() * 28)}" fill="${autumn[Math.floor(r() * autumn.length)]}"/>`;
+    s += `<rect x="${W0}" y="488" width="${WW}" height="332" fill="#6E8A49"/>`;
+    for (let x = W0; x < W1; x += 110) s += `<path d="M${x},488 L${x + 55},488 L${x + 150},820 L${x + 40},820Z" fill="#79944F" opacity=".7"/>`;
+    // the house
+    const mx = 230, mw = 440, my = 262, base = 524, dx = mx + mw / 2 - 32;
+    s += `<rect x="${mx + 64}" y="${my - 112}" width="24" height="60" fill="#814636"/><rect x="${mx + mw - 92}" y="${my - 118}" width="24" height="66" fill="#814636"/>` +
+      `<path d="M${mx - 16},${my + 2} L${mx + 40},${my - 76} L${mx + mw - 40},${my - 76} L${mx + mw + 16},${my + 2}Z" fill="#595D62"/>` +
+      `<rect x="${mx}" y="${my}" width="${mw}" height="${base - my}" fill="url(#brickC)"/><rect x="${mx - 6}" y="${my - 4}" width="${mw + 12}" height="8" fill="#D9CDB2"/>`;
+    for (let y = my + 10; y < base; y += 8) s += `<path d="M${mx},${y} H${mx + mw}" stroke="#74402F" stroke-width=".6" opacity=".6"/>`;
+    [mx + 26, mx + 112, mx + mw - 158, mx + mw - 72].forEach(x => [my + 26, my + 136].forEach(y => {
+      s += `<rect x="${x - 6}" y="${y - 6}" width="58" height="92" fill="#D9CDB2"/><rect x="${x}" y="${y}" width="46" height="80" fill="#46545C"/>` +
+        `<path d="M${x + 23},${y} V${y + 80} M${x},${y + 40} H${x + 46}" stroke="#D9CDB2" stroke-width="3"/><path d="M${x + 3},${y + 3} L${x + 19},${y + 3} L${x + 3},${y + 34}Z" fill="#fff" opacity=".16"/>`;
+    }));
+    s += `<path d="M${dx - 16},${base} V${my + 140} Q${dx + 32},${my + 92} ${dx + 80},${my + 140} V${base}Z" fill="#D9CDB2"/>` +
+      `<path d="M${dx},${base} V${my + 150} Q${dx + 32},${my + 112} ${dx + 64},${my + 150} V${base}Z" fill="#5A3A22"/>` +
+      `<path d="M${dx},${my + 150} Q${dx + 32},${my + 112} ${dx + 64},${my + 150}Z" fill="#33414A"/>` +
+      Ln(`M${dx + 32},${my + 150} L${dx + 32},${my + 124} M${dx + 32},${my + 150} L${dx + 12},${my + 132} M${dx + 32},${my + 150} L${dx + 52},${my + 132}`, '#D9CDB2', 1.2) +
+      Ln(`M${dx},${my + 150} H${dx + 64} M${dx + 32},${my + 150} V${base}`, '#3B2616', 2) +
+      [[6, 162], [38, 162], [6, 210], [38, 210]].map(([ox, oy]) => `<rect x="${dx + ox}" y="${my + oy}" width="20" height="40" fill="none" stroke="#3B2616" stroke-width="1.4"/>`).join('') +
+      `<rect x="${dx - 26}" y="${base - 6}" width="116" height="8" fill="#CFC2A6"/>` +
+      Ln(`M${dx + 96},${my + 124} h10`, '#2a2a2a', 2) + `<path d="M${dx + 100},${my + 128} h12 l-2,20 h-8z" fill="#F2D98C" stroke="#2a2a2a" stroke-width="1.6"/>`;
+    // ivy, thickest at the corners and round the door, a few leaves already red
+    for (let i = 0; i < 420; i++) {
+      const x = mx + r() * mw, y = my - 8 + Math.pow(r(), .55) * (base - my + 8), g = r(), rad = 4 + r() * 8;
+      if (!(x < mx + 150 || x > mx + mw - 110 || Math.abs(x - dx - 32) < 74) || r() < .25) continue;
+      s += `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(rad)}" fill="${g < .08 ? '#8E3D28' : g < .45 ? '#3D5A31' : g < .8 ? '#4E6B3A' : '#62804A'}" opacity=".95"/>`;
+    }
+    // the gravel sweep and forecourt
+    s += `<path d="M-60,820 C20,720 120,650 280,606 C360,584 400,556 ${dx - 10},${base + 2} L${dx + 90},${base + 2} C480,566 430,600 360,640 C260,700 220,752 250,820Z" fill="url(#gravelC)"/>` +
+      `<ellipse cx="470" cy="606" rx="170" ry="30" fill="url(#gravelC)"/>`;
+    // a vintage saloon
+    const cx = 356, cy = 548;
+    s += `<ellipse cx="${cx + 112}" cy="${cy + 76}" rx="126" ry="9" fill="#000" opacity=".22"/>` +
+      `<path d="M${cx},${cy + 56} C${cx},${cy + 40} ${cx + 8},${cy + 33} ${cx + 32},${cy + 31} L${cx + 62},${cy + 28} C${cx + 76},${cy + 8} ${cx + 94},${cy + 2} ${cx + 120},${cy + 2} C${cx + 146},${cy + 2} ${cx + 160},${cy + 9} ${cx + 172},${cy + 28} L${cx + 204},${cy + 32} C${cx + 218},${cy + 34} ${cx + 224},${cy + 44} ${cx + 224},${cy + 56} L${cx + 224},${cy + 64} L${cx},${cy + 64}Z" fill="url(#carC)"/>` +
+      `<path d="M${cx + 68},${cy + 28} C${cx + 80},${cy + 11} ${cx + 96},${cy + 7} ${cx + 117},${cy + 7} L${cx + 117},${cy + 28}Z M${cx + 123},${cy + 7} C${cx + 144},${cy + 7} ${cx + 157},${cy + 13} ${cx + 166},${cy + 28} L${cx + 123},${cy + 28}Z" fill="#A9B8BC"/>` +
+      Ln(`M${cx + 74},${cy + 25} L${cx + 88},${cy + 11}`, '#fff', 2, ' opacity=".5"') + Ln(`M${cx + 6},${cy + 44} H${cx + 220}`, '#C9CDD0', 1.4) +
+      `<rect x="${cx - 5}" y="${cy + 52}" width="16" height="7" rx="3" fill="#D3D7DA"/><rect x="${cx + 214}" y="${cy + 52}" width="14" height="7" rx="3" fill="#D3D7DA"/>` +
+      `<circle cx="${cx + 9}" cy="${cy + 41}" r="5.5" fill="#EFE8CF" stroke="#C9CDD0" stroke-width="1.6"/>` +
+      [cx + 46, cx + 180].map(x => `<circle cx="${x}" cy="${cy + 64}" r="15" fill="#1B1C1E"/><circle cx="${x}" cy="${cy + 64}" r="9" fill="#C9CDD0"/><circle cx="${x}" cy="${cy + 64}" r="3" fill="#8D9296"/>`).join('');
+    // the old oak
+    s += `<path d="M-178,650 C-166,560 -158,470 -170,400 C-178,360 -200,336 -236,316 L-226,304 C-194,322 -170,344 -156,374 C-150,340 -136,312 -104,290 L-96,300 C-120,322 -128,350 -128,392 C-130,470 -118,570 -100,650Z" fill="#4A3628"/>` +
+      Ln('M-146,560 Q-140,470 -150,404', '#6A5040', 3, ' opacity=".6"');
+    for (let i = 0; i < 190; i++) {
+      const a = r() * 2 * Math.PI, rr = Math.sqrt(r()) * 150;
+      s += `<ellipse cx="${f1(-165 + Math.cos(a) * rr * 1.15)}" cy="${f1(290 + Math.sin(a) * rr * .62)}" rx="${f1(14 + r() * 18)}" ry="${f1(10 + r() * 14)}" fill="${['#5E6A35', '#6E7A3C', '#8A7A3A', '#A8873F', '#7A5A2C'][Math.floor(r() * 5)]}"/>`;
+    }
+    // fallen leaves
+    for (let i = 0; i < 180; i++) {
+      const x = -200 + r() * 1200, y = 600 + r() * 220;
+      s += `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(2.6 + r() * 2.4)}" ry="${f1(1.3 + r())}" transform="rotate(${Math.round(r() * 180)} ${f1(x)} ${f1(y)})" fill="${['#C27A2C', '#D49A3A', '#A8552A', '#B8862F'][Math.floor(r() * 4)]}" opacity=".9"/>`;
+    }
     return s;
   },
   ivy() {
@@ -1166,7 +1314,7 @@ const SCENES = {
    ===================================================================== */
 const STORE = 'stt-oldmoney-v1';
 function load() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } }
-function persist() { try { localStorage.setItem(STORE, JSON.stringify({ lookBy: state.lookBy, model: state.model, mode: state.mode, occ: state.occ, scene: state.scene, best: state.best, looks: state.looks, colorPref: state.colorPref })); } catch (e) { /* storage unavailable: play on */ } }
+function persist() { try { localStorage.setItem(STORE, JSON.stringify({ lookBy: state.lookBy, model: state.model, couple: state.couple, mode: state.mode, occ: state.occ, scene: state.scene, best: state.best, looks: state.looks, colorPref: state.colorPref })); } catch (e) { /* storage unavailable: play on */ } }
 
 function defaultLook(model = 'woman') {
   return model === 'man'
@@ -1186,6 +1334,7 @@ const state = {
   best: saved.best || {},
   looks: Array.isArray(saved.looks) ? saved.looks : [],
   colorPref: saved.colorPref || {},
+  couple: saved.couple !== false,
   tab: 'model',
   focus: {},
 };
@@ -1370,7 +1519,7 @@ function currentScene() { return state.mode === 'season' ? OCC[state.occ].scene 
 
 function renderStage() {
   DEFS = null;
-  $('sceneSvg').innerHTML = scene(currentScene()) + figureMarkup(state.look);
+  $('sceneSvg').innerHTML = stageMarkup(currentScene());
   const q = quietIndex(state.look);
   $('meterNum').textContent = q == null ? '—' : q;
   $('meterFill').style.width = (q || 0) + '%';
@@ -1393,6 +1542,7 @@ function renderInvite() {
   $('modeSeason').setAttribute('aria-pressed', state.mode === 'season');
   $('whoWoman').setAttribute('aria-pressed', state.model === 'woman');
   $('whoMan').setAttribute('aria-pressed', state.model === 'man');
+  $('btnCouple').setAttribute('aria-pressed', state.couple);
   $('modeFree').setAttribute('aria-pressed', state.mode === 'free');
   $('btnPresent').textContent = state.mode === 'season' ? 'Present the look' : 'Ask the style desk';
   $('btnValet').title = state.mode === 'season' ? 'Let the valet dress you for this occasion' : 'Let the valet dress you for this scene';
@@ -1481,15 +1631,16 @@ function changed(panel) { persist(); renderStage(); if (panel) { const st = $('p
 
 /* ---- Result ---- */
 function starsHTML(n) { return '★'.repeat(n) + `<span class="off">${'★'.repeat(5 - n)}</span>`; }
+const WHO = { woman: 'The lady', man: 'The gentleman' };
 function showResult() {
   let occ, e, heading;
   if (state.mode === 'season') {
-    occ = OCC[state.occ]; e = evaluate(state.look, occ); heading = occ.name;
+    occ = OCC[state.occ]; e = evaluate(state.look, occ); heading = `${WHO[state.model]} · ${occ.name}`;
     if (!state.best[occ.id] || e.stars > state.best[occ.id]) state.best[occ.id] = e.stars;
     state.lastResult = { occ: occ.id, stars: e.stars };
   } else {
     const all = OCCASIONS.map(o => ({ o, e: evaluate(state.look, o) })).sort((a, b) => b.e.total - a.e.total);
-    occ = all[0].o; e = all[0].e; heading = `Belongs at: ${occ.name}`;
+    occ = all[0].o; e = all[0].e; heading = `${WHO[state.model]} belongs at: ${occ.name}`;
     state.lastResult = { occ: occ.id, stars: e.stars };
   }
   persist();
@@ -1568,7 +1719,8 @@ function fontFaceCSS() {
 function downloadPortrait() {
   const sc = currentScene();
   const title = state.mode === 'season' ? OCC[state.occ].name : 'Old Money Atelier';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="1640" viewBox="-80 0 560 820"><defs><style>${fontFaceCSS()}</style></defs>${scene(sc)}${figureMarkup(state.look)}
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="1640" viewBox="-80 0 560 820"><defs><style>${fontFaceCSS()}</style></defs>${stageMarkup(sc)}
+    <filter id="canvasN" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency=".7 .14" numOctaves="3" seed="5"/><feColorMatrix type="saturate" values="0"/></filter><rect x="-80" y="0" width="560" height="820" filter="url(#canvasN)" opacity=".5" style="mix-blend-mode:soft-light"/>
     <rect x="-80" y="766" width="560" height="54" fill="#fffdf8" opacity=".94"/>
     <text x="200" y="790" text-anchor="middle" font-family="Georgia,serif" font-size="15" font-style="italic" fill="#1e2b47">${title.replace(/&/g, '&amp;')}</text>
     <text x="200" y="808" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="8" letter-spacing="2" fill="#a8823c">THE SIAM TIMES · OLD MONEY ATELIER</text></svg>`;
@@ -1609,8 +1761,11 @@ $('modeSeason').onclick = () => { state.mode = 'season'; persist(); renderInvite
 $('modeFree').onclick = () => { state.mode = 'free'; persist(); renderInvite(); renderStage(); };
 $('btnValet').onclick = () => {
   const tag = state.mode === 'season' ? OCC[state.occ].tag : (OCC[state.scene] ? OCC[state.scene].tag : pick(OCCASIONS).tag);
-  valet(tag); changed(true); toast('Your valet has laid out a look.');
+  if (state.couple) { const m0 = state.model; ['man', 'woman'].forEach(m => { state.model = m; valet(tag); }); state.model = m0; } else valet(tag);
+  changed(true); toast(state.couple ? 'Your valet has dressed you both.' : 'Your valet has laid out a look.');
 };
+$('btnCouple').onclick = () => { state.couple = !state.couple; persist(); renderInvite(); renderStage(); };
+$('sceneSvg').addEventListener('click', e => { const g = e.target.closest && e.target.closest('[data-model]'); if (g && g.dataset.model !== state.model) setModel(g.dataset.model); });
 $('btnReset').onclick = () => { const L = state.look; Object.assign(L, { top: null, bottom: null, dress: null, outer: null, shoes: null, acc: [] }); changed(true); };
 $('btnSave').onclick = saveLook;
 $('btnPng').onclick = downloadPortrait;
