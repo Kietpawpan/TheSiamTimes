@@ -60,7 +60,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .brand { display: flex; align-items: baseline; gap: 12px; text-decoration: none; color: inherit; min-width: 0; }
 .mast { font-family: var(--font-mast); font-size: 26px; line-height: 1; white-space: nowrap; }
 .brand-sub { font-style: italic; font-size: 19px; color: var(--muted); white-space: nowrap; }
-.modes { margin-left: auto; display: flex; gap: 4px; padding: 3px; background: var(--well); border-radius: 999px; }
+.modes { display: flex; gap: 4px; padding: 3px; background: var(--well); border-radius: 999px; }
+.modes.who { margin-left: auto; }
 .modes button {
   border: 0; background: transparent; padding: 6px 14px; border-radius: 999px;
   font: 600 12px/1 var(--font-label); letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
@@ -215,7 +216,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .top { padding: 8px 16px; gap: 8px; }
   .mast { font-size: 21px; }
   .brand-sub { font-size: 16px; }
-  .modes { margin-left: 0; }
+  .modes.who { margin-left: 0; }
   .invite p { display: none; }
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .item span { font-size: 12px; }
@@ -229,6 +230,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
       <span class="mast">The Siam Times</span>
       <span class="brand-sub">Old Money Atelier</span>
     </a>
+    <div class="modes who" role="group" aria-label="Model">
+      <button id="whoWoman" aria-pressed="true">Lady</button>
+      <button id="whoMan" aria-pressed="false">Gentleman</button>
+    </div>
     <div class="modes" role="group" aria-label="Game mode">
       <button id="modeSeason" aria-pressed="true">The Season</button>
       <button id="modeFree" aria-pressed="false">Free styling</button>
@@ -685,6 +690,225 @@ const HAIR = [
       Ln('M178,100 Q166,120 170,150 M212,78 Q234,100 230,150', dk(c, .22), .9) },
 ];
 
+/* =====================================================================
+   The gentleman: his own body, wardrobe and hair. Shoes, sunglasses and the
+   trap pieces are shared with the lady (who: 'u').
+   ===================================================================== */
+['loafers', 'boots', 'boatshoes', 'plimsolls', 'trainers', 'sunglasses', 'logobag', 'chains'].forEach(id => { ITEMS.find(i => i.id === id).who = 'u'; });
+ITEMS.forEach(i => { i.who = i.who || 'w'; });
+HAIR.forEach(h => { h.who = 'w'; });
+
+const M_ARM = [[138, 188], [128, 240], [120, 312], [114, 414, 'c'], [134, 416, 'c'], [139, 314], [145, 264], [152, 238]];
+const M_HAND = [[113, 410], [109, 436], [114, 456], [123, 462], [131, 454], [135, 434], [134, 412]];
+const M_LEG = [[154, 404], [156, 480], [160, 560], [166, 640], [171, 714, 'c'], [193, 714, 'c'], [195, 640], [196, 560], [199, 470], [200, 438, 'c']];
+const M_TORSO = sym([[200, 174], [184, 177], [160, 182], [140, 190], [136, 210], [150, 240], [156, 300], [158, 330], [156, 370], [154, 404], [158, 424], [178, 434], [200, 438, 'c']]);
+const M_FOOT = [[171, 710], [166, 730], [167, 748, 'c'], [195, 748, 'c'], [195, 728], [193, 710]];
+const M_HEAD = 'M170,98 C170,71 185,65 200,65 C215,65 230,71 230,98 C230,120 225,133 215,140 C209,145 191,145 185,140 C175,133 170,120 170,98Z';
+const M_NECK = 'M186,128 L185,182 Q200,187 215,182 L214,128Z';
+
+function drawBodyM(look) {
+  const s = hex(look.skin), line = dk(s, .2), base = '#E9DDC8';
+  const sk = pts => `<path d="${sm(pts)}" fill="${s}" stroke="${line}" stroke-width=".9"/>`;
+  return [
+    pair(sk(M_ARM) + sk(M_HAND)), pair(sk(M_LEG) + sk(M_FOOT)), sk(M_TORSO),
+    `<path d="${M_NECK}" fill="${s}" stroke="${line}" stroke-width=".9"/>`,
+    `<path d="M186,144 Q200,158 214,144 L214,154 Q200,166 186,154Z" fill="${dk(s, .1)}" opacity=".6"/>`,
+    // base layer: a cream vest and shorts
+    `<path d="${sm(sym([[200, 192], [186, 180, 'c'], [168, 186], [152, 238], [156, 300], [158, 336], [156, 370], [155, 406], [200, 408]]))}" fill="${base}" stroke="${dk(base, .18)}" stroke-width=".9"/>`,
+    `<path d="${sm(sym([[200, 398], [156, 398, 'c'], [154, 440], [153, 484, 'c'], [196, 486, 'c'], [199, 462], [200, 446, 'c']]))}" fill="${dk(base, .08)}" stroke="${dk(base, .25)}" stroke-width=".9"/>`,
+    pair(`<ellipse cx="170" cy="106" rx="4.8" ry="9" fill="${s}" stroke="${line}" stroke-width=".9"/>`),
+    `<path d="${M_HEAD}" fill="${s}" stroke="${line}" stroke-width=".9"/>`,
+    pair(`<path d="M179,95 Q187,91.5 195,93.8" fill="none" stroke="${dk(hex(look.hairColor), .3)}" stroke-width="2.8" stroke-linecap="round"/>
+      <path d="M181,105 Q187,101.5 193,105 Q187,108 181,105Z" fill="#fbf8f2"/>
+      <circle cx="187.4" cy="104.9" r="2.6" fill="#3a2a20"/><circle cx="188.2" cy="104.1" r=".7" fill="#fff"/>
+      <path d="M180.5,105 Q187,100.6 193.5,104.6" fill="none" stroke="#2b211c" stroke-width="1.3" stroke-linecap="round"/>`),
+    Ln('M201,106 Q204.5,118 199,123 Q201,124.6 205,123.2', dk(s, .3), 1.1),
+    Ln('M192.5,132 Q200,130 207.5,132', dk(s, .38), 1.5),
+    Ln('M195,135 Q200,136.6 205,135', dk(s, .14), 1.4),
+  ].join('');
+}
+
+const MS_SHIRT = [[139, 187], [128, 240], [118, 312], [111, 404, 'c'], [136, 406, 'c'], [141, 314], [147, 264], [153, 238]];
+const MS_KNIT = [[139, 187], [127, 240], [117, 312], [110, 412, 'c'], [136, 414, 'c'], [141, 314], [147, 264], [152, 238]];
+const MS_OUT = [[135, 186], [122, 240], [113, 314], [107, 418, 'c'], [137, 422, 'c'], [143, 316], [150, 262], [152, 238]];
+const MS_COAT = [[133, 186], [120, 240], [111, 316], [104, 424, 'c'], [138, 428, 'c'], [144, 318], [151, 262], [152, 238]];
+const M_SHIRT = top => sym([[200, top], [188, 177], [164, 182], [140, 190], [137, 212], [150, 240], [156, 300], [158, 340, 'c'], [200, 342]]);
+const M_KNIT = top => sym([[200, top], [186, 177], [162, 182], [140, 190], [136, 212], [149, 240], [154, 300], [155, 360], [154, 410, 'c'], [200, 412]]);
+const M_TROUSER = sym([[200, 328], [158, 328, 'c'], [156, 360], [154, 400], [155, 480], [158, 560], [160, 640], [162, 724, 'c'], [196, 724, 'c'], [198, 640], [199, 520], [200, 442, 'c']]);
+const M_BLAZER = [[188, 177], [162, 182], [134, 188, 'c'], [130, 214], [146, 250], [152, 330], [151, 400], [150, 434, 'c'], [200, 440, 'c'], [200, 348, 'c'], [187, 184, 'c']];
+const M_COAT = [[188, 177], [160, 182], [132, 188, 'c'], [128, 214], [144, 250], [150, 330], [150, 430], [147, 540], [144, 652, 'c'], [200, 656, 'c'], [200, 342, 'c'], [187, 184, 'c']];
+const M_LAPEL = (c, fill) => pair(S([[187, 179, 'c'], [168, 224, 'c'], [177, 230, 'c'], [173, 237, 'c'], [200, 348, 'c'], [189, 188, 'c']], fill || dk(c, .07), c));
+const M_WAIST = c => Ln('M158,339 Q200,342 242,339', dk(c, .25));
+const M_CUFF = c => Ln('M112,395 L136,397', dk(c, .25));
+const KNIT_CUFF = c => S([[111, 398, 'c'], [110, 412, 'c'], [136, 414, 'c'], [137, 400, 'c']], pat('rib', c), c);
+const M_HEM = c => S(sym([[200, 396], [155, 394, 'c'], [154, 410, 'c'], [200, 412]]), pat('rib', c), c);
+
+PATTERNS.repp = (id, c) => `<pattern id="${id}" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><rect width="10" height="10" fill="${c}"/><rect width="10" height="2.4" fill="${lt(c, .55)}"/></pattern>`;
+COL.flannel = ['Flannel grey', '#8C8B87']; NEUTRAL.add('flannel');
+
+const M_ITEMS = [
+  /* Tops */
+  { id: 'm-oxford', name: 'Oxford shirt', slot: 'top', layer: 2.5, colors: ['sky', 'white', 'blush', 'cream'], tags: ['polo', 'ivy', 'sailing', 'country'],
+    desc: 'Button-down cotton, collar soft, sleeves to the wrist.',
+    draw: c => pair(S(MS_SHIRT, c, c) + M_CUFF(c)) + S(M_SHIRT(202), c, c) + Ln('M200,206 V340', dk(c, .2)) +
+      [228, 258, 288, 318].map(y => btn(200, y, lt(c, .5), 1.6)).join('') + COLLAR(c) },
+  { id: 'm-evening', name: 'Evening shirt & bow tie', slot: 'top', layer: 2.5, colors: ['white', 'ivory'], tags: ['gala'],
+    desc: 'A pleated bib, onyx studs and a hand-tied black bow.',
+    draw: c => pair(S(MS_SHIRT, c, c) + M_CUFF(c)) + S(M_SHIRT(186), c, c) +
+      P('M189,192 H211 V334 H189Z', lt(c, .4), dk(c, .14)) + Ln('M193,194 V332 M197,194 V332 M203,194 V332 M207,194 V332', dk(c, .1), .8) +
+      [218, 248, 278].map(y => btn(200, y, '#1A1A1C', 1.7)).join('') +
+      pair(P('M189,175 L185,189 L197,190Z', lt(c, .3), dk(c, .25))) +
+      P('M200,184 L184,175 L186,193Z M200,184 L216,175 L214,193Z', '#1A1A1C') + `<rect x="196" y="180" width="8" height="8" rx="2" fill="#2a2a2c"/>` },
+  { id: 'm-polo', name: 'Piqué polo', slot: 'top', layer: 2.5, colors: ['white', 'navy', 'bottle', 'sky'], tags: ['tennis', 'sailing', 'polo'],
+    desc: 'Cotton piqué, short sleeves, two buttons.',
+    draw: c => pair(S([[139, 187], [129, 236], [125, 266, 'c'], [150, 270, 'c'], [153, 238]], c, c) + Ln('M126,259 L150,263', dk(c, .2))) +
+      S(M_SHIRT(186), c, c) + P('M197,186 H203 V228 H197Z', dk(c, .04), dk(c, .25)) + btn(200, 200, lt(c, .5), 1.6) + btn(200, 216, lt(c, .5), 1.6) +
+      pair(S([[189, 174], [182, 190, 'c'], [198, 196, 'c'], [198, 180]], lt(c, .05), c)) },
+  { id: 'm-breton', name: 'Breton top', slot: 'top', layer: 4, colors: ['navy', 'burgundy', 'charcoal'], tags: ['sailing'],
+    desc: 'Boat neck and sailor stripes.',
+    draw: c => pair(S([[139, 187], [128, 240], [119, 312], [116, 354, 'c'], [139, 356, 'c'], [141, 314], [147, 264], [153, 238]], pat('stripe', c), c)) +
+      S(M_KNIT(184), pat('stripe', c), c) + Ln('M178,181 Q200,188 222,181', dk(c, .2), 1.4) },
+  { id: 'm-cable', name: 'Cable-knit sweater', slot: 'top', layer: 4, colors: ['cream', 'navy', 'bottle', 'camel'], tags: ['ivy', 'sailing', 'country'],
+    desc: 'Chunky wool cables, ribbed at the neck and hem.',
+    draw: c => pair(S(MS_KNIT, pat('cable', c), c) + KNIT_CUFF(c)) + S(M_KNIT(184), pat('cable', c), c) + M_HEM(c) +
+      P('M182,178 Q200,195 218,178 L214,173 Q200,186 186,173Z', pat('rib', c), dk(c, .3)) },
+  { id: 'm-turtle', name: 'Merino rollneck', slot: 'top', layer: 4, colors: ['camel', 'oat', 'charcoal', 'black', 'cream'], tags: ['country', 'ivy'],
+    desc: 'Fine merino with a folded roll neck.',
+    draw: c => pair(S(MS_KNIT, c, c) + KNIT_CUFF(c)) + S(M_KNIT(186), c, c) + M_HEM(c) +
+      P('M185,134 L184,184 Q200,191 216,184 L215,134 Q200,141 185,134Z', pat('rib', c), dk(c, .3)) + Ln('M184,158 Q200,165 216,158', dk(c, .25)) },
+  { id: 'm-hoodie', name: 'Logo hoodie', slot: 'top', layer: 4, colors: ['fuchsia', 'black'], tags: [], trap: true,
+    desc: 'A giant logo across the chest. Very loud.',
+    draw: c => P('M173,182 C174,158 226,158 227,182 C216,193 184,193 173,182Z', dk(c, .15), dk(c, .3)) +
+      pair(S([[137, 188], [124, 240], [113, 314], [107, 412, 'c'], [138, 416, 'c'], [143, 314], [150, 264], [152, 240]], c, c)) +
+      S(sym([[200, 190], [184, 176], [160, 182], [136, 190], [132, 214], [146, 244], [150, 300], [150, 370], [148, 418, 'c'], [200, 422]]), c, c) +
+      `<text x="200" y="292" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="32" fill="#fff" letter-spacing="1">LUXE</text>` +
+      `<text x="200" y="318" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#fff">✦ ✦ ✦</text>` +
+      Ln('M193,190 L191,232 M207,190 L209,232', '#fff', 1.4) + P('M168,356 H232 L238,392 H162Z', dk(c, .06), dk(c, .3)) },
+
+  /* Bottoms */
+  { id: 'm-chinos', name: 'Chinos', slot: 'bottom', layer: 3, colors: ['stone', 'navy', 'white', 'oat'], tags: ['polo', 'sailing', 'ivy'],
+    desc: 'Pressed cotton twill, a half-break over the shoe.',
+    draw: c => S(M_TROUSER, c, c) + M_WAIST(c) + pair(Ln('M176,410 L178,720', dk(c, .14)) + Ln('M160,346 L168,372', dk(c, .25))) },
+  { id: 'm-flannels', name: 'Flannel trousers', slot: 'bottom', layer: 3, colors: ['flannel', 'charcoal', 'oat'], tags: ['ivy', 'country', 'polo'],
+    desc: 'Grey wool flannel with a sharp crease.',
+    draw: c => S(M_TROUSER, c, c) + M_WAIST(c) + pair(Ln('M176,350 L178,720', dk(c, .2), 1.2) + Ln('M160,346 L168,372', dk(c, .25))) },
+  { id: 'm-cords', name: 'Corduroy trousers', slot: 'bottom', layer: 3, colors: ['chocolate', 'bottle', 'camel', 'burgundy'], tags: ['country', 'ivy'],
+    desc: 'Wide-wale cord for muddy lanes and libraries.',
+    draw: c => S(M_TROUSER, pat('cord', c), c) + M_WAIST(c) },
+  { id: 'm-shorts', name: 'Tailored shorts', slot: 'bottom', layer: 3, colors: ['white', 'stone', 'navy'], tags: ['sailing', 'tennis'],
+    desc: 'Above the knee, flat front. White for the club.',
+    draw: c => S(sym([[200, 328], [158, 328, 'c'], [156, 360], [153, 410], [152, 488, 'c'], [196, 490, 'c'], [199, 462], [200, 442, 'c']]), c, c) + M_WAIST(c) + pair(Ln('M160,346 L168,372', dk(c, .25))) },
+  { id: 'm-breeches', name: 'Riding breeches', slot: 'bottom', layer: 3, colors: ['cream', 'oat'], tags: ['polo', 'country'],
+    desc: 'Stretch twill with suede knee patches.',
+    draw: c => S(sym([[200, 328], [158, 328, 'c'], [152, 360], [146, 410], [146, 460], [152, 520], [160, 580], [164, 650, 'c'], [194, 650, 'c'], [196, 580], [197, 500], [199, 460], [200, 442, 'c']]), c, c) +
+      pair(`<ellipse cx="179" cy="552" rx="12" ry="26" fill="${dk(c, .15)}"/>`) + M_WAIST(c) },
+  { id: 'm-tux', name: 'Evening trousers', slot: 'bottom', layer: 3, colors: ['black', 'navy'], tags: ['gala'],
+    desc: 'With a satin stripe down each leg.',
+    draw: c => S(M_TROUSER, c, c) + M_WAIST(c) + pair(Ln('M155,362 L161,722', lt(c, .22), 2.6)) },
+
+  /* Outerwear */
+  { id: 'm-blazer', name: 'Navy blazer', slot: 'outer', layer: 5, colors: ['navy', 'camel', 'bottle', 'cream'], tags: ['polo', 'ivy', 'sailing'],
+    desc: 'Brass buttons, soft shoulders.',
+    draw: c => BACK_COLLAR(c) + pair(S(MS_OUT, c, c) + btn(119, 405, '#C8A253', 1.6) + btn(124, 409, '#C8A253', 1.6)) +
+      pair(S(M_BLAZER, c, c) + Ln('M154,404 L182,407', dk(c, .35), 1.6)) + M_LAPEL(c) + btn(200, 364) + btn(200, 400) + Ln('M220,288 L240,286', dk(c, .35), 1.4) },
+  { id: 'm-tweed', name: 'Tweed sports jacket', slot: 'outer', layer: 5, colors: ['tweedBrown', 'tweedGreen', 'tweedGrey'], tags: ['country', 'polo', 'ivy'],
+    desc: 'Herringbone tweed with leather buttons.',
+    draw: c => { const f = pat('herring', c);
+      return BACK_COLLAR(c) + pair(S(MS_OUT, f, c)) + pair(S(M_BLAZER, f, c) + Ln('M152,396 L180,408', dk(c, .4), 1.6)) + M_LAPEL(c, f) +
+        btn(200, 360, '#5A3A28') + btn(200, 388, '#5A3A28') + btn(200, 416, '#5A3A28'); } },
+  { id: 'm-gilet', name: 'Quilted gilet', slot: 'outer', layer: 5, colors: ['bottle', 'navy', 'chocolate'], tags: ['country', 'polo'],
+    desc: 'Diamond-quilted, with a cord collar.',
+    draw: c => S(sym([[200, 182], [187, 170], [170, 178], [156, 190, 'c'], [156, 240], [158, 300], [156, 360], [154, 424, 'c'], [200, 428]]), pat('quilt', c), c) +
+      P('M185,162 L185,184 Q200,189 215,184 L215,162 Q200,167 185,162Z', '#7A5435', dk('#7A5435', .3)) + Ln('M200,188 V426', dk(c, .45), 1.6) +
+      `<rect x="197" y="200" width="6" height="11" rx="1.5" fill="#C8A253"/>` + pair(Ln('M156,190 Q150,214 156,240', '#7A5435', 2.4)) },
+  { id: 'm-overcoat', name: 'Camel overcoat', slot: 'outer', layer: 5, colors: ['camel', 'charcoal', 'navy'], tags: ['country', 'ivy', 'gala'],
+    desc: 'Double-breasted wool to below the knee.',
+    draw: c => BACK_COLLAR(c) + pair(S(MS_COAT, c, c) + Ln('M106,408 L138,412', dk(c, .2), 1.2)) + pair(S(M_COAT, c, c) + Ln('M152,440 L178,442', dk(c, .3), 1.4)) +
+      M_LAPEL(c) + [366, 416].map(y => btn(186, y, dk(c, .35), 3.6) + btn(214, y, dk(c, .35), 3.6)).join('') },
+  { id: 'm-trench', name: 'Trench coat', slot: 'outer', layer: 5, colors: ['stone', 'navy', 'black'], tags: ['ivy', 'polo', 'country'],
+    desc: 'Cotton gabardine, belted, with epaulettes.',
+    draw: c => BACK_COLLAR(c) + pair(S(MS_COAT, c, c) + Ln('M106,400 L138,404', dk(c, .3), 2.4)) +
+      pair(S(M_COAT, c, c) + P('M140,186 L160,182 L162,190 L141,195Z', c, dk(c, .3))) + M_LAPEL(c) +
+      P('M148,332 Q200,340 252,332 L252,348 Q200,356 148,348Z', c, dk(c, .3)) + `<rect x="214" y="332" width="12" height="18" fill="none" stroke="${dk(c, .45)}" stroke-width="2"/>` +
+      [372, 432, 492].map(y => btn(186, y, dk(c, .45), 3) + btn(214, y, dk(c, .45), 3)).join('') },
+  { id: 'm-dinner', name: 'Dinner jacket', slot: 'outer', layer: 5, colors: ['black', 'navy', 'ivory'], tags: ['gala'],
+    desc: 'Shawl collar faced in silk satin. Black tie.',
+    draw: c => { const satin = c === '#F2EBDD' ? '#1A1A1C' : lt(c, .08);
+      const lap = [[187, 179], [170, 236], [200, 352, 'c'], [190, 240], [189, 186, 'c']];
+      return BACK_COLLAR(c) + pair(S(MS_OUT, c, c)) + pair(S(M_BLAZER, c, c) + Ln('M156,404 L182,406', dk(c, .35), 1.2)) +
+        pair(S(lap, satin, c) + sheen(lap)) + btn(200, 364, '#111', 3.4) + P('M222,287 l5,-7 l4,5 l4,-6 l5,8z', '#FBFAF6', '#ccc', .6); } },
+  { id: 'm-cardigan', name: 'Cricket cardigan', slot: 'outer', layer: 5, colors: ['cream', 'white', 'navy'], tags: ['tennis', 'ivy', 'sailing'],
+    desc: 'Cable-stitched with club-coloured trim.',
+    draw: c => { const trim = c === '#1E2B47' ? '#E6D8BC' : '#1E2B47';
+      return pair(S(MS_KNIT, c, c) + KNIT_CUFF(c) + Ln('M111,402 L136,404', trim, 1.6)) +
+        pair(S([[188, 178], [162, 183], [138, 190, 'c'], [136, 212], [149, 240], [154, 300], [155, 360], [154, 410, 'c'], [200, 412, 'c'], [200, 310, 'c'], [189, 184, 'c']], c, c) +
+          Ln('M190,184 L200,310', trim, 3) + Ln('M156,400 L200,402', trim, 1.6)) + [324, 352, 380].map(y => btn(200, y, lt(c, .55), 2.2)).join(''); } },
+
+  /* Shoes (the lady's loafers, boots, boat shoes, plimsolls and trainers fit him too) */
+  { id: 'm-chukkas', name: 'Suede chukkas', slot: 'shoes', layer: 2, colors: ['camel', 'chocolate'], tags: ['country', 'polo', 'ivy'],
+    desc: 'Ankle boots in soft suede.',
+    draw: c => pair(S([[170, 694], [166, 730], [167, 748, 'c'], [196, 748, 'c'], [196, 730], [194, 694]], c, c) +
+      Ln('M178,704 L188,708 M178,712 L188,716', '#3a2a20', 1.1) + Ln('M167,746 L196,746', '#3a2a20', 2.2)) },
+  { id: 'm-patent', name: 'Patent oxfords', slot: 'shoes', layer: 2, colors: ['black'], tags: ['gala'],
+    desc: 'High-shine black for evening.',
+    draw: c => { const p = [[170, 712], [165, 732], [167, 748, 'c'], [196, 748, 'c'], [196, 732], [193, 712]];
+      return pair(S(p, c, c) + sheen(p) + Ln('M176,718 L188,722 M176,723 L188,727', '#444', 1) + Ln('M172,736 Q180,732 190,736', '#777', 1)); } },
+
+  /* Accessories */
+  { id: 'm-tie', name: 'Repp tie', slot: 'acc', layer: 2.7, colors: ['navy', 'burgundy', 'bottle'], tags: ['polo', 'ivy', 'country'], box: '150 160 100 180',
+    desc: 'Diagonal club stripes in woven silk.',
+    draw: c => P('M195,184 H205 L207,196 L211,302 L200,318 L189,302 L193,196Z', pat('repp', c), dk(c, .3)) + P('M194,182 H206 L204,196 H196Z', c, dk(c, .3)) },
+  { id: 'm-pocketsq', name: 'Pocket square', slot: 'acc', layer: 5.5, colors: ['white', 'burgundy', 'navy', 'sky'], tags: ['any'], box: '200 260 60 50',
+    desc: 'Folded with a soft puff, never matching the tie.',
+    draw: c => P('M221,288 l4,-9 l4,6 l4,-8 l4,7 l3,4z', c, dk(c, .3), .8) },
+  { id: 'm-watch', name: 'Dress watch', slot: 'acc', layer: 6, colors: ['gold', 'silver'], tags: ['any'], box: '90 380 60 60',
+    desc: 'Thin, on a leather strap.',
+    draw: c => `<rect x="109" y="400" width="28" height="9" rx="2.5" fill="#4a2f20"/><circle cx="122.5" cy="404.5" r="6.2" fill="#F4EFE3" stroke="${c}" stroke-width="2"/>` + Ln('M122.5,404.5 L122.5,401.2 M122.5,404.5 L125,405.6', '#333', .7) },
+  { id: 'm-ring', name: 'Signet ring', slot: 'acc', layer: 6, colors: ['gold'], tags: ['any'], box: '100 420 50 50',
+    desc: 'Engraved with a family crest, worn on the little finger.',
+    draw: c => `<rect x="114.5" y="449" width="6" height="4.5" rx="1.2" fill="${c}" stroke="${dk(c, .3)}" stroke-width=".6"/>` },
+  { id: 'm-scarf', name: 'Cashmere scarf', slot: 'acc', layer: 6, colors: ['camel', 'navy', 'burgundy', 'charcoal', 'ivory'], tags: ['country', 'ivy', 'gala'], box: '150 150 100 190',
+    desc: 'Draped once around the neck, ends loose.',
+    draw: c => P('M182,170 Q200,186 218,170 L220,188 Q200,200 180,188Z', c, dk(c, .3)) +
+      S([[182, 186], [175, 250], [173, 322, 'c'], [192, 324, 'c'], [194, 250], [196, 194]], c, c) + S([[204, 194], [206, 250], [210, 304, 'c'], [228, 302, 'c'], [224, 250], [219, 186]], c, c) +
+      Ln('M175,318 v8 M179,320 v8 M183,320 v8 M187,320 v8 M212,300 v8 M216,300 v8 M220,300 v8 M224,300 v8', dk(c, .2), 1) },
+  { id: 'm-shoulders', name: 'Sweater over shoulders', slot: 'acc', layer: 6.2, colors: ['cream', 'navy', 'sky', 'white'], tags: ['tennis', 'sailing', 'ivy', 'polo'], box: '120 160 160 120',
+    desc: 'Draped, sleeves knotted loosely at the chest.',
+    draw: c => { const f = pat('cable', c);
+      return S(sym([[200, 176], [178, 178], [152, 184], [133, 196], [138, 209], [156, 199], [200, 193]]), f, c) +
+        pair(S([[138, 198], [166, 213], [197, 226], [200, 238], [163, 228], [141, 212]], f, c)) +
+        `<ellipse cx="200" cy="232" rx="9" ry="7" fill="${f}" stroke="${dk(c, .32)}"/>` +
+        S([[193, 234], [189, 270, 'c'], [200, 273, 'c'], [205, 238]], f, c) + S([[200, 236], [208, 272, 'c'], [217, 268, 'c'], [207, 234]], f, c); } },
+  { id: 'm-belt', name: 'Leather belt', slot: 'acc', layer: 3.6, colors: ['chocolate', 'black'], tags: ['any'], box: '140 300 120 70',
+    desc: 'Slim leather with a plain brass buckle.',
+    draw: c => P('M158,330 Q200,334 242,330 L242,342 Q200,346 158,342Z', c, dk(c, .3)) + `<rect x="193" y="329" width="14" height="15" rx="1.5" fill="none" stroke="#C8A253" stroke-width="2.4"/>` },
+  { id: 'm-cap', name: 'Tweed flat cap', slot: 'acc', layer: 7.6, colors: ['tweedBrown', 'tweedGreen', 'tweedGrey'], tags: ['country'], box: '150 40 100 90',
+    desc: 'For the shooting lunch, not the dining room.',
+    draw: c => P('M166,98 C163,68 184,56 204,57 C226,58 238,72 236,92 C247,96 249,104 238,107 C220,99 188,96 166,101Z', pat('herring', c), dk(c, .4)) + Ln('M170,96 C190,92 222,94 236,100', dk(c, .35)) },
+  { id: 'm-panama', name: 'Panama hat', slot: 'acc', layer: 7.6, colors: ['straw'], tags: ['polo', 'sailing'], box: '140 30 120 90',
+    desc: 'Fine straw with a navy band.',
+    draw: c => `<ellipse cx="200" cy="86" rx="54" ry="9" fill="${c}" stroke="${dk(c, .3)}"/>` +
+      P('M172,86 C171,60 186,50 200,50 C214,50 229,60 228,86Z', c, dk(c, .3)) + P('M174,72 Q200,77 226,72 L227,82 Q200,87 173,82Z', '#1E2B47') + Ln('M190,54 Q200,60 210,54', dk(c, .25)) },
+];
+M_ITEMS.forEach(i => { i.who = 'm'; ITEMS.push(i); });
+
+const mBack = c => pair(P('M171,84 C168,96 168,106 170,116 L176,112 L176,90Z', c));
+const HAIR_M = [
+  { id: 'm-sidepart', name: 'Side part', tags: ['any', 'gala', 'ivy', 'polo'], back: mBack,
+    front: c => P('M168,106 C163,74 182,58 202,58 C224,58 238,74 233,104 C231,92 227,84 220,79 C206,80 192,82 182,77 C174,84 170,94 168,106Z', c, dk(c, .3), .8) +
+      Ln('M182,77 Q176,66 186,61 M196,78 Q206,64 224,68 M206,79 Q218,70 230,82', dk(c, .22), .9) },
+  { id: 'm-swept', name: 'Swept back', tags: ['gala', 'polo', 'sailing'], back: mBack,
+    front: c => P('M169,102 C165,70 184,54 202,54 C222,54 237,70 232,102 C228,86 220,76 200,74 C186,74 174,84 169,102Z', c, dk(c, .3), .8) +
+      Ln('M180,80 Q190,62 212,60 M196,74 Q206,60 226,66 M214,76 Q226,72 230,90', dk(c, .22), .9) },
+  { id: 'm-tousled', name: 'Tousled', tags: ['sailing', 'tennis', 'country'], back: mBack,
+    front: c => P('M167,106 C161,72 182,55 202,55 C227,55 241,74 234,106 C231,97 228,91 222,88 C220,95 213,93 209,86 C205,93 197,93 193,86 C189,93 181,93 179,88 C175,93 171,98 167,106Z', c, dk(c, .3), .8) +
+      Ln('M184,62 Q178,74 182,86 M202,58 Q196,72 200,86 M220,62 Q224,74 218,86', dk(c, .22), .9) },
+  { id: 'm-crew', name: 'Short crop', tags: ['any'], back: mBack,
+    front: c => P('M171,98 C169,74 186,62 200,62 C214,62 231,74 229,98 C225,86 214,80 200,80 C186,80 175,86 171,98Z', c, dk(c, .3), .8) },
+];
+HAIR_M.forEach(h => { h.who = 'm'; HAIR.push(h); });
+const fitsModel = (x, model) => x.who === 'u' || x.who === model[0];
+
 const ITEM = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 const HAIR_BY = Object.fromEntries(HAIR.map(h => [h.id, h]));
 
@@ -703,7 +927,7 @@ const OCCASIONS = [
   { id: 'tennis', tag: 'tennis', scene: 'tennis', kicker: 'Invitation V', name: 'Mixed Doubles at the Lawn Club', short: 'the Lawn Club', rule: 'whites',
     hint: 'All white is the rule, not a suggestion.' },
   { id: 'gala', tag: 'gala', scene: 'gala', kicker: 'Invitation VI', name: 'Opening Night at the Opera', short: 'the opera', rule: 'gown',
-    hint: 'Floor length, quiet jewels, hair up.' },
+    hint: 'Floor length, quiet jewels, hair up.', hintM: 'Black tie: dinner jacket, evening shirt and a hand-tied bow.' },
 ];
 const OCC = Object.fromEntries(OCCASIONS.map(o => [o.id, o]));
 const SCENE_NAMES = { atelier: 'Atelier', polo: 'Polo', sailing: 'Harbour', country: 'Country', ivy: 'Quad', tennis: 'Tennis', gala: 'Opera' };
@@ -801,14 +1025,20 @@ const SCENES = {
    ===================================================================== */
 const STORE = 'stt-oldmoney-v1';
 function load() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } }
-function persist() { try { localStorage.setItem(STORE, JSON.stringify({ look: state.look, mode: state.mode, occ: state.occ, scene: state.scene, best: state.best, looks: state.looks, colorPref: state.colorPref })); } catch (e) { /* storage unavailable: play on */ } }
+function persist() { try { localStorage.setItem(STORE, JSON.stringify({ lookBy: state.lookBy, model: state.model, mode: state.mode, occ: state.occ, scene: state.scene, best: state.best, looks: state.looks, colorPref: state.colorPref })); } catch (e) { /* storage unavailable: play on */ } }
 
-function defaultLook() {
-  return { skin: 'light', hair: 'chignon', hairColor: 'chestnut', lips: 'rose', top: null, bottom: null, dress: null, outer: null, shoes: null, acc: [] };
+function defaultLook(model = 'woman') {
+  return model === 'man'
+    ? { model, skin: 'light', hair: 'm-sidepart', hairColor: 'brunette', lips: 'rose', top: null, bottom: null, dress: null, outer: null, shoes: null, acc: [] }
+    : { model, skin: 'light', hair: 'chignon', hairColor: 'chestnut', lips: 'rose', top: null, bottom: null, dress: null, outer: null, shoes: null, acc: [] };
 }
 const saved = load();
 const state = {
-  look: Object.assign(defaultLook(), saved.look || {}),
+  model: saved.model === 'man' ? 'man' : 'woman',
+  lookBy: {
+    woman: Object.assign(defaultLook('woman'), (saved.lookBy && saved.lookBy.woman) || saved.look || {}, { model: 'woman' }),
+    man: Object.assign(defaultLook('man'), (saved.lookBy && saved.lookBy.man) || {}, { model: 'man' }),
+  },
   mode: saved.mode === 'free' ? 'free' : 'season',
   occ: OCC[saved.occ] ? saved.occ : 'polo',
   scene: SCENES[saved.scene] ? saved.scene : 'atelier',
@@ -818,10 +1048,15 @@ const state = {
   tab: 'model',
   focus: {},
 };
-// drop anything stale from older saves
-['top', 'bottom', 'dress', 'outer', 'shoes'].forEach(k => { const w = state.look[k]; if (w && !ITEM[w.id]) state.look[k] = null; });
-state.look.acc = (state.look.acc || []).filter(a => ITEM[a.id]);
-if (!HAIR_BY[state.look.hair]) state.look.hair = 'chignon';
+Object.defineProperty(state, 'look', { get() { return state.lookBy[state.model]; }, set(v) { state.lookBy[state.model] = v; } });
+// drop anything stale from older saves, or anything cut for the other model
+function cleanLook(L) {
+  ['top', 'bottom', 'dress', 'outer', 'shoes'].forEach(k => { const w = L[k]; if (w && !(ITEM[w.id] && fitsModel(ITEM[w.id], L.model))) L[k] = null; });
+  L.acc = (L.acc || []).filter(a => ITEM[a.id] && fitsModel(ITEM[a.id], L.model));
+  if (!(HAIR_BY[L.hair] && fitsModel(HAIR_BY[L.hair], L.model))) L.hair = defaultLook(L.model).hair;
+  return L;
+}
+cleanLook(state.lookBy.woman); cleanLook(state.lookBy.man);
 
 /* =====================================================================
    Drawing the figure
@@ -835,7 +1070,7 @@ function wornList(look) {
 function figureMarkup(look) {
   DEFS = new Map();
   const hair = HAIR_BY[look.hair], hc = hex(look.hairColor);
-  const parts = [[0, hair.back(hc)], [1, drawBody(look)], [7, hair.front(hc)]];
+  const parts = [[0, hair.back(hc)], [1, look.model === 'man' ? drawBodyM(look) : drawBody(look)], [7, hair.front(hc)]];
   wornList(look).forEach(w => parts.push([w.item.layer, w.item.draw(hex(w.color))]));
   parts.sort((a, b) => a[0] - b[0]);
   const body = parts.map(p => p[1]).join('');
@@ -846,18 +1081,21 @@ function figureMarkup(look) {
 const GHOST = (() => {
   const g = '#E2D9C8', line = '#d2c7b2';
   const sk = pts => `<path d="${sm(pts)}" fill="${g}" stroke="${line}" stroke-width=".9"/>`;
-  return pair(sk(ARM) + sk(HAND)) + pair(sk(LEG) + sk(FOOT)) + sk(TORSO) + `<path d="M189,130 L188,181 L212,181 L211,130Z" fill="${g}"/>` + `<path d="${HEAD}" fill="${g}" stroke="${line}" stroke-width=".9"/>`;
+  return {
+    woman: pair(sk(ARM) + sk(HAND)) + pair(sk(LEG) + sk(FOOT)) + sk(TORSO) + `<path d="M189,130 L188,181 L212,181 L211,130Z" fill="${g}"/>` + `<path d="${HEAD}" fill="${g}" stroke="${line}" stroke-width=".9"/>`,
+    man: pair(sk(M_ARM) + sk(M_HAND)) + pair(sk(M_LEG) + sk(M_FOOT)) + sk(M_TORSO) + `<path d="${M_NECK}" fill="${g}"/>` + `<path d="${M_HEAD}" fill="${g}" stroke="${line}" stroke-width=".9"/>`,
+  };
 })();
 function itemThumb(item, color) {
   DEFS = new Map();
   const art = item.draw(hex(color));
   const defs = `<defs>${STATIC_DEFS}${[...DEFS.values()].join('')}</defs>`;
   DEFS = null;
-  return `<svg viewBox="${item.box || BOX[item.slot]}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${defs}${GHOST}${art}</svg>`;
+  return `<svg viewBox="${item.box || BOX[item.slot]}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${defs}${GHOST[state.model]}${art}</svg>`;
 }
 function hairThumb(h, look) {
-  const c = hex(look.hairColor), s = hex(look.skin);
-  return `<svg viewBox="130 50 140 200" aria-hidden="true">${h.back(c)}<path d="M189,130 L188,181 L212,181 L211,130Z" fill="${s}"/><path d="${HEAD}" fill="${s}"/>${h.front(c)}</svg>`;
+  const c = hex(look.hairColor), s = hex(look.skin), man = look.model === 'man';
+  return `<svg viewBox="130 50 140 200" aria-hidden="true">${h.back(c)}<path d="${man ? M_NECK : 'M189,130 L188,181 L212,181 L211,130Z'}" fill="${s}"/><path d="${man ? M_HEAD : HEAD}" fill="${s}"/>${h.front(c)}</svg>`;
 }
 
 /* =====================================================================
@@ -895,11 +1133,14 @@ function evaluate(look, occ) {
     if (off.length) { fit -= Math.min(16, off.length * 7); minus.push(`Club whites are the rule — the ${lower(COL[off[0].color][0])} ${lower(off[0].item.name)} won’t get past the steward.`); }
     else if (core) plus.push('Head-to-toe whites. The committee approves.');
   }
-  if (occ.rule === 'gown') {
+  if (occ.rule === 'gown' && look.model === 'man') {
+    if (!(look.outer && look.outer.id === 'm-dinner')) { fit -= 12; minus.push('Opening night is black tie. Put on the dinner jacket.'); }
+    if (!(look.top && look.top.id === 'm-evening')) { fit -= 4; minus.push('Black tie wants the pleated evening shirt and a bow tie.'); }
+  } else if (occ.rule === 'gown') {
     if (!(look.dress && ITEM[look.dress.id].tags.includes('gala'))) { fit -= 12; minus.push('Opening night asks for floor length. Try the silk column gown.'); }
     if (look.hair !== 'chignon') { fit -= 3; minus.push('Hair up for the opera — a low chignon is classic.'); }
   }
-  if (occ.tag === 'country' && look.shoes && !['boots', 'loafers'].includes(look.shoes.id)) minus.push('Those shoes won’t survive the gravel. Riding boots, perhaps.');
+  if (occ.tag === 'country' && look.shoes && !['boots', 'loafers', 'm-chukkas'].includes(look.shoes.id)) minus.push('Those shoes won’t survive the gravel. Riding boots, perhaps.');
   fit = clamp(fit, 0, 40);
   // 3. Quietness (30)
   let quiet = 30;
@@ -942,7 +1183,7 @@ function quietIndex(look) {
    ===================================================================== */
 function valet(tag) {
   const L = state.look, whites = tag === 'tennis';
-  const pool = slot => ITEMS.filter(i => i.slot === slot && !i.trap && i.tags.includes(tag) && (!whites || slot === 'acc' || i.colors.some(c => WHITES.has(c))));
+  const pool = slot => ITEMS.filter(i => i.slot === slot && fitsModel(i, state.model) && !i.trap && i.tags.includes(tag) && (!whites || slot === 'acc' || i.colors.some(c => WHITES.has(c))));
   const colourFor = it => {
     let cs = it.colors;
     if (whites && it.slot !== 'acc') cs = cs.filter(c => WHITES.has(c));
@@ -951,16 +1192,17 @@ function valet(tag) {
   };
   const wear = it => it ? { id: it.id, color: colourFor(it) } : null;
   const dresses = pool('dress');
-  const useDress = tag === 'gala' || (dresses.length && Math.random() < .35);
+  const useDress = dresses.length && (tag === 'gala' || Math.random() < .35);
   L.dress = useDress ? wear(pick(dresses)) : null;
   L.top = useDress ? null : wear(pick(pool('top')));
   L.bottom = useDress ? null : wear(pick(pool('bottom')));
   const outers = pool('outer');
   L.outer = outers.length && Math.random() < (tag === 'gala' ? .7 : .55) ? wear(pick(outers)) : null;
   L.shoes = wear(pick(pool('shoes')));
-  const accs = ITEMS.filter(i => i.slot === 'acc' && !i.trap && (i.tags.includes(tag) || i.tags.includes('any'))).sort(() => Math.random() - .5);
+  const accs = ITEMS.filter(i => i.slot === 'acc' && fitsModel(i, state.model) && !i.trap && (i.tags.includes(tag) || i.tags.includes('any'))).sort(() => Math.random() - .5);
   L.acc = accs.slice(0, 1 + Math.floor(Math.random() * 3)).map(wear);
-  const hairs = HAIR.filter(h => h.tags.includes(tag));
+  if (state.model === 'man' && tag === 'gala') { L.top = wear(ITEM['m-evening']); L.bottom = wear(ITEM['m-tux']); L.outer = wear(ITEM['m-dinner']); L.shoes = wear(ITEM['m-patent']); }
+  const hairs = HAIR.filter(h => fitsModel(h, state.model) && h.tags.includes(tag));
   if (hairs.length) L.hair = pick(hairs).id;
   [L.top, L.bottom, L.dress, L.outer, L.shoes, ...L.acc].forEach(w => { if (w) state.colorPref[w.id] = w.color; });
 }
@@ -969,7 +1211,8 @@ function valet(tag) {
    UI
    ===================================================================== */
 const $ = id => document.getElementById(id);
-const TABS = [['model', 'Model'], ['top', 'Tops'], ['dress', 'Dresses'], ['bottom', 'Bottoms'], ['outer', 'Outerwear'], ['shoes', 'Shoes'], ['acc', 'Accessories']];
+const ALL_TABS = [['model', 'Model'], ['top', 'Tops'], ['dress', 'Dresses'], ['bottom', 'Bottoms'], ['outer', 'Outerwear'], ['shoes', 'Shoes'], ['acc', 'Accessories']];
+const tabsNow = () => ALL_TABS.filter(([k]) => k !== 'dress' || state.model === 'woman');
 
 function currentScene() { return state.mode === 'season' ? OCC[state.occ].scene : state.scene; }
 
@@ -987,7 +1230,7 @@ function renderInvite() {
   const el = $('invite');
   if (state.mode === 'season') {
     const o = OCC[state.occ];
-    el.innerHTML = `<div class="kicker">${o.kicker} · The Season</div><h2>${o.name}</h2><p>${o.hint}</p>
+    el.innerHTML = `<div class="kicker">${o.kicker} · The Season</div><h2>${o.name}</h2><p>${state.model === 'man' && o.hintM ? o.hintM : o.hint}</p>
       <div class="dots">${OCCASIONS.map((x, i) => `<button data-occ="${x.id}" class="${state.best[x.id] ? 'done' : ''}" aria-current="${x.id === state.occ}" title="${x.name}${state.best[x.id] ? ' — best ' + state.best[x.id] + '★' : ''}">${state.best[x.id] ? state.best[x.id] + '★' : i + 1}</button>`).join('')}</div>`;
     el.querySelectorAll('[data-occ]').forEach(b => b.onclick = () => { state.occ = b.dataset.occ; persist(); renderInvite(); renderStage(); });
   } else {
@@ -996,13 +1239,16 @@ function renderInvite() {
     el.querySelectorAll('[data-scene]').forEach(b => b.onclick = () => { state.scene = b.dataset.scene; persist(); renderInvite(); renderStage(); });
   }
   $('modeSeason').setAttribute('aria-pressed', state.mode === 'season');
+  $('whoWoman').setAttribute('aria-pressed', state.model === 'woman');
+  $('whoMan').setAttribute('aria-pressed', state.model === 'man');
   $('modeFree').setAttribute('aria-pressed', state.mode === 'free');
   $('btnPresent').textContent = state.mode === 'season' ? 'Present the look' : 'Ask the style desk';
   $('btnValet').title = state.mode === 'season' ? 'Let the valet dress you for this occasion' : 'Let the valet dress you for this scene';
 }
 
 function renderTabs() {
-  $('tabs').innerHTML = TABS.map(([k, n]) => `<button role="tab" data-tab="${k}" aria-selected="${state.tab === k}">${n}</button>`).join('');
+  if (!tabsNow().some(([k]) => k === state.tab)) state.tab = 'model';
+  $('tabs').innerHTML = tabsNow().map(([k, n]) => `<button role="tab" data-tab="${k}" aria-selected="${state.tab === k}">${n}</button>`).join('');
   $('tabs').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; renderTabs(); renderPanel(); $('panel').scrollTop = 0; });
 }
 
@@ -1026,22 +1272,22 @@ function renderPanel() {
   const p = $('panel'), L = state.look;
   if (state.tab === 'model') {
     p.innerHTML = `<h3>Skin tone</h3><div class="swatches">${swatchRow(SKIN, L.skin, 'data-skin')}</div>
-      <h3>Hair</h3><div class="grid" style="margin-bottom:16px">${HAIR.map(h => `<button class="item ${L.hair === h.id ? 'worn focus' : ''}" data-hair="${h.id}">${hairThumb(h, L)}<span>${h.name}</span></button>`).join('')}</div>
+      <h3>Hair</h3><div class="grid" style="margin-bottom:16px">${HAIR.filter(h => fitsModel(h, state.model)).map(h => `<button class="item ${L.hair === h.id ? 'worn focus' : ''}" data-hair="${h.id}">${hairThumb(h, L)}<span>${h.name}</span></button>`).join('')}</div>
       <h3>Hair colour</h3><div class="swatches">${swatchRow(HAIRC, L.hairColor, 'data-hc')}</div>
-      <h3>Lipstick</h3><div class="swatches">${swatchRow(LIPS, L.lips, 'data-lips')}</div>`;
+      ${state.model === 'woman' ? `<h3>Lipstick</h3><div class="swatches">${swatchRow(LIPS, L.lips, 'data-lips')}</div>` : ''}`;
     p.querySelectorAll('[data-skin]').forEach(b => b.onclick = () => { L.skin = b.dataset.skin; changed(true); });
     p.querySelectorAll('[data-hc]').forEach(b => b.onclick = () => { L.hairColor = b.dataset.hc; changed(true); });
     p.querySelectorAll('[data-lips]').forEach(b => b.onclick = () => { L.lips = b.dataset.lips; changed(true); });
     p.querySelectorAll('[data-hair]').forEach(b => b.onclick = () => { L.hair = b.dataset.hair; changed(true); });
     return;
   }
-  const items = ITEMS.filter(i => i.slot === state.tab);
+  const items = ITEMS.filter(i => i.slot === state.tab && fitsModel(i, state.model));
   let focusId = state.focus[state.tab];
   if (!items.some(i => i.id === focusId)) focusId = (items.find(isWorn) || items[0]).id;
   state.focus[state.tab] = focusId;
   const fi = ITEM[focusId], fc = prefColor(fi);
   const colourList = Object.fromEntries(fi.colors.map(k => [k, COL[k]]));
-  const intro = { top: 'Tucked shirts sit under skirts and trousers; knits sit over them.', dress: 'A dress replaces top and bottom.', bottom: '', outer: 'One layer on top.', shoes: '', acc: 'Wear as many as you like — though the desk prefers three or fewer.' }[state.tab];
+  const intro = { top: state.model === 'man' ? 'Shirts are tucked in; knits sit over the waistband.' : 'Tucked shirts sit under skirts and trousers; knits sit over them.', dress: 'A dress replaces top and bottom.', bottom: '', outer: 'One layer on top.', shoes: '', acc: 'Wear as many as you like — though the desk prefers three or fewer.' }[state.tab];
   p.innerHTML = `<div class="swatches"><div class="name">${fi.name} <em>· ${COL[fc][0]}</em>${isWorn(fi) ? '' : ' <em>(tap a colour to wear)</em>'}</div>
       ${swatchRow(colourList, isWorn(fi) ? fc : null, 'data-col')}<p class="desc">${fi.desc}</p></div>
     ${intro ? `<h3>${intro}</h3>` : ''}
@@ -1148,9 +1394,10 @@ function openLookbook() {
   c.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { $('lookVeil').hidden = true; });
   c.querySelectorAll('[data-i]').forEach(b => b.onclick = () => {
     const e = state.looks[+b.dataset.i];
-    state.look = Object.assign(defaultLook(), JSON.parse(JSON.stringify(e.look)));
+    const m = e.look.model === 'man' ? 'man' : 'woman';
+    state.model = m; state.look = cleanLook(Object.assign(defaultLook(m), JSON.parse(JSON.stringify(e.look)), { model: m }));
     if (state.mode === 'free') state.scene = e.scene;
-    $('lookVeil').hidden = true; changed(true); renderInvite();
+    $('lookVeil').hidden = true; renderTabs(); changed(true); renderInvite();
   });
   c.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { state.looks.splice(+b.dataset.del, 1); persist(); updateLookCount(); openLookbook(); });
 }
@@ -1193,6 +1440,9 @@ function chime(stars) {
   } catch (e) { /* no audio */ }
 }
 
+function setModel(m) { if (state.model === m) return; state.model = m; persist(); renderTabs(); renderPanel(); renderInvite(); renderStage(); }
+$('whoWoman').onclick = () => setModel('woman');
+$('whoMan').onclick = () => setModel('man');
 $('modeSeason').onclick = () => { state.mode = 'season'; persist(); renderInvite(); renderStage(); };
 $('modeFree').onclick = () => { state.mode = 'free'; persist(); renderInvite(); renderStage(); };
 $('btnValet').onclick = () => {
@@ -1208,7 +1458,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('resultV
 [$('resultVeil'), $('lookVeil')].forEach(v => v.addEventListener('click', e => { if (e.target === v) v.hidden = true; }));
 
 // A first-time visitor starts dressed for the first invitation, so the stage is never empty.
-if (!saved.look) valet('polo');
+if (!saved.look && !saved.lookBy) { const m0 = state.model; state.model = 'man'; valet('polo'); state.model = 'woman'; valet('polo'); state.model = m0; }
+else if (!saved.lookBy) { const m0 = state.model; state.model = 'man'; valet('polo'); state.model = m0; }
 renderTabs(); renderPanel(); renderInvite(); renderStage(); updateLookCount();
 </script>
 </body>
