@@ -339,6 +339,9 @@ function sm(pts) {
 function sym(L) { return L.concat(L.slice().reverse().filter(p => p[0] !== 200).map(p => [400 - p[0], p[1], p[2]])); }
 const MIR = s => `<g transform="matrix(-1 0 0 1 400 0)">${s}</g>`;
 const pair = s => s + MIR(s);
+/* Feet and shoes: narrowed about each foot's centre, so the widened body keeps natural-looking feet. */
+const FOOTW = s => `<g transform="translate(181 0) scale(.84 1) translate(-181 0)">${s}</g>`;
+const fpair = s => pair(FOOTW(s));
 const S = (pts, fill, c, extra = '') => { const d = sm(pts); return `<path d="${d}" fill="${fill}" stroke="${dk(c, .32)}" stroke-width="1.2" stroke-linejoin="round"${extra}/><path d="${d}" fill="url(#vol)" pointer-events="none"/>`; };
 const Ln = (d, c, w = 1, extra = '') => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${extra}/>`;
 const P = (d, fill, stroke = 'none', w = 1, extra = '') => `<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${w}" stroke-linejoin="round"${extra}/>`;
@@ -370,9 +373,38 @@ const PATTERNS = {
   denim: (id, c) => `<pattern id="${id}" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="${c}"/><path d="M0 4 L4 0" stroke="${lt(c, .1)}" stroke-width=".8"/></pattern>`,
   logo: (id, c) => `<pattern id="${id}" width="26" height="22" patternUnits="userSpaceOnUse"><rect width="26" height="22" fill="${c}"/><text x="3" y="9" font-family="Georgia,serif" font-weight="700" font-size="8" fill="#fff">LX</text><text x="16" y="20" font-family="Georgia,serif" font-weight="700" font-size="8" fill="#fff">✦</text></pattern>`,
 };
+/* Life-like proportions. Pieces are drawn on a slim fashion-plate figure; at
+   render time the head (with hair, hats, glasses and earrings) is scaled up
+   evenly, and the body with all its clothes is widened relative to its height,
+   so the model stands about 7.5 heads tall with shoulders about 1.75 head
+   heights across (1.9 for the gentleman). Feet stay on the ground at y = 748. */
+const PROP = (() => {
+  const SX = 1.12, SY = .82, Y0 = 140, FEET = 748, TOP = 62;
+  const U = (FEET - TOP) / ((FEET - Y0) * SY + (Y0 - TOP));
+  const YB = FEET - (FEET - Y0) * SY * U;
+  const m = (a, d) => ({ a, d, e: 200 - 200 * a, f: YB - Y0 * d });
+  return { SX, SY, body: m(SX * U, SY * U), head: m(U, U) };
+})();
+const mtx = m => `matrix(${m.a.toFixed(4)} 0 0 ${m.d.toFixed(4)} ${m.e.toFixed(3)} ${m.f.toFixed(3)})`;
+const BODY_T = mtx(PROP.body), HEAD_T = mtx(PROP.head);
+const onBody = s => `<g transform="${BODY_T}">${s}</g>`, onHead = s => `<g transform="${HEAD_T}">${s}</g>`;
+const mapBox = (box, m) => { const [x, y, w, h] = box.split(' ').map(Number); return [m.a * x + m.e, m.d * y + m.f, w * m.a, h * m.d].map(f1).join(' '); };
+/* Round things and lettering on the body are pre-squeezed so they come out round and upright. */
+const CX = r => f1(r / PROP.SX), CY = r => f1(r / PROP.SY);
+const dot = (x, y, r, extra) => `<ellipse cx="${x}" cy="${y}" rx="${CX(r)}" ry="${CY(r)}"${extra}/>`;
+const upright = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${(1 / PROP.SX).toFixed(4)} ${(1 / PROP.SY).toFixed(4)}) translate(${-x} ${-y})">${s}</g>`;
+
+let PAT_HEAD = false; // patterns on head pieces are not compensated
 function pat(kind, c) {
-  const id = `pt-${kind}-${c.slice(1)}`;
-  if (DEFS && !DEFS.has(id)) DEFS.set(id, PATTERNS[kind](id, c));
+  const id = `pt-${kind}-${c.slice(1)}${PAT_HEAD ? '-h' : ''}`;
+  if (DEFS && !DEFS.has(id)) {
+    let s = PATTERNS[kind](id, c);
+    if (!PAT_HEAD) {
+      const k = `scale(${(1 / PROP.SX).toFixed(4)} ${(1 / PROP.SY).toFixed(4)})`;
+      s = s.includes('patternTransform="') ? s.replace('patternTransform="', `patternTransform="${k} `) : s.replace('<pattern ', `<pattern patternTransform="${k}" `);
+    }
+    DEFS.set(id, s);
+  }
   return `url(#${id})`;
 }
 const STATIC_DEFS = `<linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0.3"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".35" stop-color="#fff" stop-opacity=".28"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset=".8" stop-color="#000" stop-opacity=".08"/></linearGradient>
@@ -445,9 +477,9 @@ const chinShade = s => `<ellipse cx="200" cy="138.6" rx="5" ry="1.5" fill="${dk(
 function drawBody(look) {
   const s = hex(look.skin), { sk, line } = skinKit(s), lip = (LIPS[look.lips] || LIPS.rose)[1], base = '#E9DDC8';
   const neck = 'M189,130 L188,181 Q200,186 212,181 L211,130Z';
-  return [
+  return [[
     pair(sk(ARM) + sk(HAND) + P(THUMB, s, line, .9) + Ln(FINGERS, dk(s, .26), .55) + `<ellipse cx="140" cy="314" rx="3" ry="6" fill="${dk(s, .2)}" opacity=".35" filter="url(#softB)"/>`),
-    pair(sk(LEG) + sk(FOOT) + knees(s, 178) + Ln('M171.5,698 q-1.6,5 .6,9', dk(s, .22), .7, ' opacity=".6"') + Ln('M176,744 v3 M181,745 v3 M186,745 v3 M190.5,744 v3', dk(s, .22), .5)),
+    fpair(sk(FOOT)) + pair(sk(LEG) + knees(s, 178) + Ln('M171.5,698 q-1.6,5 .6,9', dk(s, .22), .7, ' opacity=".6"') + Ln('M176,744 v3 M181,745 v3 M186,745 v3 M190.5,744 v3', dk(s, .22), .5)),
     sk(TORSO),
     `<path d="${neck}" fill="${s}" stroke="${line}" stroke-width=".9"/><path d="${neck}" fill="url(#vol)"/>`,
     `<path d="M190,144 Q200,156 210,144 L210,154 Q200,162 190,154Z" fill="${dk(s, .12)}" opacity=".6"/>`,
@@ -455,6 +487,7 @@ function drawBody(look) {
     `<path d="${sm(sym([[200, 200], [184, 194, 'c'], [163, 202], [158, 238], [165, 300], [167, 322], [160, 360], [153, 396], [161, 410], [184, 424], [200, 430, 'c']]))}" fill="${base}" stroke="${dk(base, .18)}" stroke-width=".9"/>`,
     pair(Ln('M168,198 L176,182', base, 2.2)),
     pair(Ln('M176,187 Q186,190.5 195.5,189', dk(s, .24), .9, ' opacity=".55"')),
+  ].join(''), [
     // ears, head, face
     pair(P(EAR, s, line, .9) + Ln('M170.5,103 Q168.4,107.5 170.6,112', dk(s, .28), .8)),
     `<path d="${HEAD}" fill="${s}" stroke="${line}" stroke-width=".9"/><path d="${HEAD}" fill="url(#faceL)"/>`,
@@ -465,7 +498,7 @@ function drawBody(look) {
     Ln('M192,129.7 Q196,131.1 200,131 Q204,131.1 208,129.7', dk(lip, .4), .7),
     Ln('M197,132.8 Q200,133.6 203,132.8', '#fff', 1, ' opacity=".38"'),
     chinShade(s),
-  ].join('');
+  ].join('')];
 }
 
 /* =====================================================================
@@ -487,7 +520,7 @@ const BLAZER_PANEL = [[188, 177], [166, 182], [142, 189, 'c'], [138, 214], [154,
 const COAT_PANEL = [[188, 177], [164, 182], [140, 189, 'c'], [136, 214], [152, 250], [158, 320], [156, 420], [151, 530], [146, 644, 'c'], [200, 648, 'c'], [200, 330, 'c'], [187, 184, 'c']];
 const LAPEL = (c, fill) => pair(S([[187, 179, 'c'], [171, 220, 'c'], [179, 226, 'c'], [176, 233, 'c'], [200, 334, 'c'], [189, 188, 'c']], fill || dk(c, .07), c));
 const BACK_COLLAR = c => P('M186,178 Q200,171 214,178 L212,186 Q200,181 188,186Z', dk(c, .18));
-const btn = (x, y, c = '#C8A253', r = 3.2) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" stroke="${dk(c, .3)}" stroke-width=".8"/>`;
+const btn = (x, y, c = '#C8A253', r = 3.2) => dot(x, y, r, ` fill="${c}" stroke="${dk(c, .3)}" stroke-width=".8"`);
 
 const ITEMS = [
   /* ---- Tops ---- */
@@ -536,8 +569,8 @@ const ITEMS = [
     draw: c => P('M175,182 C176,160 224,160 225,182 C214,192 186,192 175,182Z', dk(c, .15), dk(c, .3)) +
       pair(S([[146, 190], [132, 240], [120, 312], [114, 410, 'c'], [144, 414, 'c'], [150, 312], [156, 264], [158, 240]], c, c)) +
       S(sym([[200, 190], [184, 177], [162, 184], [144, 192], [140, 214], [154, 242], [158, 300], [156, 370], [152, 410, 'c'], [200, 414]]), c, c) +
-      `<text x="200" y="292" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="30" fill="#fff" letter-spacing="1">LUXE</text>` +
-      `<text x="200" y="316" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#fff">✦ ✦ ✦</text>` +
+      upright(200, 292, `<text x="200" y="292" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="30" fill="#fff" letter-spacing="1">LUXE</text>`) +
+      upright(200, 316, `<text x="200" y="316" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#fff">✦ ✦ ✦</text>`) +
       Ln('M193,190 L191,230 M207,190 L209,230', '#fff', 1.4) + P('M172,350 H228 L234,384 H166Z', dk(c, .06), dk(c, .3)) },
 
   /* ---- Dresses ---- */
@@ -641,7 +674,7 @@ const ITEMS = [
   /* ---- Shoes ---- */
   { id: 'loafers', name: 'Horsebit loafers', slot: 'shoes', layer: 2, colors: ['chocolate', 'black', 'burgundy'], tags: ['ivy', 'polo', 'sailing', 'country'],
     desc: 'Polished leather with a slim brass bit.',
-    draw: c => pair(S([[171, 712], [167, 732], [169, 748, 'c'], [195, 748, 'c'], [196, 732], [193, 712]], c, c) +
+    draw: c => fpair(S([[171, 712], [167, 732], [169, 748, 'c'], [195, 748, 'c'], [196, 732], [193, 712]], c, c) +
       Ln('M169,726 Q182,720 195,726', dk(c, .35)) + Ln('M177,724 L187,724', '#C8A253', 2) + Ln('M170,746 L194,746', dk(c, .4), 2) + Ln('M174,716 Q178,730 176,742', lt(c, .25))) },
   { id: 'boots', name: 'Riding boots', slot: 'shoes', layer: 3.5, colors: ['chocolate', 'black'], tags: ['country', 'polo'],
     desc: 'Knee-high, worn in, and very well polished.',
@@ -649,28 +682,28 @@ const ITEMS = [
       P('M159,562 L197,562 L197,575 L160,575Z', dk(c, .2), dk(c, .4)) + Ln('M168,590 Q172,660 174,708', lt(c, .3), 1.6) + Ln('M168,748 L195,748', dk(c, .5), 2)) },
   { id: 'flats', name: 'Ballet flats', slot: 'shoes', layer: 2, colors: ['black', 'cream', 'navy', 'burgundy'], tags: ['ivy', 'sailing', 'polo'],
     desc: 'Soft leather with a tiny bow.',
-    draw: c => pair(S([[169, 726], [169, 748, 'c'], [195, 748, 'c'], [195, 726], [182, 730]], c, c) + P('M178,729 l4,2 l4,-2 l0,4 l-4,-2 l-4,2z', dk(c, .25))) },
+    draw: c => fpair(S([[169, 726], [169, 748, 'c'], [195, 748, 'c'], [195, 726], [182, 730]], c, c) + P('M178,729 l4,2 l4,-2 l0,4 l-4,-2 l-4,2z', dk(c, .25))) },
   { id: 'boatshoes', name: 'Boat shoes', slot: 'shoes', layer: 2, colors: ['chocolate', 'navy'], tags: ['sailing'],
     desc: 'Leather moccasins with white soles. Deck approved.',
-    draw: c => pair(S([[171, 712], [167, 732], [169, 748, 'c'], [195, 748, 'c'], [196, 732], [193, 712]], c, c) +
+    draw: c => fpair(S([[171, 712], [167, 732], [169, 748, 'c'], [195, 748, 'c'], [196, 732], [193, 712]], c, c) +
       Ln('M168,744 L196,744', '#F3EEE4', 4) + Ln('M172,724 Q182,718 192,724', '#F3EEE4', 1.3) + `<circle cx="175" cy="725" r="1.2" fill="#C8A253"/><circle cx="189" cy="725" r="1.2" fill="#C8A253"/>`) },
   { id: 'plimsolls', name: 'Tennis plimsolls', slot: 'shoes', layer: 2, colors: ['white'], tags: ['tennis', 'sailing'],
     desc: 'Clean white canvas.',
-    draw: c => pair(S([[170, 710], [166, 730], [167, 748, 'c'], [196, 748, 'c'], [196, 730], [194, 710]], c, '#bbbbbb') +
+    draw: c => fpair(S([[170, 710], [166, 730], [167, 748, 'c'], [196, 748, 'c'], [196, 730], [194, 710]], c, '#bbbbbb') +
       Ln('M167,742 L196,742', '#e2ded6', 4) + Ln('M175,716 L189,722 M189,716 L175,722 M175,722 L189,728 M189,722 L175,728', '#cfcac0', 1)) },
   { id: 'pumps', name: 'Satin pumps', slot: 'shoes', layer: 2, colors: ['black', 'navy', 'ivory', 'burgundy'], tags: ['gala'],
     desc: 'Pointed satin pumps for evening.',
-    draw: c => { const p = [[169, 724], [170, 740], [182, 756, 'c'], [194, 740], [195, 724], [182, 729]]; return pair(S(p, c, c) + sheen(p)); } },
+    draw: c => { const p = [[169, 724], [170, 740], [182, 756, 'c'], [194, 740], [195, 724], [182, 729]]; return fpair(S(p, c, c) + sheen(p)); } },
   { id: 'trainers', name: 'Chunky trainers', slot: 'shoes', layer: 2, colors: ['neon', 'fuchsia'], tags: [], trap: true,
     desc: 'Enormous soles and a neon finish.',
-    draw: c => pair(S([[168, 702], [160, 734], [160, 756, 'c'], [199, 756, 'c'], [199, 728], [196, 702]], c, c) +
+    draw: c => fpair(S([[168, 702], [160, 734], [160, 756, 'c'], [199, 756, 'c'], [199, 728], [196, 702]], c, c) +
       P('M160,742 L199,742 L199,756 L160,756Z', '#f6f6f6', '#aaa') + Ln('M166,728 L176,718 L184,728 L194,716', '#111', 2.4)) },
 
   /* ---- Accessories ---- */
   { id: 'pearls', name: 'Pearl strand', slot: 'acc', layer: 6, colors: ['pearl'], tags: ['any', 'ivy', 'gala', 'polo'], box: '160 150 80 80',
     desc: 'One strand, never more.',
     draw: () => { let s = ''; for (let i = 0; i <= 16; i++) { const t = i / 16, x = (1 - t) ** 2 * 183 + 2 * (1 - t) * t * 200 + t * t * 217, y = (1 - t) ** 2 * 176 + 2 * (1 - t) * t * 226 + t * t * 176;
-      s += `<circle cx="${f1(x)}" cy="${f1(y)}" r="3.1" fill="#F4EFE6" stroke="#cbbfa9" stroke-width=".6"/><circle cx="${f1(x - .9)}" cy="${f1(y - .9)}" r=".9" fill="#fff"/>`; } return s; } },
+      s += dot(f1(x), f1(y), 3.1, ' fill="#F4EFE6" stroke="#cbbfa9" stroke-width=".6"') + dot(f1(x - .8), f1(y - .9), .9, ' fill="#fff"'); } return s; } },
   { id: 'studs', name: 'Pearl studs', slot: 'acc', layer: 7.7, colors: ['pearl'], tags: ['any'], box: '150 70 100 80',
     desc: 'Small, round and inherited.',
     draw: () => pair(`<circle cx="170.5" cy="117" r="3" fill="#F4EFE6" stroke="#cbbfa9" stroke-width=".6"/><circle cx="169.6" cy="116.1" r=".9" fill="#fff"/>`) },
@@ -701,7 +734,7 @@ const ITEMS = [
         Ln('M196,104 Q200,101 204,104', '#2a160c', 1.4); } },
   { id: 'watch', name: 'Gold dress watch', slot: 'acc', layer: 6, colors: ['gold', 'silver'], tags: ['any'], box: '100 380 60 60',
     desc: 'A slim watch on a leather strap — the only time you check.',
-    draw: c => `<rect x="117.5" y="402" width="25" height="9" rx="2.5" fill="#4a2f20"/><circle cx="130" cy="406.5" r="6" fill="#F4EFE3" stroke="${c}" stroke-width="2"/>` + Ln('M130,406.5 L130,403.4 M130,406.5 L132.4,407.6', '#333', .7) },
+    draw: c => `<rect x="117.5" y="402" width="25" height="9" rx="2.5" fill="#4a2f20"/>` + dot(130, 406.5, 6, ` fill="#F4EFE3" stroke="${c}" stroke-width="2"`) + Ln('M130,406.5 L130,403.4 M130,406.5 L132.4,407.6', '#333', .7) },
   { id: 'topbag', name: 'Top-handle bag', slot: 'acc', layer: 6, colors: ['chocolate', 'black', 'camel', 'burgundy'], tags: ['any'], box: '236 420 72 100',
     desc: 'Structured leather, no visible logo.',
     draw: c => Ln('M260,462 C259,428 283,428 282,462', dk(c, .1), 3.6) +
@@ -723,7 +756,7 @@ const ITEMS = [
   { id: 'chains', name: 'Gold chain stack', slot: 'acc', layer: 6.1, colors: ['gold'], tags: [], trap: true, box: '160 160 80 100',
     desc: 'Three chunky chains and a medallion.',
     draw: c => Ln('M182,176 Q200,206 218,176', c, 3.6, ' stroke-dasharray="5 2"') + Ln('M178,178 Q200,226 222,178', c, 3.6, ' stroke-dasharray="5 2"') +
-      Ln('M174,180 Q200,246 226,180', c, 4.2, ' stroke-dasharray="6 2"') + `<circle cx="200" cy="213" r="8" fill="${c}" stroke="${dk(c, .3)}"/><text x="200" y="217" text-anchor="middle" font-size="10" font-family="Georgia" font-weight="700" fill="${dk(c, .45)}">$</text>` },
+      Ln('M174,180 Q200,246 226,180', c, 4.2, ' stroke-dasharray="6 2"') + dot(200, 213, 8, ` fill="${c}" stroke="${dk(c, .3)}"`) + upright(200, 213, `<text x="200" y="217" text-anchor="middle" font-size="10" font-family="Georgia" font-weight="700" fill="${dk(c, .45)}">$</text>`) },
 ];
 
 const HAIR = [
@@ -781,9 +814,9 @@ function beardSVG(look) {
 
 function drawBodyM(look) {
   const s = hex(look.skin), { sk, line } = skinKit(s), base = '#E9DDC8', lip = mix(s, '#9c5a52', .4);
-  return [
+  return [[
     pair(sk(M_ARM) + sk(M_HAND) + P(M_THUMB, s, line, .9) + Ln(M_FINGERS, dk(s, .26), .55) + `<ellipse cx="135" cy="316" rx="3" ry="6" fill="${dk(s, .2)}" opacity=".35" filter="url(#softB)"/>`),
-    pair(sk(M_LEG) + sk(M_FOOT) + knees(s, 179) + Ln('M170.5,698 q-1.6,5 .6,9', dk(s, .22), .7, ' opacity=".6"') + Ln('M175,744 v3 M180,745 v3 M185.5,745 v3 M191,744 v3', dk(s, .22), .5)),
+    fpair(sk(M_FOOT)) + pair(sk(M_LEG) + knees(s, 179) + Ln('M170.5,698 q-1.6,5 .6,9', dk(s, .22), .7, ' opacity=".6"') + Ln('M175,744 v3 M180,745 v3 M185.5,745 v3 M191,744 v3', dk(s, .22), .5)),
     sk(M_TORSO),
     `<path d="${M_NECK}" fill="${s}" stroke="${line}" stroke-width=".9"/><path d="${M_NECK}" fill="url(#vol)"/>`,
     `<path d="M186,143 Q200,158 214,143 L214,154 Q200,166 186,154Z" fill="${dk(s, .12)}" opacity=".6"/>`,
@@ -792,6 +825,7 @@ function drawBodyM(look) {
     // base layer: a cream vest and shorts
     `<path d="${sm(sym([[200, 192], [186, 180, 'c'], [168, 186], [152, 238], [156, 300], [158, 336], [156, 370], [155, 406], [200, 408]]))}" fill="${base}" stroke="${dk(base, .18)}" stroke-width=".9"/>`,
     `<path d="${sm(sym([[200, 398], [156, 398, 'c'], [154, 440], [153, 484, 'c'], [196, 486, 'c'], [199, 462], [200, 446, 'c']]))}" fill="${dk(base, .08)}" stroke="${dk(base, .25)}" stroke-width=".9"/>`,
+  ].join(''), [
     pair(P(M_EAR, s, line, .9) + Ln('M169.6,101 Q167.2,106 169.6,111.5', dk(s, .28), .8)),
     `<path d="${M_HEAD}" fill="${s}" stroke="${line}" stroke-width=".9"/><path d="${M_HEAD}" fill="url(#faceL)"/>`,
     pair(`<path d="M173,116 Q178,134 194,143" stroke="${dk(s, .3)}" stroke-width="5" fill="none" opacity=".16" filter="url(#soft)"/><ellipse cx="182" cy="119" rx="7" ry="4" fill="#d98a7c" opacity=".12" filter="url(#soft)"/>`),
@@ -801,7 +835,7 @@ function drawBodyM(look) {
     Ln('M193,131.3 Q200,132.4 207,131.3', dk(lip, .42), .8),
     Ln('M198,133.6 Q200,134 202,133.6', '#fff', .9, ' opacity=".3"'),
     look.beard === 'beard' ? '' : chinShade(s),
-  ].join('');
+  ].join('')];
 }
 
 const MS_SHIRT = [[139, 187], [128, 240], [118, 312], [111, 404, 'c'], [136, 406, 'c'], [141, 314], [147, 264], [153, 238]];
@@ -857,8 +891,8 @@ const M_ITEMS = [
     draw: c => P('M173,182 C174,158 226,158 227,182 C216,193 184,193 173,182Z', dk(c, .15), dk(c, .3)) +
       pair(S([[137, 188], [124, 240], [113, 314], [107, 412, 'c'], [138, 416, 'c'], [143, 314], [150, 264], [152, 240]], c, c)) +
       S(sym([[200, 190], [184, 176], [160, 182], [136, 190], [132, 214], [146, 244], [150, 300], [150, 370], [148, 418, 'c'], [200, 422]]), c, c) +
-      `<text x="200" y="292" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="32" fill="#fff" letter-spacing="1">LUXE</text>` +
-      `<text x="200" y="318" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#fff">✦ ✦ ✦</text>` +
+      upright(200, 292, `<text x="200" y="292" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="32" fill="#fff" letter-spacing="1">LUXE</text>`) +
+      upright(200, 318, `<text x="200" y="318" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#fff">✦ ✦ ✦</text>`) +
       Ln('M193,190 L191,232 M207,190 L209,232', '#fff', 1.4) + P('M168,356 H232 L238,392 H162Z', dk(c, .06), dk(c, .3)) },
 
   /* Bottoms */
@@ -923,12 +957,12 @@ const M_ITEMS = [
   /* Shoes (the lady's loafers, boots, boat shoes, plimsolls and trainers fit him too) */
   { id: 'm-chukkas', name: 'Suede chukkas', slot: 'shoes', layer: 2, colors: ['camel', 'chocolate'], tags: ['country', 'polo', 'ivy'],
     desc: 'Ankle boots in soft suede.',
-    draw: c => pair(S([[170, 694], [166, 730], [167, 748, 'c'], [196, 748, 'c'], [196, 730], [194, 694]], c, c) +
+    draw: c => fpair(S([[170, 694], [166, 730], [167, 748, 'c'], [196, 748, 'c'], [196, 730], [194, 694]], c, c) +
       Ln('M178,704 L188,708 M178,712 L188,716', '#3a2a20', 1.1) + Ln('M167,746 L196,746', '#3a2a20', 2.2)) },
   { id: 'm-patent', name: 'Patent oxfords', slot: 'shoes', layer: 2, colors: ['black'], tags: ['gala'],
     desc: 'High-shine black for evening.',
     draw: c => { const p = [[170, 712], [165, 732], [167, 748, 'c'], [196, 748, 'c'], [196, 732], [193, 712]];
-      return pair(S(p, c, c) + sheen(p) + Ln('M176,718 L188,722 M176,723 L188,727', '#444', 1) + Ln('M172,736 Q180,732 190,736', '#777', 1)); } },
+      return fpair(S(p, c, c) + sheen(p) + Ln('M176,718 L188,722 M176,723 L188,727', '#444', 1) + Ln('M172,736 Q180,732 190,736', '#777', 1)); } },
 
   /* Accessories */
   { id: 'm-tie', name: 'Repp tie', slot: 'acc', layer: 2.7, colors: ['navy', 'burgundy', 'bottle'], tags: ['polo', 'ivy', 'country'], box: '150 160 100 180',
@@ -939,7 +973,7 @@ const M_ITEMS = [
     draw: c => P('M221,288 l4,-9 l4,6 l4,-8 l4,7 l3,4z', c, dk(c, .3), .8) },
   { id: 'm-watch', name: 'Dress watch', slot: 'acc', layer: 6, colors: ['gold', 'silver'], tags: ['any'], box: '90 380 60 60',
     desc: 'Thin, on a leather strap.',
-    draw: c => `<rect x="109" y="400" width="28" height="9" rx="2.5" fill="#4a2f20"/><circle cx="122.5" cy="404.5" r="6.2" fill="#F4EFE3" stroke="${c}" stroke-width="2"/>` + Ln('M122.5,404.5 L122.5,401.2 M122.5,404.5 L125,405.6', '#333', .7) },
+    draw: c => `<rect x="109" y="400" width="28" height="9" rx="2.5" fill="#4a2f20"/>` + dot(122.5, 404.5, 6.2, ` fill="#F4EFE3" stroke="${c}" stroke-width="2"`) + Ln('M122.5,404.5 L122.5,401.2 M122.5,404.5 L125,405.6', '#333', .7) },
   { id: 'm-ring', name: 'Signet ring', slot: 'acc', layer: 6, colors: ['gold'], tags: ['any'], box: '100 420 50 50',
     desc: 'Engraved with a family crest, worn on the little finger.',
     draw: c => `<rect x="114.5" y="449" width="6" height="4.5" rx="1.2" fill="${c}" stroke="${dk(c, .3)}" stroke-width=".6"/>` },
@@ -987,6 +1021,7 @@ HAIR.forEach(h => { const f = h.front; h.front = c => f(c) + crownSheen(c); });
 const fitsModel = (x, model) => x.who === 'u' || x.who === model[0];
 
 const ITEM = Object.fromEntries(ITEMS.map(i => [i.id, i]));
+['studs', 'diamonds', 'headband', 'sunglasses', 'm-cap', 'm-panama'].forEach(id => { ITEM[id].head = true; });
 const HAIR_BY = Object.fromEntries(HAIR.map(h => [h.id, h]));
 
 /* =====================================================================
@@ -1015,7 +1050,7 @@ const W0 = -900, W1 = 1300, WW = W1 - W0; // scene drawing range, so wide screen
 /* The Siam Times sign: a board with the masthead in Chomsky. It stands to the
    model's left, where neither the figure nor the overlays cover it. */
 const MAST_FONT = "Chomsky, 'Old English Text MT', UnifrakturCook, serif";
-function signBoard({ x = -60, y, w = 154, h = 56, bg, fg, rim, sub, subFg, posts = 0, postCol = '#5a4030', hang = false, plinth = '' }) {
+function signBoard({ x = -72, y, w = 138, h = 56, bg, fg, rim, sub, subFg, posts = 0, postCol = '#5a4030', hang = false, plinth = '' }) {
   const cx = x + w / 2;
   let s = '';
   if (hang) s += `<path d="M${x + 24},${y} L${cx},${y - 34} L${x + w - 24},${y}" fill="none" stroke="#9c7a3c" stroke-width="1.4"/><circle cx="${cx}" cy="${y - 35}" r="3" fill="#C29B4E"/>`;
@@ -1026,7 +1061,7 @@ function signBoard({ x = -60, y, w = 154, h = 56, bg, fg, rim, sub, subFg, posts
   s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${bg}" stroke="${rim}" stroke-width="3"/>`;
   s += `<rect x="${x + 6}" y="${y + 6}" width="${w - 12}" height="${h - 12}" rx="2" fill="none" stroke="${rim}" stroke-width=".8" opacity=".85"/>`;
   s += `<rect x="${x + 2}" y="${y + 2}" width="${w - 4}" height="${h * .4}" rx="2" fill="#fff" opacity=".06"/>`;
-  s += `<text x="${cx}" y="${y + (sub ? h * .58 : h * .66)}" text-anchor="middle" font-family="${MAST_FONT}" font-size="22" fill="${fg}" textLength="${w - 30}" lengthAdjust="spacingAndGlyphs">The Siam Times</text>`;
+  s += `<text x="${cx}" y="${y + (sub ? h * .58 : h * .66)}" text-anchor="middle" font-family="${MAST_FONT}" font-size="20" fill="${fg}" textLength="${w - 28}" lengthAdjust="spacingAndGlyphs">The Siam Times</text>`;
   if (sub) s += `<text x="${cx}" y="${y + h - 11}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="6.2" font-weight="700" letter-spacing="2.2" fill="${subFg || fg}">${sub}</text>`;
   return s;
 }
@@ -1176,36 +1211,43 @@ function wornList(look) {
 function figureMarkup(look) {
   DEFS = new Map();
   const hair = HAIR_BY[look.hair], hc = hex(look.hairColor);
-  const parts = [[0, hair.back(hc)], [1, look.model === 'man' ? drawBodyM(look) : drawBody(look)], [7, `<g filter="url(#lift)">${hair.front(hc)}</g>`]];
-  wornList(look).forEach(w => parts.push([w.item.layer, `<g filter="url(#lift)">${w.item.draw(hex(w.color))}</g>`]));
+  const [bodyArt, headArt] = look.model === 'man' ? drawBodyM(look) : drawBody(look);
+  // the head sits above the clothes, so collars and roll necks tuck under the chin
+  const parts = [[0, onHead(hair.back(hc))], [1, onBody(bodyArt)], [6.95, onHead(headArt)], [7, onHead(`<g filter="url(#lift)">${hair.front(hc)}</g>`)]];
+  wornList(look).forEach(w => {
+    PAT_HEAD = !!w.item.head;
+    parts.push([w.item.layer, (w.item.head ? onHead : onBody)(`<g filter="url(#lift)">${w.item.draw(hex(w.color))}</g>`)]);
+  });
+  PAT_HEAD = false;
   parts.sort((a, b) => a[0] - b[0]);
   const body = parts.map(p => p[1]).join('');
   const defs = `<defs>${STATIC_DEFS}${[...DEFS.values()].join('')}</defs>`;
   DEFS = null;
-  return defs + `<ellipse cx="200" cy="752" rx="80" ry="11" fill="url(#shadow)"/>` + body;
+  return defs + `<ellipse cx="200" cy="752" rx="98" ry="12" fill="url(#shadow)"/>` + body;
 }
 const GHOST = (() => {
   const g = '#E2D9C8', line = '#d2c7b2';
   const sk = pts => `<path d="${sm(pts)}" fill="${g}" stroke="${line}" stroke-width=".9"/>`;
   return {
-    woman: pair(sk(ARM) + sk(HAND)) + pair(sk(LEG) + sk(FOOT)) + sk(TORSO) + `<path d="M189,130 L188,181 L212,181 L211,130Z" fill="${g}"/>` + `<path d="${HEAD}" fill="${g}" stroke="${line}" stroke-width=".9"/>`,
-    man: pair(sk(M_ARM) + sk(M_HAND)) + pair(sk(M_LEG) + sk(M_FOOT)) + sk(M_TORSO) + `<path d="${M_NECK}" fill="${g}"/>` + `<path d="${M_HEAD}" fill="${g}" stroke="${line}" stroke-width=".9"/>`,
+    woman: onBody(pair(sk(ARM) + sk(HAND)) + pair(sk(LEG) + sk(FOOT)) + sk(TORSO) + `<path d="M189,130 L188,181 L212,181 L211,130Z" fill="${g}"/>`) + onHead(`<path d="${HEAD}" fill="${g}" stroke="${line}" stroke-width=".9"/>`),
+    man: onBody(pair(sk(M_ARM) + sk(M_HAND)) + pair(sk(M_LEG) + sk(M_FOOT)) + sk(M_TORSO) + `<path d="${M_NECK}" fill="${g}"/>`) + onHead(`<path d="${M_HEAD}" fill="${g}" stroke="${line}" stroke-width=".9"/>`),
   };
 })();
 function itemThumb(item, color) {
-  DEFS = new Map();
-  const art = `<g filter="url(#lift)">${item.draw(hex(color))}</g>`;
+  DEFS = new Map(); PAT_HEAD = !!item.head;
+  const art = (item.head ? onHead : onBody)(`<g filter="url(#lift)">${item.draw(hex(color))}</g>`);
   const defs = `<defs>${STATIC_DEFS}${[...DEFS.values()].join('')}</defs>`;
-  DEFS = null;
-  return `<svg viewBox="${item.box || BOX[item.slot]}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${defs}${GHOST[state.model]}${art}</svg>`;
+  DEFS = null; PAT_HEAD = false;
+  const box = mapBox(item.box || BOX[item.slot], item.head ? PROP.head : PROP.body);
+  return `<svg viewBox="${box}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${defs}${GHOST[state.model]}${art}</svg>`;
 }
 function hairThumb(h, look) {
   const c = hex(look.hairColor), s = hex(look.skin), man = look.model === 'man';
   DEFS = new Map();
-  const art = `${h.back(c)}<path d="${man ? M_NECK : 'M189,130 L188,181 L212,181 L211,130Z'}" fill="${s}"/><path d="${man ? M_HEAD : HEAD}" fill="${s}"/><path d="${man ? M_HEAD : HEAD}" fill="url(#faceL)"/>${h.front(c)}`;
+  const art = onHead(h.back(c)) + onBody(`<path d="${man ? M_NECK : 'M189,130 L188,181 L212,181 L211,130Z'}" fill="${s}"/>`) + onHead(`<path d="${man ? M_HEAD : HEAD}" fill="${s}"/><path d="${man ? M_HEAD : HEAD}" fill="url(#faceL)"/>${h.front(c)}`);
   const defs = `<defs>${STATIC_DEFS}${[...DEFS.values()].join('')}</defs>`;
   DEFS = null;
-  return `<svg viewBox="130 50 140 200" aria-hidden="true">${defs}${art}</svg>`;
+  return `<svg viewBox="${mapBox('130 50 140 200', PROP.head)}" aria-hidden="true">${defs}${art}</svg>`;
 }
 
 /* =====================================================================
@@ -1526,13 +1568,13 @@ function fontFaceCSS() {
 function downloadPortrait() {
   const sc = currentScene();
   const title = state.mode === 'season' ? OCC[state.occ].name : 'Old Money Atelier';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1640" viewBox="-60 0 520 820"><defs><style>${fontFaceCSS()}</style></defs>${scene(sc)}${figureMarkup(state.look)}
-    <rect x="-60" y="766" width="520" height="54" fill="#fffdf8" opacity=".94"/>
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="1640" viewBox="-80 0 560 820"><defs><style>${fontFaceCSS()}</style></defs>${scene(sc)}${figureMarkup(state.look)}
+    <rect x="-80" y="766" width="560" height="54" fill="#fffdf8" opacity=".94"/>
     <text x="200" y="790" text-anchor="middle" font-family="Georgia,serif" font-size="15" font-style="italic" fill="#1e2b47">${title.replace(/&/g, '&amp;')}</text>
     <text x="200" y="808" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="8" letter-spacing="2" fill="#a8823c">THE SIAM TIMES · OLD MONEY ATELIER</text></svg>`;
   const img = new Image();
   img.onload = () => {
-    const cv = document.createElement('canvas'); cv.width = 1040; cv.height = 1640;
+    const cv = document.createElement('canvas'); cv.width = 1120; cv.height = 1640;
     cv.getContext('2d').drawImage(img, 0, 0);
     cv.toBlob(b => {
       if (!b) { toast('Could not make the image in this browser.'); return; }
