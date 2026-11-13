@@ -101,7 +101,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
   font: 600 10px/1 var(--font-label); color: var(--muted); padding: 0;
 }
 .dots button.done { background: var(--brass-soft); border-color: var(--brass); color: var(--ink); }
+.dots button.perfect { box-shadow: 0 0 0 2px var(--brass); }
+.dots button.seal { background: var(--brass); border-color: var(--brass); color: var(--ink); }
 .dots button[aria-current="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.dots .tally { margin-left: auto; padding-left: 8px; font: 600 10px/1 var(--font-label); letter-spacing: .08em; color: var(--muted); white-space: nowrap; }
 .scene-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .scene-chips button {
   border: 1px solid var(--rule); background: var(--card); border-radius: 999px; padding: 4px 10px;
@@ -127,10 +130,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
   font: 600 12px/1 var(--font-label); letter-spacing: .08em; text-transform: uppercase;
 }
 .btn:hover { border-color: var(--ink); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn:disabled:hover { border-color: var(--rule); }
 .btn[aria-pressed="true"] { border-color: var(--ink); background: #fff; }
 .btn[aria-pressed="true"]::before { content: "✓ "; }
 .scene .fig:not(.on) { cursor: pointer; }
 .btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+.actions .more { display: contents; }
+.actions .btn { padding: 9px 12px; letter-spacing: .06em; }
 .btn.primary:hover { background: #2c3c60; }
 
 /* Wardrobe */
@@ -193,6 +200,15 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .card .sub { text-align: center; color: var(--muted); font-style: italic; margin: 0 0 10px; }
 .stars { text-align: center; font-size: 30px; letter-spacing: 4px; color: var(--brass); line-height: 1; margin: 8px 0 4px; }
 .stars .off { color: var(--rule); }
+.stars span { display: inline-block; }
+.stars.reveal .on { animation: star-in .5s cubic-bezier(.2, 1.5, .4, 1) both; animation-delay: calc(var(--i) * .13s + .15s); }
+@keyframes star-in { from { opacity: 0; transform: scale(.2) rotate(-30deg); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .stars.reveal .on { animation: none; } }
+.pill { display: inline-block; margin-left: 6px; padding: 3px 7px; border-radius: 999px; background: var(--well); color: var(--ink); font: 700 9px/1 var(--font-label); letter-spacing: .12em; text-transform: uppercase; vertical-align: 1px; }
+.pill.gold { background: var(--brass-soft); box-shadow: inset 0 0 0 1px var(--brass); }
+.partner { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin: 0 0 16px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 4px; font-size: 15px; }
+.finale { margin: 0 0 16px; padding: 10px 12px; text-align: center; font-style: italic; background: var(--brass-soft); border-radius: 4px; }
+.card:focus { outline: none; }
 .score { text-align: center; font: 600 12px/1 var(--font-label); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .breakdown { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; margin: 16px 0; padding: 12px 14px; background: var(--well); border-radius: 4px; font-size: 14px; }
 .breakdown b { font: 600 13px/1.45 var(--font-label); text-align: right; }
@@ -248,23 +264,61 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .toast.show { opacity: 1; }
 
+/* Narrower desktop windows: a smaller invitation card, so it stays clear of the figures, and tighter buttons. */
+@media (min-width: 901px) and (max-width: 1340px) {
+  .actions { gap: 6px; padding: 12px 10px; }
+  .actions .btn { padding: 9px 10px; font-size: 11px; }
+}
+@media (min-width: 901px) and (max-width: 1180px) {
+  .invite { max-width: 236px; padding: 12px 14px 10px; }
+  .invite h2 { font-size: 18px; }
+  .invite p { display: none; }
+}
+/* Phone layout: one column. The header and the invitation scroll away; the stage and its buttons
+   stay at the top of the screen, the wardrobe scrolls under them, and the colours of the piece in
+   hand sit in a bar at the bottom of the screen. */
 @media (max-width: 900px) {
-  .app { height: auto; }
-  .main { grid-template-columns: minmax(0, 1fr); }
-  .stage { height: 64vh; min-height: 440px; flex: none; }
-  .wardrobe { border-left: 0; border-top: 1px solid var(--rule); }
-  .panel { overflow: visible; }
-  .invite { max-width: 220px; padding: 10px 12px; left: 10px; top: 10px; }
-  .invite h2 { font-size: 17px; }
-  .invite p { font-size: 13px; }
-  .meter { right: 10px; top: auto; bottom: 10px; width: 150px; }
+  :root { --stage-h: clamp(180px, 42vh, 440px); --act-h: 48px; }
+  html, body { height: auto; }
+  .app { display: block; height: auto; }
+  .main { display: block; }
+  .stage-col { display: block; position: sticky; top: calc(-1 * var(--invite-h, 0px)); z-index: 5; background: var(--card); }
+  .invite { position: static; max-width: none; padding: 10px 16px; border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; box-shadow: none; background: var(--card); }
+  .invite h2 { font-size: 18px; }
+  .invite p { font-size: 14px; }
+  .stage { height: var(--stage-h); }
+  .meter { right: 8px; top: auto; bottom: 8px; width: 108px; padding: 7px 9px; }
+  .meter .lbl { font-size: 8px; letter-spacing: .06em; white-space: nowrap; }
+  .meter .bar { height: 5px; margin: 6px 0 4px; }
+  .meter .word { font-size: 13px; line-height: 1.2; }
+  .actions { flex-wrap: nowrap; align-items: center; gap: 0; height: var(--act-h); padding: 0 10px 0 0; border-bottom: 1px solid var(--rule); }
+  .actions .more { display: flex; flex: 1 1 auto; min-width: 0; gap: 6px; padding: 0 18px 0 10px; overflow-x: auto; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent); }
+  .actions .more::-webkit-scrollbar { display: none; }
+  .actions .btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 11px; }
+  #btnValet { order: 1; } #btnUndo { order: 2; } #btnReset { order: 3; } #btnCouple { order: 4; } #btnSave { order: 5; } #btnPng { order: 6; }
+  .wardrobe { display: block; border-left: 0; }
+  .tabs { position: sticky; top: calc(var(--stage-h) + var(--act-h)); z-index: 4; background: var(--card); }
+  .panel { display: flex; flex-direction: column; overflow: visible; padding-bottom: 0; }
+  .panel > * { flex: 0 0 auto; }
+  .panel > :last-child { margin-bottom: 24px; }
+  .panel > .focusbar { order: 9; position: sticky; bottom: 0; z-index: 3; margin: 0 -16px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--rule); border-radius: 0; box-shadow: 0 -6px 16px rgba(30, 43, 71, .08); }
+  .focusbar .desc { display: none; }
+  .toast { bottom: 108px; }
+}
+@supports (height: 1svh) {
+  @media (max-width: 900px) { :root { --stage-h: clamp(180px, 42svh, 440px); } }
 }
 @media (max-width: 560px) {
-  .top { padding: 8px 16px; gap: 8px; }
+  .top { padding: 8px 12px; gap: 6px 8px; }
+  .brand { order: 1; flex: 1 1 auto; flex-direction: column; align-items: flex-start; gap: 1px; }
   .mast { font-size: 21px; }
-  .brand-sub { font-size: 16px; }
+  .brand-sub { font-size: 14px; }
+  #openGuide { order: 2; } #openLookbook { order: 3; }
+  .icon-btn { padding: 6px 10px; font-size: 11px; letter-spacing: .05em; }
+  .modes { order: 4; }
   .modes.who { margin-left: 0; }
-  .invite p { display: none; }
+  .modes button { padding: 6px 8px; font-size: 10.5px; letter-spacing: .04em; }
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .item span { font-size: 12px; }
 }
@@ -291,9 +345,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
   <main class="main">
     <section class="stage-col" aria-label="Stage">
+      <div class="invite" id="invite"></div>
       <div class="stage" id="stage">
         <svg class="scene" id="sceneSvg" viewBox="0 0 400 820" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Your model wearing the current look"></svg>
-        <div class="invite" id="invite"></div>
         <div class="meter" aria-live="polite">
           <div class="lbl"><span>Quiet luxury</span><span id="meterNum">0</span></div>
           <div class="bar"><div class="fill" id="meterFill"></div></div>
@@ -301,11 +355,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
         </div>
       </div>
       <div class="actions">
-        <button class="btn" id="btnCouple" aria-pressed="true" title="Show the lady and the gentleman together">Couple view</button>
-        <button class="btn" id="btnValet" title="Let the valet dress you for this occasion">Valet’s pick</button>
-        <button class="btn" id="btnReset">Start over</button>
-        <button class="btn" id="btnSave">Save look</button>
-        <button class="btn" id="btnPng">Download portrait</button>
+        <div class="more">
+          <button class="btn" id="btnCouple" aria-pressed="true" title="Show the lady and the gentleman together">Couple view</button>
+          <button class="btn" id="btnValet" title="Let the valet dress you for this occasion">Valet’s pick</button>
+          <button class="btn" id="btnUndo" title="Undo the last change (Ctrl+Z)" disabled>Undo</button>
+          <button class="btn" id="btnReset" title="Take everything off and begin again">Start over</button>
+          <button class="btn" id="btnSave">Save look</button>
+          <button class="btn" id="btnPng">Download portrait</button>
+        </div>
         <button class="btn primary" id="btnPresent">Present the look</button>
       </div>
     </section>
@@ -318,13 +375,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
 </div>
 
 <div class="veil" id="resultVeil" hidden>
-  <div class="card" role="dialog" aria-modal="true" aria-labelledby="resultTitle" id="resultCard"></div>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="resultTitle" id="resultCard" tabindex="-1"></div>
 </div>
 <div class="veil" id="guideVeil" hidden>
-  <div class="card" role="dialog" aria-modal="true" aria-labelledby="guideTitle" style="width:min(620px,100%)" id="guideCard"></div>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="guideTitle" style="width:min(620px,100%)" id="guideCard" tabindex="-1"></div>
 </div>
 <div class="veil" id="lookVeil" hidden>
-  <div class="card" role="dialog" aria-modal="true" aria-labelledby="lookTitle" style="width:min(640px,100%)" id="lookCard"></div>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="lookTitle" style="width:min(640px,100%)" id="lookCard" tabindex="-1"></div>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -1152,7 +1209,7 @@ const M_ITEMS = [
       Ln('M193,190 L191,232 M207,190 L209,232', '#fff', 1.4) + P('M168,356 H232 L238,392 H162Z', dk(c, .06), dk(c, .3)) },
 
   /* Bottoms */
-  { id: 'm-chinos', name: 'Chinos', slot: 'bottom', layer: 3, colors: ['stone', 'navy', 'white', 'oat'], tags: ['polo', 'sailing', 'ivy'],
+  { id: 'm-chinos', name: 'Chinos', slot: 'bottom', layer: 3, colors: ['stone', 'navy', 'white', 'oat'], tags: ['polo', 'sailing', 'ivy', 'country'],
     desc: 'Pressed cotton twill with turn-ups.',
     draw: c => S(M_TROUSER, c, c) + M_WAIST(c) + pair(Ln('M176,410 L178,708', dk(c, .14)) + Ln('M160,346 L168,372', dk(c, .25))) + pair(S([[161.6, 709, 'c'], [162, 724, 'c'], [196, 724, 'c'], [196.3, 709, 'c']], c, c) + Ln('M163,692 Q179,699 195,692', dk(c, .2))) },
   { id: 'm-flannels', name: 'Flannel trousers', slot: 'bottom', layer: 3, colors: ['flannel', 'charcoal', 'oat'], tags: ['ivy', 'country', 'polo'],
@@ -1538,7 +1595,7 @@ const SCENES = {
    ===================================================================== */
 const STORE = 'stt-oldmoney-v1';
 function load() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } }
-function persist() { try { localStorage.setItem(STORE, JSON.stringify({ lookBy: state.lookBy, model: state.model, couple: state.couple, mode: state.mode, occ: state.occ, scene: state.scene, best: state.best, looks: state.looks, colorPref: state.colorPref })); } catch (e) { /* storage unavailable: play on */ } }
+function persist() { try { localStorage.setItem(STORE, JSON.stringify({ lookBy: state.lookBy, model: state.model, couple: state.couple, mode: state.mode, occ: state.occ, scene: state.scene, best: state.best, bestScore: state.bestScore, seal: state.seal, looks: state.looks, colorPref: state.colorPref })); } catch (e) { /* storage unavailable: play on */ } }
 
 function defaultLook(model = 'woman') {
   return model === 'man'
@@ -1556,6 +1613,8 @@ const state = {
   occ: OCC[saved.occ] ? saved.occ : 'polo',
   scene: SCENES[saved.scene] ? saved.scene : 'atelier',
   best: saved.best || {},
+  bestScore: saved.bestScore || {},
+  seal: saved.seal || {},
   looks: Array.isArray(saved.looks) ? saved.looks : [],
   colorPref: saved.colorPref || {},
   couple: saved.couple !== false,
@@ -1629,15 +1688,50 @@ function hairThumb(h, look) {
 const lower = s => s.charAt(0).toLowerCase() + s.slice(1);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const pick = a => a[Math.floor(Math.random() * a.length)];
+const plural = it => /[^s]s$/.test(it.name) && !/shoulders$/.test(it.name); // "the loafers are", "the blazer is"
+
+/* What goes together. A broken rule costs finishing points, is named in the verdict, and gives
+   the stylist its reason for the change that mends it. */
+const BROWNS = new Set(['chocolate', 'chestnut', 'camel']);
+const LEATHERS = new Set(['belt', 'b-braided', 'b-suede', 'b-logo', 'topbag']);
+const COLLARED = new Set(['m-oxford', 'm-tattersall']);
+const JACKETS = new Set(['m-blazer', 'm-tweed', 'm-dinner', 'm-overcoat']);
+const LONG_COATS = new Set(['coat', 'trench', 'm-overcoat', 'm-trench']);
+const HAIR_UP = new Set(['chignon', 'twist']);
+const COUNTRY_SHOES = new Set(['boots', 'loafers', 'm-chukkas', 'm-brogues']);
+function pairings(look) {
+  const acc = (look.acc || []).filter(a => ITEM[a.id]), has = id => acc.some(a => a.id === id), id = w => w ? w.id : '', nm = w => lower(ITEM[w.id].name), flaws = [];
+  const flaw = (key, msg, why) => flaws.push({ key, msg, why });
+  const leather = (look.shoes && ITEM[look.shoes.id] ? [look.shoes] : []).concat(acc.filter(a => LEATHERS.has(a.id)));
+  const brown = leather.find(w => BROWNS.has(w.color)), black = leather.find(w => w.color === 'black');
+  if (brown && black) flaw('leather', `Brown ${nm(brown)} with black ${nm(black)}. Match your leathers.`, 'Leathers should match: brown with brown, black with black.');
+  const metals = acc.filter(a => (a.color === 'gold' || a.color === 'silver') && a.id !== 'diamonds');
+  const mixed = new Set(metals.map(a => a.color)).size > 1;
+  if (mixed) flaw('metal', 'Gold and silver together. Choose one metal and keep to it.', 'Metals should match: gold with gold, silver with silver.');
+  if (/breeches$/.test(id(look.bottom)) && look.shoes && look.shoes.id !== 'boots') flaw('breeches', 'Riding breeches are cut for riding boots.', 'Breeches are cut to tuck into riding boots.');
+  const ties = acc.filter(a => a.id === 'm-tie' || a.id === 'm-silktie');
+  if (ties.length > 1) flaw('ties', 'Two ties at once. Choose one.', 'One tie at a time.');
+  if (ties.length && id(look.top) === 'm-evening') flaw('tie', 'The evening shirt already has its bow tie.', 'The evening shirt comes with its own bow tie.');
+  else if (ties.length && !COLLARED.has(id(look.top))) flaw('tie', 'A tie needs a collared shirt: the Oxford or the tattersall.', 'A tie needs a shirt collar to sit under.');
+  if (has('m-waistcoat') && !COLLARED.has(id(look.top)) && id(look.top) !== 'm-evening') flaw('waistcoat', 'A waistcoat goes over a collared shirt, not a knit.', 'A waistcoat goes over a collared shirt.');
+  if (has('m-pocketsq') && !JACKETS.has(id(look.outer))) flaw('pocketsq', 'A pocket square needs a jacket pocket to sit in.', 'A pocket square needs a jacket pocket.');
+  if (has('m-pocket') && !has('m-waistcoat') && id(look.outer) !== 'm-dinner') flaw('pocketwatch', 'A pocket watch lives in a waistcoat pocket.', 'The chain of a pocket watch runs across a waistcoat.');
+  if (has('gloves') && id(look.dress) !== 'gown') flaw('gloves', 'Opera gloves are for bare arms and a gown.', 'Opera gloves go with bare arms and a gown.');
+  if ((has('shoulders') || has('m-shoulders')) && LONG_COATS.has(id(look.outer))) flaw('shoulders', 'A sweater over the shoulders does not go on top of a coat.', 'A sweater is draped over a shirt or a knit, never a coat.');
+  // praise is for two or more real pieces that agree, never for a logo
+  const hides = leather.filter(w => (BROWNS.has(w.color) || w.color === 'black') && !ITEM[w.id].trap);
+  return { flaws, leatherOK: hides.length > 1 && !(brown && black), metalOK: metals.filter(a => !ITEM[a.id].trap).length > 1 && !mixed };
+}
 
 function evaluate(look, occ) {
-  const worn = wornList(look), minus = [], plus = [];
+  const worn = wornList(look), man = look.model === 'man', plus = [];
+  const N = { trap: [], comp: [], rule: [], flaw: [], clash: [], finish: [], quiet: [], palette: [] }; // notes against, heaviest first
   const core = look.dress || (look.top && look.bottom);
   // 1. A complete outfit (15)
   let comp = 0;
   if (core) comp += 10;
-  else minus.push(look.top ? 'Half an outfit is not an outfit — add a skirt or trousers.' : look.bottom ? 'Add a top — a shirt, a knit or a blouse.' : 'Begin with a dress, or a top with a skirt or trousers.');
-  if (look.shoes) comp += 5; else minus.push('Barefoot is for the beach house. Choose shoes.');
+  else N.comp.push(look.top ? `Half an outfit is not an outfit — add ${man ? 'trousers' : 'a skirt or trousers'}.` : look.bottom ? `Add a top — a shirt${man ? ' or a knit' : ', a knit or a blouse'}.` : man ? 'Begin with a shirt or a knit, and trousers.' : 'Begin with a dress, or a top with a skirt or trousers.');
+  if (look.shoes) comp += 5; else N.comp.push('Barefoot is for the beach house. Choose shoes.');
   // 2. Right for the occasion (40)
   let wsum = 0, fsum = 0; const clashes = [], perfect = [];
   const hair = HAIR_BY[look.hair];
@@ -1652,62 +1746,77 @@ function evaluate(look, occ) {
     if (fit === .1) clashes.push(w.item);
     if (fit === 1 && w.slot !== 'acc') perfect.push(w.item);
   });
-  let fit = 40 * fsum / wsum;
+  let fit = worn.length ? 40 * fsum / wsum : 0;
   if (!core) fit *= .5;
   if (occ.rule === 'whites') {
     const off = worn.filter(w => ['top', 'bottom', 'dress', 'outer', 'shoes'].includes(w.slot) && !WHITES.has(w.color));
-    if (off.length) { fit -= Math.min(16, off.length * 7); minus.push(`Club whites are the rule — the ${lower(COL[off[0].color][0])} ${lower(off[0].item.name)} won’t get past the steward.`); }
+    if (off.length) { fit -= Math.min(16, off.length * 7); N.rule.push(`Club whites are the rule — the ${lower(COL[off[0].color][0])} ${lower(off[0].item.name)} won’t get past the steward.`); }
     else if (core) plus.push('Head-to-toe whites. The committee approves.');
   }
-  if (occ.rule === 'gown' && look.model === 'man') {
-    if (!(look.outer && look.outer.id === 'm-dinner')) { fit -= 12; minus.push('Opening night is black tie. Put on the dinner jacket.'); }
-    if (!(look.top && look.top.id === 'm-evening')) { fit -= 4; minus.push('Black tie wants the pleated evening shirt and a bow tie.'); }
+  if (occ.rule === 'gown' && man) {
+    if (!(look.outer && look.outer.id === 'm-dinner')) { fit -= 12; N.rule.push('Opening night is black tie. Put on the dinner jacket.'); }
+    if (!(look.top && look.top.id === 'm-evening')) { fit -= 4; N.rule.push('Black tie wants the pleated evening shirt and a bow tie.'); }
   } else if (occ.rule === 'gown') {
-    if (!(look.dress && ITEM[look.dress.id].tags.includes('gala'))) { fit -= 12; minus.push('Opening night asks for floor length. Try the silk column gown.'); }
-    if (look.hair !== 'chignon') { fit -= 3; minus.push('Hair up for the opera — a low chignon is classic.'); }
+    if (!(look.dress && ITEM[look.dress.id].tags.includes('gala'))) { fit -= 12; N.rule.push('Opening night asks for floor length. Try the silk column gown.'); }
+    if (!HAIR_UP.has(look.hair)) { fit -= 3; N.rule.push('Hair up for the opera — a low chignon or a French twist.'); }
   }
-  if (occ.tag === 'country' && look.shoes && !['boots', 'loafers', 'm-chukkas'].includes(look.shoes.id)) minus.push('Those shoes won’t survive the gravel. Riding boots, perhaps.');
+  if (clashes.length) N.clash.push(`The ${lower(clashes[0].name)} ${plural(clashes[0]) ? 'feel' : 'feels'} out of place at ${occ.short}.`);
+  if (occ.tag === 'country' && look.shoes && !COUNTRY_SHOES.has(look.shoes.id)) N.clash.push('Those shoes won’t survive the gravel. Riding boots, perhaps.');
   fit = clamp(fit, 0, 40);
-  // 3. Quietness (30)
-  let quiet = 30;
+  // 3. Quietness (20)
+  let quiet = 20;
   const traps = worn.filter(w => w.item.trap);
-  if (traps.length) { quiet -= 14 * traps.length; minus.unshift(`Logos shout; old money whispers. Lose the ${lower(traps[0].item.name)}.`); }
+  if (traps.length) { quiet -= 14 * traps.length; N.trap.push(`Logos shout; old money whispers. Lose the ${lower(traps[0].item.name)}.`); }
   const nAcc = look.acc.length;
-  if (nAcc > 3) { quiet -= 5 * (nAcc - 3); minus.push(`${nAcc} accessories is a lot. Take one off before you leave the house.`); }
+  if (nAcc > 3) { quiet -= 4 * (nAcc - 3); N.quiet.push(`${nAcc} accessories is a lot. Take one off before you leave the house.`); }
   const colours = worn.map(w => w.color);
   const accents = new Set(colours.filter(c => !NEUTRAL.has(c) && !METAL.has(c)));
-  if (accents.size > 2) { quiet -= 5 * (accents.size - 2); minus.push('Too many colours are competing. Let one accent speak.'); }
-  colours.forEach(c => { if (LOUD.has(c)) quiet -= 4; });
-  quiet = clamp(quiet, 0, 30);
-  // 4. Palette (15)
+  if (accents.size > 2) { quiet -= 4 * (accents.size - 2); N.quiet.push('Too many colours are competing. Let one accent speak.'); }
+  colours.forEach(c => { if (LOUD.has(c)) quiet -= 3; });
+  quiet = clamp(quiet, 0, 20);
+  // 4. Palette (10)
   const fabric = colours.filter(c => !METAL.has(c));
   const share = fabric.length ? fabric.filter(c => NEUTRAL.has(c)).length / fabric.length : 0;
-  const harmony = fabric.length ? 15 * Math.min(1, share / .65) : 0;
-  if (fabric.length && share < .5) minus.push('Build on neutrals — navy, cream, camel — and add colour sparingly.');
-  // Notes
-  if (clashes.length) minus.push(`The ${lower(clashes[0].name)} feels out of place at ${occ.short}.`);
-  if (perfect.length) plus.unshift(`The ${lower(pick(perfect).name)} is exactly right for ${occ.short}.`);
+  const harmony = fabric.length ? 10 * Math.min(1, share / .65) : 0;
+  if (fabric.length && share < .5) N.palette.push('Build on neutrals — navy, cream, camel — and add colour sparingly.');
+  // 5. Finishing touches (15): at least one good piece added, and everything goes together
+  const pr = pairings(look);
+  let finish = 0;
+  if (core) {
+    finish = 15;
+    if (!look.acc.some(a => ITEM[a.id] && !ITEM[a.id].trap)) { finish -= 11; if (!look.acc.length) N.finish.push('Nothing added yet. A watch, a scarf or one good piece finishes a look.'); }
+    finish = Math.max(0, finish - 6 * pr.flaws.length);
+  }
+  pr.flaws.forEach(f => N.flaw.push(f.msg));
+  // Notes in favour
+  if (perfect.length) { const p = pick(perfect); plus.unshift(`The ${lower(p.name)} ${plural(p) ? 'are' : 'is'} exactly right for ${occ.short}.`); }
+  if (core && pr.leatherOK) plus.push('Leathers matched. Noticed, and approved.');
+  if (core && pr.metalOK) plus.push('One metal throughout. Very composed.');
   if (nAcc >= 1 && nAcc <= 3 && !traps.length) plus.push('Restrained accessories — very well bred.');
   if (fabric.length >= 3 && share >= .75) plus.push('A calm, neutral palette that looks expensive without trying.');
   if (look.acc.some(a => a.id === 'pearls') && occ.tag === 'ivy') plus.push('Pearls on the quad: a classic for a reason.');
-  const total = Math.round(comp + fit + quiet + harmony);
+  // Quietness and palette are judged on what is actually worn, so half an outfit earns only part of them.
+  const cover = comp / 15;
+  const total = Math.round(comp + fit + (quiet + harmony) * cover + finish);
   const stars = total >= 90 ? 5 : total >= 78 ? 4 : total >= 62 ? 3 : total >= 45 ? 2 : 1;
-  return { total, stars, comp, fit, quiet, harmony, plus: plus.slice(0, 2), minus: minus.slice(0, 3) };
+  const minus = [].concat(N.trap, N.comp, N.rule, N.flaw, N.clash, N.finish, N.quiet, N.palette);
+  return { total, stars, comp, fit, quiet: quiet * cover, harmony: harmony * cover, finish, quietRaw: quiet, harmonyRaw: harmony, flaws: pr.flaws, plus: plus.slice(0, 3), minus: minus.slice(0, 4) };
 }
 const TITLES = ['', 'Logo Season', 'New Money', 'Comfortably Established', 'Old Money', 'Generational Wealth'];
 const VERDICTS = ['', 'The doorman has questions.', 'Expensive, certainly. Quiet, not yet.', 'Nicely done — a few touches from perfect.', 'You look as if you were born to it.', 'Impeccable. Nobody could tell you what anything cost.'];
 
 function quietIndex(look) {
+  if (!wornList(look).length) return null;
   const e = evaluate(look, { tag: '-', short: '' });
-  const worn = wornList(look);
-  if (!worn.length) return null;
-  return Math.round((e.quiet + e.harmony) / 45 * 100);
+  return Math.round((e.quietRaw + e.harmonyRaw) / 30 * 100);
 }
 
 /* =====================================================================
-   Valet: a coordinated look for an occasion
+   Valet: the clothes and the hair for an occasion. The finishing touches
+   (a watch, a scarf, the jewellery) are left to you, which is where the
+   last star is won. On a first visit the couple arrive fully dressed.
    ===================================================================== */
-function valet(tag) {
+function valet(tag, full) {
   const L = state.look, whites = tag === 'tennis';
   const pool = slot => ITEMS.filter(i => i.slot === slot && fitsModel(i, state.model) && !i.trap && i.tags.includes(tag) && (!whites || slot === 'acc' || i.colors.some(c => WHITES.has(c))));
   const colourFor = it => {
@@ -1725,11 +1834,16 @@ function valet(tag) {
   const outers = pool('outer');
   L.outer = outers.length && Math.random() < (tag === 'gala' ? .7 : .55) ? wear(pick(outers)) : null;
   L.shoes = wear(pick(pool('shoes')));
-  const accs = ITEMS.filter(i => i.slot === 'acc' && fitsModel(i, state.model) && !i.trap && (i.tags.includes(tag) || i.tags.includes('any'))).sort(() => Math.random() - .5);
-  const groups = new Set();
-  L.acc = accs.filter(i => !i.group || (!groups.has(i.group) && groups.add(i.group))).slice(0, 1 + Math.floor(Math.random() * 3)).map(wear);
+  if (L.bottom && /breeches$/.test(L.bottom.id)) L.shoes = wear(ITEM.boots); // breeches are cut for boots
   if (state.model === 'man' && tag === 'gala') { L.top = wear(ITEM['m-evening']); L.bottom = wear(ITEM['m-tux']); L.outer = wear(ITEM['m-dinner']); L.shoes = wear(ITEM['m-patent']); }
-  const hairs = HAIR.filter(h => fitsModel(h, state.model) && h.tags.includes(tag));
+  L.acc = []; L.aid = true; // dressed with help: no seal for this look
+  if (full) {
+    const accs = ITEMS.filter(i => i.slot === 'acc' && fitsModel(i, state.model) && !i.trap && (i.tags.includes(tag) || i.tags.includes('any'))).sort(() => Math.random() - .5);
+    const groups = new Set();
+    L.acc = accs.filter(i => !i.group || (!groups.has(i.group) && groups.add(i.group))).slice(0, 1 + Math.floor(Math.random() * 3)).map(wear);
+    while (L.acc.length && pairings(L).flaws.length) L.acc.pop(); // nothing that does not go together
+  }
+  const hairs = HAIR.filter(h => fitsModel(h, state.model) && h.tags.includes(tag) && (tag !== 'gala' || state.model === 'man' || HAIR_UP.has(h.id))); // hair up for the opera
   if (hairs.length) L.hair = pick(hairs).id;
   [L.top, L.bottom, L.dress, L.outer, L.shoes, ...L.acc].forEach(w => { if (w) state.colorPref[w.id] = w.color; });
 }
@@ -1743,8 +1857,12 @@ const tabsNow = () => ALL_TABS.filter(([k]) => k !== 'dress' || state.model === 
 
 function currentScene() { return state.mode === 'season' ? OCC[state.occ].scene : state.scene; }
 
+/* Phone layout (the stage stays in view above the wardrobe): the picture is cropped to the
+   figures so they stay large. The wide layout shows the whole scene. */
+const PHONE = window.matchMedia('(max-width: 900px)');
 function renderStage() {
   DEFS = null;
+  $('sceneSvg').setAttribute('viewBox', !PHONE.matches ? '0 0 400 820' : state.couple ? '46 180 400 595' : '0 30 400 750');
   $('sceneSvg').innerHTML = stageMarkup(currentScene());
   const q = quietIndex(state.look);
   $('meterNum').textContent = q == null ? '—' : q;
@@ -1756,9 +1874,11 @@ function renderStage() {
 function renderInvite() {
   const el = $('invite');
   if (state.mode === 'season') {
-    const o = OCC[state.occ];
+    const o = OCC[state.occ], seals = OCCASIONS.filter(x => state.seal[x.id]).length;
     el.innerHTML = `<div class="kicker">${o.kicker} · The Season</div><h2>${o.name}</h2><p>${state.model === 'man' && o.hintM ? o.hintM : o.hint}</p>
-      <div class="dots">${OCCASIONS.map((x, i) => `<button data-occ="${x.id}" class="${state.best[x.id] ? 'done' : ''}" aria-current="${x.id === state.occ}" title="${x.name}${state.best[x.id] ? ' — best ' + state.best[x.id] + '★' : ''}">${state.best[x.id] ? state.best[x.id] + '★' : i + 1}</button>`).join('')}</div>`;
+      <div class="dots">${OCCASIONS.map((x, i) => { const st = state.best[x.id], sc = state.bestScore[x.id];
+        return `<button data-occ="${x.id}" class="${st ? 'done' : ''}${sc === 100 ? ' perfect' : ''}${state.seal[x.id] ? ' seal' : ''}" aria-current="${x.id === state.occ}" aria-label="${x.kicker}: ${x.name}${st ? ', best ' + st + ' stars' : ''}${state.seal[x.id] ? ', sealed' : ''}" title="${x.name}${st ? ' — best ' + st + '★' + (sc ? ' (' + sc + ' / 100)' : '') : ''}${state.seal[x.id] ? ' — by your own hand' : ''}">${st ? st + '★' : i + 1}</button>`; }).join('')}
+        <span class="tally" title="Stars won this Season, and flawless looks dressed by your own hand">${OCCASIONS.reduce((n, x) => n + (state.best[x.id] || 0), 0)} / 30 ★${seals ? ` · ${seals} ${seals > 1 ? 'seals' : 'seal'}` : ''}</span></div>`;
     el.querySelectorAll('[data-occ]').forEach(b => b.onclick = () => { state.occ = b.dataset.occ; persist(); renderInvite(); renderStage(); });
   } else {
     el.innerHTML = `<div class="kicker">Free styling</div><h2>Dress for yourself</h2><p>No invitation, no rules. Ask the style desk where your look belongs.</p>
@@ -1777,7 +1897,7 @@ function renderInvite() {
 function renderTabs() {
   if (!tabsNow().some(([k]) => k === state.tab)) state.tab = 'model';
   $('tabs').innerHTML = tabsNow().map(([k, n]) => `<button role="tab" data-tab="${k}" aria-selected="${state.tab === k}">${n}</button>`).join('');
-  $('tabs').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; renderTabs(); renderPanel(); $('panel').scrollTop = 0; });
+  $('tabs').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; renderTabs(); renderPanel(); $('panel').scrollTop = 0; panelToTop(); });
 }
 
 function isWorn(item) {
@@ -1829,7 +1949,7 @@ function renderPanel() {
   else grid = `<div class="grid">${state.tab === 'outer' ? `<button class="item ${!L.outer ? 'worn' : ''}" data-none="outer" aria-pressed="${!L.outer}" title="Wear no outer layer">
       <svg viewBox="${mapBox(BOX.outer, PROP.body)}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${GHOST[state.model]}</svg><span>No outer layer</span></button>` : ''}${items.map(tile).join('')}</div>`;
   const intro = { top: state.model === 'man' ? 'Shirts are tucked in; knits sit over the waistband.' : 'Tucked shirts sit under skirts and trousers; knits sit over them.', dress: 'A dress replaces top and bottom.', bottom: '', outer: 'One layer on top, or none at all.', shoes: '', acc: 'Wear as many as you like, though the desk prefers three or fewer.' }[state.tab];
-  p.innerHTML = `<div class="swatches"><div class="sw-head"><div class="name">${fi.name} <em>· ${COL[fc][0]}</em>${isWorn(fi) ? '' : ' <em>(tap a colour to wear)</em>'}</div>
+  p.innerHTML = `<div class="swatches focusbar"><div class="sw-head"><div class="name">${fi.name} <em>· ${COL[fc][0]}</em>${isWorn(fi) ? '' : ' <em>(tap a colour to wear)</em>'}</div>
       ${isWorn(fi) ? '<button class="btn small" data-takeoff>Take off</button>' : ''}</div>
       ${swatchRow(colourList, isWorn(fi) ? fc : null, 'data-col')}<p class="desc">${fi.desc}</p></div>
     ${intro ? `<h3>${intro}</h3>` : ''}${grid}`;
@@ -1876,7 +1996,8 @@ function suggestions(L, occ, max = 4) {
     const C = cloneLook(L); m.fn(C);
     const e = evaluate(C, occ), gain = e.total - base.total;
     if (gain < 1) return;
-    const rank = gain + (m.it && m.it.tags.includes(occ.tag) ? .5 : 0), prev = best.get(key);
+    // For the same gain: a piece made for the occasion first, then the smallest change (a new colour); equal tips take turns.
+    const rank = gain + (m.it && m.it.tags.includes(occ.tag) ? .5 : 0) + (m.kind === 'recolor' ? .95 : 0) + Math.random() * .4, prev = best.get(key);
     if (!prev || rank > prev.rank) best.set(key, Object.assign(m, { gain, rank, e, base }));
   };
   const usable = it => fitsModel(it, model) && !it.trap;
@@ -1889,46 +2010,71 @@ function suggestions(L, occ, max = 4) {
       else consider('slot:' + slot, { kind: 'wear', it, color: c, fn: C => lookWear(C, it, c) });
     }));
   });
+  // With neither a top nor a bottom on, no single piece completes the outfit, so the pair is offered together.
+  if (!L.top && !L.bottom) {
+    const of = slot => ITEMS.filter(i => i.slot === slot && usable(i));
+    of('top').forEach(t => t.colors.forEach(tc => of('bottom').forEach(b => b.colors.forEach(bc =>
+      consider('pair', { kind: 'pair', it: t, color: tc, it2: b, color2: bc, fn: C => { lookWear(C, t, tc); lookWear(C, b, bc); } })))));
+  }
   if (L.outer) consider('slot:outer', { kind: 'remove', it: ITEM[L.outer.id], fn: C => { C.outer = null; } });
   L.acc.forEach(a => {
     const it = ITEM[a.id]; if (!it) return;
     const key = it.group ? 'group:' + it.group : 'item:' + it.id;
     consider(key, { kind: 'remove', it, fn: C => lookRemove(C, it) });
     it.colors.forEach(c => { if (c !== a.color) consider(key, { kind: 'recolor', it, color: c, from: a.color, fn: C => lookRecolor(C, it, c) }); });
+    // or one accessory in place of another, so a lone piece that does not belong is exchanged, not just removed
+    // (never for a piece that would push out a third one, such as a second belt)
+    if (!it.group) ITEMS.filter(i => i.slot === 'acc' && usable(i) && !L.acc.some(x => x.id === i.id || (i.group && ITEM[x.id] && ITEM[x.id].group === i.group))).forEach(i => i.colors.forEach(c =>
+      consider(key, { kind: 'wear', it: i, color: c, swap: it, fn: C => { lookRemove(C, it); lookWear(C, i, c); } })));
   });
   ITEMS.filter(i => i.slot === 'acc' && usable(i) && !L.acc.some(a => a.id === i.id))
     .forEach(it => it.colors.forEach(c => consider(it.group ? 'group:' + it.group : 'acc-add', { kind: 'wear', it, color: c, fn: C => lookWear(C, it, c) })));
   HAIR.filter(h => fitsModel(h, model) && h.id !== L.hair).forEach(h => consider('hair', { kind: 'hair', hair: h, fn: C => { C.hair = h.id; } }));
-  return [...best.values()].sort((a, b) => b.rank - a.rank).slice(0, max).map(m => Object.assign(m, describeMove(m, L, occ)));
+  // Several changes can mend the same finishing problem (recolour the belt, or the shoes): only the best is offered.
+  const out = [], seen = new Set();
+  [...best.values()].sort((a, b) => b.rank - a.rank).forEach(m => {
+    if (out.length >= max) return;
+    Object.assign(m, describeMove(m, L, occ));
+    if (m.cause) { if (seen.has(m.cause)) return; seen.add(m.cause); }
+    out.push(m);
+  });
+  return out;
 }
 function describeMove(m, L, occ) {
   const nm = it => lower(it.name);
   const col = (it, c) => { if (it.colors.length < 2) return ''; const w = lower(COL[c][0]).split(' ').filter(x => !lower(it.name).includes(x)); return w.length ? w.join(' ') + ' ' : ''; };
   let text;
   if (m.kind === 'hair') text = `Try the ${lower(m.hair.name)}.`;
+  else if (m.kind === 'pair') text = L.dress ? `Change into the ${col(m.it, m.color)}${nm(m.it)} and the ${col(m.it2, m.color2)}${nm(m.it2)} instead of the ${nm(ITEM[L.dress.id])}.`
+    : `Start with the ${col(m.it, m.color)}${nm(m.it)} and the ${col(m.it2, m.color2)}${nm(m.it2)}.`;
   else if (m.kind === 'remove') text = `Take off the ${nm(m.it)}.`;
   else if (m.kind === 'recolor') text = `Wear the ${nm(m.it)} in ${lower(COL[m.color][0])} instead of ${lower(COL[m.from][0])}.`;
   else {
     const s = m.it.slot, cur = s === 'acc' ? null : L[s];
-    if (cur) text = `Swap the ${nm(ITEM[cur.id])} for the ${col(m.it, m.color)}${nm(m.it)}.`;
+    if (m.swap) text = `Swap the ${nm(m.swap)} for the ${col(m.it, m.color)}${nm(m.it)}.`;
+    else if (cur) text = `Swap the ${nm(ITEM[cur.id])} for the ${col(m.it, m.color)}${nm(m.it)}.`;
     else if (s === 'dress' && (L.top || L.bottom)) text = `Change into the ${col(m.it, m.color)}${nm(m.it)} instead of the ${[L.top, L.bottom].filter(Boolean).map(w => nm(ITEM[w.id])).join(' and the ')}.`;
     else if ((s === 'top' || s === 'bottom') && L.dress) text = `Swap the ${nm(ITEM[L.dress.id])} for the ${col(m.it, m.color)}${nm(m.it)}.`;
     else if (m.it.group && L.acc.some(a => ITEM[a.id] && ITEM[a.id].group === m.it.group)) text = `Swap the ${nm(ITEM[L.acc.find(a => ITEM[a.id] && ITEM[a.id].group === m.it.group).id])} for the ${col(m.it, m.color)}${nm(m.it)}.`;
     else text = `Add the ${col(m.it, m.color)}${nm(m.it)}.`;
   }
-  const d = { comp: m.e.comp - m.base.comp, fit: m.e.fit - m.base.fit, quiet: m.e.quiet - m.base.quiet, harmony: m.e.harmony - m.base.harmony };
-  const top = Object.keys(d).sort((a, b) => d[b] - d[a])[0];
-  const wornTrap = m.kind === 'remove' ? m.it.trap : m.it && m.it.slot !== 'acc' && L[m.it.slot] && ITEM[L[m.it.slot].id].trap;
+  // The reason is the part of the score the change helps most. Completing the outfit comes first,
+  // because it also lifts the share of quietness and palette that counts.
+  const d = { fit: m.e.fit - m.base.fit, quiet: m.e.quietRaw - m.base.quietRaw, harmony: m.e.harmonyRaw - m.base.harmonyRaw, finish: m.e.finish - m.base.finish };
+  const top = m.e.comp > m.base.comp ? 'comp' : Object.keys(d).sort((a, b) => d[b] - d[a])[0];
+  const wornTrap = m.kind === 'remove' ? m.it.trap : m.swap ? m.swap.trap : m.it && m.it.slot !== 'acc' && L[m.it.slot] && ITEM[L[m.it.slot].id].trap;
+  const mended = m.base.flaws.find(f => !m.e.flaws.some(g => g.key === f.key));
   let why;
   if (top === 'comp') why = 'It completes the outfit.';
+  else if (top === 'finish') why = mended ? mended.why : 'One good piece finishes a look.';
   else if (top === 'quiet') why = wornTrap ? 'Logos shout; quiet luxury whispers.' : m.kind === 'remove' && m.it.slot === 'acc' ? 'Three accessories is plenty.' : 'Fewer colours competing reads as quieter.';
   else if (top === 'harmony') why = 'A neutral keeps the palette calm and expensive-looking.';
-  else if (m.kind === 'remove') why = `It is not quite right for ${occ.short}.`;
+  else if (m.kind === 'remove') why = `${plural(m.it) ? 'They are' : 'It is'} not quite right for ${occ.short}.`;
   else if (occ.rule === 'whites' && m.color && WHITES.has(m.color)) why = 'Whites from head to toe are the club rule.';
   else if (occ.rule === 'gown' && m.kind === 'hair') why = 'Hair up for the opera.';
   else if (occ.rule === 'gown') why = L.model === 'man' ? 'Opening night is black tie.' : 'Opening night asks for floor length.';
   else why = m.it && m.it.desc ? `${m.it.desc} Right for ${occ.short}.` : `It suits ${occ.short}.`;
-  return { text, why };
+  return { text, why, cause: top === 'finish' ? 'finish:' + (mended ? mended.key : 'first') : null };
 }
 function bestColour(it, L, occ) {
   let best = it.colors[0], top = -1;
@@ -1964,8 +2110,9 @@ function refreshTips(set) {
 }
 function applyTip(set, i) {
   const t = set.tips[i];
-  t.before = cloneLook(state.look); t.fn(state.look); t.after = cloneLook(state.look); t.applied = true; t.won = t.gain;
+  t.before = cloneLook(state.look); t.fn(state.look); state.look.aid = true; t.after = cloneLook(state.look); t.applied = true; t.won = t.gain;
   if (t.it && t.color) state.colorPref[t.it.id] = t.color;
+  if (t.it2 && t.color2) state.colorPref[t.it2.id] = t.color2;
   refreshTips(set);
 }
 function undoTip(set, i) {
@@ -2041,8 +2188,8 @@ function openGuide() {
     <div class="seg" role="group" aria-label="Section">${[['look', 'For this look'], ['code', 'Dress code'], ['rules', 'The rules']].map(([k, n]) => `<button data-gtab="${k}" aria-pressed="${k === tab}">${n}</button>`).join('')}</div>
     ${tab !== 'rules' ? `<div class="occ-pick">${OCCASIONS.map(o => `<button class="chip" data-gocc="${o.id}" aria-pressed="${o.id === occ.id}">${o.short.replace(/^the /, '').replace(/^\w/, ch => ch.toUpperCase())}</button>`).join('')}</div>` : ''}
     ${body}<div class="row-btns"><button class="btn" data-close>Close</button></div>`;
-  $('guideVeil').hidden = false;
-  c.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { $('guideVeil').hidden = true; });
+  showVeil('guideVeil');
+  c.querySelectorAll('[data-close]').forEach(b => b.onclick = () => hideVeil('guideVeil'));
   c.querySelectorAll('[data-gtab]').forEach(b => b.onclick = () => { state.guideTab = b.dataset.gtab; openGuide(); });
   c.querySelectorAll('[data-gocc]').forEach(b => b.onclick = () => { state.guideOcc = b.dataset.gocc; openGuide(); });
   if (tab === 'look') bindTips(c, state._gset, 'data-gtip', () => { const st = c.scrollTop; openGuide(); c.scrollTop = st; });
@@ -2055,16 +2202,69 @@ function openGuide() {
   });
 }
 const wornIn = (L, it) => it.slot === 'acc' ? L.acc.some(a => a.id === it.id) : !!(L[it.slot] && L[it.slot].id === it.id);
-function changed(panel) { persist(); renderStage(); if (panel) { const st = $('panel').scrollTop; renderPanel(); $('panel').scrollTop = st; } }
+/* Every change to either look goes through changed(), which keeps the step before it for Undo. */
+const HIST = [];
+let SIG = JSON.stringify(state.lookBy);
+function changed(panel) {
+  const now = JSON.stringify(state.lookBy);
+  if (now !== SIG) { HIST.push(SIG); if (HIST.length > 60) HIST.shift(); SIG = now; }
+  persist(); renderStage(); updateUndo();
+  if (panel) { const st = $('panel').scrollTop; renderPanel(); $('panel').scrollTop = st; }
+}
+function updateUndo() { $('btnUndo').disabled = !HIST.length; }
+function undo() {
+  if (!HIST.length) return;
+  SIG = HIST.pop();
+  const was = JSON.parse(SIG);
+  state.lookBy.woman = was.woman; state.lookBy.man = was.man;
+  persist(); renderStage(); renderPanel(); updateUndo(); toast('Undone');
+}
+
+/* ---- Dialogs: opening one remembers what had focus, closing it gives the focus back ---- */
+const VEILS = ['resultVeil', 'guideVeil', 'lookVeil'];
+let opener = null;
+function showVeil(id) {
+  const v = $(id);
+  if (!v.hidden) return;
+  opener = document.activeElement; v.hidden = false;
+  v.querySelector('.card').focus({ preventScroll: true });
+}
+function hideVeil(id) {
+  const v = $(id);
+  if (v.hidden) return;
+  v.hidden = true;
+  if (id === 'resultVeil') renderInvite();
+  if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+  opener = null;
+}
+const calm = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---- Result ---- */
 function starsHTML(n) { return '★'.repeat(n) + `<span class="off">${'★'.repeat(5 - n)}</span>`; }
+function bigStars(n) { return [0, 1, 2, 3, 4].map(i => `<span class="${i < n ? 'on' : 'off'}" style="--i:${i}">★</span>`).join(''); }
+function countUp(el, to) {
+  if (calm() || !el) return;
+  const t0 = performance.now();
+  const step = t => { const k = Math.min(1, (t - t0) / 700); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1 && el.isConnected) requestAnimationFrame(step); };
+  el.textContent = 0; requestAnimationFrame(step);
+}
 const WHO = { woman: 'The lady', man: 'The gentleman' };
+function seasonLine() {
+  const stars = OCCASIONS.map(o => state.best[o.id] || 0), scores = OCCASIONS.map(o => state.bestScore[o.id] || 0);
+  return OCCASIONS.every(o => state.seal[o.id]) ? 'Six flawless looks by your own hand. There is nothing left to teach you.'
+    : scores.every(s => s === 100) ? 'Six flawless looks. The Season is yours.'
+    : stars.every(s => s === 5) ? 'Five stars at every invitation. A Season to remember.'
+    : stars.every(s => s >= 4) ? 'Four stars or better at every invitation. You have finished the Season.' : '';
+}
 function showResult(opts = {}) {
-  let occ, e, heading;
+  let occ, e, heading, fresh = false, own = false;
   if (state.mode === 'season') {
     occ = OCC[state.occ]; e = evaluate(state.look, occ); heading = `${WHO[state.model]} · ${occ.name}`;
     if (!state.best[occ.id] || e.stars > state.best[occ.id]) state.best[occ.id] = e.stars;
+    const was = state.bestScore[occ.id] || 0;
+    if (e.total > was) { state.bestScore[occ.id] = e.total; fresh = was > 0; }
+    own = e.total === 100 && state.look.aid === false; // only a look begun with Start over and dressed without help
+    if (own) state.seal[occ.id] = true;
     state.lastResult = { occ: occ.id, stars: e.stars };
   } else {
     if (opts.again && OCC[state.resultOcc]) { occ = OCC[state.resultOcc]; e = evaluate(state.look, occ); }
@@ -2073,43 +2273,49 @@ function showResult(opts = {}) {
     heading = `${WHO[state.model]} belongs at: ${occ.name}`;
     state.lastResult = { occ: occ.id, stars: e.stars };
   }
-  persist();
+  persist(); renderInvite(); // the tally behind the card is up to date at once
   const set = tipSet(occ, 3);
   const idx = OCCASIONS.findIndex(o => o.id === state.occ);
   const next = OCCASIONS[(idx + 1) % OCCASIONS.length];
-  const allDone = OCCASIONS.every(o => state.best[o.id] >= 4);
+  const finale = state.mode === 'season' ? seasonLine() : '';
+  // In couple view the companion is in the picture too, so the desk says how they are doing.
+  const other = state.model === 'man' ? 'woman' : 'man';
+  const pe = state.couple && state.mode === 'season' ? evaluate(state.lookBy[other], occ) : null;
   $('resultCard').innerHTML = `<button class="close-x" aria-label="Close" data-close>×</button>
     <div class="kicker">The Style Desk · ${state.mode === 'season' ? occ.kicker : 'Free styling'}</div>
     <h2 id="resultTitle">${TITLES[e.stars]}</h2>
     <p class="sub">${heading}</p>
-    <div class="stars" aria-label="${e.stars} out of 5 stars">${starsHTML(e.stars)}</div>
-    <div class="score">${e.total} / 100</div>
+    <div class="stars${opts.again ? '' : ' reveal'}" role="img" aria-label="${e.stars} out of 5 stars">${bigStars(e.stars)}</div>
+    <div class="score"><span id="resScore">${e.total}</span> / 100${e.total === 100 ? ` <b class="pill gold">${own ? 'Flawless · by your own hand' : 'Flawless'}</b>` : fresh ? ' <b class="pill">New best</b>' : ''}</div>
     <div class="breakdown">
       <span>A complete outfit</span><b>${Math.round(e.comp)} / 15</b>
       <span>Right for the occasion</span><b>${Math.round(e.fit)} / 40</b>
-      <span>Quietness — no logos, no excess</span><b>${Math.round(e.quiet)} / 30</b>
-      <span>A palette built on neutrals</span><b>${Math.round(e.harmony)} / 15</b>
+      <span>Quietness — no logos, no excess</span><b>${Math.round(e.quiet)} / 20</b>
+      <span>A palette built on neutrals</span><b>${Math.round(e.harmony)} / 10</b>
+      <span>Finishing touches — it all goes together</span><b>${Math.round(e.finish)} / 15</b>
     </div>
     <ul class="critique">${e.plus.map(t => `<li class="plus">${t}</li>`).join('')}${e.minus.map(t => `<li class="minus">${t}</li>`).join('')}${!e.plus.length && !e.minus.length ? '<li class="plus">Nothing to add.</li>' : ''}</ul>
     <p class="byline">“${VERDICTS[e.stars]}” — The Siam Times style desk</p>
     ${set.tips.length ? `<h3 class="tips-head">How to improve</h3>${tipsHTML(set, 'data-rtip')}` : ''}
-    ${state.mode === 'season' && allDone ? '<p class="sub">Four stars or better at every invitation. You have finished the Season.</p>' : ''}
+    ${pe ? `<p class="partner"><span>Also in the picture: ${lower(WHO[other])} · <b>${pe.total} / 100</b> <span class="mini-stars">${starsHTML(pe.stars)}</span></span><button class="btn small" id="resPartner">Present ${lower(WHO[other])}</button></p>` : ''}
+    ${state.mode === 'season' && e.total === 100 && !own && !state.seal[occ.id] ? '<p class="hint">One prize is left here: the seal “By your own hand”. Press Start over and reach 100 without the valet or the stylist’s Apply.</p>' : ''}
+    ${finale ? `<p class="finale">${finale}</p>` : ''}
     <div class="row-btns">
       <button class="btn" data-close>Keep styling</button>
       <button class="btn" id="resSave">Save to lookbook</button>
       <button class="btn" id="resGuide">Style guide</button>
       ${state.mode === 'season' ? `<button class="btn primary" id="resNext">Next: ${next.kicker}</button>` : ''}
     </div>`;
-  $('resultVeil').hidden = false;
-  if (!opts.again) chime(e.stars);
+  showVeil('resultVeil');
+  if (!opts.again) { chime(e.stars); countUp($('resScore'), e.total); }
   $('resultCard').querySelectorAll('[data-close]').forEach(b => b.onclick = closeResult);
   $('resSave').onclick = () => { saveLook(); closeResult(); };
   $('resGuide').onclick = () => { closeResult(); state.guideOcc = occ.id; state.guideTab = 'look'; openGuide(); };
   bindTips($('resultCard'), set, 'data-rtip', () => { const st = $('resultCard').scrollTop; showResult({ again: true }); $('resultCard').scrollTop = st; });
-  const nb = $('resNext'); if (nb) nb.onclick = () => { state.occ = next.id; persist(); closeResult(); renderInvite(); renderStage(); };
-  if (!opts.again) $('resultCard').querySelector('.btn').focus();
+  const nb = $('resNext'); if (nb) nb.onclick = () => { state.occ = next.id; persist(); closeResult(); renderInvite(); renderStage(); toTop(); };
+  const pb = $('resPartner'); if (pb) pb.onclick = () => { setModel(other); showResult(); };
 }
-function closeResult() { $('resultVeil').hidden = true; renderInvite(); }
+function closeResult() { hideVeil('resultVeil'); }
 
 /* ---- Lookbook ---- */
 function lookCaption(entry) { return entry.label; }
@@ -2132,14 +2338,14 @@ function openLookbook() {
     ${state.looks.length ? `<div class="looks">${state.looks.map((e, i) => `<div class="look"><button class="open" data-i="${i}" aria-label="Wear look ${i + 1}">${miniFigure(e)}</button><div class="cap">${lookCaption(e)}</div><button class="del" data-del="${i}" aria-label="Delete look">×</button></div>`).join('')}</div>`
       : '<p class="empty">No looks yet. Dress your model and press “Save look”.</p>'}
     <div class="row-btns"><button class="btn" data-close>Close</button></div>`;
-  $('lookVeil').hidden = false;
-  c.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { $('lookVeil').hidden = true; });
+  showVeil('lookVeil');
+  c.querySelectorAll('[data-close]').forEach(b => b.onclick = () => hideVeil('lookVeil'));
   c.querySelectorAll('[data-i]').forEach(b => b.onclick = () => {
     const e = state.looks[+b.dataset.i];
     const m = e.look.model === 'man' ? 'man' : 'woman';
     state.model = m; state.look = cleanLook(Object.assign(defaultLook(m), JSON.parse(JSON.stringify(e.look)), { model: m }));
     if (state.mode === 'free') state.scene = e.scene;
-    $('lookVeil').hidden = true; renderTabs(); changed(true); renderInvite();
+    hideVeil('lookVeil'); renderTabs(); changed(true); renderInvite();
   });
   c.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { state.looks.splice(+b.dataset.del, 1); persist(); updateLookCount(); openLookbook(); });
 }
@@ -2197,23 +2403,50 @@ $('modeFree').onclick = () => { state.mode = 'free'; persist(); renderInvite(); 
 $('btnValet').onclick = () => {
   const tag = state.mode === 'season' ? OCC[state.occ].tag : (OCC[state.scene] ? OCC[state.scene].tag : pick(OCCASIONS).tag);
   if (state.couple) { const m0 = state.model; ['man', 'woman'].forEach(m => { state.model = m; valet(tag); }); state.model = m0; } else valet(tag);
-  changed(true); toast(state.couple ? 'Your valet has dressed you both.' : 'Your valet has laid out a look.');
+  changed(true); toast(state.couple ? 'Your valet has dressed you both. The finishing touches are yours.' : 'Your valet has laid out the clothes. The finishing touches are yours.');
 };
 $('btnCouple').onclick = () => { state.couple = !state.couple; persist(); renderInvite(); renderStage(); };
 $('sceneSvg').addEventListener('click', e => { const g = e.target.closest && e.target.closest('[data-model]'); if (g && g.dataset.model !== state.model) setModel(g.dataset.model); });
-$('btnReset').onclick = () => { const L = state.look; Object.assign(L, { top: null, bottom: null, dress: null, outer: null, shoes: null, acc: [] }); changed(true); };
+$('btnReset').onclick = () => { const L = state.look; Object.assign(L, { top: null, bottom: null, dress: null, outer: null, shoes: null, acc: [], aid: false }); changed(true); };
 $('btnSave').onclick = saveLook;
 $('btnPng').onclick = downloadPortrait;
 $('btnPresent').onclick = showResult;
 $('openLookbook').onclick = openLookbook;
 $('openGuide').onclick = () => { state.guideOcc = null; openGuide(); };
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('resultVeil').hidden = true; $('lookVeil').hidden = true; $('guideVeil').hidden = true; } });
-[$('resultVeil'), $('lookVeil'), $('guideVeil')].forEach(v => v.addEventListener('click', e => { if (e.target === v) v.hidden = true; }));
+$('btnUndo').onclick = undo;
+document.addEventListener('keydown', e => {
+  const open = VEILS.map($).find(v => !v.hidden);
+  if (e.key === 'Escape') VEILS.forEach(hideVeil);
+  else if (e.key === 'Tab' && open) { // keep the focus inside the open dialog
+    const f = [...open.querySelectorAll('button')].filter(b => !b.disabled);
+    if (!f.length) return;
+    const at = document.activeElement, first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (at === first || !f.includes(at))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (at === last || !f.includes(at))) { e.preventDefault(); first.focus(); }
+  } else if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key || '').toLowerCase() === 'z' && !open) { e.preventDefault(); undo(); }
+});
+VEILS.forEach(id => $(id).addEventListener('click', e => { if (e.target === $(id)) hideVeil(id); }));
+
+/* Phone layout. The header and the invitation scroll away; the stage and its buttons stay at the
+   top of the screen (the stage column is sticky, offset by the height of the invitation). */
+const stuckHeight = () => $('stage').offsetHeight + document.querySelector('.actions').offsetHeight;
+function toTop() { if (PHONE.matches) window.scrollTo({ top: 0, behavior: calm() ? 'auto' : 'smooth' }); }
+function panelToTop() {
+  if (!PHONE.matches) return;
+  const y = $('tabs').parentElement.getBoundingClientRect().top + window.scrollY - stuckHeight();
+  if (window.scrollY > y) window.scrollTo(0, y);
+}
+const fitInvite = () => document.documentElement.style.setProperty('--invite-h', $('invite').offsetHeight + 'px');
+if (window.ResizeObserver) new ResizeObserver(fitInvite).observe($('invite'));
+window.addEventListener('resize', fitInvite);
+const onPhone = () => { fitInvite(); renderStage(); };
+if (PHONE.addEventListener) PHONE.addEventListener('change', onPhone); else PHONE.addListener(onPhone); // older Safari
 
 // A first-time visitor starts dressed for the first invitation, so the stage is never empty.
-if (!saved.look && !saved.lookBy) { const m0 = state.model; state.model = 'man'; valet('polo'); state.model = 'woman'; valet('polo'); state.model = m0; }
-else if (!saved.lookBy) { const m0 = state.model; state.model = 'man'; valet('polo'); state.model = m0; }
-renderTabs(); renderPanel(); renderInvite(); renderStage(); updateLookCount();
+if (!saved.look && !saved.lookBy) { const m0 = state.model; state.model = 'man'; valet('polo', true); state.model = 'woman'; valet('polo', true); state.model = m0; }
+else if (!saved.lookBy) { const m0 = state.model; state.model = 'man'; valet('polo', true); state.model = m0; }
+SIG = JSON.stringify(state.lookBy); // Undo starts from the look on screen
+renderTabs(); renderPanel(); renderInvite(); renderStage(); updateLookCount(); updateUndo(); fitInvite();
 </script>
 </body>
 </html>
