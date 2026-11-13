@@ -685,7 +685,7 @@ const ITEMS = [
       Ln('M168,327 Q200,330 232,327', dk(c, .18)) },
 
   /* ---- Outerwear ---- */
-  { id: 'blazer', name: 'Navy blazer', slot: 'outer', layer: 5, colors: ['navy', 'camel', 'bottle', 'cream'], tags: ['polo', 'ivy', 'sailing'],
+  { id: 'blazer', name: 'Brass-button blazer', slot: 'outer', layer: 5, colors: ['navy', 'camel', 'bottle', 'cream'], tags: ['polo', 'ivy', 'sailing'],
     desc: 'Single-breasted with brass buttons and a pocket square.',
     draw: c => BACK_COLLAR(c) + pair(S(SLEEVE_OUT, c, c) + btn(127, 402, '#C8A253', 1.6) + btn(132, 405, '#C8A253', 1.6)) +
       pair(S(BLAZER_PANEL, c, c) + Ln('M160,392 L186,395', dk(c, .35), 1.6)) + LAPEL(c) + btn(200, 350) + btn(200, 386) +
@@ -701,7 +701,7 @@ const ITEMS = [
       P('M186,164 L186,184 Q200,189 214,184 L214,164 Q200,169 186,164Z', '#7A5435', dk('#7A5435', .3)) +
       Ln('M200,188 V414', dk(c, .45), 1.6) + `<rect x="197" y="200" width="6" height="11" rx="1.5" fill="#C8A253"/>` +
       pair(Ln('M163,190 Q158,214 164,240', '#7A5435', 2.4)) },
-  { id: 'coat', name: 'Camel overcoat', slot: 'outer', layer: 5, colors: ['camel', 'charcoal', 'cream', 'navy'], tags: ['country', 'ivy', 'gala'],
+  { id: 'coat', name: 'Wool overcoat', slot: 'outer', layer: 5, colors: ['camel', 'charcoal', 'cream', 'navy'], tags: ['country', 'ivy', 'gala'],
     desc: 'Double-faced wool to below the knee.',
     draw: c => BACK_COLLAR(c) + pair(S([[142, 188], [130, 238], [121, 312], [113, 420, 'c'], [143, 424, 'c'], [150, 314], [157, 262], [160, 238]], c, c) + Ln('M115,404 L143,408', dk(c, .2), 1.2)) +
       pair(S(COAT_PANEL, c, c) + Ln('M158,430 L182,432', dk(c, .3), 1.4)) + LAPEL(c) +
@@ -870,6 +870,58 @@ HAIR.push({ id: 'coiffed', name: 'Coiffed bob', tags: ['country', 'ivy', 'polo',
     Ln('M188,60 Q168,72 161,104 Q157,132 159,162 M212,58 Q236,70 242,104 Q246,132 242,162 M188,88 Q207,93 225,110 M196,62 Q186,74 188,88', dk(c, .22), .9) +
     Ln('M160,150 Q164,168 176,170 M240,150 Q236,168 224,170', lt(c, .25), 1.4, ' opacity=".6"') });
 
+/* ---- Watches: one at a time, drawn on whichever model wears them ---- */
+COL.olive = ['Olive', '#5F6A3E']; NEUTRAL.add('olive');
+const WRIST = { woman: { x: 130, y: 406.5, w: 25 }, man: { x: 122.5, y: 404.5, w: 28 } };
+const prect = (cx, cy, w, h, extra) => `<rect x="${f1(cx - w / 2 / PROP.SX)}" y="${f1(cy - h / 2 / PROP.SY)}" width="${f1(w / PROP.SX)}" height="${f1(h / PROP.SY)}"${extra}/>`;
+function watchArt(model, o) {
+  const p = WRIST[model] || WRIST.woman, x = p.x, y = p.y, r = (o.r || 6) * (model === 'man' ? 1.05 : 1), sx = x - p.w / 2;
+  let s = '';
+  if (o.bracelet) {
+    s += `<rect x="${sx}" y="${y - 4}" width="${p.w}" height="8" rx="2" fill="${o.bracelet}" stroke="${dk(o.bracelet, .35)}" stroke-width=".5"/>`;
+    for (let i = 1; i < p.w / 2.6; i++) s += Ln(`M${f1(sx + i * 2.6)},${y - 3.5} V${y + 3.5}`, dk(o.bracelet, .25), .45);
+  } else {
+    s += `<rect x="${sx}" y="${y - 4}" width="${p.w}" height="8" rx="2.5" fill="${o.strap}"/>`;
+    if (o.stripe) s += Ln(`M${sx},${y - 1.6} H${sx + p.w} M${sx},${y + 1.6} H${sx + p.w}`, o.stripe, .7);
+  }
+  if (o.rect) s += prect(x, y, r * 1.5, r * 2, ` rx="1.2" fill="${o.case}" stroke="${dk(o.case, .35)}" stroke-width=".7"`) + prect(x, y, r * 1.1, r * 1.6, ` fill="${o.dial}"`);
+  else {
+    if (o.bezel) s += dot(x, y, r + 1.5, ` fill="${o.bezel}" stroke="${dk(o.case, .3)}" stroke-width=".6"`);
+    s += dot(x, y, r, ` fill="${o.case}" stroke="${dk(o.case, .35)}" stroke-width=".7"`) + dot(x, y, r - 1.3, ` fill="${o.dial}"`);
+  }
+  if (o.ice) for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; s += dot(f1(x + Math.cos(a) * (r - .65) / PROP.SX), f1(y + Math.sin(a) * (r - .65) / PROP.SY), .6, ' fill="#fff"'); }
+  if (o.lume) s += dot(x, f1(y - (r - 2.3) / PROP.SY), .75, ' fill="#E8F2D8"');
+  const hc = o.hands || '#2a2a2a'; // ten past ten
+  s += Ln(`M${x},${y} L${f1(x - r * .42 / PROP.SX)},${f1(y - r * .3 / PROP.SY)} M${x},${y} L${f1(x + r * .55 / PROP.SX)},${f1(y - r * .45 / PROP.SY)}`, hc, .75);
+  return s;
+}
+const leatherFor = c => c === hex('gold') ? '#4A2F20' : '#1C1C1E';
+Object.assign(ITEMS.find(i => i.id === 'watch'), {
+  name: 'Round dress watch', who: 'u', group: 'watch', tags: ['any', 'gala', 'ivy'], box: '92 378 66 58',
+  desc: 'A slim round watch on a leather strap.',
+  draw: (c, m) => watchArt(m, { case: c, dial: '#F4EFE3', strap: leatherFor(c), r: 6 }),
+});
+const WATCHES = [
+  { id: 'w-rect', name: 'Rectangular dress watch', colors: ['gold', 'silver'], tags: ['any', 'gala', 'ivy', 'polo'],
+    desc: 'A rectangular case on a leather strap, right with tweed by day and black tie by night.',
+    draw: (c, m) => watchArt(m, { rect: true, case: c, dial: '#F4EFE3', strap: leatherFor(c), r: 5 }) },
+  { id: 'w-bracelet', name: 'Bracelet watch', colors: ['gold', 'silver'], tags: ['gala', 'ivy', 'polo'],
+    desc: 'A slim watch on a fine link bracelet, for lunch and evening.',
+    draw: (c, m) => watchArt(m, { case: c, dial: '#F4EFE3', bracelet: c, r: 5 }) },
+  { id: 'w-steel', name: 'Steel sports watch', colors: ['navy', 'black', 'bottle'], tags: ['sailing', 'tennis', 'polo', 'country'],
+    desc: 'A steel case and bracelet, built for the boat and the court.',
+    draw: (c, m) => watchArt(m, { case: '#BCC1C6', dial: c, bracelet: '#BCC1C6', hands: '#F2F2F2', r: 6.2 }) },
+  { id: 'w-diver', name: 'Diver’s watch', colors: ['navy', 'black', 'bottle'], tags: ['sailing'],
+    desc: 'A steel diver with a turning bezel. For the regatta, not the opera.',
+    draw: (c, m) => watchArt(m, { case: '#BCC1C6', bezel: c, dial: dk(c, .25), bracelet: '#BCC1C6', hands: '#F2F2F2', lume: true, r: 6.4 }) },
+  { id: 'w-field', name: 'Field watch', colors: ['olive', 'navy', 'chocolate'], tags: ['country', 'polo'],
+    desc: 'A small steel watch on a canvas strap, for walks and the stables.',
+    draw: (c, m) => watchArt(m, { case: '#BCC1C6', dial: '#1F2224', hands: '#F2F2F2', strap: c, stripe: lt(c, .3), r: 5.4 }) },
+  { id: 'w-iced', name: 'Iced-out watch', colors: ['gold'], tags: [], trap: true,
+    desc: 'Oversized and set with diamonds all round. Everyone will know.',
+    draw: (c, m) => watchArt(m, { case: c, dial: '#F4EFE3', bracelet: c, ice: true, r: 8.6 }) },
+].map(w => Object.assign(w, { slot: 'acc', layer: 6, group: 'watch', who: 'u', box: '92 378 66 58' }));
+ITEMS.splice(ITEMS.findIndex(i => i.id === 'watch') + 1, 0, ...WATCHES);
 ['loafers', 'boots', 'boatshoes', 'plimsolls', 'trainers', 'sunglasses', 'logobag', 'chains'].forEach(id => { ITEMS.find(i => i.id === id).who = 'u'; });
 ITEMS.forEach(i => { i.who = i.who || 'w'; });
 HAIR.forEach(h => { h.who = 'w'; });
@@ -1004,7 +1056,7 @@ const M_ITEMS = [
     draw: c => S(M_TROUSER, c, c) + M_WAIST(c) + pair(Ln('M155,362 L161,722', lt(c, .22), 2.6)) },
 
   /* Outerwear */
-  { id: 'm-blazer', name: 'Navy blazer', slot: 'outer', layer: 5, colors: ['navy', 'camel', 'bottle', 'cream'], tags: ['polo', 'ivy', 'sailing'],
+  { id: 'm-blazer', name: 'Brass-button blazer', slot: 'outer', layer: 5, colors: ['navy', 'camel', 'bottle', 'cream'], tags: ['polo', 'ivy', 'sailing'],
     desc: 'Brass buttons, soft shoulders.',
     draw: c => BACK_COLLAR(c) + pair(S(MS_OUT, c, c) + btn(119, 405, '#C8A253', 1.6) + btn(124, 409, '#C8A253', 1.6)) +
       pair(S(M_BLAZER, c, c) + Ln('M154,404 L182,407', dk(c, .35), 1.6)) + M_LAPEL(c) + btn(200, 364) + btn(200, 400) + Ln('M220,288 L240,286', dk(c, .35), 1.4) },
@@ -1018,7 +1070,7 @@ const M_ITEMS = [
     draw: c => S(sym([[200, 182], [187, 170], [170, 178], [156, 190, 'c'], [156, 240], [158, 300], [156, 360], [154, 424, 'c'], [200, 428]]), pat('quilt', c), c) +
       P('M185,162 L185,184 Q200,189 215,184 L215,162 Q200,167 185,162Z', '#7A5435', dk('#7A5435', .3)) + Ln('M200,188 V426', dk(c, .45), 1.6) +
       `<rect x="197" y="200" width="6" height="11" rx="1.5" fill="#C8A253"/>` + pair(Ln('M156,190 Q150,214 156,240', '#7A5435', 2.4)) },
-  { id: 'm-overcoat', name: 'Camel overcoat', slot: 'outer', layer: 5, colors: ['camel', 'charcoal', 'navy'], tags: ['country', 'ivy', 'gala'],
+  { id: 'm-overcoat', name: 'Wool overcoat', slot: 'outer', layer: 5, colors: ['camel', 'charcoal', 'navy'], tags: ['country', 'ivy', 'gala'],
     desc: 'Double-breasted wool to below the knee.',
     draw: c => BACK_COLLAR(c) + pair(S(MS_COAT, c, c) + Ln('M106,408 L138,412', dk(c, .2), 1.2)) + pair(S(M_COAT, c, c) + Ln('M152,440 L178,442', dk(c, .3), 1.4)) +
       M_LAPEL(c) + [366, 416].map(y => btn(186, y, dk(c, .35), 3.6) + btn(214, y, dk(c, .35), 3.6)).join('') },
@@ -1113,6 +1165,11 @@ M_ITEMS.push(
     draw: c => `<path d="M118.5,432 L116.6,746 L121.4,746 L123.5,432Z" fill="${c}" stroke="${dk(c, .35)}" stroke-width=".7"/>` + Ln('M119.6,440 L118.3,742', lt(c, .3), .9) +
       Ln('M120,436 C118,422 130,416 134,426', c, 4.6) + `<rect x="117.4" y="467" width="6.4" height="5" fill="#C8A253" stroke="#8E6F2E" stroke-width=".5"/><rect x="116" y="741" width="5.8" height="7" fill="#C8A253"/>` },
 );
+M_ITEMS.splice(M_ITEMS.findIndex(i => i.id === 'm-watch'), 1); // replaced by the shared watches
+M_ITEMS.push({ id: 'm-pocket', name: 'Pocket watch', slot: 'acc', layer: 4.6, group: 'watch', colors: ['gold', 'silver'], tags: ['country', 'gala', 'ivy'], box: '150 284 70 56',
+  desc: 'Worn on a chain across the waistcoat, with the wristwatch left at home.',
+  draw: c => Ln('M200,306 Q189,324 178,320', c, 1.5, ' stroke-dasharray="1.6 .8"') + `<rect x="198" y="303" width="5" height="2.2" fill="${c}"/>` +
+    dot(176.5, 319.5, 3.2, ` fill="${c}" stroke="${dk(c, .35)}" stroke-width=".6"`) + dot(176.5, 316, 1, ` fill="${c}"`) });
 M_ITEMS.forEach(i => { i.who = 'm'; ITEMS.push(i); });
 
 const mBack = c => pair(P('M171,84 C168,96 168,106 170,116 L176,112 L176,90Z', hf(c)));
@@ -1370,7 +1427,7 @@ Object.defineProperty(state, 'look', { get() { return state.lookBy[state.model];
 // drop anything stale from older saves, or anything cut for the other model
 function cleanLook(L) {
   ['top', 'bottom', 'dress', 'outer', 'shoes'].forEach(k => { const w = L[k]; if (w && !(ITEM[w.id] && fitsModel(ITEM[w.id], L.model))) L[k] = null; });
-  L.acc = (L.acc || []).filter(a => ITEM[a.id] && fitsModel(ITEM[a.id], L.model));
+  L.acc = (L.acc || []).map(a => a.id === 'm-watch' ? { id: 'watch', color: a.color } : a).filter(a => ITEM[a.id] && fitsModel(ITEM[a.id], L.model));
   if (!(HAIR_BY[L.hair] && fitsModel(HAIR_BY[L.hair], L.model))) L.hair = defaultLook(L.model).hair;
   return L;
 }
@@ -1381,8 +1438,8 @@ cleanLook(state.lookBy.woman); cleanLook(state.lookBy.man);
    ===================================================================== */
 function wornList(look) {
   const out = [];
-  ['top', 'bottom', 'dress', 'outer', 'shoes'].forEach(slot => { const w = look[slot]; if (w) out.push({ slot, item: ITEM[w.id], color: w.color }); });
-  look.acc.forEach(a => out.push({ slot: 'acc', item: ITEM[a.id], color: a.color }));
+  ['top', 'bottom', 'dress', 'outer', 'shoes'].forEach(slot => { const w = look[slot]; if (w && ITEM[w.id]) out.push({ slot, item: ITEM[w.id], color: w.color }); });
+  (look.acc || []).forEach(a => { const it = ITEM[a.id === 'm-watch' ? 'watch' : a.id]; if (it) out.push({ slot: 'acc', item: it, color: a.color }); });
   return out;
 }
 function figureMarkup(look) {
@@ -1393,7 +1450,7 @@ function figureMarkup(look) {
   const parts = [[0, onHead(hair.back(hc))], [1, onBody(bodyArt)], [6.95, onHead(headArt)], [7, onHead(`<g filter="url(#lift)">${hair.front(hc)}</g>`)]];
   wornList(look).forEach(w => {
     PAT_HEAD = !!w.item.head;
-    parts.push([w.item.layer, (w.item.head ? onHead : onBody)(`<g filter="url(#lift)">${w.item.draw(hex(w.color))}</g>`)]);
+    parts.push([w.item.layer, (w.item.head ? onHead : onBody)(`<g filter="url(#lift)">${w.item.draw(hex(w.color), look.model)}</g>`)]);
   });
   PAT_HEAD = false;
   parts.sort((a, b) => a[0] - b[0]);
@@ -1412,7 +1469,7 @@ const GHOST = (() => {
 })();
 function itemThumb(item, color) {
   DEFS = new Map(); PAT_HEAD = !!item.head;
-  const art = (item.head ? onHead : onBody)(`<g filter="url(#lift)">${item.draw(hex(color))}</g>`);
+  const art = (item.head ? onHead : onBody)(`<g filter="url(#lift)">${item.draw(hex(color), state.model)}</g>`);
   const defs = `<defs>${STATIC_DEFS}${[...DEFS.values()].join('')}</defs>`;
   DEFS = null; PAT_HEAD = false;
   const box = mapBox(item.box || BOX[item.slot], item.head ? PROP.head : PROP.body);
@@ -1530,7 +1587,8 @@ function valet(tag) {
   L.outer = outers.length && Math.random() < (tag === 'gala' ? .7 : .55) ? wear(pick(outers)) : null;
   L.shoes = wear(pick(pool('shoes')));
   const accs = ITEMS.filter(i => i.slot === 'acc' && fitsModel(i, state.model) && !i.trap && (i.tags.includes(tag) || i.tags.includes('any'))).sort(() => Math.random() - .5);
-  L.acc = accs.slice(0, 1 + Math.floor(Math.random() * 3)).map(wear);
+  const groups = new Set();
+  L.acc = accs.filter(i => !i.group || (!groups.has(i.group) && groups.add(i.group))).slice(0, 1 + Math.floor(Math.random() * 3)).map(wear);
   if (state.model === 'man' && tag === 'gala') { L.top = wear(ITEM['m-evening']); L.bottom = wear(ITEM['m-tux']); L.outer = wear(ITEM['m-dinner']); L.shoes = wear(ITEM['m-patent']); }
   const hairs = HAIR.filter(h => fitsModel(h, state.model) && h.tags.includes(tag));
   if (hairs.length) L.hair = pick(hairs).id;
@@ -1622,7 +1680,7 @@ function renderPanel() {
   state.focus[state.tab] = focusId;
   const fi = ITEM[focusId], fc = prefColor(fi);
   const colourList = Object.fromEntries(fi.colors.map(k => [k, COL[k]]));
-  const intro = { top: state.model === 'man' ? 'Shirts are tucked in; knits sit over the waistband.' : 'Tucked shirts sit under skirts and trousers; knits sit over them.', dress: 'A dress replaces top and bottom.', bottom: '', outer: 'One layer on top.', shoes: '', acc: 'Wear as many as you like — though the desk prefers three or fewer.' }[state.tab];
+  const intro = { top: state.model === 'man' ? 'Shirts are tucked in; knits sit over the waistband.' : 'Tucked shirts sit under skirts and trousers; knits sit over them.', dress: 'A dress replaces top and bottom.', bottom: '', outer: 'One layer on top.', shoes: '', acc: 'Wear as many as you like, though the desk prefers three or fewer. One watch at a time.' }[state.tab];
   p.innerHTML = `<div class="swatches"><div class="name">${fi.name} <em>· ${COL[fc][0]}</em>${isWorn(fi) ? '' : ' <em>(tap a colour to wear)</em>'}</div>
       ${swatchRow(colourList, isWorn(fi) ? fc : null, 'data-col')}<p class="desc">${fi.desc}</p></div>
     ${intro ? `<h3>${intro}</h3>` : ''}
@@ -1644,7 +1702,7 @@ function renderPanel() {
 /* Pure helpers: change any look (the real one, or a trial copy the stylist scores). */
 function lookWear(L, it, color) {
   const w = { id: it.id, color };
-  if (it.slot === 'acc') { L.acc = L.acc.filter(a => a.id !== it.id).concat(w); return; }
+  if (it.slot === 'acc') { L.acc = L.acc.filter(a => a.id !== it.id && !(it.group && ITEM[a.id] && ITEM[a.id].group === it.group)).concat(w); return; }
   L[it.slot] = w;
   if (it.slot === 'dress') { L.top = null; L.bottom = null; }
   if (it.slot === 'top' || it.slot === 'bottom') L.dress = null;
@@ -1669,8 +1727,8 @@ function suggestions(L, occ, max = 4) {
     const C = cloneLook(L); m.fn(C);
     const e = evaluate(C, occ), gain = e.total - base.total;
     if (gain < 1) return;
-    const prev = best.get(key);
-    if (!prev || gain > prev.gain) best.set(key, Object.assign(m, { gain, e, base }));
+    const rank = gain + (m.it && m.it.tags.includes(occ.tag) ? .5 : 0), prev = best.get(key);
+    if (!prev || rank > prev.rank) best.set(key, Object.assign(m, { gain, rank, e, base }));
   };
   const usable = it => fitsModel(it, model) && !it.trap;
   ['top', 'dress', 'bottom', 'outer', 'shoes'].forEach(slot => {
@@ -1683,18 +1741,19 @@ function suggestions(L, occ, max = 4) {
   });
   if (L.outer) consider('slot:outer', { kind: 'remove', it: ITEM[L.outer.id], fn: C => { C.outer = null; } });
   L.acc.forEach(a => {
-    const it = ITEM[a.id];
-    consider('item:' + it.id, { kind: 'remove', it, fn: C => lookRemove(C, it) });
-    it.colors.forEach(c => { if (c !== a.color) consider('item:' + it.id, { kind: 'recolor', it, color: c, from: a.color, fn: C => lookRecolor(C, it, c) }); });
+    const it = ITEM[a.id]; if (!it) return;
+    const key = it.group ? 'group:' + it.group : 'item:' + it.id;
+    consider(key, { kind: 'remove', it, fn: C => lookRemove(C, it) });
+    it.colors.forEach(c => { if (c !== a.color) consider(key, { kind: 'recolor', it, color: c, from: a.color, fn: C => lookRecolor(C, it, c) }); });
   });
   ITEMS.filter(i => i.slot === 'acc' && usable(i) && !L.acc.some(a => a.id === i.id))
-    .forEach(it => it.colors.forEach(c => consider('acc-add', { kind: 'wear', it, color: c, fn: C => lookWear(C, it, c) })));
+    .forEach(it => it.colors.forEach(c => consider(it.group ? 'group:' + it.group : 'acc-add', { kind: 'wear', it, color: c, fn: C => lookWear(C, it, c) })));
   HAIR.filter(h => fitsModel(h, model) && h.id !== L.hair).forEach(h => consider('hair', { kind: 'hair', hair: h, fn: C => { C.hair = h.id; } }));
-  return [...best.values()].sort((a, b) => b.gain - a.gain).slice(0, max).map(m => Object.assign(m, describeMove(m, L, occ)));
+  return [...best.values()].sort((a, b) => b.rank - a.rank).slice(0, max).map(m => Object.assign(m, describeMove(m, L, occ)));
 }
 function describeMove(m, L, occ) {
   const nm = it => lower(it.name);
-  const col = (it, c) => { if (it.colors.length < 2) return ''; const w = lower(COL[c][0]).split(' '); if (w.length > 1 && lower(it.name).includes(w[w.length - 1])) w.pop(); return w.join(' ') + ' '; };
+  const col = (it, c) => { if (it.colors.length < 2) return ''; const w = lower(COL[c][0]).split(' ').filter(x => !lower(it.name).includes(x)); return w.length ? w.join(' ') + ' ' : ''; };
   let text;
   if (m.kind === 'hair') text = `Try the ${lower(m.hair.name)}.`;
   else if (m.kind === 'remove') text = `Take off the ${nm(m.it)}.`;
@@ -1704,6 +1763,7 @@ function describeMove(m, L, occ) {
     if (cur) text = `Swap the ${nm(ITEM[cur.id])} for the ${col(m.it, m.color)}${nm(m.it)}.`;
     else if (s === 'dress' && (L.top || L.bottom)) text = `Change into the ${col(m.it, m.color)}${nm(m.it)}.`;
     else if ((s === 'top' || s === 'bottom') && L.dress) text = `Swap the ${nm(ITEM[L.dress.id])} for the ${col(m.it, m.color)}${nm(m.it)}.`;
+    else if (m.it.group && L.acc.some(a => ITEM[a.id] && ITEM[a.id].group === m.it.group)) text = `Swap the ${nm(ITEM[L.acc.find(a => ITEM[a.id] && ITEM[a.id].group === m.it.group).id])} for the ${col(m.it, m.color)}${nm(m.it)}.`;
     else text = `Add the ${col(m.it, m.color)}${nm(m.it)}.`;
   }
   const d = { comp: m.e.comp - m.base.comp, fit: m.e.fit - m.base.fit, quiet: m.e.quiet - m.base.quiet, harmony: m.e.harmony - m.base.harmony };
@@ -1735,17 +1795,17 @@ function tipsHTML(tips, attr) {
 }
 
 const DRESS_CODE = {
-  polo: { woman: ['shirtdress', 'tea', 'blazer', 'boots', 'loafers', 'basket', 'sunglasses'], man: ['m-oxford', 'm-chinos', 'm-blazer', 'loafers', 'm-panama', 'sunglasses', 'm-pocketsq'],
+  polo: { woman: ['shirtdress', 'tea', 'blazer', 'boots', 'loafers', 'basket', 'sunglasses', 'w-rect'], man: ['m-oxford', 'm-chinos', 'm-blazer', 'loafers', 'm-panama', 'sunglasses', 'm-pocketsq', 'w-rect'],
     tip: 'Choose flat soles. At half-time everyone walks onto the field to tread the divots back in.' },
-  sailing: { woman: ['breton', 'jeans', 'cardigan', 'shoulders', 'boatshoes', 'basket', 'sunglasses'], man: ['m-breton', 'm-polo', 'm-chinos', 'm-shorts', 'm-blazer', 'boatshoes', 'm-shoulders'],
+  sailing: { woman: ['breton', 'jeans', 'cardigan', 'shoulders', 'boatshoes', 'basket', 'sunglasses', 'w-steel'], man: ['m-breton', 'm-polo', 'm-chinos', 'm-shorts', 'm-blazer', 'boatshoes', 'm-shoulders', 'w-diver'],
     tip: 'Deck shoes or white soles only: dark soles mark a teak deck. Bring a knit for the wind.' },
-  country: { woman: ['turtle', 'tartan', 'checkjacket', 'boots', 'belt', 'brooch', 'topbag', 'scarf'], man: ['m-tattersall', 'm-silktie', 'm-waistcoat', 'm-tweed', 'm-chinos', 'm-brogues', 'm-cap', 'm-cane'],
+  country: { woman: ['turtle', 'tartan', 'checkjacket', 'boots', 'belt', 'brooch', 'topbag', 'scarf', 'w-field'], man: ['m-tattersall', 'm-silktie', 'm-waistcoat', 'm-tweed', 'm-chinos', 'm-brogues', 'm-cap', 'm-cane', 'm-pocket'],
     tip: 'Brown shoes and boots belong in the country. Tweed improves with age, so wear yours often and brush it after a walk.' },
-  ivy: { woman: ['cable', 'oxford', 'midi', 'loafers', 'pearls', 'headband'], man: ['m-oxford', 'm-tie', 'm-blazer', 'm-flannels', 'loafers', 'm-cable'],
+  ivy: { woman: ['cable', 'oxford', 'midi', 'loafers', 'pearls', 'headband', 'watch'], man: ['m-oxford', 'm-tie', 'm-blazer', 'm-flannels', 'loafers', 'm-cable', 'watch'],
     tip: 'Keep it a little lived-in: a soft collar and well-worn loafers look better than anything brand new.' },
-  tennis: { woman: ['tennisdress', 'polo', 'tennisskirt', 'plimsolls', 'cardigan', 'headband'], man: ['m-polo', 'm-shorts', 'plimsolls', 'm-cardigan', 'm-watch'],
+  tennis: { woman: ['tennisdress', 'polo', 'tennisskirt', 'plimsolls', 'cardigan', 'headband', 'w-steel'], man: ['m-polo', 'm-shorts', 'plimsolls', 'm-cardigan', 'w-steel'],
     tip: 'Whites from head to toe, shoes included. Colour belongs only in a thin trim.' },
-  gala: { woman: ['gown', 'stole', 'pumps', 'diamonds', 'gloves'], man: ['m-evening', 'm-tux', 'm-dinner', 'm-patent', 'm-pocketsq', 'm-watch'],
+  gala: { woman: ['gown', 'stole', 'pumps', 'diamonds', 'gloves', 'w-bracelet'], man: ['m-evening', 'm-tux', 'm-dinner', 'm-patent', 'm-pocketsq', 'w-rect'],
     tip: 'Black tie means a dinner jacket and bow tie; white tie means tails. Read the card, wear your hair up and keep jewellery small.' },
 };
 const RULES = [
