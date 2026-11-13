@@ -1,12 +1,13 @@
 # Old Money Atelier – web game
 
-A dress-up game in the "old money" quiet-luxury style. Dress a model in cashmere, tweed, silk and pearls for six society invitations, and The Siam Times style desk scores the look. All text in the game is in English.
+A dress-up game in the "old money" quiet-luxury style. Choose a lady or a gentleman, dress them in cashmere, tweed, silk and pearls for six society invitations, and The Siam Times style desk scores the look. All text in the game is in English.
 
 Everything is in `GA-oldmoney.html`. There is no build step: open the file in a browser. On the site it is at https://thesiamtimes.com/OldMoney/GA-oldmoney.html. It works offline; only the Newsreader text font comes from Google Fonts, and the page falls back to Georgia without it.
 
 ## Playing
 
-- **Wardrobe tabs**: Model (skin tone, four hairstyles, hair colour, lipstick), Tops, Dresses, Bottoms, Outerwear, Shoes and Accessories. Tap a piece to put it on, and tap it again to take it off. The colour swatches above the grid recolour the selected piece.
+- **Lady / Gentleman** (top of the page) switches between the two models. Each keeps their own outfit, so you can switch back and forth.
+- **Wardrobe tabs**: Model (skin tone, four hairstyles, hair colour, and lipstick for the lady), Tops, Dresses, Bottoms, Outerwear, Shoes and Accessories. The gentleman has no Dresses tab. His wardrobe includes black tie (evening shirt and bow tie, evening trousers, dinner jacket, patent oxfords), a repp tie, pocket square, signet ring, flat cap and Panama hat. Loafers, riding boots, boat shoes, plimsolls, sunglasses and the trap pieces are shared. Tap a piece to put it on, and tap it again to take it off. The colour swatches above the grid recolour the selected piece.
 - A dress replaces the top and bottom. Shirts and blouses are tucked in; knits and the Breton top sit over the waistband.
 - **The Season**: six invitations: polo, regatta, country weekend, garden party, club tennis and the opera. Each has its own scene. **Present the look** gives one to five stars. Your best result for each invitation is saved.
 - **Free styling**: choose any of seven scenes. **Ask the style desk** tells you which invitation your look suits best.
@@ -18,7 +19,7 @@ Everything is in `GA-oldmoney.html`. There is no build step: open the file in a 
 | Part | Points | What counts |
 |---|---|---|
 | A complete outfit | 15 | A dress, or a top with a bottom (10), and shoes (5) |
-| Right for the occasion | 40 | Each piece is tagged with the occasions it suits; accessories and hair count half. Club tennis needs whites, and the opera needs a gown and hair up |
+| Right for the occasion | 40 | Each piece is tagged with the occasions it suits; accessories and hair count half. Club tennis needs whites. The opera needs a gown and hair up for the lady, and black tie for the gentleman |
 | Quietness | 30 | Logo or trap pieces (hoodie, chunky trainers, logo belt bag, chain stack) cost heavily, as do more than three accessories, more than two accent colours, and loud colours |
 | Palette | 15 | Share of neutral colours (navy, cream, camel, white, charcoal and similar) |
 
@@ -28,8 +29,8 @@ Saved looks, the current outfit, the mode and your best results are kept in the 
 
 ## How it works
 
-- The model and every garment are inline SVG in a 400 × 820 box. Each garment is drawn from point lists that are smoothed into Bézier curves and mirrored for the two sides. Fabrics such as cable knit, herringbone tweed, quilting, corduroy, Breton stripes, florals and silk sheen are SVG patterns made for the chosen colour.
-- Each piece has a layer number, so tucked shirts sit under trousers and boots sit over them.
+- The two models and every garment are inline SVG in a 400 × 820 box. Each garment is drawn from point lists that are smoothed into Bézier curves and mirrored for the two sides. Fabrics such as cable knit, herringbone tweed, quilting, corduroy, Breton stripes, florals and silk sheen are SVG patterns made for the chosen colour.
+- Each piece is marked for the lady, the gentleman or both (`who`), and has a layer number, so tucked shirts sit under trousers and boots sit over them.
 - The scenes are drawn wider than the figure, so wide screens show more of them.
 - The result chime uses Web Audio; there are no sound files.
 
