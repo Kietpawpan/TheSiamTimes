@@ -156,16 +156,21 @@
             touch-action: manipulation;
         }
 
-        /* พื้นผิวหน้าปัดเมื่ออยู่ในโหมด Rolex 1908 */
+        /* โหมด Rolex 1908: หน้าปัดเคลือบสีขาวทุกวัน (ทับสีประจำวันที่ตั้งผ่าน inline style จึงต้องใช้ !important) */
+        .dial.rolex-1908 {
+            background: radial-gradient(circle at 50% 45%, #ffffff 0%, #fbfbfa 55%, #f1f1ef 85%, #e6e6e3 100%) !important;
+            box-shadow: 0 10px 30px rgb(0 0 0 / 0.35), inset 0 0 10px rgba(0, 0, 0, 0.22);
+        }
+
+        /* พื้นผิวหน้าปัดเคลือบขาวเรียบ มีเงาไล่ขอบเบา ๆ */
         .dial.rolex-1908::before {
             content: '';
             position: absolute;
             inset: 0;
             border-radius: 50%;
             background:
-                radial-gradient(circle at 38% 32%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 42%, rgba(0,0,0,0.15) 85%, rgba(0,0,0,0.32) 100%),
-                repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.025) 0px, rgba(0,0,0,0.025) 1px, transparent 2px);
-            box-shadow: inset 0 0 14px rgba(0,0,0,0.45);
+                radial-gradient(circle at 38% 32%, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 45%, rgba(0,0,0,0.035) 85%, rgba(0,0,0,0.09) 100%);
+            box-shadow: inset 0 0 9px rgba(0,0,0,0.18);
             pointer-events: none;
             z-index: 1;
         }
@@ -174,9 +179,26 @@
         .dial.rolex-1908 .text-top {
             top: 59px;
             z-index: 6;
+            color: #111111;
+        }
+        .dial.rolex-1908 .text-brand {
+            text-shadow: none;
         }
         .dial.rolex-1908 .text-model {
             letter-spacing: 1.6px;
+            text-shadow: none;
+            opacity: 1;
+        }
+
+        /* ตัวพิมพ์สีดำบนหน้าปัดขาว: โลโก้ S และคำว่า SIAM / MADE ตรง 6 นาฬิกา */
+        .dial.rolex-1908 .dial-logo {
+            background: none;
+            -webkit-text-fill-color: #111111;
+            color: #111111;
+            filter: none;
+        }
+        .dial.rolex-1908 .made-text {
+            color: #111111;
         }
         .dial.rolex-1908 .text-bottom {
             display: none;
@@ -196,8 +218,7 @@
             font-size: 6.6px;
             font-weight: 700;
             letter-spacing: 0.65px;
-            fill: rgba(255, 255, 255, 0.95);
-            filter: drop-shadow(0px 1px 1.2px rgba(0, 0, 0, 0.35));
+            fill: #111111;
         }
 
         .marker {
@@ -287,8 +308,7 @@
             top: 50%;
             transform: translate(-50%, -50%);
             border-radius: 50%;
-            border: 1.1px solid rgba(255, 255, 255, 0.88);
-            box-shadow: 0 0.5px 1px rgba(0,0,0,0.35);
+            border: 1.1px solid #111111;
             pointer-events: none;
             z-index: 4;
             -webkit-mask-image: conic-gradient(from 0deg, #000 0deg, #000 176.2deg, transparent 176.7deg, transparent 183.3deg, #000 183.8deg, #000 360deg);
@@ -301,7 +321,7 @@
             top: 50%;
             width: 1.1px;
             height: 7.5px;
-            background-color: rgba(255, 255, 255, 0.88);
+            background-color: #111111;
             transform-origin: center;
             z-index: 4;
         }
@@ -309,8 +329,7 @@
         .r1908-tick.major {
             width: 2.3px;
             height: 7.5px;
-            background: linear-gradient(135deg, #ffffff 0%, #e2e6ea 100%);
-            box-shadow: 0.4px 0.6px 1px rgba(0,0,0,0.35);
+            background: #111111;
         }
 
         /* หลักชั่วโมงทรงแท่งเรียวเจียระไนเหลี่ยมเพชร (กว้างด้านนอก เรียวแหลมเข้าหาจุดกึ่งกลาง แบบ 1908 ของจริง) */
@@ -325,7 +344,7 @@
             clip-path: polygon(16% 0%, 84% 0%, 100% 4%, 63% 100%, 37% 100%, 0% 4%);
         }
 
-        /* ตัวเลข 12 3 และ 9 แบบโลหะ 3 มิติ */
+        /* ตัวเลข 12 3 และ 9 แบบโลหะแพลทินัมนูน 3 มิติ (เงาตกกระทบบนหน้าปัดขาว) */
         .r1908-numeral {
             position: absolute;
             left: 50%;
@@ -334,8 +353,8 @@
             z-index: 6;
             pointer-events: none;
             filter:
-                drop-shadow(0.7px 1px 0.4px rgba(0,0,0,0.75))
-                drop-shadow(1.8px 2.6px 2.2px rgba(0,0,0,0.45));
+                drop-shadow(0.5px 0.8px 0.4px rgba(0,0,0,0.42))
+                drop-shadow(1.4px 2.1px 2px rgba(0,0,0,0.2));
         }
 
         /* วงกลมวินาทีย่อยด้านล่าง */
@@ -349,19 +368,19 @@
             border-radius: 50%;
             z-index: 4;
             background:
-                radial-gradient(circle at 65% 68%, rgba(255,255,255,0.12) 0%, transparent 55%),
-                radial-gradient(circle at 32% 28%, rgba(0,0,0,0.26) 0%, transparent 58%),
+                radial-gradient(circle at 65% 68%, rgba(255,255,255,0.6) 0%, transparent 55%),
+                radial-gradient(circle at 32% 28%, rgba(0,0,0,0.05) 0%, transparent 58%),
                 repeating-radial-gradient(circle at 50% 50%,
-                    rgba(255,255,255,0.045) 0px,
-                    rgba(255,255,255,0.045) 0.8px,
-                    rgba(0,0,0,0.06) 0.8px,
-                    rgba(0,0,0,0.06) 1.6px
+                    rgba(0,0,0,0) 0px,
+                    rgba(0,0,0,0) 0.8px,
+                    rgba(0,0,0,0.018) 0.8px,
+                    rgba(0,0,0,0.018) 1.6px
                 );
             box-shadow:
-                inset 1.8px 2.2px 4px rgba(0,0,0,0.55),
-                inset -1px -1.2px 2.5px rgba(255,255,255,0.28),
-                0.8px 1px 0px rgba(255,255,255,0.35),
-                -0.6px -0.8px 0px rgba(0,0,0,0.45);
+                inset 1.4px 1.8px 3px rgba(0,0,0,0.22),
+                inset -1px -1.2px 2px rgba(255,255,255,0.9),
+                0.8px 1px 0px rgba(255,255,255,0.9),
+                -0.6px -0.8px 0px rgba(0,0,0,0.16);
         }
 
         /* วงแหวนรางรถไฟด้านในวงกลมวินาที */
@@ -369,7 +388,7 @@
             position: absolute;
             inset: 2px;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.85);
+            border: 1px solid #111111;
             pointer-events: none;
         }
 
@@ -377,7 +396,7 @@
             position: absolute;
             inset: 7.2px;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.85);
+            border: 1px solid #111111;
             pointer-events: none;
         }
 
@@ -388,15 +407,14 @@
             top: 50%;
             width: 0.9px;
             height: 5.2px;
-            background-color: rgba(255, 255, 255, 0.85);
+            background-color: #111111;
             transform-origin: center;
         }
 
         .r1908-sub-tick.major {
             width: 2.2px;
             height: 5.2px;
-            background-color: #ffffff;
-            box-shadow: 0.3px 0.4px 0.6px rgba(0,0,0,0.3);
+            background-color: #111111;
         }
 
         /* ตัวเลข 20 40 60 ด้านในวงกลมวินาที (ตั้งตรง ฟอนต์มีเชิง) */
@@ -410,8 +428,7 @@
             line-height: 1;
             letter-spacing: -0.2px;
             white-space: nowrap;
-            color: rgba(255, 255, 255, 0.95);
-            text-shadow: 0 0.6px 1px rgba(0, 0, 0, 0.35);
+            color: #111111;
             pointer-events: none;
         }
 
@@ -1820,7 +1837,7 @@
                     `;
                 }
 
-                // สร้าง SVG ตัวเลข 12 3 และ 9 แบบโลหะ 3 มิติขัดเงาตามฟอนต์ Rolex 1908
+                // สร้าง SVG ตัวเลข 12 3 และ 9 แบบโลหะแพลทินัม 3 มิติขัดเงาตามฟอนต์ Rolex 1908
                 function createMetallicNumeralSVG(numText, width, height) {
                     const svgNS = "http://www.w3.org/2000/svg";
                     const svg = document.createElementNS(svgNS, "svg");
@@ -1832,15 +1849,15 @@
                     svg.innerHTML = `
                         <defs>
                             <linearGradient id="${uid}-face" x1="15%" y1="0%" x2="85%" y2="100%">
-                                <stop offset="0%" stop-color="#ffffff"/>
-                                <stop offset="38%" stop-color="#f5f8fa"/>
-                                <stop offset="68%" stop-color="#cfd6dc"/>
-                                <stop offset="100%" stop-color="#ffffff"/>
+                                <stop offset="0%" stop-color="#f7f7f6"/>
+                                <stop offset="30%" stop-color="#e5e4e2"/>
+                                <stop offset="62%" stop-color="#c4c5c6"/>
+                                <stop offset="100%" stop-color="#ebebe9"/>
                             </linearGradient>
                             <linearGradient id="${uid}-bevel" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#ffffff"/>
-                                <stop offset="45%" stop-color="#8b939b"/>
-                                <stop offset="100%" stop-color="#383d42"/>
+                                <stop offset="0%" stop-color="#c9cbcc"/>
+                                <stop offset="45%" stop-color="#7c8186"/>
+                                <stop offset="100%" stop-color="#3a3e42"/>
                             </linearGradient>
                         </defs>
                         <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle"
@@ -1851,7 +1868,7 @@
                         <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle"
                             font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
                             font-size="33" font-weight="500" letter-spacing="-1"
-                            fill="url(#${uid}-face)" stroke="#ffffff" stroke-width="0.35">${numText}</text>
+                            fill="url(#${uid}-face)" stroke="#7f8489" stroke-width="0.5">${numText}</text>
                     `;
                     return svg;
                 }
@@ -2068,7 +2085,8 @@
                                 baton.style.top = (145 + radiusBaton * Math.sin(rad)) + 'px';
                                 baton.style.background = getHandGradient(angle);
                                 baton.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
-                                baton.style.filter = 'drop-shadow(1px 1.6px 1.8px rgba(0,0,0,0.55))';
+                                // เส้นขอบบางสีเข้มให้หลักชั่วโมงโลหะไม่กลืนกับหน้าปัดขาว
+                                baton.style.filter = 'drop-shadow(0 0 0.3px rgba(0,0,0,0.55)) drop-shadow(1px 1.6px 1.8px rgba(0,0,0,0.4))';
                                 markersContainer.appendChild(baton);
                             }
                         }
@@ -2301,16 +2319,19 @@
                     document.documentElement.style.setProperty('--second-bg', getSecondHandGradient(secondsDeg));
 
                     // อัปเดตการหมุนและเงาตกกระทบแยกตามความสูงของเข็มแต่ละชั้น
+                    // โหมด 1908 (หน้าปัดขาว): เพิ่มเส้นขอบบางสีเข้มรอบเข็มขัดเงาเพื่อไม่ให้ด้านที่สว่างกลืนกับหน้าปัด
+                    const handOutline = isRolex1908 ? 'drop-shadow(0 0 0.3px rgba(0,0,0,0.55)) ' : '';
+
                     const hourHand = document.getElementById('hour');
                     if (hourHand) {
                         hourHand.style.transform = `rotate(${hoursDeg}deg)`;
-                        hourHand.style.filter = getLayeredShadow(hoursDeg, 2.8, 2.6, 0.55, 0.42);
+                        hourHand.style.filter = handOutline + getLayeredShadow(hoursDeg, 2.8, 2.6, 0.55, 0.42);
                     }
 
                     const minuteHand = document.getElementById('minute');
                     if (minuteHand) {
                         minuteHand.style.transform = `rotate(${minutesDeg}deg)`;
-                        minuteHand.style.filter = getLayeredShadow(minutesDeg, 4.2, 3.6, 0.50, 0.36);
+                        minuteHand.style.filter = handOutline + getLayeredShadow(minutesDeg, 4.2, 3.6, 0.50, 0.36);
                     }
 
                     const secondHand = document.getElementById('second');
@@ -2318,7 +2339,7 @@
                         secondHand.style.transform = `rotate(${secondsDeg}deg)`;
                         const secShadowDist = isRolex1908 ? 1.4 : 5.8;
                         const secShadowBlur = isRolex1908 ? 1.4 : 4.5;
-                        secondHand.style.filter = getLayeredShadow(secondsDeg, secShadowDist, secShadowBlur, 0.45, 0.32);
+                        secondHand.style.filter = handOutline + getLayeredShadow(secondsDeg, secShadowDist, secShadowBlur, 0.45, 0.32);
                     }
 
                     requestAnimationFrame(updateClock);
