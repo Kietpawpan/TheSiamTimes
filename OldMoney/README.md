@@ -14,6 +14,10 @@ Everything is in `GA-oldmoney.html`. There is no build step: open the file in a 
 - **Free styling**: choose any of seven scenes. **Ask the style desk** tells you which invitation your look suits best.
 - **Valet's pick** dresses the model for the current occasion. **Save look** adds it to the **Lookbook** (up to 24 looks). **Download portrait** saves a PNG of the model in the scene.
 - The **Quiet luxury** meter updates live as you dress.
+- **Style guide** (top of the page) is a stylist with three sections:
+  - **For this look**: the few changes that would most improve the current look for the chosen invitation, each with its reason and the points it adds. **Apply** makes the change. The stylist tries every swap, colour change, accessory and hairstyle it could suggest and scores each one with the style desk's own rules, so its advice always raises the score. The same advice appears under **How to improve** on the style desk's verdict.
+  - **Dress code**: the key pieces for the lady and the gentleman at each invitation, with a point of etiquette. Tap a piece to put it on in the colour that scores best.
+  - **The rules**: ten rules of quiet luxury that also hold off the screen (fit, neutrals, cloth, no logos, three accessories, dressing for the place, care, buying less and better, grooming, ease).
 - **Kingsmere Hall** (the country invitation) is an English country house in autumn: an old oak, ivy on red brick, a gravel sweep with fallen leaves and a vintage saloon on the forecourt.
 - The stage has an oil-on-canvas finish: brush streaks, canvas weave and a soft vignette laid over the scene in soft-light, also carried into the downloaded portrait.
 - Every scene has a **The Siam Times** sign in Chomsky beside the model: a hanging plaque in the atelier, a pitch-side board at the polo, a dock sign at the harbour, an oak estate sign in the country, a stone plaque on the quad, a club board on the tennis windscreen, and a gilt easel at the opera.
@@ -23,7 +27,7 @@ Everything is in `GA-oldmoney.html`. There is no build step: open the file in a 
 | Part | Points | What counts |
 |---|---|---|
 | A complete outfit | 15 | A dress, or a top with a bottom (10), and shoes (5) |
-| Right for the occasion | 40 | Each piece is tagged with the occasions it suits; accessories and hair count half. Club tennis needs whites. The opera needs a gown and hair up for the lady, and black tie for the gentleman |
+| Right for the occasion | 40 | Each piece is tagged with the occasions it suits; accessories and hair count half. Accessories that suit any occasion (a watch, pearl studs, a belt) never count against the occasion score. Club tennis needs whites. The opera needs a gown and hair up for the lady, and black tie for the gentleman |
 | Quietness | 30 | Logo or trap pieces (hoodie, chunky trainers, logo belt bag, chain stack) cost heavily, as do more than three accessories, more than two accent colours, and loud colours |
 | Palette | 15 | Share of neutral colours (navy, cream, camel, white, charcoal and similar) |
 
