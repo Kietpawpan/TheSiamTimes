@@ -8,11 +8,24 @@ Everything is in `GA-oldmoney.html`. There is no build step: open the file in a 
 
 - **Lady / Gentleman** (top of the page) switches between the two models. Each keeps their own outfit, so you can switch back and forth.
 - **Couple view** (on by default) shows the gentleman and the lady side by side, as in a country-house portrait. The one you are dressing stands in front with a brass ring at their feet; tap the other to dress them instead. **Valet's pick** dresses both, and **Present the look** judges the one you are dressing. Turn Couple view off to see one model, larger.
-- **Wardrobe tabs**: Model (skin tone, hairstyles, hair colour including salt and pepper, eye colour, lipstick for the lady, and clean-shaven, stubble or a short beard for the gentleman), Tops, Dresses, Bottoms, Outerwear, Shoes and Accessories. Country-house pieces include, for the gentleman, a tattersall shirt, a silk tie, a six-button waistcoat, chinos and flannels with turn-ups, Oxford brogues and a walking cane; and for the lady, a check hacking jacket, a tartan midi skirt, a tucked cashmere turtleneck, a gold brooch and a coiffed bob. The gentleman has no Dresses tab. His wardrobe includes black tie (evening shirt and bow tie, evening trousers, dinner jacket, patent oxfords), a repp tie, pocket square, signet ring, flat cap and Panama hat. Loafers, riding boots, boat shoes, plimsolls, sunglasses and the trap pieces are shared. Tap a piece to put it on, and tap it again to take it off. The colour swatches above the grid recolour the selected piece.
+- **Wardrobe tabs**: Model (skin tone, hairstyles, hair colour including salt and pepper, eye colour, lipstick for the lady, and clean-shaven, stubble or a short beard for the gentleman), Tops, Dresses, Bottoms, Outerwear, Shoes and Accessories. Blazers and overcoats are named Brass-button blazer and Wool overcoat because they come in several colours. Country-house pieces include, for the gentleman, a tattersall shirt, a silk tie, a six-button waistcoat, chinos and flannels with turn-ups, Oxford brogues and a walking cane; and for the lady, a check hacking jacket, a tartan midi skirt, a tucked cashmere turtleneck, a gold brooch and a coiffed bob. The gentleman has no Dresses tab. His wardrobe includes black tie (evening shirt and bow tie, evening trousers, dinner jacket, patent oxfords), a repp tie, pocket square, signet ring, flat cap and Panama hat. Loafers, riding boots, boat shoes, plimsolls, sunglasses and the trap pieces are shared. Tap a piece to put it on, and tap it again to take it off. The colour swatches above the grid recolour the selected piece.
 - A dress replaces the top and bottom. Shirts and blouses are tucked in; knits and the Breton top sit over the waistband.
 - **The Season**: six invitations: polo, regatta, country weekend, garden party, club tennis and the opera. Each has its own scene. **Present the look** gives one to five stars. Your best result for each invitation is saved.
 - **Free styling**: choose any of seven scenes. **Ask the style desk** tells you which invitation your look suits best.
 - **Valet's pick** dresses the model for the current occasion. **Save look** adds it to the **Lookbook** (up to 24 looks). **Download portrait** saves a PNG of the model in the scene.
+- **Watches** (in Accessories), one at a time; choosing another replaces the one you wear. Each wrist watch fits either model and is drawn on the right wrist:
+
+| Watch | Colours | Right for |
+|---|---|---|
+| Round dress watch | gold, silver case on leather | any occasion; best at the garden party and the opera |
+| Rectangular dress watch | gold, silver case on leather | any occasion; best at the polo, the garden party and the opera |
+| Bracelet watch | gold, silver | polo, garden party, opera |
+| Steel sports watch | navy, black, bottle-green dial | regatta, tennis, polo, country |
+| Diver's watch | navy, black, bottle-green bezel | regatta |
+| Field watch | olive, navy, chocolate canvas strap | country, polo |
+| Pocket watch (gentleman) | gold, silver chain across the waistcoat | country, garden party, opera |
+| Iced-out watch | gold, set with diamonds | nowhere: a trap that costs quietness points |
+
 - The **Quiet luxury** meter updates live as you dress.
 - **Style guide** (top of the page) is a stylist with three sections:
   - **For this look**: the few changes that would most improve the current look for the chosen invitation, each with its reason and the points it adds. **Apply** makes the change. The stylist tries every swap, colour change, accessory and hairstyle it could suggest and scores each one with the style desk's own rules, so its advice always raises the score. The same advice appears under **How to improve** on the style desk's verdict.
