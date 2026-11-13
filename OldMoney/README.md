@@ -7,12 +7,13 @@ Everything is in `GA-oldmoney.html`. There is no build step: open the file in a 
 ## Playing
 
 - **Lady / Gentleman** (top of the page) switches between the two models. Each keeps their own outfit, so you can switch back and forth.
-- **Wardrobe tabs**: Model (skin tone, four hairstyles, hair colour, and lipstick for the lady), Tops, Dresses, Bottoms, Outerwear, Shoes and Accessories. The gentleman has no Dresses tab. His wardrobe includes black tie (evening shirt and bow tie, evening trousers, dinner jacket, patent oxfords), a repp tie, pocket square, signet ring, flat cap and Panama hat. Loafers, riding boots, boat shoes, plimsolls, sunglasses and the trap pieces are shared. Tap a piece to put it on, and tap it again to take it off. The colour swatches above the grid recolour the selected piece.
+- **Wardrobe tabs**: Model (skin tone, four hairstyles, hair colour, eye colour, lipstick for the lady, and clean-shaven, stubble or a short beard for the gentleman), Tops, Dresses, Bottoms, Outerwear, Shoes and Accessories. The gentleman has no Dresses tab. His wardrobe includes black tie (evening shirt and bow tie, evening trousers, dinner jacket, patent oxfords), a repp tie, pocket square, signet ring, flat cap and Panama hat. Loafers, riding boots, boat shoes, plimsolls, sunglasses and the trap pieces are shared. Tap a piece to put it on, and tap it again to take it off. The colour swatches above the grid recolour the selected piece.
 - A dress replaces the top and bottom. Shirts and blouses are tucked in; knits and the Breton top sit over the waistband.
 - **The Season**: six invitations: polo, regatta, country weekend, garden party, club tennis and the opera. Each has its own scene. **Present the look** gives one to five stars. Your best result for each invitation is saved.
 - **Free styling**: choose any of seven scenes. **Ask the style desk** tells you which invitation your look suits best.
 - **Valet's pick** dresses the model for the current occasion. **Save look** adds it to the **Lookbook** (up to 24 looks). **Download portrait** saves a PNG of the model in the scene.
 - The **Quiet luxury** meter updates live as you dress.
+- Every scene has a **The Siam Times** sign in Chomsky beside the model: a hanging plaque in the atelier, a pitch-side board at the polo, a dock sign at the harbour, an oak estate sign in the country, a stone plaque on the quad, a club board on the tennis windscreen, and a gilt easel at the opera.
 
 ## Scoring (out of 100)
 
@@ -30,10 +31,11 @@ Saved looks, the current outfit, the mode and your best results are kept in the 
 ## How it works
 
 - The two models and every garment are inline SVG in a 400 × 820 box. Each garment is drawn from point lists that are smoothed into Bézier curves and mirrored for the two sides. Fabrics such as cable knit, herringbone tweed, quilting, corduroy, Breton stripes, florals and silk sheen are SVG patterns made for the chosen colour.
+- For a more lifelike look, every skin and garment shape gets a rounded light-and-shade gradient, and every garment layer casts a soft drop shadow on the layers under it. Faces have shaded eyelids, irises with a catchlight, a shaded nose, two-tone lips and soft cheek contours. Hands have a thumb and fingers, legs have knees and ankles, and hair is shaded from crown to ends.
 - Each piece is marked for the lady, the gentleman or both (`who`), and has a layer number, so tucked shirts sit under trousers and boots sit over them.
 - The scenes are drawn wider than the figure, so wide screens show more of them.
 - The result chime uses Web Audio; there are no sound files.
 
 ## Font
 
-The masthead uses **Chomsky** by Fredrick R. Brennan, under the SIL Open Font License 1.1 (`Chomsky-LICENSE.txt`, which must stay with the game). The page embeds the same Latin-only WOFF2 subset as `Darts/GA-darts.html`; see `Darts/README.md` for how to rebuild it.
+The masthead and the scene signs use **Chomsky** by Fredrick R. Brennan, under the SIL Open Font License 1.1 (`Chomsky-LICENSE.txt`, which must stay with the game). The page embeds the same Latin-only WOFF2 subset as `Darts/GA-darts.html`; see `Darts/README.md` for how to rebuild it. The downloaded portrait carries the same font inside its SVG, so the sign keeps its lettering in the PNG.
