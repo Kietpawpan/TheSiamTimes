@@ -6,8 +6,9 @@ Everything is in `GA-makruk.html`. There is no build step: open the file in a br
 
 ## Playing
 
+- **View**: **Side on** (the default) shows the two armies facing each other left and right, seen from the end of the table under the sign, with your side (or White, with two players) on the left. **From above** looks straight down at the board, with the pieces drawn from a little off the vertical so that a Khun still looks taller than a Met. **Your side** is the view from your own chair, with your pieces nearest you. **Flip board** swaps the two sides.
 - **Tap a piece** to see where it can go (blue dots, or a blue ring round a piece you can take), then tap a square. You can also drag the piece. The last move is tinted brass, and a Khun in check glows red.
-- Keyboard: click the board, then the arrow keys move a cursor, **Enter** picks up and puts down, **Esc** puts back. **U** takes back, **H** asks for a hint, **F** flips the board.
+- Keyboard: click the board, then the arrow keys move a cursor, **Enter** picks up and puts down, **Esc** puts back. **U** takes back, **H** asks for a hint, **F** flips the board, **V** changes the view. The arrow keys follow the screen, whichever way the board is turned.
 - **vs The Editor**: play White or Black against the computer. **Two players**: two people on one device.
 - **Level** (Easy, Normal, Pro) sets how far The Editor looks ahead and how often it slips. Pro thinks for up to two seconds a move.
 - **Take back** undoes your last move (and The Editor's reply). **Hint** shows a suggested move with a brass arrow.
@@ -23,7 +24,7 @@ Your record against The Editor at each level, the game in progress and your sett
 | Khon | โคน | One square diagonally, or one straight ahead. |
 | Ma (horse) | ม้า | As a chess knight. |
 | Ruea (boat) | เรือ | Any distance along a row or a column. |
-| Bia (shell) | เบี้ย | One square ahead; takes one square diagonally ahead. |
+| Bia (shell) | เบี้ย | One square ahead; takes one square diagonally ahead. Set with its straight side toward its own player and its rounded side toward the other. |
 | Bia Ngai | เบี้ยหงาย | A Bia that reached the sixth row (where the other side's Bia started) is turned over and moves like a Met. |
 
 White's Khun starts on e1 with the Met on d1; Black's Khun is on d8 with the Met on e8. The Bia start on the third and sixth rows. There is no castling and no double step for the Bia.
@@ -35,7 +36,7 @@ White's Khun starts on e1 with the Met on d1; Black's Khun is on d8 with the Met
 
 - **Rules and The Editor** are one self-contained function, `makrukEngine`, that the page uses for legal moves and also runs in a Web Worker so the room stays smooth while it thinks. Move generation checks out against the published Makruk perft counts (23, 529, 12,012 and 273,026 moves at depths 1 to 4). The search is alpha-beta with iterative deepening, a transposition table, quiescence search, null-move pruning, late-move reductions, killer and history move ordering and a check extension. The evaluation counts material (Bia 1, Met and Bia Ngai 2.1, Khon 2.7, Ma 3.1, Ruea 5), centralises the short-range pieces, pushes Bia, keeps the Khun home in the middle game, and in the ending drives a lone Khun to the edge. Easy and Normal add a little noise to the evaluation so they make human-looking mistakes.
 - **The room** is a canvas drawn with real measurements: 46 mm squares, a 24 mm board on a table against the wall, seen from a seat about a metre away at 54° above the table. The wall, sign, table, props and board are drawn once per resize: the panelling and the table planks as lines in perspective, and the sign, the newspaper and the board's top as flat pictures laid onto their planes one thin row at a time.
-- **The pieces** are turned shapes painted slice by slice from the bottom up, each slice an ellipse with its own light and shade, so they look carved out of ivory and ebony. The Ruea is a square block and the Ma is a carved horse's head on a turned base. They are drawn once per size and scaled with distance.
+- **The pieces** are small 3D models. The turned pieces are stacks of scaled cross-sections: round for the Khun, Met and Khon, a rounded square for the Ruea's block, and a D shape for the Bia and Bia Ngai, rounded toward the other side and straight toward its own. The Ma's head is a slab cut from its outline, with rounded edges and carved mane, cheek, mouth and eye. A small renderer in the page (a depth buffer, smooth normals, lamp light with a highlight, 2×2 samples per pixel) draws each piece facing the right way for the current view, once per size, and the scene scales those pictures with distance. The cup of tea is drawn the same way.
 - Sounds are made in the browser with Web Audio; there are no sound files.
 
 ## Font
