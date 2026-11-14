@@ -8,7 +8,7 @@
 <meta name="description" content="Makruk, Thai chess, on a teak board in The Siam Times newsroom club room. Play The Editor or a friend.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Noto+Sans+Thai:wght@400;600;700&family=Noto+Serif+Thai:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&display=swap">
 <style>
 /* Layout follows Siam Times Darts: the club room fills the left as the scene, with the scoreline across
    its top; a narrow control rail sits on the right and drops under the scene on phones.
@@ -27,8 +27,8 @@
   --good: #82d09c;
   --bad: #e58576;
   --font-mast: "Chomsky", "Old English Text MT", "UnifrakturCook", serif;
-  --font-text: "Newsreader", "Noto Serif Thai", Georgia, "Times New Roman", serif;
-  --font-label: "Helvetica Neue", Helvetica, Arial, "Noto Sans Thai", "Thonburi", "Leelawadee UI", sans-serif;
+  --font-text: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-label: "Helvetica Neue", Helvetica, Arial, sans-serif;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   box-sizing: border-box;
@@ -80,7 +80,6 @@ button { cursor: pointer; }
   text-transform: uppercase;
   color: var(--muted);
 }
-html[lang="th"] .label { letter-spacing: .02em; font-size: 12px; }
 .sb-sub { font-size: 15px; line-height: 1.2; }
 .big {
   font: 600 32px/1 var(--font-text);
@@ -116,7 +115,6 @@ html[lang="th"] .label { letter-spacing: .02em; font-size: 12px; }
   min-height: 1.45em;
 }
 .sb-msg strong { font-style: normal; color: var(--brass); }
-html[lang="th"] .sb-msg { font-style: normal; color: #e3dccb; }
 
 .scene { position: relative; flex: 1; min-height: 0; background: #101a25; overflow: hidden; }
 .scene canvas {
@@ -182,7 +180,6 @@ html[lang="th"] .sb-msg { font-style: normal; color: #e3dccb; }
 .brand h1 { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-weight: 400; line-height: 1; }
 .brand .mast { font: 400 34px/1 var(--font-mast); letter-spacing: .005em; }
 .brand .game { font: italic 400 26px/1.15 var(--font-text); color: var(--brass); }
-html[lang="th"] .brand .game { font-style: normal; font-size: 24px; }
 .brand p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; max-width: 36ch; }
 
 .group { display: flex; flex-direction: column; gap: 10px; border: 0; margin: 0; padding: 0; min-width: 0; }
@@ -218,7 +215,6 @@ html[lang="th"] .brand .game { font-style: normal; font-size: 24px; }
   box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .22);
   transition: filter .15s, transform .05s;
 }
-html[lang="th"] .btn-brass { letter-spacing: .02em; font-size: 16px; }
 .btn-brass:hover { filter: brightness(1.08); }
 .btn-brass:active { transform: translateY(1px); }
 .btn-brass:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
@@ -354,7 +350,7 @@ details li b { font-weight: 600; color: var(--paper); }
 
   <aside class="rail">
     <header class="brand">
-      <h1><span class="mast" lang="en">The Siam Times</span> <span class="game" data-t="brandGame"></span></h1>
+      <h1><span class="mast">The Siam Times</span> <span class="game" data-t="brandGame"></span></h1>
       <p data-t="brandText"></p>
     </header>
 
@@ -404,7 +400,6 @@ details li b { font-weight: 600; color: var(--paper); }
       </div>
       <div class="row">
         <button class="btn-line" id="soundBtn" type="button" aria-pressed="true"></button>
-        <button class="btn-line" id="langBtn" type="button"></button>
       </div>
       <p class="keys" id="keys"></p>
     </div>
@@ -803,9 +798,8 @@ function mulberry32(a) {
     t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 }
 
-/* ---------- Words, in English and Thai ---------- */
+/* ---------- Words ---------- */
 const TEXT = {
-  en: {
     brandGame: 'Makruk',
     brandText: 'Thai chess on a teak board in the newsroom club room. Play The Editor, or a friend across the table.',
     lgGame: 'Game', modeAi: 'vs The Editor', modePvp: 'Two players',
@@ -822,7 +816,7 @@ const TEXT = {
     vnTop: 'Straight down onto the board.',
     vnOurs: 'From your chair, with your pieces nearest you.',
     newGame: 'New game', undo: 'Take back', hint: 'Hint', flip: 'Flip board',
-    soundOn: 'Sound on', soundOff: 'Sound off', langBtn: 'ภาษาไทย',
+    soundOn: 'Sound on', soundOff: 'Sound off',
     keys: '<kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd> move around the board · <kbd>Enter</kbd> pick up and put down · <kbd>Esc</kbd> put back · <kbd>U</kbd> take back · <kbd>H</kbd> hint · <kbd>F</kbd> flip · <kbd>V</kbd> view.',
     movesLabel: 'Moves', noMoves: 'No moves yet.',
     recordLabel: 'Against The Editor', won: 'Won', drawn: 'Drawn', lost: 'Lost',
@@ -863,89 +857,26 @@ const TEXT = {
       ['', 'A side that is not in check but has no legal move is stalemated, which is a draw in Makruk. The same position three times is also a draw.'],
       ['', 'Counting: once no face-down Bia are left, the weaker side counts its moves and the stronger side must checkmate before the count reaches 64. When one side has only its Khun, the count starts again from the number of pieces on the board plus one, and ends at 8 if the other side has two Ruea, 16 with one Ruea, 22 with two Khon, 32 with two Ma, 44 with one Khon, and 64 otherwise.'],
     ],
-  },
-  th: {
-    brandGame: 'หมากรุกไทย',
-    brandText: 'หมากรุกไทยบนกระดานไม้สัก ในห้องชมรมของกองบรรณาธิการ เล่นกับบรรณาธิการ หรือกับเพื่อนที่นั่งฝั่งตรงข้าม',
-    lgGame: 'เกม', modeAi: 'เล่นกับบรรณาธิการ', modePvp: 'สองคน',
-    noteAi: 'บรรณาธิการเล่นอีกฝ่าย ฝ่ายขาวเดินก่อน',
-    notePvp: 'สองคนผลัดกันเดินบนเครื่องเดียวกัน ฝ่ายขาวเดินก่อน',
-    lgSide: 'คุณเล่นฝ่าย', white: 'ขาว', black: 'ดำ',
-    lgLevel: 'ระดับ', easy: 'ง่าย', normal: 'ปกติ', pro: 'เซียน',
-    lvEasy: 'บรรณาธิการคิดล่วงหน้าแค่หนึ่งสองตา และพลาดบ่อย',
-    lvNormal: 'คิดล่วงหน้าหลายตา เหมือนเล่นกันในชมรม',
-    lvPro: 'คิดได้นานถึงสองวินาทีต่อตา และแทบไม่พลาดกลหมาก',
-    pending: 'จะมีผลเมื่อเริ่มเกมใหม่',
-    lgView: 'มุมมอง', viewSide: 'ซ้าย–ขวา', viewTop: 'มุมบน', viewOurs: 'ฝั่งเรา',
-    vnSide: 'สองฝ่ายตั้งประจันหน้ากันทางซ้ายและขวา เหมือนนั่งดูอยู่หัวโต๊ะ',
-    vnTop: 'มองลงมาตรงๆ จากด้านบนกระดาน',
-    vnOurs: 'มองจากที่นั่งของเรา หมากฝ่ายเราอยู่ใกล้ตัว',
-    newGame: 'เริ่มเกมใหม่', undo: 'ย้อนกลับ', hint: 'คำใบ้', flip: 'กลับกระดาน',
-    soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด', langBtn: 'English',
-    keys: '<kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd> เลื่อนไปตามช่อง · <kbd>Enter</kbd> หยิบและวางหมาก · <kbd>Esc</kbd> วางคืน · <kbd>U</kbd> ย้อนกลับ · <kbd>H</kbd> คำใบ้ · <kbd>F</kbd> กลับกระดาน · <kbd>V</kbd> มุมมอง',
-    movesLabel: 'บันทึกการเดิน', noMoves: 'ยังไม่มีการเดิน',
-    recordLabel: 'สถิติกับบรรณาธิการ', won: 'ชนะ', drawn: 'เสมอ', lost: 'แพ้',
-    howTo: 'วิธีเล่น',
-    moveLabel: 'ตาที่', countLabel: 'การนับ', countBoard: 'นับศักดิ์กระดาน', countPieces: 'นับศักดิ์หมาก',
-    you: 'คุณ', editor: 'บรรณาธิการ', thinking: 'กำลังคิด…',
-    subAi: 'ระดับ{level} · คุณเล่นฝ่าย{side}', subPvp: 'ผลัดกันเดินบนเครื่องนี้',
-    noCaps: 'ยังไม่ได้กิน', gameOver: 'จบเกม', playAgain: 'เล่นอีกครั้ง', lookBoard: 'ดูกระดาน',
-    tapHint: 'แตะหมาก แล้วแตะช่องที่จะเดิน',
-    canvas: 'กระดานหมากรุกไทยบนโต๊ะไม้สัก หน้าผนังไม้สีน้ำเงิน ใต้ป้ายสีครีมที่เขียนว่า The Siam Times ใช้ปุ่มลูกศรเลื่อนไปตามช่อง และปุ่ม Enter เพื่อหยิบและวางหมาก',
-    sign: 'ชมรมหมากรุกห้องข่าว',
-    pieces: ['', 'เบี้ย', 'เม็ด', 'โคน', 'ม้า', 'เรือ', 'ขุน', 'เบี้ยหงาย'],
-    startYou: 'ตาคุณเดิน ฝ่ายขาวเดินก่อน', yourMove: 'ตาคุณเดิน', toMove: 'ฝ่าย{side}เดิน',
-    editorThinking: 'บรรณาธิการกำลังคิด…',
-    sideWho: 'ฝ่าย{side}', played: '{who}เดิน {move}', youPlayed: 'คุณเดิน {move}',
-    check: ' <strong>รุก!</strong>', promoted: ' เบี้ยหงายแล้ว เดินได้แบบเม็ด',
-    countStartBoard: 'ไม่เหลือเบี้ยคว่ำแล้ว ฝ่าย{side}นับศักดิ์กระดาน นับครบ 64 เสมอ',
-    countStartPieces: 'ฝ่าย{side}เหลือแต่ขุน เริ่มนับศักดิ์หมากจาก {start} นับครบ {limit} เสมอ',
-    countSay: ' นับ <strong>{value}</strong> จาก {limit}',
-    hintSay: 'คำใบ้: {move}', noMovesPiece: 'หมากตัวนี้ไม่มีทางเดิน', inCheck: 'ขุนของคุณถูกรุกอยู่',
-    takenBack: 'ย้อนกลับแล้ว {rest}',
-    youWin: 'คุณชนะ', editorWins: 'บรรณาธิการชนะ', whiteWins: 'ฝ่ายขาวชนะ', blackWins: 'ฝ่ายดำชนะ', draw: 'เสมอ',
-    rMate: 'รุกจนเมื่อเดินไป {n} ตา ขุนไม่มีทางหนี',
-    rStalemate: 'ฝ่าย{side}อับ ไม่ถูกรุกแต่ไม่มีตาเดิน หมากรุกไทยนับเป็นเสมอ',
-    rBare: 'เหลือเพียงขุนของทั้งสองฝ่าย',
-    rCount: 'นับครบ {limit} แล้วยังรุกไม่จน',
-    rRepeat: 'ตำแหน่งเดิมเกิดซ้ำสามครั้ง',
-    resultLine: '<strong>{title}</strong> {reason}',
-    how: [
-      ['', 'แตะหมากเพื่อดูว่าเดินไปที่ใดได้บ้าง แล้วแตะช่องที่จะเดิน หรือลากหมากไปวางก็ได้'],
-      [KHUN, '<b>ขุน</b> เดินได้หนึ่งช่องทุกทิศทาง ขุนที่ถูกโจมตีเรียกว่าถูกรุก ต้องแก้รุก ถ้าแก้ไม่ได้ถือว่าจน'],
-      [MET, '<b>เม็ด</b> เดินทแยงหนึ่งช่อง'],
-      [KHON, '<b>โคน</b> เดินทแยงหนึ่งช่อง หรือตรงไปข้างหน้าหนึ่งช่อง'],
-      [MA, '<b>ม้า</b> เดินตรงสองช่องแล้วเลี้ยวออกข้างหนึ่งช่อง กระโดดข้ามหมากตัวอื่นได้'],
-      [RUEA, '<b>เรือ</b> เดินตรงตามแนวตั้งหรือแนวนอนกี่ช่องก็ได้'],
-      [BIA, '<b>เบี้ย</b> วางด้านตรงหันเข้าหาฝ่ายตนเอง ด้านมนหันหาฝ่ายตรงข้าม เดินตรงไปข้างหน้าทีละช่อง และกินทแยงไปข้างหน้า เมื่อเดินถึงแถวที่เบี้ยฝ่ายตรงข้ามตั้งอยู่ตอนเริ่มเกม จะหงายขึ้นเป็น<b>เบี้ยหงาย</b> เดินได้แบบเม็ด'],
-      [NGAI, '<b>เบี้ยหงาย</b> คือเบี้ยที่หงายแล้ว เดินทแยงหนึ่งช่อง'],
-      ['', 'ฝ่ายที่ไม่ถูกรุกแต่ไม่มีตาเดินเรียกว่าอับ ในหมากรุกไทยนับเป็นเสมอ และถ้าตำแหน่งหมากซ้ำกันสามครั้งก็เสมอเช่นกัน'],
-      ['', 'การนับ: เมื่อไม่มีเบี้ยคว่ำเหลือบนกระดาน ฝ่ายที่เป็นรองจะนับศักดิ์กระดาน ฝ่ายที่เหนือกว่าต้องรุกให้จนก่อนนับถึง 64 เมื่อฝ่ายใดเหลือแต่ขุน จะเปลี่ยนเป็นนับศักดิ์หมาก เริ่มจากจำนวนหมากบนกระดานบวกหนึ่ง และนับได้ถึง 8 ถ้าอีกฝ่ายมีเรือสองลำ 16 ถ้ามีเรือลำเดียว 22 ถ้ามีโคนสองตัว 32 ถ้ามีม้าสองตัว 44 ถ้ามีโคนตัวเดียว นอกนั้น 64'],
-    ],
-  },
 };
-let lang = 'en';
 function t(key, vars) {
-  let s = TEXT[lang][key] ?? TEXT.en[key] ?? key;
+  let s = TEXT[key] ?? key;
   if (vars) s = s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
   return s;
 }
 const sideName = side => t(side === WHITE ? 'white' : 'black');
-const pieceName = type => TEXT[lang].pieces[type];
+const pieceName = type => TEXT.pieces[type];
 const sqName = s => 'abcdefgh'[s & 7] + ((s >> 3) + 1);
 
 /* ---------- Saved settings, game and record ---------- */
 const STORE_KEY = 'siamTimesMakruk.v1';
 const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } })();
-const navLang = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
 const prefs = Object.assign({
   mode: 'ai', human: WHITE, level: 'normal', sound: true, flip: false, view: 'side',
-  lang: /^th\b/i.test(navLang) ? 'th' : 'en',
 }, saved.prefs || {});
+delete prefs.lang;   // from when the game also spoke Thai
 const record = Object.assign({ easy: { w: 0, d: 0, l: 0 }, normal: { w: 0, d: 0, l: 0 }, pro: { w: 0, d: 0, l: 0 } }, saved.record || {});
 let game = saved.game && Array.isArray(saved.game.moves) ? saved.game
   : { mode: prefs.mode, human: prefs.human, moves: [], recorded: false };
-lang = prefs.lang === 'th' ? 'th' : 'en';
 function save() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify({ prefs, record, game })); } catch {}
 }
@@ -1319,7 +1250,7 @@ function drawSign(g) {
   const A = P(x0, y1, WALL_Z), B = P(x1, y1, WALL_Z);
   const pxPerM = (B.x - A.x) / SIGN.w;
   const pw = Math.min(2400, Math.ceil(SIGN.w * pxPerM * 1.6 / 16) * 16);
-  const tex = cached(`sign|${pw}|${lang}|${fontGen}`, () => signTexture(pw));
+  const tex = cached(`sign|${pw}|${fontGen}`, () => signTexture(pw));
   // Its shadow on the panelling.
   g.save();
   g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = cam.s * 0.025; g.shadowOffsetX = cam.s * 0.005; g.shadowOffsetY = cam.s * 0.012;
@@ -1351,11 +1282,10 @@ function signTexture(pw) {
   // Hairline and the club's name.
   const ly = h * 0.70;
   g.fillRect(w / 2 - 120 * u, ly - 4 * u, 240 * u, Math.max(1, 0.8 * u));
-  const th = lang === 'th';
-  g.font = th ? `600 ${13.5 * u}px "Noto Serif Thai", Newsreader, Georgia, serif` : `600 ${11.5 * u}px Newsreader, Georgia, serif`;
-  if ('letterSpacing' in g) g.letterSpacing = th ? '0px' : `${3.6 * u}px`;
+  g.font = `600 ${11.5 * u}px Newsreader, Georgia, serif`;
+  if ('letterSpacing' in g) g.letterSpacing = `${3.6 * u}px`;
   g.textBaseline = 'top';
-  g.fillText(t('sign'), w / 2, ly + (th ? 0 : 1 * u));
+  g.fillText(t('sign'), w / 2, ly + 1 * u);
   if ('letterSpacing' in g) g.letterSpacing = '0px';
   // Brass screws.
   for (const [sx, sy] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) {
@@ -2378,21 +2308,15 @@ function lastMoveText() {
   if (rec.check && !rec.mate) s += t('check');
   if (rec.count && rec.count.started) s += ' ' + t(rec.count.kind === 'board' ? 'countStartBoard' : 'countStartPieces', { side: sideName(rec.count.flee), start: rec.count.start, limit: rec.count.limit });
   else if (rec.count && rec.count.said) s += t('countSay', { value: rec.count.value, limit: rec.count.limit });
-  if (S.result) s += ' ' + turnText();
-  else if (lang === 'th') s += ' · ' + turnText();
-  else s += ' ' + turnText();
-  return s;
+  return s + ' ' + turnText();
 }
-function applyLanguage() {
-  document.documentElement.lang = lang;
+function applyText() {
   document.querySelectorAll('[data-t]').forEach(el => { el.innerHTML = t(el.dataset.t); });
   document.querySelectorAll('[data-t-aria]').forEach(el => el.setAttribute('aria-label', t(el.dataset.tAria)));
   $('keys').innerHTML = t('keys');
-  $('langBtn').textContent = t('langBtn');
-  $('langBtn').lang = lang === 'en' ? 'th' : 'en';
   $('hint').textContent = t('tapHint');
   canvas.setAttribute('aria-label', t('canvas'));
-  $('howList').innerHTML = TEXT[lang].how.map(([ty, html]) =>
+  $('howList').innerHTML = TEXT.how.map(([ty, html]) =>
     `<li>${ty ? iconImg(ty, WHITE, '') : '<span class="dot"></span>'}<span>${html}</span></li>`).join('');
   if (S && S.result && !$('overlay').hidden) { $('ovTitle').textContent = resultTitle(S.result); $('ovText').textContent = resultReason(S.result); }
   invalidateLayer();
@@ -2487,7 +2411,6 @@ $('undoBtn').addEventListener('click', takeBack);
 $('hintBtn').addEventListener('click', askHint);
 $('flipBtn').addEventListener('click', flipBoard);
 $('soundBtn').addEventListener('click', () => { prefs.sound = !prefs.sound; save(); updateUI(); if (prefs.sound) sfx.place(); });
-$('langBtn').addEventListener('click', () => { lang = prefs.lang = lang === 'en' ? 'th' : 'en'; save(); applyLanguage(); });
 $('ovBtn').addEventListener('click', newGame);
 $('ovLook').addEventListener('click', () => { $('overlay').hidden = true; canvas.focus({ preventScroll: true }); });
 
@@ -2500,15 +2423,14 @@ if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => resize()).ob
 else window.addEventListener('resize', resize);
 resize();
 buildIcons();
-applyLanguage();
+applyText();
 if (S.plies.length) hideTapHint();
 if (S.result) { /* finished game: show the board and the result line */ }
 requestAnimationFrame(frame);
 maybeAI();
 // Fonts arrive after the first paint: redraw the sign, the coordinates and the paper once they do.
 if (document.fonts) {
-  const thai = document.fonts.load('600 20px "Noto Serif Thai"', 'ชมรม').catch(() => {});
-  Promise.all([document.fonts.ready, thai]).then(() => { fontGen++; invalidateLayer(); });
+  document.fonts.ready.then(() => { fontGen++; invalidateLayer(); });
 }
 })();
 </script>
