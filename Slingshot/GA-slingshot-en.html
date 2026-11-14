@@ -1,11 +1,13 @@
 <!doctype html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>หนังสติ๊ก · The Siam Times</title>
+<title>Siam Times Slingshot</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="ยิงหนังสติ๊กให้กระป๋องน้ำอัดลม 5 ใบบนโต๊ะท้ายห้องร่วง โดยไม่ให้กระจกหน้าต่างแตก · Knock five soda cans off the table at the back of The Siam Times back room without breaking the window.">
+<meta name="description" content="Knock five soda cans off the table at the back of The Siam Times back room with a slingshot, without breaking the window behind them.">
+<link rel="alternate" hreflang="th" href="GA-slingshot-th.html">
+<link rel="alternate" hreflang="en" href="GA-slingshot-en.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,600;0,700;1,400&display=swap">
@@ -190,7 +192,9 @@ html:lang(th) .brand .game { font: 600 24px/1.2 "Sarabun", sans-serif; }
 .brand p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; max-width: 36ch; }
 .btn-lang {
   flex: none;
+  display: inline-flex; align-items: center;
   min-height: 32px; padding: 0 12px;
+  color: var(--paper); text-decoration: none;
   border: 1px solid var(--rule); border-radius: 999px;
   background: transparent;
   font: 600 13px/1 var(--font-label);
@@ -329,37 +333,37 @@ details li::marker { color: var(--brass); }
   <main class="stage">
     <div class="scorebar">
       <div class="sb-cell">
-        <span class="label" id="sbModeLabel">5 รอบ</span>
-        <span class="sb-sub" id="sbModeSub">รอบ 1 จาก 5</span>
+        <span class="label" id="sbModeLabel">5 Rounds</span>
+        <span class="sb-sub" id="sbModeSub">Round 1 of 5</span>
       </div>
       <div class="sb-cell">
-        <span class="label" data-i18n="score">คะแนน</span>
+        <span class="label" data-i18n="score">Score</span>
         <span class="big" id="sbScore">0</span>
       </div>
       <div class="sb-cell">
-        <span class="label" data-i18n="stones">ลูกหิน</span>
+        <span class="label" data-i18n="stones">Stones</span>
         <div class="pips" id="stonePips"></div>
       </div>
       <div class="sb-cell">
-        <span class="label" data-i18n="cans">กระป๋อง</span>
+        <span class="label" data-i18n="cans">Cans</span>
         <div class="pips" id="canPips"></div>
       </div>
       <div class="sb-cell">
-        <span class="label" id="sbSideLabel">ดีที่สุด</span>
+        <span class="label" id="sbSideLabel">Best</span>
         <span class="mid" id="sbSideValue">–</span>
       </div>
       <p class="sb-msg" id="msg" aria-live="polite"></p>
     </div>
     <div class="scene" id="scene">
       <canvas id="canvas" tabindex="0" role="img"></canvas>
-      <p class="hint" id="hint" data-i18n="hint">แตะผนังเพื่อเล็ง · ลากหนังสติ๊กลงเพื่อง้าง แล้วปล่อยนิ้ว</p>
+      <p class="hint" id="hint" data-i18n="hint">Tap the wall to aim · drag the slingshot down to draw, then let go</p>
       <div class="overlay" id="overlay" hidden>
         <div class="card" role="dialog" aria-modal="false" aria-labelledby="ovTitle">
           <span class="label" id="ovEyebrow"></span>
           <h2 id="ovTitle"></h2>
           <p id="ovText"></p>
           <p class="note" id="ovBest"></p>
-          <button class="btn-brass" id="ovBtn" type="button" data-i18n="again">เล่นอีกครั้ง</button>
+          <button class="btn-brass" id="ovBtn" type="button" data-i18n="again">Play again</button>
         </div>
       </div>
     </div>
@@ -368,25 +372,25 @@ details li::marker { color: var(--brass); }
   <aside class="rail">
     <header class="brand">
       <div class="brand-top">
-        <h1><span class="mast">The Siam Times</span> <span class="game" data-i18n="gameName">หนังสติ๊ก</span></h1>
-        <button class="btn-lang" id="langBtn" type="button" lang="en">English</button>
+        <h1><span class="mast">The Siam Times</span> <span class="game" data-i18n="gameName">Slingshot</span></h1>
+        <a class="btn-lang" href="GA-slingshot-th.html" hreflang="th" lang="th">ภาษาไทย</a>
       </div>
-      <p data-i18n="tagline"></p>
+      <p data-i18n="tagline">Five soda cans on a table at the back of the room, 4 m away, with the window right behind them.</p>
     </header>
 
     <fieldset class="group">
-      <legend class="label" data-i18n="modeLegend">เกม</legend>
+      <legend class="label" data-i18n="modeLegend">Game</legend>
       <div class="seg" role="radiogroup" data-i18n-aria="modeLegend">
-        <input type="radio" name="mode" id="mode-classic" value="classic" checked><label for="mode-classic" data-i18n="classic">5 รอบ</label>
-        <input type="radio" name="mode" id="mode-practice" value="practice"><label for="mode-practice" data-i18n="practice">ฝึกซ้อม</label>
+        <input type="radio" name="mode" id="mode-classic" value="classic" checked><label for="mode-classic" data-i18n="classic">5 Rounds</label>
+        <input type="radio" name="mode" id="mode-practice" value="practice"><label for="mode-practice" data-i18n="practice">Practice</label>
       </div>
       <p class="note" id="modeNote"></p>
     </fieldset>
 
     <fieldset class="group">
-      <legend class="label" data-i18n="shotLegend">การยิง</legend>
+      <legend class="label" data-i18n="shotLegend">Your shot</legend>
       <div class="ctl">
-        <div class="ctl-head"><label for="yaw" data-i18n="yaw">เล็งซ้าย–ขวา</label><output id="yawOut" for="yaw"></output></div>
+        <div class="ctl-head"><label for="yaw" data-i18n="yaw">Left – right</label><output id="yawOut" for="yaw"></output></div>
         <div class="ctl-row">
           <button class="step" type="button" data-target="yaw" data-step="-0.1" data-i18n-aria="yawMinus">−</button>
           <input type="range" id="yaw" min="-15" max="15" step="0.1" value="0">
@@ -394,7 +398,7 @@ details li::marker { color: var(--brass); }
         </div>
       </div>
       <div class="ctl">
-        <div class="ctl-head"><label for="pitch" data-i18n="pitch">วิถีโค้ง (มุมเงย)</label><output id="pitchOut" for="pitch"></output></div>
+        <div class="ctl-head"><label for="pitch" data-i18n="pitch">Arc (elevation)</label><output id="pitchOut" for="pitch"></output></div>
         <div class="ctl-row">
           <button class="step" type="button" data-target="pitch" data-step="-0.1" data-i18n-aria="pitchMinus">−</button>
           <input type="range" id="pitch" min="-10" max="40" step="0.1" value="3">
@@ -402,33 +406,33 @@ details li::marker { color: var(--brass); }
         </div>
       </div>
       <div class="ctl">
-        <div class="ctl-head"><label for="draw" data-i18n="draw">แรงง้าง</label><output id="drawOut" for="draw"></output></div>
+        <div class="ctl-head"><label for="draw" data-i18n="draw">Draw</label><output id="drawOut" for="draw"></output></div>
         <div class="ctl-row">
           <button class="step" type="button" data-target="draw" data-step="-1" data-i18n-aria="drawMinus">−</button>
           <input type="range" id="draw" min="0" max="100" step="1" value="55">
           <button class="step" type="button" data-target="draw" data-step="1" data-i18n-aria="drawPlus">+</button>
         </div>
       </div>
-      <button class="btn-brass" id="fireBtn" type="button">ปล่อยหนังสติ๊ก</button>
+      <button class="btn-brass" id="fireBtn" type="button">Release</button>
       <p class="keys" data-i18n-html="keys"></p>
     </fieldset>
 
     <fieldset class="group">
-      <legend class="label" data-i18n="handLegend">ความนิ่งของมือ</legend>
+      <legend class="label" data-i18n="handLegend">Steadiness</legend>
       <div class="seg" role="radiogroup" data-i18n-aria="handLegend">
-        <input type="radio" name="difficulty" id="diff-easy" value="easy"><label for="diff-easy" data-i18n="easy">ง่าย</label>
-        <input type="radio" name="difficulty" id="diff-normal" value="normal" checked><label for="diff-normal" data-i18n="normal">ปกติ</label>
-        <input type="radio" name="difficulty" id="diff-pro" value="pro"><label for="diff-pro" data-i18n="pro">โปร</label>
+        <input type="radio" name="difficulty" id="diff-easy" value="easy"><label for="diff-easy" data-i18n="easy">Easy</label>
+        <input type="radio" name="difficulty" id="diff-normal" value="normal" checked><label for="diff-normal" data-i18n="normal">Normal</label>
+        <input type="radio" name="difficulty" id="diff-pro" value="pro"><label for="diff-pro" data-i18n="pro">Pro</label>
       </div>
       <p class="note" id="diffNote"></p>
       <div class="row">
-        <button class="btn-line" id="soundBtn" type="button" aria-pressed="true">เสียง: เปิด</button>
-        <button class="btn-line" id="newBtn" type="button" data-i18n="newGame">เริ่มเกมใหม่</button>
+        <button class="btn-line" id="soundBtn" type="button" aria-pressed="true">Sound on</button>
+        <button class="btn-line" id="newBtn" type="button" data-i18n="newGame">New game</button>
       </div>
     </fieldset>
 
     <details>
-      <summary data-i18n="howTo">วิธีเล่น</summary>
+      <summary data-i18n="howTo">How to play</summary>
       <ul id="howList"></ul>
     </details>
   </aside>
@@ -438,7 +442,9 @@ details li::marker { color: var(--brass); }
 (() => {
 'use strict';
 
-/* ---------- Words: Thai first, English on request ---------- */
+/* ---------- Words ----------
+   This script is the same in GA-slingshot-en.html and GA-slingshot-th.html;
+   each page picks its words from its own <html lang>. */
 const STR = {
   th: {
     docTitle: 'หนังสติ๊ก · The Siam Times',
@@ -458,7 +464,7 @@ const STR = {
     noteEasy: 'มือนิ่งสนิท เส้นประแสดงวิถีโค้งไปจนถึงจุดที่ลูกหินจะไปโดน',
     noteNormal: 'มือสั่นเล็กน้อย เส้นประแสดงแค่ครึ่งทางแรก ปล่อยตอนวงเล็งนิ่งอยู่ตรงจุดที่ต้องการ',
     notePro: 'มือสั่นมากขึ้น แรงง้างคลาดเคลื่อนได้ และเห็นวิถีแค่ช่วงต้น',
-    soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด', newGame: 'เริ่มเกมใหม่', lang: 'English',
+    soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด', newGame: 'เริ่มเกมใหม่',
     howTo: 'วิธีเล่น',
     how: [
       'แตะหรือลากบนผนังเพื่อเล็ง วงสีฟ้าคือจุดที่หนังสติ๊กชี้ไปเป็นเส้นตรง ก่อนแรงโน้มถ่วงจะดึงลูกหินลง',
@@ -517,7 +523,7 @@ const STR = {
     noteEasy: 'Your hand is still, and the dotted line shows the whole arc, to where the stone will hit.',
     noteNormal: 'Your hand drifts a little and the dotted line shows the first half of the arc. Let go when the ring sits on your spot.',
     notePro: 'More drift, the draw varies a little, and you see only the start of the arc.',
-    soundOn: 'Sound on', soundOff: 'Sound off', newGame: 'New game', lang: 'ภาษาไทย',
+    soundOn: 'Sound on', soundOff: 'Sound off', newGame: 'New game',
     howTo: 'How to play',
     how: [
       'Tap or drag on the wall to aim. The blue ring shows where the slingshot points in a straight line, before gravity pulls the stone down.',
@@ -600,11 +606,11 @@ const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) 
 const prefs = {
   sound: saved.sound !== false,
   difficulty: HANDS[saved.difficulty] ? saved.difficulty : 'normal',
-  lang: saved.lang === 'en' ? 'en' : 'th',
   best: Number.isFinite(saved.best) ? saved.best : null,
 };
 function savePrefs() { try { localStorage.setItem(STORE_KEY, JSON.stringify(prefs)); } catch {} }
-let T = STR[prefs.lang];
+const LANG = document.documentElement.lang === 'th' ? 'th' : 'en';
+const T = STR[LANG];
 
 /* ---------- Game state ---------- */
 const state = {
@@ -613,7 +619,7 @@ const state = {
   phase: 'aim',                 // aim | flight | roundOver | gameOver | rack
   totals: { cans: 0, bonus: 0, glass: 0, panes: 0 },
   practice: { shots: 0 },
-  message: [], overlay: null,       // message: [[key, ...args], ...] so it can be re-read in either language
+  message: [], overlay: null,       // message: [[key, ...args], ...], put into words when shown
 };
 let cans = [], panes = [], stones = [], shards = [];
 const toasts = [];
@@ -631,7 +637,7 @@ function mulberry32(a) {
   return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
     t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 }
-const textFont = (weight, px) => prefs.lang === 'th'
+const textFont = (weight, px) => LANG === 'th'
   ? `${weight} ${px}px Sarabun, "Helvetica Neue", Arial, sans-serif`
   : `${weight} ${px}px Newsreader, Georgia, serif`;
 
@@ -1588,8 +1594,8 @@ function drawSideView(g, pr, hand, now) {
   g.fillStyle = 'rgba(10,16,23,0.84)'; g.fill();
   g.strokeStyle = '#263548'; g.lineWidth = d; g.stroke();
   g.fillStyle = '#9ba7b3'; g.textAlign = 'left'; g.textBaseline = 'top';
-  g.font = prefs.lang === 'th' ? `600 ${11 * d}px Sarabun, sans-serif` : `600 ${9.5 * d}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
-  if ('letterSpacing' in g && prefs.lang !== 'th') g.letterSpacing = `${0.9 * d}px`;
+  g.font = LANG === 'th' ? `600 ${11 * d}px Sarabun, sans-serif` : `600 ${9.5 * d}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
+  if ('letterSpacing' in g && LANG !== 'th') g.letterSpacing = `${0.9 * d}px`;
   g.fillText(T.sideTitle, x0 + 9 * d, y0 + 7 * d);
   if ('letterSpacing' in g) g.letterSpacing = '0px';
   const left = x0 + 12 * d, right = x0 + w - 10 * d, top = y0 + 24 * d, bottom = y0 + h - 8 * d;
@@ -2163,18 +2169,13 @@ function renderUI() {
   sb.setAttribute('aria-pressed', String(prefs.sound));
   sb.textContent = prefs.sound ? T.soundOn : T.soundOff;
 }
-function applyLang() {
-  T = STR[prefs.lang];
-  document.documentElement.lang = prefs.lang;
+function fillWords() {
   document.title = T.docTitle;
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = T[el.dataset.i18n]; });
   document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = T[el.dataset.i18nHtml]; });
   document.querySelectorAll('[data-i18n-aria]').forEach(el => el.setAttribute('aria-label', T[el.dataset.i18nAria]));
   $('howList').innerHTML = '';
   for (const line of T.how) { const li = document.createElement('li'); li.textContent = line; $('howList').appendChild(li); }
-  const lb = $('langBtn');
-  lb.textContent = T.lang;
-  lb.lang = prefs.lang === 'th' ? 'en' : 'th';
   canvas.setAttribute('aria-label', T.canvasLabel);
   renderControls();
   renderUI();
@@ -2258,7 +2259,6 @@ $('fireBtn').addEventListener('click', () => { sfx.prime(); primaryAction(); });
 $('ovBtn').addEventListener('click', () => { newGame(); canvas.focus({ preventScroll: true }); });
 $('newBtn').addEventListener('click', newGame);
 $('soundBtn').addEventListener('click', () => { prefs.sound = !prefs.sound; savePrefs(); renderUI(); });
-$('langBtn').addEventListener('click', () => { prefs.lang = prefs.lang === 'th' ? 'en' : 'th'; savePrefs(); applyLang(); });
 document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener('change', () => {
   if (!r.checked) return;
   state.mode = r.value;
@@ -2292,7 +2292,7 @@ window.addEventListener('keydown', e => {
 
 /* ---------- Start ---------- */
 newGame();
-applyLang();
+fillWords();
 new ResizeObserver(resize).observe(canvas);
 resize();
 if (document.fonts) {
