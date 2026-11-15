@@ -10,6 +10,17 @@ Everything is in `GA-checkers.html`. There is no build step: open the file in a 
 - In a multi-jump, tap each landing square in turn. When only one way on is left, the cap carries on by itself.
 - Captured caps are tossed onto the table beside the player who took them.
 - **Undo** takes back your last move (against the computer it also takes back the computer's reply). It also cancels a capture you have started.
+- **Caps** (ฝาเบียร์) opens the cap picker. Each side has its own design, and a change shows on the board at once, even in the middle of a game:
+
+| Design | Print on the cap |
+|---|---|
+| Big star (ดาวใหญ่) | One big white five-pointed star inside a fine ring. The default for green. |
+| Gold star (ดาวทอง) | A gold star inside a gold double ring, with five small stars between the rings. |
+| The Siam Times (สยามไทมส์) | A ring of text (THE SIAM TIMES • BANGKOK • EST. 1864) round a Chomsky T. The default for red. |
+| Banner (แถบคาด) | A white ribbon across the top reading Siam in Chomsky, with EST. 1864 and BANGKOK above and below. |
+| Sunburst (รัศมี) | Rays from a white centre that holds a small star. |
+| Plain (เรียบ) | Bare lacquer with two pressed rings. |
+
 - **New game**: play The Editor (the computer) at Easy, Normal or Hard, choosing green or red caps, or play a friend on the same device.
 - Keyboard: arrow keys move between the dark squares, Enter or Space picks up and puts down, U undoes, N opens New game, Esc puts a cap back down.
 
@@ -24,14 +35,14 @@ Everything is in `GA-checkers.html`. There is no build step: open the file in a 
 | Kings | Move any distance diagonally. A king may capture from a distance but must land on the square immediately behind the captured cap, and may capture again from there in any direction. |
 | End | You win when the other side has no caps or no legal move. A draw after 30 moves each with no capture and no man moved, or when a position comes up three times. |
 
-The state of the game, the settings, the language and your record against The Editor at each level are kept in the browser's local storage, so a reload carries on where you left off.
+The state of the game, the settings, the cap designs, the language and your record against The Editor at each level are kept in the browser's local storage, so a reload carries on where you left off.
 
 ## How it works
 
 - **Engine.** The rules and the computer player are one plain script (`#engine-src`) with no DOM. The page runs it directly, and also starts it in a Web Worker made from the same source, so the computer thinks without freezing the page. If a worker cannot start, it runs on the page instead.
 - **The Editor** searches with negamax and alpha-beta pruning, iterative deepening, history-move ordering and a capture extension (forced captures are searched to the end). The evaluation counts men as 100 and kings as 310, rewards men for advancing and for guarding the home row, rewards kings on the long diagonals, and favours trading down when ahead. Easy searches 3 plies with noise and the odd random move; Normal searches 5 plies with a little noise; Hard deepens for about 1.3 s.
 - **Wood** is generated in the browser: growth rings bent by value noise, with pores streaked along the grain. The board's maple squares run their grain across and the walnut squares run it down; the four frame rails are mitred with the grain along each rail. The table is teak planks with butt joints, under a pool of lamp light.
-- **Caps** are drawn once per cap on canvas at 224 px: a crimped skirt with 21 flutes lit from the top left, a dent where the opener caught it, paint chips, a rounded shoulder and a domed top printed with a ring of text (THE SIAM TIMES • BANGKOK • EST. 1864) and a Chomsky T. The inside face (the king) has a pale gold lining, a coloured liner and an embossed crown. Each cap gets its own seed, so no two look exactly alike. Promotion flips the cap over in 3D.
+- **Caps** are drawn once per cap on canvas at 224 px: a crimped skirt with 21 flutes lit from the top left, a dent where the opener caught it, paint chips, a rounded shoulder and a domed top printed with the chosen design (see the table above). The print is turned with the cap, but its shading and shadow stay true to the lamp. The inside face (the king) has a pale gold lining, a coloured liner and an embossed crown. Each cap gets its own seed, so no two look exactly alike. Promotion flips the cap over in 3D.
 - All caps live in one layer over the table, so the same element can slide from a square to the pile and back on Undo.
 - Sounds (the cap on wood, a capture, a flip, the result) are made with Web Audio; there are no sound files.
 
