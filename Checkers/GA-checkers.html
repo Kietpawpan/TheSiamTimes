@@ -92,10 +92,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .btn svg { width: 18px; height: 18px; display: block; }
 @media (max-width: 720px) {
   .status { order: 3; flex-basis: 100%; }
+  .btn { font-size: 13.5px; }
   .brand span { display: none; }
   .topbar { gap: 8px 10px; padding-block: 10px 4px; }
   .actions { gap: 6px; }
-  .btn { padding: 6px 10px; }
+  .btn { padding: 6px 9px; }
+  .btn.icon { min-width: 34px; padding: 6px 7px; }
 }
 
 /* ---------- Table and board ---------- */
@@ -232,8 +234,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .sheet p { margin: 12px 0 0; }
 .sheet .note { font: 400 14px/1.5 var(--font-ui); color: var(--ink-soft); }
 .sheet .row { justify-content: flex-end; margin-top: 18px; }
-fieldset.seg { border: 0; padding: 0; margin: 16px 0 0; min-width: 0; }
-fieldset.seg legend { padding: 0; margin-bottom: 8px; font: 600 12px/1.2 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+fieldset.seg, fieldset.pick { border: 0; padding: 0; margin: 16px 0 0; min-width: 0; }
+fieldset.seg legend, fieldset.pick legend { padding: 0; margin-bottom: 8px; font: 600 12px/1.2 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
 .seg .opts { display: flex; flex-wrap: wrap; gap: 8px; }
 .seg label { position: relative; display: block; }
 .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
@@ -248,6 +250,20 @@ fieldset.seg legend { padding: 0; margin-bottom: 8px; font: 600 12px/1.2 var(--f
 .seg i.green { background: #1a8a44; }
 .seg i.red { background: #c9222b; }
 .seg[disabled] { opacity: .45; }
+
+/* cap designs: one tile per design, a live cap drawn in each */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.tile { position: relative; display: block; min-width: 0; }
+.tile input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.tile span {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%;
+  padding: 10px 6px 8px; border: 1px solid rgba(33, 22, 13, .25); border-radius: 8px;
+  font: 500 13.5px/1.25 var(--font-ui); text-align: center;
+}
+.tile canvas { width: 60px; height: 60px; }
+.tile input:checked + span { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); background: rgba(33, 22, 13, .07); }
+.tile input:hover + span { border-color: var(--ink-soft); }
+.tile input:focus-visible + span { outline: 2px solid var(--brass); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
   .mk.must::after { animation: none; }
@@ -267,6 +283,7 @@ fieldset.seg legend { padding: 0; margin-bottom: 8px; font: 600 12px/1.2 var(--f
       <button class="btn primary" id="btnNew" type="button">เกมใหม่</button>
       <button class="btn" id="btnUndo" type="button">ย้อน</button>
       <button class="btn" id="btnRules" type="button">กติกา</button>
+      <button class="btn" id="btnCaps" type="button">ฝาเบียร์</button>
       <button class="btn icon" id="btnSound" type="button" aria-pressed="true"></button>
       <button class="btn icon" id="btnLang" type="button">EN</button>
     </nav>
@@ -312,6 +329,17 @@ fieldset.seg legend { padding: 0; margin-bottom: 8px; font: 600 12px/1.2 var(--f
     <ol id="rulesList"></ol>
     <p class="note" id="rulesControls"></p>
     <div class="row"><button class="btn ink" type="button" data-close>ปิด</button></div>
+  </div>
+</div>
+
+<div class="modal" id="capsModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="capsHead">
+    <div class="mast">The Siam Times</div>
+    <h2 id="capsHead"></h2>
+    <p class="note" id="capsNote"></p>
+    <fieldset class="pick"><legend id="lgPickGreen"></legend><div class="tiles" id="tilesGreen"></div></fieldset>
+    <fieldset class="pick"><legend id="lgPickRed"></legend><div class="tiles" id="tilesRed"></div></fieldset>
+    <div class="row"><button class="btn ink" type="button" data-close id="btnCapsDone"></button></div>
   </div>
 </div>
 
@@ -615,6 +643,9 @@ const STR = {
     ],
     rulesControls: 'วิธีเล่น: แตะฝาของคุณ แล้วแตะจุดที่จะเดิน หรือลากฝาไปวาง ปุ่ม “ย้อน” คืนตาเดินล่าสุด แป้นพิมพ์: ลูกศรเลื่อนช่อง Enter เลือกหรือวาง U ย้อน N เกมใหม่',
     sq: (name, what) => name + ' ' + what, empty: 'ว่าง', man: (c) => 'เบี้ย' + c, king: (c) => 'ฮอส' + c,
+    capsBtn: 'ฝาเบียร์', capsHead: 'เลือกฝาเบียร์', capsOf: (c) => 'ฝา' + c, done: 'เสร็จ',
+    capsNote: 'เลือกลายฝาของแต่ละฝ่าย เปลี่ยนได้ทุกเมื่อแม้กำลังเล่นอยู่ ฮอสยังเป็นฝาหงายที่มีรูปมงกุฎเหมือนเดิม',
+    styles: { star: 'ดาวใหญ่', goldstar: 'ดาวทอง', times: 'สยามไทมส์', band: 'แถบคาด', sun: 'รัศมี', plain: 'เรียบ' },
   },
   en: {
     lang: 'en', brand: 'Thai Checkers', brandSub: 'Bottle caps on a wooden board',
@@ -653,11 +684,17 @@ const STR = {
     ],
     rulesControls: 'Controls: tap a cap, then tap a dot, or drag the cap. Undo takes back the last move. Keyboard: arrow keys move between squares, Enter picks up and puts down, U undoes, N starts a new game.',
     sq: (name, what) => name + ', ' + what, empty: 'empty', man: (c) => c.toLowerCase() + ' man', king: (c) => c.toLowerCase() + ' king',
+    capsBtn: 'Caps', capsHead: 'Choose your caps', capsOf: (c) => c + ' caps', done: 'Done',
+    capsNote: 'Pick a design for each side. You can change it at any time, even mid-game. Kings are still the caps turned face up, with a crown on the liner.',
+    styles: { star: 'Big star', goldstar: 'Gold star', times: 'The Siam Times', band: 'Banner', sun: 'Sunburst', plain: 'Plain' },
   },
 };
 
 const settings = Object.assign({ mode: 'ai', level: 'medium', human: 'green', sound: true, lang: 'th' }, store.get('settings', {}));
 if (!STR[settings.lang]) settings.lang = 'th';
+const CAP_STYLES = ['star', 'goldstar', 'times', 'band', 'sun', 'plain'];
+settings.capStyle = Object.assign({ green: 'star', red: 'times' }, settings.capStyle || {});
+['green', 'red'].forEach((c) => { if (!CAP_STYLES.includes(settings.capStyle[c])) settings.capStyle[c] = 'star'; });
 let L = STR[settings.lang];
 
 /* ---------------- Small helpers ---------------- */
@@ -780,8 +817,95 @@ function capGeometry(seed) {
   const rnd = mulberry32(seed);
   return { rnd, rot: rnd() * TAU, dentA: rnd() * TAU, dent: 0.022 + rnd() * 0.035 };
 }
+/* The print on the top of a cap. Drawn centred, in the cap's own (randomly turned) frame;
+   rot is that turn, so shadows and embossing can still fall away from the lamp. */
+const INK = 'rgba(255,255,255,.95)';
+function starPath(ctx, r, inner, x, y) {
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * inner : r;
+    if (i) ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); else ctx.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  ctx.closePath();
+}
+// screen-space offset (down and to the right of the lamp) expressed in the cap's turned frame
+function awayFromLamp(rot, k) { const x = k, y = k * 1.2; return [x * Math.cos(-rot) - y * Math.sin(-rot), x * Math.sin(-rot) + y * Math.cos(-rot)]; }
+function gold(ctx, r) {
+  const g = ctx.createLinearGradient(-r, -r, r, r);
+  g.addColorStop(0, '#fff2bf'); g.addColorStop(0.35, '#dcae4c'); g.addColorStop(0.6, '#fbe49c'); g.addColorStop(1, '#9c6f1c');
+  return g;
+}
+const PRINTS = {
+  star(ctx, R, pal, rot) {
+    // one big five-pointed star, its tips just short of a fine ring
+    ctx.strokeStyle = INK; ctx.lineWidth = R * 0.022; ctx.beginPath(); ctx.arc(0, 0, R * 0.64, 0, TAU); ctx.stroke();
+    const [dx, dy] = awayFromLamp(rot, R * 0.012);
+    starPath(ctx, R * 0.605, 0.42, dx, dy + R * 0.03); ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fill();
+    starPath(ctx, R * 0.605, 0.42, 0, R * 0.03); ctx.fillStyle = INK; ctx.fill();
+  },
+  goldstar(ctx, R, pal, rot) {
+    // a gold star inside a gold double ring with five small stars between the rings
+    ctx.strokeStyle = gold(ctx, R * 0.6);
+    ctx.lineWidth = R * 0.03; ctx.beginPath(); ctx.arc(0, 0, R * 0.6, 0, TAU); ctx.stroke();
+    ctx.lineWidth = R * 0.014; ctx.beginPath(); ctx.arc(0, 0, R * 0.5, 0, TAU); ctx.stroke();
+    ctx.fillStyle = gold(ctx, R * 0.6);
+    for (let i = 0; i < 5; i++) {
+      const a = -Math.PI / 2 + Math.PI / 5 + i * TAU / 5;
+      starPath(ctx, R * 0.035, 0.45, Math.cos(a) * R * 0.55, Math.sin(a) * R * 0.55); ctx.fill();
+    }
+    const [dx, dy] = awayFromLamp(rot, R * 0.014);
+    starPath(ctx, R * 0.43, 0.45, dx, dy); ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fill();
+    starPath(ctx, R * 0.43, 0.45, 0, 0); ctx.fillStyle = gold(ctx, R * 0.43); ctx.fill();
+    ctx.lineWidth = R * 0.012; ctx.strokeStyle = 'rgba(90,60,10,.6)'; ctx.stroke();
+  },
+  times(ctx, R) {
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = R * 0.024; ctx.beginPath(); ctx.arc(0, 0, R * 0.59, 0, TAU); ctx.stroke();
+    ctx.lineWidth = R * 0.014; ctx.beginPath(); ctx.arc(0, 0, R * 0.425, 0, TAU); ctx.stroke();
+    arcText(ctx, 'THE SIAM TIMES • BANGKOK • EST. 1864 • ', R * 0.505, 0.9);
+    ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = (R * 0.6).toFixed(1) + 'px Chomsky, "Old English Text MT", serif';
+    ctx.fillText('T', 0, R * 0.045);
+  },
+  band(ctx, R, pal) {
+    // a white ribbon across the top with "Siam" in Chomsky, small print above and below
+    const dark = css(mix(pal.base, pal.lo, 0.3));
+    ctx.fillStyle = INK; ctx.fillRect(-R, -R * 0.17, 2 * R, R * 0.34);
+    ctx.fillStyle = dark; ctx.fillRect(-R, -R * 0.135, 2 * R, R * 0.014); ctx.fillRect(-R, R * 0.121, 2 * R, R * 0.014);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = (R * 0.25).toFixed(1) + 'px Chomsky, "Old English Text MT", serif';
+    ctx.fillText('Siam', 0, R * 0.012);
+    starPath(ctx, R * 0.05, 0.45, -R * 0.42, 0); ctx.fill();
+    starPath(ctx, R * 0.05, 0.45, R * 0.42, 0); ctx.fill();
+    ctx.fillStyle = INK; ctx.font = '700 ' + (R * 0.095).toFixed(1) + 'px "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText('EST. 1864', 0, -R * 0.34);
+    ctx.fillText('BANGKOK', 0, R * 0.35);
+  },
+  sun(ctx, R, pal) {
+    // rays from a white centre holding a small star
+    const n = 24;
+    ctx.fillStyle = 'rgba(255,255,255,.2)';
+    for (let i = 0; i < n; i += 2) {
+      const a0 = i * TAU / n, a1 = (i + 1) * TAU / n;
+      ctx.beginPath(); ctx.arc(0, 0, R * 0.62, a0, a1); ctx.arc(0, 0, R * 0.2, a1, a0, true); ctx.closePath(); ctx.fill();
+    }
+    ctx.strokeStyle = INK; ctx.lineWidth = R * 0.02; ctx.beginPath(); ctx.arc(0, 0, R * 0.62, 0, TAU); ctx.stroke();
+    ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(0, 0, R * 0.21, 0, TAU); ctx.fill();
+    starPath(ctx, R * 0.15, 0.42, 0, R * 0.008); ctx.fillStyle = css(pal.base); ctx.fill();
+  },
+  plain(ctx, R, pal, rot) {
+    // bare lacquer with two pressed rings
+    const [dx, dy] = awayFromLamp(rot, R * 0.012);
+    for (const r of [R * 0.5, R * 0.26]) {
+      ctx.lineWidth = R * 0.03;
+      ctx.strokeStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.arc(dx, dy, r, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.arc(-dx, -dy, r, 0, TAU); ctx.stroke();
+    }
+  },
+};
+
 // Face down on the table, as it came off the bottle: a man.
-function drawCapFront(cv, key, seed) {
+function drawCapFront(cv, key, seed, style) {
   const S = cv.width, ctx = cv.getContext('2d'), pal = CAPS[key];
   const { rnd, rot, dentA, dent } = capGeometry(seed);
   const cx = S / 2, cy = S / 2, R = S * 0.44;
@@ -820,13 +944,7 @@ function drawCapFront(cv, key, seed) {
   ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, rT, 0, TAU); ctx.clip();
   ctx.fillStyle = css(pal.base); ctx.fillRect(0, 0, S, S);
   ctx.translate(cx, cy); ctx.rotate(rot);
-  ctx.strokeStyle = 'rgba(255,255,255,.93)';
-  ctx.lineWidth = R * 0.024; ctx.beginPath(); ctx.arc(0, 0, R * 0.59, 0, TAU); ctx.stroke();
-  ctx.lineWidth = R * 0.014; ctx.beginPath(); ctx.arc(0, 0, R * 0.425, 0, TAU); ctx.stroke();
-  arcText(ctx, 'THE SIAM TIMES • BANGKOK • EST. 1864 • ', R * 0.505, 0.9);
-  ctx.fillStyle = 'rgba(255,255,255,.96)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.font = (R * 0.6).toFixed(1) + 'px Chomsky, "Old English Text MT", serif';
-  ctx.fillText('T', 0, R * 0.045);
+  (PRINTS[style] || PRINTS[settings.capStyle[key]] || PRINTS.star)(ctx, R, pal, rot);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = Math.max(0.6, S / 400);
   for (let i = 0; i < 5; i++) {
@@ -1193,7 +1311,7 @@ function makePiece(id, side, color, seed) {
   const front = document.createElement('canvas'), back = document.createElement('canvas');
   front.width = front.height = back.width = back.height = SPRITE;
   front.className = 'front'; back.className = 'back';
-  drawCapFront(front, color, seed); drawCapBack(back, color, seed);
+  drawCapFront(front, color, seed, settings.capStyle[color]); drawCapBack(back, color, seed);
   el.querySelector('.flip').append(front, back);
   capsEl.appendChild(el);
   return { id, side, color, seed, king: false, cap: null, el, x: 0, y: 0, anim: null };
@@ -1583,7 +1701,7 @@ function renderMarks() {
 function drawPlates() {
   for (const side of [1, -1]) {
     const cv = SIDE[side].plate.querySelector('canvas');
-    drawCapFront(cv, colorOf(side), 4242 + side);
+    drawCapFront(cv, colorOf(side), 4242 + side, settings.capStyle[colorOf(side)]);
   }
 }
 function renderHUD() {
@@ -1726,14 +1844,45 @@ function fillRules() {
 }
 const ICON_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path d="M18 6.5a7.7 7.7 0 0 1 0 11"/></svg>';
 const ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
+function buildCapTiles() {
+  for (const color of ['green', 'red']) {
+    const box = $(color === 'green' ? 'tilesGreen' : 'tilesRed');
+    CAP_STYLES.forEach((st) => {
+      const lab = document.createElement('label'); lab.className = 'tile';
+      const inp = document.createElement('input');
+      inp.type = 'radio'; inp.name = 'cap-' + color; inp.value = st; inp.id = 'cap-' + color + '-' + st;
+      const span = document.createElement('span');
+      const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.setAttribute('aria-hidden', 'true');
+      drawCapFront(cv, color, 90 + CAP_STYLES.indexOf(st) * 13 + (color === 'red' ? 7 : 0), st);
+      const name = document.createElement('em'); name.dataset.style = st; name.style.fontStyle = 'normal';
+      span.append(cv, name); lab.append(inp, span); box.appendChild(lab);
+      inp.addEventListener('change', () => {
+        settings.capStyle[color] = st; store.set('settings', settings);
+        restyleCaps(color);
+      });
+    });
+  }
+}
+function fillCapsForm() {
+  $('capsHead').textContent = L.capsHead; $('capsNote').textContent = L.capsNote;
+  $('lgPickGreen').textContent = L.capsOf(L.green); $('lgPickRed').textContent = L.capsOf(L.red);
+  $('btnCapsDone').textContent = L.done;
+  document.querySelectorAll('.tile em').forEach((e) => { e.textContent = L.styles[e.dataset.style]; });
+  for (const color of ['green', 'red']) { const i = $('cap-' + color + '-' + settings.capStyle[color]); if (i) i.checked = true; }
+}
+function restyleCaps(color) {
+  pieces.forEach((p) => { if (p.color === color) drawCapFront(p.el.querySelector('canvas.front'), p.color, p.seed, settings.capStyle[color]); });
+  if (G) drawPlates();
+  sfx.lift();
+}
 function applyLang() {
   L = STR[settings.lang];
   document.documentElement.lang = L.lang;
   $('brandTitle').textContent = L.brand; $('brandSub').textContent = L.brandSub;
-  $('btnNew').textContent = L.newGame; $('btnUndo').textContent = L.undo; $('btnRules').textContent = L.rules;
+  $('btnNew').textContent = L.newGame; $('btnUndo').textContent = L.undo; $('btnRules').textContent = L.rules; $('btnCaps').textContent = L.capsBtn;
   $('btnLang').textContent = L.langBtn; $('btnLang').setAttribute('aria-label', L.langLabel);
   applySound();
-  fillRules(); fillNewForm();
+  fillRules(); fillNewForm(); fillCapsForm();
   if (G) { renderAll(); if (G.over) showBanner(); }
 }
 function applySound() {
@@ -1746,6 +1895,7 @@ function applySound() {
 $('btnNew').addEventListener('click', openNew);
 $('btnUndo').addEventListener('click', undo);
 $('btnRules').addEventListener('click', () => { fillRules(); open($('rulesModal')); });
+$('btnCaps').addEventListener('click', () => { fillCapsForm(); open($('capsModal')); });
 $('btnSound').addEventListener('click', () => { settings.sound = !settings.sound; store.set('settings', settings); applySound(); if (settings.sound) sfx.place(); });
 $('btnLang').addEventListener('click', () => { settings.lang = settings.lang === 'th' ? 'en' : 'th'; store.set('settings', settings); applyLang(); });
 $('btnAgain').addEventListener('click', () => newGame());
@@ -1768,6 +1918,7 @@ async function init(saved) {
   } catch (e) { /* draw with the fallback face */ }
   makeTextures();
   buildHits();
+  buildCapTiles();
   applyLang();
   layout();
   drawTable();
