@@ -10,16 +10,26 @@ Everything is in `GA-checkers.html`. There is no build step: open the file in a 
 - In a multi-jump, tap each landing square in turn. When only one way on is left, the cap carries on by itself.
 - Captured caps are tossed onto the table beside the player who took them.
 - **Undo** takes back your last move (against the computer it also takes back the computer's reply). It also cancels a capture you have started.
-- **Caps** (ฝาเบียร์) opens the cap picker. Each side has its own design, and a change shows on the board at once, even in the middle of a game:
+- **Caps** (ฝาเบียร์) opens the cap picker. Choose a side (yours or The Editor's; with two players, bottom or top), then its colour and design. A change shows on the board at once, even in the middle of a game. The two sides can never share a colour: picking the other side's colour swaps the two. Each side is named after its colour everywhere in the game (ตาฝ่ายน้ำเงิน, Blue wins).
+  - **Colours**: green, red, blue, sky blue, teal, purple, pink, orange, yellow, gold, silver, black and white. Light colours (yellow, silver, white) are printed in a dark ink; the rest in white.
+  - **Beer caps**:
 
 | Design | Print on the cap |
 |---|---|
-| Big star (ดาวใหญ่) | One big white five-pointed star inside a fine ring. The default for green. |
+| Big star (ดาวใหญ่) | A big five-pointed star drawn as an outline only, inside a fine ring. The default for green. |
 | Gold star (ดาวทอง) | A gold star inside a gold double ring, with five small stars between the rings. |
 | The Siam Times (สยามไทมส์) | A ring of text (THE SIAM TIMES • BANGKOK • EST. 1864) round a Chomsky T. The default for red. |
-| Banner (แถบคาด) | A white ribbon across the top reading Siam in Chomsky, with EST. 1864 and BANGKOK above and below. |
-| Sunburst (รัศมี) | Rays from a white centre that holds a small star. |
+| Banner (แถบคาด) | A ribbon across the top reading Siam in Chomsky, with EST. 1864 and BANGKOK above and below. |
+| Sunburst (รัศมี) | Rays from a centre disc that holds a small star. |
 | Plain (เรียบ) | Bare lacquer with two pressed rings. |
+
+  - **Soda caps**:
+
+| Design | Print on the cap |
+|---|---|
+| Soda wave (คลื่นซ่า) | A disc split by a wave, thick on one side and thin on the other: the cap colour above, a deep shade of it below. In the spirit of cola caps, without any brand's logo. |
+| Fizz (ฟองโซดา) | Bubbles rising round the word SODA. |
+| Pop (ป๊อป) | Retro rings and dots round a disc stamped POP. |
 
 - **New game**: play The Editor (the computer) at Easy, Normal or Hard, choosing green or red caps, or play a friend on the same device.
 - Keyboard: arrow keys move between the dark squares, Enter or Space picks up and puts down, U undoes, N opens New game, Esc puts a cap back down.
@@ -28,7 +38,7 @@ Everything is in `GA-checkers.html`. There is no build step: open the file in a 
 
 | Rule | |
 |---|---|
-| Board | 8 × 8, dark squares only. 8 caps each, on the first two rows of each side. Green moves first. |
+| Board | 8 × 8, dark squares only. 8 caps each, on the first two rows of each side. Green (the side that starts with green caps) moves first. |
 | Men (ฝาคว่ำ, a cap top up) | Move one square diagonally forward. Capture forward only, by jumping an adjacent enemy cap onto the empty square beyond. |
 | Capturing | Compulsory. You choose which capture to make (no rule to take the most), but once you start you must keep capturing while you can. A captured cap leaves the board as soon as it is jumped. |
 | Promotion | A man reaching the far row becomes a king (ฮอส) and is turned face up (ฝาหงาย), showing the liner and its crown. The move ends there. |

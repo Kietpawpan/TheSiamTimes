@@ -247,11 +247,28 @@ fieldset.seg legend, fieldset.pick legend { padding: 0; margin-bottom: 8px; font
 .seg input:focus-visible + span { outline: 2px solid var(--brass); outline-offset: 2px; }
 .seg i { width: 14px; height: 14px; border-radius: 50%; display: inline-block; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); }
 .seg em { font-style: normal; }
-.seg i.green { background: #1a8a44; }
-.seg i.red { background: #c9222b; }
 .seg[disabled] { opacity: .45; }
 
-/* cap designs: one tile per design, a live cap drawn in each */
+/* cap picker: which side, its colour, then its design (a live cap drawn in each tile) */
+.teams { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.team {
+  display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px 12px 8px 8px;
+  border: 1px solid rgba(33, 22, 13, .3); border-radius: 8px; background: transparent; color: var(--ink);
+  font: 500 15px/1.25 var(--font-ui); text-align: left;
+}
+.team canvas { width: 38px; height: 38px; flex: none; }
+.team span { min-width: 0; }
+.team small { display: block; font-size: 13px; opacity: .75; }
+.team[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.swatch { position: relative; display: block; }
+.swatch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.swatch span {
+  display: block; width: 34px; height: 34px; border-radius: 50%; background: var(--sw);
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, .28), inset 0 3px 5px rgba(255, 255, 255, .35), 0 0 0 1px rgba(33, 22, 13, .3);
+}
+.swatch input:checked + span { box-shadow: inset 0 -3px 6px rgba(0, 0, 0, .28), inset 0 3px 5px rgba(255, 255, 255, .35), 0 0 0 2px var(--paper), 0 0 0 4px var(--ink); }
+.swatch input:focus-visible + span { outline: 2px solid var(--brass); outline-offset: 6px; }
 .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
 .tile { position: relative; display: block; min-width: 0; }
 .tile input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
@@ -337,8 +354,13 @@ fieldset.seg legend, fieldset.pick legend { padding: 0; margin-bottom: 8px; font
     <div class="mast">The Siam Times</div>
     <h2 id="capsHead"></h2>
     <p class="note" id="capsNote"></p>
-    <fieldset class="pick"><legend id="lgPickGreen"></legend><div class="tiles" id="tilesGreen"></div></fieldset>
-    <fieldset class="pick"><legend id="lgPickRed"></legend><div class="tiles" id="tilesRed"></div></fieldset>
+    <div class="teams">
+      <button type="button" class="team" id="teamA" aria-pressed="true"><canvas width="96" height="96" aria-hidden="true"></canvas><span></span></button>
+      <button type="button" class="team" id="teamB" aria-pressed="false"><canvas width="96" height="96" aria-hidden="true"></canvas><span></span></button>
+    </div>
+    <fieldset class="pick"><legend id="lgPaint"></legend><div class="swatches" id="swatches"></div></fieldset>
+    <fieldset class="pick"><legend id="lgBeer"></legend><div class="tiles" id="tilesBeer"></div></fieldset>
+    <fieldset class="pick"><legend id="lgSoda"></legend><div class="tiles" id="tilesSoda"></div></fieldset>
     <div class="row"><button class="btn ink" type="button" data-close id="btnCapsDone"></button></div>
   </div>
 </div>
@@ -365,8 +387,8 @@ fieldset.seg legend, fieldset.pick legend { padding: 0; margin-bottom: 8px; font
     <fieldset class="seg" id="fsColor">
       <legend id="lgColor"></legend>
       <div class="opts">
-        <label><input type="radio" name="human" value="green" id="huGreen"><span><i class="green"></i><em id="optGreen"></em></span></label>
-        <label><input type="radio" name="human" value="red" id="huRed"><span><i class="red"></i><em id="optRed"></em></span></label>
+        <label><input type="radio" name="human" value="green" id="huGreen"><span><i id="dotGreen"></i><em id="optGreen"></em></span></label>
+        <label><input type="radio" name="human" value="red" id="huRed"><span><i id="dotRed"></i><em id="optRed"></em></span></label>
       </div>
     </fieldset>
     <p class="note" id="newNote"></p>
@@ -628,12 +650,12 @@ const STR = {
     extra: 'ฉบับพิเศษ', again: 'เล่นอีกครั้ง', look: 'ดูกระดาน', close: 'ปิด', start: 'เริ่มเกม', cancel: 'ยกเลิก',
     ngTitle: 'เกมใหม่', opp: 'คู่แข่ง', oppAi: 'บรรณาธิการ (คอมพิวเตอร์)', oppPvp: 'เพื่อน บนเครื่องเดียวกัน',
     level: 'ระดับ', easy: 'ง่าย', medium: 'ปานกลาง', hard: 'ยาก', yourCaps: 'ฝาของคุณ',
-    greenFirst: 'ฝาเขียวเดินก่อนเสมอ ถ้าเล่นสองคน ฝาเขียวอยู่ล่าง', sep: ' · ',
+    firstNote: (a) => 'ฝา' + a + 'เดินก่อนเสมอ ถ้าเล่นสองคน ฝา' + a + 'อยู่ล่าง', sep: ' · ',
     record: (w, l, d) => 'สถิติกับบรรณาธิการระดับนี้: ชนะ ' + w + ' แพ้ ' + l + ' เสมอ ' + d,
     rulesKicker: 'กติกาหมากฮอสไทย',
     rulesHead: 'หมากฮอสฝาขวด เล่นอย่างไร',
-    rulesList: [
-      'กระดาน 8 × 8 ช่อง เดินเฉพาะช่องสีเข้ม แต่ละฝ่ายมีฝา 8 ตัว วางเต็มสองแถวแรกฝั่งตัวเอง ฝาเขียวเดินก่อน',
+    rulesList: (a) => [
+      'กระดาน 8 × 8 ช่อง เดินเฉพาะช่องสีเข้ม แต่ละฝ่ายมีฝา 8 ตัว วางเต็มสองแถวแรกฝั่งตัวเอง ฝา' + a + 'เดินก่อน',
       'ฝาคว่ำคือ “เบี้ย” เดินทแยงไปข้างหน้าทีละช่อง และกินได้เฉพาะข้างหน้า โดยกระโดดข้ามฝาฝ่ายตรงข้ามที่อยู่ติดกันไปลงช่องว่างถัดไป',
       'ถ้ามีทางกิน ต้องกิน เลือกทางกินเองได้ ไม่บังคับทางที่กินได้มากที่สุด แต่เมื่อเริ่มกินแล้ว ถ้ายังกินต่อได้ต้องกินต่อจนสุด',
       'ฝาที่ถูกกินถูกยกออกจากกระดานทันทีที่ถูกกระโดดข้าม',
@@ -643,9 +665,12 @@ const STR = {
     ],
     rulesControls: 'วิธีเล่น: แตะฝาของคุณ แล้วแตะจุดที่จะเดิน หรือลากฝาไปวาง ปุ่ม “ย้อน” คืนตาเดินล่าสุด แป้นพิมพ์: ลูกศรเลื่อนช่อง Enter เลือกหรือวาง U ย้อน N เกมใหม่',
     sq: (name, what) => name + ' ' + what, empty: 'ว่าง', man: (c) => 'เบี้ย' + c, king: (c) => 'ฮอส' + c,
-    capsBtn: 'ฝาเบียร์', capsHead: 'เลือกฝาเบียร์', capsOf: (c) => 'ฝา' + c, done: 'เสร็จ',
-    capsNote: 'เลือกลายฝาของแต่ละฝ่าย เปลี่ยนได้ทุกเมื่อแม้กำลังเล่นอยู่ ฮอสยังเป็นฝาหงายที่มีรูปมงกุฎเหมือนเดิม',
-    styles: { star: 'ดาวใหญ่', goldstar: 'ดาวทอง', times: 'สยามไทมส์', band: 'แถบคาด', sun: 'รัศมี', plain: 'เรียบ' },
+    capsBtn: 'ฝาเบียร์', capsHead: 'เลือกฝา', done: 'เสร็จ',
+    capsNote: 'เลือกฝ่าย แล้วเลือกสีและลายฝา เปลี่ยนได้ทุกเมื่อแม้กำลังเล่นอยู่ ถ้าเลือกสีซ้ำกับอีกฝ่าย สองฝ่ายจะสลับสีกัน ฮอสยังเป็นฝาหงายที่มีรูปมงกุฎเหมือนเดิม',
+    teamYou: 'ฝาของคุณ', teamEditor: 'ฝาบรรณาธิการ', teamBottom: 'ผู้เล่นล่าง', teamTop: 'ผู้เล่นบน',
+    paintLegend: (c) => 'สี: ' + c, beerCaps: 'ลายฝาเบียร์', sodaCaps: 'ลายฝาน้ำอัดลม',
+    paint: { green: 'เขียว', red: 'แดง', blue: 'น้ำเงิน', sky: 'ฟ้า', teal: 'เขียวน้ำทะเล', purple: 'ม่วง', pink: 'ชมพู', orange: 'ส้ม', yellow: 'เหลือง', gold: 'ทอง', silver: 'เงิน', black: 'ดำ', white: 'ขาว' },
+    styles: { star: 'ดาวใหญ่', goldstar: 'ดาวทอง', times: 'สยามไทมส์', band: 'แถบคาด', sun: 'รัศมี', plain: 'เรียบ', wave: 'คลื่นซ่า', fizz: 'ฟองโซดา', pop: 'ป๊อป' },
   },
   en: {
     lang: 'en', brand: 'Thai Checkers', brandSub: 'Bottle caps on a wooden board',
@@ -669,12 +694,12 @@ const STR = {
     extra: 'Extra', again: 'Play again', look: 'See the board', close: 'Close', start: 'Start', cancel: 'Cancel',
     ngTitle: 'New game', opp: 'Opponent', oppAi: 'The Editor (computer)', oppPvp: 'A friend on this device',
     level: 'Level', easy: 'Easy', medium: 'Normal', hard: 'Hard', yourCaps: 'Your caps',
-    greenFirst: 'Green always moves first. With two players, green sits at the bottom.', sep: ' ',
+    firstNote: (a) => a + ' always moves first. With two players, ' + a.toLowerCase() + ' sits at the bottom.', sep: ' ',
     record: (w, l, d) => 'Your record against The Editor at this level: won ' + w + ', lost ' + l + ', drawn ' + d + '.',
     rulesKicker: 'Thai checkers rules',
     rulesHead: 'How to play checkers with bottle caps',
-    rulesList: [
-      'An 8 × 8 board, played on the dark squares only. Each side has 8 caps on the first two rows of its own side. Green moves first.',
+    rulesList: (a) => [
+      'An 8 × 8 board, played on the dark squares only. Each side has 8 caps on the first two rows of its own side. ' + a + ' moves first.',
       'A cap lying top up is a man. It moves one square diagonally forward and captures forward only, by jumping an enemy cap next to it onto the empty square beyond.',
       'If you can capture, you must. You may choose which capture to make; you do not have to take the most. Once you start capturing, keep going while another capture is open.',
       'A captured cap leaves the board as soon as it is jumped.',
@@ -684,17 +709,28 @@ const STR = {
     ],
     rulesControls: 'Controls: tap a cap, then tap a dot, or drag the cap. Undo takes back the last move. Keyboard: arrow keys move between squares, Enter picks up and puts down, U undoes, N starts a new game.',
     sq: (name, what) => name + ', ' + what, empty: 'empty', man: (c) => c.toLowerCase() + ' man', king: (c) => c.toLowerCase() + ' king',
-    capsBtn: 'Caps', capsHead: 'Choose your caps', capsOf: (c) => c + ' caps', done: 'Done',
-    capsNote: 'Pick a design for each side. You can change it at any time, even mid-game. Kings are still the caps turned face up, with a crown on the liner.',
-    styles: { star: 'Big star', goldstar: 'Gold star', times: 'The Siam Times', band: 'Banner', sun: 'Sunburst', plain: 'Plain' },
+    capsBtn: 'Caps', capsHead: 'Choose your caps', done: 'Done',
+    capsNote: 'Pick a side, then its colour and design. You can change them at any time, even mid-game. If you pick the other side’s colour, the two sides swap colours. Kings are still the caps turned face up, with a crown on the liner.',
+    teamYou: 'Your caps', teamEditor: 'The Editor’s caps', teamBottom: 'Bottom player', teamTop: 'Top player',
+    paintLegend: (c) => 'Colour: ' + c, beerCaps: 'Beer caps', sodaCaps: 'Soda caps',
+    paint: { green: 'Green', red: 'Red', blue: 'Blue', sky: 'Sky blue', teal: 'Teal', purple: 'Purple', pink: 'Pink', orange: 'Orange', yellow: 'Yellow', gold: 'Gold', silver: 'Silver', black: 'Black', white: 'White' },
+    styles: { star: 'Big star', goldstar: 'Gold star', times: 'The Siam Times', band: 'Banner', sun: 'Sunburst', plain: 'Plain', wave: 'Soda wave', fizz: 'Fizz', pop: 'Pop' },
   },
 };
 
 const settings = Object.assign({ mode: 'ai', level: 'medium', human: 'green', sound: true, lang: 'th' }, store.get('settings', {}));
 if (!STR[settings.lang]) settings.lang = 'th';
-const CAP_STYLES = ['star', 'goldstar', 'times', 'band', 'sun', 'plain'];
+// The two sides are called green and red inside the game (green moves first); each side
+// chooses the paint and the print of its caps, and is named after its paint on screen.
+const CAP_STYLES = ['star', 'goldstar', 'times', 'band', 'sun', 'plain', 'wave', 'fizz', 'pop'];
+const SODA_STYLES = ['wave', 'fizz', 'pop'];
+const PAINT_KEYS = ['green', 'red', 'blue', 'sky', 'teal', 'purple', 'pink', 'orange', 'yellow', 'gold', 'silver', 'black', 'white'];
 settings.capStyle = Object.assign({ green: 'star', red: 'times' }, settings.capStyle || {});
 ['green', 'red'].forEach((c) => { if (!CAP_STYLES.includes(settings.capStyle[c])) settings.capStyle[c] = 'star'; });
+settings.capPaint = Object.assign({ green: 'green', red: 'red' }, settings.capPaint || {});
+if (!PAINT_KEYS.includes(settings.capPaint.green) || !PAINT_KEYS.includes(settings.capPaint.red) || settings.capPaint.green === settings.capPaint.red) settings.capPaint = { green: 'green', red: 'red' };
+const paintOf = (team) => settings.capPaint[team];
+const styleOf = (team) => settings.capStyle[team];
 let L = STR[settings.lang];
 
 /* ---------------- Small helpers ---------------- */
@@ -762,9 +798,25 @@ function makeTextures() {
 
 /* ---------------- Bottle caps ---------------- */
 const SPRITE = 224;
-const CAPS = {
-  green: { base: [20, 124, 58], hi: [150, 224, 160], lo: [3, 46, 18], liner: [58, 138, 84], linerHi: [132, 204, 148] },
-  red: { base: [202, 30, 38], hi: [255, 152, 140], lo: [88, 6, 12], liner: [178, 58, 60], linerHi: [242, 146, 136] },
+const WHITE = [255, 255, 255];
+// A lacquer colour and the ink printed on it; highlights, shadows and the liner follow from the base.
+function paint(base, ink, over) {
+  return Object.assign({ base, ink, hi: mix(base, WHITE, 0.6), lo: mix(base, [0, 0, 0], 0.72), liner: mix(base, [214, 208, 196], 0.25), linerHi: mix(base, WHITE, 0.5) }, over || {});
+}
+const PAINTS = {
+  green: paint([20, 124, 58], WHITE, { hi: [150, 224, 160], lo: [3, 46, 18], liner: [58, 138, 84], linerHi: [132, 204, 148] }),
+  red: paint([202, 30, 38], WHITE, { hi: [255, 152, 140], lo: [88, 6, 12], liner: [178, 58, 60], linerHi: [242, 146, 136] }),
+  blue: paint([24, 74, 168], WHITE),
+  sky: paint([46, 146, 212], WHITE),
+  teal: paint([14, 134, 138], WHITE),
+  purple: paint([106, 52, 154], WHITE),
+  pink: paint([222, 80, 140], WHITE),
+  orange: paint([232, 106, 22], WHITE),
+  yellow: paint([240, 194, 30], [130, 26, 20]),
+  gold: paint([186, 142, 48], WHITE, { hi: [255, 236, 170] }),
+  silver: paint([168, 175, 186], [22, 42, 98], { hi: [250, 252, 255] }),
+  black: paint([34, 34, 38], WHITE, { hi: [150, 150, 158] }),
+  white: paint([234, 231, 224], [188, 24, 34], { hi: [255, 255, 255], lo: [118, 114, 106] }),
 };
 const METAL = { base: [210, 188, 128], hi: [252, 242, 208], lo: [112, 90, 48] };   // pale gold lacquer inside the cap
 const LIGHT = Math.atan2(-1, -0.85);   // the lamp is to the top left
@@ -797,13 +849,13 @@ function facets(ctx, cx, cy, R, rot, pal, r0, inside) {
     }
   }
 }
-function arcText(ctx, text, r, alpha) {
+function arcText(ctx, text, r, color) {
   ctx.save();
   ctx.font = '700 10px "Helvetica Neue", Arial, sans-serif';
   const w1 = [...text].map((ch) => ctx.measureText(ch).width), total1 = w1.reduce((a, b) => a + b, 0);
   const size = 10 * (TAU * r) / (total1 * 1.12);
   ctx.font = '700 ' + size.toFixed(2) + 'px "Helvetica Neue", Arial, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   const ws = [...text].map((ch) => ctx.measureText(ch).width), total = ws.reduce((a, b) => a + b, 0), k = TAU / total;
   let a = -Math.PI / 2;
   [...text].forEach((ch, i) => {
@@ -819,7 +871,8 @@ function capGeometry(seed) {
 }
 /* The print on the top of a cap. Drawn centred, in the cap's own (randomly turned) frame;
    rot is that turn, so shadows and embossing can still fall away from the lamp. */
-const INK = 'rgba(255,255,255,.95)';
+const inkOf = (pal, a) => css(pal.ink, a == null ? 0.95 : a);
+const lum = (c) => (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255;
 function starPath(ctx, r, inner, x, y) {
   ctx.beginPath();
   for (let i = 0; i < 10; i++) {
@@ -837,11 +890,12 @@ function gold(ctx, r) {
 }
 const PRINTS = {
   star(ctx, R, pal, rot) {
-    // one big five-pointed star, its tips just short of a fine ring
-    ctx.strokeStyle = INK; ctx.lineWidth = R * 0.022; ctx.beginPath(); ctx.arc(0, 0, R * 0.64, 0, TAU); ctx.stroke();
+    // one big five-pointed star drawn as an outline only, its tips just short of a fine ring
     const [dx, dy] = awayFromLamp(rot, R * 0.012);
-    starPath(ctx, R * 0.605, 0.42, dx, dy + R * 0.03); ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fill();
-    starPath(ctx, R * 0.605, 0.42, 0, R * 0.03); ctx.fillStyle = INK; ctx.fill();
+    ctx.lineJoin = 'miter'; ctx.miterLimit = 10; ctx.lineWidth = R * 0.046;
+    starPath(ctx, R * 0.52, 0.42, dx, dy + R * 0.03); ctx.strokeStyle = 'rgba(0,0,0,.22)'; ctx.stroke();
+    starPath(ctx, R * 0.52, 0.42, 0, R * 0.03); ctx.strokeStyle = inkOf(pal); ctx.stroke();
+    ctx.lineWidth = R * 0.022; ctx.beginPath(); ctx.arc(0, 0, R * 0.64, 0, TAU); ctx.stroke();
   },
   goldstar(ctx, R, pal, rot) {
     // a gold star inside a gold double ring with five small stars between the rings
@@ -858,39 +912,39 @@ const PRINTS = {
     starPath(ctx, R * 0.43, 0.45, 0, 0); ctx.fillStyle = gold(ctx, R * 0.43); ctx.fill();
     ctx.lineWidth = R * 0.012; ctx.strokeStyle = 'rgba(90,60,10,.6)'; ctx.stroke();
   },
-  times(ctx, R) {
-    ctx.strokeStyle = INK;
+  times(ctx, R, pal) {
+    ctx.strokeStyle = inkOf(pal);
     ctx.lineWidth = R * 0.024; ctx.beginPath(); ctx.arc(0, 0, R * 0.59, 0, TAU); ctx.stroke();
     ctx.lineWidth = R * 0.014; ctx.beginPath(); ctx.arc(0, 0, R * 0.425, 0, TAU); ctx.stroke();
-    arcText(ctx, 'THE SIAM TIMES • BANGKOK • EST. 1864 • ', R * 0.505, 0.9);
-    ctx.fillStyle = INK; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    arcText(ctx, 'THE SIAM TIMES • BANGKOK • EST. 1864 • ', R * 0.505, inkOf(pal, 0.9));
+    ctx.fillStyle = inkOf(pal); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.font = (R * 0.6).toFixed(1) + 'px Chomsky, "Old English Text MT", serif';
     ctx.fillText('T', 0, R * 0.045);
   },
   band(ctx, R, pal) {
-    // a white ribbon across the top with "Siam" in Chomsky, small print above and below
-    const dark = css(mix(pal.base, pal.lo, 0.3));
-    ctx.fillStyle = INK; ctx.fillRect(-R, -R * 0.17, 2 * R, R * 0.34);
-    ctx.fillStyle = dark; ctx.fillRect(-R, -R * 0.135, 2 * R, R * 0.014); ctx.fillRect(-R, R * 0.121, 2 * R, R * 0.014);
+    // a ribbon across the top reading Siam in Chomsky, small print above and below
+    const word = css(lum(pal.ink) > 0.5 ? mix(pal.base, pal.lo, 0.3) : mix(pal.base, pal.hi, 0.25));
+    ctx.fillStyle = inkOf(pal); ctx.fillRect(-R, -R * 0.17, 2 * R, R * 0.34);
+    ctx.fillStyle = word; ctx.fillRect(-R, -R * 0.135, 2 * R, R * 0.014); ctx.fillRect(-R, R * 0.121, 2 * R, R * 0.014);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.font = (R * 0.25).toFixed(1) + 'px Chomsky, "Old English Text MT", serif';
     ctx.fillText('Siam', 0, R * 0.012);
     starPath(ctx, R * 0.05, 0.45, -R * 0.42, 0); ctx.fill();
     starPath(ctx, R * 0.05, 0.45, R * 0.42, 0); ctx.fill();
-    ctx.fillStyle = INK; ctx.font = '700 ' + (R * 0.095).toFixed(1) + 'px "Helvetica Neue", Arial, sans-serif';
+    ctx.fillStyle = inkOf(pal); ctx.font = '700 ' + (R * 0.095).toFixed(1) + 'px "Helvetica Neue", Arial, sans-serif';
     ctx.fillText('EST. 1864', 0, -R * 0.34);
     ctx.fillText('BANGKOK', 0, R * 0.35);
   },
   sun(ctx, R, pal) {
-    // rays from a white centre holding a small star
+    // rays from a centre disc that holds a small star
     const n = 24;
-    ctx.fillStyle = 'rgba(255,255,255,.2)';
+    ctx.fillStyle = inkOf(pal, 0.2);
     for (let i = 0; i < n; i += 2) {
       const a0 = i * TAU / n, a1 = (i + 1) * TAU / n;
       ctx.beginPath(); ctx.arc(0, 0, R * 0.62, a0, a1); ctx.arc(0, 0, R * 0.2, a1, a0, true); ctx.closePath(); ctx.fill();
     }
-    ctx.strokeStyle = INK; ctx.lineWidth = R * 0.02; ctx.beginPath(); ctx.arc(0, 0, R * 0.62, 0, TAU); ctx.stroke();
-    ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(0, 0, R * 0.21, 0, TAU); ctx.fill();
+    ctx.strokeStyle = inkOf(pal); ctx.lineWidth = R * 0.02; ctx.beginPath(); ctx.arc(0, 0, R * 0.62, 0, TAU); ctx.stroke();
+    ctx.fillStyle = inkOf(pal); ctx.beginPath(); ctx.arc(0, 0, R * 0.21, 0, TAU); ctx.fill();
     starPath(ctx, R * 0.15, 0.42, 0, R * 0.008); ctx.fillStyle = css(pal.base); ctx.fill();
   },
   plain(ctx, R, pal, rot) {
@@ -902,11 +956,55 @@ const PRINTS = {
       ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.arc(-dx, -dy, r, 0, TAU); ctx.stroke();
     }
   },
+  wave(ctx, R, pal) {
+    // soda style: a disc split by a wave that is thick on one side and thin on the other,
+    // the cap colour above it and a deep shade of it below
+    const r = R * 0.6, steps = 40;
+    const mid = (t) => R * (0.03 - 0.11 * Math.sin(Math.PI * (1.5 * t - 0.25)));
+    const half = (t) => R * (0.12 - 0.075 * t);
+    const edge = (sign) => { const pts = []; for (let i = 0; i <= steps; i++) { const t = i / steps; pts.push([-r + 2 * r * t, mid(t) + sign * half(t)]); } return pts; };
+    const upper = edge(-1), lower = edge(1);
+    ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.clip();
+    ctx.beginPath(); lower.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+    ctx.lineTo(r, r); ctx.lineTo(-r, r); ctx.closePath();
+    ctx.fillStyle = css(mix(pal.base, pal.lo, 0.6)); ctx.fill();
+    ctx.beginPath(); upper.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+    for (let i = lower.length - 1; i >= 0; i--) ctx.lineTo(lower[i][0], lower[i][1]);
+    ctx.closePath(); ctx.fillStyle = inkOf(pal); ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = inkOf(pal); ctx.lineWidth = R * 0.03; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.stroke();
+  },
+  fizz(ctx, R, pal) {
+    // bubbles rising round the word SODA
+    ctx.strokeStyle = inkOf(pal); ctx.lineWidth = R * 0.02; ctx.beginPath(); ctx.arc(0, 0, R * 0.6, 0, TAU); ctx.stroke();
+    const bubbles = [[-0.3, -0.37, 0.07], [-0.07, -0.45, 0.045], [0.13, -0.39, 0.06], [0.33, -0.27, 0.04], [0.43, -0.09, 0.03],
+      [-0.44, 0.19, 0.04], [-0.23, 0.37, 0.065], [0.02, 0.46, 0.04], [0.24, 0.36, 0.055], [0.43, 0.17, 0.035], [-0.47, -0.12, 0.03]];
+    ctx.lineWidth = R * 0.016;
+    for (const [x, y, b] of bubbles) {
+      ctx.beginPath(); ctx.arc(x * R, y * R, b * R, 0, TAU); ctx.stroke();
+      ctx.beginPath(); ctx.arc((x - b * 0.35) * R, (y - b * 0.35) * R, b * R * 0.22, 0, TAU); ctx.fillStyle = inkOf(pal, 0.85); ctx.fill();
+    }
+    ctx.fillStyle = inkOf(pal); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '900 ' + (R * 0.24).toFixed(1) + 'px "Arial Black", "Helvetica Neue", Arial, sans-serif';
+    ctx.save(); ctx.transform(1, 0, -0.18, 1, 0, 0); ctx.fillText('SODA', 0, R * 0.01); ctx.restore();
+  },
+  pop(ctx, R, pal) {
+    // retro rings round a disc stamped POP
+    ctx.strokeStyle = inkOf(pal);
+    ctx.lineWidth = R * 0.05; ctx.beginPath(); ctx.arc(0, 0, R * 0.58, 0, TAU); ctx.stroke();
+    ctx.lineWidth = R * 0.02; ctx.beginPath(); ctx.arc(0, 0, R * 0.44, 0, TAU); ctx.stroke();
+    ctx.fillStyle = inkOf(pal);
+    for (let i = 0; i < 12; i++) { const a = i * TAU / 12; ctx.beginPath(); ctx.arc(Math.cos(a) * R * 0.505, Math.sin(a) * R * 0.505, R * 0.02, 0, TAU); ctx.fill(); }
+    ctx.beginPath(); ctx.arc(0, 0, R * 0.32, 0, TAU); ctx.fill();
+    ctx.fillStyle = css(pal.base); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '900 ' + (R * 0.2).toFixed(1) + 'px "Arial Black", "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText('POP', 0, R * 0.012);
+  },
 };
 
 // Face down on the table, as it came off the bottle: a man.
 function drawCapFront(cv, key, seed, style) {
-  const S = cv.width, ctx = cv.getContext('2d'), pal = CAPS[key];
+  const S = cv.width, ctx = cv.getContext('2d'), pal = PAINTS[key] || PAINTS.green;
   const { rnd, rot, dentA, dent } = capGeometry(seed);
   const cx = S / 2, cy = S / 2, R = S * 0.44;
   ctx.clearRect(0, 0, S, S);
@@ -944,7 +1042,7 @@ function drawCapFront(cv, key, seed, style) {
   ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, rT, 0, TAU); ctx.clip();
   ctx.fillStyle = css(pal.base); ctx.fillRect(0, 0, S, S);
   ctx.translate(cx, cy); ctx.rotate(rot);
-  (PRINTS[style] || PRINTS[settings.capStyle[key]] || PRINTS.star)(ctx, R, pal, rot);
+  ctx.save(); (PRINTS[style] || PRINTS.star)(ctx, R, pal, rot); ctx.restore();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = Math.max(0.6, S / 400);
   for (let i = 0; i < 5; i++) {
@@ -969,7 +1067,7 @@ function crownMark(ctx, x, y, R, fill) {
 }
 // Turned face up, showing the inside and its liner: a king (ฮอส).
 function drawCapBack(cv, key, seed) {
-  const S = cv.width, ctx = cv.getContext('2d'), pal = CAPS[key];
+  const S = cv.width, ctx = cv.getContext('2d'), pal = PAINTS[key] || PAINTS.green;
   const { rot, dentA, dent } = capGeometry(seed);
   const cx = S / 2, cy = S / 2, R = S * 0.44, mA = Math.PI - dentA;
   ctx.clearRect(0, 0, S, S);
@@ -1264,7 +1362,8 @@ let aiToken = 0, pending = null, worker = null;
 let flashTimer = 0;
 const other = (c) => (c === 'green' ? 'red' : 'green');
 const colorOf = (side) => (side === 1 ? G.bottom : other(G.bottom));
-const colorName = (side) => L[colorOf(side)];
+const teamName = (team) => L.paint[paintOf(team)];
+const colorName = (side) => teamName(colorOf(side));
 const isHuman = (side) => G.mode === 'pvp' || side === 1;
 function nameOf(side) {
   if (G.mode === 'ai') return side === 1 ? L.you : L.editor;
@@ -1311,7 +1410,7 @@ function makePiece(id, side, color, seed) {
   const front = document.createElement('canvas'), back = document.createElement('canvas');
   front.width = front.height = back.width = back.height = SPRITE;
   front.className = 'front'; back.className = 'back';
-  drawCapFront(front, color, seed, settings.capStyle[color]); drawCapBack(back, color, seed);
+  drawCapFront(front, paintOf(color), seed, styleOf(color)); drawCapBack(back, paintOf(color), seed);
   el.querySelector('.flip').append(front, back);
   capsEl.appendChild(el);
   return { id, side, color, seed, king: false, cap: null, el, x: 0, y: 0, anim: null };
@@ -1701,7 +1800,7 @@ function renderMarks() {
 function drawPlates() {
   for (const side of [1, -1]) {
     const cv = SIDE[side].plate.querySelector('canvas');
-    drawCapFront(cv, colorOf(side), 4242 + side, settings.capStyle[colorOf(side)]);
+    drawCapFront(cv, paintOf(colorOf(side)), 4242 + side, styleOf(colorOf(side)));
   }
 }
 function renderHUD() {
@@ -1735,7 +1834,7 @@ function renderAll() {
   for (let s = 0; s < 64; s++) {
     const b = hitBtns[s];
     if (!b) continue;
-    const v = G.board[s], c = v ? L[colorOf(Math.sign(v))] : '';
+    const v = G.board[s], c = v ? colorName(Math.sign(v)) : '';
     b.setAttribute('aria-label', L.sq(sqName(s), !v ? L.empty : Math.abs(v) === 2 ? L.king(c) : L.man(c)));
   }
 }
@@ -1808,7 +1907,8 @@ function fillNewForm() {
   $('newHead').textContent = L.ngTitle;
   $('lgOpp').textContent = L.opp; $('optAi').textContent = L.oppAi; $('optPvp').textContent = L.oppPvp;
   $('lgLevel').textContent = L.level; $('optEasy').textContent = L.easy; $('optMedium').textContent = L.medium; $('optHard').textContent = L.hard;
-  $('lgColor').textContent = L.yourCaps; $('optGreen').textContent = L.green; $('optRed').textContent = L.red;
+  $('lgColor').textContent = L.yourCaps; $('optGreen').textContent = teamName('green'); $('optRed').textContent = teamName('red');
+  $('dotGreen').style.background = css(PAINTS[paintOf('green')].base); $('dotRed').style.background = css(PAINTS[paintOf('red')].base);
   $('btnCancel').textContent = L.cancel; $('btnStart').textContent = L.start;
   updateNewNote();
 }
@@ -1816,7 +1916,7 @@ function updateNewNote() {
   const f = $('newForm'), mode = f.mode.value, lvl = f.level.value;
   $('fsLevel').disabled = mode === 'pvp'; $('fsColor').disabled = mode === 'pvp';
   const r = (store.get('stats', {})[lvl]) || { w: 0, l: 0, d: 0 };
-  $('newNote').textContent = L.greenFirst + (mode === 'ai' ? L.sep + L.record(r.w, r.l, r.d) : '');
+  $('newNote').textContent = L.firstNote(teamName('green')) + (mode === 'ai' ? L.sep + L.record(r.w, r.l, r.d) : '');
 }
 $('newForm').addEventListener('change', updateNewNote);
 $('newForm').addEventListener('submit', (e) => {
@@ -1838,42 +1938,81 @@ function fillRules() {
   $('rulesDate').textContent = today();
   $('rulesHead').textContent = L.rulesHead;
   const ol = $('rulesList'); ol.textContent = '';
-  L.rulesList.forEach((t) => { const li = document.createElement('li'); li.textContent = t; ol.appendChild(li); });
+  L.rulesList(teamName('green')).forEach((t) => { const li = document.createElement('li'); li.textContent = t; ol.appendChild(li); });
   $('rulesControls').textContent = L.rulesControls;
   $('rulesModal').querySelector('[data-close]').textContent = L.close;
 }
 const ICON_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path d="M18 6.5a7.7 7.7 0 0 1 0 11"/></svg>';
 const ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
-function buildCapTiles() {
-  for (const color of ['green', 'red']) {
-    const box = $(color === 'green' ? 'tilesGreen' : 'tilesRed');
-    CAP_STYLES.forEach((st) => {
-      const lab = document.createElement('label'); lab.className = 'tile';
-      const inp = document.createElement('input');
-      inp.type = 'radio'; inp.name = 'cap-' + color; inp.value = st; inp.id = 'cap-' + color + '-' + st;
-      const span = document.createElement('span');
-      const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.setAttribute('aria-hidden', 'true');
-      drawCapFront(cv, color, 90 + CAP_STYLES.indexOf(st) * 13 + (color === 'red' ? 7 : 0), st);
-      const name = document.createElement('em'); name.dataset.style = st; name.style.fontStyle = 'normal';
-      span.append(cv, name); lab.append(inp, span); box.appendChild(lab);
-      inp.addEventListener('change', () => {
-        settings.capStyle[color] = st; store.set('settings', settings);
-        restyleCaps(color);
-      });
+let pickTeam = null;
+function buildCapPicker() {
+  PAINT_KEYS.forEach((k) => {
+    const lab = document.createElement('label'); lab.className = 'swatch';
+    const inp = document.createElement('input'); inp.type = 'radio'; inp.name = 'cap-paint'; inp.value = k; inp.id = 'paint-' + k;
+    const span = document.createElement('span'); span.style.setProperty('--sw', css(PAINTS[k].base));
+    lab.append(inp, span); $('swatches').appendChild(lab);
+    inp.addEventListener('change', () => setPaint(pickTeam, k));
+  });
+  CAP_STYLES.forEach((st) => {
+    const lab = document.createElement('label'); lab.className = 'tile';
+    const inp = document.createElement('input'); inp.type = 'radio'; inp.name = 'cap-style'; inp.value = st; inp.id = 'style-' + st;
+    const span = document.createElement('span');
+    const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.setAttribute('aria-hidden', 'true');
+    const name = document.createElement('em'); name.style.fontStyle = 'normal';
+    span.append(cv, name); lab.append(inp, span);
+    $(SODA_STYLES.includes(st) ? 'tilesSoda' : 'tilesBeer').appendChild(lab);
+    inp.addEventListener('change', () => {
+      settings.capStyle[pickTeam] = st; store.set('settings', settings);
+      restyleCaps(pickTeam); refreshPicker(); sfx.lift();
     });
-  }
+  });
+  ['teamA', 'teamB'].forEach((id) => $(id).addEventListener('click', () => { pickTeam = $(id).dataset.team; refreshPicker(); }));
+}
+function pickerTeams() {
+  const mode = G ? G.mode : settings.mode;
+  const bottom = G ? G.bottom : (mode === 'ai' ? settings.human : 'green');
+  return { mode, bottom, top: other(bottom) };
+}
+function refreshPicker() {
+  const t = pickerTeams();
+  if (pickTeam !== t.bottom && pickTeam !== t.top) pickTeam = t.bottom;
+  [['teamA', t.bottom, t.mode === 'ai' ? L.teamYou : L.teamBottom], ['teamB', t.top, t.mode === 'ai' ? L.teamEditor : L.teamTop]].forEach(([id, team, label]) => {
+    const b = $(id);
+    b.dataset.team = team; b.setAttribute('aria-pressed', String(pickTeam === team));
+    const sp = b.querySelector('span'); sp.textContent = label;
+    const sm = document.createElement('small'); sm.textContent = teamName(team); sp.appendChild(sm);
+    drawCapFront(b.querySelector('canvas'), paintOf(team), 31, styleOf(team));
+  });
+  $('lgPaint').textContent = L.paintLegend(teamName(pickTeam));
+  $('lgBeer').textContent = L.beerCaps; $('lgSoda').textContent = L.sodaCaps;
+  document.querySelectorAll('.swatch input').forEach((i) => {
+    i.checked = i.value === paintOf(pickTeam);
+    i.setAttribute('aria-label', L.paint[i.value]); i.parentNode.title = L.paint[i.value];
+  });
+  document.querySelectorAll('.tile').forEach((lab) => {
+    const i = lab.querySelector('input');
+    i.checked = i.value === styleOf(pickTeam);
+    drawCapFront(lab.querySelector('canvas'), paintOf(pickTeam), 90 + CAP_STYLES.indexOf(i.value) * 13, i.value);
+    lab.querySelector('em').textContent = L.styles[i.value];
+  });
 }
 function fillCapsForm() {
-  $('capsHead').textContent = L.capsHead; $('capsNote').textContent = L.capsNote;
-  $('lgPickGreen').textContent = L.capsOf(L.green); $('lgPickRed').textContent = L.capsOf(L.red);
-  $('btnCapsDone').textContent = L.done;
-  document.querySelectorAll('.tile em').forEach((e) => { e.textContent = L.styles[e.dataset.style]; });
-  for (const color of ['green', 'red']) { const i = $('cap-' + color + '-' + settings.capStyle[color]); if (i) i.checked = true; }
+  $('capsHead').textContent = L.capsHead; $('capsNote').textContent = L.capsNote; $('btnCapsDone').textContent = L.done;
+  refreshPicker();
 }
-function restyleCaps(color) {
-  pieces.forEach((p) => { if (p.color === color) drawCapFront(p.el.querySelector('canvas.front'), p.color, p.seed, settings.capStyle[color]); });
-  if (G) drawPlates();
-  sfx.lift();
+function setPaint(team, k) {
+  const o = other(team);
+  if (settings.capPaint[o] === k) settings.capPaint[o] = settings.capPaint[team];   // never two sides in one colour
+  settings.capPaint[team] = k; store.set('settings', settings);
+  restyleCaps(team); restyleCaps(o); refreshPicker(); sfx.lift();
+}
+function restyleCaps(team) {
+  pieces.forEach((p) => {
+    if (p.color !== team) return;
+    drawCapFront(p.el.querySelector('canvas.front'), paintOf(team), p.seed, styleOf(team));
+    drawCapBack(p.el.querySelector('canvas.back'), paintOf(team), p.seed);
+  });
+  if (G) { drawPlates(); renderAll(); if (G.over && !banner.hidden) showBanner(); }
 }
 function applyLang() {
   L = STR[settings.lang];
@@ -1918,7 +2057,7 @@ async function init(saved) {
   } catch (e) { /* draw with the fallback face */ }
   makeTextures();
   buildHits();
-  buildCapTiles();
+  buildCapPicker();
   applyLang();
   layout();
   drawTable();
