@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Siam Times Checkers</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="หมากฮอสฝาขวดบนกระดานไม้ The Siam Times เล่นกับบรรณาธิการหรือกับเพื่อนบนเครื่องเดียวกัน">
+<meta name="description" content="Thai checkers with beer and soda bottle caps on a wooden board inlaid with The Siam Times. Play The Editor or a friend on the same device, in English or Thai.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Trirong:wght@400;600;700&display=swap">
@@ -294,15 +294,15 @@ fieldset.seg legend, fieldset.pick legend { padding: 0; margin-bottom: 8px; font
 
 <div class="app">
   <header class="topbar">
-    <div class="brand"><h1 id="brandTitle">หมากฮอส</h1><span id="brandSub">ฝาขวดบนกระดานไม้</span></div>
+    <div class="brand"><h1 id="brandTitle">Thai Checkers</h1><span id="brandSub">Bottle caps on a wooden board</span></div>
     <div class="status"><p id="status" role="status" aria-live="polite">&nbsp;</p></div>
     <nav class="actions" aria-label="game">
-      <button class="btn primary" id="btnNew" type="button">เกมใหม่</button>
-      <button class="btn" id="btnUndo" type="button">ย้อน</button>
-      <button class="btn" id="btnRules" type="button">กติกา</button>
-      <button class="btn" id="btnCaps" type="button">ฝาเบียร์</button>
+      <button class="btn primary" id="btnNew" type="button">New game</button>
+      <button class="btn" id="btnUndo" type="button">Undo</button>
+      <button class="btn" id="btnRules" type="button">Rules</button>
+      <button class="btn" id="btnCaps" type="button">Caps</button>
       <button class="btn icon" id="btnSound" type="button" aria-pressed="true"></button>
-      <button class="btn icon" id="btnLang" type="button">EN</button>
+      <button class="btn icon" id="btnLang" type="button" lang="th">ไทย</button>
     </nav>
   </header>
 
@@ -345,7 +345,7 @@ fieldset.seg legend, fieldset.pick legend { padding: 0; margin-bottom: 8px; font
     <h2 id="rulesHead"></h2>
     <ol id="rulesList"></ol>
     <p class="note" id="rulesControls"></p>
-    <div class="row"><button class="btn ink" type="button" data-close>ปิด</button></div>
+    <div class="row"><button class="btn ink" type="button" data-close>Close</button></div>
   </div>
 </div>
 
@@ -718,8 +718,10 @@ const STR = {
   },
 };
 
-const settings = Object.assign({ mode: 'ai', level: 'medium', human: 'green', sound: true, lang: 'th' }, store.get('settings', {}));
-if (!STR[settings.lang]) settings.lang = 'th';
+// English unless this browser has chosen a language with the language button
+// (earlier versions saved Thai with every setting, without anyone choosing it).
+const settings = Object.assign({ mode: 'ai', level: 'medium', human: 'green', sound: true }, store.get('settings', {}));
+if (!settings.langChosen || !STR[settings.lang]) settings.lang = 'en';
 // The two sides are called green and red inside the game (green moves first); each side
 // chooses the paint and the print of its caps, and is named after its paint on screen.
 const CAP_STYLES = ['star', 'goldstar', 'times', 'band', 'sun', 'plain', 'wave', 'fizz', 'pop'];
@@ -2019,7 +2021,7 @@ function applyLang() {
   document.documentElement.lang = L.lang;
   $('brandTitle').textContent = L.brand; $('brandSub').textContent = L.brandSub;
   $('btnNew').textContent = L.newGame; $('btnUndo').textContent = L.undo; $('btnRules').textContent = L.rules; $('btnCaps').textContent = L.capsBtn;
-  $('btnLang').textContent = L.langBtn; $('btnLang').setAttribute('aria-label', L.langLabel);
+  $('btnLang').textContent = L.langBtn; $('btnLang').setAttribute('aria-label', L.langLabel); $('btnLang').lang = L.lang === 'th' ? 'en' : 'th';
   applySound();
   fillRules(); fillNewForm(); fillCapsForm();
   if (G) { renderAll(); if (G.over) showBanner(); }
@@ -2036,7 +2038,7 @@ $('btnUndo').addEventListener('click', undo);
 $('btnRules').addEventListener('click', () => { fillRules(); open($('rulesModal')); });
 $('btnCaps').addEventListener('click', () => { fillCapsForm(); open($('capsModal')); });
 $('btnSound').addEventListener('click', () => { settings.sound = !settings.sound; store.set('settings', settings); applySound(); if (settings.sound) sfx.place(); });
-$('btnLang').addEventListener('click', () => { settings.lang = settings.lang === 'th' ? 'en' : 'th'; store.set('settings', settings); applyLang(); });
+$('btnLang').addEventListener('click', () => { settings.lang = settings.lang === 'th' ? 'en' : 'th'; settings.langChosen = true; store.set('settings', settings); applyLang(); });
 $('btnAgain').addEventListener('click', () => newGame());
 $('btnLook').addEventListener('click', () => { hideBanner(); $('btnNew').focus(); });
 document.addEventListener('pointerdown', () => sfx.unlock(), true);
