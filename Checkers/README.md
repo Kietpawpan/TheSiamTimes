@@ -1,6 +1,6 @@
 # Siam Times Checkers (หมากฮอส) – web game
 
-Thai checkers played with beer bottle caps, seen from straight above. Green and red crown caps stand on a maple-and-walnut board with a rosewood frame, and the board lies on a teak table. **The Siam Times** is inlaid in gold, in Chomsky, along the top rail of the frame. The game is in Thai, with an English switch (EN / ไทย) in the header.
+Thai checkers played with beer bottle caps, seen from straight above. Green and red crown caps stand on a maple-and-walnut board with a rosewood frame, and the board lies on a teak table. **The Siam Times** is inlaid in gold, in Chomsky, along the top rail of the frame. The game opens in English; the ไทย button in the header switches it to Thai (and EN switches back). The language you pick is remembered.
 
 Everything is in `GA-checkers.html`. There is no build step: open the file in a browser. On the site it is at https://thesiamtimes.com/Checkers/GA-checkers.html. It works offline; the text fonts (IBM Plex Sans Thai, Trirong, Newsreader) come from Google Fonts, and the page falls back to system fonts without them.
 
