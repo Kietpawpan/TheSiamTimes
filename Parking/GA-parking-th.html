@@ -2239,10 +2239,6 @@ function checkPark(dt) {
   else if (ps.all) setMsg(T.crooked, '', 0, 'crooked');
   else if (ps.inside >= ps.total / 2 && stopped && !ps.nose) setMsg(T.partly, '', 0, 'partly');
 }
-/* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
-function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'parking' }, r), '*'); } catch (e) { /* not in a frame */ }
-}
 function finish(ps) {
   state = 'parked';
   car.v = 0;
@@ -2258,7 +2254,6 @@ function finish(ps) {
   save.stars[i] = Math.max(save.stars[i], stars);
   persist();
   run.score = total;
-  storyDone({ won: true, score: total, stars, stage: i + 1 });
   updateBar(); renderStageList();
   sfx.clunk(); setTimeout(() => sfx.win(), 250);
   confetti();

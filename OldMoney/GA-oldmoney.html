@@ -2256,10 +2256,6 @@ function seasonLine() {
     : stars.every(s => s === 5) ? 'Five stars at every invitation. A Season to remember.'
     : stars.every(s => s >= 4) ? 'Four stars or better at every invitation. You have finished the Season.' : '';
 }
-/* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
-function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'oldmoney' }, r), '*'); } catch (e) { /* not in a frame */ }
-}
 function showResult(opts = {}) {
   let occ, e, heading, fresh = false, own = false;
   if (state.mode === 'season') {
@@ -2278,7 +2274,6 @@ function showResult(opts = {}) {
     state.lastResult = { occ: occ.id, stars: e.stars };
   }
   persist(); renderInvite(); // the tally behind the card is up to date at once
-  if (!opts.again) storyDone({ won: true, score: e.total, stars: e.stars });
   const set = tipSet(occ, 3);
   const idx = OCCASIONS.findIndex(o => o.id === state.occ);
   const next = OCCASIONS[(idx + 1) % OCCASIONS.length];

@@ -2,14 +2,34 @@
 
 A story game that takes the player through every Siam Times game in one night, in Thai and in English. In December 1865 John Hassett Chandler stopped the press of The Siam Times and hoped to come back; he never did. Tonight, the night before the Return Edition goes to press, the new night-shift apprentice finds his teak type case in the basement, with twelve empty compartments for the masthead: T H E S I A M T I M E S. The sorts are scattered through the building, and each one has to be won back by playing a game, in story order, before the presses roll at six.
 
-There is a Thai version and an English version, each a whole page in one HTML file. There is no build step: open either file in a browser. They link to each other and share the same progress.
+There is a Thai version and an English version, each a whole page in one HTML file. There is no build step: open either file in a browser. They link to each other and share the same progress. The game is not linked from the front page of the site yet.
 
 | Version | File | On the site |
 |---|---|---|
+| Start here (picks Thai, or English for a browser set to another language) | `index.html` | https://thesiamtimes.com/Promise/ |
 | Thai (ภาษาไทย) | `GA-promise-th.html` | https://thesiamtimes.com/Promise/GA-promise-th.html |
 | English | `GA-promise-en.html` | https://thesiamtimes.com/Promise/GA-promise-en.html |
 
-Only the Newsreader and Sarabun text fonts come from Google Fonts. The games are loaded from their own folders on the site (`../Darts/GA-darts.html` and so on), so the story needs the whole site next to it, served or on disk.
+## One folder, whole game
+
+Everything the story needs is inside this folder, so the folder can be copied anywhere (another site, a USB stick, a laptop) and played as it is:
+
+```
+Promise/
+├── index.html              opens the story in Thai or English
+├── GA-promise-th.html      the story, in Thai
+├── GA-promise-en.html      the story, in English
+├── Chomsky-LICENSE.txt
+├── README.md
+└── games/                  the eleven games, copied for the story
+    ├── Fav48.png
+    ├── Parking/  Wastebasket/  Darts/  Slingshot/  BBGun/  OldMoney/
+    └── Checkers/  Makruk/  Snooker/  Petanque/  PaperPlane/
+```
+
+The games in `games/` are copies of the site's games with one change each: a `storyDone` call where a game ends (see *How the games report back*), and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
+
+**When a game is updated on the site**, copy its new file(s) over the one in `games/<Game>/` and put the `storyDone` function and call back in, in the places listed in the table below (and, for Old Money, the logo link). Until then the story keeps playing the older copy.
 
 ## How it plays
 
@@ -46,7 +66,7 @@ Progress (the sort won in each chapter, whether the prologue and ending have bee
 
 ## How the games report back
 
-Each game, when it is running in a frame, posts one message to the page around it when a game ends:
+Each game in `games/`, when it is running in a frame, posts one message to the page around it when a game ends:
 
 ```js
 window.parent.postMessage({ tst: 'story', game: 'darts', won: true, score: 512, text: '512 points' }, '*');
@@ -68,7 +88,7 @@ It is sent by a small function, `storyDone`, defined just above the function tha
 | Pétanque | `finishEnd`, when a side reaches 13 | `won`, `score` |
 | Paper Plane | `finishContest` | `won`, `score` (your best distance) |
 
-When you change one of these games, keep the `storyDone(…)` call where the game ends.
+When you change one of the copies, keep the `storyDone(…)` call where the game ends. The `storyDone` function itself is three lines, defined just above the function named in the table, with the game's key (`'parking'`, `'darts'` and so on) written in it.
 
 ## How it works
 

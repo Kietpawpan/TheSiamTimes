@@ -1041,7 +1041,6 @@ function score(r) {
         if (isBest) { prefs.bestAttack = state.total; savePrefs(); }
         state.message = `${said} Final score ${state.total}.`;
         sfx.cheer();
-        storyDone({ won: true, score: state.total, text: state.total + ' points' });
         showOverlay({
           eyebrow: 'Ten rounds done', title: `${state.total} points`,
           text: isBest ? 'That is your best score on this device.' : `Your best is ${prefs.bestAttack}.`,
@@ -1070,7 +1069,6 @@ function score(r) {
       if (isBest) { prefs.bestLeg = state.darts; savePrefs(); }
       state.message = `Game shot on ${r.label}! Checked out in ${state.darts} darts.`;
       sfx.cheer();
-      storyDone({ won: true, score: state.darts, text: state.darts + ' darts' });
       showOverlay({
         eyebrow: 'Game shot', title: `${state.darts} darts`,
         text: `You checked out on ${r.label}. ` + (isBest ? 'That is your best leg on this device.' : `Your best leg is ${prefs.bestLeg} darts.`),
@@ -1109,10 +1107,6 @@ function collect() {
 
 /* ---------- Overlay ---------- */
 let overlayTimer = 0;
-/* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
-function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'darts' }, r), '*'); } catch (e) { /* not in a frame */ }
-}
 function showOverlay(o) {
   state.overlay = o;
   clearTimeout(overlayTimer);

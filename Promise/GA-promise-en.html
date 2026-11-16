@@ -6,6 +6,7 @@
 <title>Chandler’s Promise · The Siam Times</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="A story game through every Siam Times game in one night: win back the twelve pieces of type of the masthead, lost for 160 years, before the presses roll at six.">
+<link rel="icon" href="games/Fav48.png">
 <link rel="alternate" hreflang="th" href="GA-promise-th.html">
 <link rel="alternate" hreflang="en" href="GA-promise-en.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -824,33 +825,34 @@ function rng(seed) {
 }
 
 /* ---------- The chapters ----------
+   The games are copies kept in games/ next to this page, so the whole story is one folder.
    Each chapter is one game and one sort of the masthead, in story order through one night.
    intro / outro: one entry per line of the story — [scene, speaker, camera focus [x, y, zoom]]
    on a 1600 × 900 picture; the words are in STR, line for line. */
 const MAST = 'THESIAMTIMES';
 const G = (th, en) => ({ th, en: en || th });
 const CH = [
-  { key: 'parking', time: '19:00', url: G('../Parking/GA-parking-th.html', '../Parking/GA-parking-en.html'), brass: r => (r.stars || 0) >= 2,
+  { key: 'parking', time: '19:00', url: G('games/Parking/GA-parking-th.html', 'games/Parking/GA-parking-en.html'), brass: r => (r.stars || 0) >= 2,
     intro: [['garage', null], ['garage', 'guard', [560, 560, 1.3]], ['garage', 'guard', [900, 520, 1.15]]], outro: [['garage', 'guard', [620, 540, 1.25]]] },
-  { key: 'wastebasket', time: '19:45', url: G('../Wastebasket/GA-wastebasket-th.html', '../Wastebasket/GA-wastebasket-en.html'), brass: r => !!r.won,
+  { key: 'wastebasket', time: '19:45', url: G('games/Wastebasket/GA-wastebasket-th.html', 'games/Wastebasket/GA-wastebasket-en.html'), brass: r => !!r.won,
     intro: [['office', null], ['office', 'editor', [1180, 470, 1.25]], ['office', 'editor', [640, 600, 1.3]]], outro: [['office', 'editor', [380, 690, 1.35]]] },
-  { key: 'darts', time: '20:30', url: G('../Darts/GA-darts.html'), brass: r => /dart/.test(r.text || '') ? r.score <= 40 : r.score >= 400,
+  { key: 'darts', time: '20:30', url: G('games/Darts/GA-darts.html'), brass: r => /dart/.test(r.text || '') ? r.score <= 40 : r.score >= 400,
     intro: [['backroom:darts', null], ['backroom:darts', 'guard', [380, 380, 1.4]]], outro: [['backroom:darts', null, [380, 380, 1.6]]] },
-  { key: 'slingshot', time: '21:15', url: G('../Slingshot/GA-slingshot-th.html', '../Slingshot/GA-slingshot-en.html'), brass: r => r.score >= 2000,
+  { key: 'slingshot', time: '21:15', url: G('games/Slingshot/GA-slingshot-th.html', 'games/Slingshot/GA-slingshot-en.html'), brass: r => r.score >= 2000,
     intro: [['backroom:cans', null, [900, 520, 1.3]], ['backroom:cans', 'guard']], outro: [['backroom:cans', null, [900, 560, 1.5]]] },
-  { key: 'bbgun', time: '22:00', url: G('../BBGun/GA-bbgun-th.html', '../BBGun/GA-bbgun-en.html'), brass: r => r.score >= 3500,
+  { key: 'bbgun', time: '22:00', url: G('games/BBGun/GA-bbgun-th.html', 'games/BBGun/GA-bbgun-en.html'), brass: r => r.score >= 3500,
     intro: [['backroom:hang', 'guard', [900, 400, 1.35]], ['backroom:hang', 'guard']], outro: [['backroom:hang', null, [900, 560, 1.4]]] },
-  { key: 'oldmoney', time: '22:45', url: G('../OldMoney/GA-oldmoney.html'), brass: r => (r.stars || 0) >= 4,
+  { key: 'oldmoney', time: '22:45', url: G('games/OldMoney/GA-oldmoney.html'), brass: r => (r.stars || 0) >= 4,
     intro: [['wardrobe', null], ['wardrobe', 'madame', [1050, 420, 1.3]], ['wardrobe', 'madame', [700, 480, 1.1]]], outro: [['wardrobe', 'madame', [1050, 420, 1.35]]] },
-  { key: 'checkers', time: '23:30', url: G('../Checkers/GA-checkers.html'), brass: r => r.won && !r.draw,
+  { key: 'checkers', time: '23:30', url: G('games/Checkers/GA-checkers.html'), brass: r => r.won && !r.draw,
     intro: [['canteen', null], ['canteen', 'editor', [800, 620, 1.35]]], outro: [['canteen', 'editor', [800, 640, 1.5]]] },
-  { key: 'makruk', time: '00:15', url: G('../Makruk/GA-makruk.html'), brass: r => r.won && !r.draw,
+  { key: 'makruk', time: '00:15', url: G('games/Makruk/GA-makruk.html'), brass: r => r.won && !r.draw,
     intro: [['teak', 'editor'], ['teak', 'editor', [760, 600, 1.3]]], outro: [['teak', 'editor', [1180, 700, 1.35]], ['teak', 'editor', [800, 450, 1.05]]] },
-  { key: 'snooker', time: '01:00', url: G('../GA-snooker.html'), brass: r => r.won && !r.draw,
+  { key: 'snooker', time: '01:00', url: G('games/Snooker/GA-snooker.html'), brass: r => r.won && !r.draw,
     intro: [['club', null], ['club', 'guard', [1250, 640, 1.4]]], outro: [['club', null, [1250, 640, 1.6]]] },
-  { key: 'petanque', time: '02:00', url: G('../Petanque/GA-petanque.html'), brass: r => r.won && !r.draw,
+  { key: 'petanque', time: '02:00', url: G('games/Petanque/GA-petanque.html'), brass: r => r.won && !r.draw,
     intro: [['court', null], ['court', 'editor', [800, 640, 1.35]]], outro: [['court', null, [800, 660, 1.5]]] },
-  { key: 'paperplane', time: '05:15', url: G('../PaperPlane/GA-paperplane-th.html', '../PaperPlane/GA-paperplane-en.html'), brass: r => r.won && !r.draw,
+  { key: 'paperplane', time: '05:15', url: G('games/PaperPlane/GA-paperplane-th.html', 'games/PaperPlane/GA-paperplane-en.html'), brass: r => r.won && !r.draw,
     intro: [['window', null], ['window', 'printer', [1000, 560, 1.25]], ['window', 'printer']], outro: [['window', 'printer', [1000, 600, 1.3]]] },
   { key: 'press', time: '05:45', url: null, brass: r => !!r.won,
     intro: [['presshall', 'printer', [800, 480, 1.25]], ['presshall', 'printer']], outro: [] },

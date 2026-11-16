@@ -865,10 +865,6 @@ function deadJack(news) {
   finishEnd(w, p, [], `${news}The jack is out of the court. ${Name(w)} still ${verb(w, 'has', 'have')} ${p} ${p === 1 ? 'boule' : 'boules'} to play, so ${name(w)} ${verb(w, 'scores', 'score')} <strong>${p}</strong>.`);
 }
 
-/* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
-function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'petanque' }, r), '*'); } catch (e) { /* not in a frame */ }
-}
 function finishEnd(w, p, scorers, text) {
   state.endResult = { w, p, ids: new Set(scorers.map(b => b.id)) };
   state.current = null;
@@ -881,7 +877,6 @@ function finishEnd(w, p, scorers, text) {
     const human = state.mode !== 'cpu' || w === 0;
     if (state.mode === 'cpu') { if (w === 0) prefs.wins++; else prefs.losses++; savePrefs(); }
     if (human) sfx.cheer(); else sfx.lose();
-    storyDone({ won: state.mode !== 'cpu' || w === 0, score: s[0] + '–' + s[1] });
     const rec = `Your record against The Editor on this device: ${prefs.wins} ${prefs.wins === 1 ? 'win' : 'wins'}, ${prefs.losses} ${prefs.losses === 1 ? 'loss' : 'losses'}.`;
     showOverlay({
       eyebrow: state.mode === 'cpu' ? (w === 0 ? 'You win' : 'The Editor wins') : `Player ${w + 1} wins`,
