@@ -13,10 +13,11 @@ Only the Newsreader and Sarabun text fonts come from Google Fonts. The games are
 
 ## How it plays
 
-- **Title**: the building on the Chao Phraya in the rain (at sunrise, once the story is finished). *Begin* plays the prologue; afterwards it reads *Continue*.
+- **Title**: the building on the Chao Phraya in the rain (at sunrise, once the story is finished). *Begin the story* plays the prologue; afterwards the button reads *Open the map*.
+- **Game map** (แผนที่): the hub of the story. The Siam Times building is drawn cut open like a doll's house, floor by floor: the archive and the snooker room in the basement; the car park and the press hall on the ground floor; the back room and the canteen on the 1st floor; the Editor's office and the teak table room on the 2nd; the style desk on the 3rd; the top-floor window on the roof. The pétanque court is out at the back and the landing stage on the river. Every chapter is a numbered badge in its room, showing its sort (lead, brass, or an outline still to win; a padlock while locked). A path joins the badges in story order through the stairwell; the part already walked is brass. A room lights up, with a glimpse of what is in it, once its chapter opens. The apprentice, with a lantern, stands at the next chapter, and after each chapter walks there along the path, with footsteps. The sky follows the night: rain, then dawn for the last two chapters, then sunrise. Tap a badge for its card: chapter, time, place, game and goal, with *Play this chapter*, or *Play the game again* and *Watch* once it is done; the card says which chapter to finish first for a locked one. The bar at the top shows the time of the next chapter, the composing stick in small, and links to the contents page and the title. On a narrow screen the map scrolls sideways and the card sits under it.
 - **Cut scenes**: painted scenes, 1864–65 in sepia like an engraving and tonight in the dark blues and lamp light of the games, with a slow camera move, rain, steam, swinging lamps and so on. The words type themselves out under the picture with the speaker's name and a dateline (time and place). Tap the caption (or press Space, Enter or →) to show the whole line, tap again to go on; *Skip* (or Escape) ends the scene. Each chapter opens with a title card that shows its sort.
-- **A game**: the game opens in a frame under a bar with the chapter, the goal and *← Contents*. When the game reports that a game has ended, the sort is won: a card shows it, and *Continue* plays the chapter's closing scene and goes straight on to the next chapter. *Stay in this game* keeps playing; leaving with *← Contents* then plays the closing scene.
-- **Contents**: a newsprint front page with the masthead, the composing stick with the sorts won so far, the button for the next chapter, and every chapter with its time, place and game. Finished chapters can be played again (to turn a lead sort into brass) or watched again. Locked chapters show a padlock.
+- **A game**: the game opens in a frame under a bar with the chapter, the goal and *← Map*. When the game reports that a game has ended, the sort is won: a card shows it, and *Continue* plays the chapter's closing scene and returns to the map, where the apprentice walks on to the next room. *Stay in this game* keeps playing; leaving with *← Map* then plays the closing scene. After the last chapter the ending follows at once.
+- **Contents**: a newsprint front page with the masthead, the composing stick with the sorts won so far, the button for the next chapter, and every chapter with its time, place and game, with the same play, replay and watch buttons. It links back to the map.
 
 Chapters open strictly in order: a chapter's game has to be played to the end before the next one opens. Finishing earns a **lead** sort; winning, or playing well, earns a **brass** one.
 
@@ -39,9 +40,9 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 | 12 | S | 05:45 | The press hall | Chandler's hand press (in this page) | inking right first time, at most one mistimed pull |
 | — | | 06:00 | The press hall, the landing stage at sunrise | Epilogue | |
 
-**The hand press** (chapter 12) is played in the story page itself. The sorts are set in the forme; hold *Hold to ink* (or Space) and let go while the needle is in the brass band (too little ink prints pale, too much smudges); then press *Pull the bar!* (or Space) while the swinging weight is in the brass band. Three good sheets finish it. The weight swings a little faster after each sheet.
+**The hand press** (chapter 12) is played in the story page itself. The sorts are set in the forme; hold *Hold to ink* (or Space) and let go while the needle is in the brass band (too little ink prints pale, too much smudges); then press *Pull the bar!* (or Space) while the swinging weight is in the brass band, the middle 28 % of its swing. Three good sheets finish it. The weight swings a little faster after each sheet.
 
-Progress (the sort won in each chapter, whether the prologue and ending have been seen, the sound setting) is kept in the browser's local storage under `tst-promise-v1`. *Start over* on the contents page clears it.
+Progress (the sort won in each chapter, whether the prologue and ending have been seen, where the apprentice stands on the map, the sound setting) is kept in the browser's local storage under `tst-promise-v1`. *Start over* on the contents page clears it.
 
 ## How the games report back
 
@@ -71,6 +72,7 @@ When you change one of these games, keep the `storyDone(…)` call where the gam
 
 ## How it works
 
+- The map is painted on a canvas on the same 1600 × 1000 picture, scaled to fit (or to a readable height, scrolling sideways, on a phone); the badges are buttons laid over it, so they can be reached by keyboard and read by screen readers.
 - The scenes are painted on a canvas every frame, on a 1600 × 900 picture scaled to cover the screen and moved by a camera that drifts towards each line's point of interest. The archive scene shows the sorts already won in Chandler's case.
 - Sounds are made with Web Audio; there are no sound files: rain on the windows, the river with birds, crickets in the courtyard, room hum, a ticking clock, the canteen fridge, thunder with the lightning over the building, type ticks as the words appear, a clink for each sort (higher for brass), the thump of the press, and a soft pentatonic theme on a mallet voice for the title and contents.
 - The cut-scene words come from the `STR` table, line for line with the `CH`, `PROLOGUE` and `EPILOGUE` scripts, which give each line its scene, speaker and camera.
