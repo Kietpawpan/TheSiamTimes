@@ -2074,12 +2074,17 @@ function finishShot() {
   state.message = parts;
   renderUI();
 }
+/* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
+function storyDone(r) {
+  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'slingshot' }, r), '*'); } catch (e) { /* not in a frame */ }
+}
 function endRound() {
   if (state.round >= ROUNDS) {
     state.phase = 'gameOver';
     const prev = prefs.best, isBest = prev === null || state.score > prev;
     if (isBest) { prefs.best = state.score; savePrefs(); }
     const t = state.totals;
+    storyDone({ won: true, score: state.score });
     showOverlay({ isBest, prev, cans: t.cans, bonus: t.bonus, glass: t.glass, score: state.score });
   } else {
     state.phase = 'roundOver';
