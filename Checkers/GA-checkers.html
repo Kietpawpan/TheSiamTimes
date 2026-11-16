@@ -361,6 +361,8 @@ fieldset.seg legend, fieldset.pick legend { padding: 0; margin-bottom: 8px; font
     <fieldset class="pick"><legend id="lgPaint"></legend><div class="swatches" id="swatches"></div></fieldset>
     <fieldset class="pick"><legend id="lgBeer"></legend><div class="tiles" id="tilesBeer"></div></fieldset>
     <fieldset class="pick"><legend id="lgSoda"></legend><div class="tiles" id="tilesSoda"></div></fieldset>
+    <fieldset class="pick"><legend id="lgZodiac"></legend><div class="tiles" id="tilesZodiac"></div></fieldset>
+    <fieldset class="pick"><legend id="lgCards"></legend><div class="tiles" id="tilesCards"></div></fieldset>
     <div class="row"><button class="btn ink" type="button" data-close id="btnCapsDone"></button></div>
   </div>
 </div>
@@ -668,9 +670,11 @@ const STR = {
     capsBtn: 'ฝาเบียร์', capsHead: 'เลือกฝา', done: 'เสร็จ',
     capsNote: 'เลือกฝ่าย แล้วเลือกสีและลายฝา เปลี่ยนได้ทุกเมื่อแม้กำลังเล่นอยู่ ถ้าเลือกสีซ้ำกับอีกฝ่าย สองฝ่ายจะสลับสีกัน ฮอสยังเป็นฝาหงายที่มีรูปมงกุฎเหมือนเดิม',
     teamYou: 'ฝาของคุณ', teamEditor: 'ฝาบรรณาธิการ', teamBottom: 'ผู้เล่นล่าง', teamTop: 'ผู้เล่นบน',
-    paintLegend: (c) => 'สี: ' + c, beerCaps: 'ลายฝาเบียร์', sodaCaps: 'ลายฝาน้ำอัดลม',
+    paintLegend: (c) => 'สี: ' + c, beerCaps: 'ลายฝาเบียร์', sodaCaps: 'ลายฝาน้ำอัดลม', zodiacCaps: 'ลายเส้นสัตว์นักษัตร', cardCaps: 'ลายไพ่',
     paint: { green: 'เขียว', red: 'แดง', blue: 'น้ำเงิน', sky: 'ฟ้า', teal: 'เขียวน้ำทะเล', purple: 'ม่วง', pink: 'ชมพู', orange: 'ส้ม', yellow: 'เหลือง', gold: 'ทอง', silver: 'เงิน', black: 'ดำ', white: 'ขาว' },
-    styles: { star: 'ดาวใหญ่', goldstar: 'ดาวทอง', times: 'สยามไทมส์', band: 'แถบคาด', sun: 'รัศมี', plain: 'เรียบ', wave: 'คลื่นซ่า', fizz: 'ฟองโซดา', pop: 'ป๊อป' },
+    styles: { star: 'ดาวใหญ่', goldstar: 'ดาวทอง', times: 'สยามไทมส์', band: 'แถบคาด', sun: 'รัศมี', plain: 'เรียบ', wave: 'คลื่นซ่า', fizz: 'ฟองโซดา', pop: 'ป๊อป',
+      ox: 'วัว (ฉลู)', tiger: 'เสือ (ขาล)', rabbit: 'กระต่าย (เถาะ)', horse: 'ม้า (มะเมีย)', goat: 'แพะ (มะแม)', monkey: 'ลิง (วอก)', rooster: 'ไก่ (ระกา)', pig: 'หมู (กุน)',
+      hearts: 'หัวใจ', spades: 'โพดำ', clubs: 'ดอกจิก', diamonds: 'ข้าวหลามตัด', jack: 'J แจ็ค', queen: 'Q ควีน', king: 'K คิง', ace: 'A เอซ' },
   },
   en: {
     lang: 'en', brand: 'Thai Checkers', brandSub: 'Bottle caps on a wooden board',
@@ -712,9 +716,11 @@ const STR = {
     capsBtn: 'Caps', capsHead: 'Choose your caps', done: 'Done',
     capsNote: 'Pick a side, then its colour and design. You can change them at any time, even mid-game. If you pick the other side’s colour, the two sides swap colours. Kings are still the caps turned face up, with a crown on the liner.',
     teamYou: 'Your caps', teamEditor: 'The Editor’s caps', teamBottom: 'Bottom player', teamTop: 'Top player',
-    paintLegend: (c) => 'Colour: ' + c, beerCaps: 'Beer caps', sodaCaps: 'Soda caps',
+    paintLegend: (c) => 'Colour: ' + c, beerCaps: 'Beer caps', sodaCaps: 'Soda caps', zodiacCaps: 'Zodiac animals, line art', cardCaps: 'Playing cards',
     paint: { green: 'Green', red: 'Red', blue: 'Blue', sky: 'Sky blue', teal: 'Teal', purple: 'Purple', pink: 'Pink', orange: 'Orange', yellow: 'Yellow', gold: 'Gold', silver: 'Silver', black: 'Black', white: 'White' },
-    styles: { star: 'Big star', goldstar: 'Gold star', times: 'The Siam Times', band: 'Banner', sun: 'Sunburst', plain: 'Plain', wave: 'Soda wave', fizz: 'Fizz', pop: 'Pop' },
+    styles: { star: 'Big star', goldstar: 'Gold star', times: 'The Siam Times', band: 'Banner', sun: 'Sunburst', plain: 'Plain', wave: 'Soda wave', fizz: 'Fizz', pop: 'Pop',
+      ox: 'Ox', tiger: 'Tiger', rabbit: 'Rabbit', horse: 'Horse', goat: 'Goat', monkey: 'Monkey', rooster: 'Rooster', pig: 'Pig',
+      hearts: 'Hearts', spades: 'Spades', clubs: 'Clubs', diamonds: 'Diamonds', jack: 'Jack', queen: 'Queen', king: 'King', ace: 'Ace' },
   },
 };
 
@@ -724,8 +730,13 @@ const settings = Object.assign({ mode: 'ai', level: 'medium', human: 'green', so
 if (!settings.langChosen || !STR[settings.lang]) settings.lang = 'en';
 // The two sides are called green and red inside the game (green moves first); each side
 // chooses the paint and the print of its caps, and is named after its paint on screen.
-const CAP_STYLES = ['star', 'goldstar', 'times', 'band', 'sun', 'plain', 'wave', 'fizz', 'pop'];
-const SODA_STYLES = ['wave', 'fizz', 'pop'];
+const STYLE_GROUPS = [
+  ['tilesBeer', ['star', 'goldstar', 'times', 'band', 'sun', 'plain']],
+  ['tilesSoda', ['wave', 'fizz', 'pop']],
+  ['tilesZodiac', ['ox', 'tiger', 'rabbit', 'horse', 'goat', 'monkey', 'rooster', 'pig']],   // the zodiac without the rat, dragon, snake and dog
+  ['tilesCards', ['hearts', 'spades', 'clubs', 'diamonds', 'jack', 'queen', 'king', 'ace']],
+];
+const CAP_STYLES = STYLE_GROUPS.flatMap((g) => g[1]);
 const PAINT_KEYS = ['green', 'red', 'blue', 'sky', 'teal', 'purple', 'pink', 'orange', 'yellow', 'gold', 'silver', 'black', 'white'];
 settings.capStyle = Object.assign({ green: 'star', red: 'times' }, settings.capStyle || {});
 ['green', 'red'].forEach((c) => { if (!CAP_STYLES.includes(settings.capStyle[c])) settings.capStyle[c] = 'star'; });
@@ -1004,6 +1015,224 @@ const PRINTS = {
   },
 };
 
+/* Zodiac animals in line art. Each is drawn in a unit space about 2 wide, centred on the cap;
+   shapes in front are filled with the cap colour before they are outlined, so they hide the
+   lines behind them, as a pen drawing would. */
+function lineArt(draw) {
+  return (c, R, pal) => {
+    c.strokeStyle = inkOf(pal); c.fillStyle = inkOf(pal);
+    c.lineWidth = R * 0.02; c.beginPath(); c.arc(0, 0, R * 0.635, 0, TAU); c.stroke();
+    const u = R * 0.48;
+    c.save(); c.scale(u, u);
+    c.lineWidth = (R * 0.036) / u; c.lineCap = 'round'; c.lineJoin = 'round';
+    const knock = css(pal.base);
+    const ko = () => { c.save(); c.fillStyle = knock; c.fill(); c.restore(); c.stroke(); };
+    const dot = (x, y, r) => { c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); };
+    const oval = (x, y, rx, ry, rot) => { c.beginPath(); c.ellipse(x, y, rx, ry, rot || 0, 0, TAU); };
+    draw(c, ko, dot, oval);
+    c.restore();
+  };
+}
+const ZODIAC = {
+  ox: lineArt((c, ko, dot, oval) => {
+    c.translate(0, 0.14);
+    for (const m of [-1, 1]) {
+      c.beginPath(); c.moveTo(0.34 * m, -0.56); c.quadraticCurveTo(0.9 * m, -0.6, 0.88 * m, -1.0);
+      c.quadraticCurveTo(1.14 * m, -0.46, 0.48 * m, -0.4); c.closePath(); ko();
+      oval(0.78 * m, -0.26, 0.24, 0.1, 0.25 * m); ko();
+    }
+    c.beginPath(); c.moveTo(-0.5, -0.5); c.quadraticCurveTo(0, -0.7, 0.5, -0.5);
+    c.bezierCurveTo(0.6, -0.1, 0.42, 0.15, 0.4, 0.3); c.bezierCurveTo(0.5, 0.76, -0.5, 0.76, -0.4, 0.3);
+    c.bezierCurveTo(-0.42, 0.15, -0.6, -0.1, -0.5, -0.5); c.closePath(); ko();
+    c.beginPath(); c.moveTo(-0.38, 0.32); c.quadraticCurveTo(0, 0.22, 0.38, 0.32);
+    c.moveTo(-0.14, -0.6); c.lineTo(-0.06, -0.46); c.moveTo(0.02, -0.62); c.lineTo(0.06, -0.47); c.moveTo(0.16, -0.58); c.lineTo(0.14, -0.45);
+    c.stroke();
+    for (const m of [-1, 1]) { oval(0.15 * m, 0.48, 0.06, 0.04, 0); c.fill(); dot(0.24 * m, -0.12, 0.055); }
+  }),
+  tiger: lineArt((c, ko, dot) => {
+    c.translate(0, 0.06);
+    for (const m of [-1, 1]) {
+      c.beginPath(); c.arc(0.5 * m, -0.56, 0.22, 0, TAU); ko();
+      c.beginPath(); c.arc(0.5 * m, -0.56, 0.1, 0, TAU); c.stroke();
+    }
+    c.beginPath(); c.moveTo(-0.62, -0.2); c.bezierCurveTo(-0.6, -0.76, 0.6, -0.76, 0.62, -0.2);
+    c.lineTo(0.84, 0.02); c.lineTo(0.68, 0.14); c.lineTo(0.82, 0.32); c.quadraticCurveTo(0.5, 0.74, 0, 0.72);
+    c.quadraticCurveTo(-0.5, 0.74, -0.82, 0.32); c.lineTo(-0.68, 0.14); c.lineTo(-0.84, 0.02); c.closePath(); ko();
+    c.beginPath();
+    c.moveTo(-0.17, -0.5); c.lineTo(0.17, -0.5); c.moveTo(-0.12, -0.4); c.lineTo(0.12, -0.4); c.moveTo(0, -0.58); c.lineTo(0, -0.32);
+    for (const m of [-1, 1]) {
+      c.moveTo(0.44 * m, -0.44); c.quadraticCurveTo(0.3 * m, -0.38, 0.33 * m, -0.27);
+      c.moveTo(0.62 * m, -0.04); c.lineTo(0.46 * m, 0.0); c.moveTo(0.7 * m, 0.2); c.lineTo(0.52 * m, 0.2);
+    }
+    c.moveTo(0, 0.21); c.lineTo(0, 0.3); c.quadraticCurveTo(-0.08, 0.4, -0.18, 0.33); c.moveTo(0, 0.3); c.quadraticCurveTo(0.08, 0.4, 0.18, 0.33);
+    c.stroke();
+    c.lineWidth *= 0.7; c.beginPath();
+    for (const m of [-1, 1]) { c.moveTo(0.26 * m, 0.24); c.lineTo(0.6 * m, 0.17); c.moveTo(0.26 * m, 0.3); c.lineTo(0.6 * m, 0.34); }
+    c.stroke(); c.lineWidth /= 0.7;
+    for (const m of [-1, 1]) { c.beginPath(); c.ellipse(0.25 * m, -0.12, 0.11, 0.065, 0, 0, TAU); c.stroke(); dot(0.25 * m, -0.12, 0.035); }
+    c.beginPath(); c.moveTo(-0.1, 0.1); c.lineTo(0.1, 0.1); c.lineTo(0, 0.21); c.closePath(); c.fill();
+  }),
+  rabbit: lineArt((c, ko, dot, oval) => {
+    c.translate(0, 0.14);
+    for (const m of [-1, 1]) {
+      oval(0.24 * m, -0.62, 0.15, 0.46, 0.18 * m); ko();
+      oval(0.24 * m, -0.58, 0.055, 0.3, 0.18 * m); c.stroke();
+    }
+    oval(0, 0.22, 0.56, 0.48, 0); ko();
+    for (const m of [-1, 1]) dot(0.22 * m, 0.12, 0.055);
+    c.beginPath(); c.moveTo(-0.07, 0.29); c.lineTo(0.07, 0.29); c.lineTo(0, 0.36); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(0, 0.36); c.lineTo(0, 0.42); c.quadraticCurveTo(-0.06, 0.5, -0.13, 0.45); c.moveTo(0, 0.42); c.quadraticCurveTo(0.06, 0.5, 0.13, 0.45); c.stroke();
+    c.lineWidth *= 0.7; c.beginPath();
+    for (const m of [-1, 1]) { c.moveTo(0.17 * m, 0.37); c.lineTo(0.5 * m, 0.32); c.moveTo(0.17 * m, 0.42); c.lineTo(0.5 * m, 0.46); }
+    c.stroke();
+  }),
+  horse: lineArt((c, ko, dot) => {
+    c.translate(0.02, 0.04);
+    // mane along the back of the neck
+    c.beginPath();
+    [[0.12, -0.82], [0.42, -0.72], [0.36, -0.56], [0.6, -0.46], [0.5, -0.3], [0.72, -0.18], [0.6, -0.04], [0.8, 0.1], [0.66, 0.22], [0.84, 0.38], [0.68, 0.48], [0.8, 0.66], [0.6, 0.78]]
+      .forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y)));
+    c.lineTo(0.5, 0.82); c.bezierCurveTo(0.45, 0.3, 0.32, -0.3, 0.12, -0.82); c.closePath(); ko();
+    // head and neck in profile, facing left
+    c.beginPath();
+    c.moveTo(0.1, -0.78); c.lineTo(0.03, -1.0); c.lineTo(-0.1, -0.72);
+    c.bezierCurveTo(-0.35, -0.6, -0.6, -0.3, -0.72, 0.0);
+    c.bezierCurveTo(-0.8, 0.15, -0.78, 0.28, -0.62, 0.3);
+    c.bezierCurveTo(-0.45, 0.32, -0.3, 0.25, -0.18, 0.12);
+    c.bezierCurveTo(-0.12, 0.35, -0.15, 0.6, -0.1, 0.85);
+    c.lineTo(0.52, 0.85); c.bezierCurveTo(0.48, 0.3, 0.33, -0.3, 0.1, -0.78); c.closePath(); ko();
+    c.beginPath();
+    c.moveTo(-0.77, 0.21); c.lineTo(-0.6, 0.2);
+    c.moveTo(-0.18, 0.12); c.quadraticCurveTo(-0.02, -0.04, -0.16, -0.2);
+    c.moveTo(-0.02, -0.72); c.lineTo(-0.12, -0.56); c.moveTo(0.06, -0.7); c.lineTo(0.0, -0.54);
+    c.stroke();
+    c.beginPath(); c.arc(-0.63, 0.05, 0.055, Math.PI * 0.2, Math.PI * 1.5); c.stroke();
+    dot(-0.32, -0.4, 0.055);
+  }),
+  goat: lineArt((c, ko, dot, oval) => {
+    c.translate(0, 0.02);
+    for (const m of [-1, 1]) {
+      c.beginPath(); c.moveTo(0.14 * m, -0.5); c.bezierCurveTo(0.18 * m, -0.98, 0.72 * m, -1.02, 0.8 * m, -0.66);
+      c.bezierCurveTo(0.84 * m, -0.44, 0.62 * m, -0.38, 0.56 * m, -0.52);
+      c.moveTo(0.3 * m, -0.5); c.bezierCurveTo(0.34 * m, -0.8, 0.62 * m, -0.84, 0.66 * m, -0.62); c.stroke();
+      oval(0.56 * m, -0.28, 0.25, 0.09, 0.45 * m); ko();
+    }
+    c.beginPath(); c.moveTo(-0.13, 0.42); c.quadraticCurveTo(-0.1, 0.76, 0, 0.94); c.quadraticCurveTo(0.1, 0.76, 0.13, 0.42); c.closePath(); ko();
+    c.beginPath(); c.moveTo(-0.34, -0.5); c.quadraticCurveTo(0, -0.64, 0.34, -0.5);
+    c.bezierCurveTo(0.44, -0.1, 0.22, 0.46, 0, 0.53); c.bezierCurveTo(-0.22, 0.46, -0.44, -0.1, -0.34, -0.5); c.closePath(); ko();
+    for (const m of [-1, 1]) { oval(0.17 * m, -0.13, 0.08, 0.042, 0); c.stroke(); c.beginPath(); c.moveTo(0.13 * m, -0.13); c.lineTo(0.21 * m, -0.13); c.stroke(); dot(0.065 * m, 0.3, 0.03); }
+    c.beginPath(); c.moveTo(-0.08, 0.4); c.quadraticCurveTo(0, 0.45, 0.08, 0.4); c.stroke();
+  }),
+  monkey: lineArt((c, ko, dot) => {
+    for (const m of [-1, 1]) {
+      c.beginPath(); c.arc(0.7 * m, 0.02, 0.22, 0, TAU); ko();
+      c.beginPath(); c.arc(0.7 * m, 0.02, 0.11, 0, TAU); c.stroke();
+    }
+    c.beginPath(); c.arc(0, 0, 0.62, 0, TAU); ko();
+    c.beginPath(); c.moveTo(-0.14, -0.6); c.quadraticCurveTo(-0.06, -0.82, 0.04, -0.62); c.quadraticCurveTo(0.12, -0.84, 0.2, -0.58); c.stroke();
+    c.beginPath(); c.moveTo(0, -0.2); c.bezierCurveTo(-0.12, -0.5, -0.58, -0.42, -0.46, -0.05);
+    c.bezierCurveTo(-0.6, 0.3, -0.32, 0.52, 0, 0.52); c.bezierCurveTo(0.32, 0.52, 0.6, 0.3, 0.46, -0.05);
+    c.bezierCurveTo(0.58, -0.42, 0.12, -0.5, 0, -0.2); c.closePath(); c.stroke();
+    for (const m of [-1, 1]) { dot(0.18 * m, -0.12, 0.055); dot(0.05 * m, 0.12, 0.03); }
+    c.beginPath(); c.moveTo(-0.2, 0.28); c.quadraticCurveTo(0, 0.42, 0.2, 0.28); c.stroke();
+  }),
+  rooster: lineArt((c, ko, dot, oval) => {
+    c.translate(-0.04, 0.0);
+    c.beginPath();
+    c.moveTo(0.34, 0.0); c.quadraticCurveTo(0.68, -0.78, 0.94, -0.46);
+    c.moveTo(0.38, 0.08); c.quadraticCurveTo(0.92, -0.42, 1.0, 0.0);
+    c.moveTo(0.38, 0.18); c.quadraticCurveTo(0.88, 0.0, 0.86, 0.32);
+    c.moveTo(-0.05, 0.5); c.lineTo(-0.08, 0.86); c.lineTo(-0.22, 0.92); c.moveTo(-0.08, 0.86); c.lineTo(0.04, 0.93);
+    c.moveTo(0.16, 0.5); c.lineTo(0.15, 0.86); c.lineTo(0.02, 0.92); c.moveTo(0.15, 0.86); c.lineTo(0.27, 0.92);
+    c.stroke();
+    c.beginPath(); c.moveTo(-0.3, -0.3);
+    c.bezierCurveTo(-0.25, -0.05, -0.05, 0.0, 0.15, -0.02); c.bezierCurveTo(0.42, -0.05, 0.56, 0.25, 0.38, 0.42);
+    c.bezierCurveTo(0.2, 0.6, -0.25, 0.6, -0.42, 0.3); c.bezierCurveTo(-0.55, 0.1, -0.5, -0.15, -0.52, -0.32); c.closePath(); ko();
+    c.beginPath(); c.moveTo(-0.15, 0.15); c.bezierCurveTo(0.05, 0.05, 0.3, 0.12, 0.3, 0.25); c.bezierCurveTo(0.15, 0.38, -0.05, 0.35, -0.15, 0.15); c.stroke();
+    c.beginPath(); c.moveTo(-0.58, -0.6); c.quadraticCurveTo(-0.62, -0.82, -0.48, -0.72); c.quadraticCurveTo(-0.45, -0.94, -0.36, -0.74);
+    c.quadraticCurveTo(-0.27, -0.92, -0.23, -0.66); c.closePath(); ko();
+    oval(-0.56, -0.29, 0.05, 0.09, 0); ko();
+    c.beginPath(); c.arc(-0.42, -0.48, 0.17, 0, TAU); ko();
+    c.beginPath(); c.moveTo(-0.57, -0.53); c.lineTo(-0.75, -0.46); c.lineTo(-0.58, -0.41); c.closePath(); ko();
+    dot(-0.45, -0.52, 0.04);
+  }),
+  pig: lineArt((c, ko, dot, oval) => {
+    c.translate(0, 0.06);
+    for (const m of [-1, 1]) {
+      c.beginPath(); c.moveTo(0.26 * m, -0.5); c.quadraticCurveTo(0.55 * m, -0.98, 0.74 * m, -0.74); c.quadraticCurveTo(0.74 * m, -0.46, 0.6 * m, -0.3); c.closePath(); ko();
+    }
+    oval(0, 0.05, 0.72, 0.6, 0); ko();
+    oval(0, 0.2, 0.28, 0.19, 0); c.stroke();
+    for (const m of [-1, 1]) { oval(0.09 * m, 0.2, 0.045, 0.075, 0); c.fill(); dot(0.3 * m, -0.12, 0.055); }
+    c.beginPath(); c.moveTo(-0.12, 0.47); c.quadraticCurveTo(0, 0.53, 0.12, 0.47); c.stroke();
+  }),
+};
+
+/* Playing cards: a small card printed on the cap, red for hearts and diamonds, black for
+   spades and clubs. J, Q and K carry a Chomsky letter; A carries one big spade. */
+const CARD = { red: '#c8102e', black: '#1c1c22', paper: '#fbf8f0' };
+// classic two-lobed heart, about 1 wide and 0.95 tall, point down (dir = 1) or up (dir = -1)
+const HEART = [[0, -0.323, -0.045, -0.432, -0.227, -0.432], [-0.5, -0.432, -0.5, -0.091, -0.5, -0.091], [-0.5, 0.068, -0.318, 0.268, 0, 0.432],
+  [0.318, 0.268, 0.5, 0.068, 0.5, -0.091], [0.5, -0.091, 0.5, -0.432, 0.227, -0.432], [0.091, -0.432, 0, -0.323, 0, -0.295]];
+function suitPath(c, suit, x, y, size) {
+  c.save(); c.translate(x, y); c.scale(size, size); c.beginPath();
+  const heart = (dir, dy) => {
+    const k = 1.1;
+    c.moveTo(0, (-0.295 * dir) * k + dy);
+    HEART.forEach((b) => c.bezierCurveTo(b[0] * k, b[1] * dir * k + dy, b[2] * k, b[3] * dir * k + dy, b[4] * k, b[5] * dir * k + dy));
+    c.closePath();
+  };
+  const stem = () => { c.moveTo(0, 0.05); c.quadraticCurveTo(0.03, 0.38, 0.2, 0.5); c.lineTo(-0.2, 0.5); c.quadraticCurveTo(-0.03, 0.38, 0, 0.05); c.closePath(); };
+  if (suit === 'hearts') heart(1, 0);
+  else if (suit === 'spades') { heart(-1, -0.08); stem(); }
+  else if (suit === 'diamonds') {
+    c.moveTo(0, -0.5); c.quadraticCurveTo(0.14, -0.18, 0.38, 0); c.quadraticCurveTo(0.14, 0.18, 0, 0.5);
+    c.quadraticCurveTo(-0.14, 0.18, -0.38, 0); c.quadraticCurveTo(-0.14, -0.18, 0, -0.5); c.closePath();
+  } else {
+    for (const [cx, cy] of [[0, -0.26], [-0.23, 0.05], [0.23, 0.05]]) { c.moveTo(cx + 0.21, cy); c.arc(cx, cy, 0.21, 0, TAU); }
+    c.moveTo(0.12, -0.02); c.arc(0, -0.02, 0.12, 0, TAU);
+    stem();
+  }
+  c.restore();
+}
+function roundRectPath(c, x, y, w, h, r) {
+  c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+}
+function cardPrint(suit, rank) {
+  return (c, R, pal, rot) => {
+    const w = R * 0.66, h = R * 0.9, r = R * 0.075;
+    const col = suit === 'hearts' || suit === 'diamonds' ? CARD.red : CARD.black;
+    const [dx, dy] = awayFromLamp(rot, R * 0.014);
+    roundRectPath(c, -w / 2 + dx, -h / 2 + dy, w, h, r); c.fillStyle = 'rgba(0,0,0,.25)'; c.fill();
+    roundRectPath(c, -w / 2, -h / 2, w, h, r); c.fillStyle = CARD.paper; c.fill();
+    c.lineWidth = R * 0.01; c.strokeStyle = 'rgba(0,0,0,.3)'; c.stroke();
+    c.fillStyle = col; c.strokeStyle = col; c.textAlign = 'center'; c.textBaseline = 'middle';
+    for (const turn of [0, Math.PI]) {
+      c.save(); c.rotate(turn);
+      const x = -w / 2 + w * 0.15, y = -h / 2 + h * 0.12;
+      if (rank) {
+        c.font = '700 ' + (R * 0.13).toFixed(1) + 'px Georgia, "Times New Roman", serif';
+        c.fillText(rank, x, y);
+        suitPath(c, suit, x, y + R * 0.12, R * 0.085); c.fill();
+      } else { suitPath(c, suit, x, y + R * 0.02, R * 0.1); c.fill(); }
+      c.restore();
+    }
+    if (!rank || rank === 'A') { suitPath(c, suit, 0, 0, rank === 'A' ? R * 0.34 : R * 0.38); c.fill(); }
+    else {
+      c.lineWidth = R * 0.008; c.strokeRect(-w * 0.24, -h * 0.36, w * 0.48, h * 0.72);
+      c.font = (R * 0.4).toFixed(1) + 'px Chomsky, "Old English Text MT", serif';
+      c.fillText(rank, 0, -R * 0.03);
+      suitPath(c, suit, 0, R * 0.22, R * 0.09); c.fill();
+    }
+  };
+}
+const UPRIGHT = new Set(Object.keys(ZODIAC).concat(['hearts', 'spades', 'clubs', 'diamonds', 'jack', 'queen', 'king', 'ace']));
+Object.assign(PRINTS, ZODIAC, {
+  hearts: cardPrint('hearts'), spades: cardPrint('spades'), clubs: cardPrint('clubs'), diamonds: cardPrint('diamonds'),
+  jack: cardPrint('clubs', 'J'), queen: cardPrint('diamonds', 'Q'), king: cardPrint('hearts', 'K'), ace: cardPrint('spades', 'A'),
+});
+
 // Face down on the table, as it came off the bottle: a man.
 function drawCapFront(cv, key, seed, style) {
   const S = cv.width, ctx = cv.getContext('2d'), pal = PAINTS[key] || PAINTS.green;
@@ -1043,8 +1272,10 @@ function drawCapFront(cv, key, seed, style) {
   const rT = R * 0.665;
   ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, rT, 0, TAU); ctx.clip();
   ctx.fillStyle = css(pal.base); ctx.fillRect(0, 0, S, S);
-  ctx.translate(cx, cy); ctx.rotate(rot);
-  ctx.save(); (PRINTS[style] || PRINTS.star)(ctx, R, pal, rot); ctx.restore();
+  // Pictures (animals, cards) stay nearly upright so they read at a glance; other prints turn freely.
+  const turn = UPRIGHT.has(style) ? (rot / TAU - 0.5) * 0.6 : rot;
+  ctx.translate(cx, cy); ctx.rotate(turn);
+  ctx.save(); (PRINTS[style] || PRINTS.star)(ctx, R, pal, turn); ctx.restore();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = Math.max(0.6, S / 400);
   for (let i = 0; i < 5; i++) {
@@ -1962,7 +2193,7 @@ function buildCapPicker() {
     const cv = document.createElement('canvas'); cv.width = cv.height = 120; cv.setAttribute('aria-hidden', 'true');
     const name = document.createElement('em'); name.style.fontStyle = 'normal';
     span.append(cv, name); lab.append(inp, span);
-    $(SODA_STYLES.includes(st) ? 'tilesSoda' : 'tilesBeer').appendChild(lab);
+    $(STYLE_GROUPS.find((g) => g[1].includes(st))[0]).appendChild(lab);
     inp.addEventListener('change', () => {
       settings.capStyle[pickTeam] = st; store.set('settings', settings);
       restyleCaps(pickTeam); refreshPicker(); sfx.lift();
@@ -1987,6 +2218,7 @@ function refreshPicker() {
   });
   $('lgPaint').textContent = L.paintLegend(teamName(pickTeam));
   $('lgBeer').textContent = L.beerCaps; $('lgSoda').textContent = L.sodaCaps;
+  $('lgZodiac').textContent = L.zodiacCaps; $('lgCards').textContent = L.cardCaps;
   document.querySelectorAll('.swatch input').forEach((i) => {
     i.checked = i.value === paintOf(pickTeam);
     i.setAttribute('aria-label', L.paint[i.value]); i.parentNode.title = L.paint[i.value];
