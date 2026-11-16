@@ -1,8 +1,8 @@
 # Siam Times BB Gun (ปืนบีบีกัน) – web game
 
-A BB gun game, in English and in Thai, in the same back room as Siam Times Slingshot and Darts: blue panelling, a cream sign that reads **The Siam Times** in Chomsky (this time over *Newsroom Air Gun Club*), two green pendant lamps, a dartboard and a chalk scoreboard. Five red and white soda cans stand on a table at the back, 4 m away, with an eight-pane window right behind them. Shoot the cans down against the clock without putting a BB through the glass.
+A BB gun game, in English and in Thai, in the same back room as Siam Times Slingshot and Darts: blue panelling, a cream sign that reads **The Siam Times** in Chomsky (this time over *Newsroom Air Gun Club*), two green pendant lamps, a dartboard and a chalk scoreboard. Five red and white soda cans stand on a table at the back, 4 m away, with an eight-pane window right behind them; in the last two rounds they hang on threads from a rope across the window. Shoot the cans down against the clock without putting a BB through the glass or the sign. The lamps can be shot out too, which leaves the room darker.
 
-There is an English version and a Thai version, each a whole game in one HTML file. There is no build step: open either file in a browser. Each has a link to the other in its control rail, and both share the same best scores, gun, steadiness and sound setting.
+There is an English version and a Thai version, each a whole game in one HTML file. There is no build step: open either file in a browser. Each has a link to the other in its control rail, and both share the same best scores, gun, steadiness, sight speed and sound setting.
 
 | Version | File | On the site |
 |---|---|---|
@@ -13,10 +13,11 @@ They work offline; only the Newsreader and Sarabun text fonts come from Google F
 
 ## Controls
 
-- **Aiming stick, bottom left of the room** (เล็ง): touch and drag, and the sight moves that way, freely, anywhere in the room. The further you drag the faster it moves (the speed rises roughly with the square of the drag), so a short drag is for fine work. The stick centres itself wherever your thumb lands in the bottom-left corner.
+- **Aiming stick, bottom left of the room** (เล็ง): touch and drag, and the sight follows your thumb at once, freely, anywhere in the room. Moved slowly it goes about one for one with your thumb (1.2×), for fine work; flicked, it goes up to about four times as far. Push the stick to its rim and hold it there and the sight keeps travelling that way (1.8 m/s at the cans). The stick centres itself wherever your thumb lands in the bottom-left corner, and slides along if you pull past its rim.
+- **Sight speed** (ความไวศูนย์เล็ง): Slow, Medium or Fast scales all of this (0.7×, 1×, 1.45×), for the stick, dragging elsewhere and the keys.
 - **Fire button, bottom right** (ยิง): tap to fire; hold it for full auto with the rifle. It shows the BBs left, and a ring fills round it while the gun reloads or the hammer or lever comes back. The small button above it reloads; an empty gun reloads by itself.
 - Both thumbs work at once (multi-touch). Dragging anywhere else in the room also moves the sight, one for one with your finger or the mouse.
-- Keyboard: arrows or W A S D move the sight (Shift to go slow), Space fires (hold for full auto), R reloads, 1–4 pick a gun.
+- Keyboard: arrows or W A S D move the sight, speeding up the longer you hold them (Shift to go slow); Space fires (hold for full auto), R reloads, 1–4 pick a gun.
 
 ## The guns
 
@@ -35,28 +36,37 @@ Every shot kicks the sight up, and it settles back at a rate that depends on the
 
 | Game | Rules |
 |---|---|
-| 5 Rounds | Twenty seconds a round to knock down five cans, with as many BBs as you like (reloading costs time). A three-second countdown starts each round. The cans are set up differently each round: in a row, staggered, a pyramid of 3 + 2, stacked in twos, spread wide. |
-| Practice | No clock. The cans are set up again, in a random layout, once they are all down; the scoreline shows your accuracy. |
+| 7 Rounds | Twenty seconds a round to knock down five cans, with as many BBs as you like (reloading costs time). A three-second countdown starts each round. The cans are set up differently each round: in a row, staggered, a pyramid of 3 + 2, stacked in twos, spread wide; then, for rounds 6 and 7, hanging on threads from a rope across the window, first barely moving and then swinging. |
+| Practice | No clock. The cans are set up again, in a random layout (any of the seven), once they are all down; the scoreline shows your accuracy. |
 
 | | Points |
 |---|---|
 | Each can knocked down | +100 |
 | Each extra can knocked down by the same shot | +50 |
 | Hitting a can in mid-air (one an earlier shot sent flying) | +50 |
+| Cutting a can's thread with a BB | +50 |
 | Clearing all five: each second left on the clock | +25 |
 | Each pane of glass a BB goes through | −150 |
+| Each shot that hits The Siam Times sign | −300 |
 
-A BB leaves a hole and a star of cracks in a pane; the third hit on the same pane knocks it out of the frame. A pane is charged once. The glazier replaces the glass before every round. Each gun keeps its own best score; in 5 Rounds, changing the gun starts a new game.
+A BB leaves a hole and a star of cracks in a pane; the third hit on the same pane knocks it out of the frame. A pane is charged once. The sign is charged once for each shot that hits it, however many of a shotgun's BBs strike it. Each gun keeps its own best score; in 7 Rounds, changing the gun starts a new game.
 
-**Steadiness**: on Easy the sight is still and a dot shows what the BB will hit (green on a can, red on glass). On Normal the sight drifts a little as you breathe; on Pro it drifts more and the BBs spread wider.
+**Hanging cans**: a solid hit snaps the thread and drops the can (it counts as down); a glancing hit, near the edge of the can, only sets it swinging. Missing a hanging can usually means the window behind it.
 
-Best scores, the gun, the steadiness and the sound setting are kept in the browser's local storage.
+**Lamps**: a BB through the opening of a shade pops the bulb. The room darkens, most of all on that lamp's side, and stays dark until the next round. It costs no points. A BB that strikes the outside of a shade rings off it and sets the lamp swinging a little.
+
+Before each round the glazier replaces the glass and the bulbs.
+
+**Steadiness**: on Easy the sight is still, the gun never runs out of BBs (no reloading), and a dot shows what the BB will hit (green on a can, red on anything that costs points or breaks). On Normal the sight drifts a little as you breathe; on Pro it drifts more and the BBs spread wider.
+
+Best scores, the gun, the steadiness, the sight speed and the sound setting are kept in the browser's local storage, under `siamTimesBBGun.v2`. Settings carry over from the earlier five-round version; its best scores do not.
 
 ## How it works
 
 - Real sizes: 330 ml cans are 66 mm across and 115 mm tall, the table top is 1.02 m from the floor, the cans are 4 m away, the dartboard's bull is at the regulation 1.73 m. A BB is 4.5 mm and 0.35 g, and leaves the muzzle at 95–125 m/s depending on the gun.
 - BBs fly in real time with gravity and air drag, in steps of 6 mm or less so a fast BB cannot pass through a can between steps. A can that is hit flies off and tumbles, knocks over any can it runs into, and cans stacked on it fall. BBs bounce off the panelling, the frame, the sign and the slate, come to rest on the table or the floor, and stick in the dartboard; they leave dents and chips in the wall.
-- The room, window, sign, dartboard and chalkboard are drawn once per resize (and again when a pane falls out), as in Slingshot. The camera is your eye; on a tall, narrow screen it sees a little less of the room so the cans stay big enough to hit.
+- A hanging can is a pendulum on its thread, swinging both sideways and to and fro (never through the glass). A BB that hits it passes on its momentum; past a threshold the thread snaps. Threads are tested against the whole path a BB covered in each step, so a BB cannot slip past one.
+- The room, window, sign, dartboard and chalkboard are drawn once per resize (and again when a pane falls out or a bulb is shot out), as in Slingshot. The lamps, the rope and the threads are drawn every frame. The camera is your eye; on a tall, narrow screen it sees a little less of the room so the cans stay big enough to hit.
 - The guns are small 3D models made of boxes, slanted blocks and many-sided cylinders, shaded by the lamps over the table. As in most first-person games, the gun is drawn through a wider lens than the room, which lets it sit low and to the right in a three-quarter view; it turns so that its bore, as drawn, runs through the sight, and BBs leave from the point in the room that lies where its muzzle is drawn. The slide, hammer, cylinder, lever and magazines move.
 - Sounds are made in the browser with Web Audio; there are no sound files.
 
