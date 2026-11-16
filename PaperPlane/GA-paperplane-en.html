@@ -2185,10 +2185,6 @@ function nextTurn() {
   }
   startTurn();
 }
-/* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
-function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'paperplane' }, r), '*'); } catch (e) { /* not in a frame */ }
-}
 function finishContest() {
   state.phase = 'over';
   state.round = ROUNDS;
@@ -2196,8 +2192,6 @@ function finishContest() {
   state.flight = null; state.banner = null;
   const ranked = rankedPlayers();
   const win = ranked[0];
-  const me = state.players.find(p => !p.cpu);
-  storyDone({ won: !win.cpu, score: me && me.best != null ? me.best : null });
   state.message = [['msgOver', nameOf(win)]];
   showFinal(ranked);
   sfx.fanfare();

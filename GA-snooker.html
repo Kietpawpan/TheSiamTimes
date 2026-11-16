@@ -514,14 +514,9 @@ function finishTurn(msg) {
   setMsg(msg); updateUI(); refreshBusy();
   if (isCPU() && state === 'aim') { clearTimeout(cpuTimer); cpuTimer = setTimeout(cpuPlay, 750); }
 }
-/* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
-function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'snooker' }, r), '*'); } catch (e) { /* not in a frame */ }
-}
 function frameOver() {
   state = 'over'; updateUI(); refreshBusy();
   const [a, b] = players, w = a.score > b.score ? a : b;
-  storyDone({ won: !vsCPU || w === a, score: a.score + '–' + b.score });
   setMsg('Frame over.');
   if (vsCPU) {
     const T = TOUR[tourIdx];

@@ -1722,13 +1722,8 @@ function startTurn(aiDelay) {
   if (!isHuman(G.turn)) requestAI(aiDelay || 0);
 }
 
-/* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
-function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'checkers' }, r), '*'); } catch (e) { /* not in a frame */ }
-}
 function endGame(winner, reason) {
   G.over = true; G.result = { winner, reason };
-  storyDone({ won: G.mode !== 'ai' || winner === 1, draw: winner === 0 });
   legal = [];
   if (G.mode === 'ai') {
     const st = store.get('stats', {}), r = st[G.level] || { w: 0, l: 0, d: 0 };

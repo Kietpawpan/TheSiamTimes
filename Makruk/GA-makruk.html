@@ -2256,13 +2256,8 @@ function askHint() {
   if (!humanToMove() || anim || pending) return;
   ask('hint');
 }
-/* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
-function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'makruk' }, r), '*'); } catch (e) { /* not in a frame */ }
-}
 function gameOver() {
   const r = S.result; if (!r) return;
-  storyDone({ won: game.mode !== 'ai' || r.winner === game.human, draw: r.winner === 0, text: resultTitle(r) });
   if (game.mode === 'ai' && !game.recorded) {
     const rec = record[prefs.level];
     if (r.winner === 0) rec.d++; else if (r.winner === game.human) rec.w++; else rec.l++;
