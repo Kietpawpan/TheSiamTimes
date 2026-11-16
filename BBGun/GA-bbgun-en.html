@@ -236,6 +236,25 @@ html:lang(th) .guns .gstat { font-size: 13px; }
 .guns input:checked + label svg { color: var(--brass); }
 .guns input:focus-visible + label { outline: 2px solid var(--blue); outline-offset: 2px; }
 
+.upgs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.upg {
+  position: relative; display: flex; gap: 9px; align-items: flex-start; min-width: 0;
+  padding: 8px 10px 9px; border: 1px solid var(--rule); border-radius: 8px; background: var(--well);
+  cursor: pointer; transition: border-color .15s, background .15s;
+}
+.upg:hover { border-color: var(--muted); }
+.upg input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.upg-box { flex: none; width: 16px; height: 16px; margin-top: 1px; border: 1.5px solid var(--muted); border-radius: 4px; display: grid; place-items: center; }
+.upg input:checked ~ .upg-box { background: var(--brass); border-color: var(--brass); }
+.upg input:checked ~ .upg-box::after { content: ""; width: 8px; height: 4px; border: solid var(--brass-ink); border-width: 0 0 2px 2px; transform: translateY(-1px) rotate(-45deg); }
+.upg:has(input:checked) { border-color: var(--brass); background: #182433; }
+.upg input:focus-visible ~ .upg-box { outline: 2px solid var(--blue); outline-offset: 2px; }
+.upg-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.upg-name { font: 600 13px/1.25 var(--font-label); color: var(--paper); }
+.upg-note { font: 12px/1.35 var(--font-label); color: var(--muted); }
+html:lang(th) .upg-name { font-size: 14px; }
+html:lang(th) .upg-note { font-size: 13px; }
+
 .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--well); }
 .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .seg label {
@@ -421,6 +440,17 @@ details li::marker { color: var(--brass); }
     </fieldset>
 
     <fieldset class="group">
+      <legend class="label" data-i18n="upgLegend">Upgrades</legend>
+      <div class="upgs">
+        <label class="upg"><input type="checkbox" name="upg" value="laser"><span class="upg-box"></span><span class="upg-text"><span class="upg-name" data-i18n="upgLaser">Laser sight</span><span class="upg-note" data-i18n="upgLaserNote">A red dot where the BB will land</span></span></label>
+        <label class="upg"><input type="checkbox" name="upg" value="grip"><span class="upg-box"></span><span class="upg-text"><span class="upg-name" data-i18n="upgGrip">Stabiliser</span><span class="upg-note" data-i18n="upgGripNote">A steadier hand and a softer kick</span></span></label>
+        <label class="upg"><input type="checkbox" name="upg" value="barrel"><span class="upg-box"></span><span class="upg-text"><span class="upg-name" data-i18n="upgBarrel">Match barrel</span><span class="upg-note" data-i18n="upgBarrelNote">The BBs fly closer together</span></span></label>
+        <label class="upg"><input type="checkbox" name="upg" value="assist"><span class="upg-box"></span><span class="upg-text"><span class="upg-name" data-i18n="upgAssist">Aim assist</span><span class="upg-note" data-i18n="upgAssistNote">The sight slows down over a can</span></span></label>
+      </div>
+      <p class="note" data-i18n="upgNote">Fitted to every gun, and kept for next time.</p>
+    </fieldset>
+
+    <fieldset class="group">
       <legend class="label" data-i18n="modeLegend">Game</legend>
       <div class="seg" role="radiogroup" data-i18n-aria="modeLegend">
         <input type="radio" name="mode" id="mode-classic" value="classic" checked><label for="mode-classic" data-i18n="classic">7 Rounds</label>
@@ -476,13 +506,13 @@ const STR = {
     gunLegend: 'ปืน',
     guns: {
       pistol: { name: 'ปืนพก 1911', stat: '8 นัด · กึ่งอัตโนมัติ',
-        note: 'ปืนพกกึ่งอัตโนมัติทรง 1911 กดหนึ่งครั้งยิงหนึ่งนัด ยิงได้เร็วตามจังหวะนิ้ว สไลด์ถอยทุกนัด เปลี่ยนแม็ก 1.3 วินาที' },
+        note: 'ปืนพกกึ่งอัตโนมัติทรง 1911 กดหนึ่งครั้งยิงหนึ่งนัด ยิงได้เร็วตามจังหวะนิ้ว สไลด์ถอยทุกนัด เปลี่ยนแม็กได้ไว กระสุนหมดสไลด์จะค้างเปิด' },
       revolver: { name: 'ลูกโม่', stat: '6 นัด · ซิงเกิลแอ็กชัน',
         note: 'ลูกโม่ซิงเกิลแอ็กชันแบบปืนคาวบอย ต้องง้างนกก่อนยิงทุกนัด จึงยิงช้าแต่แม่นที่สุด เติมกระสุนทีละนัดผ่านฝาข้างโม่' },
       shotgun: { name: 'ลูกซองคานเหวี่ยง', stat: '5 นัด × 6 ลูกปราย',
         note: 'ลูกซองคานเหวี่ยงแบบปี 1887 นัดหนึ่งมีลูกปราย 6 ลูกกระจายเป็นวง ล้มได้ทีละหลายใบ แต่ลูกที่สูงเกินจะเข้ากระจก ต้องโยกคานทุกนัด เติมกระสุนทีละนัด' },
       rifle: { name: 'ปืนกลยาว', stat: '30 นัด · กดค้างยิงรัว',
-        note: 'ปืนกลยาวยิงรัวเมื่อกดปุ่มยิงค้างไว้ ยิ่งรัวนาน ปากกระบอกยิ่งเชิดและกลุ่มกระสุนยิ่งกว้าง ให้ดึงศูนย์ลงสู้แรงถีบ เปลี่ยนแม็ก 1.9 วินาที' },
+        note: 'ปืนกลยาวยิงรัวเมื่อกดปุ่มยิงค้างไว้ ยิ่งรัวนาน ปากกระบอกยิ่งเชิดและกลุ่มกระสุนยิ่งกว้าง ให้ดึงศูนย์ลงสู้แรงถีบ เปลี่ยนแม็ก และถ้ากระสุนหมดเกลี้ยงต้องดึงคันรั้งลูกเลื่อน' },
     },
     gunSwitch: 'แต่ละกระบอกเก็บสถิติแยกกัน ระหว่างเกม 7 รอบ การเปลี่ยนปืนจะเริ่มเกมใหม่',
     modeLegend: 'เกม', classic: '7 รอบ', practice: 'ฝึกซ้อม',
@@ -496,8 +526,10 @@ const STR = {
     keys: '<kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd> หรือ <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> เลื่อนศูนย์เล็ง กด <kbd>Shift</kbd> ค้างเพื่อเลื่อนช้า · <kbd>Space</kbd> ยิง · <kbd>R</kbd> เติมกระสุน · <kbd>1</kbd>–<kbd>4</kbd> เลือกปืน',
     howTo: 'วิธีเล่น',
     how: [
-      'มุมซ้ายล่างของจอคือคันบังคับศูนย์เล็ง แตะแล้วลาก ศูนย์เล็งจะเลื่อนตามนิ้วทันที ขยับนิดเดียวสำหรับปรับละเอียด ปัดเร็ว ๆ เพื่อเลื่อนไกล ดันคันบังคับไปจนสุดขอบแล้วค้างไว้ ศูนย์จะเลื่อนต่อไปเรื่อย ๆ',
+      'มุมซ้ายล่างของจอคือคันบังคับศูนย์เล็ง แตะแล้วลาก ศูนย์เล็งเลื่อนตามนิ้ว และหยุดทันทีที่นิ้วหยุด ขยับช้า ๆ สำหรับปรับละเอียด ปัดเร็ว ๆ เพื่อเลื่อนไกล',
       'มุมขวาล่างคือปุ่มยิง ปืนกลยาวให้กดค้างเพื่อยิงรัว ปุ่มเล็กเหนือปุ่มยิงใช้เติมกระสุน กระสุนหมดเมื่อไรปืนจะเติมให้เอง ระดับง่ายกระสุนไม่จำกัด',
+      'ก่อนเริ่มแต่ละรอบจะได้เห็นการบรรจุกระสุน ใส่แม็ก ใส่ลูกทีละนัด หรือใส่ลูกซองทีละลูก แล้วจึงนับถอยหลัง แตะปุ่มยิงเพื่อข้ามได้',
+      'อัปเกรดปืนช่วยให้เล็งง่ายขึ้น เลเซอร์ชี้จุดที่ลูกจะโดน กริปกันสั่นทำให้มือนิ่งและแรงถีบน้อยลง ลำกล้องแม่นยำทำให้กลุ่มกระสุนแคบลง และช่วยเล็งทำให้ศูนย์ช้าลงเมื่อผ่านกระป๋อง',
       'ลากนิ้วบนส่วนอื่นของจอก็เลื่อนศูนย์เล็งได้ หรือใช้เมาส์ลาก หรือปุ่มลูกศรบนคีย์บอร์ด ปรับได้ว่าจะให้ศูนย์เลื่อนไวแค่ไหนที่ความไวศูนย์เล็ง',
       'ทุกนัดปืนจะถีบปากกระบอกขึ้น ศูนย์เล็งเด้งขึ้นแล้วค่อย ๆ กลับที่ ยิงรัวเกินไปลูกจะลอยเข้ากระจก',
       'กระป๋องใบละ 100 แต้ม ล้มหลายใบในนัดเดียวได้โบนัสใบละ 50 ยิงโดนกระป๋องที่ลอยกลางอากาศได้อีก 50 ล้มครบ 5 ใบได้วินาทีละ 25 แต้มจากเวลาที่เหลือ',
@@ -520,7 +552,7 @@ const STR = {
     nextRound: (r, name) => `ต่อไป รอบ ${r}: ${name}`,
     bestGun: (g, b) => b === null ? `ยังไม่มีสถิติของ${g}` : `สถิติของ${g}: ${b}`,
     newBest: g => `สถิติใหม่ของ${g}!`,
-    msgIntro: 'กดเริ่ม แล้วนับถอยหลัง 3 วินาที',
+    msgIntro: 'กดเริ่ม บรรจุกระสุน แล้วนับถอยหลัง 3 วินาที',
     msgPractice: 'ฝึกซ้อม ไม่จับเวลา',
     msgGo: 'ยิงได้!',
     hit: n => n > 1 ? `ล้ม ${n} ใบในนัดเดียว! โบนัส +${(n - 1) * 50}` : 'ล้ม! +100',
@@ -544,6 +576,12 @@ const STR = {
     sensLegend: 'ความไวศูนย์เล็ง', slow: 'ช้า', medium: 'กลาง', fast: 'เร็ว',
     noteSens: 'ศูนย์เล็งเลื่อนไกลแค่ไหนเมื่อขยับนิ้ว เมาส์ หรือกดปุ่ม',
     toastSign: 'โดนป้าย', toastThread: 'เชือกขาด',
+    upgLegend: 'อัปเกรดปืน', upgNote: 'ใช้กับปืนทุกกระบอก และจำไว้ครั้งหน้า',
+    upgLaser: 'เลเซอร์ชี้เป้า', upgLaserNote: 'จุดแดงบอกตำแหน่งที่ลูกจะโดน',
+    upgGrip: 'กริปกันสั่น', upgGripNote: 'มือนิ่งขึ้น แรงถีบน้อยลง',
+    upgBarrel: 'ลำกล้องแม่นยำ', upgBarrelNote: 'กลุ่มกระสุนแคบลง',
+    upgAssist: 'ช่วยเล็ง', upgAssistNote: 'ศูนย์เล็งช้าลงเมื่อผ่านกระป๋อง',
+    loadingT: g => `กำลังบรรจุกระสุน${g}`, skipHint: 'แตะปุ่มยิงเพื่อข้าม', skipLbl: 'ข้าม', msgLoading: 'กำลังบรรจุกระสุน…',
     canvasLabel: 'ห้องหลังของ The Siam Times ผนังไม้สีน้ำเงิน มีป้าย The Siam Times กระดานปาเป้า และกระดานชอล์ก โต๊ะท้ายห้องมีกระป๋องน้ำอัดลมสีแดงขาว 5 ใบตั้งอยู่หน้าหน้าต่างกระจก ปืนบีบีกันอยู่ด้านล่าง ใช้ปุ่มลูกศรเลื่อนศูนย์เล็ง Space เพื่อยิง และ R เพื่อเติมกระสุน',
   },
   en: {
@@ -553,13 +591,13 @@ const STR = {
     gunLegend: 'Gun',
     guns: {
       pistol: { name: '1911 Pistol', stat: '8 BBs · semi-auto',
-        note: 'A 1911-style semi-automatic: one BB for each press, as fast as you can press. The slide kicks back on every shot. Magazine change 1.3 s.' },
+        note: 'A 1911-style semi-automatic: one BB for each press, as fast as you can press. The slide kicks back on every shot. Quick magazine changes; when it runs dry the slide locks back.' },
       revolver: { name: 'Revolver', stat: '6 BBs · single action',
         note: 'A single-action cowboy revolver, the old smoke wagon. The hammer is cocked before every shot, so it is slow, but it is the most accurate. Loads one BB at a time through the gate.' },
       shotgun: { name: 'Lever shotgun', stat: '5 shells × 6 BBs',
         note: 'An 1887-style lever-action shotgun. Each shell throws six BBs in a ring, enough for two cans at once, but the high ones find the glass. Work the lever between shots; loads shell by shell.' },
       rifle: { name: 'Auto rifle', stat: '30 BBs · full auto',
-        note: 'Hold the fire button for full auto. The longer you hold it, the more the muzzle climbs and the wider the BBs spread: pull the sight down against it. Magazine change 1.9 s.' },
+        note: 'Hold the fire button for full auto. The longer you hold it, the more the muzzle climbs and the wider the BBs spread: pull the sight down against it. Change the magazine, and pull the charging handle if it ran dry.' },
     },
     gunSwitch: 'Each gun keeps its own best score. In 7 Rounds, changing the gun starts a new game.',
     modeLegend: 'Game', classic: '7 Rounds', practice: 'Practice',
@@ -573,8 +611,10 @@ const STR = {
     keys: '<kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd> or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> move the sight (hold <kbd>Shift</kbd> to go slow) · <kbd>Space</kbd> fire · <kbd>R</kbd> reload · <kbd>1</kbd>–<kbd>4</kbd> pick a gun',
     howTo: 'How to play',
     how: [
-      'The bottom left corner of the room is the aiming stick. Touch and drag: the sight follows your thumb at once, a small movement for fine work and a quick flick to go further. Push the stick to its rim and hold it there to keep the sight travelling.',
+      'The bottom left corner of the room is the aiming stick. Touch and drag: the sight moves with your thumb and stops the moment your thumb stops. Move slowly for fine work; flick to go further.',
       'The bottom right corner is the fire button; hold it down for full auto with the rifle. The small button above it reloads, and an empty gun reloads by itself. On Easy the BBs never run out.',
+      'Before each round you watch the gun being loaded, a magazine, cartridges one by one or shells one by one, and then the countdown starts. Tap Fire to skip the loading.',
+      'Upgrades make aiming easier: a laser sight shows where the BB will land, a stabiliser steadies your hand and softens the kick, a match barrel keeps the BBs closer together, and aim assist slows the sight over a can.',
       'Dragging anywhere else in the room also moves the sight, and so do the mouse and the arrow keys. Sight speed sets how far it moves.',
       'Every shot kicks the muzzle up: the sight jumps and settles back. Fire too fast and the BBs climb into the window.',
       'Each can is worth 100, plus 50 for each extra can knocked down by the same shot and 50 for hitting a can in mid-air. Clear all five and every second left is worth 25.',
@@ -597,7 +637,7 @@ const STR = {
     nextRound: (r, name) => `Next: round ${r}, cans ${name}`,
     bestGun: (g, b) => b === null ? `No best score with the ${g} yet` : `Best with the ${g}: ${b}`,
     newBest: g => `New best with the ${g}!`,
-    msgIntro: 'Press Start for a three-second countdown.',
+    msgIntro: 'Press Start: the gun is loaded, then a three-second countdown.',
     msgPractice: 'Practice. No clock.',
     msgGo: 'Go!',
     hit: n => n > 1 ? `${n} cans with one shot! Bonus +${(n - 1) * 50}` : 'Down! +100',
@@ -621,6 +661,12 @@ const STR = {
     sensLegend: 'Sight speed', slow: 'Slow', medium: 'Medium', fast: 'Fast',
     noteSens: 'How far the sight moves for each movement of your thumb, the mouse or the keys.',
     toastSign: 'the sign', toastThread: 'thread cut',
+    upgLegend: 'Upgrades', upgNote: 'Fitted to every gun, and kept for next time.',
+    upgLaser: 'Laser sight', upgLaserNote: 'A red dot where the BB will land',
+    upgGrip: 'Stabiliser', upgGripNote: 'A steadier hand and a softer kick',
+    upgBarrel: 'Match barrel', upgBarrelNote: 'The BBs fly closer together',
+    upgAssist: 'Aim assist', upgAssistNote: 'The sight slows down over a can',
+    loadingT: g => `Loading the ${g}`, skipHint: 'Tap FIRE to skip', skipLbl: 'SKIP', msgLoading: 'Loading…',
     canvasLabel: 'The Siam Times back room: blue wood panelling, a cream Siam Times sign, a dartboard and a chalk scoreboard. Five red and white soda cans stand on a table at the back, in front of a window. Your BB gun is at the bottom. Arrow keys move the sight, Space fires, R reloads.',
   },
 };
@@ -664,26 +710,34 @@ const GUN_IDS = ['pistol', 'revolver', 'shotgun', 'rifle'];
 const GUNS = {
   pistol: {
     cap: 8, auto: false, cycle: 0.15, speed: 110, spread: 0.2, pellets: 1, kick: 1.0, kickYaw: 0.3, recover: 9, sway: 1,
-    reload: { kind: 'mag', t: 1.3 }, hold: { x: 0.165, y: 1.335, z: -0.20 }, cant: -0.2, len: 0.214, pivot: [-0.06, -0.01],
+    load: { kind: 'mag', out: 0.3, in: 0.5, rack: 0.32 }, hold: { x: 0.165, y: 1.335, z: -0.20 }, cant: -0.2, len: 0.214, pivot: [-0.06, -0.01],
     punch: { z: 0.45, rot: 3.4 }, magDir: [0, -0.96, -0.28],
   },
   revolver: {
     cap: 6, auto: false, cycle: 0.48, speed: 120, spread: 0.08, pellets: 1, kick: 1.7, kickYaw: 0.2, recover: 7, sway: 0.9,
-    reload: { kind: 'each', open: 0.4, each: 0.3, close: 0.25 }, hold: { x: 0.165, y: 1.335, z: -0.21 }, cant: -0.2, len: 0.256, pivot: [-0.06, -0.02],
+    load: { kind: 'each', open: 0.35, each: 0.32, close: 0.25, rack: 0.3 }, hold: { x: 0.165, y: 1.335, z: -0.21 }, cant: -0.2, len: 0.256, pivot: [-0.06, -0.02],
     punch: { z: 0.6, rot: 6 }, magDir: null,
   },
   shotgun: {
     cap: 5, auto: false, cycle: 0.78, speed: 95, spread: 1.0, pellets: 6, kick: 3.0, kickYaw: 0.5, recover: 5, sway: 0.8,
-    reload: { kind: 'each', open: 0.3, each: 0.42, close: 0.2 }, hold: { x: 0.13, y: 1.37, z: -0.33 }, cant: -0.12, len: 0.574, pivot: [-0.04, -0.25],
+    load: { kind: 'each', open: 0.3, each: 0.42, close: 0.2, rack: 0.6 }, hold: { x: 0.13, y: 1.37, z: -0.33 }, cant: -0.12, len: 0.574, pivot: [-0.04, -0.25],
     punch: { z: 1.3, rot: 3.5 }, magDir: null,
   },
   rifle: {
     cap: 30, auto: true, cycle: 0.085, speed: 125, spread: 0.2, bloom: 0.06, bloomMax: 1.0, pellets: 1, kick: 0.4, kickYaw: 0.25, recover: 4, sway: 0.65,
-    reload: { kind: 'mag', t: 1.9 }, hold: { x: 0.13, y: 1.37, z: -0.33 }, cant: -0.12, len: 0.532, pivot: [-0.02, -0.25],
+    load: { kind: 'mag', out: 0.4, in: 0.62, rack: 0.6 }, hold: { x: 0.13, y: 1.37, z: -0.33 }, cant: -0.12, len: 0.532, pivot: [-0.02, -0.25],
     punch: { z: 0.2, rot: 0.8 }, magDir: [0, -0.97, 0.24],
   },
 };
-const JOY = { r: 50, knob: 22, rimV: 1.8 };     // css px; rimV: m/s at the cans while the stick is held at its rim
+const JOY = { r: 50, knob: 22 };                 // css px
+// While it is loaded, the gun is held up and turned so you can see it: place (gun lens) and turn.
+const SHOW = {
+  pistol:   { x: 0.06, y: 1.45, z: -0.24, yaw: -0.95, pitch: 0.08, roll: 0.3 },
+  revolver: { x: -0.05, y: 1.45, z: -0.25, yaw: 0.95, pitch: 0.08, roll: -0.3 },    // its loading gate is on the right
+  shotgun:  { x: 0.08, y: 1.44, z: 0.12, yaw: -1.15, pitch: 0.06, roll: 0.42 },
+  rifle:    { x: 0.08, y: 1.44, z: 0.08, yaw: -1.15, pitch: 0.06, roll: 0.25 },
+};
+const LASER = { pistol: [0, -0.0375, 0.1512], revolver: [0, -0.021, 0.2312], shotgun: [0, -0.041, 0.4512], rifle: [0, -0.0325, 0.2912] };   // laser lens, gun frame
 const SENS = { slow: 0.7, medium: 1, fast: 1.45 };   // sight speed
 const GUN_LENS = 0.42;                          // the gun is drawn through a wider lens than the room, as in most first-person games
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -699,6 +753,7 @@ const prefs = {
   difficulty: HANDS[saved.difficulty] ? saved.difficulty : 'normal',
   gun: GUNS[saved.gun] ? saved.gun : 'pistol',
   sens: SENS[saved.sens] ? saved.sens : 'medium',
+  upg: Object.fromEntries(['laser', 'grip', 'barrel', 'assist'].map(k => [k, !!(saved.upg && saved.upg[k])])),
   best: Object.fromEntries(GUN_IDS.map(id => [id, saved.best && Number.isFinite(saved.best[id]) ? saved.best[id] : null])),
 };
 function savePrefs() { try { localStorage.setItem(STORE_KEY, JSON.stringify(prefs)); } catch {} }
@@ -734,6 +789,7 @@ const sub = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
 const overTable = (x, z) => x > TABLE.x0 && x < TABLE.x1 && z > TABLE.z0 && z < TABLE.z1;
 const isUp = c => c.state === 'stand' || c.state === 'hang';      // still to be knocked down
 const unlimited = () => prefs.difficulty === 'easy';              // on Easy the gun never runs dry
+const upg = k => prefs.upg[k];                                   // gun upgrades: laser, grip (stabiliser), barrel, assist
 function mulberry32(a) {
   return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
     t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -748,9 +804,26 @@ const gunName = id => T.guns[id].name;
 const spec = () => GUNS[state.gun];
 
 /* ---------- Aim ---------- */
+// How wide the BBs spread, degrees: the gun, the rifle's bloom, your steadiness, the match barrel.
+function spreadDeg() {
+  const gs = spec();
+  return (gs.spread + (gs.bloom ? gun.bloom : 0)) * HANDS[prefs.difficulty].spread * (upg('barrel') ? 0.5 : 1);
+}
+// Aim assist: the sight slows down as it passes over a can that is still up.
+function assistFactor() {
+  if (!upg('assist')) return 1;
+  const q = project({ x: aim.x, y: aim.y, z: CAN_Z });
+  let f = 1;
+  for (const c of cans) {
+    if (!isUp(c)) continue;
+    const e = project(c.p), d = Math.hypot(q.x - e.x, q.y - e.y) / cam.kA;      // metres, at the cans
+    f = Math.min(f, 0.3 + 0.7 * smooth((d - 0.035) / 0.07));
+  }
+  return f;
+}
 // The sight as the gun really points: your aim, the drift of your hand, and the kick of the last shots.
 function aimNow(t) {
-  const gs = spec(), a = HANDS[prefs.difficulty].sway * gs.sway, dist = CAN_Z - gs.hold.z;
+  const gs = spec(), a = HANDS[prefs.difficulty].sway * gs.sway * (upg('grip') ? 0.3 : 1), dist = CAN_Z - gs.hold.z;
   let sx = 0, sy = 0;
   if (a) {
     sx = a * (0.62 * Math.sin(t * 1.27) + 0.38 * Math.sin(t * 2.91 + 1.7));
@@ -1925,7 +1998,7 @@ function drawPuffs(g) {
 const COL = {
   blue: [52, 57, 66], dark: [32, 34, 39], black: [30, 31, 34], poly: [40, 42, 46], alu: [56, 58, 63],
   walnut: [122, 70, 36], walnutD: [96, 54, 28], brass: [204, 162, 80], orange: [238, 116, 40],
-  mag: [60, 54, 48], glass: [34, 52, 70], copper: [196, 130, 72],
+  mag: [60, 54, 48], glass: [34, 52, 70], copper: [196, 130, 72], lens: [200, 36, 32], hull: [196, 44, 38],
   cased: [[104, 88, 116], [82, 98, 126], [118, 96, 70], [88, 80, 104], [112, 92, 118], [96, 106, 120]],
 };
 const QF = [[0, 1, 2, 3], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]];
@@ -1973,6 +2046,7 @@ function buildModels() {
   const M = {}, C = COL;
   { // A 1911-style pistol. The magazine drops out of the grip on a reload.
     const P = [];
+    P.push(box(-0.0085, 0.0085, -0.044, -0.031, 0.095, 0.150, C.black, 'poly', 'laser'), cyl(0, -0.0375, 0.150, 0.1512, 0.0042, 0.0042, 10, C.lens, 'glass', 'laser'));
     P.push(post({ x: 0.0085, y: -0.030, z0: -0.016, z1: 0.026 }, { x: 0.0085, y: -0.129, z0: -0.045, z1: -0.003 }, C.blue, 'metal', 'mag'));
     P.push(post({ x: 0.0102, y: -0.129, z0: -0.047, z1: 0.000 }, { x: 0.0102, y: -0.136, z0: -0.049, z1: -0.002 }, C.dark, 'metal', 'mag'));
     P.push(post({ x: 0.0142, y: -0.027, z0: -0.019, z1: 0.031 }, { x: 0.0142, y: -0.126, z0: -0.048, z1: 0.000 }, C.walnut, 'wood'));
@@ -1998,6 +2072,7 @@ function buildModels() {
   }
   { // A single-action revolver with a case-coloured frame, walnut grip and brass trigger guard.
     const P = [];
+    P.push(box(-0.006, 0.006, -0.026, -0.016, 0.185, 0.230, C.black, 'poly', 'laser'), cyl(0, -0.021, 0.230, 0.2312, 0.0036, 0.0036, 10, C.lens, 'glass', 'laser'));
     P.push(post({ x: 0.0140, y: -0.056, z0: -0.024, z1: 0.010 }, { x: 0.0145, y: -0.108, z0: -0.054, z1: -0.020 }, C.walnut, 'wood'));
     P.push(post({ x: 0.0135, y: -0.018, z0: -0.008, z1: 0.020 }, { x: 0.0140, y: -0.056, z0: -0.024, z1: 0.010 }, C.walnut, 'wood'));
     P.push(post({ x: 0.0068, y: -0.012, z0: -0.016, z1: -0.006 }, { x: 0.0070, y: -0.058, z0: -0.032, z1: -0.022 }, C.blue, 'metal'));
@@ -2015,6 +2090,7 @@ function buildModels() {
     P.push(box(-0.0100, 0.0100, -0.034, 0.0105, 0.058, 0.072, C.cased, 'case'));
     P.push(box(-0.0068, 0.0068, 0.0058, 0.0112, 0.004, 0.062, C.cased, 'case'));
     P.push(box(-0.0012, 0.0012, 0.0112, 0.0115, 0.004, 0.034, C.dark, 'metal'));
+    P.push(cyl(0.0084, -0.0196, 0.014, 0.042, 0.0042, 0.0042, 10, C.brass, 'brass', 'cart'), cyl(0.0084, -0.0196, 0.042, 0.0465, 0.0034, 0.0022, 8, C.copper, 'brass', 'cart'));
     P.push(prism(-0.004, { xb: 0.0118, xt: 0.0085, y0: -0.034, y1: 0.008 }, 0.013, { xb: 0.0118, xt: 0.0085, y0: -0.034, y1: 0.008 }, C.cased, 'case'));
     P.push(box(-0.0035, 0.0035, -0.010, 0.009, -0.012, -0.002, C.cased, 'case', 'hammer'));
     P.push(post({ x: 0.0045, y: 0.019, z0: -0.028, z1: -0.018 }, { x: 0.0040, y: 0.007, z0: -0.012, z1: -0.003 }, C.cased, 'case', 'hammer'));
@@ -2022,6 +2098,7 @@ function buildModels() {
   }
   { // An 1887-style lever-action shotgun: case-coloured receiver, walnut stock and forend, big finger lever.
     const P = [];
+    P.push(box(-0.008, 0.008, -0.048, -0.034, 0.400, 0.450, C.black, 'poly', 'laser'), cyl(0, -0.041, 0.450, 0.4512, 0.0045, 0.0045, 10, C.lens, 'glass', 'laser'));
     P.push(cyl(0, 0, 0.560, 0.574, 0.0113, 0.0113, 16, C.orange, 'orange'));
     P.push(cyl(0, -0.0235, 0.470, 0.480, 0.0108, 0.0108, 12, C.dark, 'metal'));
     P.push(cyl(0, -0.0235, 0.108, 0.470, 0.0102, 0.0102, 12, C.blue, 'metal'));
@@ -2035,6 +2112,7 @@ function buildModels() {
     P.push(box(-0.0045, 0.0045, -0.112, -0.104, -0.090, -0.018, C.blue, 'metal', 'lever'));
     P.push(box(-0.0045, 0.0045, -0.112, -0.060, -0.092, -0.082, C.blue, 'metal', 'lever'));
     P.push(box(-0.003, 0.003, -0.068, -0.050, -0.012, -0.006, C.dark, 'metal'));
+    P.push(cyl(0, 0, 0.024, 0.032, 0.0098, 0.0098, 12, C.brass, 'brass', 'shell'), cyl(0, 0, 0.032, 0.084, 0.0094, 0.0094, 12, C.hull, 'poly', 'shell'));
     P.push(prism(0.0, { xb: 0.0185, xt: 0.0140, y0: -0.048, y1: 0.012 }, 0.108, { xb: 0.0185, xt: 0.0140, y0: -0.048, y1: 0.012 }, C.cased, 'case'));
     P.push(prism(0.002, { xb: 0.0110, xt: 0.0080, y0: 0.010, y1: 0.0175 }, 0.070, { xb: 0.0110, xt: 0.0080, y0: 0.010, y1: 0.0175 }, C.blue, 'metal'));
     P.push(box(-0.0035, 0.0035, 0.010, 0.024, 0.002, 0.010, C.cased, 'case', 'hammer'));
@@ -2045,6 +2123,7 @@ function buildModels() {
   }
   { // An auto rifle: flat-top receiver with a red-dot sight, ribbed handguard, curved magazine.
     const P = [];
+    P.push(box(-0.008, 0.008, -0.040, -0.025, 0.240, 0.290, C.black, 'poly', 'laser'), cyl(0, -0.0325, 0.290, 0.2912, 0.0045, 0.0045, 10, C.lens, 'glass', 'laser'));
     P.push(post({ x: 0.0105, y: -0.030, z0: 0.062, z1: 0.094 }, { x: 0.0105, y: -0.150, z0: 0.084, z1: 0.122 }, C.mag, 'poly', 'mag'));
     P.push(post({ x: 0.0130, y: -0.032, z0: 0.012, z1: 0.042 }, { x: 0.0135, y: -0.112, z0: -0.016, z1: 0.012 }, C.poly, 'poly'));
     P.push(box(-0.004, 0.004, -0.050, -0.045, 0.034, 0.078, C.alu, 'metal'));
@@ -2062,7 +2141,7 @@ function buildModels() {
     P.push(box(-0.0125, 0.0125, -0.012, 0.0125, 0.000, 0.124, C.alu, 'metal'));
     P.push(box(-0.0102, 0.0102, 0.0125, 0.0205, 0.002, 0.122, C.black, 'metal'));
     for (let i = 0; i < 9; i++) { const z = 0.008 + i * 0.0125; P.push(box(-0.0103, 0.0103, 0.0205, 0.0208, z, z + 0.004, C.dark, 'metal')); }
-    P.push(box(-0.0115, 0.0115, 0.006, 0.0125, -0.010, 0.002, C.black, 'metal'));
+    P.push(box(-0.0115, 0.0115, 0.006, 0.0125, -0.010, 0.002, C.black, 'metal', 'charge'));
     P.push(box(-0.0085, 0.0085, 0.0205, 0.031, 0.034, 0.070, C.black, 'metal'));
     P.push(cyl(0, 0.0445, 0.022, 0.082, 0.0148, 0.0148, 16, C.black, 'metal'));
     P.push(cyl(0, 0.0445, 0.0212, 0.0220, 0.0118, 0.0118, 16, C.glass, 'glass'));
@@ -2086,9 +2165,10 @@ const MAT = {   // ambient, diffuse, specular, shininess
   poly: [0.30, 0.68, 0.22, 10], brass: [0.36, 0.86, 0.65, 14], orange: [0.5, 0.62, 0.18, 8], glass: [0.4, 0.5, 0.9, 40],
 };
 const LIGHT = norm({ x: -0.3, y: 0.82, z: 0.5 });    // the lamps over the table, above and ahead of you
+let fillLight = 0.2;                                 // light from behind you; more while you hold the gun up to load it
 function shadeRGB(rgb, n, e, m) {
   const [amb, dif, spc, sh] = MAT[m];
-  const l = Math.max(0, dot(n, LIGHT)), back = Math.max(0, dot(n, e)) * 0.2;
+  const l = Math.max(0, dot(n, LIGHT)), back = Math.max(0, dot(n, e)) * fillLight;
   const h = norm({ x: LIGHT.x + e.x, y: LIGHT.y + e.y, z: LIGHT.z + e.z });
   const s = spc * Math.pow(Math.max(0, dot(n, h)), sh);
   const k = amb + dif * l + back;
@@ -2098,10 +2178,9 @@ function shadeRGB(rgb, n, e, m) {
 // The gun's moving parts right now: slide, hammer, cylinder, lever and magazine.
 function partPose() {
   const gs = spec(), now = performance.now() / 1000, since = gun.fireT >= 0 ? now - gun.fireT : 99;
-  const p = { slide: 0, hammer: 1, cyl: 0, lever: 0, mag: 0 };
+  const p = { slide: 0, hammer: 1, cyl: gun.cylBase, lever: 0, mag: gun.magOut ? 1 : 0, charge: 0, cart: null, shell: null };
   if (state.gun === 'pistol') {
-    p.slide = since < 0.025 ? since / 0.025 : Math.max(0, 1 - (since - 0.025) / 0.06);
-    if (gun.ammo === 0 && since > 0.03) p.slide = 1;           // the slide locks back on an empty magazine
+    p.slide = gun.slideLocked ? 1 : since < 0.025 ? since / 0.025 : Math.max(0, 1 - (since - 0.025) / 0.06);
   } else if (state.gun === 'revolver') {
     p.hammer = gun.cocked ? 1 : smooth((since - 0.12) / (gs.cycle - 0.2));
     p.cyl = gun.cylBase - (1 - p.hammer) * TAU / 6;
@@ -2110,16 +2189,22 @@ function partPose() {
     p.lever = t < 0.12 ? 0 : t < 0.40 ? smooth((t - 0.12) / 0.28) : t < 0.68 ? 1 - smooth((t - 0.40) / 0.28) : 0;
     p.hammer = since > 0.25 ? 1 : 0;
   }
-  if (gun.reload) {
-    const r = gun.reload;
-    if (r.kind === 'mag') {
-      const f = r.t / r.total;
-      p.mag = f < 0.15 ? smooth(f / 0.15) : f < 0.5 ? 1 : f < 0.62 ? 1 - smooth((f - 0.5) / 0.12) : 0;
-      if (state.gun === 'pistol') p.slide = f < 0.85 ? 1 : 1 - smooth((f - 0.85) / 0.06);
-    } else if (state.gun === 'revolver') {
-      p.hammer = 0.35;                                          // half cock, so the cylinder turns freely
-      p.cyl = gun.cylBase;
+  const r = gun.reload;
+  if (r) {
+    const st = r.steps[r.i], k = st.k, f = clamp(r.t / st.dur, 0, 1), half = 0.35;
+    if (k === 'magOut') p.mag = smooth(f);
+    else if (k === 'magIn') p.mag = 1 - smooth(f / 0.86);
+    else if (k === 'slide') p.slide = 1 - smooth(f / 0.3);
+    else if (k === 'charge') p.charge = f < 0.55 ? smooth(f / 0.55) : 1 - smooth((f - 0.55) / 0.1);
+    else if (k === 'lever') { p.lever = f < 0.45 ? smooth(f / 0.45) : 1 - smooth((f - 0.45) / 0.45); p.hammer = f > 0.3 ? 1 : 0; }
+    if (state.gun === 'revolver') {
+      // At half cock the cylinder turns freely: one chamber at a time comes round to the gate.
+      p.hammer = k === 'open' ? 1 - (1 - half) * smooth(f) : k === 'cock' ? half + (1 - half) * smooth(f / 0.5)
+        : k === 'raise' || k === 'settle' ? (gun.cocked ? 1 : half) : half;
+      p.cyl = gun.cylBase + (k === 'insert' ? smooth((f - 0.82) / 0.18) * TAU / 6 : 0);
+      if (k === 'insert' && f < 0.8) p.cart = Math.min(1, f / 0.78);
     }
+    if (state.gun === 'shotgun' && k === 'insert' && f < 0.8) p.shell = Math.min(1, f / 0.75);
   }
   return p;
 }
@@ -2127,6 +2212,10 @@ function groupPoint(pt, v, piv, pose) {
   if (!pt.g) return v;
   let [x, y, z] = v;
   if (pt.g === 'slide') return [x, y, z - pose.slide * 0.028];
+  if (pt.g === 'laser') return v;
+  if (pt.g === 'charge') return [x, y, z - pose.charge * 0.06];
+  if (pt.g === 'cart') { const k = 1 - pose.cart; return [x + k * 0.02, y, z - k * 0.075]; }   // a cartridge pushed in at the gate
+  if (pt.g === 'shell') return [x, y + (1 - pose.shell) * 0.065, z];                          // a shell pushed down into the action
   if (pt.g === 'mag') { const d = spec().magDir, k = pose.mag * 0.17; return [x + d[0] * k, y + d[1] * k, z + d[2] * k]; }
   if (pt.g === 'cyl') {
     const [cx, cy] = piv.cyl, a = pose.cyl, c = Math.cos(a), s = Math.sin(a);
@@ -2145,13 +2234,20 @@ function gunFrame(A) {
   O.x += A.x * 0.01; O.y += (A.y - 1.1) * 0.012;
   const tgt = { x: EYE.x + (q.x - cam.cx) / cam.Fg * D, y: EYE.y - (q.y - cam.cy) / cam.Fg * D, z: EYE.z + D };
   const d = norm(sub(tgt, O));
-  return { O, yaw: Math.atan2(d.x, d.z), pitch: Math.asin(clamp(d.y, -1, 1)) };
+  let yaw = Math.atan2(d.x, d.z), pitch = Math.asin(clamp(d.y, -1, 1));
+  // While it is loaded, it is held up and turned towards you.
+  const k = smooth(gun.show || 0), S = SHOW[state.gun];
+  if (k > 0.001) {
+    O.x += (S.x - O.x) * k; O.y += (S.y - O.y) * k; O.z += (S.z - O.z) * k;
+    yaw += (S.yaw - yaw) * k; pitch += (S.pitch - pitch) * k;
+  }
+  return { O, yaw, pitch, roll: k * (S.roll - gs.cant) };
 }
 function gunXf(fr, visual, pose) {
   const gs = spec(), w = visual ? gun.pose : 0, kr = visual ? gun.kr : 0, kz = visual ? gun.kz : 0;
   const lev = pose ? pose.lever : 0;     // the gun rocks as the lever is worked
   const cy = Math.cos(fr.yaw), sy = Math.sin(fr.yaw), cp = Math.cos(fr.pitch), sp = Math.sin(fr.pitch);
-  const roll = gs.cant + w * 0.5 - lev * 0.2, tilt = w * 0.2 + kr + lev * 0.07, cr = Math.cos(roll), sr = Math.sin(roll), ct = Math.cos(tilt), st = Math.sin(tilt);
+  const roll = gs.cant + fr.roll + w * 0.5 - lev * 0.2, tilt = w * 0.2 + kr + lev * 0.07, cr = Math.cos(roll), sr = Math.sin(roll), ct = Math.cos(tilt), st = Math.sin(tilt);
   const [py, pz] = gs.pivot;
   return ([x, y, z]) => {
     // Recoil and the reloading tilt turn the gun about your grip, then it cants over on its side.
@@ -2176,9 +2272,11 @@ function clipNear(pts) {
 }
 function drawGun(g, A) {
   const fr = gunFrame(A), pose = partPose(), xf = gunXf(fr, true, pose), piv = PIVOTS[state.gun];
+  fillLight = 0.2 + 0.4 * smooth(gun.show);
   g.save();
   g.lineJoin = 'round';
   for (const pt of MODELS[state.gun]) {
+    if ((pt.g === 'cart' && pose.cart === null) || (pt.g === 'shell' && pose.shell === null) || (pt.g === 'laser' && !upg('laser'))) continue;
     const w = pt.v.map(v => xf(groupPoint(pt, v, piv, pose)));
     let cx = 0, cy = 0, cz = 0;
     for (const q of w) { cx += q.x; cy += q.y; cz += q.z; }
@@ -2253,9 +2351,9 @@ function arcRing(g, x, y, r, f, color, w) {
 function reloadFraction() {
   const r = gun.reload;
   if (!r) return 0;
-  if (r.kind === 'mag') return r.t / r.total;
-  const R = spec().reload, total = R.open + R.each * r.need + R.close;
-  return r.t / total;
+  let done = r.t, total = 0;
+  r.steps.forEach((st, i) => { total += st.dur; if (i < r.i) done += st.dur; });
+  return done / total;
 }
 function drawHUD(g, now) {
   const geo = hudGeo(), d = geo.d, gs = spec();
@@ -2292,7 +2390,7 @@ function drawHUD(g, now) {
   if ('letterSpacing' in g) g.letterSpacing = '0px';
 
   // Fire button, with a ring that fills while the gun reloads or the hammer or lever comes back.
-  const f = geo.fire, armed = canFire(), ready = armed && !gun.reload && gun.ammo > 0 && gun.cool <= 0;
+  const loading = state.phase === 'load', f = geo.fire, armed = canFire(), ready = loading || (armed && !gun.reload && gun.ammo > 0 && gun.cool <= 0);
   const pressed = gun.trigger && armed;
   g.beginPath(); g.arc(f.x, f.y, f.r + 5 * d, 0, TAU);
   g.fillStyle = 'rgba(10,16,23,0.5)'; g.fill();
@@ -2307,7 +2405,7 @@ function drawHUD(g, now) {
   g.fillStyle = ready ? '#1d1606' : 'rgba(239,231,212,0.75)';
   g.font = labelFont(800, 13 * d);
   if ('letterSpacing' in g && LANG !== 'th') g.letterSpacing = `${1.4 * d}px`;
-  g.fillText(T.fireLbl, f.x, f.y - 6 * d + (pressed ? 1.5 * d : 0));
+  g.fillText(loading ? T.skipLbl : T.fireLbl, f.x, f.y - 6 * d + (pressed ? 1.5 * d : 0));
   if ('letterSpacing' in g) g.letterSpacing = '0px';
   g.font = `700 ${12 * d}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
   g.fillText(unlimited() ? '∞' : `${gun.ammo}/${gs.cap}`, f.x, f.y + 10 * d + (pressed ? 1.5 * d : 0));
@@ -2331,6 +2429,20 @@ function drawHUD(g, now) {
     g.closePath(); g.fillStyle = g.strokeStyle; g.fill();
   }
 
+  // While the gun is loaded: what is happening, and how to skip it.
+  if (loading) {
+    g.font = textFont(600, 17 * d);
+    const t1 = T.loadingT(gunName(state.gun)), w1 = g.measureText(t1).width;
+    g.font = labelFont(600, 11.5 * d);
+    const w2 = g.measureText(T.skipHint).width, bw = Math.max(w1, w2) + 30 * d, bh = 48 * d, by = (geo.W / d < 640 ? 50 : 12) * d;   // below the controls hint on a phone
+    roundRectPath(g, geo.W / 2 - bw / 2, by, bw, bh, 10 * d);
+    g.fillStyle = 'rgba(12,19,27,0.82)'; g.fill();
+    g.strokeStyle = '#263548'; g.lineWidth = d; g.stroke();
+    g.fillStyle = '#f0c56f'; g.font = textFont(600, 17 * d);
+    g.fillText(t1, geo.W / 2, by + 17 * d);
+    g.fillStyle = '#9ba7b3'; g.font = labelFont(600, 11.5 * d);
+    g.fillText(T.skipHint, geo.W / 2, by + 35 * d);
+  }
   // The clock, top right.
   if (state.mode === 'classic' && state.phase !== 'intro') {
     const t = Math.max(0, state.timeLeft), txt = t.toFixed(1), warn = t < 5 && (state.phase === 'live');
@@ -2471,8 +2583,14 @@ function draw(now) {
   drawPuffs(g);
 
   const hand = HANDS[prefs.difficulty], A = aimNow(now / 1000), gs = spec();
+  if (gun.show > 0.01) {   // the room dims while you watch the gun being loaded
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+    g.fillStyle = `rgba(3,6,10,${0.42 * smooth(gun.show)})`; g.fillRect(0, 0, canvas.width, canvas.height);
+    g.restore();
+  }
   const { xf } = drawGun(g, A);
-  const guide = hand.guide && canFire() && !gun.reload ? predictBB(gunToRoom(xf([0, 0, gs.len])), A, gs.speed) : null;
+  const guide = (hand.guide || upg('laser')) && canFire() && !gun.reload ? predictBB(gunToRoom(xf([0, 0, gs.len])), A, gs.speed) : null;
+  const lens = guide && upg('laser') ? project(gunToRoom(xf(LASER[state.gun]))) : null;
   for (const b of bbs) if (!b.gone && b.live && b.p.z <= 1.6) drawBB(g, b);
 
   if (!cam.vig) {
@@ -2496,15 +2614,27 @@ function draw(now) {
   if (guide) {
     const e = project(guide.p);
     g.save();
-    g.fillStyle = guide.type === 'can' ? '#82d09c' : ['glass', 'sign', 'bulb'].includes(guide.type) ? '#e58576' : '#e7bd6a';
-    g.strokeStyle = 'rgba(5,10,16,0.75)'; g.lineWidth = 2 * cam.dpr;
-    g.beginPath(); g.arc(e.x, e.y, 4 * cam.dpr, 0, TAU); g.fill(); g.stroke();
+    if (lens) {   // the laser: a faint beam through the air and a bright dot where the BB will land
+      const bg = g.createLinearGradient(lens.x, lens.y, e.x, e.y);
+      bg.addColorStop(0, 'rgba(255,60,48,0.6)'); bg.addColorStop(1, 'rgba(255,60,48,0.1)');
+      g.strokeStyle = bg; g.lineWidth = Math.max(1, 1.1 * cam.dpr); g.lineCap = 'round';
+      g.beginPath(); g.moveTo(lens.x, lens.y); g.lineTo(e.x, e.y); g.stroke();
+      const r = 8 * cam.dpr, dg = g.createRadialGradient(e.x, e.y, 0, e.x, e.y, r);
+      dg.addColorStop(0, 'rgba(255,90,70,0.95)'); dg.addColorStop(0.35, 'rgba(255,50,40,0.45)'); dg.addColorStop(1, 'rgba(255,40,30,0)');
+      g.fillStyle = dg; g.fillRect(e.x - r, e.y - r, 2 * r, 2 * r);
+      g.fillStyle = '#ffe2dc'; g.beginPath(); g.arc(e.x, e.y, 1.5 * cam.dpr, 0, TAU); g.fill();
+    }
+    if (hand.guide) {
+      g.fillStyle = guide.type === 'can' ? '#82d09c' : ['glass', 'sign', 'bulb'].includes(guide.type) ? '#e58576' : '#e7bd6a';
+      g.strokeStyle = 'rgba(5,10,16,0.75)'; g.lineWidth = 2 * cam.dpr;
+      g.beginPath(); g.arc(e.x, e.y, 4 * cam.dpr, 0, TAU); g.fill(); g.stroke();
+    }
     g.restore();
   }
 
-  if (state.phase !== 'between' && state.phase !== 'over') {
+  if (state.phase !== 'between' && state.phase !== 'over' && state.phase !== 'load') {
     const q = project(A), dist = Math.hypot(A.x - gs.hold.x, A.y - gs.hold.y, A.z - gs.hold.z);
-    const sp = ((gs.spread + (gs.bloom ? gun.bloom : 0)) * hand.spread) * DEG * dist * cam.kA;
+    const sp = spreadDeg() * DEG * dist * cam.kA;
     drawReticle(g, clamp(q.x, 14 * cam.dpr, canvas.width - 14 * cam.dpr), clamp(q.y, 14 * cam.dpr, canvas.height - 14 * cam.dpr),
       gs.pellets > 1 || gs.bloom ? sp : 0, !canFire() || !!gun.reload);
   }
@@ -2567,6 +2697,14 @@ const sfx = (() => {
     gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(gain, t + 0.004); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(gn).connect(a.destination); o.start(t); o.stop(t + dur + 0.05);
   }
+  // A metal part snapping home: a hard transient and a few inharmonic ringing modes.
+  const metal = (a, f, gain, decay = 0.05, delay = 0) => {
+    burst(a, { dur: 0.012, type: 'highpass', f0: 6000, f1: 3500, gain: gain * 0.8, delay });
+    [1, 2.32, 4.25, 6.63].forEach((m, i) => tone(a, { f0: f * m, f1: f * m * 0.99, dur: Math.max(0.014, decay / (1 + i * 0.7)), gain: gain * 0.45 / (1 + i), delay }));
+  };
+  // Metal sliding on metal, and a dull knock (a palm, a plastic hull).
+  const scrape = (a, dur, f0, f1, gain, delay = 0) => { burst(a, { dur, f0, f1, q: 2.5, gain, delay }); burst(a, { dur: dur * 0.8, type: 'highpass', f0: f0 * 2.2, f1: f1 * 2.2, gain: gain * 0.35, delay }); };
+  const knock = (a, f, gain, delay = 0) => { tone(a, { f0: f, f1: f * 0.55, dur: 0.07, gain, delay }); burst(a, { dur: 0.035, type: 'lowpass', f0: 1800, f1: 500, gain: gain * 0.6, delay }); };
   const click = (a, f, gain, delay = 0) => { burst(a, { dur: 0.025, f0: f, f1: f * 0.8, q: 5, gain, delay }); tone(a, { f0: f * 0.5, dur: 0.02, type: 'square', gain: gain * 0.15, delay }); };
   return {
     prime() { get(); },
@@ -2581,13 +2719,13 @@ const sfx = (() => {
         burst(a, { dur: 0.09, type: 'highpass', f0: 2200, f1: 700, gain: 0.5 });
         burst(a, { dur: 0.2, f0: 700, f1: 200, q: 0.7, gain: 0.28 });
         tone(a, { f0: 130, f1: 48, dur: 0.13, gain: 0.38 });
-        click(a, 3400, 0.18, 0.2); click(a, 2600, 0.2, 0.33);
+        metal(a, 2900, 0.16, 0.03, 0.2); metal(a, 2100, 0.22, 0.04, 0.31);
       } else if (id === 'shotgun') {    // a deep thump, then the lever: clack down, chk up
         burst(a, { dur: 0.26, type: 'lowpass', f0: 2600, f1: 260, gain: 0.6 });
         burst(a, { dur: 0.05, type: 'highpass', f0: 3200, f1: 1600, gain: 0.24 });
         tone(a, { f0: 92, f1: 40, dur: 0.22, gain: 0.5 });
-        click(a, 1800, 0.3, 0.2); tone(a, { f0: 520, f1: 400, dur: 0.04, type: 'triangle', gain: 0.12, delay: 0.2 });
-        click(a, 2400, 0.32, 0.56); tone(a, { f0: 700, f1: 560, dur: 0.035, type: 'triangle', gain: 0.1, delay: 0.56 });
+        scrape(a, 0.06, 1800, 900, 0.06, 0.15); metal(a, 1050, 0.32, 0.08, 0.2);
+        scrape(a, 0.05, 900, 1800, 0.05, 0.5); metal(a, 1450, 0.34, 0.07, 0.55); knock(a, 260, 0.12, 0.55);
       } else {                          // an electric rifle: a quick thwip and the motor's buzz
         burst(a, { dur: 0.045, f0: 1700, f1: 800, q: 1.4, gain: 0.3 });
         burst(a, { dur: 0.015, type: 'highpass', f0: 4200, f1: 3000, gain: 0.12 });
@@ -2595,11 +2733,29 @@ const sfx = (() => {
       }
     },
     dry() { const a = get(); if (a) click(a, 2200, 0.22); },
-    magOut() { const a = get(); if (!a) return; click(a, 1900, 0.2); burst(a, { dur: 0.08, f0: 1200, f1: 600, q: 2, gain: 0.08, delay: 0.02 }); },
-    magIn() { const a = get(); if (!a) return; click(a, 1500, 0.28); tone(a, { f0: 300, f1: 220, dur: 0.04, type: 'triangle', gain: 0.12 }); },
-    rack() { const a = get(); if (!a) return; burst(a, { dur: 0.06, f0: 2600, f1: 1400, q: 2, gain: 0.14 }); click(a, 2400, 0.26, 0.07); },
-    gate() { const a = get(); if (a) click(a, 2900, 0.14); },
-    insert() { const a = get(); if (!a) return; click(a, 2000, 0.16); tone(a, { f0: 1500, f1: 1300, dur: 0.03, gain: 0.04 }); },
+    // The sounds of loading, each timed to the moment in the animation that makes it.
+    load(name) {
+      const a = get(); if (!a) return;
+      switch (name) {
+        case 'release': metal(a, 3300, 0.12, 0.025); scrape(a, 0.14, 1600, 800, 0.05, 0.02); break;      // magazine catch, magazine slides out
+        case 'magSlide': scrape(a, 0.2, 800, 1500, 0.06); break;                                          // magazine going up the well
+        case 'magLatch': metal(a, 1700, 0.34, 0.06); knock(a, 150, 0.25); break;                          // and clicking home
+        case 'tap': knock(a, 120, 0.32); break;                                                           // a palm on the base plate
+        case 'slideFwd': scrape(a, 0.04, 2400, 1400, 0.08); metal(a, 1250, 0.45, 0.09, 0.035); knock(a, 230, 0.2, 0.035); break;
+        case 'chargeBack': scrape(a, 0.22, 500, 1100, 0.07); metal(a, 2300, 0.12, 0.03, 0.2); break;      // charging handle against its spring
+        case 'chargeSnap': metal(a, 1150, 0.5, 0.1); knock(a, 200, 0.22); break;                          // the bolt slams home
+        case 'gate': metal(a, 3000, 0.16, 0.03); break;
+        case 'port': metal(a, 2300, 0.12, 0.035); break;
+        case 'cartIn': scrape(a, 0.07, 2600, 3600, 0.035); break;
+        case 'cartSeat': metal(a, 2500, 0.14, 0.03); tone(a, { f0: 5200, dur: 0.02, gain: 0.03 }); break;
+        case 'ratchet': metal(a, 3900, 0.07, 0.015); metal(a, 3700, 0.06, 0.015, 0.05); break;          // the cylinder clicks round
+        case 'cock': metal(a, 2900, 0.18, 0.03); metal(a, 2100, 0.26, 0.04, 0.09); break;
+        case 'shellIn': scrape(a, 0.12, 700, 1400, 0.06); knock(a, 320, 0.12, 0.08); break;
+        case 'shellSeat': metal(a, 1500, 0.2, 0.05); break;
+        case 'leverDown': scrape(a, 0.06, 1800, 900, 0.07); metal(a, 1050, 0.36, 0.08, 0.05); break;
+        case 'leverUp': scrape(a, 0.05, 900, 1800, 0.06); metal(a, 1450, 0.4, 0.07, 0.045); knock(a, 260, 0.15, 0.045); break;
+      }
+    },
     zing() { const a = get(); if (!a) return; tone(a, { f0: 3400, f1: 1300, dur: 0.22, gain: 0.07 }); tone(a, { f0: 5200, f1: 2600, dur: 0.12, gain: 0.03 }); },
     beep(hi) { const a = get(); if (a) tone(a, { f0: hi ? 1320 : 880, dur: hi ? 0.28 : 0.12, type: 'triangle', gain: 0.16 }); },
     tick() { const a = get(); if (a) tone(a, { f0: 1700, dur: 0.03, type: 'square', gain: 0.03 }); },
@@ -2659,7 +2815,7 @@ const sfx = (() => {
 function gunReset() {
   Object.assign(gun, {
     ammo: spec().cap, cool: 0, reload: null, trigger: false, pending: false, bloom: 0, emptyT: 0,
-    fireT: -1, cocked: true, cylBase: 0, pose: 0, kz: 0, kzv: 0, kr: 0, krv: 0,
+    fireT: -1, cocked: true, cylBase: 0, magOut: false, slideLocked: false, pose: 0, show: 0, kz: 0, kzv: 0, kr: 0, krv: 0,
   });
   kick.yaw = 0; kick.pitch = 0;
 }
@@ -2667,6 +2823,7 @@ function canFire() { return !state.card && (state.phase === 'live' || state.phas
 function pressTrigger() {
   sfx.prime();
   if (state.card) { cardAction(); return; }
+  if (state.phase === 'load') { skipLoad(); return; }
   gun.trigger = true;
   hideHint();
   if (canFire()) tryFire(true);
@@ -2676,7 +2833,11 @@ function tryFire(press) {
   const gs = spec();
   if (gun.reload) {
     // A revolver or shotgun can stop loading and fire what is already in it.
-    if (press && gun.reload.kind === 'each' && gun.ammo > 0) { gun.reload = null; gun.cool = Math.max(gun.cool, 0.2); gun.pending = true; sfx.gate(); }
+    const r = gun.reload, k = r.steps[r.i].k;
+    if (press && !r.scene && gun.ammo > 0 && (k === 'open' || k === 'insert' || k === 'close')) {
+      gun.reload = null; gun.cool = Math.max(gun.cool, 0.25); gun.pending = true; gun.cocked = true;
+      sfx.load(state.gun === 'revolver' ? 'cock' : 'leverUp');
+    }
     return;
   }
   if (gun.cool > 0) { if (press && gun.cool < 0.15) gun.pending = true; return; }
@@ -2686,12 +2847,13 @@ function tryFire(press) {
   shoot();
 }
 function shoot() {
-  const gs = spec(), hand = HANDS[prefs.difficulty], now = performance.now() / 1000;
+  const gs = spec(), now = performance.now() / 1000;
   if (!unlimited()) gun.ammo--;
+  if (state.gun === 'pistol' && gun.ammo === 0) gun.slideLocked = true;     // the slide locks back on an empty magazine
   gun.cool = gs.cycle; gun.fireT = now;
   const A = aimNow(now), fr = gunFrame(A), xf = gunXf(fr, false), M = gunToRoom(xf([0, 0, gs.len]));
   const dist = Math.hypot(A.x - M.x, A.y - M.y, A.z - M.z);
-  const spread = (gs.spread + (gs.bloom ? gun.bloom : 0)) * hand.spread * DEG * dist;
+  const spread = spreadDeg() * DEG * dist;
   const shot = { gun: state.gun, bbs: [], cans: 0, panes: 0, air: 0, t: 0, first: null, toast: null, hitCan: false, ricochet: false };
   for (let i = 0; i < gs.pellets; i++) {
     const a = Math.random() * TAU, rr = spread * Math.sqrt(Math.random());
@@ -2704,10 +2866,11 @@ function shoot() {
   shots.push(shot);
   state.totals.shots++;
   // Recoil: the sight jumps, the gun punches back and flips up.
-  kick.pitch += gs.kick * (0.85 + Math.random() * 0.3);
-  kick.yaw += (Math.random() - 0.5) * 2 * gs.kickYaw;
-  if (gs.bloom) gun.bloom = Math.min(gs.bloomMax, gun.bloom + gs.bloom);
-  gun.kzv += gs.punch.z; gun.krv += gs.punch.rot;
+  const soft = upg('grip') ? 0.5 : 1;
+  kick.pitch += gs.kick * soft * (0.85 + Math.random() * 0.3);
+  kick.yaw += (Math.random() - 0.5) * 2 * gs.kickYaw * soft;
+  if (gs.bloom) gun.bloom = Math.min(gs.bloomMax, gun.bloom + gs.bloom * (upg('grip') ? 0.7 : 1));
+  gun.kzv += gs.punch.z * (soft + 0.1); gun.krv += gs.punch.rot * (soft + 0.1);
   if (!reduceMotion && state.gun === 'shotgun') shakeUntil = performance.now() + 140;
   // A puff of gas from the muzzle.
   const d = norm(sub(A, M)), big = state.gun === 'shotgun' ? 2.2 : state.gun === 'rifle' ? 0.6 : 1;
@@ -2719,14 +2882,80 @@ function shoot() {
   sfx.shot(state.gun);
   renderUI();
 }
+/* Loading and reloading go step by step: magazine out, magazine in, slide forward; or gate open, one
+   cartridge or shell at a time, gate shut, hammer or lever. Each step lasts a set time, makes its sounds at
+   set points and does its work as it ends. The loading before a round is the same, from empty, with the
+   gun held up for you to watch. */
+function reloadSteps(scene) {
+  const id = state.gun, gs = spec(), L = gs.load, empty = gun.ammo === 0, S = [];
+  const add = (k, dur, cues = []) => S.push({ k, dur, cues });
+  if (scene) add('raise', 0.4);
+  if (L.kind === 'mag') {
+    if (!scene) add('magOut', L.out, [[0, 'release']]);
+    add('magIn', L.in, [[0.12, 'magSlide'], [0.86, 'magLatch']]);
+    if (scene) add('tap', 0.2, [[0.2, 'tap']]);
+    if (empty || scene) add(id === 'pistol' ? 'slide' : 'charge', L.rack, id === 'pistol' ? [[0.05, 'slideFwd']] : [[0, 'chargeBack'], [0.56, 'chargeSnap']]);
+  } else {
+    const rev = id === 'revolver';
+    add('open', L.open, [[0.35, rev ? 'gate' : 'port']]);
+    for (let i = gun.ammo; i < gs.cap; i++) add('insert', L.each, rev ? [[0.06, 'cartIn'], [0.78, 'cartSeat'], [0.93, 'ratchet']] : [[0.06, 'shellIn'], [0.8, 'shellSeat']]);
+    add('close', L.close, [[0.4, rev ? 'gate' : 'port']]);
+    if (rev) add('cock', L.rack, [[0.12, 'cock']]);
+    else if (empty || scene) add('lever', L.rack, [[0.03, 'leverDown'], [0.5, 'leverUp']]);
+  }
+  if (scene) add('settle', 0.3);
+  return S;
+}
+function stepDone(st) {
+  const gs = spec();
+  if (st.k === 'magOut') { gun.magOut = true; gun.ammo = 0; }
+  else if (st.k === 'magIn') { gun.magOut = false; gun.ammo = gs.cap; }
+  else if (st.k === 'slide') gun.slideLocked = false;
+  else if (st.k === 'insert') { gun.ammo = Math.min(gs.cap, gun.ammo + 1); if (state.gun === 'revolver') gun.cylBase += TAU / 6; }
+  else if (st.k === 'cock') gun.cocked = true;
+  renderUI();
+}
+function advanceReload(dt) {
+  const r = gun.reload;
+  r.t += dt;
+  while (gun.reload === r) {
+    const st = r.steps[r.i], f = r.t / st.dur;
+    while (r.cue < st.cues.length && st.cues[r.cue][0] <= f) sfx.load(st.cues[r.cue++][1]);
+    if (f < 1) break;
+    stepDone(st);
+    r.t -= st.dur; r.i++; r.cue = 0;
+    if (r.i >= r.steps.length) { gun.reload = null; renderUI(); if (r.scene) loaded(); }
+  }
+}
 function startReload() {
   const gs = spec();
   if (unlimited() || gun.reload || gun.ammo >= gs.cap || !canFire()) return;
-  const R = gs.reload;
-  gun.reload = R.kind === 'mag' ? { kind: 'mag', t: 0, total: R.t, stage: 0 } : { kind: 'each', t: 0, next: R.open, stage: 'open', need: gs.cap - gun.ammo };
+  gun.reload = { steps: reloadSteps(false), i: 0, t: 0, cue: 0, scene: false };
   gun.pending = false;
-  if (R.kind === 'each') sfx.gate();
   renderUI();
+}
+// The loading scene before a round: the gun starts empty and is loaded in front of you.
+function startLoad() {
+  const gs = spec();
+  state.card = null; state.phase = 'load'; state.message = [['msgLoading']];
+  Object.assign(gun, { ammo: 0, cool: 0, trigger: false, pending: false, bloom: 0, fireT: -1, cocked: false, cylBase: 0,
+    magOut: gs.load.kind === 'mag', slideLocked: state.gun === 'pistol' });
+  kick.yaw = kick.pitch = 0;
+  gun.reload = { steps: reloadSteps(true), i: 0, t: 0, cue: 0, scene: true };
+  renderOverlay(); renderUI();
+  canvas.focus({ preventScroll: true });
+}
+function skipLoad() {
+  const r = gun.reload;
+  if (!r || !r.scene) return;
+  for (let i = r.i; i < r.steps.length; i++) stepDone(r.steps[i]);
+  gun.reload = null;
+  loaded();
+}
+function loaded() {
+  if (state.phase !== 'load') return;
+  if (state.mode === 'classic') startCountdown();
+  else { state.phase = 'live'; state.message = [['msgPractice']]; renderUI(); }
 }
 function updateGun(dt) {
   const gs = spec();
@@ -2739,26 +2968,7 @@ function updateGun(dt) {
   // An empty gun reloads by itself.
   if (gun.ammo === 0 && !gun.reload && gun.cool <= 0 && canFire()) { gun.emptyT += dt; if (gun.emptyT > 0.25) startReload(); }
   else gun.emptyT = 0;
-  if (gun.reload) {
-    const r = gun.reload, R = gs.reload;
-    r.t += dt;
-    if (r.kind === 'mag') {
-      if (r.stage === 0 && r.t > r.total * 0.12) { r.stage = 1; sfx.magOut(); }
-      if (r.stage === 1 && r.t > r.total * 0.58) { r.stage = 2; sfx.magIn(); }
-      if (r.stage === 2 && r.t > r.total * 0.86) { r.stage = 3; sfx.rack(); }
-      if (r.t >= r.total) { gun.ammo = gs.cap; gun.reload = null; renderUI(); }
-    } else {
-      while (gun.reload && r.t >= r.next) {
-        if (r.stage === 'open') { r.stage = 'load'; r.next += R.each; }
-        else if (r.stage === 'load') {
-          gun.ammo++; sfx.insert();
-          if (state.gun === 'revolver') gun.cylBase += TAU / 6;
-          renderUI();
-          if (gun.ammo >= gs.cap) { r.stage = 'close'; r.next += R.close; } else r.next += R.each;
-        } else { gun.reload = null; sfx.gate(); renderUI(); }
-      }
-    }
-  }
+  if (gun.reload) advanceReload(dt);
   gun.bloom = Math.max(0, gun.bloom - dt * (gs.auto && gun.trigger ? 0.35 : 2.5));
   const k = Math.exp(-gs.recover * dt);
   kick.pitch *= k; kick.yaw *= k;
@@ -2767,11 +2977,13 @@ function updateGun(dt) {
     gun.kzv += (-500 * gun.kz - 31 * gun.kzv) * h; gun.kz += gun.kzv * h;
     gun.krv += (-420 * gun.kr - 28 * gun.krv) * h; gun.kr += gun.krv * h;
   }
-  gun.pose += ((gun.reload ? 1 : 0) - gun.pose) * Math.min(1, dt * 9);
+  const scene = !!(gun.reload && gun.reload.scene);
+  gun.pose += ((gun.reload && !scene ? 1 : 0) - gun.pose) * Math.min(1, dt * 9);
+  gun.show += ((scene ? 1 : 0) - gun.show) * Math.min(1, dt * 6);
 }
 
 /* ---------- Moving the sight ---------- */
-const joy = { id: null, base: { x: 0, y: 0 }, knob: { x: 0, y: 0 }, last: null, spd: 0 };
+const joy = { id: null, base: { x: 0, y: 0 }, knob: { x: 0, y: 0 }, hist: [] };
 const keysDown = new Set();
 let keyHold = 0;
 function clampAim() {
@@ -2780,18 +2992,13 @@ function clampAim() {
   aim.x = clamp(aim.x, Math.max(-ROOM.hw + 0.05, -xr), Math.min(ROOM.hw - 0.05, xr));
   aim.y = clamp(aim.y, Math.max(0.2, yBot), Math.min(ROOM.h - 0.05, yTop));
 }
-// The stick moves the sight as the thumb moves (see pointermove); here it only keeps the sight
-// travelling while the stick is held against its rim. Arrow keys speed up the longer they are held.
+// The stick moves the sight only as the thumb moves (see pointermove), so it stops when the thumb stops.
+// Arrow keys speed up the longer they are held.
 function updateAim(dt) {
   let vx = 0, vy = 0;
-  const sens = SENS[prefs.sens];
-  if (joy.id !== null) {
-    const geo = hudGeo(), l = Math.hypot(joy.knob.x, joy.knob.y), n = l / geo.jr;
-    if (n > 0.8) { const s = sens * JOY.rimV * smooth((n - 0.8) / 0.2) / l; vx += joy.knob.x * s; vy -= joy.knob.y * s; }
-  }
   if (keysDown.has('left') || keysDown.has('right') || keysDown.has('up') || keysDown.has('down')) {
     keyHold += dt;
-    const s = sens * (keysDown.has('slow') ? 0.1 : 0.25 + 0.95 * smooth(keyHold / 0.5));
+    const s = SENS[prefs.sens] * assistFactor() * (keysDown.has('slow') ? 0.1 : 0.25 + 0.95 * smooth(keyHold / 0.5));
     if (keysDown.has('left')) vx -= s;
     if (keysDown.has('right')) vx += s;
     if (keysDown.has('up')) vy += s;
@@ -2821,7 +3028,7 @@ function newGame() {
   gunReset();
   startRound();
   if (state.mode === 'classic') { state.phase = 'intro'; state.card = { kind: 'intro' }; state.message = [['msgIntro']]; }
-  else { state.phase = 'live'; state.card = null; state.message = [['msgPractice']]; }
+  else { state.card = null; startLoad(); }
   renderOverlay();
   renderUI();
 }
@@ -2837,9 +3044,9 @@ function startCountdown() {
 function cardAction() {
   const c = state.card;
   if (!c) return;
-  if (c.kind === 'intro') startCountdown();
-  else if (c.kind === 'between') { state.round++; startRound(); startCountdown(); }
-  else if (c.kind === 'over') { newGame(); startCountdown(); }
+  if (c.kind === 'intro') startLoad();
+  else if (c.kind === 'between') { state.round++; startRound(); startLoad(); }
+  else if (c.kind === 'over') { newGame(); startLoad(); }
 }
 function updatePhase(dt) {
   if (state.phase === 'count') {
@@ -3115,6 +3322,7 @@ function renderUI() {
   document.querySelector(`input[name="gun"][value="${state.gun}"]`).checked = true;
   document.querySelector(`input[name="difficulty"][value="${prefs.difficulty}"]`).checked = true;
   document.querySelector(`input[name="sens"][value="${prefs.sens}"]`).checked = true;
+  document.querySelectorAll('input[name="upg"]').forEach(b => { b.checked = upg(b.value); });
   $('diffNote').textContent = T['note' + prefs.difficulty[0].toUpperCase() + prefs.difficulty.slice(1)];
   const sb = $('soundBtn');
   sb.setAttribute('aria-pressed', String(prefs.sound));
@@ -3161,7 +3369,7 @@ canvas.addEventListener('pointerdown', e => {
     joy.id = e.pointerId;
     joy.base = { x: clamp(pt.x, geo.jr + 8 * geo.d, geo.W * 0.45), y: clamp(pt.y, geo.H * 0.4, geo.H - geo.jr - 8 * geo.d) };
     joy.knob = { x: pt.x - joy.base.x, y: pt.y - joy.base.y };
-    joy.last = { x: pt.x, y: pt.y, t: e.timeStamp }; joy.spd = 0;
+    joy.hist = [{ t: e.timeStamp, x: pt.x, y: pt.y }];
     hideHint();
   } else {
     pointers.set(e.pointerId, { kind: 'pad', x: pt.x, y: pt.y });
@@ -3173,14 +3381,18 @@ canvas.addEventListener('pointermove', e => {
   if (!p) return;
   const pt = canvasPoint(e);
   if (p.kind === 'joy') {
-    // The sight follows the thumb at once: about one for one when you move slowly, much further when you flick.
-    const geo = hudGeo(), dx = pt.x - joy.last.x, dy = pt.y - joy.last.y, dt = Math.max(1 / 250, (e.timeStamp - joy.last.t) / 1000);
-    const v = Math.hypot(dx, dy) / geo.d / dt;                            // thumb speed, css px a second
-    joy.spd = joy.spd ? joy.spd * 0.5 + v * 0.5 : v;
-    const gain = SENS[prefs.sens] * (1.2 + 2.6 * smooth((joy.spd - 80) / 1000));
+    // The sight moves with the thumb, one for one when you move slowly and up to three times as far when you
+    // flick. The speed is taken over the last few hundredths of a second only, so the moment the thumb slows,
+    // so does the sight, and when it stops the sight stops.
+    const geo = hudGeo(), last = joy.hist[joy.hist.length - 1], dx = pt.x - last.x, dy = pt.y - last.y;
+    joy.hist.push({ t: e.timeStamp, x: pt.x, y: pt.y });
+    while (joy.hist.length > 2 && e.timeStamp - joy.hist[0].t > 45) joy.hist.shift();
+    let path = 0;
+    for (let i = 1; i < joy.hist.length; i++) path += Math.hypot(joy.hist[i].x - joy.hist[i - 1].x, joy.hist[i].y - joy.hist[i - 1].y);
+    const v = path / geo.d / Math.max(0.016, (e.timeStamp - joy.hist[0].t) / 1000);      // css px a second
+    const gain = SENS[prefs.sens] * assistFactor() * (1 + 2 * smooth((v - 150) / 1200));
     aim.x += dx * gain / cam.kA; aim.y -= dy * gain / cam.kA;
     clampAim();
-    joy.last = { x: pt.x, y: pt.y, t: e.timeStamp };
     // The knob stays under the thumb; pulled past the rim, the whole stick slides along with it.
     let kx = pt.x - joy.base.x, ky = pt.y - joy.base.y;
     const l = Math.hypot(kx, ky);
@@ -3188,7 +3400,8 @@ canvas.addEventListener('pointermove', e => {
     joy.knob = { x: kx, y: ky };
   } else if (p.kind === 'pad') {
     // Dragging elsewhere moves the sight with your finger, one for one at medium sight speed.
-    aim.x += (pt.x - p.x) / cam.kA * SENS[prefs.sens]; aim.y -= (pt.y - p.y) / cam.kA * SENS[prefs.sens];
+    const k = SENS[prefs.sens] * assistFactor() / cam.kA;
+    aim.x += (pt.x - p.x) * k; aim.y -= (pt.y - p.y) * k;
     p.x = pt.x; p.y = pt.y;
     clampAim();
   }
@@ -3215,8 +3428,7 @@ function selectGun(id) {
   if (!GUNS[id] || id === state.gun) return;
   state.gun = id; prefs.gun = id; savePrefs();
   if (state.mode === 'classic') newGame();
-  else { gunReset(); renderUI(); }
-  sfx.rack();
+  else { gunReset(); startLoad(); }
 }
 $('ovBtn').addEventListener('click', () => { sfx.prime(); cardAction(); });
 $('newBtn').addEventListener('click', newGame);
@@ -3227,13 +3439,16 @@ document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener(
   state.mode = r.value;
   newGame();
 }));
+document.querySelectorAll('input[name="upg"]').forEach(b => b.addEventListener('change', () => {
+  prefs.upg[b.value] = b.checked; savePrefs(); renderUI();
+}));
 document.querySelectorAll('input[name="sens"]').forEach(r => r.addEventListener('change', () => {
   if (r.checked) { prefs.sens = r.value; savePrefs(); }
 }));
 document.querySelectorAll('input[name="difficulty"]').forEach(r => r.addEventListener('change', () => {
   if (!r.checked) return;
   prefs.difficulty = r.value; savePrefs();
-  if (unlimited()) { gun.reload = null; gun.ammo = spec().cap; }
+  if (unlimited() && !(gun.reload && gun.reload.scene)) { gun.reload = null; gun.ammo = spec().cap; gun.magOut = gun.slideLocked = false; }
   renderUI();
 }));
 
