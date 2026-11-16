@@ -340,8 +340,8 @@ details li::marker { color: var(--brass); }
   <main class="stage">
     <div class="scorebar">
       <div class="sb-cell">
-        <span class="label" id="sbModeLabel">5 รอบ</span>
-        <span class="sb-sub" id="sbModeSub">รอบ 1 จาก 5</span>
+        <span class="label" id="sbModeLabel">7 รอบ</span>
+        <span class="sb-sub" id="sbModeSub">รอบ 1 จาก 7</span>
       </div>
       <div class="sb-cell">
         <span class="label" data-i18n="score">คะแนน</span>
@@ -423,7 +423,7 @@ details li::marker { color: var(--brass); }
     <fieldset class="group">
       <legend class="label" data-i18n="modeLegend">เกม</legend>
       <div class="seg" role="radiogroup" data-i18n-aria="modeLegend">
-        <input type="radio" name="mode" id="mode-classic" value="classic" checked><label for="mode-classic" data-i18n="classic">5 รอบ</label>
+        <input type="radio" name="mode" id="mode-classic" value="classic" checked><label for="mode-classic" data-i18n="classic">7 รอบ</label>
         <input type="radio" name="mode" id="mode-practice" value="practice"><label for="mode-practice" data-i18n="practice">ฝึกซ้อม</label>
       </div>
       <p class="note" id="modeNote"></p>
@@ -437,6 +437,16 @@ details li::marker { color: var(--brass); }
         <input type="radio" name="difficulty" id="diff-pro" value="pro"><label for="diff-pro" data-i18n="pro">โปร</label>
       </div>
       <p class="note" id="diffNote"></p>
+    </fieldset>
+
+    <fieldset class="group">
+      <legend class="label" data-i18n="sensLegend">ความไวศูนย์เล็ง</legend>
+      <div class="seg" role="radiogroup" data-i18n-aria="sensLegend">
+        <input type="radio" name="sens" id="sens-slow" value="slow"><label for="sens-slow" data-i18n="slow">ช้า</label>
+        <input type="radio" name="sens" id="sens-medium" value="medium" checked><label for="sens-medium" data-i18n="medium">กลาง</label>
+        <input type="radio" name="sens" id="sens-fast" value="fast"><label for="sens-fast" data-i18n="fast">เร็ว</label>
+      </div>
+      <p class="note" data-i18n="noteSens">ศูนย์เล็งเลื่อนไกลแค่ไหนเมื่อขยับนิ้ว เมาส์ หรือกดปุ่ม</p>
       <div class="row">
         <button class="btn-line" id="soundBtn" type="button" aria-pressed="true">เสียง: เปิด</button>
         <button class="btn-line" id="newBtn" type="button" data-i18n="newGame">เริ่มเกมใหม่</button>
@@ -474,29 +484,31 @@ const STR = {
       rifle: { name: 'ปืนกลยาว', stat: '30 นัด · กดค้างยิงรัว',
         note: 'ปืนกลยาวยิงรัวเมื่อกดปุ่มยิงค้างไว้ ยิ่งรัวนาน ปากกระบอกยิ่งเชิดและกลุ่มกระสุนยิ่งกว้าง ให้ดึงศูนย์ลงสู้แรงถีบ เปลี่ยนแม็ก 1.9 วินาที' },
     },
-    gunSwitch: 'แต่ละกระบอกเก็บสถิติแยกกัน ระหว่างเกม 5 รอบ การเปลี่ยนปืนจะเริ่มเกมใหม่',
-    modeLegend: 'เกม', classic: '5 รอบ', practice: 'ฝึกซ้อม',
-    noteClassic: 'รอบละ 20 วินาที ล้มกระป๋องให้ครบ 5 ใบ ยิงกี่นัดก็ได้แต่เติมกระสุนต้องเสียเวลา ใบละ 100 แต้ม เวลาที่เหลือได้วินาทีละ 25 กระจกเสียหายบานละ −150',
+    gunSwitch: 'แต่ละกระบอกเก็บสถิติแยกกัน ระหว่างเกม 7 รอบ การเปลี่ยนปืนจะเริ่มเกมใหม่',
+    modeLegend: 'เกม', classic: '7 รอบ', practice: 'ฝึกซ้อม',
+    noteClassic: 'มี 7 รอบ รอบละ 20 วินาที ล้มกระป๋องให้ครบ 5 ใบ ยิงกี่นัดก็ได้แต่เติมกระสุนต้องเสียเวลา สองรอบสุดท้ายกระป๋องห้อยเชือกอยู่หน้าหน้าต่าง ใบละ 100 แต้ม เวลาที่เหลือได้วินาทีละ 25 กระจกเสียหายบานละ −150 ยิงโดนป้ายนัดละ −300',
     notePractice: 'ไม่จับเวลา ยิงได้เรื่อย ๆ กระป๋องร่วงหมดเมื่อไรจะจัดชุดใหม่ให้',
     handLegend: 'ความนิ่งของมือ', easy: 'ง่าย', normal: 'ปกติ', pro: 'โปร',
-    noteEasy: 'มือนิ่งสนิท มีจุดบอกว่าลูกบีบีจะไปโดนอะไร เขียวคือกระป๋อง แดงคือกระจก',
+    noteEasy: 'มือนิ่งสนิท กระสุนไม่จำกัด และมีจุดบอกว่าลูกบีบีจะไปโดนอะไร เขียวคือกระป๋อง แดงคือของที่โดนหักคะแนน',
     noteNormal: 'ศูนย์เล็งส่ายเล็กน้อยตามลมหายใจ กดยิงตอนศูนย์ผ่านกระป๋อง',
     notePro: 'ศูนย์ส่ายมากขึ้น และกลุ่มกระสุนกว้างขึ้น',
     soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด', newGame: 'เริ่มเกมใหม่',
     keys: '<kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd> หรือ <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> เลื่อนศูนย์เล็ง กด <kbd>Shift</kbd> ค้างเพื่อเลื่อนช้า · <kbd>Space</kbd> ยิง · <kbd>R</kbd> เติมกระสุน · <kbd>1</kbd>–<kbd>4</kbd> เลือกปืน',
     howTo: 'วิธีเล่น',
     how: [
-      'มุมซ้ายล่างของจอคือคันบังคับศูนย์เล็ง แตะค้างแล้วลากไปทางไหน ศูนย์เล็งก็เลื่อนไปทางนั้น ลากไกลเลื่อนเร็ว ลากนิดเดียวใช้ปรับละเอียด',
-      'มุมขวาล่างคือปุ่มยิง ปืนกลยาวให้กดค้างเพื่อยิงรัว ปุ่มเล็กเหนือปุ่มยิงใช้เติมกระสุน กระสุนหมดเมื่อไรปืนจะเติมให้เอง',
-      'ลากนิ้วบนส่วนอื่นของจอก็เลื่อนศูนย์เล็งได้ หรือใช้เมาส์ลาก หรือปุ่มลูกศรบนคีย์บอร์ด',
+      'มุมซ้ายล่างของจอคือคันบังคับศูนย์เล็ง แตะแล้วลาก ศูนย์เล็งจะเลื่อนตามนิ้วทันที ขยับนิดเดียวสำหรับปรับละเอียด ปัดเร็ว ๆ เพื่อเลื่อนไกล ดันคันบังคับไปจนสุดขอบแล้วค้างไว้ ศูนย์จะเลื่อนต่อไปเรื่อย ๆ',
+      'มุมขวาล่างคือปุ่มยิง ปืนกลยาวให้กดค้างเพื่อยิงรัว ปุ่มเล็กเหนือปุ่มยิงใช้เติมกระสุน กระสุนหมดเมื่อไรปืนจะเติมให้เอง ระดับง่ายกระสุนไม่จำกัด',
+      'ลากนิ้วบนส่วนอื่นของจอก็เลื่อนศูนย์เล็งได้ หรือใช้เมาส์ลาก หรือปุ่มลูกศรบนคีย์บอร์ด ปรับได้ว่าจะให้ศูนย์เลื่อนไวแค่ไหนที่ความไวศูนย์เล็ง',
       'ทุกนัดปืนจะถีบปากกระบอกขึ้น ศูนย์เล็งเด้งขึ้นแล้วค่อย ๆ กลับที่ ยิงรัวเกินไปลูกจะลอยเข้ากระจก',
       'กระป๋องใบละ 100 แต้ม ล้มหลายใบในนัดเดียวได้โบนัสใบละ 50 ยิงโดนกระป๋องที่ลอยกลางอากาศได้อีก 50 ล้มครบ 5 ใบได้วินาทีละ 25 แต้มจากเวลาที่เหลือ',
-      'ลูกบีบีเจาะกระจกเป็นรูแตกลายงา บานละ −150 แต้ม โดนบานเดิม 3 ครั้งกระจกจะร่วงทั้งบาน ช่างจะเปลี่ยนกระจกให้ก่อนรอบถัดไป',
+      'ลูกบีบีเจาะกระจกเป็นรูแตกลายงา บานละ −150 แต้ม โดนบานเดิม 3 ครั้งกระจกจะร่วงทั้งบาน ยิงโดนป้าย The Siam Times นัดละ −300 แต้ม ช่างจะซ่อมให้ก่อนรอบถัดไป',
+      'ยิงโดนโคมไฟหลอดจะแตก ห้องจะมืดลงจนถึงรอบถัดไป',
+      'สองรอบสุดท้ายกระป๋องห้อยด้วยเชือกเส้นเล็กจากเชือกที่ขึงพาดหน้าหน้าต่าง ยิงโดนจัง ๆ เชือกจะขาดและกระป๋องร่วง โดนเฉียด ๆ กระป๋องจะแกว่ง ยิงเชือกขาดได้อีก 50 แต้ม',
       'ลูกบีบีเป็นเหล็กชุบทองแดง กระดอนผนังกลับมาหาคนยิงได้ เล่นจริงต้องใส่แว่นตานิรภัยเสมอ',
     ],
     score: 'คะแนน', time: 'เวลา', ammo: 'กระสุน', cans: 'กระป๋อง', best: 'ดีที่สุด', panes: 'กระจกแตก', accuracy: 'ความแม่น',
     roundOf: (r, n) => `รอบ ${r} จาก ${n}`,
-    layout: { row: 'เรียงแถว', stagger: 'สลับหน้า–หลัง', pyramid: 'พีระมิด', towers: 'ตั้งซ้อนสองชั้น', wide: 'กระจายกว้าง' },
+    layout: { row: 'เรียงแถว', stagger: 'สลับหน้า–หลัง', pyramid: 'พีระมิด', towers: 'ตั้งซ้อนสองชั้น', wide: 'กระจายกว้าง', hanging: 'ห้อยเชือกหน้าหน้าต่าง', swinging: 'ห้อยเชือกแกว่งไปมา' },
     shotsN: n => `ยิงไปแล้ว ${n} นัด`,
     gameOverSub: 'จบเกมแล้ว',
     hint: 'มุมซ้ายล่าง: เลื่อนศูนย์เล็ง · มุมขวาล่าง: ยิง',
@@ -504,7 +516,7 @@ const STR = {
     start: 'เริ่ม', startN: n => `เริ่มรอบ ${n}`, again: 'เล่นอีกครั้ง',
     introText: g => `ล้มกระป๋อง 5 ใบด้วย${g}ให้ได้ภายใน 20 วินาที ยิงกี่นัดก็ได้ แต่เติมกระสุนต้องเสียเวลา`,
     clearedN: r => `ผ่านรอบ ${r}`, timeUpN: r => `หมดเวลารอบ ${r}`,
-    roundText: rt => `ล้ม ${rt.cans} ใบ · ${rt.timeBonus ? `เหลือเวลา ${rt.left.toFixed(1)} วินาที +${rt.timeBonus}` : 'ไม่มีโบนัสเวลา'} · ${rt.glass ? `ค่ากระจก −${rt.glass}` : 'กระจกไม่เสียหาย'}`,
+    roundText: rt => [`ล้ม ${rt.cans} ใบ`, rt.timeBonus ? `เหลือเวลา ${rt.left.toFixed(1)} วินาที +${rt.timeBonus}` : 'ไม่มีโบนัสเวลา', rt.glass ? `ค่ากระจก −${rt.glass}` : '', rt.sign ? `โดนป้าย −${rt.sign}` : '', rt.glass || rt.sign ? '' : 'ไม่โดนหักคะแนน'].filter(Boolean).join(' · '),
     nextRound: (r, name) => `ต่อไป รอบ ${r}: ${name}`,
     bestGun: (g, b) => b === null ? `ยังไม่มีสถิติของ${g}` : `สถิติของ${g}: ${b}`,
     newBest: g => `สถิติใหม่ของ${g}!`,
@@ -523,10 +535,15 @@ const STR = {
     timeUp: n => `หมดเวลา! ยังเหลือกระป๋อง ${n} ใบ`,
     rack: 'ร่วงหมดแล้ว จัดชุดใหม่ให้',
     overEyebrow: 'จบเกม',
-    overText: t => `ล้ม ${t.cans} ใบ · โบนัส +${t.bonus} · ${t.glass ? `ค่ากระจก −${t.glass}` : 'กระจกไม่เสียหายสักบาน'}`,
+    overText: t => [`ล้ม ${t.cans} ใบ`, `โบนัส +${t.bonus}`, t.glass ? `ค่ากระจก −${t.glass}` : '', t.sign ? `โดนป้าย −${t.sign}` : '', t.glass || t.sign ? '' : 'ไม่โดนหักคะแนนเลย'].filter(Boolean).join(' · '),
     chalkTitle: 'คะแนน', chalkRound: (r, n) => `รอบ ${r}/${n}`, chalkPractice: n => `ซ้อม ${n} นัด`,
     chalkCans: 'กระป๋อง', chalkGlass: 'กระจก',
     toastCan: n => n > 1 ? `${n} กระป๋อง` : 'กระป๋อง', toastGlass: 'ค่ากระจก', toastMulti: 'โบนัสหลายใบ', toastTime: 'โบนัสเวลา', toastAir: 'กลางอากาศ',
+    signMsg: 'เป๊ง! โดนป้าย The Siam Times −300', bulb: 'เพล้ง! หลอดไฟแตก ห้องมืดลง', thread: 'ยิงเชือกขาด! +50',
+    hangNote: 'กระป๋องห้อยเชือกอยู่หน้าหน้าต่าง ยิงโดนจัง ๆ เชือกจะขาด โดนเฉียด ๆ กระป๋องจะแกว่ง',
+    sensLegend: 'ความไวศูนย์เล็ง', slow: 'ช้า', medium: 'กลาง', fast: 'เร็ว',
+    noteSens: 'ศูนย์เล็งเลื่อนไกลแค่ไหนเมื่อขยับนิ้ว เมาส์ หรือกดปุ่ม',
+    toastSign: 'โดนป้าย', toastThread: 'เชือกขาด',
     canvasLabel: 'ห้องหลังของ The Siam Times ผนังไม้สีน้ำเงิน มีป้าย The Siam Times กระดานปาเป้า และกระดานชอล์ก โต๊ะท้ายห้องมีกระป๋องน้ำอัดลมสีแดงขาว 5 ใบตั้งอยู่หน้าหน้าต่างกระจก ปืนบีบีกันอยู่ด้านล่าง ใช้ปุ่มลูกศรเลื่อนศูนย์เล็ง Space เพื่อยิง และ R เพื่อเติมกระสุน',
   },
   en: {
@@ -544,29 +561,31 @@ const STR = {
       rifle: { name: 'Auto rifle', stat: '30 BBs · full auto',
         note: 'Hold the fire button for full auto. The longer you hold it, the more the muzzle climbs and the wider the BBs spread: pull the sight down against it. Magazine change 1.9 s.' },
     },
-    gunSwitch: 'Each gun keeps its own best score. In 5 Rounds, changing the gun starts a new game.',
-    modeLegend: 'Game', classic: '5 Rounds', practice: 'Practice',
-    noteClassic: 'Twenty seconds a round to knock down five cans, with as many BBs as you like; reloading costs time. 100 a can, 25 for each second left, −150 for each damaged pane.',
+    gunSwitch: 'Each gun keeps its own best score. In 7 Rounds, changing the gun starts a new game.',
+    modeLegend: 'Game', classic: '7 Rounds', practice: 'Practice',
+    noteClassic: 'Seven rounds of twenty seconds to knock down five cans, with as many BBs as you like; reloading costs time. In the last two the cans hang on a rope across the window. 100 a can, 25 for each second left, −150 for each damaged pane, −300 for each shot that hits the sign.',
     notePractice: 'No clock. The cans are set up again once they are all down.',
     handLegend: 'Steadiness', easy: 'Easy', normal: 'Normal', pro: 'Pro',
-    noteEasy: 'Your hand is still, and a dot shows what the BB will hit: green for a can, red for glass.',
+    noteEasy: 'Your hand is still, the gun never runs dry, and a dot shows what the BB will hit: green for a can, red for anything that costs points.',
     noteNormal: 'The sight drifts a little as you breathe. Fire as it crosses the can.',
     notePro: 'More drift, and the BBs spread wider.',
     soundOn: 'Sound on', soundOff: 'Sound off', newGame: 'New game',
     keys: '<kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd> or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> move the sight (hold <kbd>Shift</kbd> to go slow) · <kbd>Space</kbd> fire · <kbd>R</kbd> reload · <kbd>1</kbd>–<kbd>4</kbd> pick a gun',
     howTo: 'How to play',
     how: [
-      'The bottom left corner of the room is the aiming stick. Touch and drag, and the sight moves that way: drag far to move fast, a little for fine work.',
-      'The bottom right corner is the fire button; hold it down for full auto with the rifle. The small button above it reloads, and an empty gun reloads by itself.',
-      'Dragging anywhere else in the room also moves the sight, and so do the mouse and the arrow keys.',
+      'The bottom left corner of the room is the aiming stick. Touch and drag: the sight follows your thumb at once, a small movement for fine work and a quick flick to go further. Push the stick to its rim and hold it there to keep the sight travelling.',
+      'The bottom right corner is the fire button; hold it down for full auto with the rifle. The small button above it reloads, and an empty gun reloads by itself. On Easy the BBs never run out.',
+      'Dragging anywhere else in the room also moves the sight, and so do the mouse and the arrow keys. Sight speed sets how far it moves.',
       'Every shot kicks the muzzle up: the sight jumps and settles back. Fire too fast and the BBs climb into the window.',
       'Each can is worth 100, plus 50 for each extra can knocked down by the same shot and 50 for hitting a can in mid-air. Clear all five and every second left is worth 25.',
-      'A BB through the window leaves a hole and a star of cracks: −150 a pane. Three hits on the same pane and it falls out. The glazier replaces the glass before the next round.',
+      'A BB through the window leaves a hole and a star of cracks: −150 a pane. Three hits on the same pane and it falls out. Hitting The Siam Times sign costs 300 a shot. Everything is put right before the next round.',
+      'Shoot a lamp and the bulb pops: the room is darker until the next round.',
+      'In the last two rounds the cans hang on threads from a rope across the window. A solid hit snaps the thread and drops the can; a glancing one only sets it swinging. Cut a thread with a BB for 50 more.',
       'BBs are copper-plated steel and they bounce straight back off a hard wall. Always wear safety glasses with a real one.',
     ],
     score: 'Score', time: 'Time', ammo: 'Ammo', cans: 'Cans', best: 'Best', panes: 'Panes broken', accuracy: 'Accuracy',
     roundOf: (r, n) => `Round ${r} of ${n}`,
-    layout: { row: 'in a row', stagger: 'staggered', pyramid: 'a pyramid', towers: 'stacked in twos', wide: 'spread wide' },
+    layout: { row: 'in a row', stagger: 'staggered', pyramid: 'a pyramid', towers: 'stacked in twos', wide: 'spread wide', hanging: 'hanging on a rope', swinging: 'swinging on a rope' },
     shotsN: n => `${n} ${n === 1 ? 'shot' : 'shots'}`,
     gameOverSub: 'Game over',
     hint: 'Bottom left: move the sight · bottom right: fire',
@@ -574,7 +593,7 @@ const STR = {
     start: 'Start', startN: n => `Start round ${n}`, again: 'Play again',
     introText: g => `Knock down five cans with the ${g} in twenty seconds. Fire as many BBs as you like, but reloading costs time.`,
     clearedN: r => `Round ${r} cleared`, timeUpN: r => `Round ${r}: time`,
-    roundText: rt => `${rt.cans} ${rt.cans === 1 ? 'can' : 'cans'} · ${rt.timeBonus ? `${rt.left.toFixed(1)} s left +${rt.timeBonus}` : 'no time bonus'} · ${rt.glass ? `glass −${rt.glass}` : 'no glass broken'}`,
+    roundText: rt => [`${rt.cans} ${rt.cans === 1 ? 'can' : 'cans'}`, rt.timeBonus ? `${rt.left.toFixed(1)} s left +${rt.timeBonus}` : 'no time bonus', rt.glass ? `glass −${rt.glass}` : '', rt.sign ? `sign −${rt.sign}` : '', rt.glass || rt.sign ? '' : 'no penalties'].filter(Boolean).join(' · '),
     nextRound: (r, name) => `Next: round ${r}, cans ${name}`,
     bestGun: (g, b) => b === null ? `No best score with the ${g} yet` : `Best with the ${g}: ${b}`,
     newBest: g => `New best with the ${g}!`,
@@ -593,10 +612,15 @@ const STR = {
     timeUp: n => `Time! ${n} ${n === 1 ? 'can' : 'cans'} still standing.`,
     rack: 'All down. Setting them up again.',
     overEyebrow: 'Game over',
-    overText: t => `${t.cans} cans · bonus +${t.bonus} · ${t.glass ? `glass −${t.glass}` : 'not a pane broken'}`,
+    overText: t => [`${t.cans} cans`, `bonus +${t.bonus}`, t.glass ? `glass −${t.glass}` : '', t.sign ? `sign −${t.sign}` : '', t.glass || t.sign ? '' : 'not a single penalty'].filter(Boolean).join(' · '),
     chalkTitle: 'SCORE', chalkRound: (r, n) => `ROUND ${r}/${n}`, chalkPractice: n => `PRACTICE · ${n}`,
     chalkCans: 'CANS', chalkGlass: 'GLASS',
     toastCan: n => n > 1 ? `${n} cans` : 'can', toastGlass: 'glass', toastMulti: 'multi-can bonus', toastTime: 'time bonus', toastAir: 'mid-air',
+    signMsg: 'Ping! That was the sign: −300.', bulb: 'Pop! A lamp is out, and the room is darker.', thread: 'Thread cut! +50',
+    hangNote: 'The cans hang on threads across the window: a solid hit snaps the thread, a glancing one sets the can swinging.',
+    sensLegend: 'Sight speed', slow: 'Slow', medium: 'Medium', fast: 'Fast',
+    noteSens: 'How far the sight moves for each movement of your thumb, the mouse or the keys.',
+    toastSign: 'the sign', toastThread: 'thread cut',
     canvasLabel: 'The Siam Times back room: blue wood panelling, a cream Siam Times sign, a dartboard and a chalk scoreboard. Five red and white soda cans stand on a table at the back, in front of a window. Your BB gun is at the bottom. Arrow keys move the sight, Space fires, R reloads.',
   },
 };
@@ -622,9 +646,13 @@ const CHALK = { x0: 1.22, x1: 1.78, y0: 1.26, y1: 2.04 };
 const LAMPS = [{ x: -0.62, y: 2.40, z: 3.55 }, { x: 0.62, y: 2.40, z: 3.55 }];
 const FIT = { tx: 0.265, top: 0.245, bottom: -0.37 };   // slopes from your eye that must stay on screen
 const STEP = 1 / 900;                           // physics step for the cans, seconds; BBs take smaller steps
-const ROUNDS = 5, ROUND_TIME = 20;
-const PTS = { can: 100, multi: 50, air: 50, glass: 150, sec: 25 };
-const ROUND_LAYOUTS = ['row', 'stagger', 'pyramid', 'towers', 'wide'];
+const ROUNDS = 7, ROUND_TIME = 20;
+const PTS = { can: 100, multi: 50, air: 50, thread: 50, glass: 150, sign: 300, sec: 25 };
+const ROUND_LAYOUTS = ['row', 'stagger', 'pyramid', 'towers', 'wide', 'hanging', 'swinging'];
+const HANG = ['hanging', 'swinging'];            // the last two rounds: cans on threads from a rope across the window
+const LINE = { x0: -1.12, x1: 1.12, y: 2.11, sag: 0.05, z: 4.12 };   // the rope, between two hooks either side of the window
+const lineY = x => LINE.y - LINE.sag * (1 - ((2 * x - LINE.x0 - LINE.x1) / (LINE.x1 - LINE.x0)) ** 2);
+const SHADE = { h: 0.17, r0: 0.16, r1: 0.035, cord: 0.47 };          // lamp shades: height, radius at the bottom and top; swing radius
 const HANDS = {
   easy:   { sway: 0,    spread: 0.6, guide: true },
   normal: { sway: 0.3,  spread: 1,   guide: false },
@@ -655,17 +683,22 @@ const GUNS = {
     punch: { z: 0.2, rot: 0.8 }, magDir: [0, -0.97, 0.24],
   },
 };
-const JOY = { r: 50, knob: 22, maxV: 1.5 };     // css px; maxV in m/s at the cans
+const JOY = { r: 50, knob: 22, rimV: 1.8 };     // css px; rimV: m/s at the cans while the stick is held at its rim
+const SENS = { slow: 0.7, medium: 1, fast: 1.45 };   // sight speed
 const GUN_LENS = 0.42;                          // the gun is drawn through a wider lens than the room, as in most first-person games
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- Saved preferences and best scores (this browser only) ---------- */
-const STORE_KEY = 'siamTimesBBGun.v1';
-const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } })();
+const STORE_KEY = 'siamTimesBBGun.v2';          // v1 had five rounds: its settings carry over, its best scores do not
+const saved = (() => {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || { ...JSON.parse(localStorage.getItem('siamTimesBBGun.v1')), best: null }; }
+  catch { return {}; }
+})();
 const prefs = {
   sound: saved.sound !== false,
   difficulty: HANDS[saved.difficulty] ? saved.difficulty : 'normal',
   gun: GUNS[saved.gun] ? saved.gun : 'pistol',
+  sens: SENS[saved.sens] ? saved.sens : 'medium',
   best: Object.fromEntries(GUN_IDS.map(id => [id, saved.best && Number.isFinite(saved.best[id]) ? saved.best[id] : null])),
 };
 function savePrefs() { try { localStorage.setItem(STORE_KEY, JSON.stringify(prefs)); } catch {} }
@@ -678,7 +711,7 @@ const state = {
   round: 1, layout: 'row', score: 0,
   phase: 'intro',               // intro | count | live | clear | timeup | between | over | rack
   timeLeft: ROUND_TIME, countT: 0, goT: 0, endT: 0,
-  totals: { cans: 0, bonus: 0, glass: 0, panes: 0, shots: 0, hits: 0 },
+  totals: { cans: 0, bonus: 0, glass: 0, sign: 0, panes: 0, bulbs: 0, shots: 0, hits: 0 },
   rt: null,                     // this round: cans, glass, time bonus, points
   message: [], card: null,      // message: [[key, ...args], ...], put into words when shown
 };
@@ -687,7 +720,8 @@ const kick = { yaw: 0, pitch: 0 };              // recoil on top of the aim, deg
 const gun = {};                                 // the gun in your hands: ammo, timers and moving parts
 let cans = [], panes = [], bbs = [], shards = [], shots = [], marks = [], puffs = [];
 const toasts = [];
-let layerDirty = true, shakeUntil = 0, lastSay = 0;
+const lamps = LAMPS.map(L => ({ ...L, on: true, sx: 0, sz: 0, vx: 0, vz: 0 }));   // bulbs can be shot out; shades swing
+let layerDirty = true, tableDirty = false, shakeUntil = 0, lastSay = 0;
 
 /* ---------- Small helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -698,6 +732,8 @@ const cross = (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z
 const dot = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
 const sub = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
 const overTable = (x, z) => x > TABLE.x0 && x < TABLE.x1 && z > TABLE.z0 && z < TABLE.z1;
+const isUp = c => c.state === 'stand' || c.state === 'hang';      // still to be knocked down
+const unlimited = () => prefs.difficulty === 'easy';              // on Easy the gun never runs dry
 function mulberry32(a) {
   return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
     t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -802,6 +838,7 @@ function addMark(x, y, type) {
 /* ---------- Cans ---------- */
 function setupCans(name) {
   const r = Math.random, z = CAN_Z;
+  if (HANG.includes(name)) { setupHanging(name === 'swinging'); return; }
   let spec;
   if (name === 'row') spec = [-0.56, -0.28, 0, 0.28, 0.56].map(x => ({ x, z }));
   else if (name === 'stagger') spec = [-0.64, -0.32, 0, 0.32, 0.64].map((x, i) => ({ x: x + (r() - 0.5) * 0.06, z: z + (i % 2 ? 0.09 : -0.08) }));
@@ -822,6 +859,57 @@ function setupCans(name) {
   }));
 }
 
+/* ---------- Cans on threads (the last two rounds) ---------- */
+// Five cans hang on threads from a rope stretched across the window between two hooks.
+function setupHanging(swing) {
+  const r = Math.random;
+  cans = [-0.72, -0.36, 0, 0.36, 0.72].map((x0, i) => {
+    const x = x0 + (r() - 0.5) * 0.08;
+    const c = {
+      i, on: null, state: 'hang', anchor: { x, y: lineY(x), z: LINE.z }, len: 0.16 + r() * 0.34, cut: 0,
+      th: { x: swing ? (0.3 + r() * 0.3) * (i % 2 ? 1 : -1) : (r() - 0.5) * 0.16, z: (r() - 0.5) * (swing ? 0.12 : 0.05) },
+      om: { x: 0, z: 0 }, damp: swing ? 0.03 : 0.12,
+      p: { x, y: 1.5, z: LINE.z }, v: { x: 0, y: 0, z: 0 }, u: { x: 0, y: 1, z: 0 }, w: { x: 0, y: 0, z: 0 },
+      sleep: false, still: 0, lastSound: 0, ground: false, shot: null, downT: 0,
+    };
+    placeHang(c);
+    return c;
+  });
+}
+// Where a hanging can is: its thread runs from the rope to the ring pull, and the can hangs along it.
+function placeHang(c) {
+  const sx = Math.sin(c.th.x), sz = Math.sin(c.th.z), cy = Math.sqrt(Math.max(0.05, 1 - sx * sx - sz * sz));
+  const A = c.anchor, Lp = c.len + CAN.h / 2;
+  c.top = { x: A.x + sx * c.len, y: A.y - cy * c.len, z: A.z + sz * c.len };
+  c.u = norm({ x: -sx, y: cy, z: -sz });
+  c.p = { x: c.top.x - c.u.x * CAN.h / 2, y: c.top.y - c.u.y * CAN.h / 2, z: c.top.z - c.u.z * CAN.h / 2 };
+  c.v = { x: c.om.x * Math.cos(c.th.x) * Lp, y: (c.om.x * sx * Math.cos(c.th.x) + c.om.z * sz * Math.cos(c.th.z)) / cy * Lp, z: c.om.z * Math.cos(c.th.z) * Lp };
+}
+function stepHang(c, dt) {
+  const k = G / (c.len + CAN.h / 2);
+  c.om.x += (-k * Math.sin(c.th.x) - c.damp * c.om.x) * dt;
+  c.om.z += (-k * Math.sin(c.th.z) - c.damp * c.om.z) * dt;
+  c.th.x = clamp(c.th.x + c.om.x * dt, -1.2, 1.2);
+  c.th.z += c.om.z * dt;
+  // It swings back off the glass rather than through it.
+  const zmax = Math.asin(clamp((WALL - 0.008 - CAN.r - c.anchor.z) / (c.len + CAN.h), -1, 1));
+  if (c.th.z > zmax) { c.th.z = zmax; if (c.om.z > 0) c.om.z = -c.om.z * 0.3; }
+  placeHang(c);
+}
+// The thread gives way and the can drops, as fast as it was swinging. cutAt is how much thread is left on the rope.
+function release(c, v, shot, cutAt) {
+  if (c.state !== 'hang') return;
+  c.state = 'fly'; c.sleep = false; c.still = 0; c.ground = false;
+  c.cut = cutAt ?? c.len;
+  c.v = v;
+  c.w = { x: (Math.random() - 0.5) * 14, y: (Math.random() - 0.5) * 6, z: (Math.random() - 0.5) * 14 };
+  canDown(c, shot);
+}
+// The lamps hang from cords and swing a little when a BB rings off a shade.
+function lampAt(L) {
+  return { x: L.x + Math.sin(L.sx) * SHADE.cord, y: L.y + (2 - Math.cos(L.sx) - Math.cos(L.sz)) * SHADE.cord, z: L.z + Math.sin(L.sz) * SHADE.cord };
+}
+
 /* ---------- Physics ---------- */
 // A can that is hit flies off along dir (a horizontal unit vector), tipping over as it goes.
 function knock(c, dir, speed, spin, shot) {
@@ -835,6 +923,7 @@ function knock(c, dir, speed, spin, shot) {
 function stepWorld(dt) {
   for (const b of bbs) if (b.live) stepBB(b, dt);
   for (const c of cans) if (c.state === 'fly' && !c.sleep) stepCan(c, dt);
+  for (const c of cans) if (c.state === 'hang') stepHang(c, dt);
   for (const c of cans) {
     if (c.state !== 'stand' || !c.on) continue;
     const gone = c.on.find(j => cans[j].state !== 'stand');
@@ -857,7 +946,7 @@ function stepBB(b, dt) {
 }
 function bbStep(b, dt) {
   const p = b.p, v = b.v, r = BB_R;
-  const py = p.y, pz = p.z;
+  const py = p.y, pz = p.z, p0 = { x: p.x, y: p.y, z: p.z };
   if (b.ground) {
     const f = Math.exp(-5 * dt);
     v.x *= f; v.z *= f; v.y = 0;
@@ -870,7 +959,13 @@ function bbStep(b, dt) {
     v.y -= G * dt;
     p.x += v.x * dt; p.y += v.y * dt; p.z += v.z * dt;
   }
-  for (const c of cans) { if (c.state === 'stand') bbHitStanding(b, c); else bbHitLoose(b, c); if (!b.live) return; }
+  for (const c of cans) {
+    if (c.state === 'stand') bbHitStanding(b, c);
+    else if (c.state === 'hang') { bbThread(b, c, p0); if (c.state === 'hang') bbHitHanging(b, c); }
+    else bbHitLoose(b, c);
+    if (!b.live) return;
+  }
+  if (p.y > 2.3) { bbLamp(b); if (!b.live) return; }
   // The table top, then its front edge and apron.
   if (!b.ground && v.y < 0 && overTable(p.x, p.z) && py - r >= TABLE.y - 1e-4 && p.y - r < TABLE.y) {
     p.y = TABLE.y + r; bbBounce(b, 'table');
@@ -947,12 +1042,73 @@ function bbWall(b) {
   if (what.type === 'glass') { glassHit(what.pane, p.x, p.y, b); return; }
   bbContact(b, what.type, v.z);
   addMark(p.x, p.y, what.type);
+  if (what.type === 'sign') hitSign(b, p.x, p.y);
   p.z = WALL - BB_R;
   if (what.type === 'board') { b.live = false; b.gone = true; return; }   // it stays in the sisal
   const e = what.type === 'sign' ? 0.55 : what.type === 'chalk' ? 0.45 : 0.4;
   v.z = -v.z * e;
   v.x = v.x * 0.8 + (Math.random() - 0.5) * 2.5;
   v.y = v.y * 0.8 + (Math.random() - 0.5) * 2.5;
+}
+// A hanging can takes the blow: a solid hit snaps its thread, a glancing one sets it swinging.
+function bbHitHanging(b, c) {
+  const { q, d } = canAxis(c, b.p), R = CAN.r + BB_R;
+  if (d >= R || d < 1e-6) return;
+  const n = { x: (b.p.x - q.x) / d, y: (b.p.y - q.y) / d, z: (b.p.z - q.z) / d };
+  const vn = dot(b.v, n) - dot(c.v, n);
+  if (vn >= 0) return;
+  const mc = 0.015, j = -1.3 * vn / (1 / BB_M + 1 / mc);
+  const dv = { x: -n.x * j / mc, y: -n.y * j / mc, z: -n.z * j / mc };
+  b.v.x += n.x * j / BB_M; b.v.y += n.y * j / BB_M; b.v.z += n.z * j / BB_M;
+  b.v.x *= 0.6; b.v.y *= 0.6; b.v.z *= 0.6;
+  b.p.x = q.x + n.x * R; b.p.y = q.y + n.y * R; b.p.z = q.z + n.z * R;
+  bbContact(b, 'can', -vn);
+  sparkAt(b.p);
+  if (-vn > 70) release(c, { x: c.v.x + dv.x, y: c.v.y + dv.y + 0.4, z: c.v.z + dv.z }, b.shot);
+  else { const Lp = c.len + CAN.h / 2; c.om.x += dv.x / Lp; c.om.z += dv.z / Lp; }
+}
+// Closest approach of two segments, p0–p1 and q0–q1 (t says where along q).
+function segDist(p0, p1, q0, q1) {
+  const d1 = sub(p1, p0), d2 = sub(q1, q0), r = sub(p0, q0);
+  const a = dot(d1, d1), e = dot(d2, d2), f = dot(d2, r);
+  let s = 0, t;
+  if (a < 1e-12) t = clamp(f / e, 0, 1);
+  else {
+    const c = dot(d1, r), bb = dot(d1, d2), den = a * e - bb * bb;
+    s = den > 1e-12 ? clamp((bb * f - c * e) / den, 0, 1) : 0;
+    t = (bb * s + f) / e;
+    if (t < 0) { t = 0; s = clamp(-c / a, 0, 1); } else if (t > 1) { t = 1; s = clamp((bb - c) / a, 0, 1); }
+  }
+  return { d: Math.hypot(p0.x + d1.x * s - q0.x - d2.x * t, p0.y + d1.y * s - q0.y - d2.y * t, p0.z + d1.z * s - q0.z - d2.z * t), t };
+}
+// A BB that clips a thread cuts it, the whole step it moved, so it cannot slip past between steps.
+function bbThread(b, c, p0) {
+  const { d, t } = segDist(p0, b.p, c.anchor, c.top);
+  if (d > BB_R + 0.0012 || t > 0.97) return;      // right by the ring pull, the can itself takes the hit
+  const at = { x: c.anchor.x + (c.top.x - c.anchor.x) * t, y: c.anchor.y + (c.top.y - c.anchor.y) * t, z: c.anchor.z };
+  release(c, { ...c.v }, b.shot, t * c.len);
+  threadCut(at, b.shot);
+}
+// The bulb pops; the shade rings and swings a little.
+function bbLamp(b) {
+  const p = b.p;
+  for (const L0 of lamps) {
+    const L = lampAt(L0), dy = p.y - L.y;
+    if (dy < -0.01 || dy > SHADE.h + 0.01) continue;
+    const dx = p.x - L.x, dz = p.z - L.z, d = Math.hypot(dx, dz);
+    if (d > SHADE.r0 + 0.012) continue;
+    if (L0.on && Math.hypot(dx, dy - 0.04, dz) < 0.035 + BB_R) { breakBulb(L0, b); continue; }
+    const r = SHADE.r0 - clamp(dy / SHADE.h, 0, 1) * (SHADE.r0 - SHADE.r1);
+    if (Math.abs(d - r) > 0.006 + BB_R || d < 1e-6) continue;
+    const sd = d < r ? -1 : 1, n = norm({ x: dx / d * sd, y: (SHADE.r0 - SHADE.r1) / SHADE.h * sd, z: dz / d * sd });
+    const vn = dot(b.v, n);
+    if (vn >= 0) continue;
+    b.v.x -= 1.5 * vn * n.x; b.v.y -= 1.5 * vn * n.y; b.v.z -= 1.5 * vn * n.z;
+    b.v.x *= 0.7; b.v.y *= 0.7; b.v.z *= 0.7;
+    bbContact(b, 'shade', -vn);
+    L0.vx += n.x * vn * 0.004; L0.vz += n.z * vn * 0.004;
+    sparkAt(p);
+  }
 }
 function bbContact(b, type, speed) {
   const sh = b.shot;
@@ -1048,8 +1204,12 @@ function predictBB(M, A, speed) {
     const py = p.y, pz = p.z;
     v.y -= G * dt; p.x += v.x * dt; p.y += v.y * dt; p.z += v.z * dt;
     for (const c of cans) {
-      if (c.state !== 'stand') continue;
-      if (Math.hypot(p.x - c.p.x, p.z - c.p.z) < CAN.r + BB_R && Math.abs(p.y - c.p.y) < CAN.h / 2 + BB_R) return { type: 'can', p };
+      if (c.state === 'stand') { if (Math.hypot(p.x - c.p.x, p.z - c.p.z) < CAN.r + BB_R && Math.abs(p.y - c.p.y) < CAN.h / 2 + BB_R) return { type: 'can', p }; }
+      else if (c.state === 'hang' && canAxis(c, p).d < CAN.r + BB_R) return { type: 'can', p };
+    }
+    if (p.y > 2.3) for (const L0 of lamps) {
+      const L = lampAt(L0);
+      if (L0.on && Math.hypot(p.x - L.x, p.y - L.y - 0.04, p.z - L.z) < 0.035 + BB_R) return { type: 'bulb', p };
     }
     if (v.y < 0 && overTable(p.x, p.z) && py - BB_R >= TABLE.y && p.y - BB_R < TABLE.y) return { type: 'table', p };
     if (pz + BB_R <= TABLE.z0 && p.z + BB_R > TABLE.z0 && p.x > TABLE.x0 && p.x < TABLE.x1 && p.y < TABLE.y && p.y > TABLE.y - TABLE.thick - TABLE.apron) return { type: 'table', p };
@@ -1189,7 +1349,8 @@ function buildLayer() {
   g.fillStyle = rail; g.fillRect(bx0, wy(1.0), bx1 - bx0, wy(0.95) - wy(1.0));
 
   // Warm pools of light from the two pendants and the dartboard lamp.
-  for (const L of LAMPS) {
+  for (const L of lamps) {
+    if (!L.on) continue;
     const lg = g.createRadialGradient(wx(L.x), wy(1.9), 0, wx(L.x), wy(1.75), s * 1.15);
     lg.addColorStop(0, 'rgba(255,205,145,0.22)'); lg.addColorStop(0.5, 'rgba(255,205,145,0.07)'); lg.addColorStop(1, 'rgba(255,205,145,0)');
     g.fillStyle = lg; g.fillRect(bx0, by0, bx1 - bx0, by1 - by0);
@@ -1211,7 +1372,6 @@ function buildLayer() {
     g.fillStyle = cg; g.fillRect(Math.min(wx(sx * hw), wx(sx * (hw - 0.35))), by0, Math.abs(wx(sx * hw) - wx(sx * (hw - 0.35))), by1 - by0);
   }
 
-  drawLamps(g);
 }
 
 function drawWindow(g, s) {
@@ -1268,7 +1428,8 @@ function drawWindow(g, s) {
     st.addColorStop(0, 'rgba(255,255,255,0)'); st.addColorStop(0.28, 'rgba(255,255,255,0.09)'); st.addColorStop(0.36, 'rgba(255,255,255,0)');
     st.addColorStop(0.55, 'rgba(255,255,255,0)'); st.addColorStop(0.6, 'rgba(255,255,255,0.06)'); st.addColorStop(0.7, 'rgba(255,255,255,0)');
     g.fillStyle = st; g.fillRect(x0, yT, x1 - x0, yB - yT);
-    for (const L of LAMPS) {
+    for (const L of lamps) {
+      if (!L.on) continue;
       const rg = g.createRadialGradient(wx(L.x * 1.1), wy(1.95), 0, wx(L.x * 1.1), wy(1.95), s * 0.16);
       rg.addColorStop(0, 'rgba(255,214,160,0.3)'); rg.addColorStop(1, 'rgba(255,214,160,0)');
       g.fillStyle = rg; g.fillRect(x0, yT, x1 - x0, yB - yT);
@@ -1459,37 +1620,91 @@ function drawChalkboard(g, s) {
   g.fillStyle = '#ece8dc'; g.fillRect(x0 + (x1 - x0) * 0.62, yB - s * 0.012, s * 0.06, s * 0.009);
 }
 
+// The pendant lamps are drawn every frame: they swing, and their bulbs can be shot out.
 function drawLamps(g) {
-  for (const L of LAMPS) {
-    const top = P(L.x, L.y + 0.17, L.z), cord = P(L.x, ROOM.h, L.z), k = top.k;
+  for (const L0 of lamps) {
+    const L = lampAt(L0), on = L0.on;
+    const top = P(L.x, L.y + SHADE.h, L.z), cord = P(L0.x, ROOM.h, L0.z), k = top.k;
     g.strokeStyle = '#05080b'; g.lineWidth = Math.max(1, 0.006 * k);
     g.beginPath(); g.moveTo(cord.x, cord.y); g.lineTo(top.x, top.y); g.stroke();
-    const bl = P(L.x - 0.16, L.y, L.z), br = P(L.x + 0.16, L.y, L.z), tl = P(L.x - 0.035, L.y + 0.17, L.z), tr = P(L.x + 0.035, L.y + 0.17, L.z);
-    const ry = 0.16 * k * Math.max(0.05, (L.y - EYE.y) / (L.z - EYE.z));
-    // Glow first, then the shade over it.
+    const bl = P(L.x - SHADE.r0, L.y, L.z), br = P(L.x + SHADE.r0, L.y, L.z), tl = P(L.x - SHADE.r1, L.y + SHADE.h, L.z), tr = P(L.x + SHADE.r1, L.y + SHADE.h, L.z);
+    const ry = SHADE.r0 * k * Math.max(0.05, (L.y - EYE.y) / (L.z - EYE.z)), mx = (bl.x + br.x) / 2, rx = (br.x - bl.x) / 2;
     const c = P(L.x, L.y - 0.02, L.z);
-    const glow = g.createRadialGradient(c.x, c.y, 0, c.x, c.y, 0.9 * k);
-    glow.addColorStop(0, 'rgba(255,214,160,0.35)'); glow.addColorStop(0.3, 'rgba(255,200,140,0.1)'); glow.addColorStop(1, 'rgba(255,200,140,0)');
-    g.fillStyle = glow; g.fillRect(c.x - k, c.y - k, 2 * k, 2 * k);
-    g.beginPath(); g.ellipse((bl.x + br.x) / 2, bl.y, (br.x - bl.x) / 2, ry, 0, 0, TAU);
-    const inside = g.createRadialGradient(c.x, bl.y, 0, c.x, bl.y, (br.x - bl.x) / 2);
-    inside.addColorStop(0, '#fff8e6'); inside.addColorStop(0.35, '#ffd99a'); inside.addColorStop(1, '#b8743a');
+    if (on) {   // glow first, then the shade over it
+      const glow = g.createRadialGradient(c.x, c.y, 0, c.x, c.y, 0.9 * k);
+      glow.addColorStop(0, 'rgba(255,214,160,0.35)'); glow.addColorStop(0.3, 'rgba(255,200,140,0.1)'); glow.addColorStop(1, 'rgba(255,200,140,0)');
+      g.fillStyle = glow; g.fillRect(c.x - k, c.y - k, 2 * k, 2 * k);
+    }
+    g.beginPath(); g.ellipse(mx, bl.y, rx, ry, 0, 0, TAU);
+    const inside = g.createRadialGradient(c.x, bl.y, 0, c.x, bl.y, rx);
+    if (on) { inside.addColorStop(0, '#fff8e6'); inside.addColorStop(0.35, '#ffd99a'); inside.addColorStop(1, '#b8743a'); }
+    else { inside.addColorStop(0, '#3a3934'); inside.addColorStop(0.5, '#1c1c1a'); inside.addColorStop(1, '#0b0c0b'); }
     g.fillStyle = inside; g.fill();
+    if (!on) {   // what is left of the bulb: a jagged collar of glass round the socket
+      const s = 0.028 * k, sy = bl.y - ry * 0.15;
+      g.fillStyle = '#55524a'; g.beginPath(); g.ellipse(mx, sy, s * 0.75, s * 0.5, 0, 0, TAU); g.fill();
+      g.strokeStyle = 'rgba(220,235,245,0.6)'; g.lineWidth = Math.max(1, 0.0025 * k); g.lineJoin = 'miter';
+      g.beginPath();
+      for (let i = 0; i <= 10; i++) {
+        const a = Math.PI * (1 + i / 10), rr = s * (i % 2 ? 1.05 : 0.7);
+        const px = mx + Math.cos(a) * rr, py = sy + s * 0.25 + Math.sin(a) * rr * 0.75;
+        if (i) g.lineTo(px, py); else g.moveTo(px, py);
+      }
+      g.stroke();
+    }
     g.beginPath(); g.moveTo(tl.x, tl.y); g.lineTo(tr.x, tr.y); g.lineTo(br.x, br.y);
-    g.ellipse((bl.x + br.x) / 2, bl.y, (br.x - bl.x) / 2, ry, 0, 0, Math.PI, true);
+    g.ellipse(mx, bl.y, rx, ry, 0, 0, Math.PI, true);
     g.closePath();
     const shade = g.createLinearGradient(bl.x, 0, br.x, 0);
-    shade.addColorStop(0, '#0f2219'); shade.addColorStop(0.4, '#2c5643'); shade.addColorStop(0.55, '#3a6b55'); shade.addColorStop(1, '#0c1a14');
+    if (on) { shade.addColorStop(0, '#0f2219'); shade.addColorStop(0.4, '#2c5643'); shade.addColorStop(0.55, '#3a6b55'); shade.addColorStop(1, '#0c1a14'); }
+    else { shade.addColorStop(0, '#0a1510'); shade.addColorStop(0.45, '#1a3328'); shade.addColorStop(1, '#08120d'); }
     g.fillStyle = shade; g.fill();
-    g.strokeStyle = 'rgba(214,173,95,0.6)'; g.lineWidth = Math.max(1, 0.004 * k);
-    g.beginPath(); g.ellipse((bl.x + br.x) / 2, bl.y, (br.x - bl.x) / 2, ry, 0, 0, Math.PI, true); g.stroke();
+    g.strokeStyle = on ? 'rgba(214,173,95,0.6)' : 'rgba(214,173,95,0.3)'; g.lineWidth = Math.max(1, 0.004 * k);
+    g.beginPath(); g.ellipse(mx, bl.y, rx, ry, 0, 0, Math.PI, true); g.stroke();
+    if (!on) continue;
     // A soft cone of light down to the table.
-    const t0 = P(L.x - 0.15, L.y, L.z), t1 = P(L.x + 0.15, L.y, L.z), f0 = P(L.x - 0.5, TABLE.y, CAN_Z), f1 = P(L.x + 0.5, TABLE.y, CAN_Z);
+    const t0 = P(L.x - 0.15, L.y, L.z), t1 = P(L.x + 0.15, L.y, L.z), f0 = P(L0.x - 0.5, TABLE.y, CAN_Z), f1 = P(L0.x + 0.5, TABLE.y, CAN_Z);
     poly(g, [t0, t1, f1, f0]);
     const cone = g.createLinearGradient(0, t0.y, 0, f0.y);
     cone.addColorStop(0, 'rgba(255,214,160,0.09)'); cone.addColorStop(1, 'rgba(255,214,160,0)');
     g.fillStyle = cone; g.fill();
   }
+}
+
+// The rope across the window, on two hooks screwed into the wall either side of it.
+function drawRope(g) {
+  if (!HANG.includes(state.layout)) return;
+  g.save();
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  for (const x of [LINE.x0, LINE.x1]) {
+    const w0 = P(x, LINE.y + 0.02, WALL), w1 = P(x, LINE.y + 0.02, LINE.z), h = P(x, LINE.y - 0.012, LINE.z - 0.012);
+    g.fillStyle = '#26282c'; g.fillRect(w0.x - 0.014 * w0.k, w0.y - 0.022 * w0.k, 0.028 * w0.k, 0.044 * w0.k);
+    g.strokeStyle = '#121418'; g.lineWidth = Math.max(1.5, 0.009 * w1.k);
+    g.beginPath(); g.moveTo(w0.x, w0.y); g.lineTo(w1.x, w1.y); g.lineTo(h.x, h.y); g.stroke();
+    g.strokeStyle = 'rgba(255,220,170,0.22)'; g.lineWidth = Math.max(1, 0.003 * w1.k);
+    g.beginPath(); g.moveTo(w0.x, w0.y); g.lineTo(w1.x, w1.y); g.stroke();
+  }
+  const pts = [];
+  for (let i = 0; i <= 28; i++) { const x = LINE.x0 + (LINE.x1 - LINE.x0) * i / 28; pts.push(P(x, lineY(x), LINE.z)); }
+  const k = pts[14].k, path = () => { g.beginPath(); pts.forEach((q, i) => i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y)); };
+  path(); g.strokeStyle = '#2e2214'; g.lineWidth = Math.max(1.6, 0.009 * k); g.stroke();
+  path(); g.strokeStyle = '#b8935c'; g.lineWidth = Math.max(1, 0.0055 * k); g.stroke();
+  // Threads left hanging where cans have come off.
+  g.strokeStyle = 'rgba(232,224,204,0.75)'; g.lineWidth = Math.max(0.8, 0.0016 * k);
+  for (const c of cans) {
+    if (c.state === 'hang' || !c.cut) continue;
+    const a = P(c.anchor.x, c.anchor.y, c.anchor.z), e = P(c.anchor.x, c.anchor.y - c.cut, c.anchor.z);
+    g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(e.x, e.y); g.stroke();
+  }
+  g.restore();
+}
+function drawThread(g, c) {
+  const a = P(c.anchor.x, c.anchor.y, c.anchor.z), e = project(c.top);
+  g.save();
+  g.strokeStyle = 'rgba(232,224,204,0.85)'; g.lineWidth = Math.max(0.8, 0.0016 * a.k); g.lineCap = 'round';
+  g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(e.x, e.y); g.stroke();
+  g.fillStyle = '#d9cfb4'; g.beginPath(); g.arc(a.x, a.y, Math.max(1, 0.004 * a.k), 0, TAU); g.fill();
+  g.restore();
 }
 
 /* The table is drawn after anything that has fallen behind or under it. */
@@ -1517,7 +1732,8 @@ function buildTable() {
   g.fillStyle = top; g.fill();
   g.save();
   poly(g, [c0, c1, c2, c3]); g.clip();
-  for (const L of LAMPS) {
+  for (const L of lamps) {
+    if (!L.on) continue;
     const q = P(L.x, T.y, CAN_Z - 0.05);
     const rg = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, 0.55 * q.k);
     rg.addColorStop(0, 'rgba(255,214,160,0.35)'); rg.addColorStop(1, 'rgba(255,214,160,0)');
@@ -2094,10 +2310,10 @@ function drawHUD(g, now) {
   g.fillText(T.fireLbl, f.x, f.y - 6 * d + (pressed ? 1.5 * d : 0));
   if ('letterSpacing' in g) g.letterSpacing = '0px';
   g.font = `700 ${12 * d}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
-  g.fillText(`${gun.ammo}/${gs.cap}`, f.x, f.y + 10 * d + (pressed ? 1.5 * d : 0));
+  g.fillText(unlimited() ? '∞' : `${gun.ammo}/${gs.cap}`, f.x, f.y + 10 * d + (pressed ? 1.5 * d : 0));
 
   // Reload button: two curved arrows.
-  const r = geo.rel, full = gun.ammo >= gs.cap;
+  const r = geo.rel, full = unlimited() || gun.ammo >= gs.cap;
   g.beginPath(); g.arc(r.x, r.y, r.r, 0, TAU);
   g.fillStyle = 'rgba(10,16,23,0.55)'; g.fill();
   g.strokeStyle = gun.reload ? '#8fc5ee' : full ? 'rgba(239,231,212,0.25)' : 'rgba(239,231,212,0.7)';
@@ -2194,10 +2410,19 @@ function frame(now) {
   updateAim(dt);
   updatePhase(dt);
   updateGun(dt);
-  const active = bbs.some(b => b.live) || cans.some(c => c.state === 'fly' && !c.sleep) || shards.some(s => !s.rest);
+  const active = bbs.some(b => b.live) || cans.some(c => (c.state === 'fly' && !c.sleep) || c.state === 'hang') || shards.some(s => !s.rest);
   if (active) {
     let sim = dt;
     while (sim > 1e-9) { const h = Math.min(STEP, sim); stepWorld(h); sim -= h; }
+  }
+  for (const L of lamps) {
+    if (!L.vx && !L.vz && !L.sx && !L.sz) continue;
+    const k = G / SHADE.cord, n = Math.ceil(dt / 0.008), h = dt / n;
+    for (let i = 0; i < n; i++) {
+      L.vx += (-k * Math.sin(L.sx) - 0.5 * L.vx) * h; L.sx += L.vx * h;
+      L.vz += (-k * Math.sin(L.sz) - 0.5 * L.vz) * h; L.sz += L.vz * h;
+    }
+    if (Math.abs(L.sx) + Math.abs(L.sz) + Math.abs(L.vx) + Math.abs(L.vz) < 1e-4) L.sx = L.sz = L.vx = L.vz = 0;
   }
   for (let i = puffs.length - 1; i >= 0; i--) {
     const f = puffs[i];
@@ -2218,6 +2443,7 @@ function draw(now) {
   const g = ctx;
   if (!layer.width) return;
   if (layerDirty) { buildLayer(); layerDirty = false; }
+  if (tableDirty) { buildTable(); tableDirty = false; }
   g.setTransform(1, 0, 0, 1, 0, 0);
   let ox = 0, oy = 0;
   if (!reduceMotion && now < shakeUntil) {
@@ -2229,11 +2455,13 @@ function draw(now) {
   drawChalk(g);
   drawMarks(g);
   drawCracks(g);
+  drawLamps(g);
+  drawRope(g);
 
   // Things behind or under the table, then the table, then everything in front of it, far to near.
   const behind = [], front = [];
   const put = (p, fn) => ((p.z > TABLE.z0 && p.y < TABLE.y - 0.004) ? behind : front).push({ z: p.z, fn });
-  for (const c of cans) put(c.p, () => drawCan(g, c));
+  for (const c of cans) put(c.p, () => { if (c.state === 'hang') drawThread(g, c); drawCan(g, c); });
   for (const b of bbs) if (!b.gone && (b.p.z > 1.6 || !b.live)) put(b.p, () => drawBB(g, b));
   for (const sh of shards) put(sh.p, () => drawShard(g, sh, now));
   behind.sort((a, b) => b.z - a.z).forEach(d => d.fn());
@@ -2244,17 +2472,7 @@ function draw(now) {
 
   const hand = HANDS[prefs.difficulty], A = aimNow(now / 1000), gs = spec();
   const { xf } = drawGun(g, A);
-  if (hand.guide && canFire() && !gun.reload) {
-    const M = gunToRoom(xf([0, 0, gs.len])), hit = predictBB(M, A, gs.speed);
-    if (hit) {
-      const e = project(hit.p);
-      g.save();
-      g.fillStyle = hit.type === 'can' ? '#82d09c' : hit.type === 'glass' ? '#e58576' : '#e7bd6a';
-      g.strokeStyle = 'rgba(5,10,16,0.75)'; g.lineWidth = 2 * cam.dpr;
-      g.beginPath(); g.arc(e.x, e.y, 4 * cam.dpr, 0, TAU); g.fill(); g.stroke();
-      g.restore();
-    }
-  }
+  const guide = hand.guide && canFire() && !gun.reload ? predictBB(gunToRoom(xf([0, 0, gs.len])), A, gs.speed) : null;
   for (const b of bbs) if (!b.gone && b.live && b.p.z <= 1.6) drawBB(g, b);
 
   if (!cam.vig) {
@@ -2264,7 +2482,25 @@ function draw(now) {
   }
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.fillStyle = cam.vig; g.fillRect(0, 0, canvas.width, canvas.height);
+  // Every lamp shot out leaves the room darker, most of all on its own side.
+  const off = lamps.filter(L => !L.on);
+  if (off.length) {
+    g.fillStyle = `rgba(2,4,8,${0.2 * off.length})`; g.fillRect(0, 0, canvas.width, canvas.height);
+    for (const L of off) {
+      const q = P(L.x, 1.4, CAN_Z), r = 1.5 * cam.kW, dg = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, r);
+      dg.addColorStop(0, 'rgba(2,4,8,0.45)'); dg.addColorStop(1, 'rgba(2,4,8,0)');
+      g.fillStyle = dg; g.fillRect(q.x - r, q.y - r, 2 * r, 2 * r);
+    }
+  }
   g.setTransform(1, 0, 0, 1, ox, oy);
+  if (guide) {
+    const e = project(guide.p);
+    g.save();
+    g.fillStyle = guide.type === 'can' ? '#82d09c' : ['glass', 'sign', 'bulb'].includes(guide.type) ? '#e58576' : '#e7bd6a';
+    g.strokeStyle = 'rgba(5,10,16,0.75)'; g.lineWidth = 2 * cam.dpr;
+    g.beginPath(); g.arc(e.x, e.y, 4 * cam.dpr, 0, TAU); g.fill(); g.stroke();
+    g.restore();
+  }
 
   if (state.phase !== 'between' && state.phase !== 'over') {
     const q = project(A), dist = Math.hypot(A.x - gs.hold.x, A.y - gs.hold.y, A.z - gs.hold.z);
@@ -2401,10 +2637,19 @@ const sfx = (() => {
         tone(a, { f0: f * 2.3, dur: 0.05, gain: 0.04 * g });
         burst(a, { dur: 0.02, type: 'highpass', f0: 5000, f1: 4000, gain: 0.12 * g });
       } else if (type === 'board') { tone(a, { f0: 140, f1: 70, dur: 0.08, gain: 0.25 * g + 0.04 }); }
+      else if (type === 'shade') { tone(a, { f0: 1900, f1: 1650, dur: 0.16, type: 'triangle', gain: 0.1 * g + 0.02 }); tone(a, { f0: 4100, dur: 0.06, gain: 0.03 * g }); }
       else if (type === 'sign') { tone(a, { f0: 1250, f1: 1100, dur: 0.18, type: 'triangle', gain: 0.12 * g + 0.02 }); tone(a, { f0: 2500, f1: 2200, dur: 0.1, gain: 0.05 * g }); }
       else if (type === 'table' || type === 'floor') { tone(a, { f0: type === 'floor' ? 900 : 1300, f1: 900, dur: 0.035, type: 'triangle', gain: 0.1 * g + 0.02 }); }
       else { tone(a, { f0: 260, f1: 120, dur: 0.07, gain: 0.22 * g + 0.03 }); burst(a, { dur: 0.03, type: 'highpass', f0: 2600, f1: 1800, gain: 0.1 * g }); }
     },
+    bulb() {
+      const a = get(); if (!a) return;
+      burst(a, { dur: 0.06, type: 'highpass', f0: 2000, f1: 900, gain: 0.5 });
+      tone(a, { f0: 180, f1: 70, dur: 0.08, gain: 0.3 });
+      burst(a, { dur: 0.35, f0: 3200, f1: 2600, q: 9, gain: 0.05, delay: 0.02 });      // the filament fizzing out
+      for (let i = 0; i < 10; i++) tone(a, { f0: 3000 + Math.random() * 4500, dur: 0.03 + Math.random() * 0.08, gain: 0.03 + Math.random() * 0.04, delay: 0.05 + Math.random() * 0.45 });
+    },
+    snap() { const a = get(); if (a) { tone(a, { f0: 900, f1: 500, dur: 0.05, type: 'triangle', gain: 0.1 }); burst(a, { dur: 0.03, type: 'highpass', f0: 3000, f1: 2000, gain: 0.08 }); } },
     cheer() { const a = get(); if (!a) return; [523, 659, 784, 1047].forEach((f, i) => tone(a, { f0: f, dur: 0.35, gain: 0.15, delay: i * 0.11 })); },
     buzz() { const a = get(); if (a) tone(a, { f0: 190, f1: 140, dur: 0.5, type: 'square', gain: 0.07 }); },
   };
@@ -2442,7 +2687,8 @@ function tryFire(press) {
 }
 function shoot() {
   const gs = spec(), hand = HANDS[prefs.difficulty], now = performance.now() / 1000;
-  gun.ammo--; gun.cool = gs.cycle; gun.fireT = now;
+  if (!unlimited()) gun.ammo--;
+  gun.cool = gs.cycle; gun.fireT = now;
   const A = aimNow(now), fr = gunFrame(A), xf = gunXf(fr, false), M = gunToRoom(xf([0, 0, gs.len]));
   const dist = Math.hypot(A.x - M.x, A.y - M.y, A.z - M.z);
   const spread = (gs.spread + (gs.bloom ? gun.bloom : 0)) * hand.spread * DEG * dist;
@@ -2475,7 +2721,7 @@ function shoot() {
 }
 function startReload() {
   const gs = spec();
-  if (gun.reload || gun.ammo >= gs.cap || !canFire()) return;
+  if (unlimited() || gun.reload || gun.ammo >= gs.cap || !canFire()) return;
   const R = gs.reload;
   gun.reload = R.kind === 'mag' ? { kind: 'mag', t: 0, total: R.t, stage: 0 } : { kind: 'each', t: 0, next: R.open, stage: 'open', need: gs.cap - gun.ammo };
   gun.pending = false;
@@ -2525,30 +2771,32 @@ function updateGun(dt) {
 }
 
 /* ---------- Moving the sight ---------- */
-const joy = { id: null, base: { x: 0, y: 0 }, knob: { x: 0, y: 0 } };
+const joy = { id: null, base: { x: 0, y: 0 }, knob: { x: 0, y: 0 }, last: null, spd: 0 };
 const keysDown = new Set();
+let keyHold = 0;
 function clampAim() {
   const m = 16 * cam.dpr, kA = cam.kA || 1;
   const xr = Math.max(0.1, (canvas.width / 2 - m) / kA), yTop = EYE.y + (cam.cy - m) / kA, yBot = EYE.y - (canvas.height - cam.cy - m) / kA;
   aim.x = clamp(aim.x, Math.max(-ROOM.hw + 0.05, -xr), Math.min(ROOM.hw - 0.05, xr));
   aim.y = clamp(aim.y, Math.max(0.2, yBot), Math.min(ROOM.h - 0.05, yTop));
 }
+// The stick moves the sight as the thumb moves (see pointermove); here it only keeps the sight
+// travelling while the stick is held against its rim. Arrow keys speed up the longer they are held.
 function updateAim(dt) {
   let vx = 0, vy = 0;
+  const sens = SENS[prefs.sens];
   if (joy.id !== null) {
-    const geo = hudGeo(), l = Math.hypot(joy.knob.x, joy.knob.y), n = Math.min(1, l / geo.jr);
-    if (n > 0.06) {
-      const s = JOY.maxV * Math.pow((n - 0.06) / 0.94, 2.2) / l;
-      vx += joy.knob.x * s; vy -= joy.knob.y * s;
-    }
+    const geo = hudGeo(), l = Math.hypot(joy.knob.x, joy.knob.y), n = l / geo.jr;
+    if (n > 0.8) { const s = sens * JOY.rimV * smooth((n - 0.8) / 0.2) / l; vx += joy.knob.x * s; vy -= joy.knob.y * s; }
   }
-  if (keysDown.size) {
-    const s = JOY.maxV * (keysDown.has('slow') ? 0.1 : 0.42);
+  if (keysDown.has('left') || keysDown.has('right') || keysDown.has('up') || keysDown.has('down')) {
+    keyHold += dt;
+    const s = sens * (keysDown.has('slow') ? 0.1 : 0.25 + 0.95 * smooth(keyHold / 0.5));
     if (keysDown.has('left')) vx -= s;
     if (keysDown.has('right')) vx += s;
     if (keysDown.has('up')) vy += s;
     if (keysDown.has('down')) vy -= s;
-  }
+  } else keyHold = 0;
   if (vx || vy) { aim.x += vx * dt; aim.y += vy * dt; clampAim(); hideHint(); }
 }
 
@@ -2559,13 +2807,15 @@ function startRound() {
   panes = makePanes();
   bbs = []; shards = []; shots = []; puffs = [];
   state.timeLeft = ROUND_TIME;
-  state.rt = { cans: 0, glass: 0, timeBonus: 0, left: 0, start: state.score, cleared: false };
+  state.rt = { cans: 0, glass: 0, sign: 0, timeBonus: 0, left: 0, start: state.score, cleared: false };
+  for (const L of lamps) { L.on = true; L.sx = L.sz = L.vx = L.vz = 0; }   // the electrician has been in too
+  tableDirty = true;
   if (state.mode === 'classic') gunReset();
   layerDirty = true;
 }
 function newGame() {
   state.round = 1; state.score = 0;
-  state.totals = { cans: 0, bonus: 0, glass: 0, panes: 0, shots: 0, hits: 0 };
+  state.totals = { cans: 0, bonus: 0, glass: 0, sign: 0, panes: 0, bulbs: 0, shots: 0, hits: 0 };
   state.goT = 0; marks = [];
   toasts.length = 0;
   gunReset();
@@ -2618,7 +2868,7 @@ function timeUp() {
   state.timeLeft = 0;
   state.phase = 'timeup'; state.endT = 1.1;
   gun.trigger = false; gun.pending = false;
-  const standing = cans.filter(c => c.state === 'stand').length;
+  const standing = cans.filter(isUp).length;
   state.message = [['timeUp', standing]]; lastSay = performance.now();
   sfx.buzz();
   renderUI();
@@ -2676,7 +2926,7 @@ function canDown(c, shot) {
     if (shot) shot.toast = nt;
   }
   sfx.can();
-  if (cans.every(o => o.state !== 'stand')) onAllDown();
+  if (!cans.some(isUp)) onAllDown();
   renderUI();
 }
 function airShot(c, shot) {
@@ -2702,6 +2952,42 @@ function glassHit(pn, x, y, b) {
   else sfx.crack();
   renderUI();
 }
+// The Siam Times sign: each shot that hits it costs 300.
+function hitSign(b, x, y) {
+  const sh = b.shot;
+  if (!sh || sh.sign) return;
+  sh.sign = true;
+  state.score -= PTS.sign;
+  state.totals.sign += PTS.sign;
+  if (state.rt) state.rt.sign += PTS.sign;
+  toasts.push({ text: `−${PTS.sign}`, sub: T.toastSign, p: { x, y, z: WALL }, born: performance.now(), bad: true });
+  sfx.buzz();
+  renderUI();
+}
+function threadCut(at, shot) {
+  state.score += PTS.thread; state.totals.bonus += PTS.thread;
+  if (shot) shot.thread = true;
+  toasts.push({ text: `+${PTS.thread}`, sub: T.toastThread, p: at, born: performance.now() + 200 });
+  sfx.snap();
+  renderUI();
+}
+function breakBulb(L0, b) {
+  L0.on = false; layerDirty = true; tableDirty = true;
+  const L = lampAt(L0), at = { x: L.x, y: L.y + 0.04, z: L.z };
+  puffs.push({ p: { ...at }, v: { x: 0, y: 0, z: 0 }, t: 0, life: 0.22, r0: 0.04, r1: 0.32, spark: true });
+  for (let i = 0; i < 12; i++) {
+    shards.push({
+      p: { x: at.x + (Math.random() - 0.5) * 0.06, y: at.y - 0.02, z: at.z + (Math.random() - 0.5) * 0.06 },
+      v: { x: (Math.random() - 0.5) * 1.2, y: Math.random() * 0.8, z: (Math.random() - 0.5) * 1.2 },
+      a: Math.random() * TAU, va: (Math.random() - 0.5) * 30, s: 0.004 + Math.random() * 0.007, rest: false, flat: false, seed: Math.random(),
+    });
+  }
+  b.v.x *= 0.7; b.v.y *= 0.7; b.v.z *= 0.7;
+  if (b.shot) b.shot.bulb = true;
+  state.totals.bulbs++;
+  if (!reduceMotion) shakeUntil = performance.now() + 120;
+  sfx.bulb();
+}
 function shatter(pn, x, y) {
   pn.shattered = true; pn.holes = [];
   makeHole(pn, x, y);
@@ -2719,13 +3005,14 @@ function shatter(pn, x, y) {
 }
 function missMessage(sh) {
   const f = sh.first;
-  const standing = cans.filter(c => c.state === 'stand');
+  const standing = cans.filter(isUp), hanging = standing.some(c => c.state === 'hang');
   if (!standing.length) return null;
   if (!f) return ['high'];
   if (f.type === 'through') return ['through'];
   if (((f.type === 'table' || f.type === 'floor') && f.z < CAN_Z - 0.05) || f.y < TABLE.y - 0.01) return ['low'];
-  const topY = Math.max(...standing.map(c => c.p.y + CAN.h / 2));
-  if (f.y > topY + 0.005 || f.type === 'glass') return ['high'];
+  const topY = Math.max(...standing.map(c => c.p.y + CAN.h / 2)), botY = Math.min(...standing.map(c => c.p.y - CAN.h / 2));
+  if (f.y > topY + 0.005 || (f.type === 'glass' && !hanging)) return ['high'];
+  if (hanging && f.y < botY - 0.02) return ['low'];
   let near = standing[0];
   for (const c of standing) if (Math.abs(c.p.x - f.x) < Math.abs(near.p.x - f.x)) near = c;
   const dx = f.x - near.p.x;
@@ -2744,15 +3031,19 @@ function finishShot(sh) {
   }
   if (state.phase !== 'live') { renderUI(); return; }   // keep the end-of-round words on show
   const parts = [];
+  if (sh.sign) parts.push(['signMsg']);
+  if (sh.bulb) parts.push(['bulb']);
   if (sh.panes) parts.push(['glassMsg', sh.panes]);
   if (n) parts.push(['hit', n]);
+  if (sh.thread) parts.push(['thread']);
   if (sh.air) parts.push(['air']);
-  if (!n && !sh.panes && !sh.air && !sh.hitCan) {
+  const notable = n || sh.panes || sh.air || sh.sign || sh.bulb || sh.thread;
+  if (!notable && !sh.hitCan) {
     const m = missMessage(sh);
     if (m) parts.push(m);
     if (sh.ricochet) parts.push(['ricochet']);
   }
-  say(parts, !n && !sh.panes && !sh.air);
+  say(parts, !notable);
   renderUI();
 }
 
@@ -2773,7 +3064,8 @@ function renderOverlay() {
     $('ovEyebrow').textContent = rt.cleared ? T.clearedN(state.round) : T.timeUpN(state.round);
     $('ovTitle').textContent = rt.points < 0 ? `−${-rt.points}` : `+${rt.points}`;
     $('ovText').textContent = T.roundText(rt);
-    $('ovNote').textContent = T.nextRound(state.round + 1, T.layout[ROUND_LAYOUTS[state.round]]);
+    const next = ROUND_LAYOUTS[state.round];
+    $('ovNote').textContent = T.nextRound(state.round + 1, T.layout[next]) + (HANG.includes(next) ? ` ${T.hangNote}` : '');
     $('ovBtn').textContent = T.startN(state.round + 1);
   } else {
     $('ovEyebrow').textContent = T.overEyebrow;
@@ -2808,11 +3100,12 @@ function renderUI() {
   $('sbTimeLabel').textContent = classic ? T.time : T.accuracy;
   renderClock();
   const ap = $('ammoPips');
-  if (gs.cap <= 8) {
+  if (unlimited()) ap.innerHTML = `<span class="${state.gun === 'shotgun' ? 'shellpip' : 'bbpip'}"></span><span class="count">∞</span>`;
+  else if (gs.cap <= 8) {
     const cls = state.gun === 'shotgun' ? 'shellpip' : 'bbpip';
     ap.innerHTML = Array.from({ length: gs.cap }, (_, i) => `<span class="${cls}${i < gun.ammo ? '' : ' used'}"></span>`).join('');
   } else ap.innerHTML = `<span class="bbpip"></span><span class="count">${gun.ammo}</span><span class="of">/${gs.cap}</span>`;
-  $('canPips').innerHTML = cans.map(c => `<span class="canpip${c.state === 'stand' ? '' : ' down'}"></span>`).join('');
+  $('canPips').innerHTML = cans.map(c => `<span class="canpip${isUp(c) ? '' : ' down'}"></span>`).join('');
   if (classic) { $('sbSideLabel').textContent = T.best; const b = prefs.best[state.gun]; $('sbSideValue').textContent = b === null ? '–' : String(b); }
   else { $('sbSideLabel').textContent = T.panes; $('sbSideValue').textContent = String(state.totals.panes); }
   $('msg').textContent = state.message.map(([k, ...a]) => typeof T[k] === 'function' ? T[k](...a) : T[k]).join(' ');
@@ -2821,6 +3114,7 @@ function renderUI() {
   document.querySelector(`input[name="mode"][value="${state.mode}"]`).checked = true;
   document.querySelector(`input[name="gun"][value="${state.gun}"]`).checked = true;
   document.querySelector(`input[name="difficulty"][value="${prefs.difficulty}"]`).checked = true;
+  document.querySelector(`input[name="sens"][value="${prefs.sens}"]`).checked = true;
   $('diffNote').textContent = T['note' + prefs.difficulty[0].toUpperCase() + prefs.difficulty.slice(1)];
   const sb = $('soundBtn');
   sb.setAttribute('aria-pressed', String(prefs.sound));
@@ -2867,6 +3161,7 @@ canvas.addEventListener('pointerdown', e => {
     joy.id = e.pointerId;
     joy.base = { x: clamp(pt.x, geo.jr + 8 * geo.d, geo.W * 0.45), y: clamp(pt.y, geo.H * 0.4, geo.H - geo.jr - 8 * geo.d) };
     joy.knob = { x: pt.x - joy.base.x, y: pt.y - joy.base.y };
+    joy.last = { x: pt.x, y: pt.y, t: e.timeStamp }; joy.spd = 0;
     hideHint();
   } else {
     pointers.set(e.pointerId, { kind: 'pad', x: pt.x, y: pt.y });
@@ -2878,11 +3173,22 @@ canvas.addEventListener('pointermove', e => {
   if (!p) return;
   const pt = canvasPoint(e);
   if (p.kind === 'joy') {
-    const geo = hudGeo(), dx = pt.x - joy.base.x, dy = pt.y - joy.base.y, l = Math.hypot(dx, dy), k = l > geo.jr ? geo.jr / l : 1;
-    joy.knob = { x: dx * k, y: dy * k };
+    // The sight follows the thumb at once: about one for one when you move slowly, much further when you flick.
+    const geo = hudGeo(), dx = pt.x - joy.last.x, dy = pt.y - joy.last.y, dt = Math.max(1 / 250, (e.timeStamp - joy.last.t) / 1000);
+    const v = Math.hypot(dx, dy) / geo.d / dt;                            // thumb speed, css px a second
+    joy.spd = joy.spd ? joy.spd * 0.5 + v * 0.5 : v;
+    const gain = SENS[prefs.sens] * (1.2 + 2.6 * smooth((joy.spd - 80) / 1000));
+    aim.x += dx * gain / cam.kA; aim.y -= dy * gain / cam.kA;
+    clampAim();
+    joy.last = { x: pt.x, y: pt.y, t: e.timeStamp };
+    // The knob stays under the thumb; pulled past the rim, the whole stick slides along with it.
+    let kx = pt.x - joy.base.x, ky = pt.y - joy.base.y;
+    const l = Math.hypot(kx, ky);
+    if (l > geo.jr) { joy.base.x += kx * (1 - geo.jr / l); joy.base.y += ky * (1 - geo.jr / l); kx *= geo.jr / l; ky *= geo.jr / l; }
+    joy.knob = { x: kx, y: ky };
   } else if (p.kind === 'pad') {
-    // Dragging elsewhere moves the sight with your finger, one for one.
-    aim.x += (pt.x - p.x) / cam.kA; aim.y -= (pt.y - p.y) / cam.kA;
+    // Dragging elsewhere moves the sight with your finger, one for one at medium sight speed.
+    aim.x += (pt.x - p.x) / cam.kA * SENS[prefs.sens]; aim.y -= (pt.y - p.y) / cam.kA * SENS[prefs.sens];
     p.x = pt.x; p.y = pt.y;
     clampAim();
   }
@@ -2921,9 +3227,14 @@ document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener(
   state.mode = r.value;
   newGame();
 }));
+document.querySelectorAll('input[name="sens"]').forEach(r => r.addEventListener('change', () => {
+  if (r.checked) { prefs.sens = r.value; savePrefs(); }
+}));
 document.querySelectorAll('input[name="difficulty"]').forEach(r => r.addEventListener('change', () => {
   if (!r.checked) return;
-  prefs.difficulty = r.value; savePrefs(); renderUI();
+  prefs.difficulty = r.value; savePrefs();
+  if (unlimited()) { gun.reload = null; gun.ammo = spec().cap; }
+  renderUI();
 }));
 
 const KEYMAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', a: 'left', d: 'right', w: 'up', s: 'down' };
