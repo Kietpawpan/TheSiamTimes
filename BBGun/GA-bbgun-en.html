@@ -3095,6 +3095,10 @@ function onAllDown() {
     state.message = [['rack']]; lastSay = performance.now();
   }
 }
+/* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
+function storyDone(r) {
+  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'bbgun' }, r), '*'); } catch (e) { /* not in a frame */ }
+}
 function endRound() {
   for (const sh of shots.slice()) finishShot(sh);
   const rt = state.rt;
@@ -3103,6 +3107,7 @@ function endRound() {
     state.phase = 'over';
     const prev = prefs.best[state.gun], isBest = prev === null || state.score > prev;
     if (isBest) { prefs.best[state.gun] = state.score; savePrefs(); }
+    storyDone({ won: true, score: state.score });
     state.card = { kind: 'over', isBest };
   } else {
     state.phase = 'between';
