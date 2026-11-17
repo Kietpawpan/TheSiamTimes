@@ -364,6 +364,7 @@ html:lang(th) .pill { font-size: 11px; letter-spacing: 0; text-transform: none; 
 html:lang(th) .score { letter-spacing: .04em; }
 html:lang(th) .breakdown b { line-height: 1.55; }
 html:lang(th) .tip b { line-height: 1.45; }
+html:lang(th) .partner b { white-space: nowrap; }
 html:lang(th) .seg button { font-size: 13px; letter-spacing: 0; text-transform: none; line-height: 1.2; white-space: nowrap; }
 html:lang(th) .hint { font-size: 13.5px; }
 html:lang(th) .toast { font-size: 14px; line-height: 1.35; }
@@ -481,8 +482,8 @@ const STR = {
     reset: 'เริ่มใหม่', resetTitle: 'ถอดทุกอย่างออกแล้วเริ่มต้นใหม่',
     save: 'เก็บลุค', png: 'ดาวน์โหลดภาพ',
     present: 'ส่งลุคให้ตัดสิน', presentFree: 'ถามโต๊ะแฟชั่น',
-    valetBoth: 'พ่อบ้านแต่งตัวให้ทั้งคู่แล้ว รายละเอียดปิดท้ายเป็นหน้าที่ของคุณ',
-    valetOne: 'พ่อบ้านจัดเสื้อผ้าไว้ให้แล้ว รายละเอียดปิดท้ายเป็นหน้าที่ของคุณ',
+    valetBoth: 'พ่อบ้านแต่งตัวให้ทั้งคู่แล้ว ส่วนแอ็กเซสซอรีให้คุณเลือกเอง',
+    valetOne: 'พ่อบ้านจัดเสื้อผ้าไว้ให้แล้ว ส่วนแอ็กเซสซอรีให้คุณเลือกเอง',
     who: { woman: 'สุภาพสตรี', man: 'สุภาพบุรุษ' },
 
     col: {
@@ -738,7 +739,7 @@ const STR = {
     deskKicker: k => `โต๊ะข่าวแฟชั่น · ${k}`,
     starsOf: n => `${n} จาก 5 ดาว`,
     flawlessOwn: 'ไร้ที่ติ · ด้วยมือคุณเอง', flawless: 'ไร้ที่ติ', newBest: 'สถิติใหม่',
-    breakdown: ['ชุดครบ', 'เหมาะกับงาน', 'ความเรียบหรู ไม่มีโลโก้ ไม่มากเกิน', 'โทนสีจากสีกลาง ๆ', 'รายละเอียดปิดท้าย ทุกชิ้นเข้ากัน'],
+    breakdown: ['ชุดครบ', 'เหมาะกับงาน', 'ความเรียบหรู ไม่มีโลโก้ ไม่มากเกิน', 'โทนสีจากสีกลาง ๆ', 'การเก็บรายละเอียด ทุกชิ้นเข้ากัน'],
     nothingToAdd: 'ไม่มีอะไรต้องเติม',
     byline: v => `“${v}” — โต๊ะข่าวแฟชั่น The Siam Times`,
     improve: 'ปรับให้ดีขึ้น',
