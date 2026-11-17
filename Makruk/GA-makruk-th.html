@@ -988,7 +988,7 @@ const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) 
 const prefs = Object.assign({
   mode: 'ai', human: WHITE, level: 'normal', sound: true, flip: false, view: 'side',
 }, saved.prefs || {});
-delete prefs.lang;   // from when the game also spoke Thai
+delete prefs.lang;   // an old setting from when one page switched languages; each page now has its own language
 const record = Object.assign({ easy: { w: 0, d: 0, l: 0 }, normal: { w: 0, d: 0, l: 0 }, pro: { w: 0, d: 0, l: 0 } }, saved.record || {});
 let game = saved.game && Array.isArray(saved.game.moves) ? saved.game
   : { mode: prefs.mode, human: prefs.human, moves: [], recorded: false };

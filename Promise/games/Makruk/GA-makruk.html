@@ -6,13 +6,17 @@
 <title>Siam Times Makruk</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Makruk, Thai chess, on a teak board in The Siam Times newsroom club room. Play The Editor or a friend.">
+<link rel="alternate" hreflang="th" href="GA-makruk-th.html">
+<link rel="alternate" hreflang="en" href="GA-makruk.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 <style>
 /* Layout follows Siam Times Darts: the club room fills the left as the scene, with the scoreline across
    its top; a narrow control rail sits on the right and drops under the scene on phones.
-   Deliberately one dark look (a dim room with a lit table), so there are no light-theme blocks. */
+   Deliberately one dark look (a dim room with a lit table), so there are no light-theme blocks.
+   The same styles serve GA-makruk.html (English) and GA-makruk-th.html (Thai): html:lang(th) rules set
+   Thai text in Sarabun, a little larger, with no capitals or wide letter-spacing. */
 :root {
   color-scheme: dark;
   --night: #0c131b;      /* page ground */
@@ -27,8 +31,8 @@
   --good: #82d09c;
   --bad: #e58576;
   --font-mast: "Chomsky", "Old English Text MT", "UnifrakturCook", serif;
-  --font-text: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-label: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-text: "Newsreader", "Sarabun", Georgia, "Times New Roman", serif;
+  --font-label: "Helvetica Neue", Helvetica, Arial, "Sarabun", sans-serif;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   box-sizing: border-box;
@@ -50,6 +54,7 @@ body {
   font: 16px/1.45 var(--font-text);
   -webkit-font-smoothing: antialiased;
 }
+html:lang(th) body { font-family: "Sarabun", var(--font-text); line-height: 1.55; }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
@@ -80,6 +85,7 @@ button { cursor: pointer; }
   text-transform: uppercase;
   color: var(--muted);
 }
+html:lang(th) .label { font-size: 12.5px; letter-spacing: .01em; text-transform: none; }
 .sb-sub { font-size: 15px; line-height: 1.2; }
 .big {
   font: 600 32px/1 var(--font-text);
@@ -103,10 +109,12 @@ button { cursor: pointer; }
 .side-cell.active .side-name { color: var(--paper); }
 .side-name { white-space: nowrap; }
 .side-name .thinking { color: var(--brass); text-transform: none; letter-spacing: 0; font-weight: 400; font-style: italic; font-family: var(--font-text); font-size: 13px; }
+html:lang(th) .side-name .thinking { font-style: normal; font-family: "Sarabun", var(--font-text); }
 .caps { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0; min-height: 26px; }
 .caps img { width: 20px; height: 26px; margin-right: -3px; }
 .caps .adv { margin-left: 8px; font: 600 14px/26px var(--font-text); color: var(--muted); font-variant-numeric: tabular-nums; }
 .caps .none { font: italic 14px/26px var(--font-text); color: var(--muted); }
+html:lang(th) .caps .none { font-style: normal; }
 .sb-msg {
   flex-basis: 100%;
   margin: 0;
@@ -115,6 +123,7 @@ button { cursor: pointer; }
   min-height: 1.45em;
 }
 .sb-msg strong { font-style: normal; color: var(--brass); }
+html:lang(th) .sb-msg { font-style: normal; }
 
 .scene { position: relative; flex: 1; min-height: 0; background: #101a25; overflow: hidden; }
 .scene canvas {
@@ -139,6 +148,7 @@ button { cursor: pointer; }
   pointer-events: none;
   transition: opacity .4s;
 }
+html:lang(th) .hint { font-size: 13px; letter-spacing: .01em; }
 .hint.gone { opacity: 0; }
 .overlay {
   position: absolute; inset: 0;
@@ -162,6 +172,7 @@ button { cursor: pointer; }
   color: var(--brass);
   text-wrap: balance;
 }
+html:lang(th) .card h2 { font: 700 34px/1.2 "Sarabun", var(--font-text); }
 .card p { margin: 0; }
 .card .btn-brass { margin-top: 8px; }
 
@@ -177,10 +188,23 @@ button { cursor: pointer; }
   border-left: 1px solid var(--rule);
 }
 .brand { display: flex; flex-direction: column; gap: 6px; }
+.brand-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .brand h1 { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-weight: 400; line-height: 1; }
 .brand .mast { font: 400 34px/1 var(--font-mast); letter-spacing: .005em; }
 .brand .game { font: italic 400 26px/1.15 var(--font-text); color: var(--brass); }
+html:lang(th) .brand .game { font: 600 24px/1.2 "Sarabun", sans-serif; }
 .brand p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; max-width: 36ch; }
+html:lang(th) .brand p { font-size: 15px; line-height: 1.55; }
+.btn-lang {
+  flex: none;
+  display: inline-flex; align-items: center;
+  min-height: 32px; padding: 0 12px;
+  color: var(--paper); text-decoration: none;
+  border: 1px solid var(--rule); border-radius: 999px;
+  background: transparent;
+  font: 600 13px/1 var(--font-label);
+}
+.btn-lang:hover { border-color: var(--paper); }
 
 .group { display: flex; flex-direction: column; gap: 10px; border: 0; margin: 0; padding: 0; min-width: 0; }
 .group > legend { padding: 0; margin-bottom: 10px; }
@@ -197,11 +221,13 @@ button { cursor: pointer; }
   border-left: 1px solid var(--rule);
   transition: background .15s, color .15s;
 }
+html:lang(th) .seg label { font-size: 14px; }
 .seg label:first-of-type { border-left: 0; }
 .seg label:hover { color: var(--paper); }
 .seg input:checked + label { background: var(--paper); color: var(--night); }
 .seg input:focus-visible + label { outline: 2px solid var(--blue); outline-offset: -2px; }
 .note { margin: 0; font-size: 14px; color: var(--muted); line-height: 1.45; }
+html:lang(th) .note { font-size: 14.5px; line-height: 1.55; }
 .note.pending { color: var(--brass); }
 
 .btn-brass {
@@ -215,12 +241,14 @@ button { cursor: pointer; }
   box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .22);
   transition: filter .15s, transform .05s;
 }
+html:lang(th) .btn-brass { font-size: 17px; letter-spacing: .01em; }
 .btn-brass:hover { filter: brightness(1.08); }
 .btn-brass:active { transform: translateY(1px); }
 .btn-brass:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
 .btn-brass.nudge { animation: nudge 1.6s ease-in-out 2; }
 @keyframes nudge { 50% { filter: brightness(1.22); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .22), 0 0 0 4px rgba(214, 173, 95, .35); } }
 .keys { margin: 0; font: 12px/1.75 var(--font-label); color: var(--muted); }
+html:lang(th) .keys { font-size: 13px; line-height: 1.85; }
 kbd {
   display: inline-block; min-width: 1.6em; padding: 0 5px;
   border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px;
@@ -235,6 +263,7 @@ kbd {
   background: transparent;
   font: 600 13px/1 var(--font-label);
 }
+html:lang(th) .btn-line { font-size: 14px; }
 .btn-line:hover:not(:disabled) { border-color: var(--paper); }
 .btn-line:disabled { color: var(--muted); opacity: .55; cursor: default; }
 .btn-line[aria-pressed="false"] { color: var(--muted); }
@@ -249,6 +278,7 @@ kbd {
   font: 15px/1.2 var(--font-text);
   font-variant-numeric: tabular-nums lining-nums;
 }
+html:lang(th) .movelist { font-family: "Sarabun", var(--font-text); }
 .movelist li { display: grid; grid-template-columns: 2.6em 1fr 1fr; align-items: center; padding: 3px 10px; }
 .movelist li:nth-child(even) { background: rgba(255, 255, 255, .025); }
 .movelist .no { color: var(--muted); font-size: 13px; }
@@ -257,18 +287,22 @@ kbd {
 .movelist .ply.last { color: var(--brass); }
 .movelist li.none { display: block; padding: 0; }
 .movelist .empty { display: block; padding: 6px 12px; color: var(--muted); font-style: italic; }
+html:lang(th) .movelist .empty { font-style: normal; }
 .record { display: grid; grid-template-columns: auto repeat(3, 1fr); gap: 4px 12px; margin: 0; font-size: 15px; font-variant-numeric: tabular-nums lining-nums; }
 .record dt { color: var(--muted); }
 .record dd { margin: 0; }
 .record .h { font: 600 11px/1.6 var(--font-label); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+html:lang(th) .record .h { font-size: 12.5px; letter-spacing: .01em; text-transform: none; }
 
 details { border-top: 1px solid var(--rule); padding-top: 14px; }
 summary { cursor: pointer; font: 600 14px/1.3 var(--font-label); }
+html:lang(th) summary { font-size: 15px; }
 details ul { margin: 12px 0 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.5; max-width: 60ch; }
 details li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; }
 details li img { width: 26px; height: 34px; margin-top: -4px; }
 details li .dot { width: 6px; height: 6px; margin: 9px 0 0 10px; border-radius: 50%; background: var(--brass); }
 details li b { font-weight: 600; color: var(--paper); }
+html:lang(th) details ul { line-height: 1.6; }
 
 @media (max-width: 899px) {
   html, body { height: auto; }
@@ -296,6 +330,7 @@ details li b { font-weight: 600; color: var(--paper); }
   #cellMode { grid-area: mode; } #cellMove { grid-area: move; } #cellCount { grid-area: count; }
   #cellW { grid-area: w; } #cellB { grid-area: b; } .sb-msg { grid-area: msg; }
   #cellMove, #cellCount { text-align: right; align-items: flex-end; }
+  #cellCount { max-width: 7.5em; }   /* a long count name wraps rather than squeezing the two sides */
   .side-color { display: none; }
   .side-name { white-space: normal; }
   .caps img { width: 17px; height: 22px; }
@@ -312,37 +347,37 @@ details li b { font-weight: 600; color: var(--paper); }
   <main class="stage">
     <div class="scorebar">
       <div class="sb-cell" id="cellMode">
-        <span class="label" id="sbModeLabel"></span>
-        <span class="sb-sub" id="sbModeSub"></span>
+        <span class="label" id="sbModeLabel">vs The Editor</span>
+        <span class="sb-sub" id="sbModeSub">Normal · you play White</span>
       </div>
       <div class="sb-cell" id="cellMove">
-        <span class="label" data-t="moveLabel"></span>
+        <span class="label" data-t="moveLabel">Move</span>
         <span class="big" id="sbMove">1</span>
       </div>
       <div class="sb-cell side-cell" id="cellW">
-        <span class="label side-head"><span class="chip w"></span><span class="side-name" id="nameW"></span></span>
+        <span class="label side-head"><span class="chip w"></span><span class="side-name" id="nameW">White</span></span>
         <span class="caps" id="capsW"></span>
       </div>
       <div class="sb-cell side-cell" id="cellB">
-        <span class="label side-head"><span class="chip b"></span><span class="side-name" id="nameB"></span></span>
+        <span class="label side-head"><span class="chip b"></span><span class="side-name" id="nameB">Black</span></span>
         <span class="caps" id="capsB"></span>
       </div>
       <div class="sb-cell" id="cellCount">
-        <span class="label" id="sbCountLabel"></span>
+        <span class="label" id="sbCountLabel">Count</span>
         <span class="mid" id="sbCount">–</span>
       </div>
       <p class="sb-msg" id="msg" aria-live="polite"></p>
     </div>
     <div class="scene" id="scene">
       <canvas id="canvas" tabindex="0" role="application"></canvas>
-      <p class="hint" id="hint"></p>
+      <p class="hint" id="hint">Tap a piece, then a square</p>
       <div class="overlay" id="overlay" hidden>
         <div class="card" role="dialog" aria-modal="false" aria-labelledby="ovTitle">
-          <span class="label" data-t="gameOver"></span>
+          <span class="label" data-t="gameOver">Game over</span>
           <h2 id="ovTitle"></h2>
           <p id="ovText"></p>
-          <button class="btn-brass" id="ovBtn" type="button" data-t="playAgain"></button>
-          <button class="btn-line" id="ovLook" type="button" data-t="lookBoard"></button>
+          <button class="btn-brass" id="ovBtn" type="button" data-t="playAgain">Play again</button>
+          <button class="btn-line" id="ovLook" type="button" data-t="lookBoard">Look at the board</button>
         </div>
       </div>
     </div>
@@ -350,72 +385,75 @@ details li b { font-weight: 600; color: var(--paper); }
 
   <aside class="rail">
     <header class="brand">
-      <h1><span class="mast">The Siam Times</span> <span class="game" data-t="brandGame"></span></h1>
-      <p data-t="brandText"></p>
+      <div class="brand-top">
+        <h1><span class="mast">The Siam Times</span> <span class="game" data-t="brandGame">Makruk</span></h1>
+        <a class="btn-lang" href="GA-makruk-th.html" hreflang="th" lang="th">ภาษาไทย</a>
+      </div>
+      <p data-t="brandText">Thai chess on a teak board in the newsroom club room. Play The Editor, or a friend across the table.</p>
     </header>
 
     <fieldset class="group">
-      <legend class="label" data-t="lgGame"></legend>
+      <legend class="label" data-t="lgGame">Game</legend>
       <div class="seg" role="radiogroup" data-t-aria="lgGame">
-        <input type="radio" name="mode" id="mode-ai" value="ai"><label for="mode-ai" data-t="modeAi"></label>
-        <input type="radio" name="mode" id="mode-pvp" value="pvp"><label for="mode-pvp" data-t="modePvp"></label>
+        <input type="radio" name="mode" id="mode-ai" value="ai"><label for="mode-ai" data-t="modeAi">vs The Editor</label>
+        <input type="radio" name="mode" id="mode-pvp" value="pvp"><label for="mode-pvp" data-t="modePvp">Two players</label>
       </div>
       <p class="note" id="modeNote"></p>
     </fieldset>
 
     <fieldset class="group" id="sideGroup">
-      <legend class="label" data-t="lgSide"></legend>
+      <legend class="label" data-t="lgSide">You play</legend>
       <div class="seg" role="radiogroup" data-t-aria="lgSide">
-        <input type="radio" name="human" id="side-w" value="1"><label for="side-w" data-t="white"></label>
-        <input type="radio" name="human" id="side-b" value="-1"><label for="side-b" data-t="black"></label>
+        <input type="radio" name="human" id="side-w" value="1"><label for="side-w" data-t="white">White</label>
+        <input type="radio" name="human" id="side-b" value="-1"><label for="side-b" data-t="black">Black</label>
       </div>
     </fieldset>
 
     <fieldset class="group" id="levelGroup">
-      <legend class="label" data-t="lgLevel"></legend>
+      <legend class="label" data-t="lgLevel">Level</legend>
       <div class="seg" role="radiogroup" data-t-aria="lgLevel">
-        <input type="radio" name="level" id="lv-easy" value="easy"><label for="lv-easy" data-t="easy"></label>
-        <input type="radio" name="level" id="lv-normal" value="normal"><label for="lv-normal" data-t="normal"></label>
-        <input type="radio" name="level" id="lv-pro" value="pro"><label for="lv-pro" data-t="pro"></label>
+        <input type="radio" name="level" id="lv-easy" value="easy"><label for="lv-easy" data-t="easy">Easy</label>
+        <input type="radio" name="level" id="lv-normal" value="normal"><label for="lv-normal" data-t="normal">Normal</label>
+        <input type="radio" name="level" id="lv-pro" value="pro"><label for="lv-pro" data-t="pro">Pro</label>
       </div>
       <p class="note" id="levelNote"></p>
     </fieldset>
 
     <fieldset class="group">
-      <legend class="label" data-t="lgView"></legend>
+      <legend class="label" data-t="lgView">View</legend>
       <div class="seg" role="radiogroup" data-t-aria="lgView">
-        <input type="radio" name="view" id="view-side" value="side"><label for="view-side" data-t="viewSide"></label>
-        <input type="radio" name="view" id="view-top" value="top"><label for="view-top" data-t="viewTop"></label>
-        <input type="radio" name="view" id="view-ours" value="ours"><label for="view-ours" data-t="viewOurs"></label>
+        <input type="radio" name="view" id="view-side" value="side"><label for="view-side" data-t="viewSide">Side on</label>
+        <input type="radio" name="view" id="view-top" value="top"><label for="view-top" data-t="viewTop">From above</label>
+        <input type="radio" name="view" id="view-ours" value="ours"><label for="view-ours" data-t="viewOurs">Your side</label>
       </div>
       <p class="note" id="viewNote"></p>
     </fieldset>
 
     <div class="group">
-      <button class="btn-brass" id="newBtn" type="button" data-t="newGame"></button>
+      <button class="btn-brass" id="newBtn" type="button" data-t="newGame">New game</button>
       <div class="row">
-        <button class="btn-line" id="undoBtn" type="button" data-t="undo"></button>
-        <button class="btn-line" id="hintBtn" type="button" data-t="hint"></button>
-        <button class="btn-line" id="flipBtn" type="button" data-t="flip"></button>
+        <button class="btn-line" id="undoBtn" type="button" data-t="undo">Take back</button>
+        <button class="btn-line" id="hintBtn" type="button" data-t="hint">Hint</button>
+        <button class="btn-line" id="flipBtn" type="button" data-t="flip">Flip board</button>
       </div>
       <div class="row">
-        <button class="btn-line" id="soundBtn" type="button" aria-pressed="true"></button>
+        <button class="btn-line" id="soundBtn" type="button" aria-pressed="true">Sound on</button>
       </div>
       <p class="keys" id="keys"></p>
     </div>
 
     <section class="group" aria-labelledby="movesLabel">
-      <h2 class="label" id="movesLabel" data-t="movesLabel"></h2>
+      <h2 class="label" id="movesLabel" data-t="movesLabel">Moves</h2>
       <ol class="movelist" id="moveList"></ol>
     </section>
 
     <section class="group" id="recordGroup" aria-labelledby="recordLabel">
-      <h2 class="label" id="recordLabel" data-t="recordLabel"></h2>
+      <h2 class="label" id="recordLabel" data-t="recordLabel">Against The Editor</h2>
       <dl class="record" id="record"></dl>
     </section>
 
     <details>
-      <summary data-t="howTo"></summary>
+      <summary data-t="howTo">How to play</summary>
       <ul id="howList"></ul>
     </details>
   </aside>
@@ -798,8 +836,76 @@ function mulberry32(a) {
     t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 }
 
-/* ---------- Words ---------- */
-const TEXT = {
+/* ---------- Words ----------
+   This script is the same in GA-makruk.html (English) and GA-makruk-th.html (Thai);
+   each page picks its words from its own <html lang>. */
+const STR = {
+  th: {
+    docTitle: 'หมากรุกไทย · The Siam Times',
+    brandGame: 'หมากรุกไทย',
+    brandText: 'หมากรุกไทยบนกระดานไม้สัก ในชมรมหมากรุกห้องข่าว ประชันฝีมือกับบรรณาธิการ หรือชวนเพื่อนมานั่งเล่นอีกฝั่งโต๊ะ',
+    lgGame: 'เกม', modeAi: 'เล่นกับบรรณาธิการ', modePvp: 'เล่นสองคน',
+    noteAi: 'บรรณาธิการเล่นอีกฝ่าย ฝ่ายขาวเดินก่อน',
+    notePvp: 'สองคนผลัดกันเดินบนเครื่องเดียวกัน ฝ่ายขาวเดินก่อน',
+    lgSide: 'คุณเล่นฝ่าย', white: 'ขาว', black: 'ดำ',
+    lgLevel: 'ระดับ', easy: 'ง่าย', normal: 'ปกติ', pro: 'เซียน',
+    lvEasy: 'บรรณาธิการมองล่วงหน้าแค่ตาสองตา และพลาดบ่อย',
+    lvNormal: 'มองล่วงหน้าหลายตา ฝีมือพอ ๆ กับคนเล่นในชมรม',
+    lvPro: 'คิดได้ถึงตาละ 2 วินาที แทบไม่พลาดกลหมาก',
+    pending: 'จะมีผลเมื่อเริ่มเกมใหม่',
+    lgView: 'มุมมอง', viewSide: 'ด้านข้าง', viewTop: 'มุมบน', viewOurs: 'ฝั่งคุณ',
+    vnSide: 'สองฝ่ายตั้งประจันหน้ากันซ้ายขวา เหมือนนั่งดูอยู่หัวโต๊ะ',
+    vnTop: 'มองตรงลงมาที่กระดาน',
+    vnOurs: 'มองจากเก้าอี้ของคุณ หมากฝ่ายคุณอยู่ใกล้ตัว',
+    newGame: 'เริ่มเกมใหม่', undo: 'ย้อนตา', hint: 'คำใบ้', flip: 'กลับกระดาน',
+    soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด',
+    keys: '<kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd> เลื่อนไปตามช่อง · <kbd>Enter</kbd> หยิบและวางหมาก · <kbd>Esc</kbd> วางคืนที่เดิม · <kbd>U</kbd> ย้อนตา · <kbd>H</kbd> คำใบ้ · <kbd>F</kbd> กลับกระดาน · <kbd>V</kbd> เปลี่ยนมุมมอง',
+    movesLabel: 'บันทึกการเดิน', noMoves: 'ยังไม่มีการเดิน',
+    recordLabel: 'สถิติกับบรรณาธิการ', won: 'ชนะ', drawn: 'เสมอ', lost: 'แพ้',
+    howTo: 'วิธีเล่น',
+    moveLabel: 'ตาที่', countLabel: 'การนับ', countBoard: 'นับศักดิ์กระดาน', countPieces: 'นับศักดิ์หมาก',
+    you: 'คุณ', editor: 'บรรณาธิการ', thinking: 'กำลังคิด…',
+    subAi: 'ระดับ{level} · คุณเล่นฝ่าย{side}', subPvp: 'ผลัดกันเดินบนเครื่องนี้',
+    noCaps: 'ยังไม่ได้กิน', gameOver: 'จบเกม', playAgain: 'เล่นอีกครั้ง', lookBoard: 'ดูกระดาน',
+    tapHint: 'แตะหมาก แล้วแตะช่องที่จะเดิน',
+    canvas: 'กระดานหมากรุกไทยบนโต๊ะไม้สัก ชิดผนังไม้สีน้ำเงิน ใต้ป้ายสีครีมที่เขียนว่า The Siam Times กด V เพื่อเปลี่ยนมุมมอง ใช้ปุ่มลูกศรเลื่อนไปตามช่อง และกด Enter เพื่อหยิบและวางหมาก',
+    sign: 'ชมรมหมากรุกห้องข่าว',
+    pieces: ['', 'เบี้ย', 'เม็ด', 'โคน', 'ม้า', 'เรือ', 'ขุน', 'เบี้ยหงาย'],
+    files: 'กขคงจฉชญ',                       // the files, left to right from White's side, as Thai score sheets write them
+    markCheck: '+', markMate: '++',
+    startYou: 'ฝ่ายขาวเดินก่อน ตาคุณเดิน', yourMove: 'ตาคุณเดิน', toMove: 'ตาฝ่าย{side}เดิน',
+    editorThinking: 'บรรณาธิการกำลังคิด…',
+    sideWho: 'ฝ่าย{side}', played: '{who}เดิน{move}', youPlayed: 'คุณเดิน{move}',
+    check: ' <strong>รุก!</strong>', promoted: ' เบี้ยหงายแล้ว เดินได้อย่างเม็ด',
+    countStartBoard: 'เบี้ยคว่ำหมดกระดานแล้ว ฝ่าย{side}เริ่มนับศักดิ์กระดาน นับถึง 64 เสมอ',
+    countStartPieces: 'ฝ่าย{side}เหลือขุนตัวเดียว เริ่มนับศักดิ์หมากจาก {start} นับถึง {limit} เสมอ',
+    countSay: ' นับ <strong>{value}</strong> จาก {limit}',
+    msgJoin: ' · ',
+    hintSay: 'คำใบ้: ลองเดิน{move}', noMovesPiece: 'หมากตัวนี้เดินไปไหนไม่ได้', inCheck: 'ขุนของคุณถูกรุกอยู่ ต้องแก้รุกก่อน',
+    selSay: '{piece} {sq} เดินไปได้ที่ {targets}', selNone: '{piece} {sq} ไม่มีทางเดิน', listSep: ' ',
+    takenBack: 'ย้อนตาแล้ว {rest}',
+    youWin: 'คุณชนะ', editorWins: 'บรรณาธิการชนะ', whiteWins: 'ฝ่ายขาวชนะ', blackWins: 'ฝ่ายดำชนะ', draw: 'เสมอ',
+    rMate: 'รุกจนในตาที่ {n} ขุนไม่มีทางหนี',
+    rStalemate: 'ฝ่าย{side}อับ ไม่ถูกรุกแต่ไม่มีตาเดิน หมากรุกไทยถือว่าเสมอ',
+    rBare: 'เหลือแต่ขุนทั้งสองฝ่าย',
+    rCount: 'นับครบ {limit} แล้วยังรุกไม่จน',
+    rRepeat: 'ตำแหน่งหมากซ้ำเดิมสามครั้ง',
+    resultLine: '<strong>{title}</strong> {reason}',
+    how: [
+      ['', 'แตะหมากเพื่อดูว่าเดินไปที่ไหนได้บ้าง แล้วแตะช่องที่จะเดิน หรือลากหมากไปวางเลยก็ได้'],
+      [KHUN, '<b>ขุน</b> เดินได้ทีละช่องทุกทิศ ขุนที่ถูกหมากอีกฝ่ายจ่อกินอยู่เรียกว่าถูกรุก ต้องแก้รุกทันที ถ้าแก้ไม่ได้คือจน แพ้เกม'],
+      [MET, '<b>เม็ด</b> เดินทแยงทีละช่อง'],
+      [KHON, '<b>โคน</b> เดินทแยงทีละช่อง หรือเดินตรงไปข้างหน้าหนึ่งช่อง'],
+      [MA, '<b>ม้า</b> เดินตรงไปสองช่องแล้วหักออกข้างอีกหนึ่งช่อง กระโดดข้ามหมากที่ขวางอยู่ได้'],
+      [RUEA, '<b>เรือ</b> เดินตรงตามแนวตั้งหรือแนวนอน ไกลแค่ไหนก็ได้ตราบที่ไม่มีหมากขวาง'],
+      [BIA, '<b>เบี้ย</b> วางด้านเรียบหันเข้าหาฝ่ายตัวเอง ด้านมนหันไปทางฝ่ายตรงข้าม เดินตรงไปข้างหน้าทีละช่อง และกินทแยงไปข้างหน้า เมื่อเดินถึงแถวที่เบี้ยฝ่ายตรงข้ามตั้งอยู่ตอนเริ่มเกม จะหงายขึ้นเป็น<b>เบี้ยหงาย</b> เดินได้อย่างเม็ด'],
+      [NGAI, '<b>เบี้ยหงาย</b> คือเบี้ยที่หงายแล้ว เดินทแยงทีละช่องเหมือนเม็ด'],
+      ['', 'ฝ่ายที่ไม่ถูกรุกแต่ไม่มีตาเดินเรียกว่าอับ หมากรุกไทยถือว่าเสมอ ถ้าตำแหน่งหมากซ้ำเดิมสามครั้งก็เสมอเช่นกัน'],
+      ['', 'การนับ: เมื่อเบี้ยคว่ำหมดกระดาน ฝ่ายที่เป็นรองจะนับศักดิ์กระดาน ฝ่ายที่เหนือกว่าต้องรุกให้จนก่อนนับถึง 64 เมื่อฝ่ายใดเหลือขุนตัวเดียว จะเปลี่ยนมานับศักดิ์หมาก เริ่มนับจากจำนวนหมากบนกระดานบวกหนึ่ง และนับได้ถึง 8 ถ้าอีกฝ่ายมีเรือสองลำ 16 ถ้ามีเรือลำเดียว 22 ถ้ามีโคนสองตัว 32 ถ้ามีม้าสองตัว 44 ถ้ามีโคนตัวเดียว นอกนั้นนับถึง 64'],
+    ],
+  },
+  en: {
+    docTitle: 'Siam Times Makruk',
     brandGame: 'Makruk',
     brandText: 'Thai chess on a teak board in the newsroom club room. Play The Editor, or a friend across the table.',
     lgGame: 'Game', modeAi: 'vs The Editor', modePvp: 'Two players',
@@ -829,6 +935,8 @@ const TEXT = {
     canvas: 'A Makruk board on a teak table against a blue panelled wall, under a cream sign that reads The Siam Times. Press V to change the view. Use the arrow keys to move around the board and Enter to pick up and put down a piece.',
     sign: 'NEWSROOM MAKRUK CLUB',
     pieces: ['', 'Bia', 'Met', 'Khon', 'Ma', 'Ruea', 'Khun', 'Bia Ngai'],
+    files: 'abcdefgh',
+    markCheck: '+', markMate: '#',
     startYou: 'Your move. White moves first.', yourMove: 'Your move.', toMove: '{side} to move.',
     editorThinking: 'The Editor is thinking…',
     sideWho: '{side}', played: '{who} played {move}.', youPlayed: 'You played {move}.',
@@ -836,7 +944,9 @@ const TEXT = {
     countStartBoard: "No face-down Bia are left: {side} counts the board's honour, a draw at 64.",
     countStartPieces: '{side} has only the Khun left: the count runs from {start}, a draw at {limit}.',
     countSay: ' Count: <strong>{value}</strong> of {limit}.',
+    msgJoin: ' ',
     hintSay: 'Hint: {move}.', noMovesPiece: 'That piece has nowhere to go.', inCheck: 'Your Khun is in check.',
+    selSay: '{piece} {sq}: {targets}', selNone: '{piece} {sq}: —', listSep: ', ',
     takenBack: 'Move taken back. {rest}',
     youWin: 'You win', editorWins: 'The Editor wins', whiteWins: 'White wins', blackWins: 'Black wins', draw: 'Draw',
     rMate: 'Checkmate after {n} moves: the Khun has nowhere to go.',
@@ -857,15 +967,20 @@ const TEXT = {
       ['', 'A side that is not in check but has no legal move is stalemated, which is a draw in Makruk. The same position three times is also a draw.'],
       ['', 'Counting: once no face-down Bia are left, the weaker side counts its moves and the stronger side must checkmate before the count reaches 64. When one side has only its Khun, the count starts again from the number of pieces on the board plus one, and ends at 8 if the other side has two Ruea, 16 with one Ruea, 22 with two Khon, 32 with two Ma, 44 with one Khon, and 64 otherwise.'],
     ],
+  },
 };
+const LANG = document.documentElement.lang === 'th' ? 'th' : 'en';
+const T = STR[LANG];
 function t(key, vars) {
-  let s = TEXT[key] ?? key;
+  let s = T[key] ?? key;
   if (vars) s = s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
   return s;
 }
 const sideName = side => t(side === WHITE ? 'white' : 'black');
-const pieceName = type => TEXT.pieces[type];
-const sqName = s => 'abcdefgh'[s & 7] + ((s >> 3) + 1);
+const pieceName = type => T.pieces[type];
+const sqName = s => T.files[s & 7] + ((s >> 3) + 1);
+// Text drawn on the canvas: Newsreader for English, Sarabun for Thai.
+const canvasFont = (weight, px) => LANG === 'th' ? `${weight} ${px}px Sarabun, sans-serif` : `${weight} ${px}px Newsreader, Georgia, serif`;
 
 /* ---------- Saved settings, game and record ---------- */
 const STORE_KEY = 'siamTimesMakruk.v1';
@@ -873,7 +988,7 @@ const saved = (() => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) 
 const prefs = Object.assign({
   mode: 'ai', human: WHITE, level: 'normal', sound: true, flip: false, view: 'side',
 }, saved.prefs || {});
-delete prefs.lang;   // from when the game also spoke Thai
+delete prefs.lang;   // an old setting from when one page switched languages; each page now has its own language
 const record = Object.assign({ easy: { w: 0, d: 0, l: 0 }, normal: { w: 0, d: 0, l: 0 }, pro: { w: 0, d: 0, l: 0 } }, saved.record || {});
 let game = saved.game && Array.isArray(saved.game.moves) ? saved.game
   : { mode: prefs.mode, human: prefs.human, moves: [], recorded: false };
@@ -1282,10 +1397,11 @@ function signTexture(pw) {
   // Hairline and the club's name.
   const ly = h * 0.70;
   g.fillRect(w / 2 - 120 * u, ly - 4 * u, 240 * u, Math.max(1, 0.8 * u));
-  g.font = `600 ${11.5 * u}px Newsreader, Georgia, serif`;
-  if ('letterSpacing' in g) g.letterSpacing = `${3.6 * u}px`;
+  const th = LANG === 'th';
+  g.font = canvasFont(600, (th ? 14.5 : 11.5) * u);
+  if ('letterSpacing' in g) g.letterSpacing = `${(th ? 0.4 : 3.6) * u}px`;
   g.textBaseline = 'top';
-  g.fillText(t('sign'), w / 2, ly + 1 * u);
+  g.fillText(t('sign'), w / 2, ly + (th ? -0.5 : 1) * u);
   if ('letterSpacing' in g) g.letterSpacing = '0px';
   // Brass screws.
   for (const [sx, sy] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) {
@@ -1446,12 +1562,12 @@ function boardTexture(px) {
   }
   // Coordinates on the frame, along the near edge and up the left.
   g.fillStyle = 'rgba(239,231,212,0.82)';
-  g.font = `600 ${FRAME * k * 0.5}px Newsreader, Georgia, serif`;
+  g.font = canvasFont(600, FRAME * k * (LANG === 'th' ? 0.52 : 0.5));
   g.textAlign = 'center'; g.textBaseline = 'middle';
   for (let i = 0; i < 8; i++) {
     const p = f0 + (i + 0.5) * SQ * k, along = squareOfGrid(i, 0), up = squareOfGrid(0, 7 - i);
-    g.fillText(camView.lr ? String((along >> 3) + 1) : 'abcdefgh'[along & 7], p, px - FRAME * k * 0.5);
-    g.fillText(camView.lr ? 'abcdefgh'[up & 7] : String((up >> 3) + 1), FRAME * k * 0.5, p);
+    g.fillText(camView.lr ? String((along >> 3) + 1) : T.files[along & 7], p, px - FRAME * k * 0.5);
+    g.fillText(camView.lr ? T.files[up & 7] : String((up >> 3) + 1), FRAME * k * 0.5, p);
   }
   return c;
 }
@@ -2128,7 +2244,8 @@ canvas.addEventListener('keydown', e => {
     if (view.sel >= 0 && view.cursor === view.sel) { view.sel = -1; view.targets = []; needDraw = true; return; }
     if (view.sel >= 0 && tryMoveTo(view.cursor, true)) return;
     select(view.cursor);
-    if (view.sel >= 0) say(`${pieceName(Math.abs(S.pos.b[view.sel]))} ${sqName(view.sel)}: ${view.targets.map(m => sqName(m >> 6 & 63)).join(', ') || '—'}`);
+    if (view.sel >= 0) say(t(view.targets.length ? 'selSay' : 'selNone', { piece: pieceName(Math.abs(S.pos.b[view.sel])), sq: sqName(view.sel),
+      targets: view.targets.map(m => sqName(m >> 6 & 63)).join(T.listSep) }));
   } else if (e.key === 'Escape') {
     view.sel = -1; view.targets = []; view.hover = -1; needDraw = true;
   }
@@ -2313,15 +2430,16 @@ function lastMoveText() {
   if (rec.check && !rec.mate) s += t('check');
   if (rec.count && rec.count.started) s += ' ' + t(rec.count.kind === 'board' ? 'countStartBoard' : 'countStartPieces', { side: sideName(rec.count.flee), start: rec.count.start, limit: rec.count.limit });
   else if (rec.count && rec.count.said) s += t('countSay', { value: rec.count.value, limit: rec.count.limit });
-  return s + ' ' + turnText();
+  return s + T.msgJoin + turnText();
 }
 function applyText() {
+  document.title = t('docTitle');
   document.querySelectorAll('[data-t]').forEach(el => { el.innerHTML = t(el.dataset.t); });
   document.querySelectorAll('[data-t-aria]').forEach(el => el.setAttribute('aria-label', t(el.dataset.tAria)));
   $('keys').innerHTML = t('keys');
   $('hint').textContent = t('tapHint');
   canvas.setAttribute('aria-label', t('canvas'));
-  $('howList').innerHTML = TEXT.how.map(([ty, html]) =>
+  $('howList').innerHTML = T.how.map(([ty, html]) =>
     `<li>${ty ? iconImg(ty, WHITE, '') : '<span class="dot"></span>'}<span>${html}</span></li>`).join('');
   if (S && S.result && !$('overlay').hidden) { $('ovTitle').textContent = resultTitle(S.result); $('ovText').textContent = resultReason(S.result); }
   invalidateLayer();
@@ -2345,7 +2463,8 @@ function updateUI() {
   for (const side of [WHITE, BLACK]) {
     const cell = $(side === WHITE ? 'cellW' : 'cellB'), name = $(side === WHITE ? 'nameW' : 'nameB');
     const thinking = pending && pending.kind === 'move' && S.pos.side === side;
-    name.innerHTML = ai ? `<span class="side-color">${sideName(side)} · </span>${whoName(side)}${thinking ? ` <span class="thinking">${t('thinking')}</span>` : ''}` : sideName(side);
+    const label = t('sideWho', { side: sideName(side) });
+    name.innerHTML = ai ? `<span class="side-color">${label} · </span>${whoName(side)}${thinking ? ` <span class="thinking">${t('thinking')}</span>` : ''}` : label;
     cell.classList.toggle('active', !S.result && S.pos.side === side);
     $(side === WHITE ? 'capsW' : 'capsB').innerHTML = capsHtml(side);
   }
@@ -2380,7 +2499,7 @@ function updateUI() {
         const rec = S.plies[j];
         if (!rec) { cells.push('<span></span>'); continue; }
         const capt = rec.cap > 0;
-        const mark = rec.mate ? '#' : rec.check ? '+' : '';
+        const mark = rec.mate ? T.markMate : rec.check ? T.markCheck : '';
         const promo = rec.promo ? ' ' + iconImg(NGAI, rec.side) : '';
         cells.push(`<span class="ply${j === S.plies.length - 1 ? ' last' : ''}">${iconImg(rec.type, rec.side)}${sqName(rec.from)}${capt ? '×' : '–'}${sqName(rec.to)}${promo}${mark}</span>`);
       }
@@ -2435,7 +2554,8 @@ requestAnimationFrame(frame);
 maybeAI();
 // Fonts arrive after the first paint: redraw the sign, the coordinates and the paper once they do.
 if (document.fonts) {
-  document.fonts.ready.then(() => { fontGen++; invalidateLayer(); });
+  const thai = LANG === 'th' ? document.fonts.load('600 20px Sarabun', 'ชมรม').catch(() => {}) : null;
+  Promise.all([document.fonts.ready, thai]).then(() => { fontGen++; invalidateLayer(); });
 }
 })();
 </script>
