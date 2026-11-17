@@ -7,7 +7,7 @@ A driving game, in Thai and in English, made for chapter 12 of *Chandler’s Pro
 | Thai (ภาษาไทย) | `GA-delivery-th.html` |
 | English | `GA-delivery-en.html` |
 
-Each is a whole game in one HTML file, with no build step; they link to each other and share the same settings. Only the Newsreader and Sarabun text fonts come from Google Fonts (the pages fall back to system fonts, with a Thai font for the Thai signs). It plays best with the screen sideways. The page cannot be zoomed (pinching, a double tap, Ctrl + mouse wheel, Ctrl + + or −), so the wheel, pedals and buttons stay where they are; the wheel and pedals still take several fingers at once.
+Each is a whole game in one HTML file, with no build step; they link to each other and share the same settings. Only the Newsreader and Sarabun text fonts come from Google Fonts (the pages fall back to system fonts, with a Thai font for the Thai signs). It plays best with the screen sideways. The page cannot be zoomed (pinching, a double tap, Ctrl + mouse wheel, Ctrl + + or −), so the wheel, pedals and buttons stay where they are; the wheel and pedals still take several fingers at once. A touch on the road, the wheel, the pedals, the gear lever or the buttons by the wheel belongs to the game, so Safari never reads a quick second press or two fingers on the pedals as a zoom; those buttons act the moment a finger lands. If the page is zoomed in all the same, the game pauses and a note says to pinch the screen back; the cockpit is always drawn for the whole page, never for the zoomed-in part, so it stays in line with its buttons.
 
 ## The cab
 
