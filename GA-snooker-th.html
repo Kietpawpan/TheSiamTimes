@@ -125,8 +125,8 @@ details.help p{font-size:15px}
 .certwrap .btns button.alt{color:#f3ead6;border-color:rgba(243,234,214,.4)}
 .certnote{margin:8px 0 0;color:rgba(243,234,214,.75);font-size:15px;min-height:1.2em}
 .cab{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:6px}
-.cab button{width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:transparent;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:17px}
-.cab small{color:var(--muted);font-size:14px}
+.cab button{width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:transparent;cursor:pointer;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:2px 8px;font-size:17px}
+.cab small{color:var(--muted);font-size:14px;white-space:nowrap}
 .btns{display:flex;flex-direction:column;gap:8px;margin-top:18px}
 .btns button{padding:12px;border-radius:999px;border:none;background:var(--btn);color:var(--btn-ink);font-size:19px;font-weight:600;cursor:pointer}
 .btns button.alt{background:transparent;border:1px solid var(--line);color:var(--ink)}
@@ -142,8 +142,8 @@ html:lang(th) .name{font-size:15px}
 html:lang(th) .on{font-size:17px}
 html:lang(th) .meta{font-size:14px;gap:10px}
 html:lang(th) .msg{font-size:15px;line-height:1.45}
-html:lang(th) .hint{font-size:14.5px;line-height:1.35}
-html:lang(th) .wheel span{font-size:13px;padding-top:2px}
+html:lang(th) .hint{font-size:14.5px;line-height:1.35;text-wrap:balance}
+html:lang(th) .wheel span{font-size:13px;line-height:1.25;padding-top:2px}
 html:lang(th) .elev small{font-size:11px}
 html:lang(th) .card h2{font-size:28px;line-height:1.25}
 html:lang(th) .card p{font-size:16px;line-height:1.55}
@@ -154,7 +154,7 @@ html:lang(th) .rung .who small{font-size:13px}
 html:lang(th) .rung .tag{font-size:12.5px;letter-spacing:0;text-transform:none}
 html:lang(th) .cab button{font-size:16px}
 html:lang(th) .cab small{font-size:13px}
-html:lang(th) .btns button{font-size:17px;line-height:1.35}
+html:lang(th) .btns button{font-size:17px;line-height:1.35;text-wrap:balance}
 html:lang(th) details.help summary{font-size:15px}
 html:lang(th) details.help p{font-size:14.5px}
 html:lang(th) .certmsg{font-size:17px;line-height:1.45}
@@ -262,7 +262,7 @@ html:lang(th) .certnote{font-size:14px}
     <button class="spin" id="spin" type="button" aria-label="จุดแทงลูกขาว: กลางลูก"><span class="spot" id="spinDot"></span></button>
     <div class="elev" id="elev" tabindex="0" role="slider" aria-label="มุมยกไม้คิว หน่วยเป็นองศา" aria-valuemin="0" aria-valuemax="60" aria-valuenow="0" title="ยกไม้คิว" data-i18n-aria="elevLabel" data-i18n-title="elevTitle"><div class="elevfill" id="elevFill"></div><span><small data-i18n="lift">ยกคิว</small><b id="elevTxt">0°</b></span></div>
     <div class="power" id="power" role="slider" tabindex="0" aria-label="แรงแทง" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-i18n-aria="powerLabel">
-      <div class="fill" id="fill"></div><span class="hint" id="hint" data-i18n="powerHint">ลากไปทางขวา แล้วปล่อยนิ้วเพื่อแทง</span>
+      <div class="fill" id="fill"></div><span class="hint" id="hint" data-i18n="powerHint">ลากไปทางขวา ปล่อยเพื่อแทง</span>
     </div>
   </div>
 </div>
@@ -295,7 +295,7 @@ const STR = {
     ccw: 'หมุนแนวเล็งทวนเข็มนาฬิกา', cw: 'หมุนแนวเล็งตามเข็มนาฬิกา',
     fineAim: 'เล็งละเอียด', fineAimValue: 'ลากไปทางซ้ายหรือขวา', fineAimHint: 'ลากตรงนี้เพื่อเล็งละเอียด',
     elevLabel: 'มุมยกไม้คิว หน่วยเป็นองศา', elevTitle: 'ยกไม้คิว', lift: 'ยกคิว',
-    powerLabel: 'แรงแทง', powerHint: 'ลากไปทางขวา แล้วปล่อยนิ้วเพื่อแทง',
+    powerLabel: 'แรงแทง', powerHint: 'ลากไปทางขวา ปล่อยเพื่อแทง',
     spinParts: {top: 'แทงเดิน', screw: 'แทงดึง', right: 'ใส่ข้างขวา', left: 'ใส่ข้างซ้าย'},
     spinLabel: parts => 'จุดแทงลูกขาว: ' + (parts.join(' และ ') || 'กลางลูก'),
     ball: {red: 'ลูกแดง', yellow: 'ลูกเหลือง', green: 'ลูกเขียว', brown: 'ลูกน้ำตาล', blue: 'ลูกน้ำเงิน', pink: 'ลูกชมพู', black: 'ลูกดำ'},
@@ -334,7 +334,7 @@ const STR = {
     tour: [
       {event: 'ถ้วยสนุกเกอร์ระดับชุมชน', prize: 'ถ้วยระดับชุมชน', award: 'ถ้วยสนุกเกอร์ระดับชุมชน'},
       {event: 'ถ้วยสนุกเกอร์ระดับภูมิภาค', prize: 'ถ้วยระดับภูมิภาค', award: 'ถ้วยสนุกเกอร์ระดับภูมิภาค'},
-      {event: 'ถ้วยสนุกเกอร์ระดับประเทศ', prize: 'ถ้วยระดับประเทศ', award: 'ถ้วยสนุกเกอร์ระดับประเทศ'},
+      {event: 'ถ้วยสนุกเกอร์ระดับชาติ', prize: 'ถ้วยระดับชาติ', award: 'ถ้วยสนุกเกอร์ระดับชาติ'},
       {event: 'ถ้วยสนุกเกอร์ระดับทวีป', prize: 'ถ้วยระดับทวีป', award: 'ถ้วยสนุกเกอร์ระดับทวีป'},
       {event: 'ศึกชิงแชมป์โลก', prize: 'แชมป์โลก', award: 'แชมป์โลกสนุกเกอร์'}
     ],
