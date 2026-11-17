@@ -1,8 +1,17 @@
-# Old Money Atelier – web game
+# Old Money Atelier (ห้องเสื้อผู้ดีเก่า) – web game
 
-A dress-up game in the "old money" quiet-luxury style. Choose a lady or a gentleman, dress them in cashmere, tweed, silk and pearls for six society invitations, and The Siam Times style desk scores the look. All text in the game is in English.
+A dress-up game in the "old money" quiet-luxury style, in English and in Thai. Choose a lady or a gentleman, dress them in cashmere, tweed, silk and pearls for six society invitations, and The Siam Times style desk scores the look.
 
-Everything is in `GA-oldmoney.html`. There is no build step: open the file in a browser. On the site it is at https://thesiamtimes.com/OldMoney/GA-oldmoney.html. It works offline; only the Newsreader text font comes from Google Fonts, and the page falls back to Georgia without it.
+There is an English version and a Thai version, each a whole game in one HTML file. There is no build step: open either file in a browser. Each has a link to the other at the top of the page (*ภาษาไทย* on the English page, *English* on the Thai one), and both share the same saved looks, outfits, best results and seals. The English page keeps the address the front page links to.
+
+| Version | File | On the site |
+|---|---|---|
+| English | `GA-oldmoney.html` | https://thesiamtimes.com/OldMoney/GA-oldmoney.html |
+| Thai (ภาษาไทย) | `GA-oldmoney-th.html` | https://thesiamtimes.com/OldMoney/GA-oldmoney-th.html |
+
+They work offline; only the Newsreader and Sarabun text fonts come from Google Fonts, and the pages fall back to system fonts without them.
+
+The Thai page keeps *Old Money Atelier* as the game's name, with the Thai title *ห้องเสื้อผู้ดีเก่า* beside it. Everything else is in Thai: the buttons, the invitations, every piece and its description, the colours, the style desk's verdicts and advice, the style guide, the lines on the scene signs and the caption of the downloaded portrait. *The Siam Times* stays in Chomsky on the masthead and the signs, and the fake logos on the trap pieces (*LUXE*, *LX*) stay as they are, since they are part of the drawings.
 
 ## Playing
 
@@ -72,7 +81,7 @@ The style desk names each rule broken in its verdict, and the stylist offers the
 - **Opera gloves** go with the gown.
 - **A sweater over the shoulders** does not go on top of an overcoat or a trench coat.
 
-Saved looks, the current outfit, the mode, your best results and your seals are kept in the browser's local storage.
+Saved looks, the current outfit, the mode, your best results and your seals are kept in the browser's local storage, under the same key for both languages. A saved look keeps its occasion and stars rather than a caption, so the lookbook writes the caption in the language of the page; looks saved before the Thai version kept an English caption, and the occasion and stars are read back out of it.
 
 ## How it works
 
@@ -86,6 +95,20 @@ Saved looks, the current outfit, the mode, your best results and your seals are 
 - Every change goes through one function, which keeps the previous state of both looks for Undo.
 - An open dialog keeps the keyboard focus inside it and gives the focus back when it closes.
 
+## Keeping the two versions the same
+
+The `<script>` in the two files is identical, with every word of the game in both languages in one table, `STR = { th: {...}, en: {...} }`; each page takes its language from its own `<html lang>`. The pieces, hairstyles, colours and occasions keep only their drawing and scoring data in the code and take their names and descriptions from that table. The style desk's verdicts and the stylist's advice are functions in the table, so each language builds its own sentences (English puts a colour before the piece and checks for plurals; Thai puts the colour after it). The HTML differs only in its language: the `lang` attribute, title, description, the words written into the page before the script fills them in, and the link to the other version. The CSS is the same in both; `html:lang(th)` rules set the Thai text in Sarabun, upright, without capitals or letter-spacing, and a little larger.
+
+A Thai name has zero-width spaces (`\u200b`) at the places where it may break across two lines; in a wardrobe tile or a chip it breaks only there, so a loanword such as สแตนเลส is never split.
+
+When you change the game, make the same change in both files, then check that the scripts still match:
+
+```bash
+diff <(sed -n '/<script>/,$p' GA-oldmoney.html) <(sed -n '/<script>/,$p' GA-oldmoney-th.html) && echo same
+```
+
+*Chandler's Promise* runs a copy of each page, `Promise/games/OldMoney/GA-oldmoney.html` and `GA-oldmoney-th.html`. Each is the site page plus four changes: the no-zoom viewport, the `storyDone` message when a look is scored, the no-zoom script before `</body>`, and the masthead link to the story's front page (`../../index.html`, `target="_top"`). Copy a changed site page over its story copy and make those four changes again.
+
 ## Font
 
-The masthead and the scene signs use **Chomsky** by Fredrick R. Brennan, under the SIL Open Font License 1.1 (`Chomsky-LICENSE.txt`, which must stay with the game). The page embeds the same Latin-only WOFF2 subset as `Darts/GA-darts.html`; see `Darts/README.md` for how to rebuild it. The downloaded portrait carries the same font inside its SVG, so the sign keeps its lettering in the PNG.
+The masthead and the scene signs use **Chomsky** by Fredrick R. Brennan, under the SIL Open Font License 1.1 (`Chomsky-LICENSE.txt`, which must stay with the game). The page embeds the same Latin-only WOFF2 subset as `Darts/GA-darts.html`; see `Darts/README.md` for how to rebuild it. The downloaded portrait carries the same font inside its SVG, so the sign keeps its lettering in the PNG. The Thai text is set in **Sarabun** (Google Fonts). An SVG drawn into an image cannot reach web fonts, so on the Thai page the portrait fetches Sarabun's Thai and Latin faces once and carries them inside its SVG too; without a connection the Thai words in the PNG fall back to a system font.
