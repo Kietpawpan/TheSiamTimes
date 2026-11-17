@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>รถส่งหนังสือพิมพ์ · The Siam Times</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="ขับรถกระบะเกียร์ธรรมดาส่งหนังสือพิมพ์ The Siam Times จากริมแม่น้ำเจ้าพระยา ข้ามสะพานพระเจ้าตากสิน ไปร้านหนังสืออนุสาวรีย์ชัยสมรภูมิ แล้วกลับให้ทันก่อนค่ำ ขับให้ถูกกฎจราจร">
@@ -1980,6 +1980,17 @@ spawnTraffic(); gearUI(); engineUI(); blinkUI(); lightsUI();
 startCard();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { for (const k of Object.keys(SIGNCACHE)) delete SIGNCACHE[k]; buildAtlas(); });
 requestAnimationFrame(frame);
+})();
+</script>
+<script>
+/* No zooming: a pinch or a double tap would leave the game half off the screen and stuck. */
+(() => {
+  const stop = e => e.preventDefault();
+  for (const ev of ['gesturestart', 'gesturechange', 'gestureend', 'dblclick']) document.addEventListener(ev, stop, { passive: false });
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
+  window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+  window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault(); });
+  document.documentElement.style.touchAction = 'manipulation';
 })();
 </script>
 </body>
