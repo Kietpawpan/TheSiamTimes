@@ -1277,7 +1277,10 @@ function darkImg(sp, lvl) { // a darker copy of a picture for dusk and night, ma
 
 function resize() {
   DPR = Math.min(2, window.devicePixelRatio || 1);
-  VW = window.innerWidth; VH = window.innerHeight;
+  // the size of the page itself: on a phone or tablet zoomed in, innerWidth is only the part on show,
+  // and drawing for that squashed the cockpit out of line with its buttons
+  const r = cv.getBoundingClientRect();
+  VW = Math.round(r.width) || window.innerWidth; VH = Math.round(r.height) || window.innerHeight;
   cv.width = Math.round(VW * DPR); cv.height = Math.round(VH * DPR);
   layoutCockpit();
 }
@@ -1876,11 +1879,16 @@ hold($('gasBtn'), () => { inp.gas = true; }, () => { inp.gas = false; });
 hold($('brakeBtn'), () => { inp.brake = true; }, () => { inp.brake = false; });
 hold($('clutchBtn'), () => { inp.clutch = true; }, () => { inp.clutch = false; });
 for (const b of $('gear').querySelectorAll('button')) b.addEventListener('pointerdown', e => { e.preventDefault(); audioInit(); if (game.state === 'drive') setGear(Number(b.dataset.g)); });
-$('blinkL').addEventListener('click', () => { car.blink = car.blink === -1 ? 0 : -1; blinkUI(); });
-$('blinkR').addEventListener('click', () => { car.blink = car.blink === 1 ? 0 : 1; blinkUI(); });
-$('engineBtn').addEventListener('click', () => { audioInit(); if (game.state === 'drive') startEngine(); });
-$('lightsBtn').addEventListener('click', () => { car.lights = !car.lights; lightsUI(); });
-$('wipersBtn').addEventListener('click', () => { car.wipers = !car.wipers; lightsUI(); });
+// the buttons by the wheel act as the finger lands (a touch there makes no click: see below); Enter or Space still works
+function tap(el, fn) {
+  el.addEventListener('pointerdown', e => { e.preventDefault(); audioInit(); fn(); });
+  el.addEventListener('click', e => { if (e.detail === 0) fn(); });
+}
+tap($('blinkL'), () => { car.blink = car.blink === -1 ? 0 : -1; blinkUI(); });
+tap($('blinkR'), () => { car.blink = car.blink === 1 ? 0 : 1; blinkUI(); });
+tap($('engineBtn'), () => { if (game.state === 'drive') startEngine(); });
+tap($('lightsBtn'), () => { car.lights = !car.lights; lightsUI(); });
+tap($('wipersBtn'), () => { car.wipers = !car.wipers; lightsUI(); });
 $('hornBtn').addEventListener('pointerdown', e => { e.preventDefault(); audioInit(); playerHorn(); });
 $('mapBtn').addEventListener('click', () => { audioInit(); if (game.state === 'map') { closeCard(); game.state = 'drive'; } else mapCard(); });
 $('pauseBtn').addEventListener('click', () => { if (game.state === 'paused') { closeCard(); game.state = 'drive'; } else pauseCard(); });
@@ -1936,6 +1944,13 @@ window.addEventListener('blur', () => { for (const k of ['gas', 'brake', 'clutch
 document.addEventListener('pointerdown', () => audioInit(), { passive: true });
 document.addEventListener('visibilitychange', () => { if (AU.ctx) { if (document.hidden) AU.ctx.suspend(); else AU.ctx.resume(); } if (document.hidden && game.state === 'drive') pauseCard(); });
 window.addEventListener('resize', resize);
+// Zoom. A touch on the road, the wheel, the pedals, the gears or the buttons by the wheel is the game's own:
+// cancelling it stops Safari reading a quick second press or two fingers on the pedals as a zoom.
+// If the page is zoomed in all the same, the game pauses, and the touches are left alone so it can be pinched back.
+const VV = (() => { try { return window.top.visualViewport || window.visualViewport; } catch (e) { return window.visualViewport; } })();
+const zoomedIn = () => !!VV && VV.scale > 1.01;
+document.addEventListener('touchstart', e => { if (!zoomedIn() && e.target.closest && e.target.closest('#view, .ctl, .blinks, .dash, .wheel-hit, .act')) e.preventDefault(); }, { passive: false });
+if (VV) VV.addEventListener('resize', () => { if (zoomedIn() && game.state === 'drive') { for (const k of ['gas', 'brake', 'clutch', 'kl', 'kr', 'held']) inp[k] = false; pauseCard(); } });
 
 /* ---------- Main loop ---------- */
 let lastT = performance.now(), acc = 0, hudT = 0;
@@ -1983,14 +1998,39 @@ requestAnimationFrame(frame);
 })();
 </script>
 <script>
-/* No zooming: a pinch or a double tap would leave the game half off the screen and stuck. */
+/* No zooming: a pinch or a double tap would leave the game half off the screen and stuck.
+   If the page is zoomed in all the same (Safari lets people zoom whatever a page asks), nothing is
+   blocked any more, so it can be pinched back, and a note in the middle of the screen says how. */
 (() => {
-  const stop = e => e.preventDefault();
+  const own = window.visualViewport;
+  let vv = own;
+  try { if (window.top !== window && window.top.visualViewport) vv = window.top.visualViewport; } catch (e) { /* a page from another site around this one */ }
+  const zoomed = () => !!vv && vv.scale > 1.01;
+  const stop = e => { if (!zoomed()) e.preventDefault(); };
   for (const ev of ['gesturestart', 'gesturechange', 'gestureend', 'dblclick']) document.addEventListener(ev, stop, { passive: false });
-  document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
-  window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
-  window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault(); });
+  document.addEventListener('touchstart', e => { if (e.touches.length > 1) stop(e); }, { passive: false });
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) stop(e); }, { passive: false });
+  window.addEventListener('wheel', e => { if (e.ctrlKey) stop(e); }, { passive: false });
+  window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) stop(e); });
   document.documentElement.style.touchAction = 'manipulation';
+  if (!own || window.top !== window) return;
+  const th = /^th/i.test(document.documentElement.lang);
+  let note = null;
+  const show = () => {
+    const z = zoomed();
+    if (!note) {
+      if (!z) return;
+      note = document.createElement('div');
+      note.setAttribute('role', 'status');
+      note.style.cssText = 'position:fixed;left:0;top:0;z-index:2147483647;transform-origin:0 0;width:max-content;max-width:300px;padding:14px 18px;border-radius:12px;background:#b23a2e;color:#fff;font:600 17px/1.45 system-ui,-apple-system,"Sarabun",sans-serif;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5);pointer-events:none;';
+      note.textContent = th ? 'หน้าจอถูกขยายอยู่ ใช้สองนิ้วบีบเข้าหากันเพื่อย่อกลับ แล้วเล่นต่อได้' : 'The page is zoomed in. Pinch with two fingers to zoom back out, then carry on.';
+      document.body.appendChild(note);
+    }
+    note.style.display = z ? 'block' : 'none';
+    if (z) note.style.transform = `translate(${own.offsetLeft + own.width / 2}px, ${own.offsetTop + own.height * 0.42}px) scale(${1 / own.scale}) translate(-50%, -50%)`;
+  };
+  own.addEventListener('resize', show);
+  own.addEventListener('scroll', show);
 })();
 </script>
 </body>
