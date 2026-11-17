@@ -1312,14 +1312,39 @@ else start(window.claude?.hot?.data ?? {});
 })();
 </script>
 <script>
-/* No zooming: a pinch or a double tap would leave the game half off the screen and stuck. */
+/* No zooming: a pinch or a double tap would leave the game half off the screen and stuck.
+   If the page is zoomed in all the same (Safari lets people zoom whatever a page asks), nothing is
+   blocked any more, so it can be pinched back, and a note in the middle of the screen says how. */
 (() => {
-  const stop = e => e.preventDefault();
+  const own = window.visualViewport;
+  let vv = own;
+  try { if (window.top !== window && window.top.visualViewport) vv = window.top.visualViewport; } catch (e) { /* a page from another site around this one */ }
+  const zoomed = () => !!vv && vv.scale > 1.01;
+  const stop = e => { if (!zoomed()) e.preventDefault(); };
   for (const ev of ['gesturestart', 'gesturechange', 'gestureend', 'dblclick']) document.addEventListener(ev, stop, { passive: false });
-  document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
-  window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
-  window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault(); });
+  document.addEventListener('touchstart', e => { if (e.touches.length > 1) stop(e); }, { passive: false });
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) stop(e); }, { passive: false });
+  window.addEventListener('wheel', e => { if (e.ctrlKey) stop(e); }, { passive: false });
+  window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) stop(e); });
   document.documentElement.style.touchAction = 'manipulation';
+  if (!own || window.top !== window) return;
+  const th = /^th/i.test(document.documentElement.lang);
+  let note = null;
+  const show = () => {
+    const z = zoomed();
+    if (!note) {
+      if (!z) return;
+      note = document.createElement('div');
+      note.setAttribute('role', 'status');
+      note.style.cssText = 'position:fixed;left:0;top:0;z-index:2147483647;transform-origin:0 0;width:max-content;max-width:300px;padding:14px 18px;border-radius:12px;background:#b23a2e;color:#fff;font:600 17px/1.45 system-ui,-apple-system,"Sarabun",sans-serif;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5);pointer-events:none;';
+      note.textContent = th ? 'หน้าจอถูกขยายอยู่ ใช้สองนิ้วบีบเข้าหากันเพื่อย่อกลับ แล้วเล่นต่อได้' : 'The page is zoomed in. Pinch with two fingers to zoom back out, then carry on.';
+      document.body.appendChild(note);
+    }
+    note.style.display = z ? 'block' : 'none';
+    if (z) note.style.transform = `translate(${own.offsetLeft + own.width / 2}px, ${own.offsetTop + own.height * 0.42}px) scale(${1 / own.scale}) translate(-50%, -50%)`;
+  };
+  own.addEventListener('resize', show);
+  own.addEventListener('scroll', show);
 })();
 </script>
 </body>
