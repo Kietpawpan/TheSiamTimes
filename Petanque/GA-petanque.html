@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Siam Times Pétanque</title>
 <meta name="description" content="Play pétanque on a gravel court under The Siam Times sign. Singles to 13 against The Editor, against a friend, or on your own.">
+<link rel="alternate" hreflang="en" href="GA-petanque.html">
+<link rel="alternate" hreflang="th" href="GA-petanque-th.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 <style>
 /* Layout: the court fills the left as the scene, with the scoreline across its top;
    a narrow control rail sits on the right and drops under the scene on phones.
@@ -28,8 +30,8 @@
   --good: #82d09c;
   --bad: #e58576;
   --font-mast: "Chomsky", "Old English Text MT", "UnifrakturCook", serif;
-  --font-text: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-label: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-text: "Newsreader", "Sarabun", Georgia, "Times New Roman", serif;
+  --font-label: "Helvetica Neue", Helvetica, Arial, "Sarabun", sans-serif;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   box-sizing: border-box;
@@ -51,6 +53,7 @@ body {
   font: 16px/1.45 var(--font-text);
   -webkit-font-smoothing: antialiased;
 }
+html:lang(th) body { font-family: "Sarabun", var(--font-text); line-height: 1.55; }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
@@ -81,6 +84,7 @@ button { cursor: pointer; }
   text-transform: uppercase;
   color: var(--muted);
 }
+html:lang(th) .label { font-size: 12.5px; letter-spacing: .01em; text-transform: none; }
 .sb-sub { font-size: 15px; line-height: 1.2; }
 .big {
   font: 600 32px/1 var(--font-text);
@@ -94,7 +98,7 @@ button { cursor: pointer; }
 .side .label { display: inline-flex; align-items: center; gap: 6px; }
 .side.turn .label { color: var(--paper); }
 .side.turn .label::after {
-  content: "to play";
+  content: attr(data-turn);
   padding: 1px 6px;
   border-radius: 999px;
   background: var(--blue);
@@ -102,6 +106,7 @@ button { cursor: pointer; }
   font-size: 10px;
   letter-spacing: .06em;
 }
+html:lang(th) .side.turn .label::after { padding: 0 7px; font-size: 11.5px; letter-spacing: 0; }
 .dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
 .dot.a { background: radial-gradient(circle at 35% 35%, #f5f9fd, #9fb4c9 50%, #33475b); }
 .dot.b { background: radial-gradient(circle at 35% 35%, #fff4dc, #cfa35a 50%, #5a3e1c); }
@@ -119,6 +124,7 @@ button { cursor: pointer; }
   font-size: 15px;
   min-height: 1.45em;
 }
+html:lang(th) .sb-msg { font-style: normal; }
 .sb-msg strong { font-style: normal; color: var(--brass); }
 
 .scene { position: relative; flex: 1; min-height: 0; background: #1a2230; overflow: hidden; }
@@ -144,6 +150,7 @@ button { cursor: pointer; }
   pointer-events: none;
   transition: opacity .4s;
 }
+html:lang(th) .hint { font-size: 13px; line-height: 1.45; letter-spacing: 0; }
 .hint.gone { opacity: 0; }
 .overlay {
   position: absolute; inset: 0;
@@ -183,10 +190,23 @@ button { cursor: pointer; }
   border-left: 1px solid var(--rule);
 }
 .brand { display: flex; flex-direction: column; gap: 6px; }
+.brand-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .brand h1 { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-weight: 400; line-height: 1; }
 .brand .mast { font: 400 34px/1 var(--font-mast); letter-spacing: .005em; }
 .brand .game { font: italic 400 26px/1 var(--font-text); color: var(--brass); }
+html:lang(th) .brand .game { font: 600 24px/1.2 "Sarabun", sans-serif; }
 .brand p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.4; max-width: 34ch; }
+html:lang(th) .brand p { line-height: 1.5; max-width: 36ch; }
+.btn-lang {
+  flex: none;
+  display: inline-flex; align-items: center;
+  min-height: 32px; padding: 0 12px;
+  color: var(--paper); text-decoration: none;
+  border: 1px solid var(--rule); border-radius: 999px;
+  background: transparent;
+  font: 600 13px/1 var(--font-label);
+}
+.btn-lang:hover { border-color: var(--paper); }
 
 .group { display: flex; flex-direction: column; gap: 10px; border: 0; margin: 0; padding: 0; min-width: 0; }
 .group > legend { padding: 0; margin-bottom: 10px; }
@@ -202,6 +222,7 @@ button { cursor: pointer; }
   border-left: 1px solid var(--rule);
   transition: background .15s, color .15s;
 }
+html:lang(th) .seg label { padding-block: 8px; font-size: 14px; line-height: 1.35; }
 .seg label:first-of-type { border-left: 0; }
 .seg label:hover { color: var(--paper); }
 .seg input:checked + label { background: var(--paper); color: var(--night); }
@@ -212,6 +233,7 @@ button { cursor: pointer; }
 .ctl { display: flex; flex-direction: column; gap: 4px; }
 .ctl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .ctl-head label, .ctl-name { font: 600 14px/1.3 var(--font-label); }
+html:lang(th) .ctl-head label, html:lang(th) .ctl-name { font-size: 15px; line-height: 1.4; }
 .ctl-head output { font: 600 15px/1.3 var(--font-text); font-variant-numeric: tabular-nums lining-nums; color: var(--blue); white-space: nowrap; }
 .ctl-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) 34px; align-items: center; gap: 10px; }
 .ctl .seg { margin-top: 4px; }
@@ -262,11 +284,13 @@ input[type="range"]:focus-visible { outline: 2px solid var(--blue); outline-offs
   box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .22);
   transition: filter .15s, transform .05s;
 }
+html:lang(th) .btn-brass { font-size: 17px; line-height: 1.2; letter-spacing: .01em; }
 .btn-brass:hover { filter: brightness(1.08); }
 .btn-brass:active { transform: translateY(1px); }
 .btn-brass:disabled { opacity: .5; cursor: default; filter: none; transform: none; }
 .btn-brass:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
 .keys { margin: 0; font: 12px/1.7 var(--font-label); color: var(--muted); }
+html:lang(th) .keys { font-size: 13px; line-height: 1.8; }
 kbd {
   display: inline-block; min-width: 1.6em; padding: 0 5px;
   border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px;
@@ -281,12 +305,15 @@ kbd {
   background: transparent;
   font: 600 13px/1 var(--font-label);
 }
+html:lang(th) .btn-line { font-size: 14px; }
 .btn-line:hover { border-color: var(--paper); }
 .btn-line[aria-pressed="false"] { color: var(--muted); }
 
 details { border-top: 1px solid var(--rule); padding-top: 14px; }
 summary { cursor: pointer; font: 600 14px/1.3 var(--font-label); }
+html:lang(th) summary { font-size: 15px; line-height: 1.4; }
 details ul { margin: 12px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.45; max-width: 60ch; }
+html:lang(th) details ul { line-height: 1.6; }
 details li::marker { color: var(--brass); }
 
 @media (max-width: 899px) {
@@ -333,13 +360,13 @@ details li::marker { color: var(--brass); }
     </div>
     <div class="scene" id="scene">
       <canvas id="canvas" tabindex="0" role="img" aria-label="A gravel pétanque court at dusk under festoon lights, with a cream sign at the far end that reads The Siam Times. Use the arrow keys to aim and Space to throw."></canvas>
-      <p class="hint" id="hint">Tap the court where the ball should stop</p>
+      <p class="hint" id="hint" data-i18n="hint">Tap the court where the ball should stop</p>
       <div class="overlay" id="overlay" hidden>
         <div class="card" role="dialog" aria-modal="false" aria-labelledby="ovTitle">
           <span class="label" id="ovEyebrow"></span>
           <h2 id="ovTitle"></h2>
           <p id="ovText"></p>
-          <button class="btn-brass" id="ovBtn" type="button">Play again</button>
+          <button class="btn-brass" id="ovBtn" type="button" data-i18n="playAgain">Play again</button>
         </div>
       </div>
     </div>
@@ -347,16 +374,19 @@ details li::marker { color: var(--brass); }
 
   <aside class="rail">
     <header class="brand">
-      <h1><span class="mast">The Siam Times</span> <span class="game">Pétanque</span></h1>
-      <p>Singles on a 4 × 15 m gravel court. Three boules each; first to 13 points wins.</p>
+      <div class="brand-top">
+        <h1><span class="mast">The Siam Times</span> <span class="game" data-i18n="gameName">Pétanque</span></h1>
+        <a class="btn-lang" href="GA-petanque-th.html" hreflang="th" lang="th">ภาษาไทย</a>
+      </div>
+      <p data-i18n="tagline">Singles on a 4 × 15 m gravel court. Three boules each; first to 13 points wins.</p>
     </header>
 
     <fieldset class="group">
-      <legend class="label">Game</legend>
-      <div class="seg" role="radiogroup" aria-label="Game">
-        <input type="radio" name="mode" id="mode-cpu" value="cpu" checked><label for="mode-cpu">vs Computer</label>
-        <input type="radio" name="mode" id="mode-duo" value="duo"><label for="mode-duo">Two players</label>
-        <input type="radio" name="mode" id="mode-practice" value="practice"><label for="mode-practice">Practice</label>
+      <legend class="label" data-i18n="modeLegend">Game</legend>
+      <div class="seg" role="radiogroup" aria-label="Game" data-i18n-aria="modeLegend">
+        <input type="radio" name="mode" id="mode-cpu" value="cpu" checked><label for="mode-cpu" data-i18n="modeCpu">vs Computer</label>
+        <input type="radio" name="mode" id="mode-duo" value="duo"><label for="mode-duo" data-i18n="modeDuo">Two players</label>
+        <input type="radio" name="mode" id="mode-practice" value="practice"><label for="mode-practice" data-i18n="modePractice">Practice</label>
       </div>
       <p class="note" id="modeNote"></p>
     </fieldset>
@@ -364,52 +394,52 @@ details li::marker { color: var(--brass); }
     <fieldset class="group">
       <legend class="label" id="throwLegend">Your throw</legend>
       <div class="ctl">
-        <div class="ctl-head"><label for="aim">Aim</label><output id="aimOut" for="aim">0.0° straight</output></div>
+        <div class="ctl-head"><label for="aim" data-i18n="aim">Aim</label><output id="aimOut" for="aim">0.0° straight</output></div>
         <div class="ctl-row">
-          <button class="step" type="button" data-target="aim" data-step="-0.1" aria-label="Aim 0.1 degrees left">−</button>
+          <button class="step" type="button" data-target="aim" data-step="-0.1" aria-label="Aim 0.1 degrees left" data-i18n-aria="aimLeft">−</button>
           <input type="range" id="aim" min="-12" max="12" step="0.1" value="0">
-          <button class="step" type="button" data-target="aim" data-step="0.1" aria-label="Aim 0.1 degrees right">+</button>
+          <button class="step" type="button" data-target="aim" data-step="0.1" aria-label="Aim 0.1 degrees right" data-i18n-aria="aimRight">+</button>
         </div>
       </div>
       <div class="ctl">
-        <div class="ctl-head"><label for="dist">Distance</label><output id="distOut" for="dist">8.00 m</output></div>
+        <div class="ctl-head"><label for="dist" data-i18n="distance">Distance</label><output id="distOut" for="dist">8.00 m</output></div>
         <div class="ctl-row">
-          <button class="step" type="button" data-target="dist" data-step="-0.05" aria-label="5 centimetres shorter">−</button>
+          <button class="step" type="button" data-target="dist" data-step="-0.05" aria-label="5 centimetres shorter" data-i18n-aria="distShorter">−</button>
           <input type="range" id="dist" min="1" max="14.5" step="0.05" value="8">
-          <button class="step" type="button" data-target="dist" data-step="0.05" aria-label="5 centimetres longer">+</button>
+          <button class="step" type="button" data-target="dist" data-step="0.05" aria-label="5 centimetres longer" data-i18n-aria="distLonger">+</button>
         </div>
       </div>
       <div class="ctl">
-        <span class="ctl-name" id="styleLabel">Style</span>
+        <span class="ctl-name" id="styleLabel" data-i18n="style">Style</span>
         <div class="seg" role="radiogroup" aria-labelledby="styleLabel">
-          <input type="radio" name="loft" id="loft-roll" value="roll"><label for="loft-roll">Roll</label>
-          <input type="radio" name="loft" id="loft-half" value="half" checked><label for="loft-half">Half lob</label>
-          <input type="radio" name="loft" id="loft-high" value="high"><label for="loft-high">High lob</label>
-          <input type="radio" name="loft" id="loft-shoot" value="shoot"><label for="loft-shoot">Shoot</label>
+          <input type="radio" name="loft" id="loft-roll" value="roll"><label for="loft-roll" data-i18n="roll">Roll</label>
+          <input type="radio" name="loft" id="loft-half" value="half" checked><label for="loft-half" data-i18n="half">Half lob</label>
+          <input type="radio" name="loft" id="loft-high" value="high"><label for="loft-high" data-i18n="high">High lob</label>
+          <input type="radio" name="loft" id="loft-shoot" value="shoot"><label for="loft-shoot" data-i18n="shoot">Shoot</label>
         </div>
         <p class="note" id="styleNote"></p>
       </div>
       <button class="btn-brass" id="throwBtn" type="button">Throw the jack</button>
-      <p class="keys"><kbd>←</kbd> <kbd>→</kbd> aim · <kbd>↑</kbd> <kbd>↓</kbd> distance · <kbd>1</kbd>–<kbd>4</kbd> style · <kbd>Space</kbd> throw. Hold <kbd>Shift</kbd> for bigger steps.</p>
+      <p class="keys" data-i18n-html="keys"><kbd>←</kbd> <kbd>→</kbd> aim · <kbd>↑</kbd> <kbd>↓</kbd> distance · <kbd>1</kbd>–<kbd>4</kbd> style · <kbd>Space</kbd> throw. Hold <kbd>Shift</kbd> for bigger steps.</p>
     </fieldset>
 
     <fieldset class="group">
-      <legend class="label">Difficulty</legend>
-      <div class="seg" role="radiogroup" aria-label="Difficulty">
-        <input type="radio" name="level" id="level-easy" value="easy"><label for="level-easy">Easy</label>
-        <input type="radio" name="level" id="level-normal" value="normal" checked><label for="level-normal">Normal</label>
-        <input type="radio" name="level" id="level-pro" value="pro"><label for="level-pro">Pro</label>
+      <legend class="label" data-i18n="levelLegend">Difficulty</legend>
+      <div class="seg" role="radiogroup" aria-label="Difficulty" data-i18n-aria="levelLegend">
+        <input type="radio" name="level" id="level-easy" value="easy"><label for="level-easy" data-i18n="easy">Easy</label>
+        <input type="radio" name="level" id="level-normal" value="normal" checked><label for="level-normal" data-i18n="normal">Normal</label>
+        <input type="radio" name="level" id="level-pro" value="pro"><label for="level-pro" data-i18n="pro">Pro</label>
       </div>
       <p class="note" id="levelNote"></p>
       <div class="row">
         <button class="btn-line" id="soundBtn" type="button" aria-pressed="true">Sound on</button>
-        <button class="btn-line" id="newBtn" type="button">New game</button>
+        <button class="btn-line" id="newBtn" type="button" data-i18n="newGame">New game</button>
       </div>
     </fieldset>
 
     <details>
-      <summary>How to play</summary>
-      <ul>
+      <summary data-i18n="howTo">How to play</summary>
+      <ul id="howList">
         <li>Tap or drag on the court to choose where your ball should stop, or use the sliders. The blue ring shows where your hand is aiming right now; the dotted arc shows the flight and the small white ring where the ball first lands.</li>
         <li>Pick a style. Roll and Half lob land early and roll the rest, so bumps in the gravel can push them off line. High lob drops almost dead. Shoot lands right on the ring, hard, to knock a boule or the jack away.</li>
         <li>Each end starts with the jack, which must stop 6 to 10 m from the circle and at least 50 cm from the side boards. The side that threw it plays the first boule.</li>
@@ -425,6 +455,195 @@ details li::marker { color: var(--brass); }
 (() => {
 'use strict';
 
+/* ---------- Words ----------
+   This script is the same in GA-petanque.html (English) and GA-petanque-th.html (Thai);
+   each page picks its words from its own <html lang>. A side is 'you', 'editor' or a player number. */
+const enName = s => s === 'you' ? 'You' : s === 'editor' ? 'The Editor' : `Player ${s}`;
+const enObj = s => s === 'you' ? 'you' : enName(s);                      // the same, in mid-sentence
+const enPoss = s => s === 'you' ? 'Your' : s === 'editor' ? "The Editor's" : `Player ${s}'s`;
+const enV = (s, one, you) => s === 'you' ? you : one;                   // "The Editor plays" / "You play"
+const enN = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+const thName = s => s === 'you' ? 'คุณ' : s === 'editor' ? 'บรรณาธิการ' : `ผู้เล่น ${s}`;
+const thWho = s => thName(s) + (typeof s === 'number' ? ' ' : '');      // Thai runs a name into the next word, except after a number
+const STR = {
+  th: {
+    docTitle: 'เปตอง · The Siam Times',
+    gameName: 'เปตอง',
+    tagline: 'ประเภทเดี่ยวบนสนามกรวดขนาด 4 × 15 ม. คนละ 3 ลูก ใครถึง 13 แต้มก่อนชนะ',
+    signSub: 'ชมรมเปตองห้องข่าว',
+    canvasLabel: 'สนามเปตองพื้นกรวดยามโพล้เพล้ใต้แนวไฟประดับ สุดสนามมีป้ายสีครีมเขียนว่า The Siam Times ใช้ปุ่มลูกศรเพื่อเล็ง และ Space เพื่อโยน',
+    hint: 'แตะบนสนามตรงจุดที่อยากให้ลูกไปหยุด',
+    modeLegend: 'เกม', modeCpu: 'เล่นกับคอม', modeDuo: 'เล่นสองคน', modePractice: 'ฝึกซ้อม',
+    modeNote: {
+      cpu: 'ประเภทเดี่ยวกับบรรณาธิการ ใครถึง 13 แต้มก่อนชนะ',
+      duo: 'สองคนผลัดกันเล่นบนเครื่องเดียว ใครถึง 13 แต้มก่อนชนะ',
+      practice: 'โยน 3 ลูกเข้าหาลูกเป้าที่วางไว้ให้ วัดระยะให้ทุกลูก',
+    },
+    yourThrow: 'การโยนของคุณ', playerThrow: n => `การโยนของผู้เล่น ${n}`,
+    aim: 'ทิศทาง', distance: 'ระยะ', style: 'วิธีโยน',
+    aimLeft: 'เล็งไปทางซ้าย 0.1 องศา', aimRight: 'เล็งไปทางขวา 0.1 องศา',
+    distShorter: 'สั้นลง 5 เซนติเมตร', distLonger: 'ไกลขึ้น 5 เซนติเมตร',
+    aimOut: a => a === 0 ? 'ตรง 0.0°' : `${a < 0 ? 'ซ้าย' : 'ขวา'} ${Math.abs(a).toFixed(1)}°`,
+    distOut: (d, L) => L === null ? `${d.toFixed(2)} ม.` : `${d.toFixed(2)} ม. · ตกที่ ${L.toFixed(1)} ม.`,
+    roll: 'เรียด', half: 'ครึ่งลอย', high: 'ลอยโด่ง', shoot: 'ชู้ต',
+    loftNote: {
+      roll: 'ย่อตัวโยนเรียดพื้น ลูกตกห่างวงกลมไม่มากแล้วกลิ้งไปตลอดทาง พื้นกรวดจึงพาลูกเบี่ยงได้ง่าย',
+      half: 'การเบแบบที่นิยมที่สุด ลูกตกเลยครึ่งทางไปนิดแล้วกลิ้งต่อจนถึงจุด',
+      high: 'โยนโด่งสูง ลูกตกแล้วแทบหยุดอยู่กับที่ ใช้ข้ามลูกที่ขวางทางอยู่',
+      shoot: 'โยนแรงให้ลงตรงวงพอดี เล็งใส่ลูกเปตองหรือลูกเป้าเพื่อตีให้กระเด็นออกไป',
+    },
+    keys: '<kbd>←</kbd> <kbd>→</kbd> ทิศทาง · <kbd>↑</kbd> <kbd>↓</kbd> ระยะ · <kbd>1</kbd>–<kbd>4</kbd> วิธีโยน · <kbd>Space</kbd> โยน กด <kbd>Shift</kbd> ค้างไว้เพื่อปรับทีละมาก',
+    levelLegend: 'ความยาก', easy: 'ง่าย', normal: 'ปกติ', pro: 'โปร',
+    levelNote: {
+      easy: 'มือนิ่ง พื้นกรวดเรียบ และคู่แข่งที่เล่นสบาย ๆ',
+      normal: 'มือส่ายเล็กน้อย พื้นกรวดมีจุดนูนอยู่บ้าง กดโยนตอนที่วงสีฟ้าอยู่ตรงจุดที่เลือกไว้',
+      pro: 'มือสั่น พื้นกรวดขรุขระ และบรรณาธิการที่แทบไม่เคยพลาด',
+    },
+    soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด', newGame: 'เริ่มเกมใหม่',
+    howTo: 'วิธีเล่น',
+    how: [
+      'แตะหรือลากบนสนามเพื่อเลือกจุดที่อยากให้ลูกไปหยุด หรือใช้แถบเลื่อนก็ได้ วงสีฟ้าคือจุดที่มือกำลังเล็งอยู่ เส้นโค้งจุดไข่ปลาคือแนวที่ลูกลอยไป และวงขาวเล็ก ๆ คือจุดที่ลูกตกถึงพื้นครั้งแรก',
+      'เลือกวิธีโยน ลูกเรียดกับลูกครึ่งลอยตกเร็วแล้วกลิ้งต่อ พื้นกรวดที่ไม่เรียบจึงพาลูกเบี่ยงออกจากแนวได้ ลูกลอยโด่งตกแล้วแทบหยุดนิ่ง ส่วนลูกชู้ตพุ่งแรงลงตรงวงพอดี เพื่อตีลูกเปตองหรือลูกเป้าให้กระเด็นออกไป',
+      'ทุกเอนด์เริ่มด้วยการโยนลูกเป้า ซึ่งต้องหยุดห่างวงกลม 6–10 ม. และห่างขอบข้างอย่างน้อย 50 ซม. ฝ่ายที่โยนลูกเป้าได้โยนลูกแรก',
+      'จากนั้นฝ่ายที่ยังไม่ได้แต้มต้องโยนต่อไปเรื่อย ๆ จนกว่าจะแย่งแต้มกลับมาได้ หรือจนลูกหมด',
+      'เมื่อโยนครบทั้ง 6 ลูก ฝ่ายที่มีลูกใกล้ลูกเป้าที่สุดได้แต้ม นับลูกละ 1 แต้ม ทุกลูกที่ใกล้กว่าลูกที่ดีที่สุดของอีกฝ่าย ผู้ชนะเอนด์ได้โยนลูกเป้าในเอนด์ถัดไป ใครถึง 13 แต้มก่อนชนะ',
+      'ลูกที่โดนขอบสนามถือเป็นลูกตาย ถ้าลูกเป้าตายขณะที่ทั้งสองฝ่ายยังมีลูกเหลือ เอนด์นั้นเป็นโมฆะ แต่ถ้ามีลูกเหลืออยู่ฝ่ายเดียว ฝ่ายนั้นได้แต้มเท่ากับจำนวนลูกที่เหลือ',
+    ],
+    name: thName,
+    endN: n => `เอนด์ ${n}`, firstTo: 'เกม 13 แต้ม', practice: 'ฝึกซ้อม', closestEnd: 'ใกล้สุดในเอนด์นี้',
+    toPlay: 'ถึงตา', bouleLeft: n => `เหลือ ${n} ลูก`,
+    point: 'แต้ม', bestDevice: 'ดีที่สุดในเครื่องนี้', jack: 'ลูกเป้า', tryOf: k => `ครั้งที่ ${k} จาก 3`, jackRange: '6–10 ม.',
+    thisEnd: 'เอนด์นี้', voidEnd: 'โมฆะ', holding: 'ฝ่ายได้แต้ม', levelV: 'เท่ากัน', holdV: (n, lead) => `${n} · นำ ${lead}`,
+    playAgain: 'เล่นอีกครั้ง', nextEnd: 'เอนด์ถัดไป', rolling: 'ลูกกำลังกลิ้ง…', editorPlaying: 'บรรณาธิการกำลังโยน',
+    throwJack: 'โยนลูกเป้า', throwBoule: k => `โยนลูกที่ ${k} จาก 3`, playerPrefix: n => `ผู้เล่น ${n}: `,
+    m: ' ม.', cm: ' ซม.', mm: ' มม.', touching: 'ชิดเป้า',
+    practiceStart: d => `ลูกเป้าอยู่ที่ <strong>${d} ม.</strong> โยนทั้ง 3 ลูกให้ใกล้ลูกเป้าที่สุด`,
+    tossWon: s => `${thWho(s)}ชนะการเสี่ยงทาย ได้โยนลูกเป้าก่อน ให้ห่างวงกลม 6–10 ม.`,
+    endStart: (n, s) => `เอนด์ที่ ${n} ${thWho(s)}โยนลูกเป้า`,
+    jackOk: (d, s) => `ลูกเป้าอยู่ที่ <strong>${d} ม.</strong> ${thWho(s)}โยนลูกแรก`,
+    jackWhy: (k, d) => ({ out: 'ออกนอกสนาม', short: `สั้นไป หยุดที่ ${d} ม.`, long: `ไกลไป ไปหยุดที่ ${d} ม.`, side: 'ชิดขอบข้างเกินไป' })[k],
+    jackRetry: (why, k) => `ลูกเป้า${why} ต้องหยุดห่างวงกลม 6–10 ม. และห่างขอบข้างอย่างน้อย 50 ซม. ครั้งที่ ${k} จาก 3`,
+    jackPlaced: (why, other, d, by) => `ลูกเป้า${why} ครบ 3 ครั้งแล้ว ${thWho(other)}จึงเป็นฝ่ายวางลูกเป้าที่ <strong>${d} ม.</strong> แล้ว${thWho(by)}โยนลูกแรก`,
+    newsCarreau: '<strong>คาโร!</strong> ', toastCarreau: 'คาโร!', toastCarreauSub: 'ลูกที่ชู้ตเข้าแทนที่พอดี',
+    newsOut: s => `ลูกของ${thWho(s)}ถูกชนกระเด็นออกนอกสนาม `, toastOut: 'กระเด็นออก',
+    newsHit: 'ชนเข้าเต็ม ๆ ', toastHit: 'โดน!',
+    newsJack: 'ลูกเป้าโดนชน! ', toastJack: 'ลูกเป้าขยับ',
+    holdLevel: 'ลูกที่ใกล้ที่สุดของสองฝ่ายห่างเท่ากัน ',
+    holdBy: (s, lead) => `${thWho(s)}ได้แต้ม ใกล้กว่า <strong>${lead}</strong> `,
+    holdGap: (s, g) => `${thWho(s)}ได้แต้ม ${g < TOUCH ? 'ชิดลูกเป้า' : `ห่างลูกเป้า ${fmtGap(g)}`} `,
+    wentOut: 'ลูกนั้นออกนอกสนาม ',
+    lastOnes: (other, next, n) => `${thWho(other)}หมดลูกแล้ว ${thWho(next)}โยน${n === 1 ? 'ลูกสุดท้าย' : `อีก ${n} ลูกที่เหลือ`}`,
+    playsAgain: (s, n) => `${thWho(s)}โยนต่อ (เหลือ ${n} ลูก)`,
+    turn: (s, n) => `ถึงตา${thName(s)} (เหลือ ${n} ลูก)`,
+    endNothing: level => `${level ? 'ลูกที่ใกล้ที่สุดของสองฝ่ายห่างเท่ากัน' : 'ไม่มีลูกเหลืออยู่ในสนามเลย'} เอนด์นี้จึงไม่มีใครได้แต้ม`,
+    endScores: (s, p) => `${thWho(s)}ได้ <strong>${p}</strong> แต้ม`,
+    jackOutVoid: both => `ลูกเป้าออกนอกสนาม${both ? 'ขณะที่ทั้งสองฝ่ายยังมีลูกเหลือ' : ''} เอนด์นี้จึงเป็นโมฆะและต้องเล่นใหม่`,
+    jackOutScores: (s, p) => `ลูกเป้าออกนอกสนาม ${thWho(s)}ยังเหลือลูกอีก ${p} ลูก จึงได้ <strong>${p}</strong> แต้ม`,
+    scoreLine: (a, sa, b, sb) => ` ตอนนี้${thWho(a)}มี ${sa} แต้ม ${thWho(b)}มี ${sb} แต้ม`,
+    jackAgain: s => ` ${thWho(s)}โยนลูกเป้าใหม่`,
+    toastBest: 'สถิติใหม่',
+    record: (w, l) => `สถิติของคุณกับบรรณาธิการในเครื่องนี้: ชนะ ${w} แพ้ ${l}`,
+    winEyebrow: s => `${thWho(s)}ชนะ`,
+    beatEditor: lvl => `คุณเอาชนะบรรณาธิการได้ในระดับ${lvl} `,
+    editorTakes: 'เกมนี้บรรณาธิการชนะไป ',
+    duoWin: (n, ends) => `ผู้เล่น ${n} ถึง 13 แต้มก่อน หลังเล่นไป ${ends} เอนด์`,
+    practiceJackOut: 'ลูกเป้าออกนอกสนาม พร้อมเมื่อไรก็เริ่มเอนด์ถัดไปได้เลย',
+    practiceThis: (dead, g) => dead ? 'ลูกนั้นออกนอกสนาม' : g < TOUCH ? 'ลูกนี้หยุด<strong>ชิดลูกเป้า</strong>' : `ลูกนี้หยุดห่างลูกเป้า <strong>${fmtGap(g)}</strong>`,
+    closestSoFar: g => ` ใกล้สุดตอนนี้: ${fmtGap(g)}`,
+    practiceEnd: (g, best) => ` ลูกที่ใกล้ที่สุดในเอนด์นี้: <strong>${fmtGap(g)}</strong>${best ? ' เป็นสถิติดีที่สุดของคุณในเครื่องนี้' : ''}`,
+    practiceNone: ' เอนด์นี้ไม่มีลูกไหนเหลืออยู่ในสนามเลย',
+  },
+  en: {
+    docTitle: 'Siam Times Pétanque',
+    gameName: 'Pétanque',
+    tagline: 'Singles on a 4 × 15 m gravel court. Three boules each; first to 13 points wins.',
+    signSub: 'NEWSROOM PÉTANQUE CLUB',
+    canvasLabel: 'A gravel pétanque court at dusk under festoon lights, with a cream sign at the far end that reads The Siam Times. Use the arrow keys to aim and Space to throw.',
+    hint: 'Tap the court where the ball should stop',
+    modeLegend: 'Game', modeCpu: 'vs Computer', modeDuo: 'Two players', modePractice: 'Practice',
+    modeNote: {
+      cpu: 'Singles against The Editor, first to 13.',
+      duo: 'Two people on one device take turns, first to 13.',
+      practice: 'Three boules at a jack placed for you. Every throw is measured.',
+    },
+    yourThrow: 'Your throw', playerThrow: n => `Player ${n}'s throw`,
+    aim: 'Aim', distance: 'Distance', style: 'Style',
+    aimLeft: 'Aim 0.1 degrees left', aimRight: 'Aim 0.1 degrees right',
+    distShorter: '5 centimetres shorter', distLonger: '5 centimetres longer',
+    aimOut: a => a === 0 ? '0.0° straight' : `${Math.abs(a).toFixed(1)}° ${a < 0 ? 'left' : 'right'}`,
+    distOut: (d, L) => L === null ? `${d.toFixed(2)} m` : `${d.toFixed(2)} m · lands ${L.toFixed(1)} m`,
+    roll: 'Roll', half: 'Half lob', high: 'High lob', shoot: 'Shoot',
+    loftNote: {
+      roll: 'Bowled low from a crouch. It lands just past the circle and rolls the rest, so the gravel can push it off line.',
+      half: 'The usual point: it lands a little past halfway and rolls the rest.',
+      high: 'A high arc that drops almost dead. Use it to get over boules in the way.',
+      shoot: 'Thrown hard to land right on the ring. Put it on a boule or the jack to knock it away.',
+    },
+    keys: '<kbd>←</kbd> <kbd>→</kbd> aim · <kbd>↑</kbd> <kbd>↓</kbd> distance · <kbd>1</kbd>–<kbd>4</kbd> style · <kbd>Space</kbd> throw. Hold <kbd>Shift</kbd> for bigger steps.',
+    levelLegend: 'Difficulty', easy: 'Easy', normal: 'Normal', pro: 'Pro',
+    levelNote: {
+      easy: 'A steady hand, smooth gravel and a relaxed opponent.',
+      normal: 'Your hand drifts a little and the gravel has a few bumps. Let go when the blue ring sits on your spot.',
+      pro: 'A shaky hand, rough gravel, and an editor who rarely misses.',
+    },
+    soundOn: 'Sound on', soundOff: 'Sound off', newGame: 'New game',
+    howTo: 'How to play',
+    how: [
+      'Tap or drag on the court to choose where your ball should stop, or use the sliders. The blue ring shows where your hand is aiming right now; the dotted arc shows the flight and the small white ring where the ball first lands.',
+      'Pick a style. Roll and Half lob land early and roll the rest, so bumps in the gravel can push them off line. High lob drops almost dead. Shoot lands right on the ring, hard, to knock a boule or the jack away.',
+      'Each end starts with the jack, which must stop 6 to 10 m from the circle and at least 50 cm from the side boards. The side that threw it plays the first boule.',
+      'After that, the side that is not holding the point keeps playing until it takes the point or runs out of boules.',
+      'When all six boules are played, the side with the closest boule scores one point for each boule nearer the jack than the other side\'s best. The winner of the end throws the next jack. First to 13 wins.',
+      'A ball that touches the boards is dead. If the jack goes dead while both sides still have boules, the end is void; if only one side has boules left, it scores one point for each.',
+    ],
+    name: enName,
+    endN: n => `End ${n}`, firstTo: 'First to 13', practice: 'Practice', closestEnd: 'Closest this end',
+    toPlay: 'to play', bouleLeft: n => `${enN(n, 'boule', 'boules')} left`,
+    point: 'Point', bestDevice: 'Best on this device', jack: 'Jack', tryOf: k => `Try ${k} of 3`, jackRange: '6 to 10 m',
+    thisEnd: 'This end', voidEnd: 'Void', holding: 'Holding the point', levelV: 'Level', holdV: (n, lead) => `${n} · ${lead}`,
+    playAgain: 'Play again', nextEnd: 'Next end', rolling: 'Rolling…', editorPlaying: 'The Editor is playing',
+    throwJack: 'Throw the jack', throwBoule: k => `Throw boule ${k} of 3`, playerPrefix: n => `Player ${n}: `,
+    m: ' m', cm: ' cm', mm: ' mm', touching: 'touching',
+    practiceStart: d => `The jack is at <strong>${d} m</strong>. Get your three boules as close as you can.`,
+    tossWon: s => `${enName(s)} won the toss and ${enV(s, 'throws', 'throw')} the jack, 6 to 10 m out.`,
+    endStart: (n, s) => `End ${n}. ${enName(s)} ${enV(s, 'throws', 'throw')} the jack.`,
+    jackOk: (d, s) => `The jack is at <strong>${d} m</strong>. ${enName(s)} ${enV(s, 'plays', 'play')} the first boule.`,
+    jackWhy: (k, d) => ({ out: 'went out of the court', short: `stopped short, at ${d} m`, long: `went too far, to ${d} m`, side: 'stopped too close to the side boards' })[k],
+    jackRetry: (why, k) => `The jack ${why}. It must stop 6 to 10 m out and 50 cm from the sides. Try ${k} of 3.`,
+    jackPlaced: (why, other, d, by) => `The jack ${why}. After three tries, ${enObj(other)} ${enV(other, 'places', 'place')} it at <strong>${d} m</strong>. ${enName(by)} ${enV(by, 'plays', 'play')} the first boule.`,
+    newsCarreau: '<strong>Carreau!</strong> ', toastCarreau: 'Carreau!', toastCarreauSub: 'The shot took its place',
+    newsOut: s => `${enPoss(s)} boule is knocked out of the court. `, toastOut: 'Knocked out',
+    newsHit: 'A direct hit. ', toastHit: 'Hit',
+    newsJack: 'The jack is hit! ', toastJack: 'The jack moves',
+    holdLevel: 'The two sides are level. ',
+    holdBy: (s, lead) => `${enName(s)} ${enV(s, 'holds', 'hold')} the point by <strong>${lead}</strong>. `,
+    holdGap: (s, g) => `${enName(s)} ${enV(s, 'holds', 'hold')} the point, ${g < TOUCH ? 'touching the jack' : `${fmtGap(g)} from the jack`}. `,
+    wentOut: 'That boule went out. ',
+    lastOnes: (other, next, n) => `${enName(other)} ${enV(other, 'has', 'have')} no boules left, so ${enObj(next)} ${enV(next, 'plays', 'play')} the last ${n === 1 ? 'one' : enN(n, 'boule', 'boules')}.`,
+    playsAgain: (s, n) => `${enName(s)} ${enV(s, 'plays', 'play')} again (${enN(n, 'boule', 'boules')} left).`,
+    turn: (s, n) => `${s === 'you' ? 'Your turn' : `${enName(s)} to play`} (${enN(n, 'boule', 'boules')} left).`,
+    endNothing: level => `${level ? 'The two closest boules are level' : 'No boule is left on the court'}, so the end scores nothing.`,
+    endScores: (s, p) => `${enName(s)} ${enV(s, 'scores', 'score')} <strong>${p}</strong> ${p === 1 ? 'point' : 'points'}.`,
+    jackOutVoid: both => `The jack is out of the court${both ? ' while both sides still have boules' : ''}, so the end is void and is played again.`,
+    jackOutScores: (s, p) => `The jack is out of the court. ${enName(s)} still ${enV(s, 'has', 'have')} ${enN(p, 'boule', 'boules')} to play, so ${enObj(s)} ${enV(s, 'scores', 'score')} <strong>${p}</strong>.`,
+    scoreLine: (a, sa, b, sb) => ` ${enName(a)} ${sa}, ${enName(b)} ${sb}.`,
+    jackAgain: s => ` ${enName(s)} ${enV(s, 'throws', 'throw')} the jack again.`,
+    toastBest: 'New best',
+    record: (w, l) => `Your record against The Editor on this device: ${enN(w, 'win', 'wins')}, ${enN(l, 'loss', 'losses')}.`,
+    winEyebrow: s => s === 'you' ? 'You win' : `${enName(s)} wins`,
+    beatEditor: lvl => `You beat The Editor on ${lvl}. `,
+    editorTakes: 'The Editor takes this one. ',
+    duoWin: (n, ends) => `Player ${n} reaches 13 first after ${enN(ends, 'end', 'ends')}.`,
+    practiceJackOut: 'The jack went out of the court. Start the next end when you\'re ready.',
+    practiceThis: (dead, g) => dead ? 'That boule went out.' : g < TOUCH ? 'That one finished <strong>touching</strong> the jack.' : `That one finished <strong>${fmtGap(g)}</strong> from the jack.`,
+    closestSoFar: g => ` Closest so far: ${fmtGap(g)}.`,
+    practiceEnd: (g, best) => ` Your closest this end: <strong>${fmtGap(g)}</strong>.${best ? ' That is your best on this device.' : ''}`,
+    practiceNone: ' No boule stayed on the court this end.',
+  },
+};
+const LANG = document.documentElement.lang === 'th' ? 'th' : 'en';
+const T = STR[LANG];
+
 /* ---------- World, in metres. x right, y up, z down the court away from the circle. ---------- */
 const TAU = Math.PI * 2, DEG = Math.PI / 180, G = 9.81;
 const DT = 1 / 480;                                   // physics step
@@ -439,28 +658,16 @@ const KIND = {
   boule: { r: 0.0365, m: 0.70,  e: 0.16, mu: 0.30, roll: 0.13 },   // 73 mm steel, 700 g
   jack:  { r: 0.015,  m: 0.018, e: 0.30, mu: 0.30, roll: 0.20 },   // 30 mm wood, 18 g
 };
-const LOFTS = {
-  roll:  { angle: 4,  h: 0.35, key: '1', label: 'Roll',
-           note: 'Bowled low from a crouch. It lands just past the circle and rolls the rest, so the gravel can push it off line.' },
-  half:  { angle: 38, h: 0.75, key: '2', label: 'Half lob',
-           note: 'The usual point: it lands a little past halfway and rolls the rest.' },
-  high:  { angle: 62, h: 0.95, key: '3', label: 'High lob',
-           note: 'A high arc that drops almost dead. Use it to get over boules in the way.' },
-  shoot: { angle: 24, h: 1.05, key: '4', label: 'Shoot',
-           note: 'Thrown hard to land right on the ring. Put it on a boule or the jack to knock it away.' },
+const LOFTS = {                                         // their names and notes are in STR
+  roll:  { angle: 4,  h: 0.35, key: '1' },
+  half:  { angle: 38, h: 0.75, key: '2' },
+  high:  { angle: 62, h: 0.95, key: '3' },
+  shoot: { angle: 24, h: 1.05, key: '4' },
 };
 const LEVELS = {
-  easy:   { sway: 0.15, jitter: 0.010, bump: 0.0004, cpu: { angle: 1.3,  dist: 0.075, shoot: 0.15 },
-            note: 'A steady hand, smooth gravel and a relaxed opponent.' },
-  normal: { sway: 0.45, jitter: 0.025, bump: 0.0010, cpu: { angle: 0.65, dist: 0.040, shoot: 0.50 },
-            note: 'Your hand drifts a little and the gravel has a few bumps. Let go when the blue ring sits on your spot.' },
-  pro:    { sway: 0.85, jitter: 0.045, bump: 0.0016, cpu: { angle: 0.35, dist: 0.022, shoot: 0.85 },
-            note: 'A shaky hand, rough gravel, and an editor who rarely misses.' },
-};
-const MODE_NOTES = {
-  cpu: 'Singles against The Editor, first to 13.',
-  duo: 'Two people on one device take turns, first to 13.',
-  practice: 'Three boules at a jack placed for you. Every throw is measured.',
+  easy:   { sway: 0.15, jitter: 0.010, bump: 0.0004, cpu: { angle: 1.3,  dist: 0.075, shoot: 0.15 } },
+  normal: { sway: 0.45, jitter: 0.025, bump: 0.0010, cpu: { angle: 0.65, dist: 0.040, shoot: 0.50 } },
+  pro:    { sway: 0.85, jitter: 0.045, bump: 0.0016, cpu: { angle: 0.35, dist: 0.022, shoot: 0.85 } },
 };
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -492,16 +699,24 @@ function gauss() {
 }
 // Gap between the jack and a boule, edge to edge, from the distance between their centres.
 const gapOf = d => Math.max(0, d - KIND.boule.r - KIND.jack.r);
+const TOUCH = 0.004;                                    // a gap smaller than this counts as touching
 function fmtGap(m) {
-  if (m < 0.004) return 'touching';
-  if (m < 0.1) return (m * 100).toFixed(1) + ' cm';
-  if (m < 1) return Math.round(m * 100) + ' cm';
-  return m.toFixed(2) + ' m';
+  if (m < TOUCH) return T.touching;
+  if (m < 0.1) return (m * 100).toFixed(1) + T.cm;
+  if (m < 1) return Math.round(m * 100) + T.cm;
+  return m.toFixed(2) + T.m;
 }
 function fmtLead(m) {
-  if (m < 0.01) return (m * 1000).toFixed(0) + ' mm';
-  return m < 1 ? Math.round(m * 100) + ' cm' : m.toFixed(2) + ' m';
+  if (m < 0.01) return (m * 1000).toFixed(0) + T.mm;
+  return m < 1 ? Math.round(m * 100) + T.cm : m.toFixed(2) + T.m;
 }
+// Canvas fonts: Thai is set in Sarabun, a little larger than the Latin label face.
+const textFont = (weight, px) => LANG === 'th'
+  ? `${weight} ${px}px Sarabun, "Helvetica Neue", Arial, sans-serif`
+  : `${weight} ${px}px Newsreader, Georgia, serif`;
+const labelFont = (weight, px) => LANG === 'th'
+  ? `${weight} ${px * 1.1}px Sarabun, "Helvetica Neue", Arial, sans-serif`
+  : `${weight} ${px}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
 
 /* ---------- Physics ---------- */
 // The gravel is never flat. Each end gets its own gentle bumps, as a sum of shallow waves;
@@ -657,10 +872,8 @@ let throwAt = 0;
 
 const isCpu = t => state.mode === 'cpu' && t === 1;
 const isCpuTurn = () => isCpu(state.current) && (state.phase === 'jack' || state.phase === 'boule');
-const Name = t => state.mode === 'cpu' ? (t === 0 ? 'You' : 'The Editor') : `Player ${t + 1}`;
-const name = t => state.mode === 'cpu' && t === 0 ? 'you' : Name(t);
-const verb = (t, s, p) => state.mode === 'cpu' && t === 0 ? p : s;     // "The Editor plays" / "You play"
-const poss = t => state.mode === 'cpu' ? (t === 0 ? 'your' : "The Editor's") : `Player ${t + 1}'s`;
+const sideOf = t => state.mode === 'cpu' ? (t === 0 ? 'you' : 'editor') : t + 1;   // who a team is, for the words
+const Name = t => T.name(sideOf(t));
 
 const live = t => state.balls.filter(b => b.kind === 'boule' && !b.dead && b.team === t);
 const toJack = b => Math.hypot(b.x - state.jack.x, b.z - state.jack.z);
@@ -691,13 +904,11 @@ function startEnd(first) {
   if (state.mode === 'practice') {
     placeJack();
     state.phase = 'boule'; state.current = 0;
-    state.message = `The jack is at <strong>${Math.hypot(state.jack.x, state.jack.z).toFixed(1)} m</strong>. Get your three boules as close as you can.`;
+    state.message = T.practiceStart(Math.hypot(state.jack.x, state.jack.z).toFixed(1));
   } else {
     state.phase = 'jack'; state.current = state.jackBy;
     const t = state.jackBy;
-    state.message = first
-      ? `${Name(t)} won the toss and ${verb(t, 'throws', 'throw')} the jack, 6 to 10 m out.`
-      : `End ${state.end}. ${Name(t)} ${verb(t, 'throws', 'throw')} the jack.`;
+    state.message = first ? T.tossWon(sideOf(t)) : T.endStart(state.end, sideOf(t));
     if (state.jackBy === 0 || state.mode === 'duo') { state.dist = 8; state.loft = state.loft === 'shoot' ? 'half' : state.loft; }
   }
   renderOverlay();
@@ -757,25 +968,24 @@ function afterJack(j) {
   const ok = !j.dead && d >= JACK_RULE.min && d <= JACK_RULE.max && Math.abs(j.x) <= PISTE.half - JACK_RULE.side;
   if (ok) {
     state.phase = 'boule'; state.current = by;
-    state.message = `The jack is at <strong>${d.toFixed(1)} m</strong>. ${Name(by)} ${verb(by, 'plays', 'play')} the first boule.`;
+    state.message = T.jackOk(d.toFixed(1), sideOf(by));
     sfx.ok();
     return;
   }
   state.jackTries++;
   state.balls = state.balls.filter(b => b !== j);
   state.jack = null;
-  const why = j.dead ? 'went out of the court' : d < JACK_RULE.min ? `stopped short, at ${d.toFixed(1)} m`
-    : d > JACK_RULE.max ? `went too far, to ${d.toFixed(1)} m` : 'stopped too close to the side boards';
+  const why = T.jackWhy(j.dead ? 'out' : d < JACK_RULE.min ? 'short' : d > JACK_RULE.max ? 'long' : 'side', d.toFixed(1));
   if (state.jackTries < 3) {
     state.phase = 'jack';
-    state.message = `The jack ${why}. It must stop 6 to 10 m out and 50 cm from the sides. Try ${state.jackTries + 1} of 3.`;
+    state.message = T.jackRetry(why, state.jackTries + 1);
     sfx.bust();
     return;
   }
   placeJack();
   state.phase = 'boule'; state.current = by;
   const dd = Math.hypot(state.jack.x, state.jack.z);
-  state.message = `The jack ${why}. After three tries, ${name(other)} ${verb(other, 'places', 'place')} it at <strong>${dd.toFixed(1)} m</strong>. ${Name(by)} ${verb(by, 'plays', 'play')} the first boule.`;
+  state.message = T.jackPlaced(why, sideOf(other), dd.toFixed(1), sideOf(by));
 }
 
 // What the thrown boule did to the balls it touched: the biggest knock on an opponent's boule wins.
@@ -789,11 +999,11 @@ function shotNews(t) {
   }
   if (best) {
     const stay = Math.hypot(t.x - best.x, t.z - best.z);
-    if (best.air && !t.dead && stay < 0.3) { toast('Carreau!', 'The shot took its place', t.team); return '<strong>Carreau!</strong> '; }
-    toast(best.target.dead ? 'Knocked out' : 'Hit', null, t.team);
-    return best.target.dead ? `${poss(best.target.team)[0].toUpperCase() + poss(best.target.team).slice(1)} boule is knocked out of the court. ` : 'A direct hit. ';
+    if (best.air && !t.dead && stay < 0.3) { toast(T.toastCarreau, T.toastCarreauSub, t.team); return T.newsCarreau; }
+    toast(best.target.dead ? T.toastOut : T.toastHit, null, t.team);
+    return best.target.dead ? T.newsOut(sideOf(best.target.team)) : T.newsHit;
   }
-  if (jackHit) { toast('The jack moves', null); return 'The jack is hit! '; }
+  if (jackHit) { toast(T.toastJack, null); return T.newsJack; }
   return '';
 }
 
@@ -809,19 +1019,14 @@ function afterBoule(t) {
   let hold = '';
   if (na.ball && nb.ball) {
     const h = na.d < nb.d ? 0 : 1;
-    hold = Math.abs(na.d - nb.d) < 0.001 ? 'The two sides are level. '
-      : `${Name(h)} ${verb(h, 'holds', 'hold')} the point by <strong>${fmtLead(Math.abs(na.d - nb.d))}</strong>. `;
+    hold = Math.abs(na.d - nb.d) < 0.001 ? T.holdLevel : T.holdBy(sideOf(h), fmtLead(Math.abs(na.d - nb.d)));
   } else if (na.ball || nb.ball) {
     const h = na.ball ? 0 : 1;
-    hold = `${Name(h)} ${verb(h, 'holds', 'hold')} the point, ${fmtGap(gapOf(h ? nb.d : na.d))} from the jack. `;
-  } else if (t.dead) hold = 'That boule went out. ';
+    hold = T.holdGap(sideOf(h), gapOf(h ? nb.d : na.d));
+  } else if (t.dead) hold = T.wentOut;
   const n = state.left[next], other = 1 - next;
-  const count = `${n} ${n === 1 ? 'boule' : 'boules'}`;
-  const tail = state.left[other] === 0
-    ? `${Name(other)} ${verb(other, 'has', 'have')} no boules left, so ${name(next)} ${verb(next, 'plays', 'play')} the last ${n === 1 ? 'one' : count}.`
-    : next === state.lastBy
-      ? `${Name(next)} ${verb(next, 'plays', 'play')} again (${count} left).`
-      : `${state.mode === 'cpu' && next === 0 ? 'Your turn' : `${Name(next)} to play`} (${count} left).`;
+  const tail = state.left[other] === 0 ? T.lastOnes(sideOf(other), sideOf(next), n)
+    : next === state.lastBy ? T.playsAgain(sideOf(next), n) : T.turn(sideOf(next), n);
   state.message = `${news}${hold}${tail}`;
 }
 
@@ -848,21 +1053,21 @@ function scoreEnd(news) {
     scorers = live(w).filter(b => toJack(b) < lim);
   }
   if (w === null) {
-    finishEnd(null, 0, [], `${news}${na.ball ? 'The two closest boules are level' : 'No boule is left on the court'}, so the end scores nothing.`);
+    finishEnd(null, 0, [], news + T.endNothing(!!na.ball));
     return;
   }
   const p = scorers.length;
-  finishEnd(w, p, scorers, `${news}${Name(w)} ${verb(w, 'scores', 'score')} <strong>${p}</strong> ${p === 1 ? 'point' : 'points'}.`);
+  finishEnd(w, p, scorers, news + T.endScores(sideOf(w), p));
 }
 
 function deadJack(news) {
   const [la, lb] = state.left;
   if ((la > 0 && lb > 0) || (la === 0 && lb === 0)) {
-    finishEnd(null, 0, [], `${news}The jack is out of the court${la > 0 ? ' while both sides still have boules' : ''}, so the end is void and is played again.`);
+    finishEnd(null, 0, [], news + T.jackOutVoid(la > 0));
     return;
   }
   const w = la > 0 ? 0 : 1, p = state.left[w];
-  finishEnd(w, p, [], `${news}The jack is out of the court. ${Name(w)} still ${verb(w, 'has', 'have')} ${p} ${p === 1 ? 'boule' : 'boules'} to play, so ${name(w)} ${verb(w, 'scores', 'score')} <strong>${p}</strong>.`);
+  finishEnd(w, p, [], news + T.jackOutScores(sideOf(w), p));
 }
 
 function finishEnd(w, p, scorers, text) {
@@ -870,25 +1075,25 @@ function finishEnd(w, p, scorers, text) {
   state.current = null;
   if (w !== null) { state.score[w] += p; state.jackBy = w; }
   const s = state.score;
-  const line = ` ${Name(0)} ${s[0]}, ${Name(1)} ${s[1]}.`;
+  const line = T.scoreLine(sideOf(0), s[0], sideOf(1), s[1]);
   if (w !== null && s[w] >= WIN) {
     state.phase = 'over';
     state.message = text + line;
     const human = state.mode !== 'cpu' || w === 0;
     if (state.mode === 'cpu') { if (w === 0) prefs.wins++; else prefs.losses++; savePrefs(); }
     if (human) sfx.cheer(); else sfx.lose();
-    const rec = `Your record against The Editor on this device: ${prefs.wins} ${prefs.wins === 1 ? 'win' : 'wins'}, ${prefs.losses} ${prefs.losses === 1 ? 'loss' : 'losses'}.`;
+    const rec = T.record(prefs.wins, prefs.losses);
     showOverlay({
-      eyebrow: state.mode === 'cpu' ? (w === 0 ? 'You win' : 'The Editor wins') : `Player ${w + 1} wins`,
+      eyebrow: T.winEyebrow(sideOf(w)),
       title: `${Math.max(s[0], s[1])} – ${Math.min(s[0], s[1])}`,
       text: state.mode === 'cpu'
-        ? (w === 0 ? `You beat The Editor on ${prefs.level === 'pro' ? 'Pro' : prefs.level === 'easy' ? 'Easy' : 'Normal'}. ` : 'The Editor takes this one. ') + rec
-        : `Player ${w + 1} reaches 13 first after ${state.end} ${state.end === 1 ? 'end' : 'ends'}.`,
+        ? (w === 0 ? T.beatEditor(T[prefs.level]) : T.editorTakes) + rec
+        : T.duoWin(w + 1, state.end),
     });
     return;
   }
   state.phase = 'endOver';
-  state.message = text + (w === null ? ` ${Name(state.jackBy)} ${verb(state.jackBy, 'throws', 'throw')} the jack again.` : line);
+  state.message = text + (w === null ? T.jackAgain(sideOf(state.jackBy)) : line);
   if (w !== null) { toast(`${Name(w)} +${p}`, null, w); if (state.mode !== 'cpu' || w === 0) sfx.point(); else sfx.lose(); }
   else sfx.bust();
 }
@@ -898,28 +1103,28 @@ function afterPractice(t) {
   const news = shotNews(t);
   if (!j || j.dead) {
     state.phase = 'endOver';
-    state.message = `${news}The jack went out of the court. Start the next end when you're ready.`;
+    state.message = news + T.practiceJackOut;
     sfx.bust();
     return;
   }
   const n = nearest(0);
   state.practice.closest = n.ball ? gapOf(n.d) : null;
-  const this1 = t.dead ? 'That boule went out.' : `That one finished <strong>${fmtGap(gapOf(toJack(t)))}</strong> from the jack.`;
+  const this1 = T.practiceThis(t.dead, t.dead ? 0 : gapOf(toJack(t)));
   if (state.left[0] > 0) {
     state.phase = 'boule'; state.current = 0;
-    state.message = `${news}${this1}${n.ball && n.ball !== t ? ` Closest so far: ${fmtGap(gapOf(n.d))}.` : ''}`;
+    state.message = `${news}${this1}${n.ball && n.ball !== t ? T.closestSoFar(gapOf(n.d)) : ''}`;
     return;
   }
   state.phase = 'endOver';
   if (n.ball) {
     const g = gapOf(n.d);
     const best = prefs.bestPractice === null || g < prefs.bestPractice;
-    if (best) { prefs.bestPractice = g; savePrefs(); sfx.cheer(); toast('New best', fmtGap(g), 0); }
+    if (best) { prefs.bestPractice = g; savePrefs(); sfx.cheer(); toast(T.toastBest, fmtGap(g), 0); }
     else sfx.point();
-    state.message = `${news}${this1} Your closest this end: <strong>${fmtGap(g)}</strong>.${best ? ' That is your best on this device.' : ''}`;
+    state.message = news + this1 + T.practiceEnd(g, best);
     state.endResult = { w: 0, p: 0, ids: new Set([n.ball.id]) };
   } else {
-    state.message = `${news}${this1} No boule stayed on the court this end.`;
+    state.message = news + this1 + T.practiceNone;
     sfx.bust();
   }
 }
@@ -1140,10 +1345,10 @@ function buildBanner() {
   g.fillStyle = '#141311'; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
   g.fillText(text, W / 2, H * 0.6);
   g.fillRect(W / 2 - W * 0.17, H * 0.68, W * 0.34, 2);
-  g.font = `600 ${H * 0.085}px Newsreader, Georgia, serif`;
-  if ('letterSpacing' in g) g.letterSpacing = `${H * 0.03}px`;
+  g.font = textFont(600, H * (LANG === 'th' ? 0.092 : 0.085));
+  if ('letterSpacing' in g) g.letterSpacing = `${LANG === 'th' ? H * 0.004 : H * 0.03}px`;
   g.textBaseline = 'top';
-  g.fillText('NEWSROOM PÉTANQUE CLUB', W / 2, H * 0.73);
+  g.fillText(T.signSub, W / 2, H * (LANG === 'th' ? 0.715 : 0.73));
   if ('letterSpacing' in g) g.letterSpacing = '0px';
   for (const [sx, sy] of [[48, 48], [W - 48, 48], [48, H - 48], [W - 48, H - 48]]) {
     const br = g.createRadialGradient(sx - 4, sy - 4, 0, sx, sy, 11);
@@ -1335,10 +1540,10 @@ function drawJackZone(g) {
   g.setLineDash([6 * d, 5 * d]); g.lineWidth = 1.5 * d; g.strokeStyle = 'rgba(143,197,238,0.7)';
   for (const pts of [near, far]) { g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)); g.stroke(); }
   g.setLineDash([]);
-  g.font = `600 ${11 * d}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
+  g.font = labelFont(600, 11 * d);
   g.fillStyle = 'rgba(214,232,247,0.9)'; g.textAlign = 'left'; g.textBaseline = 'middle';
   const l6 = proj(xm + 0.08, 0, Math.sqrt(36 - xm * xm)), l10 = proj(xm + 0.08, 0, Math.sqrt(100 - xm * xm));
-  g.fillText('6 m', l6.x, l6.y); g.fillText('10 m', l10.x, l10.y);
+  g.fillText(JACK_RULE.min + T.m, l6.x, l6.y); g.fillText(JACK_RULE.max + T.m, l10.x, l10.y);
   g.restore();
 }
 
@@ -1365,7 +1570,7 @@ function drawMeasureLines(g, list) {
 function drawMeasureLabels(g, list) {
   const d = cam.dpr;
   g.save();
-  g.font = `700 ${11 * d}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
+  g.font = labelFont(700, 11 * d);
   g.textAlign = 'center'; g.textBaseline = 'middle';
   const placed = [];
   for (const m of list) {
@@ -1394,9 +1599,9 @@ function aimInfo(withSway, now) {
   const src = cpu ? state.cpuAim : { aim: state.aim + (withSway ? sway(now / 1000) : 0), dist: state.dist, loft: state.loft };
   const kind = state.phase === 'jack' ? 'jack' : 'boule';
   const L = landingFor(kind, src.loft, src.dist), a = src.aim * DEG, sa = Math.sin(a), ca = Math.cos(a);
-  const T = src.loft === 'shoot' ? L : src.dist;
+  const stop = src.loft === 'shoot' ? L : src.dist;      // where it should finish (a shot: where it lands)
   const chosen = cpu ? null : { x: state.dist * Math.sin(state.aim * DEG), z: state.dist * Math.cos(state.aim * DEG) };
-  return { kind, loft: src.loft, aim: src.aim, L, cpu, land: { x: L * sa, z: L * ca }, target: { x: T * sa, z: T * ca }, chosen };
+  return { kind, loft: src.loft, aim: src.aim, L, cpu, land: { x: L * sa, z: L * ca }, target: { x: stop * sa, z: stop * ca }, chosen };
 }
 
 function drawPreviewGround(g, info) {
@@ -1510,14 +1715,14 @@ function drawToast(g, now) {
   g.save();
   g.globalAlpha = a;
   g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.font = `600 ${30 * d}px Newsreader, Georgia, serif`;
+  g.font = textFont(600, 30 * d);
   const w = Math.max(g.measureText(t.text).width, t.sub ? 140 * d : 0) + 40 * d, h = (t.sub ? 66 : 48) * d;
   g.fillStyle = 'rgba(12,19,27,0.85)';
   g.beginPath(); g.roundRect ? g.roundRect(cam.W / 2 - w / 2, y - h / 2, w, h, 10 * d) : g.rect(cam.W / 2 - w / 2, y - h / 2, w, h); g.fill();
   g.fillStyle = t.team === 0 ? '#d3e2f1' : t.team === 1 ? '#f0cf8f' : '#d6ad5f';
   g.fillText(t.text, cam.W / 2, y - (t.sub ? 9 * d : 0));
   if (t.sub) {
-    g.font = `500 ${12 * d}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
+    g.font = labelFont(500, 12 * d);
     g.fillStyle = '#c9d2db';
     g.fillText(t.sub, cam.W / 2, y + 17 * d);
   }
@@ -1689,14 +1894,14 @@ function setLoft(l) { if (LOFTS[l]) { state.loft = l; renderControls(); } }
 function renderControls() {
   aimEl.value = state.aim; distEl.value = state.dist;
   const a = state.aim;
-  $('aimOut').textContent = a === 0 ? '0.0° straight' : `${Math.abs(a).toFixed(1)}° ${a < 0 ? 'left' : 'right'}`;
+  $('aimOut').textContent = T.aimOut(a);
   const kind = state.phase === 'jack' ? 'jack' : 'boule';
   const L = landingFor(kind, state.loft, state.dist);
-  $('distOut').textContent = state.loft === 'shoot' ? `${state.dist.toFixed(2)} m` : `${state.dist.toFixed(2)} m · lands ${L.toFixed(1)} m`;
+  $('distOut').textContent = T.distOut(state.dist, state.loft === 'shoot' ? null : L);
   distEl.style.setProperty('--fill', ((state.dist - distEl.min) / (distEl.max - distEl.min) * 100) + '%');
   aimEl.style.setProperty('--fill', '0%');
   document.querySelector(`input[name="loft"][value="${state.loft}"]`).checked = true;
-  $('styleNote').textContent = LOFTS[state.loft].note;
+  $('styleNote').textContent = T.loftNote[state.loft];
 }
 function nudge(target, step) {
   if (target === 'aim') setAim(state.aim + step);
@@ -1707,14 +1912,14 @@ function nudge(target, step) {
 function renderLeft(el, n, total) {
   el.innerHTML = '';
   for (let i = 0; i < total; i++) { const d = document.createElement('i'); if (i < n) d.className = 'on'; el.appendChild(d); }
-  el.setAttribute('aria-label', `${n} ${n === 1 ? 'boule' : 'boules'} left`);
+  el.setAttribute('aria-label', T.bouleLeft(n));
   el.setAttribute('role', 'img');
 }
 function renderUI() {
   const prac = state.mode === 'practice';
-  $('sbEnd').textContent = prac ? 'Practice' : `End ${state.end}`;
-  $('sbEndSub').textContent = prac ? `End ${state.end}` : 'First to 13';
-  $('nameA').textContent = prac ? 'Closest this end' : Name(0);
+  $('sbEnd').textContent = prac ? T.practice : T.endN(state.end);
+  $('sbEndSub').textContent = prac ? T.endN(state.end) : T.firstTo;
+  $('nameA').textContent = prac ? T.closestEnd : Name(0);
   $('nameB').textContent = Name(1);
   $('sideB').hidden = prac;
   if (prac) $('scoreA').textContent = state.practice.closest === null ? '–' : fmtGap(state.practice.closest);
@@ -1725,18 +1930,18 @@ function renderUI() {
   $('sideA').classList.toggle('turn', !prac && playing && state.current === 0);
   $('sideB').classList.toggle('turn', !prac && playing && state.current === 1);
 
-  let pl = 'Point', pv = '–';
-  if (prac) { pl = 'Best on this device'; pv = prefs.bestPractice === null ? '–' : fmtGap(prefs.bestPractice); }
-  else if (state.phase === 'jack') { pl = 'Jack'; pv = state.jackTries ? `Try ${state.jackTries + 1} of 3` : '6 to 10 m'; }
+  let pl = T.point, pv = '–';
+  if (prac) { pl = T.bestDevice; pv = prefs.bestPractice === null ? '–' : fmtGap(prefs.bestPractice); }
+  else if (state.phase === 'jack') { pl = T.jack; pv = state.jackTries ? T.tryOf(state.jackTries + 1) : T.jackRange; }
   else if (state.phase === 'endOver' || state.phase === 'over') {
-    pl = 'This end'; const r = state.endResult;
-    pv = !r || r.w === null ? 'Void' : `${Name(r.w)} +${r.p}`;
+    pl = T.thisEnd; const r = state.endResult;
+    pv = !r || r.w === null ? T.voidEnd : `${Name(r.w)} +${r.p}`;
   } else if (state.jack && !state.jack.dead) {
     const na = nearest(0), nb = nearest(1);
-    pl = 'Holding the point';
+    pl = T.holding;
     if (na.ball && nb.ball) {
-      if (Math.abs(na.d - nb.d) < 0.001) pv = 'Level';
-      else { const h = na.d < nb.d ? 0 : 1; pv = `${Name(h)} · ${fmtLead(Math.abs(na.d - nb.d))}`; }
+      if (Math.abs(na.d - nb.d) < 0.001) pv = T.levelV;
+      else { const h = na.d < nb.d ? 0 : 1; pv = T.holdV(Name(h), fmtLead(Math.abs(na.d - nb.d))); }
     } else if (na.ball || nb.ball) pv = Name(na.ball ? 0 : 1);
   }
   $('sbPointLabel').textContent = pl;
@@ -1745,24 +1950,35 @@ function renderUI() {
 
   const btn = $('throwBtn');
   let label, disabled = false;
-  const who = state.mode === 'duo' && state.current !== null ? `Player ${state.current + 1}: ` : '';
-  if (state.phase === 'over') label = 'Play again';
-  else if (state.phase === 'endOver') label = 'Next end';
-  else if (state.phase === 'moving') { label = 'Rolling…'; disabled = true; }
-  else if (isCpuTurn()) { label = 'The Editor is playing'; disabled = true; }
-  else if (state.phase === 'jack') label = who + 'Throw the jack';
-  else label = who + `Throw boule ${PER_SIDE - state.left[state.current] + 1} of 3`;
+  const who = state.mode === 'duo' && state.current !== null ? T.playerPrefix(state.current + 1) : '';
+  if (state.phase === 'over') label = T.playAgain;
+  else if (state.phase === 'endOver') label = T.nextEnd;
+  else if (state.phase === 'moving') { label = T.rolling; disabled = true; }
+  else if (isCpuTurn()) { label = T.editorPlaying; disabled = true; }
+  else if (state.phase === 'jack') label = who + T.throwJack;
+  else label = who + T.throwBoule(PER_SIDE - state.left[state.current] + 1);
   btn.textContent = label; btn.disabled = disabled;
-  $('throwLegend').textContent = state.mode === 'duo' && state.current !== null ? `Player ${state.current + 1}'s throw` : 'Your throw';
+  $('throwLegend').textContent = state.mode === 'duo' && state.current !== null ? T.playerThrow(state.current + 1) : T.yourThrow;
 
-  $('modeNote').textContent = MODE_NOTES[state.mode];
+  $('modeNote').textContent = T.modeNote[state.mode];
   document.querySelector(`input[name="mode"][value="${state.mode}"]`).checked = true;
   document.querySelector(`input[name="level"][value="${prefs.level}"]`).checked = true;
-  $('levelNote').textContent = LEVELS[prefs.level].note;
+  $('levelNote').textContent = T.levelNote[prefs.level];
   const sb = $('soundBtn');
   sb.setAttribute('aria-pressed', String(prefs.sound));
-  sb.textContent = prefs.sound ? 'Sound on' : 'Sound off';
+  sb.textContent = prefs.sound ? T.soundOn : T.soundOff;
   renderControls();
+}
+// The words that do not change during play, from STR into the page.
+function fillWords() {
+  document.title = T.docTitle;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = T[el.dataset.i18n]; });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = T[el.dataset.i18nHtml]; });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => el.setAttribute('aria-label', T[el.dataset.i18nAria]));
+  document.querySelectorAll('.side .label').forEach(el => { el.dataset.turn = T.toPlay; });
+  $('howList').innerHTML = '';
+  for (const line of T.how) { const li = document.createElement('li'); li.textContent = line; $('howList').appendChild(li); }
+  canvas.setAttribute('aria-label', T.canvasLabel);
 }
 
 /* ---------- Input ---------- */
@@ -1844,6 +2060,7 @@ window.addEventListener('keydown', e => {
 });
 
 /* ---------- Start ---------- */
+fillWords();
 buildTables();
 buildGroundTexture();
 buildBanner();
@@ -1854,6 +2071,7 @@ if (document.fonts) {
   Promise.all([
     document.fonts.load('80px Chomsky'),
     document.fonts.load('600 20px Newsreader'),
+    LANG === 'th' ? document.fonts.load('600 20px Sarabun', 'ชมรมเปตอง 0') : null,
   ]).catch(() => {}).then(() => document.fonts.ready).then(() => buildBanner());
 }
 requestAnimationFrame(t => { lastFrame = t; frame(t); });
