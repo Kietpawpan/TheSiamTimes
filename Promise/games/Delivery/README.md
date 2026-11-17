@@ -55,7 +55,7 @@ Each ticket adds minutes to the clock. A ticket slides in at the side; a speed c
 | Driving on the wrong side | Over the double yellow line for 1.5 s | +5 |
 | Turning without signalling | Turning without the indicator on that way | +2 |
 | Driving in a bus-only lane | Into the bus road at Ratchaprasong | +15 |
-| Hitting another vehicle | Running into the one in front, or head on | +10 |
+| Hitting another vehicle | Running into the one in front, head on, or into the side of one | +10 |
 | No headlights after dark | Once it is dark, for 12 s | +3 |
 
 ## What happens on the road
@@ -67,13 +67,14 @@ Each ticket adds minutes to the clock. A ticket slides in at the side; a speed c
 | **Out of fuel** (if you miss the station) | Wait for someone to bring a can (25 %) | +30 min |
 | **Flood** at Pratunam | Drive through below 20 km/h. Faster than 25 km/h for a second and the engine floods and stalls | +15 min |
 | **Rain** on Sathorn | Less grip: brake earlier, steer gently, wipers on | — |
+| **A crash** | Nose first into another vehicle, the jolt knocks the gearbox into neutral (the engine keeps running) and the truck rocks back off it; the message says how to back off: clutch, R, a little gas, and steer round. A scrape along the side pushes the two apart. Being run into from behind costs nothing | (the ticket) |
 | **Delivery** at the bookshops | Stop in the yellow box; the bundles come off and you are handed the S | +10 min |
 
 **The clock** starts at 15:00 and runs at eleven times real time; a clean run takes about ten minutes. The light turns golden from about 16:45 and dusky after 17:20; after about 17:50 it is night, the street lights are dim and flicker, and without headlights you can hardly see. Back by 17:30 is on time; on time with no more than two tickets is a model drive (and in the story, the brass S). The finish card lists the tickets and the time lost. Your best on-time arrival, the clutch setting and the sound setting are kept in local storage (`tst-delivery-v1`).
 
 ## Traffic
 
-Taxis in Bangkok colours (pink, green and yellow, orange, blue) with their roof signs, cars, tuk-tuks, ten-wheelers with painted backs, BMTA buses (which stop at the bus stops, and take the bus-only road), and motorcycle taxis that weave between lanes. They keep their distance, stop at red and amber lights and while someone is on their half of a zebra, change lanes to pass, and sound their horns if you sit at a green light. Oncoming traffic uses the lanes on the right. People cross the zebras in small groups, and the next group waits until the crossing is clear; schoolchildren cross by the school. Reminders about the road (rain, the school zone, the flood) show when you reach them and never cover another message.
+Taxis in Bangkok colours (pink, green and yellow, orange, blue) with their roof signs, cars, tuk-tuks, ten-wheelers with painted backs, BMTA buses (which stop at the bus stops, and take the bus-only road), and motorcycle taxis that weave between lanes. They keep their distance, stop at red and amber lights and while someone is on their half of a zebra, change lanes to pass, and sound their horns if you sit at a green light. Oncoming traffic uses the lanes on the right; a driver coming the other way stops for a truck on the wrong side of the road and sounds the horn, and after a crash waits until you have backed out of the way. Reverse is for a few metres at walking pace: the engine eases off by about 16 km/h. People cross the zebras in small groups, and the next group waits until the crossing is clear; schoolchildren cross by the school. Reminders about the road (rain, the school zone, the flood) show when you reach them and never cover another message.
 
 ## How it works
 
