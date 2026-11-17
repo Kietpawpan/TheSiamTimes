@@ -67,6 +67,7 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 
 - **About** (เกี่ยวกับเกม) on the title screen: who made the game, fact and fiction, privacy (nothing is collected or sent; progress stays on the device), sound (all synthesised) and the fonts with their licences.
 - `privacy.html`: the privacy policy, in Thai and English, for the App Store listing (https://thesiamtimes.com/Promise/privacy.html).
+- `support.html`: how to play, common questions and the contact address, support@thesiamtimes.com, in Thai and English (the App Store's Support URL: https://thesiamtimes.com/Promise/support.html).
 - On a phone held sideways the title panel fits the screen, and the About, sound and language buttons stack down the right-hand side instead of hiding behind it.
 - Checkers opens in the story's language (it speaks Thai too), unless the player has picked a language in the game.
 - Checkers no longer throws an error when the screen changes size while it is still starting up (the same fix is in the site's Checkers).
