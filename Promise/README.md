@@ -71,10 +71,12 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 
 ## No zooming
 
-On a phone, a pinch or a double tap used to zoom the page, which left the game half off the screen with its buttons out of reach, and the game seemed stuck. Every page in this folder (the story, Paper Run and the eleven copies) now keeps itself at its own size:
+On a phone or tablet, a pinch or a double tap used to zoom the page, which left the game half off the screen with its buttons out of reach, and the game seemed stuck. Every page in this folder (the story, Paper Run and the eleven copies) now keeps itself at its own size:
 
 - the viewport is `width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover`;
-- a small script just before `</body>`, which starts `/* No zooming: a pinch`, cancels Safari's pinch (`gesturestart`/`gesturechange`/`gestureend`), a move with two fingers or more, the double tap (`dblclick`), Ctrl + mouse wheel and Ctrl/⌘ with + − = 0, and sets `touch-action: manipulation` on the page.
+- a small script just before `</body>`, which starts `/* No zooming: a pinch`, cancels Safari's pinch (`gesturestart`/`gesturechange`/`gestureend`), a second finger landing and a move with two fingers or more, the double tap (`dblclick`), Ctrl + mouse wheel and Ctrl/⌘ with + − = 0, and sets `touch-action: manipulation` on the page.
+
+Safari on iPhone and iPad lets people zoom whatever a page asks, so the pages also cope when it happens anyway. While the page is zoomed in (the visual viewport's scale is above 1), the script blocks nothing, so it can be pinched back out, and a red note in the middle of the screen says how. A game in the story's frame looks at the story page's zoom, and only the story page shows the note.
 
 The games still get every finger: the driving game's wheel and pedals are held with two or three at once, and those touches reach the game as pointer events as before. A browser's own zoom setting (in its menu or accessibility settings) still works; a page cannot and should not override that.
 
