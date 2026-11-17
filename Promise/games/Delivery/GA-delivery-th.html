@@ -228,6 +228,10 @@ const STR = {
     route: 'เจริญนคร → กรุงธนบุรี → สะพานพระเจ้าตากสิน → สาทร → วิทยุ → เพลินจิต → ราชดำริ → ประตูน้ำ → ราชปรารภ → รางน้ำ → พญาไท → อนุสาวรีย์ชัยฯ แล้วกลับทางเดิม',
     rules: ['ขับชิดซ้าย ห้ามล้ำเลนสวน ทำตามป้ายจำกัดความเร็ว', 'ไฟแดงหยุดก่อนเส้น ทางม้าลายมีคนข้ามต้องหยุด', 'เปิดไฟเลี้ยวก่อนเลี้ยวทุกครั้ง แผนที่ในโทรศัพท์บอกทางให้', 'ทำผิดกฎโดนใบสั่ง เสียเวลา ช้าเกินไปฟ้าจะมืด ไฟถนนสลัว'],
     keys: '<kbd>↑</kbd> คันเร่ง · <kbd>↓</kbd> เบรก · <kbd>←</kbd> <kbd>→</kbd> พวงมาลัย · <kbd>Shift</kbd> คลัตช์ · <kbd>1</kbd>–<kbd>5</kbd> <kbd>R</kbd> <kbd>N</kbd> เกียร์ · <kbd>Q</kbd> <kbd>E</kbd> ไฟเลี้ยว · <kbd>H</kbd> ไฟหน้า · <kbd>K</kbd> สตาร์ท · <kbd>F</kbd> ฝาถัง · <kbd>Space</kbd> แตร · <kbd>M</kbd> แผนที่',
+    modeLabel: 'ระดับความยาก', modeNormal: 'โหมดปกติ', modeEasy: 'โหมดง่าย',
+    modeNormalText: 'ครบทุกอย่าง: รถติด ไฟแดง จำกัดความเร็ว คนข้ามถนน ฝนตก น้ำท่วม ตะปู น้ำมันใกล้หมด และทางเฉพาะรถเมล์',
+    modeEasyText: 'ถนนโล่ง มีแต่รถที่สวนมา ไฟเขียวตลอดทาง ไม่จำกัดความเร็ว ไม่มีฝน น้ำท่วม ตะปู คนข้ามถนน หรือทางเฉพาะรถเมล์ น้ำมันเต็มถัง',
+    rulesEasy: ['ขับชิดซ้าย อย่าล้ำไปเลนรถสวน', 'เปิดไฟเลี้ยวก่อนเลี้ยวทุกครั้ง แผนที่ในโทรศัพท์บอกทางให้', 'ทำผิดกฎโดนใบสั่ง เสียเวลา ช้าเกินไปฟ้าจะมืด ไฟถนนสลัว'],
     assistOn: 'คลัตช์อัตโนมัติ: เปิด', assistOff: 'คลัตช์อัตโนมัติ: ปิด (ขับเกียร์ธรรมดาเอง)',
     go: 'ออกรถ', again: 'ขับอีกครั้ง', resume: 'ขับต่อ', paused: 'พักรถ', close: 'ปิดแผนที่', mapTitle: 'แผนที่เส้นทาง',
     best: t => `ทำเวลาดีที่สุด ${t}`,
@@ -298,6 +302,10 @@ const STR = {
     route: 'Charoen Nakhon → Krung Thon Buri → Taksin Bridge → Sathorn → Witthayu → Phloen Chit → Ratchadamri → Pratunam → Ratchaprarop → Rang Nam → Phaya Thai → Victory Monument, and back the same way',
     rules: ['Keep left, never cross into the other lanes, obey the speed limits', 'Stop before the line at red, and for anyone on a zebra crossing', 'Signal before every turn. The map on the phone shows the way', 'Every ticket costs time. Too slow and night falls on dim streets'],
     keys: '<kbd>↑</kbd> gas · <kbd>↓</kbd> brake · <kbd>←</kbd> <kbd>→</kbd> steer · <kbd>Shift</kbd> clutch · <kbd>1</kbd>–<kbd>5</kbd> <kbd>R</kbd> <kbd>N</kbd> gears · <kbd>Q</kbd> <kbd>E</kbd> indicators · <kbd>H</kbd> headlights · <kbd>K</kbd> start · <kbd>F</kbd> fuel cap · <kbd>Space</kbd> horn · <kbd>M</kbd> map',
+    modeLabel: 'Difficulty', modeNormal: 'Normal', modeEasy: 'Easy mode',
+    modeNormalText: 'Everything: traffic, red lights, speed limits, people crossing, rain, a flood, nails, low fuel and the bus-only road',
+    modeEasyText: 'Empty roads with only oncoming traffic, green lights all the way, no speed limits, and no rain, flood, nails, people crossing or bus-only road. A full tank',
+    rulesEasy: ['Keep left, out of the oncoming lanes', 'Signal before every turn. The map on the phone shows the way', 'Every ticket costs time. Too slow and night falls on dim streets'],
     assistOn: 'Automatic clutch: on', assistOff: 'Automatic clutch: off (you work the clutch)',
     go: 'Drive off', again: 'Drive again', resume: 'Carry on', paused: 'Paused', close: 'Close the map', mapTitle: 'Route map',
     best: t => `Best time back: ${t}`,
@@ -393,6 +401,8 @@ const SIGNS = {
 };
 const ROUTE = [...LEGS.map((_, i) => ({ i, dir: 1 })), ...LEGS.map((_, i) => ({ i: LEGS.length - 1 - i, dir: -1 }))];
 const flip = t => t === 'L' ? 'R' : t === 'R' ? 'L' : t;
+// what easy mode leaves off the road: rain, the flood, the school zone and other speed limits, the nails, the fuel warning
+const EASY_SKIP = new Set(['rain', 'flood', 'floodsign', 'limit', 'school', 'schoolsign', 'nails', 'fuelwarn']);
 function junctionAfter(r) {
   const { i, dir } = ROUTE[r];
   if (dir === 1) return i < LEGS.length - 1 ? { turn: JUNCS[i].turn, light: JUNCS[i].light, leftFree: !!JUNCS[i].lfOut, trap: !!JUNCS[i].trap, sign: SIGNS.out[i], next: LEGS[i + 1].names[0][1] } : null;
@@ -404,7 +414,9 @@ function at(list, s, def) { let v = def; for (const [s0, x] of list) if (s >= s0
 const lights = [];          // every signal in the current road: { s (stop line), off, cross0, cross1 }
 function buildLeg(r, kind = 'main') {
   const route = ROUTE[r], sp = LEGS[route.i], dir = route.dir, len = sp.len;
-  const J = kind === 'main' ? junctionAfter(r) : null;
+  let J = kind === 'main' ? junctionAfter(r) : null;
+  // easy mode: no bus-only road with the police at Ratchaprasong; straight on is an ordinary missed turn, and the sign says so
+  if (J && J.trap && game.easy) J = { ...J, trap: false, sign: [J.sign[0], ['ปทุมวัน · สยาม', 'Pathum Wan · Siam'], J.sign[2]] };
   const lastOut = kind === 'main' && dir === 1 && route.i === LEGS.length - 1;
   const lastBack = kind === 'main' && dir === -1 && route.i === 0;
   const tail = kind !== 'main' ? 30 : J ? 200 : 90;
@@ -423,7 +435,7 @@ function buildLeg(r, kind = 'main') {
   const R = rng(1000 + r * 77 + (kind === 'detour' ? 5 : kind === 'station' ? 9 : 0));
   for (let k = 0; k < N; k++) {
     const s = k * SEG, sm = s + SEG / 2;
-    const zone = kind === 'main' && sm <= len ? sp.zones.filter(z => S(sm) >= z.s0 && S(sm) <= z.s1) : [];
+    const zone = kind === 'main' && sm <= len ? sp.zones.filter(z => S(sm) >= z.s0 && S(sm) <= z.s1 && !(game.easy && EASY_SKIP.has(z.k))) : [];
     const seg = {
       k, y0: hill(s), y1: hill(s + SEG), curve: curveAt(sm),
       theme: kind === 'station' ? 'station' : kind === 'detour' ? 'shophouse' : sm > len ? (L.lastOut ? 'monument' : J && J.trap ? 'busroad' : 'shophouse') : at(sp.themes, S(sm), 'shophouse'),
@@ -492,6 +504,7 @@ function buildLeg(r, kind = 'main') {
     return lt;
   };
   for (const f of feats) {
+    if (game.easy && EASY_SKIP.has(f.k)) continue;
     const s = dir === 1 ? f.s : len - f.s;
     if (f.k === 'home') { put(s + 4, 'siamtimes', -(H + 3.2 + 9)); box(s - 3, s + 6, 2); L.feats.push({ k: 'home', s }); }
     else if (f.k === 'deliver') { box(s - 4, s + 6, 3); put(s + 3, 'bookseller', -(H + 1.5)); L.feats.push({ k: 'deliver', s }); }
@@ -509,7 +522,7 @@ function buildLeg(r, kind = 'main') {
   }
   // speed limit signs where the limit changes
   let lastLim = -1;
-  for (const seg of L.segs) { if (seg.k * SEG > L.len) break; if (seg.limit !== lastLim) { put(seg.k * SEG + 2, 'speed' + seg.limit, -(H + 1.6)); lastLim = seg.limit; } }
+  for (const seg of L.segs) { if (game.easy || seg.k * SEG > L.len) break; if (seg.limit !== lastLim) { put(seg.k * SEG + 2, 'speed' + seg.limit, -(H + 1.6)); lastLim = seg.limit; } }
   // the junction at the end: crossing, stop line, signal, overhead sign, the road beyond
   if (J) {
     lightAt(len + 10, true, J.light);
@@ -564,7 +577,7 @@ const PENALTY = { red: 10, speed: 5, zebra: 10, wrongSide: 5, noSignal: 2, busLa
 const car = { r: 0, L: null, s: 0, x: 0, v: 0, steer: 0, gear: 0, clutchP: 0, gasP: 0, brakeP: 0, rpm: 0, engine: false, crank: 0,
   fuel: 30, flat: false, blink: 0, lights: false, wipers: false, cap: false, slip: 0, odo: 0, lat: 0 };
 const inp = { gas: false, brake: false, clutch: false, kl: false, kr: false, held: false, fast: false };
-const game = { state: 'menu', clock: T0, t: 0, viol: [], lost: [], delivered: false, fueled: false, warned: false, assist: false,
+const game = { state: 'menu', clock: T0, t: 0, viol: [], lost: [], delivered: false, fueled: false, warned: false, assist: false, easy: false,
   trans: null, station: null, trap: false, uturnFrom: null, autoClutch: 0, speedT: 0, speedOk: 0, speedLatch: false,
   wrongT: 0, wrongOk: 0, wrongLatch: false, darkT: 0, darkDone: false, floodT: 0, curbT: 0, flash: 0, finished: false, best: null };
 
@@ -577,8 +590,8 @@ function daylight(c = game.clock) {
   return 0.07;
 }
 const segAt = (L, s) => L.segs[clamp(Math.floor(s / SEG), 0, L.segs.length - 1)];
-function lightState(lt) { const c = (game.t + lt.off) % 21; return c < 9 ? 'G' : c < 12 ? 'Y' : 'R'; }
-const lightRedFor = lt => { const c = (game.t + lt.off) % 21; return c >= 12 ? c - 12 : -1; };
+function lightState(lt) { if (game.easy) return 'G'; const c = (game.t + lt.off) % 21; return c < 9 ? 'G' : c < 12 ? 'Y' : 'R'; }
+const lightRedFor = lt => { if (game.easy) return -1; const c = (game.t + lt.off) % 21; return c >= 12 ? c - 12 : -1; };
 
 /* ---------- Driving ---------- */
 function setGear(g) {
@@ -681,7 +694,7 @@ function stepCar(dt) {
   }
   if (L.wall && car.s > L.wall - CAR_L / 2) { car.s = L.wall - CAR_L / 2; if (car.v > 1) sfx.bump(); car.v = 0; }
   // fuel
-  car.fuel -= Math.abs(car.v * dt) * 0.017 + dt * 0.0035 * (car.engine ? car.rpm / IDLE : 0) * (0.4 + car.gasP);
+  if (!game.easy) car.fuel -= Math.abs(car.v * dt) * 0.017 + dt * 0.0035 * (car.engine ? car.rpm / IDLE : 0) * (0.4 + car.gasP);
   if (!game.warned && ROUTE[car.r].dir === 1) car.fuel = Math.max(car.fuel, 10);
   if (car.fuel <= 0 && car.engine) { car.fuel = 0; stall(T.ev.fuel[0]); }
   if (car.fuel <= 0 && Math.abs(car.v) < 0.3 && game.state === 'drive') runEvent('fuel', 30, () => { car.fuel = 25; });
@@ -702,7 +715,7 @@ function rules(prevS, dt) {
   // zebra crossings
   for (const z of L.zebras) if (prevS < z.s && car.s >= z.s && car.v > 1.5 && z.peds.some(p => pedOurSide(p, L))) addViol('zebra');
   // speed
-  if (kmh > seg.limit + 8) { game.speedT += dt; game.speedOk = 0; if (game.speedT > 2 && !game.speedLatch) { game.speedLatch = true; addViol('speed'); game.flash = 1; sfx.shutter(); } }
+  if (!game.easy && kmh > seg.limit + 8) { game.speedT += dt; game.speedOk = 0; if (game.speedT > 2 && !game.speedLatch) { game.speedLatch = true; addViol('speed'); game.flash = 1; sfx.shutter(); } }
   else { game.speedT = 0; if (kmh < seg.limit) { game.speedOk += dt; if (game.speedOk > 3) game.speedLatch = false; } }
   // wrong side of the road
   if (car.x > 0.6 && !seg.cross && !game.station) { game.wrongT += dt; game.wrongOk = 0; if (game.wrongT > 1.5 && !game.wrongLatch) { game.wrongLatch = true; addViol('wrongSide'); } }
@@ -725,7 +738,7 @@ function rules(prevS, dt) {
   // features along the road
   for (const f of L.feats) {
     if (f.k === 'fuelwarn' && !game.warned && car.s >= f.s) { game.warned = true; car.fuel = Math.min(car.fuel, 9.2); say(T.fuelWarn, 'bad', 6); sfx.ding(); }
-    if (f.k === 'station' && !game.fueled && prevS < f.s && car.s >= f.s) {
+    if (f.k === 'station' && !game.easy && !game.fueled && prevS < f.s && car.s >= f.s) {
       if (car.x < -L.H - 0.1 && car.v < 8.4) enterStation(f);
       else if (game.warned) say(T.stationMissed, 'bad', 3);
     }
@@ -872,8 +885,8 @@ function spawnTraffic() {
   if (L.kind === 'station') return;
   const end = L.len + (L.J && !L.J.trap ? 60 : 0);
   const nSame = Math.max(3, Math.round(L.len / 60 * L.lanes * 0.55));
-  for (let i = 0; i < nSame; i++) { const s = car.s + 25 + Math.random() * Math.max(30, end - car.s - 25); addVeh(1, s); }
-  for (let i = 0; i < 2; i++) addVeh(1, car.s - 30 - i * 25 - Math.random() * 20);
+  if (!game.easy) for (let i = 0; i < nSame; i++) { const s = car.s + 25 + Math.random() * Math.max(30, end - car.s - 25); addVeh(1, s); }
+  if (!game.easy) for (let i = 0; i < 2; i++) addVeh(1, car.s - 30 - i * 25 - Math.random() * 20);
   const nOpp = Math.max(3, Math.round((L.len + L.tail) / 55 * L.lanes * 0.55));
   for (let i = 0; i < nOpp; i++) addVeh(-1, Math.random() * (L.len + L.tail));
   if (L.J && L.J.trap) { const b = addVeh(1, L.len - 40, 'bus'); b.toBusRoad = true; }
@@ -954,7 +967,7 @@ function stepTraffic(dt) {
   }
   // people on the zebra crossings
   for (const z of L.zebras) {
-    if (Math.abs(z.s - car.s) < 220 && !z.peds.length) {
+    if (!game.easy && Math.abs(z.s - car.s) < 220 && !z.peds.length) {
       z.next -= dt;
       if (z.next <= 0) {
         const side = Math.random() < 0.5 ? -1 : 1, n = z.school ? 2 + Math.floor(Math.random() * 3) : 1 + Math.floor(Math.random() * 3), sp = lerp(1.0, 1.35, Math.random());
@@ -1783,8 +1796,8 @@ function updateAudio(dt) {
 
 /* ---------- Saved settings ---------- */
 const SAVE_KEY = 'tst-delivery-v1';
-const prefs = { assist: false, sound: true, best: null };
-try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); if (s) { if (typeof s.assist === 'boolean') prefs.assist = s.assist; if (typeof s.sound === 'boolean') prefs.sound = s.sound; if (typeof s.best === 'number') prefs.best = s.best; } } catch (e) { /* no storage */ }
+const prefs = { assist: false, sound: true, best: null, easy: false, bestEasy: null };
+try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); if (s) { for (const k of ['assist', 'sound', 'easy']) if (typeof s[k] === 'boolean') prefs[k] = s[k]; for (const k of ['best', 'bestEasy']) if (typeof s[k] === 'number') prefs[k] = s[k]; } } catch (e) { /* no storage */ }
 const savePrefs = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(prefs)); } catch (e) { /* ignore */ } };
 AU.on = prefs.sound;
 
@@ -1817,16 +1830,30 @@ function soundUI() { $('soundBtn').textContent = AU.on ? T.soundOn : T.soundOff;
 /* ---------- Cards ---------- */
 function card(html, onShow) { $('card').innerHTML = html; $('over').hidden = false; if (onShow) onShow(); const b = $('card').querySelector('button'); if (b) setTimeout(() => b.focus({ preventScroll: true }), 30); }
 function closeCard() { $('over').hidden = true; }
-function startCard() {
+// the road behind the start card, outside the building, as the chosen mode has it
+function previewRoad() {
+  game.easy = prefs.easy;
+  car.r = 0; car.L = buildLeg(0);
+  const h = car.L.feats.find(f => f.k === 'home'); car.s = h.s + 1; car.x = -car.L.H + 1.25;
+  spawnTraffic();
+}
+function startCard(focus) {
   game.state = 'menu';
+  const easy = prefs.easy, best = easy ? prefs.bestEasy : prefs.best;
   card(`<div class="mast">The Siam Times</div><span class="kick">${T.startKick}</span><h1>${T.startTitle}</h1>
-    <p>${T.startText}</p><p class="route">${T.route}</p><ul>${T.rules.map(r => `<li>${r}</li>`).join('')}</ul>
-    <p class="keys">${T.keys}</p>${prefs.best ? `<p class="route">${T.best(hhmm(prefs.best))}</p>` : ''}
+    <p>${T.startText}</p><p class="route">${T.route}</p>
+    <div class="row" role="group" aria-label="${T.modeLabel}"><button class="btn line" id="cNormal" type="button" aria-pressed="${!easy}">${T.modeNormal}</button><button class="btn line" id="cEasy" type="button" aria-pressed="${easy}">${T.modeEasy}</button></div>
+    <p class="route">${easy ? T.modeEasyText : T.modeNormalText}</p>
+    <ul>${(easy ? T.rulesEasy : T.rules).map(r => `<li>${r}</li>`).join('')}</ul>
+    <p class="keys">${T.keys}</p>${best ? `<p class="route">${T.best(hhmm(best))}</p>` : ''}
     <div class="row"><button class="btn line" id="cAssist" type="button" aria-pressed="${prefs.assist}">${prefs.assist ? T.assistOn : T.assistOff}</button></div>
     <button class="btn" id="cGo" type="button">${T.go}</button>`, () => {
+    const mode = e => () => { if (prefs.easy !== e) { prefs.easy = e; savePrefs(); previewRoad(); } startCard(e ? 'cEasy' : 'cNormal'); };
+    $('cNormal').onclick = mode(false); $('cEasy').onclick = mode(true);
     $('cAssist').onclick = () => { prefs.assist = !prefs.assist; savePrefs(); $('cAssist').textContent = prefs.assist ? T.assistOn : T.assistOff; $('cAssist').setAttribute('aria-pressed', String(prefs.assist)); };
     $('cGo').onclick = () => { audioInit(); newGame(); };
   });
+  if (focus) setTimeout(() => { const b = $(focus); if (b) b.focus({ preventScroll: true }); }, 40);
 }
 function runEvent(kind, minutes, onDone, notLost) {
   if (game.state !== 'drive') return;
@@ -1862,19 +1889,19 @@ function mapCard() {
 function pauseCard() {
   if (game.state !== 'drive') return;
   game.state = 'paused';
-  card(`<h2>${T.paused}</h2><p class="route">${hhmm(game.clock)} · ${T.roads[segAt(car.L, car.s).name] || ''}</p><p class="keys">${T.keys}</p><button class="btn" id="cRes" type="button">${T.resume}</button>`, () => { $('cRes').onclick = () => { closeCard(); game.state = 'drive'; }; });
+  card(`<h2>${T.paused}</h2><p class="route">${hhmm(game.clock)} · ${T.roads[segAt(car.L, car.s).name] || ''}${game.easy ? ` · ${T.modeEasy}` : ''}</p><p class="keys">${T.keys}</p><button class="btn" id="cRes" type="button">${T.resume}</button>`, () => { $('cRes').onclick = () => { closeCard(); game.state = 'drive'; }; });
 }
 function finish() {
   if (game.finished) return;
   game.finished = true; game.state = 'finished'; car.v = 0;
-  const on = game.clock <= DEADLINE, nv = game.viol.length, won = on && nv <= 2;
-  if (on && (!prefs.best || game.clock < prefs.best)) { prefs.best = game.clock; savePrefs(); }
-  storyDone({ won, score: Math.round((DEADLINE - game.clock) / 60), text: T.resultText(hhmm(game.clock), on), onTime: on, violations: nv });
+  const on = game.clock <= DEADLINE, nv = game.viol.length, won = on && nv <= 2, easy = game.easy, bk = easy ? 'bestEasy' : 'best';
+  if (on && (!prefs[bk] || game.clock < prefs[bk])) { prefs[bk] = game.clock; savePrefs(); }
+  storyDone({ won, score: Math.round((DEADLINE - game.clock) / 60), text: T.resultText(hhmm(game.clock), on) + (easy ? ` · ${T.modeEasy}` : ''), onTime: on, violations: nv, easy });
   sfx.fanfare();
   const counts = {}; for (const v of game.viol) counts[v] = (counts[v] || 0) + 1;
   const rows = Object.entries(counts).map(([k, n]) => `<tr><td>${T.v[k]}${n > 1 ? ` ×${n}` : ''}</td><td class="neg">+${PENALTY[k] * n} ${LANG === 'th' ? 'นาที' : 'min'}</td></tr>`).join('');
   const lost = game.lost.map(([k, m]) => `<tr><td>${T.ev[k][0]}</td><td class="neg">+${m} ${LANG === 'th' ? 'นาที' : 'min'}</td></tr>`).join('');
-  card(`<div class="mast">The Siam Times</div><span class="kick">${T.finArrive(hhmm(game.clock))} · ${T.finDeadline}</span><h1>${on ? T.finOn : T.finLate}</h1>
+  card(`<div class="mast">The Siam Times</div><span class="kick">${T.finArrive(hhmm(game.clock))} · ${T.finDeadline}${easy ? ` · ${T.modeEasy}` : ''}</span><h1>${on ? T.finOn : T.finLate}</h1>
     <p>${on ? T.finOnText : T.finLateText}</p>${won ? `<p style="color:var(--good);font-weight:700">${T.finGood}</p>` : ''}
     <table><tr><td><b>${T.finViol}</b></td><td>${nv}</td></tr>${rows || `<tr><td colspan="2">${T.finNone}</td></tr>`}${lost ? `<tr><td colspan="2"><b>${T.finEvents}</b></td></tr>${lost}` : ''}
     <tr><td>${T.finDist}</td><td>${(car.odo / 1000).toFixed(1)} ${T.odo}</td></tr></table>
@@ -1884,11 +1911,11 @@ function finish() {
 /* ---------- A new run ---------- */
 function newGame() {
   closeCard();
-  Object.assign(game, { state: 'drive', clock: T0, t: 0, viol: [], lost: [], delivered: false, fueled: false, warned: false, assist: prefs.assist, trans: null, station: null, trap: false, uturnFrom: null,
+  Object.assign(game, { state: 'drive', clock: T0, t: 0, viol: [], lost: [], delivered: false, fueled: false, warned: false, assist: prefs.assist, easy: prefs.easy, trans: null, station: null, trap: false, uturnFrom: null,
     autoClutch: 0, speedT: 0, speedOk: 0, speedLatch: false, wrongT: 0, wrongOk: 0, wrongLatch: false, darkT: 0, darkDone: false, floodT: 0, curbT: 0, flash: 0, finished: false, event: null });
   car.r = 0; car.L = buildLeg(0);
   const home = car.L.feats.find(f => f.k === 'home');
-  Object.assign(car, { s: home.s + 1, x: -car.L.H + 1.25, v: 0, steer: 0, gear: 0, clutchP: 0, gasP: 0, brakeP: 0, rpm: 0, engine: false, crank: 0, fuel: 30, flat: false, blink: 0, lights: false, wipers: false, cap: false, slip: 0, odo: 0 });
+  Object.assign(car, { s: home.s + 1, x: -car.L.H + 1.25, v: 0, steer: 0, gear: 0, clutchP: 0, gasP: 0, brakeP: 0, rpm: 0, engine: false, crank: 0, fuel: game.easy ? 100 : 30, flat: false, blink: 0, lights: false, wipers: false, cap: false, slip: 0, odo: 0 });
   spawnTraffic();
   gearUI(); engineUI(); blinkUI(); lightsUI();
   say(T.msgStart, '', 7);
@@ -2015,8 +2042,7 @@ function frame(now) {
 buildAtlas();
 resize();
 soundUI();
-car.r = 0; car.L = buildLeg(0); { const h = car.L.feats.find(f => f.k === 'home'); car.s = h.s + 1; car.x = -car.L.H + 1.25; }
-spawnTraffic(); gearUI(); engineUI(); blinkUI(); lightsUI();
+previewRoad(); gearUI(); engineUI(); blinkUI(); lightsUI();
 startCard();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { for (const k of Object.keys(SIGNCACHE)) delete SIGNCACHE[k]; buildAtlas(); });
 requestAnimationFrame(frame);

@@ -58,10 +58,10 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 | 9 | I | 01:00 | The basement snooker room | Snooker | winning the frame |
 | 10 | M | 02:00 | The pétanque court behind the building | Pétanque | a win |
 | 11 | E | 05:15 | The top-floor window at first light, with Thongdee the pressman | Paper Plane | winning the contest |
-| 12 | S | 15:00 | Outside the building, then the road to Victory Monument and back | Paper Run (`games/Delivery/`) | back by 17:30 with at most two tickets |
+| 12 | S | 15:00 | Outside the building, then the road to Victory Monument and back | Paper Run (`games/Delivery/`) | back by 17:30 with at most two tickets, in normal mode |
 | — | | evening | The press hall, the landing stage at sunset | Epilogue | |
 
-**Paper Run** (chapter 12) is a driving game in its own right, in `games/Delivery/` (see its README). From the driver's seat of the press's right-hand-drive manual pickup, with a wheel, clutch, brake, accelerator and gear lever, the player drives from the building on Charoen Nakhon over Taksin Bridge, along Sathorn, Witthayu, Phloen Chit, Ratchadamri, Ratchaprarop, Rang Nam and Phaya Thai to the bookshops at Victory Monument, and back the same way. The way is lined with lights, zebra crossings, speed limits, traffic, rain, a flood, nails, a fuel stop and a bus-only lane with the police at the end of it. Back by 17:30 with at most two tickets earns the brass S.
+**Paper Run** (chapter 12) is a driving game in its own right, in `games/Delivery/` (see its README). From the driver's seat of the press's right-hand-drive manual pickup, with a wheel, clutch, brake, accelerator and gear lever, the player drives from the building on Charoen Nakhon over Taksin Bridge, along Sathorn, Witthayu, Phloen Chit, Ratchadamri, Ratchaprarop, Rang Nam and Phaya Thai to the bookshops at Victory Monument, and back the same way. The way is lined with lights, zebra crossings, speed limits, traffic, rain, a flood, nails, a fuel stop and a bus-only lane with the police at the end of it. Back by 17:30 with at most two tickets earns the brass S. Paper Run also has an easy mode (an empty road with only oncoming traffic, green lights all the way, no speed limits and no hazards); finishing in it earns the lead S, and the brass one needs normal mode.
 
 ## Version 1.1
 
@@ -105,7 +105,7 @@ It is sent by a small function, `storyDone`, defined just above the function tha
 | Snooker | `frameOver` | `won`, `score` |
 | Pétanque | `finishEnd`, when a side reaches 13 | `won`, `score` |
 | Paper Plane | `finishContest` | `won`, `score` (your best distance) |
-| Paper Run | `finish` (back at the building) | `won` (on time, at most two tickets), `score` (minutes to spare), `text` (arrival time), `onTime`, `violations` |
+| Paper Run | `finish` (back at the building) | `won` (on time, at most two tickets), `score` (minutes to spare), `text` (arrival time), `onTime`, `violations`, `easy` (easy mode: never brass) |
 
 When you change one of the copies, keep the `storyDone(…)` call where the game ends. The `storyDone` function itself is three lines, defined just above the function named in the table, with the game's key (`'parking'`, `'darts'` and so on) written in it.
 

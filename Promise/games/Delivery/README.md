@@ -9,6 +9,15 @@ A driving game, in Thai and in English, made for chapter 12 of *Chandler’s Pro
 
 Each is a whole game in one HTML file, with no build step; they link to each other and share the same settings. Only the Newsreader and Sarabun text fonts come from Google Fonts (the pages fall back to system fonts, with a Thai font for the Thai signs). It plays best with the screen sideways. The page cannot be zoomed (pinching, a double tap, Ctrl + mouse wheel, Ctrl + + or −), so the wheel, pedals and buttons stay where they are; the wheel and pedals still take several fingers at once. A touch on the road, the wheel, the pedals, the gear lever or the buttons by the wheel belongs to the game, so Safari never reads a quick second press or two fingers on the pedals as a zoom; those buttons act the moment a finger lands. If the page is zoomed in all the same, the game pauses and a note says to pinch the screen back; the cockpit is always drawn for the whole page, never for the zoomed-in part, so it stays in line with its buttons.
 
+## Normal and easy mode
+
+The start card asks which, and remembers the answer:
+
+- **Normal**: everything below: traffic both ways, traffic lights, speed limits, people on the zebra crossings, rain on Sathorn, the flood at Pratunam, nails, the fuel stop and the bus-only road with the police.
+- **Easy mode**: an empty road with only oncoming traffic; every light is green; no speed limits (no signs, no speed cameras); no rain, flood, nails, school zone or people crossing; a full tank that does not run down (the petrol station is only scenery); and at Ratchaprasong straight on is an ordinary missed turn, signed Pathum Wan · Siam, with a U-turn ahead. The turns, the indicators, keeping left, the clock, dusk and the headlights are as in normal mode, so the tickets that can still happen are driving on the wrong side, turning without signalling, hitting an oncoming vehicle and no headlights after dark.
+
+The best time back is kept for each mode. The finish card, the pause card and the result sent to the story say when a run was in easy mode.
+
 ## The cab
 
 You look through the windscreen of a right-hand-drive pickup (Thailand drives on the left): the wheel in front of you, the instruments behind it, the rear-view mirror left of centre, a phone with the map clipped to the glass on the left.
@@ -70,7 +79,7 @@ Each ticket adds minutes to the clock. A ticket slides in at the side; a speed c
 | **A crash** | Nose first into another vehicle, the jolt knocks the gearbox into neutral (the engine keeps running) and the truck rocks back off it; the message says how to back off: clutch, R, a little gas, and steer round. A scrape along the side pushes the two apart. Being run into from behind costs nothing | (the ticket) |
 | **Delivery** at the bookshops | Stop in the yellow box; the bundles come off and you are handed the S | +10 min |
 
-**The clock** starts at 15:00 and runs at eleven times real time; a clean run takes about ten minutes. The light turns golden from about 16:45 and dusky after 17:20; after about 17:50 it is night, the street lights are dim and flicker, and without headlights you can hardly see. Back by 17:30 is on time; on time with no more than two tickets is a model drive (and in the story, the brass S). The finish card lists the tickets and the time lost. Your best on-time arrival, the clutch setting and the sound setting are kept in local storage (`tst-delivery-v1`).
+**The clock** starts at 15:00 and runs at eleven times real time; a clean run takes about ten minutes. The light turns golden from about 16:45 and dusky after 17:20; after about 17:50 it is night, the street lights are dim and flicker, and without headlights you can hardly see. Back by 17:30 is on time; on time with no more than two tickets is a model drive (and in the story, the brass S, in normal mode; easy mode earns the lead S). The finish card lists the tickets and the time lost. Your best on-time arrival in each mode, the mode, the clutch setting and the sound setting are kept in local storage (`tst-delivery-v1`).
 
 ## Traffic
 
@@ -81,7 +90,7 @@ Taxis in Bangkok colours (pink, green and yellow, orange, blue) with their roof 
 - The road is a list of 5 m segments with bends and hills, projected at both ends and drawn far to near (the classic segment-road method); the mirror is the same drawing looking backwards. Buildings, signs, vehicles and people are pictures drawn once into small canvases at start-up and scaled into place, with darker copies for dusk and night and a layer of lit windows and lamps.
 - The truck: engine torque, five gears and reverse, final drive, a clutch with a biting point, engine braking, and grip that falls in the rain and the flood; on bends the truck drifts outwards unless you steer.
 - Sounds are made with Web Audio: the diesel following the revs, tyres, wind, rain, the skid, the water, gear changes and crunches, the starter and a stall, indicator ticks, wiper thumps, horns of every kind, the Thai traffic police whistle, the camera shutter, the BTS overhead, the fuel pump.
-- When the page runs in a frame inside *Chandler’s Promise*, it tells the story when you finish: `{ tst: 'story', game: 'delivery', won, score, text, onTime, violations }`.
+- When the page runs in a frame inside *Chandler’s Promise*, it tells the story when you finish: `{ tst: 'story', game: 'delivery', won, score, text, onTime, violations, easy }`.
 
 ## Keeping the two versions the same
 
