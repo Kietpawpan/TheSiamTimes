@@ -1345,10 +1345,10 @@ function buildBanner() {
   g.fillStyle = '#141311'; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
   g.fillText(text, W / 2, H * 0.6);
   g.fillRect(W / 2 - W * 0.17, H * 0.68, W * 0.34, 2);
-  g.font = textFont(600, H * (LANG === 'th' ? 0.092 : 0.085));
-  if ('letterSpacing' in g) g.letterSpacing = `${LANG === 'th' ? H * 0.004 : H * 0.03}px`;
+  g.font = textFont(600, H * (LANG === 'th' ? 0.1 : 0.085));
+  if ('letterSpacing' in g) g.letterSpacing = `${H * (LANG === 'th' ? 0.008 : 0.03)}px`;
   g.textBaseline = 'top';
-  g.fillText(T.signSub, W / 2, H * (LANG === 'th' ? 0.715 : 0.73));
+  g.fillText(T.signSub, W / 2, H * (LANG === 'th' ? 0.71 : 0.73));
   if ('letterSpacing' in g) g.letterSpacing = '0px';
   for (const [sx, sy] of [[48, 48], [W - 48, 48], [48, H - 48], [W - 48, H - 48]]) {
     const br = g.createRadialGradient(sx - 4, sy - 4, 0, sx, sy, 11);
