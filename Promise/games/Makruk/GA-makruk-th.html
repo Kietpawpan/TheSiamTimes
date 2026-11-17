@@ -499,7 +499,7 @@ function makrukEngine(scope) {
   const ZSL = rnd(), ZSH = rnd();
   const zi = (p, s) => (p + 7) * 64 + s;
 
-  function Pos() { this.b = new Int8Array(64); this.side = WHITE; this.k = [4, 59]; this.hl = 0; this.hh = 0; this.st = []; }
+  function Pos() { this.b = new Int8Array(64); this.side = WHITE; this.k = [3, 60]; this.hl = 0; this.hh = 0; this.st = []; }
   function rehash(p) {
     let hl = 0, hh = 0;
     for (let s = 0; s < 64; s++) {
@@ -512,8 +512,9 @@ function makrukEngine(scope) {
   }
   function startPos() {
     const p = new Pos();
-    const white = [RUEA, MA, KHON, MET, KHUN, KHON, MA, RUEA];   // Met d1, Khun e1
-    const black = [RUEA, MA, KHON, KHUN, MET, KHON, MA, RUEA];   // Khun d8, Met e8
+    // each side's Met stands on its Khun's right, so the two Khun are not face to face: Khun d1 and e8
+    const white = [RUEA, MA, KHON, KHUN, MET, KHON, MA, RUEA];   // Khun d1 (ง1), Met e1 (จ1)
+    const black = [RUEA, MA, KHON, MET, KHUN, KHON, MA, RUEA];   // Met d8 (ง8), Khun e8 (จ8)
     for (let f = 0; f < 8; f++) {
       p.b[f] = white[f]; p.b[16 + f] = BIA; p.b[40 + f] = -BIA; p.b[56 + f] = -black[f];
     }

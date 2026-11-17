@@ -877,6 +877,7 @@ const Name = t => T.name(sideOf(t));
 
 const live = t => state.balls.filter(b => b.kind === 'boule' && !b.dead && b.team === t);
 const toJack = b => Math.hypot(b.x - state.jack.x, b.z - state.jack.z);
+let lastHold = null;   // the point cell as it stood when every ball last came to rest
 function nearest(t) {
   let d = Infinity, ball = null;
   if (state.jack && !state.jack.dead) for (const b of live(t)) { const dd = toJack(b); if (dd < d) { d = dd; ball = b; } }
@@ -1936,6 +1937,8 @@ function renderUI() {
   else if (state.phase === 'endOver' || state.phase === 'over') {
     pl = T.thisEnd; const r = state.endResult;
     pv = !r || r.w === null ? T.voidEnd : `${Name(r.w)} +${r.p}`;
+  } else if (state.phase === 'moving' && lastHold) {
+    [pl, pv] = lastHold;   // balls still on the move (the new one is still at the circle, or in the air): keep the last settled reading
   } else if (state.jack && !state.jack.dead) {
     const na = nearest(0), nb = nearest(1);
     pl = T.holding;
@@ -1944,6 +1947,7 @@ function renderUI() {
       else { const h = na.d < nb.d ? 0 : 1; pv = T.holdV(Name(h), fmtLead(Math.abs(na.d - nb.d))); }
     } else if (na.ball || nb.ball) pv = Name(na.ball ? 0 : 1);
   }
+  if (state.phase !== 'moving') lastHold = [pl, pv];
   $('sbPointLabel').textContent = pl;
   $('sbPoint').textContent = pv;
   $('msg').innerHTML = state.message;

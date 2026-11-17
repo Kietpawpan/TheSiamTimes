@@ -36,7 +36,7 @@ Your record against The Editor at each level, the game in progress and your sett
 | Bia (shell) | One square ahead; takes one square diagonally ahead. Set with its straight side toward its own player and its rounded side toward the other. |
 | Bia Ngai | A Bia that reached the sixth row (where the other side's Bia started) is turned over and moves like a Met. |
 
-White's Khun starts on e1 with the Met on d1; Black's Khun is on d8 with the Met on e8. The Bia start on the third and sixth rows. There is no castling and no double step for the Bia.
+White's Khun starts on d1 (ง1) with the Met on e1 (จ1); Black's Khun is on e8 (จ8) with the Met on d8 (ง8): each Met stands on its own Khun's right, so the two Khun are not face to face (as on Thai boards, Wikipedia and chessvariants.org). The Bia start on the third and sixth rows. There is no castling and no double step for the Bia.
 
 - Checkmate wins. A side that is not in check but has no legal move is stalemated, which is a draw. Two bare Khun is a draw, and so is the same position three times.
 - **Counting**: once no face-down Bia are left, the weaker side counts its own moves and the game is drawn when the count reaches 64 (board's honour). When one side is down to a bare Khun the count starts again from the number of pieces on the board plus one, and the limit is set by the other side's pieces: 8 with two Ruea, 16 with one, 22 with two Khon, 32 with two Ma, 44 with one Khon, and 64 otherwise (pieces' honour). The count is kept automatically and shown in the scoreline. When material is level the side to move next does the counting, and if the counting side gets ahead the count passes to the other side.
