@@ -1,8 +1,8 @@
 # Chandler’s Promise (สัญญาของแชนด์เลอร์) – story game
 
-A story game that takes the player through every Siam Times game in one night, in Thai and in English. In December 1865 John Hassett Chandler stopped the press of The Siam Times and hoped to come back; he never did. Tonight, the night before the Return Edition goes to press, the new night-shift apprentice finds his teak type case in the basement, with twelve empty compartments for the masthead: T H E S I A M T I M E S. The sorts are scattered through the building, and each one has to be won back by playing a game, in story order, before the presses roll at six.
+A story game that takes the player through every Siam Times game in one night and the day after, in Thai and in English. In December 1865 John Hassett Chandler stopped the press of The Siam Times and hoped to come back; he never did. Tonight, the night before the Return Edition goes to press, the new night-shift apprentice finds his teak type case in the basement, with twelve empty compartments for the masthead: T H E S I A M T I M E S. The sorts are scattered through the building, and each one has to be won back by playing a game, in story order. The last one is not in the building at all: it is at an old bookshop by Victory Monument, and has to be fetched by road before the evening edition.
 
-There is a Thai version and an English version, each a whole page in one HTML file. There is no build step: open either file in a browser. They link to each other and share the same progress. The game is not linked from the front page of the site yet.
+**Version 1.1.** There is a Thai version and an English version, each a whole page in one HTML file. There is no build step: open either file in a browser. They link to each other and share the same progress. The game is not linked from the front page of the site yet.
 
 | Version | File | On the site |
 |---|---|---|
@@ -21,13 +21,14 @@ Promise/
 ├── GA-promise-en.html      the story, in English
 ├── Chomsky-LICENSE.txt
 ├── README.md
-└── games/                  the eleven games, copied for the story
+└── games/                  the twelve games of the story
     ├── Fav48.png
     ├── Parking/  Wastebasket/  Darts/  Slingshot/  BBGun/  OldMoney/
-    └── Checkers/  Makruk/  Snooker/  Petanque/  PaperPlane/
+    ├── Checkers/  Makruk/  Snooker/  Petanque/  PaperPlane/
+    └── Delivery/           Paper Run, the driving game made for chapter 12
 ```
 
-The games in `games/` are copies of the site's games with one change each: a `storyDone` call where a game ends (see *How the games report back*), and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
+Eleven of the games in `games/` are copies of the site's games with one change each: a `storyDone` call where a game ends (see *How the games report back*), and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. `Delivery/` (Paper Run) exists only here; it has its own README. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
 
 **When a game is updated on the site**, copy its new file(s) over the one in `games/<Game>/` and put the `storyDone` function and call back in, in the places listed in the table below (and, for Old Money, the logo link). Until then the story keeps playing the older copy.
 
@@ -57,10 +58,16 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 | 9 | I | 01:00 | The basement snooker room | Snooker | winning the frame |
 | 10 | M | 02:00 | The pétanque court behind the building | Pétanque | a win |
 | 11 | E | 05:15 | The top-floor window at first light, with Thongdee the pressman | Paper Plane | winning the contest |
-| 12 | S | 05:45 | The press hall | Chandler's hand press (in this page) | inking right first time, at most one mistimed pull |
-| — | | 06:00 | The press hall, the landing stage at sunrise | Epilogue | |
+| 12 | S | 15:00 | Outside the building, then the road to Victory Monument and back | Paper Run (`games/Delivery/`) | back by 17:30 with at most two tickets |
+| — | | evening | The press hall, the landing stage at sunset | Epilogue | |
 
-**The hand press** (chapter 12) is played in the story page itself. The sorts are set in the forme; hold *Hold to ink* (or Space) and let go while the needle is in the brass band (too little ink prints pale, too much smudges); then press *Pull the bar!* (or Space) while the swinging weight is in the brass band, the middle 28 % of its swing. Three good sheets finish it. The weight swings a little faster after each sheet.
+**Paper Run** (chapter 12) is a driving game in its own right, in `games/Delivery/` (see its README). From the driver's seat of the press's right-hand-drive manual pickup, with a wheel, clutch, brake, accelerator and gear lever, the player drives from the building on Charoen Nakhon over Taksin Bridge, along Sathorn, Witthayu, Phloen Chit, Ratchadamri, Ratchaprarop, Rang Nam and Phaya Thai to the bookshops at Victory Monument, and back the same way. The way is lined with lights, zebra crossings, speed limits, traffic, rain, a flood, nails, a fuel stop and a bus-only lane with the police at the end of it. Back by 17:30 with at most two tickets earns the brass S.
+
+## Version 1.1
+
+- Chapter 12 is now Paper Run, the delivery game, instead of the hand press played in the page; its story is new (the morning run used a wooden S; the real one waits at a bookshop by Victory Monument), with two new painted scenes, the pickup outside the building and the monument at golden hour.
+- The ending moves to the evening: the evening edition is printed with the whole masthead and goes out on the last boat of the day.
+- The map shows an afternoon sky for chapter 12 and an evening one after the ending. Sorts already won, including an S won at the old hand press, are kept.
 
 Progress (the sort won in each chapter, whether the prologue and ending have been seen, where the apprentice stands on the map, the sound setting) is kept in the browser's local storage under `tst-promise-v1`. *Start over* on the contents page clears it.
 
@@ -87,6 +94,7 @@ It is sent by a small function, `storyDone`, defined just above the function tha
 | Snooker | `frameOver` | `won`, `score` |
 | Pétanque | `finishEnd`, when a side reaches 13 | `won`, `score` |
 | Paper Plane | `finishContest` | `won`, `score` (your best distance) |
+| Paper Run | `finish` (back at the building) | `won` (on time, at most two tickets), `score` (minutes to spare), `text` (arrival time), `onTime`, `violations` |
 
 When you change one of the copies, keep the `storyDone(…)` call where the game ends. The `storyDone` function itself is three lines, defined just above the function named in the table, with the game's key (`'parking'`, `'darts'` and so on) written in it.
 
