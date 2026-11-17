@@ -793,7 +793,7 @@ const G = (th, en) => ({ th, en: en || th });
 const CH = [
   { key: 'parking', time: '19:00', url: G('games/Parking/GA-parking-th.html', 'games/Parking/GA-parking-en.html'), brass: r => (r.stars || 0) >= 2,
     intro: [['garage', null], ['garage', 'guard', [560, 560, 1.3]], ['garage', 'guard', [900, 520, 1.15]]], outro: [['garage', 'guard', [620, 540, 1.25]]] },
-  { key: 'wastebasket', time: '19:45', url: G('games/Wastebasket/GA-wastebasket-th.html', 'games/Wastebasket/GA-wastebasket-en.html'), brass: r => !!r.won,
+  { key: 'wastebasket', time: '19:45', url: G('games/Wastebasket/GA-wastebasket-th.html', 'games/Wastebasket/GA-wastebasket-en.html'), brass: r => !!r.won && !r.easy,
     intro: [['office', null], ['office', 'editor', [1180, 470, 1.25]], ['office', 'editor', [640, 600, 1.3]]], outro: [['office', 'editor', [380, 690, 1.35]]] },
   { key: 'darts', time: '20:30', url: G('games/Darts/GA-darts.html'), brass: r => /dart/.test(r.text || '') ? r.score <= 40 : r.score >= 400,
     intro: [['backroom:darts', null], ['backroom:darts', 'guard', [380, 380, 1.4]]], outro: [['backroom:darts', null, [380, 380, 1.6]]] },
