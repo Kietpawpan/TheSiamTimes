@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>สัญญาของแชนด์เลอร์ · The Siam Times</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="เกมเนื้อเรื่องที่รวมทุกเกมของ The Siam Times ไว้ในคืนเดียว ตามหาตัวพิมพ์หัวหนังสือสิบสองตัวที่หายไป 160 ปี ให้ทันแท่นพิมพ์เดินเครื่องตอนหกโมงเช้า">
@@ -2282,6 +2282,17 @@ soundLabels();
 showTitle();
 if (document.fonts && document.fonts.load) document.fonts.load('40px Chomsky').catch(() => {});
 requestAnimationFrame(frame);
+})();
+</script>
+<script>
+/* No zooming: a pinch or a double tap would leave the game half off the screen and stuck. */
+(() => {
+  const stop = e => e.preventDefault();
+  for (const ev of ['gesturestart', 'gesturechange', 'gestureend', 'dblclick']) document.addEventListener(ev, stop, { passive: false });
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
+  window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+  window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault(); });
+  document.documentElement.style.touchAction = 'manipulation';
 })();
 </script>
 </body>
