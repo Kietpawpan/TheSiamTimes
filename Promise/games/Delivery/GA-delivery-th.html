@@ -210,8 +210,8 @@ const STR = {
     busTrap: 'ตำรวจ! ทางนี้เฉพาะรถประจำทาง ใส่เกียร์ถอยหลัง (R) แล้วถอยกลับไปที่แยก',
     backAt: t => `ถึงแยกแล้ว ใส่เกียร์ 1 แล้ว${t}`, turnFast: 'เลี้ยวเร็วเกินไป! ล้อลื่นไถล',
     curb: 'เบียดขอบทาง!', crashMsg: 'ชน! เบียดรถคันข้าง ๆ', rearMsg: 'รถคันหลังชนท้ายเรา',
-    crashFront: auto => auto ? 'ชน! เกียร์หลุดเป็นเกียร์ว่าง ถอยออก: ใส่เกียร์ R เหยียบคันเร่ง แล้วหักพวงมาลัยหลบ'
-      : 'ชน! เกียร์หลุดเป็นเกียร์ว่าง ถอยออก: เหยียบคลัตช์ ใส่เกียร์ R ค่อย ๆ ปล่อยคลัตช์พร้อมเหยียบคันเร่ง แล้วหักพวงมาลัยหลบ',
+    crashFront: auto => auto ? 'ชน! เกียร์หลุดเป็นเกียร์ว่าง ใส่เกียร์ 1 หักพวงมาลัยหลบ แล้วค่อย ๆ เหยียบคันเร่งออกไป'
+      : 'ชน! เกียร์หลุดเป็นเกียร์ว่าง เหยียบคลัตช์ ใส่เกียร์ 1 หักพวงมาลัยหลบ แล้วค่อย ๆ ปล่อยคลัตช์พร้อมเหยียบคันเร่งออกไป',
     deliverStop: 'จอดให้สนิทในกรอบหน้าร้านหนังสือ', overshoot: 'เลยร้านไปแล้ว วนรอบอนุสาวรีย์กลับมาใหม่',
     delivered: 'ส่งหนังสือแล้ว ได้ตัว S! ขับกลับทางเดิม ให้ทันก่อน 17:30',
     homeStop: 'จอดให้สนิทในกรอบหน้าอาคาร', lightsHint: 'ฟ้าเริ่มมืด เปิดไฟหน้า', dim: 'ไฟถนนสลัว ขับระวังให้มาก',
@@ -284,8 +284,8 @@ const STR = {
     busTrap: 'Police! This road is for buses only. Select reverse (R) and back up to the junction',
     backAt: t => `At the junction. First gear, then ${t.toLowerCase()}`, turnFast: 'Too fast round the corner! The tyres slide',
     curb: 'Scraping the kerb!', crashMsg: 'Crash! You scraped the car beside you', rearMsg: 'The car behind ran into you',
-    crashFront: auto => auto ? 'Crash! Knocked into neutral. To back off: select R, press the gas and steer round'
-      : 'Crash! Knocked into neutral. To back off: clutch down, select R, let the clutch up slowly with a little gas, and steer round',
+    crashFront: auto => auto ? 'Crash! Knocked into neutral. First gear, turn the wheel, and ease round it with a little gas'
+      : 'Crash! Knocked into neutral. Clutch down, first gear, turn the wheel, and ease round it as the clutch comes up',
     deliverStop: 'Stop in the box outside the bookshop', overshoot: 'Past the shop: round the monument and back',
     delivered: 'Papers delivered and the S is yours! Back the same way, before 17:30',
     homeStop: 'Stop in the box outside the building', lightsHint: 'Getting dark: headlights on', dim: 'The street lights are dim: take care',
@@ -670,7 +670,8 @@ function stepCar(dt) {
   const rate = inp.fast ? 2.6 : 1.5;
   if (inp.kl || inp.kr) car.steer = clamp(car.steer + ((inp.kr ? 1 : 0) - (inp.kl ? 1 : 0)) * rate * dt, -1, 1);
   else if (!inp.held) car.steer -= Math.sign(car.steer) * Math.min(Math.abs(car.steer), dt * (0.35 + Math.abs(car.v) * 0.05));
-  let lat = car.steer * 0.62 * car.v / (1 + Math.abs(car.v) * 0.025);
+  // the wheel turned right takes the pickup to the right going either way (backing up, its tail swings out right)
+  let lat = car.steer * 0.62 * Math.abs(car.v) / (1 + Math.abs(car.v) * 0.025);
   const kappa = seg.curve / (SEG * SEG);
   let drift = -kappa * car.v * Math.abs(car.v) * 0.55;
   const demand = Math.abs(lat) * Math.abs(car.v) * 0.32 + Math.abs(kappa) * car.v * car.v;
@@ -892,6 +893,7 @@ function spawnTraffic() {
   if (L.J && L.J.trap) { const b = addVeh(1, L.len - 40, 'bus'); b.toBusRoad = true; }
 }
 
+const ROOM = 6;   // how far short of a pickup in its way oncoming traffic stops: room to steer back out
 function stepTraffic(dt) {
   const L = car.L;
   if (!L || L.kind === 'station') return;
@@ -929,14 +931,21 @@ function stepTraffic(dt) {
       const end = veh.toBusRoad ? L.len + L.tail : L.len + 12;
       if (veh.s > end || veh.s < car.s - 140) respawn(veh, 1);
     } else {
-      // oncoming: it stops for the pickup in its way (with the horn), and after a crash waits until we have backed off
+      // oncoming: it keeps its distance from the one in front, and stops well short of a pickup on the wrong side
+      // (with the horn), leaving room to steer back to our side; after a crash it backs off to that distance
       let want = veh.vt;
+      const sameLane = o => o !== veh && o.dir === -1 && Math.abs(o.x - veh.x) < (o.w + veh.w) / 2 + 0.3;
+      for (const o of traffic) if (sameLane(o) && o.s < veh.s) { const g = veh.s - veh.l / 2 - (o.s + o.l / 2); want = Math.min(want, g < 1.5 ? 0 : Math.sqrt(2 * 5 * (g - 1.5))); }
       if (veh.s > car.s - 1 && Math.abs(veh.x - car.x) < (veh.w + CAR_W) / 2 + 0.4) {
         const gap = veh.s - veh.l / 2 - (car.s + CAR_L / 2);
-        want = gap < 2 ? 0 : Math.min(want, Math.sqrt(2 * 5 * (gap - 2)));
+        want = Math.min(want, gap < ROOM ? 0 : Math.sqrt(2 * 5 * (gap - ROOM)));
         if (gap < 30) { veh.honkT += dt; if (veh.honkT > 1.2) { veh.honkT = -2.5; sfx.honk(veh.kind); } }
-      }
-      if (veh.hit) want = 0;
+        if (veh.backOff) {
+          let behind = 99;
+          for (const o of traffic) if (sameLane(o) && o.s > veh.s) behind = Math.min(behind, o.s - o.l / 2 - (veh.s + veh.l / 2));
+          if (gap < ROOM - 0.3 && behind > 1.5) want = -1.5; else veh.backOff = false;
+        }
+      } else veh.backOff = false;
       veh.v += clamp(want - veh.v, -8 * dt, 2.2 * dt);
       veh.s -= veh.v * dt;
       if (veh.s < car.s - 80 || veh.s < -10) respawn(veh, -1);
@@ -945,6 +954,9 @@ function stepTraffic(dt) {
     // how far the two overlap, across and along the road; they are pushed apart the shorter way
     const dx = Math.abs(veh.x - car.x), ds = Math.abs(veh.s - car.s);
     const ox = (veh.w + CAR_W) / 2 - 0.1 - dx, os = (veh.l + CAR_L) / 2 - 0.05 - ds;
+    // nose against it (touching or a little into it), gas on and the wheel turned: the pickup edges sideways along its bumper and out
+    if (veh.s > car.s && ox > 0 && os > -0.1 && ox >= os && Math.abs(car.steer) > 0.12 && (car.v > 0.02 || (car.engine && car.gear > 0 && car.gasP > 0.1 && car.clutchP < 0.7)))
+      car.x += Math.sign(car.steer) * Math.min(1, Math.abs(car.steer) * 1.4) * 1.6 * dt;
     if (ox > 0 && os > 0) {
       const side = ox < os, ahead = veh.s > car.s;
       if (!veh.hit) {
@@ -953,14 +965,16 @@ function stepTraffic(dt) {
         if (side) say(T.crashMsg, 'bad', 2.5);
         else if (!ahead && veh.dir === 1) say(T.rearMsg, 'bad', 2.5);
         else {
-          // nose first into it: the jolt knocks the box into neutral (no stall) and the pickup rocks back off it
+          // nose first into it: the jolt knocks the box into neutral (no stall) and the pickup rocks back off it;
+          // an oncoming one backs off to leave room to steer round it
+          if (veh.dir === -1) veh.backOff = true;
           car.gear = 0; gearUI();
           car.s -= 0.7; car.v = Math.min(0, -0.1 * Math.abs(car.v));
           say(T.crashFront(game.assist), 'bad', 8);
         }
       }
       if (side) car.x += (car.x < veh.x ? -1 : 1) * ox;
-      else if (ahead) { car.s -= Math.max(0, (veh.l + CAR_L) / 2 - 0.04 - (veh.s - car.s)); car.v = Math.min(car.v, 0); if (veh.dir === -1) veh.v = 0; }
+      else if (ahead) { car.s -= Math.max(0, (veh.l + CAR_L) / 2 - 0.04 - (veh.s - car.s)); car.v = Math.min(car.v, 0); if (veh.dir === -1) veh.v = Math.min(veh.v, 0); }
       else if (veh.dir === 1) { veh.s = car.s - (veh.l + CAR_L) / 2 + 0.04; veh.v = 0; }
       else { car.s += Math.max(0, (veh.l + CAR_L) / 2 - 0.04 - (car.s - veh.s)); car.v = Math.max(car.v, 0); veh.v = 0; }
     } else if (veh.hit && (ds > (veh.l + CAR_L) / 2 + 2 || dx > (veh.w + CAR_W) / 2 + 1)) veh.hit = false;
