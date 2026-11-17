@@ -48,7 +48,7 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 |---|---|---|---|---|---|
 | — | | 1864–65, then 18:40 | The press house on the river, Chandler's desk, the building, the basement archive | Prologue | |
 | 1 | T | 19:00 | Ground-floor car park, with Uncle Choed the night watchman | Reverse Parking | 2 or 3 stars |
-| 2 | H | 19:45 | The Editor's office | Wastebasket | clearing every level |
+| 2 | H | 19:45 | The Editor's office | Wastebasket | clearing every level, on Normal (Easy, the wide basket, earns lead) |
 | 3 | E | 20:30 | The back room | Darts | 400 points in Score Attack, or a leg in 40 darts or fewer |
 | 4 | S | 21:15 | The back room, the far table | Slingshot (5 rounds) | 2,000 points |
 | 5 | I | 22:00 | The back room, the range | BB Gun (7 rounds) | 3,500 points |
@@ -95,7 +95,7 @@ It is sent by a small function, `storyDone`, defined just above the function tha
 | Game | Reported from | Fields |
 |---|---|---|
 | Reverse Parking | `finish` (a vehicle parked) | `won`, `score`, `stars`, `stage` |
-| Wastebasket | `finishGame` | `won` (all levels cleared), `score` |
+| Wastebasket | `finishGame` | `won` (all levels cleared), `score`, `easy` (the wide basket: never brass) |
 | Darts | the end of Score Attack, and a checkout in 501 | `won`, `score`, `text` (`… points` or `… darts`) |
 | Slingshot | `endRound`, after the fifth round | `won`, `score` |
 | BB Gun | `endRound`, after the seventh round | `won`, `score` |

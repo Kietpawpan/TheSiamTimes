@@ -36,7 +36,9 @@ Three balls of paper a level, and all three must go in to move on. Miss one and 
 | Clearing a level | +50 × the level number |
 | Clearing it on the first try | +100 |
 
-The best score is kept in the browser's local storage under `siamTimesWastebasket.v1`, with the power bar speed and the sound setting.
+**Difficulty**: under the game mode in the rail, *Normal* or *Easy · wide basket*. Easy makes the mouth of every basket half as wide again (38 cm becomes 57 cm on level 1), except where that would push it into a wall: the basket under the window on level 5 grows only as far as the back wall allows (44 cm). The levels are otherwise the same. Changing the difficulty starts a new game, the scoreboard shows *· Easy*, and Easy keeps its own best score.
+
+The best scores (one for each difficulty) are kept in the browser's local storage under `siamTimesWastebasket.v1`, with the difficulty, the power bar speed and the sound setting.
 
 ## The levels
 
