@@ -1521,6 +1521,7 @@ function layout() {
 }
 let resizeTimer = 0;
 window.addEventListener('resize', () => {
+  if (!TX.dark) return;   // still starting up (waiting for the font): init() lays the table out itself
   layout();
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(drawTable, 120);

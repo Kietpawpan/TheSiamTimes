@@ -2,7 +2,7 @@
 
 A story game that takes the player through every Siam Times game in one night and the day after, in Thai and in English. In December 1865 John Hassett Chandler stopped the press of The Siam Times and hoped to come back; he never did. Tonight, the night before the Return Edition goes to press, the new night-shift apprentice finds his teak type case in the basement, with twelve empty compartments for the masthead: T H E S I A M T I M E S. The sorts are scattered through the building, and each one has to be won back by playing a game, in story order. The last one is not in the building at all: it is at an old bookshop by Victory Monument, and has to be fetched by road before the evening edition.
 
-**Version 1.1.** There is a Thai version and an English version, each a whole page in one HTML file. There is no build step: open either file in a browser. They link to each other and share the same progress. The game is not linked from the front page of the site yet.
+**Version 1.2.** There is a Thai version and an English version, each a whole page in one HTML file. There is no build step: open either file in a browser. They link to each other and share the same progress. The game is not linked from the front page of the site yet.
 
 | Version | File | On the site |
 |---|---|---|
@@ -62,6 +62,15 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 | — | | evening | The press hall, the landing stage at sunset | Epilogue | |
 
 **Paper Run** (chapter 12) is a driving game in its own right, in `games/Delivery/` (see its README). From the driver's seat of the press's right-hand-drive manual pickup, with a wheel, clutch, brake, accelerator and gear lever, the player drives from the building on Charoen Nakhon over Taksin Bridge, along Sathorn, Witthayu, Phloen Chit, Ratchadamri, Ratchaprarop, Rang Nam and Phaya Thai to the bookshops at Victory Monument, and back the same way. The way is lined with lights, zebra crossings, speed limits, traffic, rain, a flood, nails, a fuel stop and a bus-only lane with the police at the end of it. Back by 17:30 with at most two tickets earns the brass S. Paper Run also has an easy mode (an empty road with only oncoming traffic, green lights all the way, no speed limits and no hazards); finishing in it earns the lead S, and the brass one needs normal mode.
+
+## Version 1.2
+
+- **About** (เกี่ยวกับเกม) on the title screen: who made the game, fact and fiction, privacy (nothing is collected or sent; progress stays on the device), sound (all synthesised) and the fonts with their licences.
+- `privacy.html`: the privacy policy, in Thai and English, for the App Store listing (https://thesiamtimes.com/Promise/privacy.html).
+- On a phone held sideways the title panel fits the screen, and the About, sound and language buttons stack down the right-hand side instead of hiding behind it.
+- Checkers opens in the story's language (it speaks Thai too), unless the player has picked a language in the game.
+- Checkers no longer throws an error when the screen changes size while it is still starting up (the same fix is in the site's Checkers).
+- The same game is being made into an iPhone and iPad app (a separate repository) that bundles everything to play offline.
 
 ## Version 1.1
 
