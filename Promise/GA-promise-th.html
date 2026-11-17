@@ -281,21 +281,8 @@ html:lang(en) .mcard h2 { font: 600 30px/1.15 var(--font-text); }
 .mcard p { margin: 0; color: var(--muted); }
 .mcard .btns { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 6px; }
 
-/* ---------- The press ---------- */
-.press-ui {
-  position: absolute; left: 50%; transform: translateX(-50%);
-  bottom: max(16px, env(safe-area-inset-bottom, 0px));
-  width: min(640px, calc(100% - 24px));
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  padding: 14px 16px 16px;
-  background: rgba(10, 16, 23, .86);
-  border: 1px solid var(--rule); border-top: 2px solid var(--brass);
-  border-radius: 10px;
-}
-.press-ui p { margin: 0; text-align: center; font-size: 17px; min-height: 1.6em; }
-.press-ui .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-.press-ui .btn-brass { min-width: 180px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-.press-ui .sheets { font: 600 13px/1 var(--font-label); color: var(--muted); letter-spacing: .05em; }
+.title-panel .ver { margin: 0; font: 600 11.5px/1 var(--font-label); letter-spacing: .12em; color: var(--muted); }
+
 
 
 /* ---------- The game map: the building cut open, floor by floor ---------- */
@@ -397,6 +384,7 @@ html:lang(en) .info h3 { font: 600 22px/1.2 var(--font-text); }
     <h1 id="gameTitle" data-i18n="gameName"></h1>
     <p class="sub" data-i18n="tagline"></p>
     <p class="progress" id="tProgress"></p>
+    <p class="ver" data-i18n="version"></p>
     <div class="row">
       <button class="btn-brass" id="tStart" type="button"></button>
       <button class="btn-line" id="tContents" type="button" data-i18n="contents"></button>
@@ -492,21 +480,6 @@ html:lang(en) .info h3 { font: 600 22px/1.2 var(--font-text); }
   <iframe id="frame" title="" allow="autoplay; fullscreen"></iframe>
 </section>
 
-<!-- The press -->
-<section class="screen" id="press">
-  <canvas class="fill" id="pressCv" aria-hidden="true"></canvas>
-  <div class="dateline" id="pressDate"></div>
-  <div class="cut-corner"><button class="btn-pill" id="prSound" type="button" aria-pressed="true"></button></div>
-  <div class="press-ui">
-    <p id="pressMsg" aria-live="polite"></p>
-    <div class="row">
-      <button class="btn-brass" id="inkBtn" type="button" data-i18n="ink"></button>
-      <button class="btn-brass" id="pullBtn" type="button" data-i18n="pull" hidden></button>
-    </div>
-    <span class="sheets" id="sheets"></span>
-  </div>
-</section>
-
 <!-- A sort found, or a question -->
 <div class="modal" id="modal" hidden>
   <div class="mcard" role="dialog" aria-modal="true" aria-labelledby="mdTitle">
@@ -532,7 +505,8 @@ const STR = {
   th: {
     docTitle: 'สัญญาของแชนด์เลอร์ · The Siam Times',
     gameName: 'สัญญาของแชนด์เลอร์',
-    tagline: 'คืนเดียว สิบสองตัวพิมพ์ ทุกเกมของ The Siam Times ตามหาหัวหนังสือที่หายไป 160 ปี ให้ทันแท่นพิมพ์เดินเครื่องตอนหกโมงเช้า',
+    tagline: 'หนึ่งคืนกับอีกหนึ่งวัน สิบสองตัวพิมพ์ ทุกเกมของ The Siam Times ตามหาหัวหนังสือที่หายไป 160 ปี ตั้งแต่กะดึกจนถึงรถส่งหนังสือพิมพ์คันแรก',
+    version: 'เวอร์ชัน 1.1',
     begin: 'เริ่มเรื่อง', cont: 'เล่นต่อ', again: 'ดูตอนจบอีกครั้ง', contents: 'สารบัญ',
     progress: (n) => n ? `เรียงตัวพิมพ์ได้แล้ว ${n} จาก 12 ตัว` : 'กะดึกคืนแรกของคุณ',
     skip: 'ข้าม ▸▸', soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด',
@@ -543,11 +517,11 @@ const STR = {
     headMid: 'ตามหาตัวพิมพ์หัวหนังสือ ก่อนแท่นพิมพ์เดินเครื่อง',
     headDone: 'The Siam Times กลับมาแล้ว',
     deck: 'ตัวพิมพ์สิบสองตัวของหัวหนังสือ The Siam Times กระจายอยู่ทั่วอาคาร แต่ละห้องมีเกมรออยู่ เล่นให้จบหนึ่งเกมเพื่อได้ตัวพิมพ์คืน แล้วบทต่อไปจึงจะเปิด',
-    deckDone: 'หัวหนังสือครบทั้งสิบสองตัว ฉบับแรกในรอบ 160 ปีพิมพ์เสร็จตอนหกโมงเช้า เล่นบทไหนซ้ำก็ได้ เล่นชนะหรือทำผลงานดีจะได้ตัวพิมพ์ทองเหลือง',
+    deckDone: 'หัวหนังสือครบทั้งสิบสองตัว ฉบับค่ำพิมพ์ด้วยหัวหนังสือครบเป็นครั้งแรกในรอบ 160 ปี เล่นบทไหนซ้ำก็ได้ เล่นชนะหรือทำผลงานดีจะได้ตัวพิมพ์ทองเหลือง',
     stickNote: (lead, brass) => `ตัวพิมพ์ตะกั่ว ${lead} · ทองเหลือง ${brass} — เล่นจบได้ตะกั่ว เล่นชนะหรือทำผลงานดีได้ทองเหลือง`,
     nextBtn: (i, l) => `บทที่ ${i}: ตามหาตัว ${l}`,
     prologueBtn: 'เริ่มเรื่อง: บทนำ',
-    pressBtn: 'บทสุดท้าย: แท่นพิมพ์',
+    pressBtn: 'บทสุดท้าย: รถส่งหนังสือพิมพ์',
     epilogueBtn: 'ดูตอนจบอีกครั้ง',
     chap: i => `บทที่ ${i}`,
     stLocked: 'ยังไม่เปิด', stOpen: 'บทถัดไป', stLead: 'ได้ตัวพิมพ์ตะกั่ว', stBrass: 'ได้ตัวพิมพ์ทองเหลือง',
@@ -562,8 +536,8 @@ const STR = {
     nodePro: 'บทนำ', nodeEnd: 'ตอนจบ',
     proTitle: 'หีบไม้สักของแชนด์เลอร์', proPlace: 'ห้องเก็บเอกสารใต้ดิน · 1864–คืนนี้',
     proGoal: 'เรื่องเริ่มที่นี่: แท่นพิมพ์ที่เงียบไป 160 ปี กับช่องว่างสิบสองช่องในหีบ',
-    endTitle: 'ฉบับการกลับมา', endPlace: 'ท่าน้ำหน้าอาคาร · 06:00',
-    endGoal: 'แท่นพิมพ์ใหญ่เดินเครื่อง และหนังสือพิมพ์ฉบับใหม่ลงเรือลำแรกของวัน',
+    endTitle: 'ฉบับค่ำ', endPlace: 'ท่าน้ำหน้าอาคาร · 18:00',
+    endGoal: 'แท่นพิมพ์ใหญ่พิมพ์ฉบับค่ำด้วยหัวหนังสือครบ และหนังสือพิมพ์ลงเรือลำสุดท้ายของวัน',
     iLocked: n => `ยังไม่เปิด: เล่นบทที่ ${n} ให้จบก่อน`, iEndLocked: 'จะเปิดเมื่อเรียงตัวพิมพ์ได้ครบสิบสองตัว',
     iSeen: 'ดูแล้ว', iWatch: 'ดูบทนำอีกครั้ง', iEnd: 'ดูตอนจบ', iBegin: 'เริ่มเรื่อง',
     nodeAria: (k, title, st) => `${k} · ${title} · ${st}`,
@@ -577,23 +551,12 @@ const STR = {
     resultWon: 'ชนะ', resultDraw: 'เสมอ', resultLost: 'แพ้ แต่เล่นจนจบ', resultScore: s => `ผลงาน ${s}`,
     resetQ: 'เริ่มเรื่องใหม่ทั้งหมด?', resetText: 'ตัวพิมพ์ที่เก็บได้ทั้งหมดจะหายไป แล้วเริ่มกะดึกคืนแรกใหม่',
     resetYes: 'เริ่มใหม่', cancel: 'ยกเลิก',
-    ink: 'กดค้างเพื่อลงหมึก', pull: 'ดึงคันโยก!',
-    prSet: 'เรียงตัวพิมพ์ลงแท่น…',
-    prInk: 'กดปุ่มค้างไว้ให้ลูกกลิ้งลงหมึก ปล่อยเมื่อเข็มอยู่ในแถบทอง',
-    prThin: 'หมึกน้อยไป ตัวหนังสือจะจาง ลองใหม่',
-    prThick: 'หมึกมากไป เลอะทั้งหน้า เช็ดแล้วลองใหม่',
-    prInked: 'หมึกพอดี! รอให้ลูกตุ้มเหวี่ยงเข้าแถบทอง แล้วดึงคันโยก',
-    prMiss: 'จังหวะพลาด กระดาษเบี้ยว รอรอบหน้า',
-    prGood: n => `พิมพ์ได้ ${n} แผ่น!`,
-    prDone: 'สามแผ่นแรกของฉบับการกลับมา!',
-    sheets: (n) => `พิมพ์แล้ว ${n} / 3 แผ่น`,
-    pressDate: 'บางกอก · 05:45 · โรงพิมพ์',
     canvasLabel: 'ฉากเล่าเรื่องในอาคาร The Siam Times แตะที่กล่องข้อความหรือกด Space เพื่ออ่านต่อ',
     frameTitle: g => `เกม ${g}`,
     who: { chandler: 'ในจดหมายของแชนด์เลอร์', note: 'กระดาษในหีบไม้สัก', editor: 'บรรณาธิการ', guard: 'ลุงเชิด · ยามกะดึก', madame: 'มาดามลำดวน · โต๊ะข่าวแฟชั่น', printer: 'ช่างทองดี · ช่างพิมพ์', you: 'คุณ' },
     datePro: ['บางกอก · กรกฎาคม 1864', 'บางกอก · ธันวาคม 1865', 'บางกอก · คืนนี้ · 18:40', 'ห้องเก็บเอกสารใต้ดิน · 18:50'],
-    dateEnd: ['โรงพิมพ์ · 06:00', 'ท่าน้ำหน้าอาคาร · 06:20'],
-    games: { parking: 'ถอยจอด', wastebasket: 'โยนกระดาษ', darts: 'ปาเป้า', slingshot: 'หนังสติ๊ก', bbgun: 'ปืนบีบีกัน', oldmoney: 'Old Money Atelier', checkers: 'หมากฮอส', makruk: 'หมากรุกไทย', snooker: 'สนุกเกอร์', petanque: 'เปตอง', paperplane: 'จรวดกระดาษ', press: 'แท่นพิมพ์มือ' },
+    dateEnd: ['โรงพิมพ์ · เย็น', 'ท่าน้ำหน้าอาคาร · 18:00'],
+    games: { parking: 'ถอยจอด', wastebasket: 'โยนกระดาษ', darts: 'ปาเป้า', slingshot: 'หนังสติ๊ก', bbgun: 'ปืนบีบีกัน', oldmoney: 'Old Money Atelier', checkers: 'หมากฮอส', makruk: 'หมากรุกไทย', snooker: 'สนุกเกอร์', petanque: 'เปตอง', paperplane: 'จรวดกระดาษ', delivery: 'รถส่งหนังสือพิมพ์' },
     ch: [
       { title: 'ตุ๊กตุ๊กของโรงพิมพ์', place: 'ลานจอดชั้น 1', goal: 'ถอยรถเข้าช่องจอดให้สำเร็จอย่างน้อยหนึ่งด่าน',
         intro: ['ลานจอดชั้นล่างเงียบ มีแต่เสียงฝนกับไฟนีออนกะพริบ ลุงเชิดยืนส่องไฟฉายอยู่ข้างตุ๊กตุ๊กสีน้ำเงินของโรงพิมพ์',
@@ -644,10 +607,13 @@ const STR = {
           'ตัว E ตัวที่สองหลุดออกไปนอกหน้าต่าง ตกอยู่ในสวนริมแม่น้ำโน่น',
           'พับจรวดจากหนังสือพิมพ์ แข่งกับกองบรรณาธิการ ร่อนให้ไกลที่สุด แล้วตามจรวดลงไปเก็บ'],
         outro: ['จรวดร่อนลงข้างตัว E พอดี! รีบลงไปที่โรงพิมพ์ เหลือตัวสุดท้ายตัวเดียว'] },
-      { title: 'แท่นพิมพ์ของแชนด์เลอร์', place: 'โรงพิมพ์', goal: 'ลงหมึกแล้วดึงคันโยกพิมพ์ให้ได้สามแผ่น',
-        intro: ['ตัว S ตัวสุดท้ายไม่เคยหายไปไหน มันอยู่ในแท่นพิมพ์มือเก่าเครื่องนี้มาตลอด 160 ปี',
-          'เรียงหัวหนังสือให้ครบ ลงหมึกให้พอดี แล้วดึงคันโยกให้ถูกจังหวะ ขอสามแผ่นแรกก่อนแท่นใหญ่จะเดินเครื่อง'],
-        outro: [] },
+      { title: 'รถส่งหนังสือพิมพ์คันแรก', place: 'หน้าอาคาร The Siam Times · บ่าย', goal: 'ขับไปส่งหนังสือที่ร้านแถวอนุสาวรีย์ชัยฯ รับตัว S แล้วกลับให้ทัน 17:30 ก่อนค่ำ',
+        intro: ['หกโมงเช้า แท่นใหญ่พิมพ์ฉบับการกลับมาออกไปแล้ว แต่หัวหนังสือยังต้องใช้ตัว S ไม้ที่ผมแกะเอาไว้ชั่วคราว',
+          'ตัว S ตัวจริงอยู่ที่ร้านหนังสือเก่าแถวอนุสาวรีย์ชัยฯ ลูกหลานของคนขายหนังสือที่แชนด์เลอร์ฝากไว้ยังเก็บมันอยู่',
+          'บ่ายสามแล้ว เอาหนังสือพิมพ์ปึกแรกไปส่งร้าน แลกตัว S กลับมา แล้วกลับให้ทันเลิกงานห้าโมงครึ่งก่อนค่ำ ฉบับค่ำจะได้มีหัวหนังสือครบ',
+          'รถกระบะเกียร์ธรรมดาคันเก่าของโรงพิมพ์ ข้ามสะพานพระเจ้าตากสินไปตามสาทร ขับให้ถูกกฎนะ ไฟแดงหยุด ทางม้าลายให้คนข้าม แล้วอย่าเข้าช่องรถเมล์ล่ะ ตำรวจจับ'],
+        outro: ['ที่ร้านหนังสือเก่าใต้เงาอนุสาวรีย์ เจ้าของร้านยื่นตัว S สีหม่นให้ “ปู่บอกว่าสักวันจะมีคนจาก The Siam Times มารับ”',
+          'กลับมาแล้ว! ใส่ตัว S ลงแท่นเลย หัวหนังสือครบสิบสองตัวแล้ว'] },
     ],
     prologue: [
       'บางกอก กรกฎาคม 1864 เสียงแท่นพิมพ์มือดังกึก ๆ อยู่ริมแม่น้ำเจ้าพระยา',
@@ -662,17 +628,18 @@ const STR = {
       'หัวหนังสือฉบับแรกต้องใช้ตัวพิมพ์ชุดนี้ แต่มันกระจายไปทั่วอาคาร ใครเจอก็เก็บไว้เอง คืนนี้ไปตามเอาคืนมาทีละตัว และไม่มีใครยอมคืนให้ฟรี ๆ หรอก',
     ],
     epilogue: [
-      'หกโมงเช้า แท่นพิมพ์ใหญ่เดินเครื่อง เสียงกึก ๆ ดังขึ้นอีกครั้งหลังเงียบไป 160 ปี',
+      'เย็นวันนั้น แท่นพิมพ์ใหญ่เดินเครื่อง ฉบับค่ำพิมพ์ด้วยหัวหนังสือครบ เสียงกึก ๆ ที่เงียบไป 160 ปีดังขึ้นอีกครั้ง',
       'หัวหนังสือครบแล้ว ทั้งสิบสองตัว The Siam Times กลับมาแล้วจริง ๆ',
-      'แดดแรกส่องผ่านแม่น้ำ ปึกหนังสือพิมพ์ฉบับใหม่วางเรียงอยู่ที่ท่าน้ำ เรือลำแรกของวันมารับไปแล้ว',
+      'แดดเย็นส่องผ่านแม่น้ำ ปึกหนังสือพิมพ์ฉบับค่ำวางเรียงอยู่ที่ท่าน้ำ เรือลำสุดท้ายของวันมารับไปแล้ว',
       'ก้นหีบไม้สักมีกระดาษอีกแผ่นที่ไม่มีใครเคยเห็น: “ขอบใจที่รักษาสัญญาแทนข้าพเจ้า — J.H.C.”',
-      'All the News That’s Nice to Post. จบกะดึกคืนแรกของคุณ',
+      'All the News That’s Nice to Post. จบกะดึกคืนแรก และวันทำงานวันแรกของคุณ',
     ],
   },
   en: {
     docTitle: 'Chandler’s Promise · The Siam Times',
     gameName: 'Chandler’s Promise',
-    tagline: 'One night, twelve pieces of type, every Siam Times game. Find the masthead lost for 160 years before the presses roll at six.',
+    tagline: 'One night and one day, twelve pieces of type, every Siam Times game. Find the masthead lost for 160 years, from the night shift to the first delivery run.',
+    version: 'Version 1.1',
     begin: 'Begin the story', cont: 'Continue', again: 'See the ending again', contents: 'Contents',
     progress: (n) => n ? `${n} of 12 sorts set` : 'Your first night shift',
     skip: 'Skip ▸▸', soundOn: 'Sound on', soundOff: 'Sound off',
@@ -683,11 +650,11 @@ const STR = {
     headMid: 'Find the masthead before the presses roll',
     headDone: 'The Siam Times Returns',
     deck: 'The twelve sorts of The Siam Times masthead are scattered through the building, and every room has a game waiting. Finish a game to win a sort back; then the next chapter opens.',
-    deckDone: 'All twelve sorts are set and the first edition in 160 years came off the press at six. Replay any chapter: win, or play well, for a brass sort.',
+    deckDone: 'All twelve sorts are set, and the evening edition came off the press with its whole masthead for the first time in 160 years. Replay any chapter: win, or play well, for a brass sort.',
     stickNote: (lead, brass) => `${lead} lead · ${brass} brass. Finish a game for lead; win, or play well, for brass.`,
     nextBtn: (i, l) => `Chapter ${i}: find the ${l}`,
     prologueBtn: 'Begin: the prologue',
-    pressBtn: 'Last chapter: the press',
+    pressBtn: 'Last chapter: the delivery run',
     epilogueBtn: 'See the ending again',
     chap: i => `Chapter ${i}`,
     stLocked: 'Locked', stOpen: 'Next', stLead: 'Lead sort won', stBrass: 'Brass sort won',
@@ -702,8 +669,8 @@ const STR = {
     nodePro: 'Prologue', nodeEnd: 'Ending',
     proTitle: 'Chandler’s teak case', proPlace: 'The basement archive · 1864 to tonight',
     proGoal: 'The story starts here: a press silent for 160 years, and twelve empty compartments in a case.',
-    endTitle: 'The Return Edition', endPlace: 'The landing stage · 06:00',
-    endGoal: 'The big press starts, and the new paper goes out on the first boat of the day.',
+    endTitle: 'The evening edition', endPlace: 'The landing stage · 18:00',
+    endGoal: 'The big press runs the evening edition with its whole masthead, and the paper goes out on the last boat of the day.',
     iLocked: n => `Locked: finish chapter ${n} first`, iEndLocked: 'Opens once all twelve sorts are set',
     iSeen: 'Seen', iWatch: 'Watch the prologue again', iEnd: 'Watch the ending', iBegin: 'Begin the story',
     nodeAria: (k, title, st) => `${k}, ${title}, ${st}`,
@@ -717,23 +684,12 @@ const STR = {
     resultWon: 'Won', resultDraw: 'Drawn', resultLost: 'Lost, but played to the end', resultScore: s => `Result: ${s}`,
     resetQ: 'Start the story over?', resetText: 'Every sort you have recovered will be lost, and your first night shift starts again.',
     resetYes: 'Start over', cancel: 'Cancel',
-    ink: 'Hold to ink', pull: 'Pull the bar!',
-    prSet: 'Setting the type in the forme…',
-    prInk: 'Hold the button to roll ink on, and let go when the needle is in the brass band.',
-    prThin: 'Too little ink: the letters would print pale. Try again.',
-    prThick: 'Too much: it would smudge the whole page. Wipe it and try again.',
-    prInked: 'Just right! Wait for the weight to swing into the brass band, then pull the bar.',
-    prMiss: 'Mistimed: the sheet went in crooked. Wait for the next swing.',
-    prGood: n => `${n} printed!`,
-    prDone: 'The first three sheets of the Return Edition!',
-    sheets: (n) => `${n} of 3 sheets`,
-    pressDate: 'Bangkok · 05:45 · the press hall',
     canvasLabel: 'A story scene in The Siam Times building. Tap the caption or press Space to read on.',
     frameTitle: g => `${g} game`,
     who: { chandler: 'From Chandler’s letter', note: 'The note in the teak case', editor: 'The Editor', guard: 'Uncle Choed, night watchman', madame: 'Madame Lamduan, the style desk', printer: 'Thongdee, the pressman', you: 'You' },
     datePro: ['Bangkok · July 1864', 'Bangkok · December 1865', 'Bangkok · tonight · 18:40', 'The basement archive · 18:50'],
-    dateEnd: ['The press hall · 06:00', 'The landing stage · 06:20'],
-    games: { parking: 'Reverse Parking', wastebasket: 'Wastebasket', darts: 'Darts', slingshot: 'Slingshot', bbgun: 'BB Gun', oldmoney: 'Old Money Atelier', checkers: 'Checkers', makruk: 'Makruk', snooker: 'Snooker', petanque: 'Pétanque', paperplane: 'Paper Plane', press: 'The hand press' },
+    dateEnd: ['The press hall · evening', 'The landing stage · 18:00'],
+    games: { parking: 'Reverse Parking', wastebasket: 'Wastebasket', darts: 'Darts', slingshot: 'Slingshot', bbgun: 'BB Gun', oldmoney: 'Old Money Atelier', checkers: 'Checkers', makruk: 'Makruk', snooker: 'Snooker', petanque: 'Pétanque', paperplane: 'Paper Plane', delivery: 'Paper Run' },
     ch: [
       { title: 'The press tuk-tuk', place: 'Ground-floor car park', goal: 'Park in a bay, reversing, in at least one stage',
         intro: ['The car park is quiet but for the rain and a flickering tube. Uncle Choed stands with his torch beside the press’s blue tuk-tuk.',
@@ -784,10 +740,13 @@ const STR = {
           'The second E went out of this window. It’s down there in the riverside park.',
           'Fold a plane from the paper and fly it against the editorial team. Fly the furthest, then follow your plane down to fetch it.'],
         outro: ['Your plane came down right beside the E! Down to the press hall, quick: one sort left.'] },
-      { title: 'Chandler’s press', place: 'The press hall', goal: 'Ink the type and pull three good sheets',
-        intro: ['The last S was never lost. It has been in this old hand press for 160 years.',
-          'Set the masthead, ink it just right, and pull the bar in time. Three sheets, before the big press starts.'],
-        outro: [] },
+      { title: 'The first delivery run', place: 'Outside The Siam Times · afternoon', goal: 'Drive the papers to the bookshops at Victory Monument, collect the S and be back by 17:30, before dark',
+        intro: ['Six o’clock: the big press ran the Return Edition. But the masthead had to use a wooden S I carved to fill the gap.',
+          'The real S is at an old bookshop by Victory Monument. The descendants of the bookseller Chandler left it with still keep it.',
+          'It’s three in the afternoon. Take the first bundles to the shop, bring the S back, and be here before the office closes at half past five, before dark. The evening edition will have its whole masthead.',
+          'The press’s old manual pickup. Over Taksin Bridge and along Sathorn. Drive by the rules: stop at red, let people cross at the zebras, and keep out of the bus lane. The police are watching.'],
+        outro: ['In the old bookshop in the shadow of the monument, the owner puts a dull old S in your hand. “Grandfather said one day someone from The Siam Times would come for it.”',
+          'You’re back! Into the forme with it. All twelve sorts at last.'] },
     ],
     prologue: [
       'Bangkok, July 1864. The clatter of a hand press rings out beside the Chao Phraya.',
@@ -802,11 +761,11 @@ const STR = {
       'The first edition needs that very type, and it is scattered all over the building; whoever found a piece kept it. Win them back tonight, one by one. Nobody will hand them over for nothing.',
     ],
     epilogue: [
-      'Six o’clock. The big press starts, and its clatter is heard again after 160 years.',
+      'That evening the big press runs the evening edition with its whole masthead, and the clatter silent for 160 years is heard again.',
       'The masthead is whole, all twelve sorts. The Siam Times is back.',
-      'The first sun comes across the river. Bundles of the new paper wait on the landing stage, and the first boat of the day takes them away.',
+      'The evening sun lies on the river. Bundles of the evening paper wait on the landing stage, and the last boat of the day takes them away.',
       'At the bottom of the teak case is a note nobody had seen: “Thank you for keeping my promise. — J.H.C.”',
-      'All the News That’s Nice to Post. Your first night shift is over.',
+      'All the News That’s Nice to Post. Your first night shift, and your first day, are over.',
     ],
   },
 };
@@ -854,8 +813,9 @@ const CH = [
     intro: [['court', null], ['court', 'editor', [800, 640, 1.35]]], outro: [['court', null, [800, 660, 1.5]]] },
   { key: 'paperplane', time: '05:15', url: G('games/PaperPlane/GA-paperplane-th.html', 'games/PaperPlane/GA-paperplane-en.html'), brass: r => r.won && !r.draw,
     intro: [['window', null], ['window', 'printer', [1000, 560, 1.25]], ['window', 'printer']], outro: [['window', 'printer', [1000, 600, 1.3]]] },
-  { key: 'press', time: '05:45', url: null, brass: r => !!r.won,
-    intro: [['presshall', 'printer', [800, 480, 1.25]], ['presshall', 'printer']], outro: [] },
+  { key: 'delivery', time: '15:00', url: G('games/Delivery/GA-delivery-th.html', 'games/Delivery/GA-delivery-en.html'), brass: r => !!r.won,
+    intro: [['presshall', 'printer', [800, 480, 1.25]], ['presshall', 'editor'], ['pickup', 'editor', [1000, 520, 1.15]], ['pickup', 'printer', [560, 560, 1.25]]],
+    outro: [['monument', null, [800, 520, 1.1]], ['presshall', 'printer', [800, 470, 1.2]]] },
 ];
 const PROLOGUE = [
   ['river1865', null, [800, 450, 1.0], 0], ['river1865', null, [360, 520, 1.3], 0],
@@ -1499,10 +1459,73 @@ function scenePresshall(c, t, v, o = {}) {
   vignette(c, 0.6);
 }
 
+
+/* ---- The paper's pickup outside the building, mid-afternoon ---- */
+function scenePickup(c, t) {
+  box(c, 0, 0, 1600, 900, lin(c, 0, 0, 0, 520, [[0, '#5f9fd6'], [1, '#d9e6ee']]));
+  glow(c, 1380, 120, 360, 'rgba(255,240,200,.45)');
+  for (let k = 0; k < 10; k++) { const x = 1150 + k * 48, h = 90 + ((k * 37) % 120); box(c, x, 470 - h, 44, h, '#9fb4c4'); }
+  // the building's ground floor and its sign
+  box(c, 0, 60, 1180, 470, '#efe3c6'); box(c, 0, 52, 1180, 14, '#d6c7a0');
+  sign(c, 560, 150, 520);
+  for (let k = 0; k < 6; k++) { const x = 60 + k * 190; box(c, x, 280, 130, 200, '#3a2f26'); c.beginPath(); c.arc(x + 65, 280, 65, Math.PI, 0); c.fillStyle = '#3a2f26'; c.fill(); box(c, x + 10, 300, 110, 170, 'rgba(255,214,150,.25)'); }
+  box(c, 0, 480, 1600, 20, '#b9b2a2'); box(c, 0, 500, 1600, 400, '#55585e');
+  for (let x = 0; x < 1600; x += 120) box(c, x + ((t * 0) % 120), 700, 60, 8, 'rgba(240,235,220,.7)');
+  // power lines
+  c.strokeStyle = 'rgba(20,20,22,.8)'; c.lineWidth = 2;
+  for (let j = 0; j < 4; j++) { c.beginPath(); c.moveTo(0, 30 + j * 8); c.quadraticCurveTo(800, 90 + j * 10, 1600, 26 + j * 8); c.stroke(); }
+  // the pickup, side on, loaded with bundles
+  const px = 380, py = 640;
+  c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(px + 330, py + 4, 360, 18, 0, 0, 7); c.fill();
+  box(c, px, py - 120, 420, 90, '#efe7d4'); box(c, px, py - 125, 420, 10, '#d6c7a0');
+  for (let r = 0; r < 3; r++) for (let k = 0; k < 6; k++) { const bx = px + 14 + k * 66, by = py - 175 - r * 42 + (k % 2) * 4; if (r === 2 && k > 3) continue; box(c, bx, by, 60, 40, '#f4ecd8'); box(c, bx + 27, by, 5, 40, '#8f6f3a'); box(c, bx, by + 18, 60, 4, '#8f6f3a'); hatch(c, bx, by, 60, 40, 0, 4, 'rgba(60,50,40,.18)', 1); }
+  poly(c, [[px + 420, py - 125], [px + 560, py - 125], [px + 640, py - 60], [px + 660, py - 30], [px + 420, py - 30]], '#24527a');
+  poly(c, [[px + 440, py - 115], [px + 550, py - 115], [px + 610, py - 66], [px + 440, py - 66]], '#1d2a36');
+  box(c, px, py - 34, 670, 14, '#1b2026');
+  for (const wx of [px + 110, px + 540]) { circ(c, wx, py - 20, 46, '#0b0d10'); circ(c, wx, py - 20, 18, '#8a9099'); }
+  mastText(c, px + 520, py - 46, 26, '#efe7d4');
+  // Thongdee lifting a bundle; the Editor with the list
+  person(c, px - 70, py + 10, 330, { cap: true, arm: -Math.PI * 0.4, rim: 'rgba(255,240,210,.5)' });
+  box(c, px - 40, py - 330, 60, 40, '#f4ecd8');
+  person(c, 1240, py + 20, 360, { glasses: true, rim: 'rgba(255,240,210,.5)', flip: true });
+  // a tuk-tuk passing behind
+  const tx = ((t * 120) % 2200) - 300;
+  box(c, tx, 560, 150, 60, '#2f8f5b'); box(c, tx - 10, 520, 170, 14, '#2f8f5b'); circ(c, tx + 30, 625, 16, '#111'); circ(c, tx + 130, 625, 16, '#111');
+  vignette(c, 0.35);
+}
+
+/* ---- Victory Monument at golden hour, and the old bookshop ---- */
+function sceneMonument(c, t) {
+  box(c, 0, 0, 1600, 900, lin(c, 0, 0, 0, 620, [[0, '#5a6fa0'], [0.55, '#e8a87a'], [1, '#f6cf8e']]));
+  glow(c, 1250, 520, 420, 'rgba(255,210,140,.5)');
+  for (let k = 0; k < 20; k++) { const x = k * 80, h = 60 + ((k * 43) % 110); box(c, x, 600 - h, 74, h, 'rgba(90,70,90,.55)'); }
+  // the monument: five bayonet blades round an obelisk, on a drum of statues
+  const mx = 800;
+  poly(c, [[mx - 260, 600], [mx + 260, 600], [mx + 230, 570], [mx - 230, 570]], '#8f8676');
+  box(c, mx - 150, 500, 300, 70, '#b5ab98');
+  for (let k = 0; k < 5; k++) person(c, mx - 120 + k * 60, 568, 66, { col: '#6f6658' });
+  for (const [dx, hh, ww] of [[-95, 300, 30], [95, 300, 30], [-48, 360, 34], [48, 360, 34]]) poly(c, [[mx + dx - ww / 2, 500], [mx + dx + ww / 2, 500], [mx + dx + ww * 0.15, 500 - hh], [mx + dx - ww * 0.1, 500 - hh + 20]], '#ddd2bd');
+  poly(c, [[mx - 26, 500], [mx + 26, 500], [mx + 13, 90], [mx, 50], [mx - 13, 90]], '#efe6d2');
+  c.fillStyle = 'rgba(120,70,40,.18)'; c.fillRect(mx, 90, 26, 410);
+  // the roundabout, with buses
+  box(c, 0, 600, 1600, 300, '#5a5450');
+  for (const [bx, col] of [[((t * 60) % 2000) - 300, '#c8453b'], [((t * 45 + 900) % 2000) - 300, '#2c63b0']]) { box(c, bx, 610, 260, 70, col); box(c, bx + 10, 618, 240, 24, '#1d2a36'); box(c, bx, 650, 260, 10, '#efe7d4'); }
+  // the old bookshop in the foreground
+  box(c, 0, 640, 520, 260, '#3a2a1e'); box(c, 0, 630, 520, 18, '#1d4f91');
+  c.font = `700 22px ${'"Sarabun", sans-serif'}`; c.fillStyle = '#fff'; c.textAlign = 'center'; c.fillText('ร้านหนังสือเก่า · Old Books', 260, 640);
+  for (let r = 0; r < 4; r++) for (let k = 0; k < 36; k++) box(c, 12 + k * 14, 668 + r * 54, 10, 44, ['#c8453b', '#e2a326', '#3d6fa5', '#2f8f5b', '#efe7d4', '#6b2f3a'][(k * 7 + r) % 6]);
+  person(c, 600, 880, 300, { rim: 'rgba(255,214,150,.6)' });
+  person(c, 760, 880, 280, { cap: true, rim: 'rgba(255,214,150,.6)', flip: true });
+  glow(c, 680, 690, 40, 'rgba(255,214,120,.9)'); sortBlock(c, 668, 672, 24, 32, 'S', 2);
+  c.strokeStyle = '#3a2c22'; c.lineWidth = 2;
+  for (let k = 0; k < 6; k++) { const x = ((t * 40 + k * 160) % 1900) - 150, y = 150 + k * 24 + Math.sin(t * 2 + k) * 10, f = Math.sin(t * 9 + k) * 7; c.beginPath(); c.moveTo(x - 14, y - f); c.lineTo(x, y); c.lineTo(x + 14, y - f); c.stroke(); }
+  vignette(c, 0.4);
+}
+
 const SCENES = {
   river1865: sceneRiver1865, desk1865: sceneDesk1865, building: sceneBuilding, archive: sceneArchive, sunrise: sceneSunrise,
   garage: sceneGarage, office: sceneOffice, backroom: sceneBackroom, wardrobe: sceneWardrobe, canteen: sceneCanteen,
-  teak: sceneTeak, club: sceneClub, court: sceneCourt, window: sceneWindow, presshall: scenePresshall,
+  teak: sceneTeak, club: sceneClub, court: sceneCourt, window: sceneWindow, presshall: scenePresshall, pickup: scenePickup, monument: sceneMonument,
 };
 function paintScene(c, key, t, o) {
   const [name, v] = key.split(':');
@@ -1538,7 +1561,7 @@ function nodeState(k) {
   return save.sorts[c] ? 'done' : isOpen(c) ? 'open' : 'locked';
 }
 const currentNode = () => { if (!save.prologue) return 0; const n = nextChapter(); return n >= 12 ? 13 : n + 1; };
-const mapPhase = () => save.ending ? 'sun' : nextChapter() >= 10 && save.prologue ? 'dawn' : 'night';
+const mapPhase = () => save.ending ? 'sun' : nextChapter() >= 11 && save.prologue ? 'day' : nextChapter() >= 10 && save.prologue ? 'dawn' : 'night';
 function route(a, b) {
   const [ax, ay] = NODE_POS[a], [bx, by] = NODE_POS[b];
   if (Math.abs(ay - by) < 20) return [[ax, ay], [bx, by]];
@@ -1565,7 +1588,7 @@ function roomDone(r) { return r.nodes.length && r.nodes.every(k => nodeState(k) 
 function paintMap(c, t) {
   const ph = mapPhase();
   // sky, city, rain
-  const sky = ph === 'sun' ? [[0, '#3d5a86'], [0.6, '#e8a87a'], [1, '#f6d58e']] : ph === 'dawn' ? [[0, '#24264d'], [0.6, '#a86a7a'], [1, '#eaa774']] : [[0, '#070d19'], [1, '#18263c']];
+  const sky = ph === 'day' ? [[0, '#4f8fc9'], [1, '#cfe3ef']] : ph === 'sun' ? [[0, '#3d5a86'], [0.6, '#e8a87a'], [1, '#f6d58e']] : ph === 'dawn' ? [[0, '#24264d'], [0.6, '#a86a7a'], [1, '#eaa774']] : [[0, '#070d19'], [1, '#18263c']];
   box(c, 0, 0, MW, 870, lin(c, 0, 0, 0, 870, sky));
   if (ph !== 'night') { glow(c, 1500, 700, 380, ph === 'sun' ? 'rgba(255,220,150,.6)' : 'rgba(255,190,140,.45)'); circ(c, 1500, ph === 'sun' ? 600 : 690, 46, '#ffe7b0'); }
   else for (let k = 0; k < 30; k++) circ(c, (k * 337) % 1600, (k * 113) % 400, k % 6 ? 1.2 : 2, `rgba(255,255,255,${0.25 + 0.25 * Math.sin(t * 2 + k)})`);
@@ -1737,7 +1760,7 @@ function showWorld(sel) {
   world.tok = NODE_POS[world.pts ? from : target].slice();
   if (!world.pts) { save.mapAt = target; persist(); }
   $('wTitle').textContent = T.wTitle;
-  const time = target === 0 ? '18:50' : target === 13 ? '06:00' : CH[target - 1].time;
+  const time = target === 0 ? '18:50' : target === 13 ? '18:00' : CH[target - 1].time;
   $('wSub').textContent = T.wSub(time, sortsWon());
   const ms = $('wStick'); ms.innerHTML = '';
   for (let k = 0; k < 12; k++) { if (k === 3 || k === 7) { const g = document.createElement('span'); g.className = 'gap'; ms.appendChild(g); } ms.appendChild(sortEl(MAST[k], save.sorts[k])); }
@@ -1767,7 +1790,7 @@ function selectNode(k) {
     kick = `${T.chap(k)} · ${ch.time}`; title = tx.title; meta = `${tx.place} · ${T.games[ch.key]}`; goal = `${T.goal}: ${tx.goal}`;
     if (st === 'done') {
       state = kind === 2 ? T.stBrass : T.stLead;
-      p = [T.replay, () => (c === 11 ? startPress() : openGame(c))];
+      p = [T.replay, () => openGame(c)];
       a = [T.rewatch, () => playCut(chapterLines(c, 'intro'), { card: chapterCard(c), onDone: () => showWorld(k) })];
     } else if (st === 'open') { state = T.stOpen; p = [T.play, () => startChapter(c)]; }
     else { state = save.prologue ? T.iLocked(c) : T.stLocked; p = [T.stLocked, null]; play.disabled = true; }
@@ -1812,7 +1835,7 @@ function frameWorld(now, dt) {
    type ticks as the words appear, the clink of a sort, the press. */
 const AU = { ctx: null, master: null, music: null, amb: null, ambKey: '', noise: null, musicOn: false, nextT: 0, step: 0, ev: 0 };
 const AMB_OF = { river1865: 'river', desk1865: 'rain', building: 'rain', archive: 'room', sunrise: 'river', garage: 'rain', office: 'clock', backroom: 'rain',
-  wardrobe: 'room', canteen: 'fridge', teak: 'clock', club: 'room', court: 'night', window: 'dawn', presshall: 'press' };
+  wardrobe: 'room', canteen: 'fridge', teak: 'clock', club: 'room', court: 'night', window: 'dawn', presshall: 'press', pickup: 'river', monument: 'river' };
 
 function audioInit() {
   if (AU.ctx) { if (AU.ctx.state === 'suspended') AU.ctx.resume(); return; }
@@ -1934,13 +1957,12 @@ function showScreen(id) {
   else if (id === 'map') { setMusic(true); setAmbience(null); }
   else if (id === 'world') { setMusic(true); setAmbience(mapPhase() === 'night' ? 'rain' : 'river'); }
   else if (id === 'play') { setMusic(false); setAmbience(null); }
-  else if (id === 'press') { setMusic(false); setAmbience('press'); }
   resizeAll();
 }
 function soundLabels() {
-  for (const id of ['tSound', 'cSound', 'mSound', 'prSound', 'wSound']) { const b = $(id); b.textContent = save.sound ? T.soundOn : T.soundOff; b.setAttribute('aria-pressed', String(save.sound)); }
+  for (const id of ['tSound', 'cSound', 'mSound', 'wSound']) { const b = $(id); b.textContent = save.sound ? T.soundOn : T.soundOff; b.setAttribute('aria-pressed', String(save.sound)); }
 }
-for (const id of ['tSound', 'cSound', 'mSound', 'prSound', 'wSound']) $(id).addEventListener('click', e => { e.stopPropagation(); audioInit(); setSound(!save.sound); });
+for (const id of ['tSound', 'cSound', 'mSound', 'wSound']) $(id).addEventListener('click', e => { e.stopPropagation(); audioInit(); setSound(!save.sound); });
 
 /* ---------- Drawing a scene into a canvas, through a camera ---------- */
 const DPR = () => Math.min(2, window.devicePixelRatio || 1);
@@ -1957,7 +1979,7 @@ function resizeCanvas(cv) {
   if (!w || !h) return;
   if (cv.width !== Math.round(w * d) || cv.height !== Math.round(h * d)) { cv.width = Math.round(w * d); cv.height = Math.round(h * d); }
 }
-function resizeAll() { for (const id of ['titleCv', 'cutCv', 'pressCv']) resizeCanvas($(id)); }
+function resizeAll() { for (const id of ['titleCv', 'cutCv']) resizeCanvas($(id)); }
 window.addEventListener('resize', resizeAll);
 function drawScene(cv, key, t, cam, o, fadeBlack = 0) {
   const c = cv.getContext('2d'), W = cv.clientWidth, H = cv.clientHeight, d = DPR();
@@ -2091,7 +2113,7 @@ function chapterCard(i) {
 }
 function startChapter(i) {
   if (i >= 12) { playEpilogue(); return; }
-  playCut(chapterLines(i, 'intro'), { card: chapterCard(i), onDone: () => (i === 11 ? startPress() : openGame(i)) });
+  playCut(chapterLines(i, 'intro'), { card: chapterCard(i), onDone: () => openGame(i) });
 }
 function playOutro(i) {
   pendingOutro = -1;
@@ -2138,7 +2160,7 @@ function renderMap() {
       const btn = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'tbtn'; b.textContent = label; b.addEventListener('click', () => { audioInit(); fn(); }); acts.appendChild(b); };
       if (!won) btn(T.play, () => startChapter(i));
       else {
-        btn(T.replay, () => (i === 11 ? startPress() : openGame(i)));
+        btn(T.replay, () => openGame(i));
         btn(T.rewatch, () => playCut(chapterLines(i, 'intro'), { card: chapterCard(i), onDone: showMap }));
       }
       el.appendChild(acts);
@@ -2205,12 +2227,12 @@ function sortWon(i, r) {
   if (first) pendingOutro = i;
   setSort($('pSort'), MAST[i], save.sorts[i]);
   sfx.clink(save.sorts[i] === 2);
-  const line = i === 11 ? '' : resultLine(i, r) + ' · ';
+  const line = resultLine(i, r) + ' · ';
   modal({
     label: T.gotLabel, sort: [MAST[i], save.sorts[i]], title: T.gotTitle(MAST[i]),
     text: line + (up ? T.gotUp : save.sorts[i] === 2 ? T.gotBrass : T.gotLead),
-    ok: [T.goOn, () => { if (i !== 11) closeGame(); if (first) playOutro(i); else showWorld(i + 1); }],
-    alt: i === 11 ? null : [T.stay, null],
+    ok: [T.goOn, () => { closeGame(); if (first) playOutro(i); else showWorld(i + 1); }],
+    alt: [T.stay, null],
   });
 }
 
@@ -2226,82 +2248,6 @@ function modal({ label, sort = null, title, text, ok, alt }) {
 }
 $('mdOk').addEventListener('click', () => { $('modal').hidden = true; const f = mdOk; mdOk = null; if (f) f(); });
 $('mdAlt').addEventListener('click', () => { $('modal').hidden = true; const f = mdAlt; mdAlt = null; if (f) f(); });
-
-/* ---------- The last chapter: Chandler's hand press ----------
-   Ink the forme (hold, and let go with the needle in the brass band), then pull the bar while
-   the swinging weight is in the band. Three good sheets. */
-const pr = { phase: 'set', t0: 0, ink: 0, holding: false, inkTries: 0, misses: 0, sheets: 0, lever: 0, leverT: -9, swing: 0, msgT: 0 };
-const INK_BAND = [0.56, 0.8], PULL_BAND = [0.36, 0.64];
-function startPress() {
-  reported = false;
-  Object.assign(pr, { phase: 'set', t0: performance.now() / 1000, ink: 0, holding: false, inkTries: 0, misses: 0, sheets: 0, lever: 0, leverT: -9 });
-  showScreen('press');
-  $('pressDate').textContent = T.pressDate;
-  $('inkBtn').hidden = false; $('pullBtn').hidden = true; $('inkBtn').disabled = true;
-  pressMsg(T.prSet);
-  $('sheets').textContent = T.sheets(0);
-}
-function pressMsg(s) { $('pressMsg').textContent = s; }
-function inkDown(e) { if (e) e.preventDefault(); audioInit(); if (pr.phase !== 'ink') return; pr.holding = true; pr.ink = 0; sfx.roll(); }
-function inkUp() {
-  if (pr.phase !== 'ink' || !pr.holding) return;
-  pr.holding = false; pr.inkTries++;
-  if (pr.ink < INK_BAND[0]) { pressMsg(T.prThin); sfx.miss(); pr.ink = 0; }
-  else if (pr.ink > INK_BAND[1]) { pressMsg(T.prThick); sfx.miss(); pr.ink = 0; }
-  else { pr.phase = 'pull'; pr.t0 = performance.now() / 1000; pressMsg(T.prInked); sfx.chime(); $('inkBtn').hidden = true; $('pullBtn').hidden = false; setTimeout(() => $('pullBtn').focus(), 30); }
-}
-function pull(e) {
-  if (e) e.preventDefault();
-  audioInit();
-  if (pr.phase !== 'pull' || performance.now() / 1000 - pr.leverT < 0.7) return;
-  pr.leverT = performance.now() / 1000;
-  if (pr.swing >= PULL_BAND[0] && pr.swing <= PULL_BAND[1]) {
-    pr.sheets++; sfx.thump(); pressMsg(T.prGood(pr.sheets)); $('sheets').textContent = T.sheets(pr.sheets);
-    if (pr.sheets >= 3) {
-      pr.phase = 'done'; $('pullBtn').hidden = true; pressMsg(T.prDone);
-      setTimeout(() => { sfx.fanfare(); sortWon(11, { won: pr.inkTries <= 1 && pr.misses <= 1 }); }, 900);
-    }
-  } else { pr.misses++; sfx.miss(); pressMsg(T.prMiss); }
-}
-const inkBtn = $('inkBtn');
-inkBtn.addEventListener('pointerdown', inkDown);
-for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) inkBtn.addEventListener(ev, inkUp);
-inkBtn.addEventListener('contextmenu', e => e.preventDefault());
-$('pullBtn').addEventListener('pointerdown', pull);
-window.addEventListener('keydown', e => {
-  if (screen !== 'press' || e.repeat) return;
-  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (pr.phase === 'ink') inkDown(); else pull(); }
-});
-window.addEventListener('keyup', e => { if (screen === 'press' && (e.key === ' ' || e.key === 'Enter')) inkUp(); });
-
-function framePress(now, dt) {
-  const t = now / 1000, cv = $('pressCv');
-  if (pr.phase === 'set' && t - pr.t0 > 2.4) { pr.phase = 'ink'; $('inkBtn').disabled = false; pressMsg(T.prInk); }
-  if (pr.holding) { pr.ink += dt * 0.42; if (pr.ink > 1.05) inkUp(); }
-  const speed = 1.8 + pr.sheets * 0.35;
-  pr.swing = 0.5 + 0.5 * Math.sin((t - pr.t0) * speed);
-  const lk = t - pr.leverT;
-  pr.lever = lk < 0.25 ? lk / 0.25 : lk < 0.6 ? 1 - (lk - 0.25) / 0.35 : 0;
-  const setAll = pr.phase !== 'set' || t - pr.t0 > 0.2;
-  drawScene(cv, 'presshall', t, { x: 800, y: 470, z: 1.12 }, { lever: pr.lever, ink: pr.phase === 'pull' || pr.phase === 'done' ? 0.8 : pr.ink, sheets: pr.sheets, setAll });
-  // the gauge: ink level, or the swing of the weight, with the brass band
-  if (pr.phase === 'ink' || pr.phase === 'pull') {
-    const c = cv.getContext('2d'), W = cv.clientWidth, H = cv.clientHeight, d = DPR();
-    c.setTransform(d, 0, 0, d, 0, 0);
-    const ui = document.querySelector('.press-ui').getBoundingClientRect();
-    const gx = W / 2, gy = Math.max(110, ui.top - cv.getBoundingClientRect().top - 24), r = Math.min(110, W * 0.26);
-    const a0 = Math.PI * 1.1, a1 = Math.PI * 1.9, band = pr.phase === 'ink' ? INK_BAND : PULL_BAND;
-    const val = pr.phase === 'ink' ? clamp(pr.ink, 0, 1) : pr.swing;
-    c.lineCap = 'round';
-    c.lineWidth = 14; c.strokeStyle = 'rgba(12,19,27,.85)'; c.beginPath(); c.arc(gx, gy, r, a0, a1); c.stroke();
-    c.lineWidth = 10; c.strokeStyle = 'rgba(155,167,179,.35)'; c.beginPath(); c.arc(gx, gy, r, a0, a1); c.stroke();
-    c.strokeStyle = '#d6ad5f'; c.beginPath(); c.arc(gx, gy, r, lerp(a0, a1, band[0]), lerp(a0, a1, band[1])); c.stroke();
-    const na = lerp(a0, a1, val), inBand = val >= band[0] && val <= band[1];
-    c.lineWidth = 4; c.strokeStyle = inBand ? '#82d09c' : '#efe7d4';
-    c.beginPath(); c.moveTo(gx, gy); c.lineTo(gx + Math.cos(na) * (r + 8), gy + Math.sin(na) * (r + 8)); c.stroke();
-    c.fillStyle = '#efe7d4'; c.beginPath(); c.arc(gx, gy, 7, 0, 7); c.fill();
-  }
-}
 
 /* ---------- Title ---------- */
 function showTitle() {
@@ -2326,7 +2272,6 @@ function frame(now) {
   const dt = Math.min(0.05, Math.max(0, (now - lastT) / 1000)); lastT = now;
   if (screen === 'title') drawScene($('titleCv'), save.ending ? 'sunrise' : 'building', now / 1000, { x: 800, y: 420, z: 1.02 + 0.03 * Math.sin(now / 9000) }, null);
   else if (screen === 'cut') frameCut(now, dt);
-  else if (screen === 'press') framePress(now, dt);
   else if (screen === 'world') frameWorld(now, dt);
   scheduleMusic();
   ambienceEvents(dt);
