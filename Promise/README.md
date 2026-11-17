@@ -28,9 +28,9 @@ Promise/
     └── Delivery/           Paper Run, the driving game made for chapter 12
 ```
 
-Eleven of the games in `games/` are copies of the site's games with one change each: a `storyDone` call where a game ends (see *How the games report back*), and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. `Delivery/` (Paper Run) exists only here; it has its own README. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
+Eleven of the games in `games/` are copies of the site's games with two changes each: a `storyDone` call where a game ends (see *How the games report back*) and the no-zoom guard (see *No zooming*); and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. `Delivery/` (Paper Run) exists only here; it has its own README. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
 
-**When a game is updated on the site**, copy its new file(s) over the one in `games/<Game>/` and put the `storyDone` function and call back in, in the places listed in the table below (and, for Old Money, the logo link). Until then the story keeps playing the older copy.
+**When a game is updated on the site**, copy its new file(s) over the one in `games/<Game>/` and put the `storyDone` function and call back in, in the places listed in the table below, and the no-zoom viewport and script (and, for Old Money, the logo link). Until then the story keeps playing the older copy.
 
 ## How it plays
 
@@ -68,6 +68,15 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 - Chapter 12 is now Paper Run, the delivery game, instead of the hand press played in the page; its story is new (the morning run used a wooden S; the real one waits at a bookshop by Victory Monument), with two new painted scenes, the pickup outside the building and the monument at golden hour.
 - The ending moves to the evening: the evening edition is printed with the whole masthead and goes out on the last boat of the day.
 - The map shows an afternoon sky for chapter 12 and an evening one after the ending. Sorts already won, including an S won at the old hand press, are kept.
+
+## No zooming
+
+On a phone, a pinch or a double tap used to zoom the page, which left the game half off the screen with its buttons out of reach, and the game seemed stuck. Every page in this folder (the story, Paper Run and the eleven copies) now keeps itself at its own size:
+
+- the viewport is `width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover`;
+- a small script just before `</body>`, which starts `/* No zooming: a pinch`, cancels Safari's pinch (`gesturestart`/`gesturechange`/`gestureend`), a move with two fingers or more, the double tap (`dblclick`), Ctrl + mouse wheel and Ctrl/⌘ with + − = 0, and sets `touch-action: manipulation` on the page.
+
+The games still get every finger: the driving game's wheel and pedals are held with two or three at once, and those touches reach the game as pointer events as before. A browser's own zoom setting (in its menu or accessibility settings) still works; a page cannot and should not override that.
 
 Progress (the sort won in each chapter, whether the prologue and ending have been seen, where the apprentice stands on the map, the sound setting) is kept in the browser's local storage under `tst-promise-v1`. *Start over* on the contents page clears it.
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Siam Times Pétanque</title>
 <meta name="description" content="Play pétanque on a gravel court under The Siam Times sign. Singles to 13 against The Editor, against a friend, or on your own.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1862,6 +1862,17 @@ if (document.fonts) {
   ]).catch(() => {}).then(() => document.fonts.ready).then(() => buildBanner());
 }
 requestAnimationFrame(t => { lastFrame = t; frame(t); });
+})();
+</script>
+<script>
+/* No zooming: a pinch or a double tap would leave the game half off the screen and stuck. */
+(() => {
+  const stop = e => e.preventDefault();
+  for (const ev of ['gesturestart', 'gesturechange', 'gestureend', 'dblclick']) document.addEventListener(ev, stop, { passive: false });
+  document.addEventListener('touchmove', e => { if (e.touches.length > 1 || (e.scale && e.scale !== 1)) e.preventDefault(); }, { passive: false });
+  window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+  window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) e.preventDefault(); });
+  document.documentElement.style.touchAction = 'manipulation';
 })();
 </script>
 </body>
