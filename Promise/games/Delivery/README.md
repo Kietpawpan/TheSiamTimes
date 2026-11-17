@@ -16,7 +16,8 @@ You look through the windscreen of a right-hand-drive pickup (Thailand drives on
 - **Wheel** (bottom centre): drag round the rim to turn it, one way or the other, up to 270°; it comes back to the middle by itself when you let go and drive on. Tap the middle for the horn.
 - **Pedals** (bottom right): clutch, brake, accelerator. Hold them; several at once work (multi-touch).
 - **Gear lever** (bottom left, an H gate): 1 3 5 above, 2 4 R below, N between. Press the clutch before changing gear, or the box crunches and refuses. Reverse only when the truck has stopped.
-- **Indicators** ◀ ▶ either side of the instruments; **Start / Engine off**, **Headlights** and **Wipers** above the pedals.
+- **Indicators** ◀ ▶ either side of the instruments; **Start / Engine off**, **Headlights**, **Wipers** and the **Horn** above the pedals.
+- **Horn** (the button, the middle of the wheel, or Space): a car in front of you that is dawdling, or a bus sitting at its stop, moves off. A car waiting at a red light stays put, and so does one waiting for someone crossing in front of it (the people hurry, and you are told that honking at them is rude).
 - **Instruments**: speedometer, rev counter (red from 5,400), fuel gauge and warning light, indicator arrows, engine and headlight lights, and a small screen with the gear, the clock and the distance.
 - **Mirror**: the road behind, with whatever is following you; you will need it when reversing.
 - **Phone**: the map of the route with your position, and the next instruction (“In 120 m: turn left into Witthayu Road”).
@@ -50,7 +51,7 @@ Each ticket adds minutes to the clock. A ticket slides in at the side; a speed c
 |---|---|---|
 | Running a red light | Crossing the stop line on red (left on red only where signed, with the left indicator on) | +10 |
 | Speeding | More than 8 km/h over the limit for 2 s | +5 |
-| Not stopping at a zebra crossing | Crossing it while someone is on the road | +10 |
+| Not stopping at a zebra crossing | Crossing it while someone is on our half of it | +10 |
 | Driving on the wrong side | Over the double yellow line for 1.5 s | +5 |
 | Turning without signalling | Turning without the indicator on that way | +2 |
 | Driving in a bus-only lane | Into the bus road at Ratchaprasong | +15 |
@@ -72,7 +73,7 @@ Each ticket adds minutes to the clock. A ticket slides in at the side; a speed c
 
 ## Traffic
 
-Taxis in Bangkok colours (pink, green and yellow, orange, blue) with their roof signs, cars, tuk-tuks, ten-wheelers with painted backs, BMTA buses (which stop at the bus stops, and take the bus-only road), and motorcycle taxis that weave between lanes. They keep their distance, stop at red and amber lights and for people on the zebras, change lanes to pass, and sound their horns if you sit at a green light. Oncoming traffic uses the lanes on the right. People cross the zebras, and schoolchildren cross by the school.
+Taxis in Bangkok colours (pink, green and yellow, orange, blue) with their roof signs, cars, tuk-tuks, ten-wheelers with painted backs, BMTA buses (which stop at the bus stops, and take the bus-only road), and motorcycle taxis that weave between lanes. They keep their distance, stop at red and amber lights and while someone is on their half of a zebra, change lanes to pass, and sound their horns if you sit at a green light. Oncoming traffic uses the lanes on the right. People cross the zebras in small groups, and the next group waits until the crossing is clear; schoolchildren cross by the school. Reminders about the road (rain, the school zone, the flood) show when you reach them and never cover another message.
 
 ## How it works
 
