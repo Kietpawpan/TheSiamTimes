@@ -6,9 +6,11 @@
 <title>Siam Times Darts</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Throw darts at a regulation board on The Siam Times newsroom wall. Set the angle and power, then let go.">
+<link rel="alternate" hreflang="th" href="GA-darts-th.html">
+<link rel="alternate" hreflang="en" href="GA-darts.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 <style>
 /* Layout: the newsroom wall fills the left as the scene, with the scoreline across its top;
    a narrow control rail sits on the right and drops under the scene on phones.
@@ -27,8 +29,8 @@
   --good: #82d09c;
   --bad: #e58576;
   --font-mast: "Chomsky", "Old English Text MT", "UnifrakturCook", serif;
-  --font-text: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-label: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-text: "Newsreader", "Sarabun", Georgia, "Times New Roman", serif;
+  --font-label: "Helvetica Neue", Helvetica, Arial, "Sarabun", sans-serif;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   box-sizing: border-box;
@@ -50,6 +52,7 @@ body {
   font: 16px/1.45 var(--font-text);
   -webkit-font-smoothing: antialiased;
 }
+html:lang(th) body { font-family: "Sarabun", var(--font-text); font-size: 16px; line-height: 1.55; }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
@@ -80,7 +83,9 @@ button { cursor: pointer; }
   text-transform: uppercase;
   color: var(--muted);
 }
+html:lang(th) .label { font-size: 12.5px; letter-spacing: .01em; text-transform: none; line-height: 1.35; }
 .sb-sub { font-size: 15px; line-height: 1.2; }
+html:lang(th) .sb-sub { line-height: 1.35; }
 .big {
   font: 600 32px/1 var(--font-text);
   font-variant-numeric: tabular-nums lining-nums;
@@ -101,6 +106,7 @@ button { cursor: pointer; }
   letter-spacing: .02em;
   font-variant-numeric: tabular-nums;
 }
+html:lang(th) .slot { font-family: "Sarabun", var(--font-label); font-size: 14px; letter-spacing: 0; }
 .slot.empty { color: var(--muted); font-weight: 400; }
 .slot.zero { color: var(--bad); }
 .slot.next { border-color: var(--blue); }
@@ -112,6 +118,7 @@ button { cursor: pointer; }
   font-size: 15px;
   min-height: 1.45em;
 }
+html:lang(th) .sb-msg { font-style: normal; }
 .sb-msg strong { font-style: normal; color: var(--brass); }
 
 .scene { position: relative; flex: 1; min-height: 0; background: #0f1b28; overflow: hidden; }
@@ -137,6 +144,7 @@ button { cursor: pointer; }
   pointer-events: none;
   transition: opacity .4s;
 }
+html:lang(th) .hint { font-size: 13px; letter-spacing: 0; }
 .hint.gone { opacity: 0; }
 .overlay {
   position: absolute; inset: 0;
@@ -161,6 +169,7 @@ button { cursor: pointer; }
   color: var(--brass);
   text-wrap: balance;
 }
+html:lang(th) .card h2 { font: 700 34px/1.2 "Sarabun", var(--font-text); }
 .card p { margin: 0; }
 .card .btn-brass { margin-top: 8px; }
 
@@ -178,8 +187,21 @@ button { cursor: pointer; }
 .brand { display: flex; flex-direction: column; gap: 6px; }
 .brand h1 { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-weight: 400; line-height: 1; }
 .brand .mast { font: 400 34px/1 var(--font-mast); letter-spacing: .005em; }
-.brand .game { font: italic 400 26px/1 var(--font-text); color: var(--brass); }
+.brand-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.brand .game { font: italic 400 26px/1.1 var(--font-text); color: var(--brass); }
+html:lang(th) .brand .game { font: 600 24px/1.2 "Sarabun", sans-serif; }
 .brand p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.4; max-width: 34ch; }
+html:lang(th) .brand p { line-height: 1.5; }
+.btn-lang {
+  flex: none;
+  display: inline-flex; align-items: center;
+  min-height: 32px; padding: 0 12px;
+  color: var(--paper); text-decoration: none;
+  border: 1px solid var(--rule); border-radius: 999px;
+  background: transparent;
+  font: 600 13px/1 var(--font-label);
+}
+.btn-lang:hover { border-color: var(--paper); }
 
 .group { display: flex; flex-direction: column; gap: 10px; border: 0; margin: 0; padding: 0; min-width: 0; }
 .group > legend { padding: 0; margin-bottom: 10px; }
@@ -195,6 +217,7 @@ button { cursor: pointer; }
   border-left: 1px solid var(--rule);
   transition: background .15s, color .15s;
 }
+html:lang(th) .seg label { font-size: 14px; }
 .seg label:first-of-type { border-left: 0; }
 .seg label:hover { color: var(--paper); }
 .seg input:checked + label { background: var(--paper); color: var(--night); }
@@ -204,6 +227,7 @@ button { cursor: pointer; }
 .ctl { display: flex; flex-direction: column; gap: 4px; }
 .ctl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .ctl-head label { font: 600 14px/1.3 var(--font-label); }
+html:lang(th) .ctl-head label { font-size: 15px; }
 .ctl-head output { font: 600 15px/1.3 var(--font-text); font-variant-numeric: tabular-nums lining-nums; color: var(--blue); white-space: nowrap; }
 .ctl-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) 34px; align-items: center; gap: 10px; }
 .step {
@@ -252,11 +276,13 @@ input[type="range"]:focus-visible { outline: 2px solid var(--blue); outline-offs
   box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .22);
   transition: filter .15s, transform .05s;
 }
+html:lang(th) .btn-brass { font-size: 17px; letter-spacing: .01em; }
 .btn-brass:hover { filter: brightness(1.08); }
 .btn-brass:active { transform: translateY(1px); }
 .btn-brass:disabled { opacity: .5; cursor: default; filter: none; transform: none; }
 .btn-brass:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
 .keys { margin: 0; font: 12px/1.7 var(--font-label); color: var(--muted); }
+html:lang(th) .keys { font-size: 13px; line-height: 1.8; }
 kbd {
   display: inline-block; min-width: 1.6em; padding: 0 5px;
   border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px;
@@ -271,11 +297,13 @@ kbd {
   background: transparent;
   font: 600 13px/1 var(--font-label);
 }
+html:lang(th) .btn-line { font-size: 14px; }
 .btn-line:hover { border-color: var(--paper); }
 .btn-line[aria-pressed="false"] { color: var(--muted); }
 
 details { border-top: 1px solid var(--rule); padding-top: 14px; }
 summary { cursor: pointer; font: 600 14px/1.3 var(--font-label); }
+html:lang(th) summary { font-size: 15px; }
 details ul { margin: 12px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.45; max-width: 60ch; }
 details li::marker { color: var(--brass); }
 
@@ -313,7 +341,7 @@ details li::marker { color: var(--brass); }
         <span class="big" id="sbMainValue">0</span>
       </div>
       <div class="sb-cell">
-        <span class="label">This turn</span>
+        <span class="label" data-i18n="thisTurn">This turn</span>
         <div class="slots">
           <span class="slot" id="slot0"></span>
           <span class="slot" id="slot1"></span>
@@ -329,13 +357,13 @@ details li::marker { color: var(--brass); }
     </div>
     <div class="scene" id="scene">
       <canvas id="canvas" tabindex="0" role="img" aria-label="A dartboard hanging on a dark wood-panelled wall, under a cream sign that reads The Siam Times. Use the arrow keys to aim and Space to throw."></canvas>
-      <p class="hint" id="hint">Tap or drag on the wall to aim</p>
+      <p class="hint" id="hint" data-i18n="hint">Tap or drag on the wall to aim</p>
       <div class="overlay" id="overlay" hidden>
         <div class="card" role="dialog" aria-modal="false" aria-labelledby="ovTitle">
           <span class="label" id="ovEyebrow"></span>
           <h2 id="ovTitle"></h2>
           <p id="ovText"></p>
-          <button class="btn-brass" id="ovBtn" type="button">Play again</button>
+          <button class="btn-brass" id="ovBtn" type="button" data-i18n="again">Play again</button>
         </div>
       </div>
     </div>
@@ -343,67 +371,70 @@ details li::marker { color: var(--brass); }
 
   <aside class="rail">
     <header class="brand">
-      <h1><span class="mast">The Siam Times</span> <span class="game">Darts</span></h1>
-      <p>Regulation board: the bull is 1.73 m from the floor and the throw line is 2.37 m from the board.</p>
+      <div class="brand-top">
+        <h1><span class="mast">The Siam Times</span> <span class="game" data-i18n="gameName">Darts</span></h1>
+        <a class="btn-lang" href="GA-darts-th.html" hreflang="th" lang="th">ภาษาไทย</a>
+      </div>
+      <p data-i18n="tagline">Regulation board: the bull is 1.73 m from the floor and the throw line is 2.37 m from the board.</p>
     </header>
 
     <fieldset class="group">
-      <legend class="label">Game</legend>
-      <div class="seg" role="radiogroup" aria-label="Game">
-        <input type="radio" name="mode" id="mode-attack" value="attack" checked><label for="mode-attack">Score Attack</label>
-        <input type="radio" name="mode" id="mode-x01" value="x01"><label for="mode-x01">501</label>
-        <input type="radio" name="mode" id="mode-practice" value="practice"><label for="mode-practice">Practice</label>
+      <legend class="label" data-i18n="modeLegend">Game</legend>
+      <div class="seg" role="radiogroup" aria-label="Game" data-i18n-aria="modeLegend">
+        <input type="radio" name="mode" id="mode-attack" value="attack" checked><label for="mode-attack" data-i18n="attack">Score Attack</label>
+        <input type="radio" name="mode" id="mode-x01" value="x01"><label for="mode-x01" data-i18n="x01">501</label>
+        <input type="radio" name="mode" id="mode-practice" value="practice"><label for="mode-practice" data-i18n="practice">Practice</label>
       </div>
       <p class="note" id="modeNote">Ten rounds of three darts. Score as many points as you can.</p>
     </fieldset>
 
     <fieldset class="group">
-      <legend class="label">Your throw</legend>
+      <legend class="label" data-i18n="throwLegend">Your throw</legend>
       <div class="ctl">
-        <div class="ctl-head"><label for="yaw">Horizontal angle</label><output id="yawOut" for="yaw">0.0° centre</output></div>
+        <div class="ctl-head"><label for="yaw" data-i18n="yaw">Horizontal angle</label><output id="yawOut" for="yaw">0.0° centre</output></div>
         <div class="ctl-row">
-          <button class="step" type="button" data-target="yaw" data-step="-0.1" aria-label="Aim 0.1 degrees left">−</button>
+          <button class="step" type="button" data-target="yaw" data-step="-0.1" aria-label="Aim 0.1 degrees left" data-i18n-aria="yawMinus">−</button>
           <input type="range" id="yaw" min="-8" max="8" step="0.1" value="0">
-          <button class="step" type="button" data-target="yaw" data-step="0.1" aria-label="Aim 0.1 degrees right">+</button>
+          <button class="step" type="button" data-target="yaw" data-step="0.1" aria-label="Aim 0.1 degrees right" data-i18n-aria="yawPlus">+</button>
         </div>
       </div>
       <div class="ctl">
-        <div class="ctl-head"><label for="pitch">Vertical angle</label><output id="pitchOut" for="pitch">3.0° up</output></div>
+        <div class="ctl-head"><label for="pitch" data-i18n="pitch">Vertical angle</label><output id="pitchOut" for="pitch">3.0° up</output></div>
         <div class="ctl-row">
-          <button class="step" type="button" data-target="pitch" data-step="-0.1" aria-label="Aim 0.1 degrees lower">−</button>
+          <button class="step" type="button" data-target="pitch" data-step="-0.1" aria-label="Aim 0.1 degrees lower" data-i18n-aria="pitchMinus">−</button>
           <input type="range" id="pitch" min="-5" max="25" step="0.1" value="3">
-          <button class="step" type="button" data-target="pitch" data-step="0.1" aria-label="Aim 0.1 degrees higher">+</button>
+          <button class="step" type="button" data-target="pitch" data-step="0.1" aria-label="Aim 0.1 degrees higher" data-i18n-aria="pitchPlus">+</button>
         </div>
       </div>
       <div class="ctl">
-        <div class="ctl-head"><label for="power">Power</label><output id="powerOut" for="power">55% · 12.6 m/s</output></div>
+        <div class="ctl-head"><label for="power" data-i18n="power">Power</label><output id="powerOut" for="power">55% · 12.6 m/s</output></div>
         <div class="ctl-row">
-          <button class="step" type="button" data-target="power" data-step="-1" aria-label="1 percent less power">−</button>
+          <button class="step" type="button" data-target="power" data-step="-1" aria-label="1 percent less power" data-i18n-aria="powerMinus">−</button>
           <input type="range" id="power" min="0" max="100" step="1" value="55">
-          <button class="step" type="button" data-target="power" data-step="1" aria-label="1 percent more power">+</button>
+          <button class="step" type="button" data-target="power" data-step="1" aria-label="1 percent more power" data-i18n-aria="powerPlus">+</button>
         </div>
       </div>
       <button class="btn-brass" id="throwBtn" type="button">Throw dart</button>
-      <p class="keys"><kbd>←</kbd> <kbd>→</kbd> horizontal · <kbd>↑</kbd> <kbd>↓</kbd> vertical · <kbd>W</kbd> <kbd>S</kbd> power · <kbd>Space</kbd> throw. Hold <kbd>Shift</kbd> for bigger steps.</p>
+      <p class="keys" data-i18n-html="keys"><kbd>←</kbd> <kbd>→</kbd> horizontal · <kbd>↑</kbd> <kbd>↓</kbd> vertical · <kbd>W</kbd> <kbd>S</kbd> power · <kbd>Space</kbd> throw. Hold <kbd>Shift</kbd> for bigger steps.</p>
     </fieldset>
 
     <fieldset class="group">
-      <legend class="label">Steadiness</legend>
-      <div class="seg" role="radiogroup" aria-label="Steadiness">
-        <input type="radio" name="difficulty" id="diff-easy" value="easy"><label for="diff-easy">Easy</label>
-        <input type="radio" name="difficulty" id="diff-normal" value="normal" checked><label for="diff-normal">Normal</label>
-        <input type="radio" name="difficulty" id="diff-pro" value="pro"><label for="diff-pro">Pro</label>
+      <legend class="label" data-i18n="handLegend">Steadiness</legend>
+      <div class="seg" role="radiogroup" aria-label="Steadiness" data-i18n-aria="handLegend">
+        <input type="radio" name="difficulty" id="diff-easy" value="easy"><label for="diff-easy" data-i18n="easy">Easy</label>
+        <input type="radio" name="difficulty" id="diff-normal" value="normal" checked><label for="diff-normal" data-i18n="normal">Normal</label>
+        <input type="radio" name="difficulty" id="diff-pro" value="pro"><label for="diff-pro" data-i18n="pro">Pro</label>
       </div>
       <p class="note" id="diffNote">Your hand drifts a little. Let go when the ring sits on your spot.</p>
       <div class="row">
         <button class="btn-line" id="soundBtn" type="button" aria-pressed="true">Sound on</button>
-        <button class="btn-line" id="newBtn" type="button">New game</button>
+        <button class="btn-line" id="newBtn" type="button" data-i18n="newGame">New game</button>
       </div>
     </fieldset>
 
     <details>
-      <summary>How to play</summary>
-      <ul>
+      <summary data-i18n="howTo">How to play</summary>
+      <ul id="howList">
         <li>Set the horizontal and vertical angle with the sliders, or tap the wall to aim there. The blue ring shows where the dart is pointing.</li>
         <li>Gravity pulls the dart down on its way to the board, so aim above your target. More power gives a faster, flatter flight that drops less.</li>
         <li>The outer thin ring is a double, the inner thin ring is a treble. The green outer bull scores 25 and the red bull scores 50.</li>
@@ -417,6 +448,169 @@ details li::marker { color: var(--brass); }
 <script>
 (() => {
 'use strict';
+
+/* ---------- Words ----------
+   This script is the same in GA-darts.html (English) and GA-darts-th.html (Thai);
+   each page picks its words from its own <html lang>. */
+const STR = {
+  th: {
+    docTitle: 'ปาเป้า · The Siam Times',
+    gameName: 'ปาเป้า',
+    tagline: 'กระดานปาเป้าขนาดมาตรฐาน บูลส์อายสูงจากพื้น 1.73 เมตร และเส้นปาห่างจากกระดาน 2.37 เมตร',
+    signClub: 'ชมรมปาเป้าห้องข่าว',
+    canvasLabel: 'กระดานปาเป้าแขวนอยู่บนผนังไม้สีเข้ม ใต้ป้ายสีครีมที่เขียนว่า The Siam Times ใช้ปุ่มลูกศรเพื่อเล็ง และกด Space เพื่อปา',
+    hint: 'แตะหรือลากบนผนังเพื่อเล็ง',
+    thisTurn: 'ตานี้',
+    modeLegend: 'เกม', attack: 'ล่าแต้ม', x01: '501', practice: 'ฝึกซ้อม',
+    modeNote: {
+      attack: '10 รอบ รอบละ 3 ลูก ทำแต้มให้ได้มากที่สุด',
+      x01: 'นับแต้มถอยหลังจาก 501 ต้องปิดให้เหลือศูนย์พอดีด้วยดับเบิลหรือบูลส์อาย',
+      practice: 'ปาได้เรื่อย ๆ ไม่จำกัด เกมจะคิดแต้มเฉลี่ยต่อ 3 ลูกให้',
+    },
+    throwLegend: 'การปา',
+    yaw: 'มุมซ้าย–ขวา', pitch: 'มุมขึ้น–ลง', power: 'แรงปา',
+    yawMinus: 'เล็งไปทางซ้าย 0.1 องศา', yawPlus: 'เล็งไปทางขวา 0.1 องศา',
+    pitchMinus: 'เล็งต่ำลง 0.1 องศา', pitchPlus: 'เล็งสูงขึ้น 0.1 องศา',
+    powerMinus: 'ลดแรงปา 1 เปอร์เซ็นต์', powerPlus: 'เพิ่มแรงปา 1 เปอร์เซ็นต์',
+    yawOut: v => v === 0 ? 'ตรงกลาง' : `${v < 0 ? 'ซ้าย' : 'ขวา'} ${Math.abs(v).toFixed(1)}°`,
+    pitchOut: v => v === 0 ? 'แนวราบ' : `${v < 0 ? 'กด' : 'เงย'} ${Math.abs(v).toFixed(1)}°`,
+    powerOut: (p, s) => `${p}% · ${s.toFixed(1)} ม./วินาที`,
+    throwN: (i, n) => `ปาลูกที่ ${i} จาก ${n}`, collect: 'เก็บลูกดอก', again: 'เล่นอีกครั้ง',
+    keys: '<kbd>←</kbd> <kbd>→</kbd> ซ้าย–ขวา · <kbd>↑</kbd> <kbd>↓</kbd> ขึ้น–ลง · <kbd>W</kbd> <kbd>S</kbd> แรงปา · <kbd>Space</kbd> ปา กด <kbd>Shift</kbd> ค้างไว้เพื่อปรับทีละมาก',
+    handLegend: 'ความนิ่งของมือ', easy: 'ง่าย', normal: 'ปกติ', pro: 'โปร',
+    handNote: {
+      easy: 'มือนิ่ง และมีจุดสีทองบอกว่าลูกดอกจะปักตรงไหน',
+      normal: 'มือส่ายเล็กน้อย ปล่อยลูกตอนวงเล็งอยู่ตรงจุดที่ต้องการ',
+      pro: 'มือสั่น แรงปาก็ไม่ค่อยนิ่ง สำหรับขาประจำคืนวันศุกร์',
+    },
+    soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด', newGame: 'เริ่มเกมใหม่',
+    howTo: 'วิธีเล่น',
+    how: [
+      'ปรับมุมซ้าย–ขวาและมุมขึ้น–ลงด้วยแถบเลื่อน หรือแตะผนังตรงจุดที่จะเล็ง วงสีฟ้าคือจุดที่ลูกดอกชี้ไป',
+      'แรงโน้มถ่วงจะดึงลูกดอกให้ตกลงระหว่างทาง จึงต้องเล็งให้สูงกว่าเป้า ยิ่งปาแรง ลูกยิ่งพุ่งเร็วและตรง ตกน้อยลง',
+      'วงแคบด้านนอกคือดับเบิล ได้แต้มคูณ 2 วงแคบด้านในคือทริปเปิล ได้แต้มคูณ 3 (ป้ายคะแนนเขียนย่อว่า D และ T) บูลนอกสีเขียวได้ 25 แต้ม บูลส์อายสีแดงตรงกลางได้ 50 แต้ม',
+      'เกม 501 นับแต้มถอยหลังจาก 501 และต้องปิดให้เหลือศูนย์พอดีด้วยดับเบิลหรือบูลส์อาย ถ้าแต้มติดลบหรือเหลือ 1 ถือว่าบัสต์ ตานั้นไม่นับ',
+      'ปาครบ 3 ลูกแล้ว เก็บลูกดอกออกจากกระดานเพื่อเริ่มตาถัดไป',
+    ],
+    modeName: { attack: 'ล่าแต้ม', x01: '501 ปิดด้วยดับเบิล', practice: 'ฝึกซ้อม' },
+    gameOverSub: 'จบเกมแล้ว',
+    roundOf: (r, n) => `รอบ ${r} จาก ${n}`,
+    turnDarts: (t, d) => `ตาที่ ${t} · ${d} ลูก`,
+    thrownN: n => `ปาไปแล้ว ${n} ลูก`,
+    total: 'คะแนนรวม', remaining: 'แต้มที่เหลือ', average: 'เฉลี่ยต่อ 3 ลูก', best: 'ดีที่สุด',
+    checkout: 'ทางปิดเกม', bestLeg: 'ปิดเกมเร็วสุด', lastTurn: 'ตาล่าสุด',
+    dartsN: n => `${n} ลูก`,
+    bullShort: 'บูล', bullRoute: 'บูล',
+    spot: {
+      bull: 'บูลส์อาย', outerBull: 'บูลนอก',
+      double: n => `ดับเบิล ${n}`, treble: n => `ทริปเปิล ${n}`, single: n => `ซิงเกิล ${n}`,
+      outside: 'นอกวงดับเบิล', surround: 'ปักขอบกระดาน', masthead: 'ปักป้ายหัวหนังสือพิมพ์', wall: 'กระดอนผนัง',
+    },
+    noScore: 'ไม่ได้แต้ม',
+    said: (label, pts) => pts ? `${label} ได้ <strong>${pts}</strong> แต้ม` : `${label} ไม่ได้แต้ม`,
+    finalScore: (said, total) => `${said} จบเกมด้วยคะแนนรวม ${total} แต้ม`,
+    turnTotal: (said, sum) => `${said} ตานี้ได้ ${sum} แต้ม เก็บลูกดอกได้เลย`,
+    bust: (said, rem) => `${said} บัสต์! ตานี้ไม่นับ ยังเหลือ ${rem} เท่าเดิม เก็บลูกดอกได้เลย`,
+    gameShot: (label, d) => `ปิดเกมด้วย${label}! ใช้ลูกดอกไป ${d} ลูก`,
+    turnLeft: (said, sum, left) => `${said} ตานี้ได้ ${sum} แต้ม เหลือ ${left} เก็บลูกดอกได้เลย`,
+    left: (said, left) => `${said} เหลือ ${left}`,
+    msgTurn: (r, rem) => `ตาที่ ${r} เหลืออีก ${rem} แต้ม`,
+    msgRound: (r, n) => `รอบ ${r} จาก ${n}`,
+    msgCollected: 'เก็บลูกดอกแล้ว ปาต่อได้เลย',
+    msgStart: {
+      attack: '10 รอบ รอบละ 3 ลูก เล็งให้สูงกว่าเป้าไว้ เพราะลูกดอกจะตกลงระหว่างทาง',
+      x01: 'เริ่มที่ 501 แต้ม ปิดเกมด้วยดับเบิลหรือบูลส์อาย',
+      practice: 'ฝึกซ้อม ปากี่ลูกก็ได้ตามสบาย',
+    },
+    attackDone: 'ครบ 10 รอบ', pointsN: n => `${n} แต้ม`,
+    bestNew: 'เป็นคะแนนดีที่สุดของคุณในเครื่องนี้', bestWas: b => `สถิติดีที่สุดของคุณคือ ${b} แต้ม`,
+    shotEyebrow: 'ปิดเกม',
+    shotText: (label, isBest, best) => `ปิดเกมด้วย${label} ` + (isBest ? 'เป็นสถิติใหม่ของคุณในเครื่องนี้' : `สถิติปิดเกมเร็วสุดของคุณคือ ${best} ลูก`),
+  },
+  en: {
+    docTitle: 'Siam Times Darts',
+    gameName: 'Darts',
+    tagline: 'Regulation board: the bull is 1.73 m from the floor and the throw line is 2.37 m from the board.',
+    signClub: 'NEWSROOM DARTS CLUB',
+    canvasLabel: 'A dartboard hanging on a dark wood-panelled wall, under a cream sign that reads The Siam Times. Use the arrow keys to aim and Space to throw.',
+    hint: 'Tap or drag on the wall to aim',
+    thisTurn: 'This turn',
+    modeLegend: 'Game', attack: 'Score Attack', x01: '501', practice: 'Practice',
+    modeNote: {
+      attack: 'Ten rounds of three darts. Score as many points as you can.',
+      x01: 'Count down from 501. Finish on exactly zero with a double or the bull.',
+      practice: 'Throw as long as you like. Your three-dart average is kept.',
+    },
+    throwLegend: 'Your throw',
+    yaw: 'Horizontal angle', pitch: 'Vertical angle', power: 'Power',
+    yawMinus: 'Aim 0.1 degrees left', yawPlus: 'Aim 0.1 degrees right',
+    pitchMinus: 'Aim 0.1 degrees lower', pitchPlus: 'Aim 0.1 degrees higher',
+    powerMinus: '1 percent less power', powerPlus: '1 percent more power',
+    yawOut: v => v === 0 ? '0.0° centre' : `${Math.abs(v).toFixed(1)}° ${v < 0 ? 'left' : 'right'}`,
+    pitchOut: v => v === 0 ? '0.0° level' : `${Math.abs(v).toFixed(1)}° ${v < 0 ? 'down' : 'up'}`,
+    powerOut: (p, s) => `${p}% · ${s.toFixed(1)} m/s`,
+    throwN: (i, n) => `Throw dart ${i} of ${n}`, collect: 'Collect darts', again: 'Play again',
+    keys: '<kbd>←</kbd> <kbd>→</kbd> horizontal · <kbd>↑</kbd> <kbd>↓</kbd> vertical · <kbd>W</kbd> <kbd>S</kbd> power · <kbd>Space</kbd> throw. Hold <kbd>Shift</kbd> for bigger steps.',
+    handLegend: 'Steadiness', easy: 'Easy', normal: 'Normal', pro: 'Pro',
+    handNote: {
+      easy: 'A steady hand, and a gold dot shows where the dart will land.',
+      normal: 'Your hand drifts a little. Let go when the ring sits on your spot.',
+      pro: 'A shaky hand and less even power. For people who play on Fridays.',
+    },
+    soundOn: 'Sound on', soundOff: 'Sound off', newGame: 'New game',
+    howTo: 'How to play',
+    how: [
+      'Set the horizontal and vertical angle with the sliders, or tap the wall to aim there. The blue ring shows where the dart is pointing.',
+      'Gravity pulls the dart down on its way to the board, so aim above your target. More power gives a faster, flatter flight that drops less.',
+      'The outer thin ring is a double, the inner thin ring is a treble. The green outer bull scores 25 and the red bull scores 50.',
+      'In 501 you count down from 501 and must finish on exactly zero with a double or the bull. Going below zero, or leaving 1, is a bust: the turn doesn\'t count.',
+      'After three darts, collect them from the board to start the next turn.',
+    ],
+    modeName: { attack: 'Score Attack', x01: '501, double out', practice: 'Practice' },
+    gameOverSub: 'Game over',
+    roundOf: (r, n) => `Round ${r} of ${n}`,
+    turnDarts: (t, d) => `Turn ${t} · ${d} darts`,
+    thrownN: n => `${n} ${n === 1 ? 'dart' : 'darts'} thrown`,
+    total: 'Total', remaining: 'Remaining', average: '3-dart average', best: 'Best',
+    checkout: 'Checkout', bestLeg: 'Best leg', lastTurn: 'Last turn',
+    dartsN: n => `${n} darts`,
+    bullShort: 'BULL', bullRoute: 'Bull',
+    spot: {
+      bull: 'Bull', outerBull: 'Outer bull',
+      double: n => 'Double ' + n, treble: n => 'Treble ' + n, single: n => 'Single ' + n,
+      outside: 'Outside the doubles', surround: 'Into the surround', masthead: 'Into the masthead', wall: 'Off the wall',
+    },
+    noScore: 'No score',
+    said: (label, pts) => pts ? `${label}: <strong>${pts}</strong>.` : `${label}. No score.`,
+    finalScore: (said, total) => `${said} Final score ${total}.`,
+    turnTotal: (said, sum) => `${said} Turn total ${sum}. Collect your darts.`,
+    bust: (said, rem) => `${said} Bust! You stay on ${rem}. Collect your darts.`,
+    gameShot: (label, d) => `Game shot on ${label}! Checked out in ${d} darts.`,
+    turnLeft: (said, sum, left) => `${said} Turn total ${sum}, ${left} left. Collect your darts.`,
+    left: (said, left) => `${said} ${left} left.`,
+    msgTurn: (r, rem) => `Turn ${r}. ${rem} to go.`,
+    msgRound: (r, n) => `Round ${r} of ${n}.`,
+    msgCollected: 'Darts collected. Throw again.',
+    msgStart: {
+      attack: 'Ten rounds, three darts each. Aim above your target: the dart drops on the way.',
+      x01: '501 to go. Finish on a double or the bull.',
+      practice: 'Practice. Throw as many darts as you like.',
+    },
+    attackDone: 'Ten rounds done', pointsN: n => `${n} points`,
+    bestNew: 'That is your best score on this device.', bestWas: b => `Your best is ${b}.`,
+    shotEyebrow: 'Game shot',
+    shotText: (label, isBest, best) => `You checked out on ${label}. ` + (isBest ? 'That is your best leg on this device.' : `Your best leg is ${best} darts.`),
+  },
+};
+const LANG = document.documentElement.lang === 'th' ? 'th' : 'en';
+const T = STR[LANG];
+// Canvas fonts: Thai is set in Sarabun, English keeps Newsreader and Helvetica.
+const textFont = (weight, px) => LANG === 'th'
+  ? `${weight} ${px}px Sarabun, "Helvetica Neue", Arial, sans-serif`
+  : `${weight} ${px}px Newsreader, Georgia, serif`;
+const labelFont = (weight, px) => LANG === 'th'
+  ? `${weight} ${px * 1.1}px Sarabun, "Helvetica Neue", Arial, sans-serif`
+  : `${weight} ${px}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
 
 /* ---------- World, in metres. x right, y up from the floor, z toward the wall. ---------- */
 const TAU = Math.PI * 2, DEG = Math.PI / 180, G = 9.81;
@@ -434,14 +628,9 @@ const EMBED = 0.014;          // how deep a dart sinks into the board
 const SLOW = 2.4;             // flights play slower than real time so you can follow them
 const ROUNDS = 10;
 const STEADINESS = {
-  easy:   { sway: 0.12, jitter: 0.006, guide: true,  note: 'A steady hand, and a gold dot shows where the dart will land.' },
-  normal: { sway: 0.30, jitter: 0.018, guide: false, note: 'Your hand drifts a little. Let go when the ring sits on your spot.' },
-  pro:    { sway: 0.55, jitter: 0.035, guide: false, note: 'A shaky hand and less even power. For people who play on Fridays.' },
-};
-const MODE_NOTES = {
-  attack: 'Ten rounds of three darts. Score as many points as you can.',
-  x01: 'Count down from 501. Finish on exactly zero with a double or the bull.',
-  practice: 'Throw as long as you like. Your three-dart average is kept.',
+  easy:   { sway: 0.12, jitter: 0.006, guide: true },
+  normal: { sway: 0.30, jitter: 0.018, guide: false },
+  pro:    { sway: 0.55, jitter: 0.035, guide: false },
 };
 const speedFor = power => 6 + power / 100 * 12;   // 6 to 18 m/s
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -503,20 +692,20 @@ function sway(t) {
 /* ---------- Scoring ---------- */
 function classify(x, y) {
   const dy = y - BULL_Y, r = Math.hypot(x, dy);
-  if (r <= RING.bull) return { points: 50, short: 'BULL', label: 'Bull', double: true, stick: true };
-  if (r <= RING.outerBull) return { points: 25, short: '25', label: 'Outer bull', stick: true };
+  if (r <= RING.bull) return { points: 50, short: T.bullShort, label: T.spot.bull, double: true, stick: true };
+  if (r <= RING.outerBull) return { points: 25, short: '25', label: T.spot.outerBull, stick: true };
   if (r <= RING.doubleOut) {
     const a = (Math.atan2(x, dy) / DEG + 369) % 360;
     const n = ORDER[Math.floor(a / 18) % 20];
-    if (r >= RING.doubleIn) return { points: 2 * n, short: 'D' + n, label: 'Double ' + n, double: true, stick: true };
-    if (r >= RING.trebleIn && r <= RING.trebleOut) return { points: 3 * n, short: 'T' + n, label: 'Treble ' + n, stick: true };
-    return { points: n, short: String(n), label: 'Single ' + n, stick: true };
+    if (r >= RING.doubleIn) return { points: 2 * n, short: 'D' + n, label: T.spot.double(n), double: true, stick: true };
+    if (r >= RING.trebleIn && r <= RING.trebleOut) return { points: 3 * n, short: 'T' + n, label: T.spot.treble(n), stick: true };
+    return { points: n, short: String(n), label: T.spot.single(n), stick: true };
   }
-  if (r <= RING.face) return { points: 0, short: '0', label: 'Outside the doubles', stick: true, miss: true };
-  if (r <= RING.surround) return { points: 0, short: '0', label: 'Into the surround', stick: true, miss: true };
+  if (r <= RING.face) return { points: 0, short: '0', label: T.spot.outside, stick: true, miss: true };
+  if (r <= RING.surround) return { points: 0, short: '0', label: T.spot.surround, stick: true, miss: true };
   if (Math.abs(x - SIGN.cx) <= SIGN.w / 2 && Math.abs(y - SIGN.cy) <= SIGN.h / 2)
-    return { points: 0, short: '0', label: 'Into the masthead', stick: true, miss: true };
-  return { points: 0, short: '0', label: 'Off the wall', stick: false, miss: true };
+    return { points: 0, short: '0', label: T.spot.masthead, stick: true, miss: true };
+  return { points: 0, short: '0', label: T.spot.wall, stick: false, miss: true };
 }
 
 /* 501 checkout route for the darts left in a turn. */
@@ -656,14 +845,14 @@ function drawSign(g, s) {
   g.textAlign = 'center'; g.textBaseline = 'alphabetic';
   g.fillText(text, wx(SIGN.cx), wy(SIGN.cy - 0.004));
 
-  // Small caps line under a hairline.
+  // Small caps line under a hairline (in Thai, Sarabun with no letter spacing).
   const ly = wy(SIGN.cy - 0.047);
   g.fillStyle = '#141311';
   g.fillRect(wx(SIGN.cx - 0.2), ly - s * 0.0105, s * 0.4, Math.max(1, s * 0.0012));
-  g.font = `600 ${s * 0.019}px Newsreader, Georgia, serif`;
-  if ('letterSpacing' in g) g.letterSpacing = `${s * 0.006}px`;
+  g.font = LANG === 'th' ? textFont(600, s * 0.025) : `600 ${s * 0.019}px Newsreader, Georgia, serif`;
+  if ('letterSpacing' in g) g.letterSpacing = LANG === 'th' ? '0px' : `${s * 0.006}px`;
   g.textBaseline = 'top';
-  g.fillText('NEWSROOM DARTS CLUB', wx(SIGN.cx), ly);
+  g.fillText(T.signClub, wx(SIGN.cx), LANG === 'th' ? ly - s * 0.004 : ly);
   if ('letterSpacing' in g) g.letterSpacing = '0px';
 
   // Brass screws.
@@ -915,15 +1104,16 @@ function draw(now) {
     g.save();
     g.globalAlpha = age < 0.7 ? 1 : 1 - (age - 0.7) / 0.3;
     g.textAlign = 'center'; g.textBaseline = 'bottom';
-    g.font = `700 ${26 * cam.dpr}px Newsreader, Georgia, serif`;
+    g.font = textFont(700, 26 * cam.dpr);
     g.lineWidth = 5 * cam.dpr; g.strokeStyle = 'rgba(5,10,16,0.85)'; g.lineJoin = 'round';
     g.strokeText(tst.text, x, y);
     g.fillStyle = tst.miss ? '#e58576' : '#f0c56f';
     g.fillText(tst.text, x, y);
-    g.font = `600 ${12 * cam.dpr}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
-    g.strokeText(tst.sub, x, y + 16 * cam.dpr);
+    g.font = labelFont(600, 12 * cam.dpr);
+    const subY = y + (LANG === 'th' ? 18 : 16) * cam.dpr;   // Thai needs room for its vowel and tone marks
+    g.strokeText(tst.sub, x, subY);
     g.fillStyle = '#efe7d4';
-    g.fillText(tst.sub, x, y + 16 * cam.dpr);
+    g.fillText(tst.sub, x, subY);
     g.restore();
   }
 }
@@ -979,9 +1169,7 @@ function newGame() {
     round: 1, turn: [], total: 0, remaining: 501, turnStart: 501, darts: 0,
     practice: { darts: 0, points: 0, lastTurn: null },
     stuck: [], turnOver: false, gameOver: false, overlay: null,
-    message: { attack: 'Ten rounds, three darts each. Aim above your target: the dart drops on the way.',
-               x01: '501 to go. Finish on a double or the bull.',
-               practice: 'Practice. Throw as many darts as you like.' }[state.mode],
+    message: T.msgStart[state.mode],
   });
   flight = null; falling.length = 0; toasts.length = 0;
   renderOverlay();
@@ -1020,7 +1208,7 @@ function land(now) {
     falling.push({ p: { x: hit.x, y: hit.y, z: BOARD_Z - 0.03 }, vel: { x: v.x * 0.08, y: 0.5, z: -0.8 }, u0: u, age: 0 });
     sfx.clank();
   }
-  toasts.push({ x: hit.x, y: hit.y, text: result.points ? '+' + result.points : 'No score', sub: result.label, miss: !result.points, born: now });
+  toasts.push({ x: hit.x, y: hit.y, text: result.points ? '+' + result.points : T.noScore, sub: result.label, miss: !result.points, born: now });
   flight = null;
   score(result);
   renderUI();
@@ -1029,7 +1217,7 @@ function land(now) {
 function score(r) {
   state.turn.push({ short: r.short, points: r.points });
   const turnSum = state.turn.reduce((a, d) => a + d.points, 0);
-  const said = r.points ? `${r.label}: <strong>${r.points}</strong>.` : `${r.label}. No score.`;
+  const said = T.said(r.label, r.points);
 
   if (state.mode === 'attack') {
     state.total += r.points;
@@ -1039,16 +1227,16 @@ function score(r) {
         state.gameOver = true;
         const isBest = state.total > prefs.bestAttack;
         if (isBest) { prefs.bestAttack = state.total; savePrefs(); }
-        state.message = `${said} Final score ${state.total}.`;
+        state.message = T.finalScore(said, state.total);
         sfx.cheer();
         storyDone({ won: true, score: state.total, text: state.total + ' points' });
         showOverlay({
-          eyebrow: 'Ten rounds done', title: `${state.total} points`,
-          text: isBest ? 'That is your best score on this device.' : `Your best is ${prefs.bestAttack}.`,
+          eyebrow: T.attackDone, title: T.pointsN(state.total),
+          text: isBest ? T.bestNew : T.bestWas(prefs.bestAttack),
         });
         return;
       }
-      state.message = `${said} Turn total ${turnSum}. Collect your darts.`;
+      state.message = T.turnTotal(said, turnSum);
     } else state.message = said;
     return;
   }
@@ -1059,7 +1247,7 @@ function score(r) {
     if (left < 0 || left === 1 || (left === 0 && !r.double)) {
       state.remaining = state.turnStart;
       state.turnOver = true;
-      state.message = `${said} Bust! You stay on ${state.remaining}. Collect your darts.`;
+      state.message = T.bust(said, state.remaining);
       sfx.bust();
       return;
     }
@@ -1068,19 +1256,19 @@ function score(r) {
       state.turnOver = true; state.gameOver = true;
       const isBest = !prefs.bestLeg || state.darts < prefs.bestLeg;
       if (isBest) { prefs.bestLeg = state.darts; savePrefs(); }
-      state.message = `Game shot on ${r.label}! Checked out in ${state.darts} darts.`;
+      state.message = T.gameShot(r.label, state.darts);
       sfx.cheer();
       storyDone({ won: true, score: state.darts, text: state.darts + ' darts' });
       showOverlay({
-        eyebrow: 'Game shot', title: `${state.darts} darts`,
-        text: `You checked out on ${r.label}. ` + (isBest ? 'That is your best leg on this device.' : `Your best leg is ${prefs.bestLeg} darts.`),
+        eyebrow: T.shotEyebrow, title: T.dartsN(state.darts),
+        text: T.shotText(r.label, isBest, prefs.bestLeg),
       });
       return;
     }
     if (state.turn.length === 3) {
       state.turnOver = true;
-      state.message = `${said} Turn total ${turnSum}, ${left} left. Collect your darts.`;
-    } else state.message = `${said} ${left} left.`;
+      state.message = T.turnLeft(said, turnSum, left);
+    } else state.message = T.left(said, left);
     return;
   }
 
@@ -1090,7 +1278,7 @@ function score(r) {
   if (state.turn.length === 3) {
     state.turnOver = true;
     state.practice.lastTurn = turnSum;
-    state.message = `${said} Turn total ${turnSum}. Collect your darts.`;
+    state.message = T.turnTotal(said, turnSum);
   } else state.message = said;
 }
 
@@ -1101,8 +1289,8 @@ function collect() {
   state.round++;
   state.turnStart = state.remaining;
   state.message = state.mode === 'x01'
-    ? `Turn ${state.round}. ${state.remaining} to go.`
-    : state.mode === 'attack' ? `Round ${state.round} of ${ROUNDS}.` : 'Darts collected. Throw again.';
+    ? T.msgTurn(state.round, state.remaining)
+    : state.mode === 'attack' ? T.msgRound(state.round, ROUNDS) : T.msgCollected;
   sfx.collect();
   renderUI();
 }
@@ -1141,9 +1329,9 @@ function setPower(p) {
 function renderControls() {
   yawEl.value = state.yaw; pitchEl.value = state.pitch; powerEl.value = state.power;
   const y = state.yaw, p = state.pitch;
-  $('yawOut').textContent = y === 0 ? '0.0° centre' : `${Math.abs(y).toFixed(1)}° ${y < 0 ? 'left' : 'right'}`;
-  $('pitchOut').textContent = p === 0 ? '0.0° level' : `${Math.abs(p).toFixed(1)}° ${p < 0 ? 'down' : 'up'}`;
-  $('powerOut').textContent = `${state.power}% · ${speedFor(state.power).toFixed(1)} m/s`;
+  $('yawOut').textContent = T.yawOut(y);
+  $('pitchOut').textContent = T.pitchOut(p);
+  $('powerOut').textContent = T.powerOut(state.power, speedFor(state.power));
   powerEl.style.setProperty('--fill', state.power + '%');
   yawEl.style.setProperty('--fill', '0%');
   pitchEl.style.setProperty('--fill', '0%');
@@ -1157,24 +1345,22 @@ function nudge(target, step) {
 /* ---------- Scoreline ---------- */
 function renderUI() {
   let modeLabel, modeSub, mainLabel, mainValue, sideLabel, sideValue;
+  modeLabel = T.modeName[state.mode];
   if (state.mode === 'attack') {
-    modeLabel = 'Score Attack';
-    modeSub = state.gameOver ? 'Game over' : `Round ${state.round} of ${ROUNDS}`;
-    mainLabel = 'Total'; mainValue = state.total;
-    sideLabel = 'Best'; sideValue = prefs.bestAttack || '–';
+    modeSub = state.gameOver ? T.gameOverSub : T.roundOf(state.round, ROUNDS);
+    mainLabel = T.total; mainValue = state.total;
+    sideLabel = T.best; sideValue = prefs.bestAttack || '–';
   } else if (state.mode === 'x01') {
-    modeLabel = '501, double out';
-    modeSub = `Turn ${state.round} · ${state.darts} darts`;
-    mainLabel = 'Remaining'; mainValue = state.remaining;
+    modeSub = T.turnDarts(state.round, state.darts);
+    mainLabel = T.remaining; mainValue = state.remaining;
     const route = state.gameOver ? null : checkout(state.remaining, state.turnOver ? 3 : 3 - state.turn.length);
-    if (route) { sideLabel = 'Checkout'; sideValue = route.join(' · '); }
-    else { sideLabel = 'Best leg'; sideValue = prefs.bestLeg ? `${prefs.bestLeg} darts` : '–'; }
+    if (route) { sideLabel = T.checkout; sideValue = route.map(l => l === 'Bull' ? T.bullRoute : l).join(' · '); }
+    else { sideLabel = T.bestLeg; sideValue = prefs.bestLeg ? T.dartsN(prefs.bestLeg) : '–'; }
   } else {
     const pr = state.practice;
-    modeLabel = 'Practice';
-    modeSub = `${pr.darts} ${pr.darts === 1 ? 'dart' : 'darts'} thrown`;
-    mainLabel = '3-dart average'; mainValue = pr.darts ? (pr.points / pr.darts * 3).toFixed(1) : '0.0';
-    sideLabel = 'Last turn'; sideValue = pr.lastTurn ?? '–';
+    modeSub = T.thrownN(pr.darts);
+    mainLabel = T.average; mainValue = pr.darts ? (pr.points / pr.darts * 3).toFixed(1) : '0.0';
+    sideLabel = T.lastTurn; sideValue = pr.lastTurn ?? '–';
   }
   $('sbModeLabel').textContent = modeLabel;
   $('sbModeSub').textContent = modeSub;
@@ -1190,15 +1376,24 @@ function renderUI() {
   $('turnSum').textContent = state.turn.length ? '= ' + state.turn.reduce((a, d) => a + d.points, 0) : '';
   $('msg').innerHTML = state.message;
   const btn = $('throwBtn');
-  btn.textContent = state.gameOver ? 'Play again' : state.turnOver ? 'Collect darts' : `Throw dart ${state.turn.length + 1} of 3`;
+  btn.textContent = state.gameOver ? T.again : state.turnOver ? T.collect : T.throwN(state.turn.length + 1, 3);
   btn.disabled = !!flight;
-  $('modeNote').textContent = MODE_NOTES[state.mode];
+  $('modeNote').textContent = T.modeNote[state.mode];
   document.querySelector(`input[name="mode"][value="${state.mode}"]`).checked = true;
   document.querySelector(`input[name="difficulty"][value="${prefs.difficulty}"]`).checked = true;
-  $('diffNote').textContent = STEADINESS[prefs.difficulty].note;
+  $('diffNote').textContent = T.handNote[prefs.difficulty];
   const sb = $('soundBtn');
   sb.setAttribute('aria-pressed', String(prefs.sound));
-  sb.textContent = prefs.sound ? 'Sound on' : 'Sound off';
+  sb.textContent = prefs.sound ? T.soundOn : T.soundOff;
+}
+function fillWords() {
+  document.title = T.docTitle;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = T[el.dataset.i18n]; });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = T[el.dataset.i18nHtml]; });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => el.setAttribute('aria-label', T[el.dataset.i18nAria]));
+  $('howList').innerHTML = '';
+  for (const line of T.how) { const li = document.createElement('li'); li.textContent = line; $('howList').appendChild(li); }
+  canvas.setAttribute('aria-label', T.canvasLabel);
 }
 
 /* ---------- Input ---------- */
@@ -1287,6 +1482,7 @@ function snapshot() {
 }
 
 function start(data) {
+  fillWords();
   if (data && data.v === 1) {
     Object.assign(state, data);
     renderOverlay();
@@ -1301,6 +1497,7 @@ function start(data) {
     Promise.all([
       document.fonts.load('40px Chomsky'),
       document.fonts.load('600 20px Newsreader'),
+      ...(LANG === 'th' ? [document.fonts.load('600 20px Sarabun', 'ปาเป้า'), document.fonts.load('700 20px Sarabun', 'ปาเป้า')] : []),
     ]).catch(() => {}).then(() => document.fonts.ready).then(() => buildLayer());
   }
   requestAnimationFrame(t => { lastFrame = t; frame(t); });
