@@ -565,6 +565,15 @@ details li::marker { color: var(--brass); }
     </fieldset>
 
     <fieldset class="group">
+      <legend class="label" data-i18n="basketLegend">ความยาก</legend>
+      <div class="seg" role="radiogroup" data-i18n-aria="basketLegend">
+        <input type="radio" name="basket" id="basket-normal" value="normal" checked><label for="basket-normal" data-i18n="basketNormal">ปกติ</label>
+        <input type="radio" name="basket" id="basket-easy" value="easy"><label for="basket-easy" data-i18n="basketEasy">ง่าย · ปากถังกว้าง</label>
+      </div>
+      <p class="note" id="basketNote"></p>
+    </fieldset>
+
+    <fieldset class="group">
       <legend class="label" data-i18n="levelsLegend">ด่าน</legend>
       <div class="chips" id="chips"></div>
     </fieldset>
@@ -608,11 +617,15 @@ const STR = {
     levelsLegend: 'ด่าน',
     chipLabel: (n, name, done) => `ด่าน ${n}: ${name}${done ? ' (ผ่านแล้ว)' : ''}`,
     speedLegend: 'ความเร็วแถบพลัง', slow: 'ช้า', normal: 'ปกติ', fast: 'เร็ว',
+    basketLegend: 'ความยาก', basketNormal: 'ปกติ', basketEasy: 'ง่าย · ปากถังกว้าง', easyTag: 'ง่าย',
+    noteNormal: 'ถังขนาดจริง ยิ่งด่านสูงถังยิ่งเล็กและไกลขึ้น',
+    noteEasy: 'ปากถังกว้างขึ้นราวครึ่งหนึ่งทุกด่าน ลงง่ายขึ้น คะแนนสูงสุดเก็บแยกจากแบบปกติ',
     speedNote: s => `แถบพลังวิ่งจากเบาสุดไปแรงสุดใน ${s} วินาที แล้ววิ่งกลับ`,
     soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด', newGame: 'เริ่มเกมใหม่',
     keys: '<kbd>←</kbd> <kbd>→</kbd> เล็งซ้าย–ขวา · <kbd>↑</kbd> <kbd>↓</kbd> มุมโยนสูง–ต่ำ · <kbd>Space</kbd> หยุดแถบพลังและโยน กด <kbd>Shift</kbd> ค้างไว้เพื่อปรับทีละมาก',
     howTo: 'วิธีเล่น',
     how: [
+      'ยากไป? เลือกความยาก “ง่าย” ปากถังจะกว้างขึ้นราวครึ่งหนึ่ง',
       'ปุ่มลูกศรมุมซ้ายล่างใช้เล็ง ◀ ▶ หันซ้าย–ขวา ▲ ▼ ปรับมุมโยนสูง–ต่ำ กดค้างไว้เพื่อปรับต่อเนื่อง เส้นประบนพื้นคือแนวที่กระดาษจะไปถ้าไม่มีลม',
       'แถบพลังข้างปุ่มโยนวิ่งขึ้นลงจากเบาสุดไปแรงสุดตลอดเวลา กดปุ่มโยนมุมขวาล่างเพื่อหยุดแถบ กระดาษจะถูกโยนด้วยแรงตรงนั้น ขีดดำบนแถบคือแรงของก้อนก่อน',
       'ด่านละ 3 ก้อน ต้องลงถังครบทั้ง 3 ก้อนจึงผ่านด่าน พลาดก้อนเดียวต้องเริ่มด่านนั้นใหม่ และคะแนนของรอบที่พลาดจะไม่นับ',
@@ -678,11 +691,15 @@ const STR = {
     levelsLegend: 'Levels',
     chipLabel: (n, name, done) => `Level ${n}: ${name}${done ? ' (cleared)' : ''}`,
     speedLegend: 'Power bar speed', slow: 'Slow', normal: 'Normal', fast: 'Fast',
+    basketLegend: 'Difficulty', basketNormal: 'Normal', basketEasy: 'Easy · wide basket', easyTag: 'Easy',
+    noteNormal: 'A real-size basket, smaller and further away as the levels go on.',
+    noteEasy: 'Every basket’s mouth is about half as wide again, so the paper goes in more easily. Best scores are kept apart from Normal.',
     speedNote: s => `The bar runs from weakest to strongest in ${s} seconds, then back.`,
     soundOn: 'Sound on', soundOff: 'Sound off', newGame: 'New game',
     keys: '<kbd>←</kbd> <kbd>→</kbd> left–right · <kbd>↑</kbd> <kbd>↓</kbd> throw angle · <kbd>Space</kbd> stops the power bar and throws. Hold <kbd>Shift</kbd> for bigger steps.',
     howTo: 'How to play',
     how: [
+      'Too hard? Choose Easy under Difficulty for a basket half as wide again.',
       'The arrow pad in the bottom-left corner aims: ◀ ▶ turn left and right, ▲ ▼ raise and lower the throw. Hold a button to keep going. The dashed line on the floor is where the paper goes in still air.',
       'The power bar beside the Throw button runs up and down, from weakest to strongest, all the time. Press Throw in the bottom-right corner to stop it: the paper goes with the power where the bar stopped. The dark tick on the bar is the power of your last throw.',
       'Three balls of paper a level. All three must go in to clear it; miss one and the level starts again, and the points from that try are lost.',
@@ -806,7 +823,11 @@ const prefs = {
   speed: BAR[saved.speed] ? saved.speed : 'normal',
   best: Number.isFinite(saved.best) ? saved.best : null,
   bestLevel: Number.isFinite(saved.bestLevel) ? saved.bestLevel : 0,
+  easy: saved.easy === true,
+  bestEasy: Number.isFinite(saved.bestEasy) ? saved.bestEasy : null,
 };
+const bestKey = () => prefs.easy ? 'bestEasy' : 'best';
+const EASY_WIDE = 1.5;                             // Easy: the basket's mouth is half as wide again
 function savePrefs() { try { localStorage.setItem(STORE_KEY, JSON.stringify(prefs)); } catch {} }
 const LANG = typeof document !== 'undefined' && document.documentElement.lang === 'th' ? 'th' : 'en';
 const T = STR[LANG];
@@ -869,7 +890,9 @@ function makeCandle(c) {
 function setupLevel(n) {
   const L = LEVELS[n - 1], b = L.bin;
   world.level = n;
-  world.bin = { x: b.x, z: b.z, r: b.r, h: b.h, kind: b.kind, rb: b.r * 0.78, rim: b.kind === 'tin' ? 0.0075 : 0.011, floor: 0.014, scorch: 0 };
+  // Easy: a wider basket, though never into the back or side walls
+  const r = prefs.easy ? Math.min(b.r * EASY_WIDE, WALL - b.z - 0.03, ROOM.hw - Math.abs(b.x) - 0.03) : b.r;
+  world.bin = { x: b.x, z: b.z, r, h: b.h, kind: b.kind, rb: r * 0.78, rim: b.kind === 'tin' ? 0.0075 : 0.011, floor: 0.014, scorch: 0 };
   world.wind = L.wind ? { ...L.wind, phase: Math.random() * TAU } : null;
   world.open = !!L.wind;
   world.storm = !!L.storm;
@@ -2639,11 +2662,11 @@ function storyDone(r) {
 }
 function finishGame(kind) {
   state.phase = kind === 'won' ? 'won' : 'over';
-  const isBest = prefs.best === null || state.score > prefs.best;
-  if (isBest) prefs.best = state.score;
+  const bk = bestKey(), isBest = prefs[bk] === null || state.score > prefs[bk];
+  if (isBest) prefs[bk] = state.score;
   prefs.bestLevel = Math.max(prefs.bestLevel, kind === 'won' ? LEVEL_COUNT : state.level);
   savePrefs();
-  storyDone({ won: kind === 'won', score: state.score });
+  storyDone({ won: kind === 'won', score: state.score, easy: prefs.easy });
   showOverlay({ kind, score: state.score, level: state.level, sheets: state.sheets, isBest }, kind === 'won' ? 1500 : 200);
   renderUI();
 }
@@ -2664,7 +2687,7 @@ function renderOverlay() {
   eb.classList.toggle('fire', o.kind !== 'won');
   $('ovTitle').textContent = String(o.score);
   $('ovText').textContent = o.kind === 'won' ? T.wonText(o.sheets) : T.overText(o.level, o.sheets);
-  $('ovBest').textContent = o.isBest ? T.newBest : T.bestWas(prefs.best);
+  $('ovBest').textContent = o.isBest ? T.newBest : T.bestWas(prefs[bestKey()]);
   $('ovBtn').textContent = T.again;
   setTimeout(() => $('ovBtn').focus({ preventScroll: true }), 50);
 }
@@ -2710,7 +2733,7 @@ function buildChips() {
 }
 function renderUI() {
   const lv = state.mode === 'levels';
-  $('sbModeLabel').textContent = lv ? T.levels : T.practice;
+  $('sbModeLabel').textContent = (lv ? T.levels : T.practice) + (prefs.easy ? ` · ${T.easyTag}` : '');
   const sub = $('sbModeSub');
   sub.textContent = T.levelOf(state.level, LEVEL_COUNT);
   const nm = document.createElement('span'); nm.className = 'sb-name'; nm.textContent = ` · ${T.names[state.level - 1]}`;
@@ -2726,7 +2749,7 @@ function renderUI() {
   }).join('');
   $('sbTry').textContent = String(state.attempt);
   $('sbSideLabel').textContent = T.best;
-  $('sbSideValue').textContent = prefs.best === null ? '–' : String(prefs.best);
+  $('sbSideValue').textContent = prefs[bestKey()] === null ? '–' : String(prefs[bestKey()]);
   $('msg').textContent = state.message.map(([k, ...a]) => typeof T[k] === 'function' ? T[k](...a) : T[k]).join(' ');
   const btn = $('throwBtn');
   btn.textContent = state.phase === 'cleared' ? T.next : state.phase === 'failed' ? T.retry : state.phase === 'aim' ? T.throw : T.wait;
@@ -2737,6 +2760,8 @@ function renderUI() {
   $('modeNote').textContent = lv ? T.noteLevels : T.notePractice;
   document.querySelector(`input[name="mode"][value="${state.mode}"]`).checked = true;
   document.querySelector(`input[name="speed"][value="${prefs.speed}"]`).checked = true;
+  document.querySelector(`input[name="basket"][value="${prefs.easy ? 'easy' : 'normal'}"]`).checked = true;
+  $('basketNote').textContent = prefs.easy ? T.noteEasy : T.noteNormal;
   $('speedNote').textContent = T.speedNote(LANG === 'th' ? String(BAR[prefs.speed]) : BAR[prefs.speed].toFixed(1));
   document.querySelectorAll('.chip').forEach(c => {
     const n = +c.dataset.level, done = state.done.includes(n);
@@ -2815,6 +2840,12 @@ document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener(
   state.overlay = null;
   newGame();
   if (state.mode === 'practice') { state.message.unshift(['msgPractice']); renderUI(); }
+}));
+document.querySelectorAll('input[name="basket"]').forEach(r => r.addEventListener('change', () => {
+  if (!r.checked) return;
+  prefs.easy = r.value === 'easy'; savePrefs();
+  state.overlay = null;
+  newGame();                                      // a new basket, so a new game
 }));
 document.querySelectorAll('input[name="speed"]').forEach(r => r.addEventListener('change', () => {
   if (!r.checked) return;
