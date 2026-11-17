@@ -108,7 +108,22 @@ html:lang(en) .title-panel h1 { font: italic 600 clamp(32px, 7vw, 48px)/1.1 var(
 .title-panel .sub { margin: 0; color: var(--muted); font-size: 16px; max-width: 42ch; }
 .title-panel .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
 .title-panel .progress { font: 600 13px/1.3 var(--font-label); color: var(--paper); letter-spacing: .04em; }
-.corner { position: absolute; top: max(12px, env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); display: flex; gap: 8px; }
+.corner { position: absolute; top: max(12px, env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); display: flex; gap: 8px; z-index: 2; }
+/* a phone on its side: the panel shrinks to fit the height, the buttons stack down the right-hand side */
+@media (orientation: landscape) and (max-height: 520px) {
+  .corner { flex-direction: column; align-items: flex-end; }
+  .title-panel {
+    --sl: env(safe-area-inset-left, 0px); --sr: env(safe-area-inset-right, 0px);
+    left: calc(var(--sl) + (100% - var(--sl) - var(--sr) - 130px) / 2);   /* centred in the room left of the buttons */
+    width: min(560px, calc(100% - var(--sl) - var(--sr) - 150px));
+    gap: 6px; padding: 12px 20px 14px; max-height: calc(100% - 12px); overflow-y: auto;
+  }
+  .title-panel .mast { font-size: 30px; }
+  .title-panel h1 { margin: 0; font-size: 26px; }
+  html:lang(en) .title-panel h1 { font-size: 28px; }
+  .title-panel .sub { font-size: 14px; line-height: 1.4; }
+  .title-panel .row { margin-top: 2px; }
+}
 
 /* ---------- Cut scenes ---------- */
 .dateline {
@@ -282,6 +297,14 @@ html:lang(en) .mcard h2 { font: 600 30px/1.15 var(--font-text); }
 .mcard .btns { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 6px; }
 
 .title-panel .ver { margin: 0; font: 600 11.5px/1 var(--font-label); letter-spacing: .12em; color: var(--muted); }
+.mcard.about { width: min(560px, 100%); text-align: left; align-items: stretch; }
+.mcard.about .label, .mcard.about h2, .mcard.about .ab-ver { text-align: center; }
+.mcard .ab-ver { font: 600 12px/1 var(--font-label); letter-spacing: .12em; }
+.ab-body { display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.55; }
+.ab-body h3 { margin: 4px 0 -6px; font: 700 12px/1.3 var(--font-label); letter-spacing: .12em; text-transform: uppercase; color: var(--brass); }
+html:lang(th) .ab-body h3 { font-size: 13.5px; letter-spacing: .02em; text-transform: none; }
+.ab-body p { color: var(--paper); }
+.ab-body ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
 
 
 
@@ -375,6 +398,7 @@ html:lang(en) .info h3 { font: 600 22px/1.2 var(--font-text); }
 <section class="screen" id="title" aria-labelledby="gameTitle">
   <canvas class="fill" id="titleCv" aria-hidden="true"></canvas>
   <div class="corner">
+    <button class="btn-pill" id="tAbout" type="button" data-i18n="aboutBtn"></button>
     <button class="btn-pill" id="tSound" type="button" aria-pressed="true"></button>
     <a class="btn-pill" href="GA-promise-th.html" hreflang="th" lang="th">ภาษาไทย</a>
   </div>
@@ -480,6 +504,17 @@ html:lang(en) .info h3 { font: 600 22px/1.2 var(--font-text); }
   <iframe id="frame" title="" allow="autoplay; fullscreen"></iframe>
 </section>
 
+<!-- About: who made it, the fonts, privacy -->
+<div class="modal" id="about" hidden>
+  <div class="mcard about" role="dialog" aria-modal="true" aria-labelledby="abTitle">
+    <span class="label" data-i18n="aboutBtn"></span>
+    <h2 id="abTitle" data-i18n="gameName"></h2>
+    <p class="ab-ver" data-i18n="version"></p>
+    <div class="ab-body" id="abBody"></div>
+    <div class="btns"><button class="btn-brass" id="abClose" type="button" data-i18n="aboutClose"></button></div>
+  </div>
+</div>
+
 <!-- A sort found, or a question -->
 <div class="modal" id="modal" hidden>
   <div class="mcard" role="dialog" aria-modal="true" aria-labelledby="mdTitle">
@@ -506,7 +541,16 @@ const STR = {
     docTitle: 'สัญญาของแชนด์เลอร์ · The Siam Times',
     gameName: 'สัญญาของแชนด์เลอร์',
     tagline: 'หนึ่งคืนกับอีกหนึ่งวัน สิบสองตัวพิมพ์ ทุกเกมของ The Siam Times ตามหาหัวหนังสือที่หายไป 160 ปี ตั้งแต่กะดึกจนถึงรถส่งหนังสือพิมพ์คันแรก',
-    version: 'เวอร์ชัน 1.1',
+    version: 'เวอร์ชัน 1.2',
+    aboutBtn: 'เกี่ยวกับเกม', aboutClose: 'ปิด',
+    about: [
+      ['', 'เรื่องและเกมทั้งสิบสองโดย The Siam Times · © 2026 The Siam Times'],
+      ['เรื่องจริงกับเรื่องแต่ง', 'ได้แรงบันดาลใจจาก The Siam Times หนังสือพิมพ์ภาษาอังกฤษที่จอห์น แฮสเซตต์ แชนด์เลอร์ พิมพ์ที่กรุงเทพฯ ในปี 1864–65 ตัวละครอื่นและเหตุการณ์ในคืนนี้เป็นเรื่องแต่งทั้งหมด'],
+      ['ความเป็นส่วนตัว', 'เกมนี้ไม่เก็บและไม่ส่งข้อมูลส่วนตัวของผู้เล่น ไม่มีโฆษณา ไม่มีบัญชีผู้ใช้ และไม่ติดตามการใช้งาน ความคืบหน้า คะแนน และการตั้งค่าเก็บไว้ในเครื่องนี้เท่านั้น ลบได้ที่ปุ่ม "เริ่มใหม่ทั้งหมด" ในหน้าสารบัญ'],
+      ['เสียง', 'เสียงทุกเสียงในเกม ทั้งฝน เพลง เครื่องยนต์ และเสียงแตร สังเคราะห์ขึ้นสดในเกม ไม่มีไฟล์เสียงจากที่อื่น'],
+      ['ฟอนต์', 'ทุกฟอนต์ใช้สัญญาอนุญาต SIL Open Font License 1.1'],
+    ],
+    fonts: ['Chomsky © Fredrick R. Brennan', 'Newsreader © The Newsreader Project Authors (Production Type)', 'Sarabun © The Sarabun Project Authors (Cadson Demak)', 'Trirong © Cadson Demak', 'IBM Plex Sans Thai © IBM Corp.', 'Barlow Condensed © The Barlow Project Authors', 'Cinzel © The Cinzel Project Authors', 'Cormorant Garamond © The Cormorant Project Authors', 'Pinyon Script © The Pinyon Project Authors'],
     begin: 'เริ่มเรื่อง', cont: 'เล่นต่อ', again: 'ดูตอนจบอีกครั้ง', contents: 'สารบัญ',
     progress: (n) => n ? `เรียงตัวพิมพ์ได้แล้ว ${n} จาก 12 ตัว` : 'กะดึกคืนแรกของคุณ',
     skip: 'ข้าม ▸▸', soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด',
@@ -639,7 +683,16 @@ const STR = {
     docTitle: 'Chandler’s Promise · The Siam Times',
     gameName: 'Chandler’s Promise',
     tagline: 'One night and one day, twelve pieces of type, every Siam Times game. Find the masthead lost for 160 years, from the night shift to the first delivery run.',
-    version: 'Version 1.1',
+    version: 'Version 1.2',
+    aboutBtn: 'About', aboutClose: 'Close',
+    about: [
+      ['', 'Story and all twelve games by The Siam Times · © 2026 The Siam Times'],
+      ['Fact and fiction', 'Inspired by The Siam Times, the English-language newspaper John Hassett Chandler printed in Bangkok in 1864–65. Everyone else in the story, and everything that happens tonight, is made up.'],
+      ['Privacy', 'This game collects and sends no personal data. There are no ads, no accounts and no tracking. Your progress, scores and settings are kept on this device only; “Start over” on the contents page clears them.'],
+      ['Sound', 'Every sound in the game, from the rain and the music to the engines and the horns, is made live by the game itself. There are no recordings.'],
+      ['Fonts', 'All under the SIL Open Font License 1.1.'],
+    ],
+    fonts: ['Chomsky © Fredrick R. Brennan', 'Newsreader © The Newsreader Project Authors (Production Type)', 'Sarabun © The Sarabun Project Authors (Cadson Demak)', 'Trirong © Cadson Demak', 'IBM Plex Sans Thai © IBM Corp.', 'Barlow Condensed © The Barlow Project Authors', 'Cinzel © The Cinzel Project Authors', 'Cormorant Garamond © The Cormorant Project Authors', 'Pinyon Script © The Pinyon Project Authors'],
     begin: 'Begin the story', cont: 'Continue', again: 'See the ending again', contents: 'Contents',
     progress: (n) => n ? `${n} of 12 sorts set` : 'Your first night shift',
     skip: 'Skip ▸▸', soundOn: 'Sound on', soundOff: 'Sound off',
@@ -2192,6 +2245,8 @@ function openGame(i) {
   $('pT1').textContent = `${T.chap(i + 1)} · ${T.games[ch.key]} — ${T.ch[i].title}`;
   $('pT2').textContent = `${T.goal}: ${T.ch[i].goal}`;
   $('frame').title = T.frameTitle(T.games[ch.key]);
+  // Checkers speaks Thai too: open it in the story's language, unless the player has picked one in the game
+  if (ch.key === 'checkers') try { const k = 'st-checkers.settings', s = JSON.parse(localStorage.getItem(k) || '{}'); if (!s.langChosen) { s.lang = LANG; s.langChosen = true; localStorage.setItem(k, JSON.stringify(s)); } } catch (e) { /* no storage */ }
   $('frame').src = ch.url[LANG];
   setTimeout(() => { try { $('frame').focus(); } catch (e) { /* ignore */ } }, 400);
 }
@@ -2262,6 +2317,22 @@ $('tStart').addEventListener('click', () => {
   if (!save.prologue) playPrologue(); else showWorld();
 });
 $('tContents').addEventListener('click', () => { audioInit(); showMap(); });
+// About: who made it, fact and fiction, privacy, sound, fonts
+(function about() {
+  const body = $('abBody');
+  for (const [h, p] of T.about) {
+    if (h) { const e = document.createElement('h3'); e.textContent = h; body.appendChild(e); }
+    const e = document.createElement('p'); e.textContent = p; body.appendChild(e);
+  }
+  const ul = document.createElement('ul');
+  for (const f of T.fonts) { const li = document.createElement('li'); li.textContent = f; ul.appendChild(li); }
+  body.appendChild(ul);
+  const close = () => { $('about').hidden = true; $('tAbout').focus(); };
+  $('tAbout').addEventListener('click', () => { audioInit(); $('about').hidden = false; $('about').querySelector('.mcard').scrollTop = 0; setTimeout(() => $('abClose').focus({ preventScroll: true }), 30); });
+  $('abClose').addEventListener('click', close);
+  $('about').addEventListener('click', e => { if (e.target === $('about')) close(); });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('about').hidden) { e.preventDefault(); close(); } });
+})();
 document.addEventListener('pointerdown', () => audioInit(), { passive: true });
 document.addEventListener('visibilitychange', () => { if (AU.ctx) { if (document.hidden) AU.ctx.suspend(); else AU.ctx.resume(); } });
 
