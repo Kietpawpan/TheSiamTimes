@@ -2803,7 +2803,7 @@ function drawLevelsMap(x, s) {
 
 
 /* =====================================================================
-   Places for the mission: four branches of VERDANT, a (made-up) maker of
+   Places for the mission: three branches of VERDANT, a (made-up) maker of
    fine watches with green and gold shop fronts, and The Siam Times
    building where you work.
    ===================================================================== */
@@ -2812,7 +2812,6 @@ const SHOPS = [
   { id: 'siam', th: 'VERDANT สยาม', en: 'VERDANT Siam', x0: 244, x1: 256, z: 83, out: 1, road: 100, mall: true },
   { id: 'yao', th: 'VERDANT เยาวราช', en: 'VERDANT Yaowarat', x0: 119, x1: 131, z: 289, out: 1, road: 300 },
   { id: 'suk', th: 'VERDANT สุขุมวิท', en: 'VERDANT Sukhumvit', x0: 617, x1: 629, z: 85, out: 1, road: 100 },
-  { id: 'sip', th: 'VERDANT สี่พระยา', en: 'VERDANT Si Phraya', x0: 168, x1: 180, z: 411, out: -1, road: 400 },
 ];
 for (const S of SHOPS) { S.x = (S.x0 + S.x1) / 2; S.ring = [S.x, S.z + S.out * 5.5]; S.ax = S.x; S.az = S.road; }
 // The Siam Times: a colonial building on Bamrung Mueang Road, across from the Giant Swing's block
@@ -4195,29 +4194,31 @@ lightHooks.push(fxLight);
 
 /* =====================================================================
    The mission: the VERDANT 1864 dress watch.
-   Four VERDANT shops, found in any order. The first you walk into has
+   Three VERDANT shops, found in any order. The first you walk into has
    none (sign its Want List), the second will sell it only if you buy
-   another watch first (say no), the third has none (Want List), the
-   fourth has one: but it costs more than you have. Work a month at The
-   Siam Times (a cut scene), or collect tips from the women riders by
-   giving them two toots of the horn. Run more than three red lights and
-   the mission is over.
+   another watch first (say no), the third has one: but it costs more than
+   you have. Work a month at The Siam Times (a cut scene), or give two
+   toots of the horn to at least two of the women riders for their tips.
+   Run more than three red lights and the mission is over; riding round a
+   crossing on the footpath does not count.
    ===================================================================== */
-const MISSION = { price: 186400, start: 150000, salary: 45000, bundle: 420000, reds: 3 };
-const ROLE_SEQ = ['waitlist', 'bundle', 'waitlist', 'stock'];
+// one tip is never quite enough (at most 11,000 of an 11,400 gap); two always are
+const MISSION = { price: 186400, start: 175000, salary: 45000, bundle: 420000, reds: 3, tip: [6000, 11000], women: 2 };
+const ROLE_SEQ = ['waitlist', 'bundle', 'stock'];
+const NS = SHOPS.length;
 const MS = { here: null, lock: null, stillT: 0, honks: [], cut: null, box: null, target: null, hud: '', floats: [] };
 const baht = n => '฿' + Math.round(n).toLocaleString('en-US');
 const MX = TH ? {
   title: 'ภารกิจ · นาฬิกา 1864', modeMission: 'ภารกิจ: ตามหานาฬิกา 1864', modeFree: 'ขี่เล่นอิสระ', mode: 'โหมด',
-  find: n => `ตามหาร้าน VERDANT สีเขียว ${n}/4 (จุดเขียวบนแผนที่)`, signAt: s => `กลับไปลงชื่อ Want List ที่ ${s}`,
-  earn: g => `เงินขาดอีก ${baht(g)} · กลับไปทำงานที่ตึก The Siam Times หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์`, buyAt: s => `เงินพอแล้ว! กลับไปซื้อ 1864 ที่ ${s}`,
+  find: n => `ตามหาร้าน VERDANT สีเขียว ${n}/${NS} (จุดเขียวบนแผนที่)`, signAt: s => `กลับไปลงชื่อ Want List ที่ ${s}`,
+  earn: (g, n) => `เงินขาดอีก ${baht(g)} · ทำงานที่ตึก The Siam Times 1 เดือน หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์อย่างน้อย ${MISSION.women} คน (ทักแล้ว ${n} คน)`, buyAt: s => `เงินพอแล้ว! กลับไปซื้อ 1864 ที่ ${s}`,
   money: 'เงิน', reds: 'ฝ่าไฟแดง', shops: 'ร้าน', enter: s => `เข้าร้าน ${s}`, enterST: 'เข้าตึก The Siam Times',
-  ran: (n, m) => `ฝ่าไฟแดง! ${n}/${m}`, ranLast: 'ฝ่าไฟแดงครบ 3 ครั้งแล้ว อีกครั้งเดียวภารกิจล้มเหลว',
-  tip: a => `สาวไบค์เกอร์โบกมือทักทาย ให้ทิป ${baht(a)}`, waveAgain: 'เธอโบกมือให้อีกครั้ง (ทิปให้ไปแล้วเมื่อกี้)', waveFree: 'สาวไบค์เกอร์โบกมือทักทาย', enough: 'เงินพอซื้อ 1864 แล้ว!',
+  ran: (n, m) => `ฝ่าไฟแดง! ${n}/${m} · ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับ`, ranLast: 'ฝ่าไฟแดงครบ 3 ครั้งแล้ว อีกครั้งเดียวภารกิจล้มเหลว · ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับ',
+  tip: (a, n) => `สาวไบค์เกอร์คนที่ ${n} โบกมือทักทาย ให้ทิป ${baht(a)}`, waveAgain: 'เธอโบกมือให้อีกครั้ง แต่ให้ทิปไปแล้ว ลองทักคนอื่นนะ', waveFree: 'สาวไบค์เกอร์โบกมือทักทาย', enough: 'เงินพอซื้อ 1864 แล้ว!',
   resume: 'ภารกิจต่อจากเดิม', start: 'เริ่มภารกิจ', go: 'ไปต่อ', later: 'ไว้ก่อน', restart: 'เริ่มภารกิจใหม่', free: 'ขี่เล่นอิสระ', keep: 'ขี่เล่นต่อ', skip: 'แตะเพื่อข้าม',
   introH: 'ตามหานาฬิกา Dress Watch รุ่น 1864',
-  intro: `คุณเป็นนักข่าวของ The Siam Times อยากได้นาฬิกา VERDANT รุ่น 1864 มานานแล้ว รุ่นนี้หายากมาก มีขายแค่ร้าน VERDANT สีเขียวทอง 4 สาขาในกรุงเทพฯ`,
-  rules: ['ขี่ไปหาร้าน VERDANT ทั้ง 4 ร้าน (จุดเขียวบนแผนที่ แตะปุ่มออโต้ให้พาไปได้)', 'บางร้านไม่มีของ ต้องลงชื่อไว้ใน Want List', 'บางร้านจะให้ซื้อรุ่นอื่นก่อน ต้องปฏิเสธ', `ห้ามฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง`, 'เงินไม่พอ? กลับมาทำงานที่ตึกนี้ หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์เพื่อรับทิป'],
+  intro: `คุณเป็นนักข่าวของ The Siam Times อยากได้นาฬิกา VERDANT รุ่น 1864 มานานแล้ว รุ่นนี้หายากมาก มีขายแค่ร้าน VERDANT สีเขียวทอง 3 สาขาในกรุงเทพฯ`,
+  rules: ['ขี่ไปหาร้าน VERDANT ทั้ง 3 ร้าน (จุดเขียวบนแผนที่ แตะปุ่มออโต้ให้พาไปได้)', 'บางร้านไม่มีของ ต้องลงชื่อไว้ใน Want List', 'บางร้านจะให้ซื้อรุ่นอื่นก่อน ต้องปฏิเสธ', `ห้ามฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง แต่ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับว่าฝ่าไฟแดง`, `เงินไม่พอ? กลับมาทำงานที่ตึกนี้ 1 เดือน หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์ ต้องทักอย่างน้อย ${MISSION.women} คนถึงจะพอ`],
   budget: 'เงินเก็บ', price: 'ราคา 1864',
   hello: 'ยินดีต้อนรับสู่ VERDANT ค่ะ',
   wl1: 'ขออภัยนะคะ รุ่น 1864 ไม่มีของเลยค่ะ ลูกค้ารอคิวกันยาวมาก รับลงชื่อใน Want List ไว้ไหมคะ ถ้ามีของจะโทรแจ้งค่ะ',
@@ -4237,15 +4238,15 @@ const MX = TH ? {
   roleWL: 'ลง Want List แล้ว', roleWLno: 'ยังไม่ได้ลงชื่อ', roleBundle: 'ปฏิเสธการซื้อพ่วง', roleStock: 'มีของ 1864',
 } : {
   title: 'Mission · the 1864 watch', modeMission: 'Mission: find the 1864 watch', modeFree: 'Free ride', mode: 'Mode',
-  find: n => `Find the green VERDANT shops ${n}/4 (green dots on the map)`, signAt: s => `Go back and sign the Want List at ${s}`,
-  earn: g => `${baht(g)} short · work at The Siam Times, or give the women riders two toots for tips`, buyAt: s => `You have enough! Go back to ${s} and buy the 1864`,
+  find: n => `Find the green VERDANT shops ${n}/${NS} (green dots on the map)`, signAt: s => `Go back and sign the Want List at ${s}`,
+  earn: (g, n) => `${baht(g)} short · work a month at The Siam Times, or give two toots to at least ${MISSION.women} women riders (${n} so far)`, buyAt: s => `You have enough! Go back to ${s} and buy the 1864`,
   money: 'Money', reds: 'Red lights', shops: 'Shops', enter: s => `Go into ${s}`, enterST: 'Go into The Siam Times',
-  ran: (n, m) => `Ran a red light! ${n}/${m}`, ranLast: 'That was your third red light: one more and the mission is over',
-  tip: a => `A rider waves back and tips you ${baht(a)}`, waveAgain: 'She waves again (she tipped you a moment ago)', waveFree: 'A rider waves back', enough: 'You can afford the 1864 now!',
+  ran: (n, m) => `Ran a red light! ${n}/${m} · going round on the footpath does not count`, ranLast: 'That was your third red light: one more and the mission is over · going round on the footpath does not count',
+  tip: (a, n) => `Rider number ${n} waves back and tips you ${baht(a)}`, waveAgain: 'She waves again, but she has tipped you already: try someone else', waveFree: 'A rider waves back', enough: 'You can afford the 1864 now!',
   resume: 'Mission resumed', start: 'Start the mission', go: 'Carry on', later: 'Not now', restart: 'Start the mission again', free: 'Free ride', keep: 'Keep riding', skip: 'Tap to skip',
   introH: 'Find the 1864 dress watch',
-  intro: 'You are a reporter at The Siam Times, and you have wanted a VERDANT 1864 dress watch for years. It is very hard to get: only the four green-and-gold VERDANT shops in Bangkok sell it.',
-  rules: ['Ride to all four VERDANT shops (green dots on the map; Auto will take you)', 'Some have none: sign their Want List', 'One will want you to buy another watch first: say no', `Do not run more than ${MISSION.reds} red lights`, 'Short of money? Come back here and work, or give the women riders two toots of the horn for tips'],
+  intro: 'You are a reporter at The Siam Times, and you have wanted a VERDANT 1864 dress watch for years. It is very hard to get: only the three green-and-gold VERDANT shops in Bangkok sell it.',
+  rules: ['Ride to all three VERDANT shops (green dots on the map; Auto will take you)', 'One has none: sign its Want List', 'One will want you to buy another watch first: say no', `Do not run more than ${MISSION.reds} red lights; riding round a crossing on the footpath does not count`, `Short of money? Come back here and work for a month, or give two toots of the horn to at least ${MISSION.women} women riders for their tips`],
   budget: 'Savings', price: '1864 price',
   hello: 'Welcome to VERDANT.',
   wl1: 'I am sorry, we have no 1864s at all, and the wait is long. May I put you on our Want List? We will call you when one comes in.',
@@ -4266,20 +4267,20 @@ const MX = TH ? {
 };
 const shopName = S => TH ? S.th : S.en;
 // the mission in progress, or null (free ride, finished, failed)
-function mission() { const m = settings.mission; return settings.mode !== 'free' && m && !m.done && !m.failed ? m : null; }
-function newMission() { settings.mission = { money: MISSION.start, reds: 0, order: [], roles: {}, wl: [], refused: false, worked: 0, tips: 0, tipN: 0, t0: Date.now(), done: false, failed: '' }; save(); }
+function mission() { const m = settings.mission; return settings.mode !== 'free' && m && m.v === 2 && !m.done && !m.failed ? m : null; }
+function newMission() { settings.mission = { v: 2, money: MISSION.start, reds: 0, order: [], roles: {}, wl: [], refused: false, worked: 0, tips: 0, tipN: 0, tipped: [], t0: Date.now(), done: false, failed: '' }; save(); }
 function missionObjective(m) {
-  if (m.order.length < 4) return MX.find(m.order.length);
+  if (m.order.length < NS) return MX.find(m.order.length);
   const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
   if (miss) return MX.signAt(shopName(miss));
-  if (m.money < MISSION.price) return MX.earn(MISSION.price - m.money);
+  if (m.money < MISSION.price) return MX.earn(MISSION.price - m.money, m.tipN);
   return MX.buyAt(shopName(SHOPS.find(S => m.roles[S.id] === 'stock')));
 }
 // where to go next (for Auto and the beams)
 function missionTarget(m) {
   if (!m) return null;
   const pt = S => ({ x: S.ring[0], z: S.ring[1], ax: S.ax, az: S.az, th: S.th, en: S.en, ring: S.ring, place: S });
-  if (m.order.length < 4) {
+  if (m.order.length < NS) {
     let best = null, bd = 1e9;
     for (const S of SHOPS) { if (m.order.includes(S.id)) continue; const d = Math.hypot(S.ring[0] - bike.x, S.ring[1] - bike.z); if (d < bd) { bd = d; best = S; } }
     return best && pt(best);
@@ -4309,6 +4310,7 @@ function missionUpdate(dt) {
   if (here && here !== MS.lock) { btn.hidden = false; const lbl = here === STB ? MX.enterST : MX.enter(shopName(here)); if (btn.textContent !== lbl) btn.textContent = lbl; }
   else btn.hidden = true;
   if (here && here !== MS.lock && Math.abs(bike.v) < 0.5) { MS.stillT += dt; if (MS.stillT > 0.5) openPlace(here); } else MS.stillT = 0;
+  MS.walkT = bike.surf === 'walk' ? 0 : (MS.walkT ?? 9) + dt;
   redLights(m);
   missionHUD(m);
 }
@@ -4326,7 +4328,8 @@ function redLights(m) {
   const i = clamp(Math.round(bike.x / 100), 0, NX - 1), j = clamp(Math.round((bike.z - RZ[0]) / 100), 0, NZ - 1);
   const inBox = Math.abs(bike.x - RX[i]) < WX[i] / 2 - 0.6 && Math.abs(bike.z - RZ[j]) < WZ[j] / 2 - 0.6;
   const key = inBox ? i * 100 + j : null;
-  if (key !== null && key !== MS.box && Math.abs(bike.v) > 1.5) {
+  // riding round on the footpath is allowed: a crossing entered straight off the pavement does not count
+  if (key !== null && key !== MS.box && Math.abs(bike.v) > 1.5 && bike.surf === 'road' && MS.walkT > 1.2) {
     const axis = Math.abs(Math.sin(bike.yaw)) > Math.abs(Math.cos(bike.yaw)) ? 'x' : 'z', node = nodeAt(i, j);
     if (node && node.heads.some(h => h.axis === axis) && lightState(node, axis, TRAFFIC.time) === 'r') ranRed(m);
   }
@@ -4343,14 +4346,14 @@ function ranRed(m) {
 function missionHUD(m) {
   const p = $('mpanel');
   if (!m) { if (!p.hidden) p.hidden = true; return; }
-  const key = [m.money, m.reds, m.order.length, m.wl.length, m.refused].join('|');
+  const key = [m.money, m.reds, m.order.length, m.wl.length, m.refused, m.tipN].join('|');
   if (p.hidden) { p.hidden = false; $('mpTitle').textContent = MX.title; }
   if (key === MS.hud) return;
   MS.hud = key;
   $('mpObj').textContent = missionObjective(m);
   $('mpMoney').textContent = `${MX.money} ${baht(m.money)} / ${baht(MISSION.price)}`;
   $('mpReds').textContent = `${MX.reds} ${m.reds}/${MISSION.reds}`; $('mpReds').classList.toggle('warn', m.reds >= MISSION.reds);
-  $('mpShops').textContent = `${MX.shops} ${m.order.length}/4`;
+  $('mpShops').textContent = `${MX.shops} ${m.order.length}/${NS}`;
 }
 
 /* ---------- two toots of the horn for a rider nearby ---------- */
@@ -4364,13 +4367,14 @@ function missionHonk() {
   if (!best || Math.abs(bike.y) > 1.5) return;
   best.waveT = 1.8;
   const m = mission();
-  if (best.tipT !== undefined && time - best.tipT < 45) { toast(MX.waveAgain); return; }
-  best.tipT = time;
-  if (!m) { toast(MX.waveFree); floatText(best, '👋'); return; }
-  const before = m.money, amt = 3000 + Math.floor(Math.random() * 7) * 500;
-  m.money += amt; m.tips += amt; m.tipN++; save();
+  if (!m) { if (best.tipT === undefined || time - best.tipT > 20) { best.tipT = time; toast(MX.waveFree); floatText(best, '👋'); } return; }
+  // each woman tips once in a mission: you need to find at least two
+  const who = best.kind + best.k;
+  if (m.tipped.includes(who)) { toast(MX.waveAgain); floatText(best, '👋'); return; }
+  const [lo, hi] = MISSION.tip, before = m.money, amt = lo + Math.floor(Math.random() * ((hi - lo) / 1000 + 1)) * 1000;
+  m.tipped.push(who); m.money += amt; m.tips += amt; m.tipN++; save();
   floatText(best, `👋 +${baht(amt)}`); missionSfx('cash');
-  toast(before < MISSION.price && m.money >= MISSION.price ? MX.enough : MX.tip(amt), 2.4);
+  toast(before < MISSION.price && m.money >= MISSION.price ? MX.enough : MX.tip(amt, m.tipN), 2.6);
 }
 function floatText(car, text) {
   const e = document.createElement('div'); e.className = 'float'; e.textContent = text; $('floats').appendChild(e);
@@ -4396,7 +4400,7 @@ function openPlace(P) {
   if (P === STB) {
     const gap = MISSION.price - m.money;
     if (gap <= 0) { dialog(P, MX.stDesk, MX.stNoNeed, [[MX.go, closeCut]]); return; }
-    dialog(P, MX.stDesk, MX.stWork(m.order.length >= 4 ? gap : 0), [[MX.work, () => workMonth()], [MX.later, closeCut]]);
+    dialog(P, MX.stDesk, MX.stWork(m.order.length >= NS ? gap : 0), [[MX.work, () => workMonth()], [MX.later, closeCut]]);
     return;
   }
   if (!m.order.includes(P.id)) { m.roles[P.id] = ROLE_SEQ[m.order.length]; m.order.push(P.id); save(); }
@@ -4468,7 +4472,7 @@ function cutFrame(dt) {
 }
 function missionStart(restart) {
   if (settings.mode === 'free') { missionHUD(null); return; }
-  const fresh = restart || !settings.mission || settings.mission.done || settings.mission.failed;
+  const fresh = restart || !settings.mission || settings.mission.v !== 2 || settings.mission.done || settings.mission.failed;
   if (fresh) newMission();
   Object.assign(bike, { x: STB.ring[0], z: STB.ring[1] - 1, yaw: 0, v: 0, y: KERB, ry: KERB, air: 0, vy: 0 });
   cam.init = false; MS.lock = STB; MS.hud = '';
@@ -4524,7 +4528,7 @@ function missionDone(P) {
   const h = document.createElement('h3'); h.textContent = MX.doneH; card.appendChild(h);
   const p = document.createElement('p'); p.textContent = MX.doneP; card.appendChild(p);
   const st = document.createElement('div'); st.className = 'stats2';
-  for (const [k, v] of [[MX.statShops, `${m.order.length}/4`], [MX.statReds, `${m.reds}/${MISSION.reds}`], [MX.statTips, baht(m.tips)], [MX.statWork, MX.months(m.worked)]]) { const d = document.createElement('div'); d.innerHTML = '<b></b><span></span>'; d.querySelector('b').textContent = v; d.querySelector('span').textContent = k; st.appendChild(d); }
+  for (const [k, v] of [[MX.statShops, `${m.order.length}/${NS}`], [MX.statReds, `${m.reds}/${MISSION.reds}`], [MX.statTips, baht(m.tips)], [MX.statWork, MX.months(m.worked)]]) { const d = document.createElement('div'); d.innerHTML = '<b></b><span></span>'; d.querySelector('b').textContent = v; d.querySelector('span').textContent = k; st.appendChild(d); }
   card.appendChild(st);
   card.appendChild(buttonRow([[MX.keep, () => { settings.mode = 'free'; save(); closeCut(); missionHUD(null); }], [MX.restart, () => { closeCut(); missionRestart(); }]]));
   void P;
