@@ -250,7 +250,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 .mpanel .mo { margin: 3px 0 5px; }
 .mpanel .ms { display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); font-variant-numeric: tabular-nums; }
 .mpanel .ms .warn { color: #ff7b6a; font-weight: 600; }
-#actBtn { position: absolute; left: 50%; top: calc(var(--safe-t) + 132px); transform: translateX(-50%); z-index: 7; border: 1px solid #c99a3c; background: #0b4a2c; color: #f2d68a; font: 600 17px var(--font-ui); padding: 12px 22px; border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,.4); cursor: pointer; white-space: nowrap; animation: actpulse 1.4s ease-in-out infinite; }
+#actBtn { position: absolute; left: 50%; bottom: calc(var(--safe-b) + 236px); transform: translateX(-50%); z-index: 7; border: 1px solid #c99a3c; background: #0b4a2c; color: #f2d68a; font: 600 17px var(--font-ui); padding: 12px 22px; border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,.4); cursor: pointer; white-space: nowrap; animation: actpulse 1.4s ease-in-out infinite; }
 #actBtn[hidden] { display: none; }
 @keyframes actpulse { 50% { box-shadow: 0 0 0 7px rgba(95,227,156,.25), 0 8px 24px rgba(0,0,0,.4); } }
 #flash { position: absolute; inset: 0; z-index: 20; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at center, rgba(255,40,30,0) 30%, rgba(255,40,30,.55) 100%); }
@@ -304,7 +304,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 .mbox { border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; font: 14px/1.4 var(--font-ui); }
 .mbox b { color: #5fe39c; }
 .mbox .btnrow { margin-top: 8px; }
-@media (max-width: 700px) { .talkbody { flex-direction: column; } .watchpic { width: 110px; height: 110px; } #actBtn { top: calc(var(--safe-t) + 112px); font-size: 15px; } }
+@media (max-width: 700px) { .talkbody { flex-direction: column; } .watchpic { width: 110px; height: 110px; } #actBtn { bottom: calc(var(--safe-b) + 200px); font-size: 15px; } }
 @media (prefers-reduced-motion: reduce) {
   #postcard, .roadsign, #district, #fade { transition: none; }
 }
@@ -3373,16 +3373,21 @@ function buildVehicleKinds() {
   const SKIN = 0xd9a47c, HAIR = 0x24160f;
   const limb = (a, b, r) => { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), L = d.length(); return [new THREE.CapsuleGeometry(r, Math.max(0.01, L - 2 * r), 4, 6), new THREE.Matrix4().compose(A.clone().add(B).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()), new THREE.Vector3(1, 1, 1))]; };
   const arm = s => { const [g, m] = limb([s * 0.17, 1.42, 0.1], [s * 0.29, 1.33, -0.58], 0.048); return [[g, m, W], [new THREE.SphereGeometry(0.05, 8, 6), mat(s * 0.29, 1.33, -0.6), SKIN]]; };
-  const rider = new GB();
+  // the blouse takes the instance colour; head, helmet and hair do not
+  const rider = new GB(), head = new GB();
+  const [ra, rh] = arm(1);
+  for (const [g, m, c] of [[new THREE.CapsuleGeometry(0.135, 0.3, 4, 10), mat(0, 1.24, 0.14, 0, 1.08, 1, 0.82, -0.14), W], ra]) { rider.color(c); rider.geo(g, m); }
   for (const [g, m, c] of [
-    [new THREE.CapsuleGeometry(0.14, 0.34, 4, 10), mat(0, 1.27, 0.14, 0, 1.05, 1, 0.85, -0.12), W],
-    [new THREE.SphereGeometry(0.105, 12, 10), mat(0, 1.6, 0.06), SKIN],
-    [new THREE.SphereGeometry(0.145, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.62), mat(0, 1.63, 0.09), 0xf3efe6],
-    [new THREE.CapsuleGeometry(0.11, 0.46, 4, 10), mat(0, 1.37, 0.25, 0, 1.2, 1, 0.5, -0.26), HAIR],
-    [new THREE.CapsuleGeometry(0.035, 0.3, 4, 6), mat(0.125, 1.47, 0.13, 0, 1, 1, 1, -0.12), HAIR], [new THREE.CapsuleGeometry(0.035, 0.3, 4, 6), mat(-0.125, 1.47, 0.13, 0, 1, 1, 1, -0.12), HAIR],
-    ...arm(1)]) { rider.color(c); rider.geo(g, m); }
+    [new THREE.CylinderGeometry(0.045, 0.05, 0.1, 8), mat(0, 1.5, 0.11), SKIN],
+    [new THREE.SphereGeometry(0.1, 12, 10), mat(0, 1.6, 0.08), SKIN],
+    [new THREE.SphereGeometry(0.135, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), mat(0, 1.615, 0.1, 0, 1, 1.05, 1.08), 0xf3efe6],
+    [new THREE.BoxGeometry(0.2, 0.03, 0.06), mat(0, 1.66, -0.04), 0x2a2a2a],
+    [new THREE.SphereGeometry(0.115, 12, 10), mat(0, 1.56, 0.15, 0, 1.05, 1, 0.9), HAIR],
+    [new THREE.CapsuleGeometry(0.1, 0.42, 4, 10), mat(0, 1.33, 0.24, 0, 1.25, 1, 0.45, -0.22), HAIR],
+    [new THREE.CapsuleGeometry(0.06, 0.16, 4, 6), mat(0, 1.08, 0.33, 0, 1.4, 1, 0.5, -0.5), HAIR],
+    rh]) { head.color(c); head.geo(g, m); }
   const armL = new GB(); for (const [g, m, c] of arm(-1)) { armL.color(c); armL.geo(g, m); }
-  VKINDS.scooter.rider = rider.build(); VKINDS.scooter.armL = armL.build();
+  VKINDS.scooter.rider = rider.build(); VKINDS.scooter.riderHead = head.build(); VKINDS.scooter.armL = armL.build();
   const wave = new GB(); { const [g, m] = limb([0, 0, 0], [0, 0.62, 0], 0.048); wave.color(W); wave.geo(g, m); wave.color(SKIN); wave.geo(new THREE.SphereGeometry(0.06, 8, 6), mat(0, 0.66, 0)); }
   VKINDS.scooter.wave = wave.build();
 }
@@ -3457,11 +3462,11 @@ function buildTraffic() {
     scene.add(body, lights);
     TRAFFIC.meshes[kind] = { body, lights };
     if (K.rider) {
-      const rider = new THREE.InstancedMesh(K.rider, riderMat, n), armL = new THREE.InstancedMesh(K.armL, riderMat, n);
-      rider.castShadow = true; rider.frustumCulled = false; armL.frustumCulled = false; scene.add(rider, armL);
+      const rider = new THREE.InstancedMesh(K.rider, riderMat, n), armL = new THREE.InstancedMesh(K.armL, riderMat, n), head = new THREE.InstancedMesh(K.riderHead, riderMat, n);
+      rider.castShadow = true; rider.frustumCulled = false; armL.frustumCulled = false; head.frustumCulled = false; scene.add(rider, armL, head);
       for (let k = 0; k < n; k++) { const c = col(BLOUSES[k % BLOUSES.length]); rider.setColorAt(k, c); armL.setColorAt(k, c); }
       rider.instanceColor.needsUpdate = true; armL.instanceColor.needsUpdate = true;
-      Object.assign(TRAFFIC.meshes[kind], { rider, armL });
+      Object.assign(TRAFFIC.meshes[kind], { rider, armL, head });
       TRAFFIC.wave = new THREE.Mesh(K.wave, riderMat.clone()); TRAFFIC.wave.material.vertexColors = true; TRAFFIC.wave.visible = false; scene.add(TRAFFIC.wave);
     }
     for (let k = 0; k < n; k++) {
@@ -3552,7 +3557,7 @@ function updateTraffic(dt, player) {
     _m.compose(_p, _q, _s);
     M.body.setMatrixAt(car.k, _m); M.lights.setMatrixAt(car.k, _m);
     if (M.rider) {
-      M.rider.setMatrixAt(car.k, _m);
+      M.rider.setMatrixAt(car.k, _m); M.head.setMatrixAt(car.k, _m);
       // a rider waving back: her left arm comes off the bars and waves
       if (car.waveT > 0) {
         car.waveT -= dt; M.armL.setMatrixAt(car.k, _m0);
@@ -3563,7 +3568,7 @@ function updateTraffic(dt, player) {
       } else M.armL.setMatrixAt(car.k, _m);
     }
   }
-  for (const k of Object.keys(TRAFFIC.meshes)) { const M = TRAFFIC.meshes[k]; M.body.instanceMatrix.needsUpdate = true; M.lights.instanceMatrix.needsUpdate = true; if (M.rider) { M.rider.instanceMatrix.needsUpdate = true; M.armL.instanceMatrix.needsUpdate = true; } }
+  for (const k of Object.keys(TRAFFIC.meshes)) { const M = TRAFFIC.meshes[k]; M.body.instanceMatrix.needsUpdate = true; M.lights.instanceMatrix.needsUpdate = true; if (M.rider) { M.rider.instanceMatrix.needsUpdate = true; M.armL.instanceMatrix.needsUpdate = true; M.head.instanceMatrix.needsUpdate = true; } }
   updateLights(tnow);
 }
 
@@ -4461,9 +4466,9 @@ function cutFrame(dt) {
   camera.up.set(0, 1, 0); _cl.set(f.x, f.y, f.z); camera.lookAt(_cl);
   if (Math.abs(camera.fov - 50) > 0.01) { camera.fov = cam.fov = 50; camera.updateProjectionMatrix(); }
 }
-function missionStart() {
+function missionStart(restart) {
   if (settings.mode === 'free') { missionHUD(null); return; }
-  const fresh = !settings.mission || settings.mission.done || settings.mission.failed;
+  const fresh = restart || !settings.mission || settings.mission.done || settings.mission.failed;
   if (fresh) newMission();
   Object.assign(bike, { x: STB.ring[0], z: STB.ring[1] - 1, yaw: 0, v: 0, y: KERB, ry: KERB, air: 0, vy: 0 });
   cam.init = false; MS.lock = STB; MS.hud = '';
@@ -4548,7 +4553,7 @@ function missionPauseBox() {
   if (st.length) line(MX.shops, st.join(' · '));
   b.appendChild(buttonRow([[MX.restart, () => { pause(false); missionRestart(); }], [MX.free, () => { settings.mode = 'free'; save(); pause(false); missionHUD(null); }]]));
 }
-function missionRestart() { settings.mode = 'mission'; newMission(); MS.hud = ''; missionStart(); }
+function missionRestart() { settings.mode = 'mission'; save(); MS.hud = ''; missionStart(true); }
 
 /* ---------- the map: shops and The Siam Times ---------- */
 function drawMissionMap(x, s) {
@@ -5585,7 +5590,7 @@ async function boot() {
 }
 requestAnimationFrame(frame);
 boot().catch(err => { console.error(err); $('loadText').textContent = T.loadFail + ' (' + (err && err.message || err) + ')'; });
-if (/[?&]debug\b/.test(location.search)) window.__cruiser = { TRAFFIC, MS, SHOPS, STB, MISSION, mission, newMission, openPlace, missionHonk, ranRed, closeCut, missionStart, missionRestart, missionTarget, get mstate() { return settings.mission; }, driveTap, setNeutral, DECKS, LV, UW, deckAt, surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
+if (/[?&]debug\b/.test(location.search)) window.__cruiser = { cutNow: () => { state = 'cut'; }, TRAFFIC, MS, SHOPS, STB, MISSION, mission, newMission, openPlace, missionHonk, ranRed, closeCut, missionStart, missionRestart, missionTarget, get mstate() { return settings.mission; }, driveTap, setNeutral, DECKS, LV, UW, deckAt, surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
 
 </script>
 <script>
