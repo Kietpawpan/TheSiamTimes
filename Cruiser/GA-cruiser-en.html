@@ -136,6 +136,12 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 .gbtn { width: 78px; height: 62px; border-radius: 16px; border: 1px solid var(--rule); background: var(--glass); color: var(--paper); cursor: pointer; display: grid; place-content: center; font: 600 22px/1 var(--font-ui); gap: 2px; }
 .gbtn small { font: 500 10.5px/1 var(--font-ui); color: var(--muted); letter-spacing: .06em; }
 .gbtn.on { background: rgba(214, 173, 95, .35); border-color: var(--brass); }
+.gbtn[hidden] { display: none; }
+.dbtn b { font: 700 26px/1 var(--font-ui); }
+.dbtn.d b { color: #8fc3ea; }
+.dbtn.n { border-color: var(--brass); animation: dpulse 1.1s ease-in-out infinite; }
+.dbtn.n b { color: var(--brass-hi); }
+@keyframes dpulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(214, 173, 95, 0); } 50% { box-shadow: 0 0 0 6px rgba(214, 173, 95, .35); } }
 #steer.auto .pad { opacity: .45; }
 #steer.auto .lbl { color: var(--blue); }
 
@@ -195,7 +201,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 #postcard .pk { font: 600 11px/1 var(--font-ui); letter-spacing: .2em; text-transform: uppercase; color: #8a6420; }
 #postcard h3 { margin: 6px 0 4px; font: 400 25px/1.2 var(--font-display); }
 #postcard p { margin: 0; font-size: 15px; line-height: 1.5; color: #39434e; }
-#postcard .stamp { position: absolute; right: 12px; top: 10px; width: 46px; height: 54px; border: 2px dashed #b68c3c; border-radius: 3px; display: grid; place-items: center; font: 22px var(--font-mast); color: #8a6420; transform: rotate(6deg); }
+#postcard .stamp { position: absolute; right: 12px; top: 10px; width: 46px; height: 54px; border: 2px dashed #b68c3c; border-radius: 3px; display: grid; place-items: center; font: 30px/1 var(--font-mast); color: #8a6420; transform: rotate(6deg); }
 
 /* ---------- pause ---------- */
 #pause { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; background: rgba(6, 10, 15, .62); padding: 16px; box-sizing: border-box; }
@@ -207,8 +213,8 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 .pside { display: grid; gap: 14px; min-width: 0; }
 #bigmap { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--rule); background: #121a22; }
 @media (max-width: 640px) { .pgrid { grid-template-columns: 1fr; } #bigmap { max-width: 300px; justify-self: center; } }
-.album { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.album div { border: 1px solid var(--rule); border-radius: 8px; padding: 8px; font: 500 12px/1.3 var(--font-ui); color: var(--muted); min-height: 46px; }
+.album { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; align-content: start; }
+.album div { border: 1px solid var(--rule); border-radius: 8px; padding: 6px 7px; font: 500 12px/1.3 var(--font-ui); color: var(--muted); }
 .album div.got { background: #f3ecdc; color: #1b232c; border-color: #f3ecdc; }
 .album div.got::before { content: "✓ "; color: #8a6420; font-weight: 700; }
 .btnrow { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -238,6 +244,67 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 @media (orientation: portrait) and (max-width: 760px) {
   #gauge { bottom: calc(var(--safe-b) + 150px); }
 }
+/* the mission */
+.mpanel { margin-top: 6px; max-width: 340px; background: var(--glass); border: 1px solid var(--rule); border-radius: 12px; padding: 8px 11px; font: 500 12.5px/1.35 var(--font-ui); color: var(--paper); }
+.mpanel .mt { font: 600 10.5px var(--font-ui); letter-spacing: .1em; color: #5fe39c; text-transform: uppercase; }
+.mpanel .mo { margin: 3px 0 5px; }
+.mpanel .ms { display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mpanel .ms .warn { color: #ff7b6a; font-weight: 600; }
+#actBtn { position: absolute; left: 50%; bottom: calc(var(--safe-b) + 236px); transform: translateX(-50%); z-index: 7; border: 1px solid #c99a3c; background: #0b4a2c; color: #f2d68a; font: 600 17px var(--font-ui); padding: 12px 22px; border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,.4); cursor: pointer; white-space: nowrap; animation: actpulse 1.4s ease-in-out infinite; }
+#actBtn[hidden] { display: none; }
+@keyframes actpulse { 50% { box-shadow: 0 0 0 7px rgba(95,227,156,.25), 0 8px 24px rgba(0,0,0,.4); } }
+#flash { position: absolute; inset: 0; z-index: 20; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at center, rgba(255,40,30,0) 30%, rgba(255,40,30,.55) 100%); }
+#flash.on { animation: redflash 1.1s ease-out; }
+@keyframes redflash { 0% { opacity: 1; } 100% { opacity: 0; } }
+#floats { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 6; }
+.float { position: absolute; left: 0; top: 0; font: 700 19px var(--font-ui); color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.7); white-space: nowrap; }
+#cut { position: absolute; inset: 0; z-index: 25; display: grid; place-items: end center; }
+#cut[hidden] { display: none; }
+#cut::before, #cut::after { content: ""; position: absolute; left: 0; right: 0; height: 8vh; background: #000; animation: bars .6s ease-out both; }
+#cut::before { top: 0; transform-origin: top; } #cut::after { bottom: 0; transform-origin: bottom; }
+@keyframes bars { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.cutcard { position: relative; z-index: 1; margin-bottom: calc(8vh + 14px); width: min(760px, calc(100% - 32px)); max-height: calc(84vh - 28px); overflow-y: auto; background: var(--glass-hi); border: 1px solid var(--rule); border-radius: 16px; padding: 16px 18px; box-sizing: border-box; color: var(--paper); font: 15px/1.45 var(--font-ui); animation: cardin .45s ease-out both; }
+@keyframes cardin { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.cutcard.talk { border-color: #2f7a52; }
+.shophd { display: flex; align-items: center; gap: 10px; background: #0b4a2c; color: #f2d68a; margin: -16px -18px 12px; padding: 10px 18px; border-radius: 16px 16px 0 0; font: 600 18px Georgia, "Times New Roman", serif; letter-spacing: .08em; }
+.cutcard.st .shophd { background: #0c131b; color: var(--brass-hi); font: 24px var(--font-mast); letter-spacing: 0; }
+.shophd .em, .introhd .em { width: 34px; height: 34px; flex: none; border-radius: 50%; border: 2px solid currentColor; display: grid; place-items: center; font: 22px/1 var(--font-mast); }
+.cutcard.talk:not(.st) .shophd .em { font: 18px/1 Georgia, serif; }
+.introhd { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; color: var(--brass-hi); }
+.introhd .em { width: 44px; height: 44px; font-size: 30px; }
+.introhd small { color: #5fe39c; font: 600 11px var(--font-ui); letter-spacing: .1em; text-transform: uppercase; }
+.introhd h3 { margin: 2px 0 0; font: 400 26px/1.15 var(--font-display); color: var(--paper); }
+.talkbody { display: flex; gap: 16px; align-items: center; }
+.watchpic { width: 150px; height: 150px; flex: none; }
+.watchpic.big { width: 190px; height: 190px; display: block; margin: 0 auto; }
+.talktext small { color: var(--muted); }
+.talktext p { margin: 4px 0 0; }
+.talktext ul { margin: 8px 0 0; padding-left: 18px; font-size: 14px; }
+.talktext li { margin: 3px 0; }
+.money { display: flex; gap: 22px; margin-top: 10px; }
+.money small { display: block; color: var(--muted); font-size: 12px; }
+.money b { font: 600 20px var(--font-ui); color: var(--brass-hi); font-variant-numeric: tabular-nums; }
+.money.big { justify-content: center; margin: 12px 0 4px; }
+.money.big b { font-size: 34px; }
+.cutcard.work { text-align: center; width: min(420px, calc(100% - 32px)); }
+.cal { width: 200px; margin: 0 auto; background: #f6f1e3; color: #1b232c; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+.calhd { background: #b8402e; color: #fff; font: 600 14px var(--font-ui); padding: 6px; }
+.calday { font: 700 84px/1.1 var(--font-ui); font-variant-numeric: tabular-nums; }
+.calsub { font: 500 13px var(--font-ui); padding: 0 8px 10px; color: #4a4a4a; min-height: 36px; }
+.skip { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+.workdone { font-weight: 600; color: var(--brass-hi); }
+.cutcard.done, .cutcard.fail { text-align: center; width: min(520px, calc(100% - 32px)); }
+.cutcard.done h3, .cutcard.fail h3 { font: 400 32px/1.15 var(--font-display); margin: 6px 0; }
+.cutcard.fail h3 { color: #ff7b6a; }
+.stats2 { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin: 10px 0 4px; }
+.stats2 b { display: block; font: 600 22px var(--font-ui); font-variant-numeric: tabular-nums; }
+.stats2 span { font-size: 12px; color: var(--muted); }
+.cutcard .btnrow { justify-content: center; margin-top: 14px; }
+#hud.cutting .tr, #hud.cutting .pedals, #hud.cutting #steer, #hud.cutting #gearBox, #hud.cutting #gauge, #hud.cutting .tl, #hud.cutting #postcard, #hud.cutting #toast, #hud.cutting #district { opacity: 0; pointer-events: none; transition: opacity .3s; }
+.mbox { border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; font: 14px/1.4 var(--font-ui); }
+.mbox b { color: #5fe39c; }
+.mbox .btnrow { margin-top: 8px; }
+@media (max-width: 700px) { .talkbody { flex-direction: column; } .watchpic { width: 110px; height: 110px; } #actBtn { bottom: calc(var(--safe-b) + 200px); font-size: 15px; } }
 @media (prefers-reduced-motion: reduce) {
   #postcard, .roadsign, #district, #fade { transition: none; }
 }
@@ -253,6 +320,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
       <div>
         <div class="roadsign dim" id="roadSign"><b id="roadTh"></b><span id="roadEn"></span></div>
         <div class="vis" id="visCount"></div>
+        <div class="mpanel" id="mpanel" hidden><div class="mt" id="mpTitle"></div><div class="mo" id="mpObj"></div><div class="ms"><span id="mpMoney"></span><span id="mpReds"></span><span id="mpShops"></span></div></div>
       </div>
     </div>
     <div class="tr">
@@ -264,10 +332,13 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
     </div>
     <div id="district"><b id="distTh"></b><span id="distEn"></span></div>
     <div id="toast"></div>
-    <div id="postcard" aria-live="polite"><div class="stamp">T</div><div class="pk" data-i18n="postcard"></div><h3 id="pcTitle"></h3><p id="pcText"></p></div>
+    <div id="floats"></div>
+    <button id="actBtn" type="button" hidden></button>
+    <div id="flash"></div>
+    <div id="postcard" aria-live="polite"><div class="stamp">S</div><div class="pk" data-i18n="postcard"></div><h3 id="pcTitle"></h3><p id="pcText"></p></div>
     <canvas id="gauge" width="460" height="460" aria-hidden="true"></canvas>
     <div id="steer"><div class="pad"><i></i><i></i><i></i><div id="knob"></div><div class="lbl" id="steerLbl" data-i18n="steer"></div></div></div>
-    <div id="gearBox" hidden><button class="gbtn" id="gearUp" type="button">▲<small data-i18n="gearUp"></small></button><button class="gbtn" id="gearDown" type="button">▼<small data-i18n="gearDown"></small></button></div>
+    <div id="gearBox"><button class="gbtn dbtn" id="driveBtn" type="button"><b>D</b><small id="driveSub"></small></button><button class="gbtn" id="gearUp" type="button" hidden>▲<small data-i18n="gearUp"></small></button><button class="gbtn" id="gearDown" type="button" hidden>▼<small data-i18n="gearDown"></small></button></div>
     <div class="pedals">
       <button class="pbtn" id="hornBtn" type="button"><span data-i18n="horn"></span></button>
       <button class="pbtn" id="cruiseBtn" type="button" aria-pressed="false"><span data-i18n="cruise"></span></button>
@@ -282,6 +353,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
       <div><div class="mast">The Siam Times</div><div class="kicker" data-i18n="kicker"></div></div>
       <h1 data-i18n="title"></h1>
       <p class="lede" data-i18n="lede"></p>
+      <div class="opt"><span data-i18n="mode"></span><div class="row" id="modeRow"></div></div>
       <div class="opt"><span data-i18n="paint"></span><div class="row" id="paintRow"></div></div>
       <div class="opt"><span data-i18n="outfit"></span><div class="row" id="outfitRow"></div></div>
       <div class="opt"><span data-i18n="engine"></span><div class="row" id="engineRow"></div></div>
@@ -299,6 +371,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
   <div id="pause" hidden>
     <div class="card">
       <h2 data-i18n="paused"></h2>
+      <div class="mbox" id="mbox" hidden></div>
       <div class="pgrid">
         <canvas id="bigmap" width="480" height="560" aria-hidden="true"></canvas>
         <div class="pside">
@@ -315,6 +388,8 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
       <div class="btnrow"><button class="btn primary" id="resumeBtn" type="button" data-i18n="resume"></button><button class="btn" id="menuBtn" type="button" data-i18n="toTitle"></button></div>
     </div>
   </div>
+
+  <div id="cut" hidden><div class="cutcard" id="cutCard"></div></div>
 
   <div id="loading"><div class="box"><div class="mast">The Siam Times</div><div class="bar"><i id="loadBar"></i></div><p id="loadText">…</p></div></div>
   <div id="fade"></div>
@@ -350,15 +425,17 @@ let state = 'loading';
 const STR = {
   th: {
     kicker: 'Bangkok Cruiser', title: 'ล่องกรุง',
-    lede: 'บิ๊กไบค์ครูเซอร์ V-Twin เสียงลูกสูบคู่ทุ้มลึก ขี่ชมกรุงเทพฯ จากริมเจ้าพระยาถึงเยาวราช ใต้รางรถไฟฟ้า ถึงสุขุมวิท ขี่ได้ทุกที่ทั้งถนน ฟุตปาธ ซอย สวน และสนามหลวง เก็บโปสการ์ดให้ครบ 13 จุด',
+    lede: 'บิ๊กไบค์ครูเซอร์ V-Twin เสียงลูกสูบคู่ทุ้มลึก ขี่ชมกรุงเทพฯ จากริมเจ้าพระยาถึงเยาวราช ใต้รางรถไฟฟ้า ถึงสุขุมวิท ขี่ได้ทุกที่ทั้งถนน ฟุตปาธ ซอย สวน และสนามหลวง ข้ามสะพาน ลอดอุโมงค์ใต้น้ำ ขึ้นดาดฟ้า เก็บโปสการ์ดให้ครบ 16 จุด',
     paint: 'สีรถ', time: 'ช่วงเวลา', engine: 'เสียงเครื่องยนต์', volume: 'ความดังเสียง', mute: 'ปิดเสียง', outfit: 'ชุดคนขี่', gearbox: 'เกียร์', quality: 'กราฟิก', start: 'ติดเครื่อง',
-    gearAuto: 'อัตโนมัติ', gearManual: 'ธรรมดา (กดเปลี่ยนเอง)', rev: 'บิดเร่ง', revHold: 'กดค้างไว้', gearUp: 'เกียร์ขึ้น', gearDown: 'เกียร์ลง',
+    gearAuto: 'อัตโนมัติ', gearManual: 'ธรรมดา (กดเปลี่ยนเอง)', rev: 'บิดเร่ง', revHold: 'กดค้างไว้', gearUp: 'เกียร์ขึ้น', gearDown: 'เกียร์ลง', drive: 'ขับ', neutral: 'เกียร์ว่าง',
+    pressD: 'เกียร์ว่าง (N) · กดปุ่ม D เพื่อออกตัว', pressUp: 'เกียร์ว่าง (N) · กด ▲ เข้าเกียร์ 1 เพื่อออกตัว', inN: 'จอดแล้ว เข้าเกียร์ว่าง · บิดเร่งเบิ้ลเครื่องได้', inD: 'เข้าเกียร์ D',
+    mode: 'โหมด', landHard: 'ลงกระแทก!', river: 'ตกแม่น้ำ! กลับขึ้นฝั่ง', apOff: 'ออโต้ใช้ได้บนถนนในเมือง ช่วงนี้บังคับเองนะ',
     overRev: 'เร็วเกินสำหรับเกียร์นั้น ชะลอก่อนแล้วค่อยลดเกียร์', topGear: 'เกียร์ 6 สูงสุดแล้ว', firstGear: 'เกียร์ 1 ต่ำสุดแล้ว',
     auto: 'ออโต้', steerAuto: 'ออโต้เลี้ยวให้', autoOn: 'ระบบช่วยเลี้ยว: เปิด แค่บีบคันเร่งกับเปลี่ยนเกียร์', autoOff: 'ระบบช่วยเลี้ยว: ปิด', autoTo: n => `ออโต้กำลังพาไป ${n}`, autoFree: 'ออโต้: ขี่ชมเมืองไปเรื่อย ๆ',
     paints: ['ดำเงา', 'แดงแคนดี้', 'น้ำเงินเที่ยงคืน', 'ทองสยาม', 'ขาวมุก'],
     times: { day: 'กลางวัน', golden: 'ยามเย็น', dusk: 'พลบค่ำ', night: 'กลางคืน' },
     quals: { auto: 'อัตโนมัติ', high: 'สูง', medium: 'กลาง', low: 'ประหยัด' },
-    help: '<b>ซ้าย</b> แตะค้างแล้วลากซ้าย–ขวาเพื่อเลี้ยว (เกียร์ธรรมดา: ปุ่ม ▲ ▼ อยู่เหนือแฮนด์) · <b>ขวา</b> เร่ง / เบรก (หยุดแล้วกดเบรกค้างเพื่อถอย) · <b>ครูซ</b> คงความเร็ว · <b>ออโต้</b> เลี้ยวให้เอง เปิดเองในมุมถ่ายทอด · เปิดเสียง iPad ด้วย<br>คีย์บอร์ด: ↑↓←→ หรือ WASD · Space เบรก · E / Q เกียร์ขึ้น / ลง · G ออโต้ · H แตร · X ครูซ · C มุมกล้อง · T เวลา · P พัก',
+    help: '<b>ซ้าย</b> แตะค้างแล้วลากซ้าย–ขวาเพื่อเลี้ยว · จอดนิ่งแล้วรถเข้าเกียร์ว่าง (N) บิดเร่งเบิ้ลได้ กดปุ่ม <b>D</b> เหนือแฮนด์เพื่อออกตัว (เกียร์ธรรมดา: ▲ ▼) · <b>ขวา</b> เร่ง / เบรก (หยุดแล้วกดเบรกค้างเพื่อถอย) · <b>ครูซ</b> คงความเร็ว · <b>ออโต้</b> เลี้ยวให้เอง เปิดเองในมุมถ่ายทอด · เปิดเสียง iPad ด้วย<br>คีย์บอร์ด: ↑↓←→ หรือ WASD · Space เบรก · E / Q เกียร์ขึ้น / ลง (E = D) · G ออโต้ · H แตร · X ครูซ · C มุมกล้อง · T เวลา · P พัก',
     cam: 'กล้อง', timeBtn: 'เวลา', sound: 'เสียง', pause: 'พัก',
     steer: 'แฮนด์', horn: 'แตร', cruise: 'ครูซ', brake: 'เบรก', throttle: 'เร่ง',
     postcard: 'โปสการ์ดจากกรุงเทพฯ', paused: 'พักริมทาง', odo: 'กิโลเมตรที่ขี่', topSpeed: 'ความเร็วสูงสุด กม./ชม.', postcards: 'โปสการ์ด',
@@ -377,15 +454,17 @@ const STR = {
   },
   en: {
     kicker: 'ล่องกรุง', title: 'Bangkok Cruiser',
-    lede: 'A big V-twin cruiser with that deep, loping two-cylinder beat. Ride Bangkok from the Chao Phraya to Chinatown, under the Skytrain and out along Sukhumvit. Ride anywhere you fit: roads, pavements, sois, parks and Sanam Luang. Collect all 13 postcards.',
+    lede: 'A big V-twin cruiser with that deep, loping two-cylinder beat. Ride Bangkok from the Chao Phraya to Chinatown, under the Skytrain and out along Sukhumvit. Ride anywhere you fit: roads, pavements, sois, parks and Sanam Luang, over the river, under it and up onto a roof. Collect all 16 postcards.',
     paint: 'Paint', time: 'Time of day', engine: 'Engine sound', volume: 'Volume', mute: 'Muted', outfit: 'Rider’s outfit', gearbox: 'Gearbox', quality: 'Graphics', start: 'Start the engine',
-    gearAuto: 'Automatic', gearManual: 'Manual (tap to shift)', rev: 'Rev it', revHold: 'press and hold', gearUp: 'Up', gearDown: 'Down',
+    gearAuto: 'Automatic', gearManual: 'Manual (tap to shift)', rev: 'Rev it', revHold: 'press and hold', gearUp: 'Up', gearDown: 'Down', drive: 'Drive', neutral: 'Neutral',
+    pressD: 'Neutral · tap D to pull away', pressUp: 'Neutral · tap ▲ for 1st to pull away', inN: 'Stopped: in neutral · rev it as you like', inD: 'In drive',
+    mode: 'Mode', landHard: 'Hard landing!', river: 'In the river! Back to the bank', apOff: 'Auto steering works on the city streets: steer this bit yourself',
     overRev: 'Too fast for that gear: slow down, then shift down', topGear: 'Already in 6th', firstGear: 'Already in 1st',
     auto: 'Auto', steerAuto: 'Auto steering', autoOn: 'Steering assist on: just throttle and shift', autoOff: 'Steering assist off', autoTo: n => `Auto: heading for ${n}`, autoFree: 'Auto: cruising round the city',
     paints: ['Gloss black', 'Candy red', 'Midnight blue', 'Siam gold', 'Pearl white'],
     times: { day: 'Day', golden: 'Golden hour', dusk: 'Dusk', night: 'Night' },
     quals: { auto: 'Auto', high: 'High', medium: 'Medium', low: 'Saver' },
-    help: '<b>Left</b>: hold and slide left or right to steer (manual gearbox: ▲ ▼ above the bars) · <b>Right</b>: throttle and brake (stopped, hold the brake to back up) · <b>Cruise</b> holds your speed · <b>Auto</b> steers for you, and comes on by itself in the broadcast camera · Turn the iPad’s sound on<br>Keyboard: arrows or WASD · Space brake · E / Q shift up / down · G auto steering · H horn · X cruise · C camera · T time · P pause',
+    help: '<b>Left</b>: hold and slide left or right to steer · Stopped, the bike drops into neutral (N) and you can rev it; tap <b>D</b> above the bars to pull away (manual gearbox: ▲ ▼) · <b>Right</b>: throttle and brake (stopped, hold the brake to back up) · <b>Cruise</b> holds your speed · <b>Auto</b> steers for you, and comes on by itself in the broadcast camera · Turn the iPad’s sound on<br>Keyboard: arrows or WASD · Space brake · E / Q shift up / down (E = D) · G auto steering · H horn · X cruise · C camera · T time · P pause',
     cam: 'Camera', timeBtn: 'Time', sound: 'Sound', pause: 'Pause',
     steer: 'Bars', horn: 'Horn', cruise: 'Cruise', brake: 'Brake', throttle: 'Throttle',
     postcard: 'Postcard from Bangkok', paused: 'Pulled over', odo: 'km ridden', topSpeed: 'top speed km/h', postcards: 'postcards',
@@ -446,11 +525,20 @@ const LANDMARKS = [
   { id: 'market', x: 450, z: 500, th: 'ตลาดนัดกลางคืน', en: 'Night Market',
     tTh: 'หลังคาเต็นท์หลากสีเรียงเป็นแถว ทั้งของกิน เสื้อผ้ามือสอง ของเก่า และดนตรีสด',
     tEn: 'Rows of coloured tents: food, second-hand clothes, old curios and live music.' },
+  { id: 'bridge', x: -146, z: -100, r: 20, noAP: true, th: 'สะพานพระพุทธยอดฟ้า', en: 'Memorial Bridge',
+    tTh: 'สะพานพุทธ เปิดเมื่อ พ.ศ. 2475 ฉลองกรุงรัตนโกสินทร์ครบ 150 ปี เชื่อมฝั่งพระนครกับฝั่งธนบุรี จากยอดโค้งสะพานมองเห็นแม่น้ำได้ทั้งสองทาง',
+    tEn: 'Memorial Bridge, opened in 1932 for Bangkok’s 150th anniversary, joins the old city to the Thonburi bank. From the top of its arch you can see up and down the river.' },
+  { id: 'tunnel', x: -141, z: 600, r: 18, ymax: -3, noAP: true, th: 'อุโมงค์ลอดแม่น้ำ', en: 'The River Tunnel',
+    tTh: 'อุโมงค์กระจกใต้แม่น้ำเจ้าพระยา (มีในเกมนี้เท่านั้น) มองเห็นปลาบึก ปลาสวาย ปลานิล และฝูงปลาตะเพียนว่ายรอบตัว',
+    tEn: 'A glass tunnel under the Chao Phraya (only in this game): giant catfish, iridescent sharks, tilapia and shoals of silver barbs swim all round you.' },
+  { id: 'roof', x: 229, z: 229, r: 15, y: 5, noAP: true, th: 'ลานจอดรถชั้นดาดฟ้า', en: 'Rooftop Car Park',
+    tTh: 'ขี่ขึ้นทางลาดไปบนดาดฟ้า มองเห็นสวนลุมพินีกับตึกสีลม แล้วลงทางสะพานแคบ ๆ กว้างแค่ 2 เมตร ถ้ากล้าพอ',
+    tEn: 'Ride up the ramp to the roof for a view over Lumphini and the Silom towers, then come down the narrow bridge, two metres wide, if you dare.' },
 ];
 
 /* ---------- settings (kept in this browser only) ---------- */
 const SAVE_KEY = 'tst-cruiser-v1';
-const settings = { paint: 0, time: 'golden', engine: '', volume: 0.8, outfit: 0, gearbox: 'auto', quality: 'auto', cam: 0, sound: true, steer: 'pad', visited: [], odo: 0, top: 0 };
+const settings = { mode: 'mission', mission: null, paint: 0, time: 'golden', engine: '', volume: 0.8, outfit: 0, gearbox: 'auto', quality: 'auto', cam: 0, sound: true, steer: 'pad', visited: [], odo: 0, top: 0 };
 try { Object.assign(settings, JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')); } catch (e) { /* storage blocked */ }
 if (!Array.isArray(settings.visited)) settings.visited = [];
 let saveTimer = 0;
@@ -1050,9 +1138,9 @@ function buildTextures() {
     x.fillStyle = '#fbfaf4'; x.fillRect(0, 0, 512, 384);
     x.strokeStyle = '#0b0b0b'; x.lineWidth = 12; x.strokeRect(10, 10, 492, 364);
     x.fillStyle = '#0b0b0b'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    fitText(x, '1กข', 300, 104, '700', FONT_TH); x.fillText('1กข', 256, 88);
+    fitText(x, '3ขษ', 300, 104, '700', FONT_TH); x.fillText('3ขษ', 256, 88);
     fitText(x, 'กรุงเทพมหานคร', 420, 50, '600', FONT_TH); x.fillText('กรุงเทพมหานคร', 256, 164);
-    fitText(x, '1864', 450, 176, '700', FONT_TH); x.fillText('1864', 256, 282);
+    fitText(x, '988', 450, 176, '700', FONT_TH); x.fillText('988', 256, 282);
     TEX.plate = tex(c, { repeat: false });
   }
   /* tank lettering */
@@ -1129,7 +1217,7 @@ const GRID = [
   ['river', 'river', 'biz', 'biz', 'suk', 'suk'],
   ['river', 'river', 'biz', 'biz', 'market', 'suk'],
 ];
-const SPECIAL = { '0,-2': 'palace', '1,-2': 'sanam', '3,-2': 'mount', '1,-4': 'khaosan', '1,-3': 'khaosan', '0,7': 'wheel', '8,4': 'park' };
+const SPECIAL = { '0,1': 'siamtimes', '2,2': 'skypark', '0,-2': 'palace', '1,-2': 'sanam', '3,-2': 'mount', '1,-4': 'khaosan', '1,-3': 'khaosan', '0,7': 'wheel', '8,4': 'park' };
 function blockType(bx, bz) {
   const s = SPECIAL[bx + ',' + bz]; if (s) return s;
   if (bx >= 0 && bx <= 5 && bz >= 0 && bz <= 5) return GRID[bz][bx];
@@ -1144,9 +1232,11 @@ const DISTRICT = {
   sanam: ['เกาะรัตนโกสินทร์', 'Rattanakosin · Old Town'], mount: ['ภูเขาทอง–ป้อมปราบ', 'Golden Mount'], khaosan: ['บางลำพู', 'Banglamphu'],
   china: ['เยาวราช', 'Yaowarat · Chinatown'], river: ['ริมน้ำเจ้าพระยา', 'Chao Phraya Riverside'], wheel: ['ริมน้ำเจ้าพระยา', 'Chao Phraya Riverside'],
   siam: ['สยาม–ปทุมวัน', 'Siam · Pathum Wan'], biz: ['สีลม–สาทร', 'Silom · Sathon'], park: ['สวนลุมพินี', 'Lumphini'],
-  suk: ['สุขุมวิท', 'Sukhumvit'], market: ['สุขุมวิท', 'Sukhumvit'],
+  suk: ['สุขุมวิท', 'Sukhumvit'], market: ['สุขุมวิท', 'Sukhumvit'], skypark: ['สีลม–สาทร', 'Silom · Sathon'], siamtimes: ['เกาะรัตนโกสินทร์', 'Rattanakosin · Old Town'],
 };
 function districtLabel(x, z) {
+  if (x < -276) return ['ฝั่งธนบุรี', 'Thonburi'];
+  if (x < -16) return ['แม่น้ำเจ้าพระยา', 'Chao Phraya River'];
   const [bx, bz] = cellOf(x, z), t = districtAt(x, z);
   if (t === 'park' && bx === 8) return ['สวนเบญจกิติ', 'Benchakitti Park'];
   if (t === 'siam' && bz < 0) return ['ราชเทวี', 'Ratchathewi'];
@@ -1170,13 +1260,15 @@ function colInsert(o, x0, z0, x1, z1) {
     }
 }
 function addRect(x0, z0, x1, z1) { if (x1 < x0) [x0, x1] = [x1, x0]; if (z1 < z0) [z0, z1] = [z1, z0]; colInsert({ t: 0, x0, z0, x1, z1 }, x0, z0, x1, z1); }
+// colliders with y0/y1 only stop you between those heights (y: the bike's height; omitted: everything counts)
 const addCircle = (x, z, r) => colInsert({ t: 1, x, z, r }, x - r, z - r, x + r, z + r);
 const addEllipse = (x, z, rx, rz) => colInsert({ t: 2, x, z, rx, rz }, x - rx, z - rz, x + rx, z + rz);
 const colNear = (x, z) => COL.grid.get(ckey(Math.floor(x / COL.cell), Math.floor(z / COL.cell))) || NONE;
 // push point p {x,z} out of everything; returns the last contact normal or null
-function collide(p, r) {
+function collide(p, r, y) {
   let hit = null;
   const test = o => {
+    if (o.y1 !== undefined && y !== undefined && (y > o.y1 - 0.25 || y + 1.5 < o.y0)) return;
     if (o.t === 0) {
       if (p.x < o.x0 - r || p.x > o.x1 + r || p.z < o.z0 - r || p.z > o.z1 + r) return;
       const dl = p.x - (o.x0 - r), dr = (o.x1 + r) - p.x, dt = p.z - (o.z0 - r), db = (o.z1 + r) - p.z, m = Math.min(dl, dr, dt, db);
@@ -1194,8 +1286,8 @@ function collide(p, r) {
   for (const o of colNear(p.x, p.z)) test(o);
   return hit;
 }
-function insideSolid(x, z, r = 0) {
-  const p = { x, z }; const h = collide(p, r); return !!h;
+function insideSolid(x, z, r = 0, y) {
+  const p = { x, z }; const h = collide(p, r, y); return !!h;
 }
 
 /* ---------- blocks by cell, for the ground height ---------- */
@@ -1299,6 +1391,7 @@ function shopRow(ax, az, bx, bz, depth, kind, opt = {}) {
     const p0x = ax + dx * uw * i, p0z = az + dz * uw * i, p1x = p0x + dx * uw, p1z = p0z + dz * uw;
     const p2x = p1x - ox * depth, p2z = p1z - oz * depth, p3x = p0x - ox * depth, p3z = p0z - oz * depth;
     g.color(pick(SHOP_TINT[kind] || SHOP_TINT.suk));
+    const bq = inBoutique((p0x + p1x) / 2, (p0z + p1z) / 2);
     const u0 = s / 4 + 0.004, u1 = (s + 1) / 4 - 0.004, vt = Math.min(0.995, h / 3.5 * 0.15625);
     const pu0 = s / 4 + 0.03, pu1 = s / 4 + 0.2;
     g.wall(p0x, p0z, p1x, p1z, 0, h, u0, u1, 0, vt);
@@ -1307,24 +1400,24 @@ function shopRow(ax, az, bx, bz, depth, kind, opt = {}) {
     if (hl < h) g.wall(p3x, p3z, p0x, p0z, hl, h, pu0, pu1, 0.945, 0.99);
     rf.color(0x8d8a84); rf.quad([p0x, h, p0z], [p1x, h, p1z], [p2x, h, p2z], [p3x, h, p3z]);
     if (R() < 0.3) { const cx = (p0x + p2x) / 2, cz = (p0z + p2z) / 2; rf.color(R() < 0.5 ? 0x5c7fa6 : 0xc9c4b8); rf.geo(GEO.tank, mat(cx, h + 0.75, cz, 0, 0.7, 0.75, 0.7)); }
-    if (R() < (opt.awning ?? 0.45)) {
+    if (R() < (opt.awning ?? 0.45) && !bq) {
       rf.color(pick(AWNING));
       const y0 = 3.05, y1 = 2.55, out = 1.5;
       rf.quad([p0x + dx * 0.2 + ox * out, y1, p0z + dz * 0.2 + oz * out], [p1x - dx * 0.2 + ox * out, y1, p1z - dz * 0.2 + oz * out], [p1x - dx * 0.2 + ox * 0.02, y0, p1z - dz * 0.2 + oz * 0.02], [p0x + dx * 0.2 + ox * 0.02, y0, p0z + dz * 0.2 + oz * 0.02]);
       rf.quad([p0x + dx * 0.2 + ox * 0.02, y0, p0z + dz * 0.2 + oz * 0.02], [p1x - dx * 0.2 + ox * 0.02, y0, p1z - dz * 0.2 + oz * 0.02], [p1x - dx * 0.2 + ox * out, y1, p1z - dz * 0.2 + oz * out], [p0x + dx * 0.2 + ox * out, y1, p0z + dz * 0.2 + oz * out]);
     }
-    if (R() < (opt.signs ?? 0.6)) {
+    if (R() < (opt.signs ?? 0.6) && !bq) {
       const k = Math.floor(R() * 31), su0 = (k % 4) / 4, sv1 = 1 - Math.floor(k / 4) / 8, su1 = su0 + 0.25, sv0 = sv1 - 0.125;
       const o = 0.12, y0 = 3.35, y1 = y0 + Math.min(1.1, (uw - 0.6) / 2);
       sg.wall(p0x + dx * 0.3 + ox * o, p0z + dz * 0.3 + oz * o, p1x - dx * 0.3 + ox * o, p1z - dz * 0.3 + oz * o, y0, y1, su0, su1, sv0, sv1);
     }
-    if (f >= 3 && R() < (opt.neon ?? 0)) {
+    if (f >= 3 && R() < (opt.neon ?? 0) && !bq) {
       const k = Math.floor(R() * 8), mx = (p0x + p1x) / 2 + dx * (R() - 0.5) * 1.5, mz = (p0z + p1z) / 2 + dz * (R() - 0.5) * 1.5;
       const y0 = 4.4, y1 = Math.min(h - 0.4, 4.4 + 8);
       ne.wall(mx + ox * 0.15, mz + oz * 0.15, mx + ox * 1.35, mz + oz * 1.35, y0, y1, k / 8 + 0.004, (k + 1) / 8 - 0.004, 0, (y1 - y0) / 8.2);
     }
     // English neon boards (Khao San)
-    if (f >= 2 && R() < (opt.boards ?? 0)) {
+    if (f >= 2 && R() < (opt.boards ?? 0) && !bq) {
       const k = Math.floor(R() * 16), bu0 = (k % 2) / 2 + 0.004, bu1 = (k % 2 + 1) / 2 - 0.004, bv1 = 1 - Math.floor(k / 2) / 8 - 0.004, bv0 = bv1 - 0.117;
       n2.wall(p0x + dx * 0.25 + ox * 0.14, p0z + dz * 0.25 + oz * 0.14, p1x - dx * 0.25 + ox * 0.14, p1z - dz * 0.25 + oz * 0.14, 5.0, 5.0 + (uw - 0.5) / 4, bu0, bu1, bv0, bv1);
     }
@@ -1406,7 +1499,7 @@ function lathe(points, segs, m, key) { const g = new THREE.LatheGeometry(points.
 const CHEDI = [[0, 0], [4.6, 0], [4.6, 0.8], [4.1, 1.1], [4.1, 1.9], [3.6, 2.2], [3.7, 3.6], [4.0, 5.2], [3.8, 6.8], [3.2, 8.2], [2.3, 9.2], [1.4, 9.8], [1.2, 10.4], [1.4, 11.0], [1.0, 11.5], [0.75, 13.5], [0.5, 15.5], [0.3, 17.5], [0.12, 19.2], [0, 20]];
 
 /* ---------- the world ---------- */
-const WORLD = { blocks: [], landmarks: [], trains: [], boats: [], trafficLights: [], beams: [], greens: [], sois: [], kites: [], wheel: null };
+const WORLD = { lakes: [], blocks: [], landmarks: [], trains: [], boats: [], trafficLights: [], beams: [], greens: [], sois: [], kites: [], wheel: null };
 
 function buildRoads() {
   const W = 0xf2f0ea, Y = 0xf0c22a;
@@ -1474,7 +1567,8 @@ function buildBlocks() {
   // the river promenade (ride along it), the railing and the drop to the water
   gb('walk').top(-15.6, -900, -7, 1600, KERB, -15.6 / 3.2, -1600 / 3.2, -7 / 3.2, 900 / 3.2);
   gb('curb').wall(-7, -900, -7, 1600, 0, KERB, 0, 1250, 0.03, 0.47);
-  addRect(-2000, -2000, -15.6, 3000);
+  // the river railing, open where the bridge and the tunnel start
+  for (const [a, b] of [[-3000, LV.BZ - 7], [LV.BZ + 7, LV.TZ - 4], [LV.TZ + 4, 3000]]) addRect(-16, a, -15.6, b);
   addRect(-16, MAP.z1, 2000, 3000); addRect(-16, -3000, 2000, MAP.z0); addRect(MAP.x1, -3000, 3000, 3000);
   gb('ground').top(-3000, -3000, 3600, 3600, -0.04, 0, 0, 1, 1);
 }
@@ -1488,6 +1582,8 @@ function fillBlocks() {
     if (t === 'temple') { templeBlock(b, X0, Z0, X1, Z1); continue; }
     if (t === 'park') { parkBlock(b, X0, Z0, X1, Z1); continue; }
     if (t === 'market') { marketBlock(b, X0, Z0, X1, Z1); continue; }
+    if (t === 'skypark') { skyparkBlock(b, X0, Z0, X1, Z1); continue; }
+    if (t === 'siamtimes') { siamTimesBlock(b, X0, Z0, X1, Z1); continue; }
     if (t === 'palace') { palaceBlock(b, X0, Z0, X1, Z1); continue; }
     if (t === 'sanam') { sanamBlock(b, X0, Z0, X1, Z1); continue; }
     if (t === 'mount') { mountBlock(b, X0, Z0, X1, Z1); continue; }
@@ -1636,7 +1732,7 @@ function parkBlock(b, X0, Z0, X1, Z1) {
   const lx = (X0 + X1) / 2 + (big ? -4 : 4), lz = (Z0 + Z1) / 2 + 6, lrx = big ? 26 : 22, lrz = big ? 18 : 14;
   const lake = new THREE.Mesh(new THREE.CircleGeometry(1, 40).rotateX(-Math.PI / 2), MAT.water);
   lake.scale.set(lrx, 1, lrz); lake.position.set(lx, KERB + 0.06, lz); lake.receiveShadow = true; scene.add(lake);
-  addEllipse(lx, lz, lrx, lrz);
+  WORLD.lakes.push({ x: lx, z: lz, rx: lrx, rz: lrz, wl: KERB + 0.06 });   // shallow: ride through it
   const p = gb('walk'), N = 48;
   for (let i = 0; i < N; i++) {
     const a0 = i / N * Math.PI * 2, a1 = (i + 1) / N * Math.PI * 2, r0 = [lrx + 2.5, lrz + 2.5], r1 = [lrx + 5, lrz + 5];
@@ -1828,11 +1924,12 @@ function buildStreetFurniture() {
     for (let x = x0; x <= x1; x += 32) { lampSpot(x, z - w / 2 - 0.7, 0, 1, warm); lampSpot(x + 16, z + w / 2 + 0.7, 0, -1, warm); }
   }
   // river promenade: palms and lamps
-  for (let z = MAP.z0 + 120; z < MAP.z1 - 120; z += 13) palm(-12.5, z + R() * 3, 0.9 + R() * 0.3);
-  for (let z = MAP.z0 + 120; z < MAP.z1 - 120; z += 26) { inst('lampPole', mat(-8, KERB, z, Math.PI / 2), null); inst('lampHead', mat(-5.7, KERB + 8.35, z, Math.PI / 2), col(WARM)); addCircle(-8, z, 0.22); }
+  const mouth = z => Math.abs(z - LV.BZ) < 12 || Math.abs(z - LV.TZ) < 9;
+  for (let z = MAP.z0 + 120; z < MAP.z1 - 120; z += 13) { const zz = z + R() * 3, s = 0.9 + R() * 0.3; if (!mouth(zz)) palm(-12.5, zz, s); }
+  for (let z = MAP.z0 + 120; z < MAP.z1 - 120; z += 26) { if (mouth(z)) continue; inst('lampPole', mat(-8, KERB, z, Math.PI / 2), null); inst('lampHead', mat(-5.7, KERB + 8.35, z, Math.PI / 2), col(WARM)); addCircle(-8, z, 0.22); }
   useGlobal();
   const r = gb('roof'); r.color(0xd8d4ca);
-  r.box(-15.9, -900, -15.6, 1600, KERB, KERB + 1.05, 1, 1, 0, [0, 0, 1, 1]);
+  for (const [a, b] of [[-900, LV.BZ - 7], [LV.BZ + 7, LV.TZ - 4], [LV.TZ + 4, 1600]]) r.box(-15.9, a, -15.6, b, KERB, KERB + 1.05, 1, 1, 0, [0, 0, 1, 1]);
   // street trees on the avenues
   const avenue = (x0, z0, x1, z1, step) => { const L = Math.hypot(x1 - x0, z1 - z0); for (let s = 0; s <= L; s += step) { const x = lerp(x0, x1, s / L), z = lerp(z0, z1, s / L); if (!nearIntersection(x, z, 14)) tree(x, z, 0.75 + R() * 0.3, 0); } };
   const w0 = WZ[RZ.indexOf(0)], w5 = WZ[RZ.indexOf(500)], wm2 = WZ[RZ.indexOf(-200)];
@@ -1948,20 +2045,26 @@ function buildSkytrain() {
 /* ---------- the river, the far bank, Wat Arun, the pier, the bridge, boats ---------- */
 function buildRiver() {
   useGlobal();
-  const water = new THREE.Mesh(new THREE.PlaneGeometry(260, 3000).rotateX(-Math.PI / 2), MAT.water);
-  water.position.set(-146, -0.6, 300); water.receiveShadow = true; scene.add(water);
+  {
+    const wg = new GB(), T = LV.T, z0 = LV.TZ - T.w / 2 - 0.6, z1 = LV.TZ + T.w / 2 + 0.6;
+    const piece = (x0, za, x1, zb) => wg.top(x0, za, x1, zb, -0.6, (x0 + 276) / 260, (1200 - zb) / 3000, (x1 + 276) / 260, (1200 - za) / 3000);
+    piece(-276, -1200, -16, z0); piece(-276, z1, -16, 1800); piece(T.xb, z0, T.xa, z1);
+    const water = new THREE.Mesh(wg.build(), MAT.water); water.receiveShadow = true; scene.add(water);
+  }
   MAT.water.normalMap.repeat.set(20, 200);
   const r = gb('roof'); r.color(0x8c877c);
   r.wall(-16, -900, -16, 1600, -0.7, KERB, 0, 1, 0, 1);
   r.wall(-276, 1600, -276, -900, -0.7, 1.2, 0, 1, 0, 1);
   gb('ground').top(-3000, -900, -276, 1600, 1.2, 0, 0, 1, 1);
-  for (let z = -720; z < 1200; z += 9 + R() * 8) {
-    if (Math.abs(z - 250) < 70) continue;
-    const d = 8 + R() * 10, h = 5 + R() * 14;
+  for (let z = -720; z < 1200;) {
+    const z8 = z, back = z > LV.WEST.z0 - 20 && z < LV.WEST.z1 + 20, step = 9 + R() * 8;
+    z += back ? 8 : step;
+    if (Math.abs(z8 - 250) < 70) continue;
+    const d = 8 + R() * 10, h = 5 + R() * 14, fx = back ? LV.WEST.x0 : -280;
     const g = gb('shop'); g.color(pick(SHOP_TINT.river)); const s = Math.floor(R() * 4);
-    g.wall(-280, z + 8, -280, z, 1.2, h, s / 4 + 0.004, (s + 1) / 4 - 0.004, 0.0, Math.min(0.99, h / 3.5 * 0.15625));
-    g.box(-280 - d, z, -280, z + 8, 1.2, h, 30, 30, 0, null, 1 | 4 | 8);
-    gb('roof').color(0x8a6d58).top(-280 - d, z, -280, z + 8, h);
+    g.wall(fx, z8 + 8, fx, z8, 1.2, h, s / 4 + 0.004, (s + 1) / 4 - 0.004, 0.0, Math.min(0.99, h / 3.5 * 0.15625));
+    g.box(fx - d, z8, fx, z8 + 8, 1.2, h, 30, 30, 0, null, 1 | 4 | 8);
+    gb('roof').color(0x8a6d58).top(fx - d, z8, fx, z8 + 8, h);
   }
   for (let k = 0; k < 26; k++) { const z = -650 + R() * 1850; if (Math.abs(z - 250) < 90) continue; tower(-360 - R() * 300, z, 22, 22, 30 + R() * 90, R() < 0.5 ? 'condo' : 'glass', { noCol: true }); }
   const ax = -330, az = 250, base = 1.2;
@@ -2201,7 +2304,7 @@ async function buildWorld(progress) {
   buildGeo(); buildMaterials();
   await progress(1); buildRoads(); buildBlocks();
   await progress(2); fillBlocks(); buildGate(); buildSkytrain();
-  await progress(3); buildRiver(); buildStreetFurniture(); buildTrafficLights(); buildSkyline();
+  await progress(3); buildRiver(); buildStreetFurniture(); buildTrafficLights(); buildSkyline(); buildLevels();
   mergeInstances(); bakeWorld(); buildBeams(); updateChunks(true);
 }
 
@@ -2217,6 +2320,674 @@ function roadAt(x, z) {
     best = r;
   }
   return best;
+}
+
+
+/* =====================================================================
+   Above and below the street: Memorial Bridge over the river, a glass
+   tunnel under it with fish all round, Arun Amarin Road on the Thonburi
+   bank between them, and a car park whose roof you can ride up onto,
+   with a narrow bridge down.
+   Surfaces off the ground ("decks") each have a height; the bike stands
+   on the highest one it can reach from where it is (a step up of at most
+   STEP), so it can ride under a ramp or along a bridge above the water.
+   Colliders can carry a height range: a roof's parapet stops you on the
+   roof but not in the street below it.
+   ===================================================================== */
+const STEP = 0.45;
+const DECKS = [];
+const deck = o => (DECKS.push(o), o);
+// a straight strip from A to B, w wide, at height f(t) for t = 0 … 1 along it
+function stripDeck(ax, az, bx, bz, w, f, o = {}) {
+  const L = Math.hypot(bx - ax, bz - az), dx = (bx - ax) / L, dz = (bz - az) / L, nx = -dz, nz = dx, hw = w / 2;
+  const xs = [ax + nx * hw, ax - nx * hw, bx + nx * hw, bx - nx * hw], zs = [az + nz * hw, az - nz * hw, bz + nz * hw, bz - nz * hw];
+  return deck({ kind: 'road', ...o, x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs), ax, az, bx, bz, w, f, L, dx, dz, nx, nz,
+    h(x, z) { const t = ((x - ax) * dx + (z - az) * dz) / L, s = (x - ax) * nx + (z - az) * nz; return t < 0 || t > 1 || s < -hw || s > hw ? null : f(t); } });
+}
+const rectDeck = (x0, z0, x1, z1, y, o = {}) => deck({ kind: 'road', ...o, x0, z0, x1, z1, y, h: () => y });
+// the deck under a point that the bike can stand on from height y (null: none)
+function deckAt(x, z, y) {
+  let best = null, bh = -1e9;
+  for (const d of DECKS) {
+    if (x < d.x0 || x > d.x1 || z < d.z0 || z > d.z1) continue;
+    const h = d.h(x, z); if (h === null || h > y + STEP || h <= bh) continue;
+    best = d; bh = h;
+  }
+  return best ? { d: best, h: bh } : null;
+}
+const NOY = [-1e9, 1e9];
+// a collider box that only stops you between heights y0 and y1
+const addRectY = (x0, z0, x1, z1, y0, y1) => { if (x1 < x0) [x0, x1] = [x1, x0]; if (z1 < z0) [z0, z1] = [z1, z0]; colInsert({ t: 0, x0, z0, x1, z1, y0, y1 }, x0, z0, x1, z1); };
+const addCircleY = (x, z, r, y0, y1) => colInsert({ t: 1, x, z, r, y0, y1 }, x - r, z - r, x + r, z + r);
+
+/* ---------- places on these levels ---------- */
+const LV = {
+  BZ: -100,                                         // Memorial Bridge, the line of Na Phra Lan Road
+  TZ: 600,                                          // the tunnel, the line of Rama III Road
+  WEST: { x0: -296, x1: -276, road: [-292, -280], z0: -132, z1: 632, y: 1.2 },
+  T: { x0: -16, xa: -76, xb: -206, x1: -276, floor: -7.4, R: 4.6, w: 8 },
+  PARK: { roof: 7.0, b: [213, 213, 245, 245], ramp: [249, 257, 229, 287], land: [245, 213, 257, 229], narrow: [217.2, 2.0, 245, 287] },
+};
+const bridgeY = t => lerp(KERB, LV.WEST.y + 0.01, t) + 7.2 * Math.sin(Math.PI * t);
+const tunnelEastY = t => lerp(KERB, LV.T.floor, t);
+const tunnelWestY = t => lerp(LV.T.floor, LV.WEST.y + 0.01, t);
+// what the ground is where there are no decks: the river, and the Thonburi bank across it
+function riverSurface(x, z) {
+  if (x > -16.05) return null;
+  if (x > -276) return { kind: 'river', h: -1.4, wl: -0.6, depth: 3 };
+  const W = LV.WEST;
+  if (x > -280 && !((z > LV.BZ - 7 && z < LV.BZ + 7) || (z > LV.TZ - 4 && z < LV.TZ + 4))) return { kind: 'walk', h: W.y + KERB };
+  if (x > -292) return { kind: 'road', h: W.y };
+  return { kind: 'walk', h: W.y + KERB };
+}
+
+/* ---------- small builders ---------- */
+// a box from A to B (centres), w × h in section
+function beam(g, a, b, w, h) {
+  const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), L = d.length();
+  g.geo(GEO.box, new THREE.Matrix4().compose(A.clone().add(B).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()), new THREE.Vector3(w, L, h)));
+}
+// the surface, sides and underside of a strip deck
+function buildStrip(D, o = {}) {
+  const { ax, az, dx, dz, nx, nz, w, f, L } = D, hw = w / 2, n = Math.max(1, Math.ceil(L / (o.seg || 4)));
+  const P = (t, s) => [ax + dx * L * t + nx * s, az + dz * L * t + nz * s];
+  const top = gb(o.top || 'road'), side = gb('roof'), th = o.thick ?? 1.0;
+  const tc = o.topCol ?? 0xffffff, scol = o.sideCol ?? 0x7a756c;
+  const uv = (x, z) => o.top === 'walk' ? [x / 3.2, -z / 3.2] : [x / 10, -z / 10];
+  for (let i = 0; i < n; i++) {
+    const t0 = i / n, t1 = (i + 1) / n, y0 = f(t0), y1 = f(t1);
+    const a0 = P(t0, -hw), a1 = P(t0, hw), b1 = P(t1, hw), b0 = P(t1, -hw);
+    const lo0 = o.solid ? o.base : y0 - th, lo1 = o.solid ? o.base : y1 - th;
+    top.color(tc); top.quad([a0[0], y0, a0[1]], [a1[0], y0, a1[1]], [b1[0], y1, b1[1]], [b0[0], y1, b0[1]], uv(a0[0], a0[1]), uv(a1[0], a1[1]), uv(b1[0], b1[1]), uv(b0[0], b0[1]));
+    if (o.sides !== false) {
+      side.color(scol);
+      side.quad([a1[0], lo0, a1[1]], [b1[0], lo1, b1[1]], [b1[0], y1, b1[1]], [a1[0], y0, a1[1]], [0, 0], [1, 0], [1, 1], [0, 1]);
+      side.quad([b0[0], lo1, b0[1]], [a0[0], lo0, a0[1]], [a0[0], y0, a0[1]], [b0[0], y1, b0[1]], [0, 0], [1, 0], [1, 1], [0, 1]);
+      if (!o.solid) side.quad([a0[0], lo0, a0[1]], [b0[0], lo1, b0[1]], [b1[0], lo1, b1[1]], [a1[0], lo0, a1[1]]);
+    }
+  }
+}
+// a railing along a strip at offset s across it: posts and a top rail
+function railStrip(D, s, o = {}) {
+  const { ax, az, dx, dz, nx, nz, f, L } = D, hgt = o.h ?? 1.1, step = o.step ?? 2.6, g = gb('roof'); g.color(o.col ?? 0xd8d4ca);
+  const P = t => [ax + dx * L * t + nx * s, f(t), az + dz * L * t + nz * s];
+  const n = Math.max(1, Math.round(L / step));
+  for (let i = 0; i <= n; i++) { const [x, y, z] = P(i / n); g.geo(GEO.box, mat(x, y + hgt / 2, z, 0, 0.12, hgt, 0.12)); }
+  for (let i = 0; i < n; i++) { const a = P(i / n), b = P((i + 1) / n); a[1] += hgt; b[1] += hgt; beam(g, a, b, 0.16, 0.12); a[1] -= hgt * 0.55; b[1] -= hgt * 0.55; beam(g, a, b, 0.06, 0.06); }
+}
+// a sign board with lettering drawn on a canvas
+function signBoard(lines, w, h, colr = '#1d4f8c', fg = '#ffffff') {
+  const [c, x] = makeCanvas(512, Math.round(512 * h / w));
+  x.fillStyle = colr; x.fillRect(0, 0, c.width, c.height);
+  x.strokeStyle = fg; x.lineWidth = 8; x.strokeRect(10, 10, c.width - 20, c.height - 20);
+  x.fillStyle = fg; x.textAlign = 'center'; x.textBaseline = 'middle';
+  lines.forEach(([t, size, font], i) => { x.font = `600 ${size}px ${font || FONT_TH}`; x.fillText(t, c.width / 2, c.height * (i + 1) / (lines.length + 1)); });
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  const m = new THREE.MeshStandardMaterial({ map: t, emissiveMap: t, emissive: 0xffffff, emissiveIntensity: 0.25, roughness: 0.6 });
+  WORLD.signMats = WORLD.signMats || []; WORLD.signMats.push(m);
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
+}
+
+/* ---------- Arun Amarin Road along the Thonburi bank ---------- */
+function buildWestBank() {
+  const W = LV.WEST, [r0, r1] = W.road, y = W.y;
+  for (let z = W.z0; z < W.z1; z += 150) {
+    const z1 = Math.min(W.z1, z + 150);
+    useChunk(-286, (z + z1) / 2);
+    gb('road').top(r0, z, r1, z1, y + 0.005, r0 / 10, -z1 / 10, r1 / 10, -z / 10);
+    gb('walk').top(W.x0, z, r0, z1, y + KERB, W.x0 / 3.2, -z1 / 3.2, r0 / 3.2, -z / 3.2);
+    gb('curb').wall(r0, z, r0, z1, y, y + KERB, 0, (z1 - z) / 2, 0.03, 0.47);
+    const m = gb('mark'); m.color(0xf0c22a);
+    for (let a = z + 2; a < z1 - 4; a += 8) m.top(-286.1, a, -285.9, a + 4, y + 0.017);
+    m.color(0xf2f0ea); m.top(r0 + 0.3, z, r0 + 0.42, z1, y + 0.017); m.top(r1 - 0.42, z, r1 - 0.3, z1, y + 0.017);
+  }
+  // the river side: a walk with gaps where the bridge and the tunnel come in, and a railing
+  const gaps = [[W.z0, LV.BZ - 7], [LV.BZ + 7, LV.TZ - 4], [LV.TZ + 4, W.z1]];
+  for (const [a, b] of gaps) {
+    useChunk(-278, (a + b) / 2);
+    gb('walk').top(r1, a, W.x1, b, y + KERB, r1 / 3.2, -b / 3.2, W.x1 / 3.2, -a / 3.2);
+    gb('curb').wall(r1, b, r1, a, y, y + KERB, 0, (b - a) / 2, 0.03, 0.47);
+    const g = gb('roof'); g.color(0xd8d4ca); g.box(-276.3, a, -276, b, y + KERB, y + KERB + 1.05, 1, 1, 0, [0, 0, 1, 1]);
+    addRect(-276.3, a, -276, b);
+  }
+  for (const [a, b] of [[LV.BZ - 7, LV.BZ + 7], [LV.TZ - 4, LV.TZ + 4]]) { useChunk(-278, a); gb('road').top(r1, a, W.x1, b, y + 0.005, r1 / 10, -b / 10, W.x1 / 10, -a / 10); }
+  // dead ends north and south: barriers, and the shophouses go on beyond
+  for (const z of [W.z0, W.z1]) {
+    useChunk(-286, z);
+    const g = gb('roof'), s = z === W.z0 ? 1 : -1;
+    for (let x = r0 + 0.5; x < r1; x += 1.2) { g.color(((x - r0) / 1.2 | 0) % 2 ? 0xf2f0ea : 0xc23a2a); g.box(x, z + s * 0.4 - 0.15, x + 1.2, z + s * 0.4 + 0.15, y + 0.6, y + 1.0, 1, 1, 0, [0, 0, 1, 1]); }
+    g.color(0x55585c); for (const x of [r0 + 0.6, r1 - 0.6]) g.geo(GEO.box, mat(x, y + 0.5, z + s * 0.4, 0, 0.12, 1.0, 0.12));
+  }
+  addRect(-1000, W.z0 - 400, -276, W.z0 + 0.4);
+  addRect(-1000, W.z1 - 0.4, -276, W.z1 + 400);
+  addRect(-1000, W.z0, W.x0, W.z1);
+  // street lamps on the river walk, arms over the road
+  for (let z = W.z0 + 13; z < W.z1; z += 26) {
+    if (Math.abs(z - LV.BZ) < 10 || Math.abs(z - LV.TZ) < 8) continue;
+    inst('lampPole', mat(-278.4, y + KERB, z, -Math.PI / 2), null);
+    inst('lampHead', mat(-280.7, y + KERB + 8.35, z, -Math.PI / 2), col(WARM));
+    inst('pool', mat(-283, y + 0.04, z, 0, 7, 1, 7), col(0xffa050));
+    addCircle(-278.4, z, 0.22);
+  }
+  // the white wall round Wat Arun, where the shophouses stop
+  { useChunk(-300, 250); const t = gb('temple'); t.color(0xf2eee4); t.box(-297, 180, -296.4, 320, y + KERB, y + 2.6, 1, 1, 0, [0, 0, 1, 1]); t.color(0xb8402e); t.box(-297.1, 180, -296.3, 320, y + 2.6, y + 2.9, 1, 1, 0, [0, 0, 1, 1]); }
+  const s = signBoard([['ถนนอรุณอมรินทร์', 64], ['ARUN AMARIN RD', 40, '"Kanit", sans-serif']], 3.6, 1.2);
+  s.position.set(-279, y + 3.2, LV.BZ + 9); s.rotation.y = -Math.PI / 2; scene.add(s);
+}
+
+/* ---------- Memorial Bridge ---------- */
+function buildBridge() {
+  const BZ = LV.BZ, x0 = -16, x1 = -276;
+  useChunk(-146, BZ);
+  const D = stripDeck(x0, BZ, x1, BZ, 14, bridgeY, { name: ['สะพานพระพุทธยอดฟ้า', 'Memorial Bridge'], bridge: true });
+  buildStrip(D, { thick: 1.5, sideCol: 0x8d8678, seg: 5 });
+  // footpaths and lane paint drawn on the deck
+  const sub = (s0, s1, key, colr, lift) => { const Ds = { ...D, w: s1 - s0, nx: D.nx, nz: D.nz, ax: D.ax + D.nx * (s0 + s1) / 2, az: D.az + D.nz * (s0 + s1) / 2, f: t => bridgeY(t) + lift }; buildStrip(Ds, { top: key, topCol: colr, sides: false, seg: 5 }); };
+  sub(-7, -5.6, 'walk', null, 0.012); sub(5.6, 7, 'walk', null, 0.012);
+  sub(-0.25, -0.12, 'mark', 0xf0c22a, 0.02); sub(0.12, 0.25, 'mark', 0xf0c22a, 0.02);
+  sub(-5.45, -5.3, 'mark', 0xf2f0ea, 0.02); sub(5.3, 5.45, 'mark', 0xf2f0ea, 0.02);
+  railStrip(D, -6.85); railStrip(D, 6.85);
+  addRect(x1, BZ - 7.2, x0, BZ - 6.6); addRect(x1, BZ + 6.6, x0, BZ + 7.2);
+  // the steel arches over the middle span, with hangers and braces
+  const g = gb('roof'); g.color(0x5d766c);
+  const ta = 0.17, tb = 0.83, N = 28, H = 15;
+  const arch = (t, s) => [lerp(x0, x1, t), bridgeY(t) + H * Math.sin(Math.PI * clamp((t - ta) / (tb - ta), 0, 1)), BZ + s];
+  for (const s of [-7.6, 7.6]) {
+    for (let i = 0; i < N; i++) beam(g, arch(ta + (tb - ta) * i / N, s), arch(ta + (tb - ta) * (i + 1) / N, s), 0.9, 0.7);
+    for (let t = ta + 0.025; t < tb - 0.01; t += 0.025) { const a = arch(t, s), b = [a[0], bridgeY(t), a[2]]; if (a[1] - b[1] > 1.5) beam(g, b, a, 0.12, 0.12); }
+  }
+  for (let t = ta + 0.06; t < tb - 0.05; t += 0.05) { const a = arch(t, -7.6), b = arch(t, 7.6); if (a[1] - bridgeY(t) > 10) beam(g, a, b, 0.5, 0.5); }
+  // piers in the river
+  const p = gb('roof'); p.color(0x8d8678);
+  for (const t of [0.25, 0.5, 0.75]) { const x = lerp(x0, x1, t); p.box(x - 2.4, BZ - 5, x + 2.4, BZ + 5, -3, bridgeY(t) - 1.5, 4, 4, 0, null); }
+  // lamps along both railings
+  for (let t = 0.06; t < 0.97; t += 0.1) {
+    const x = lerp(x0, x1, t), y = bridgeY(t);
+    for (const s of [-1, 1]) { inst('lampPole', mat(x, y, BZ + s * 6.85, s < 0 ? 0 : Math.PI), null); inst('lampHead', mat(x, y + 8.35, BZ + s * 4.55, s < 0 ? 0 : Math.PI), col(WARM)); }
+  }
+  const nm = signBoard([['สะพานพระพุทธยอดฟ้า', 60], ['MEMORIAL BRIDGE', 40, '"Kanit", sans-serif']], 4.4, 1.4);
+  nm.position.set(-14.4, KERB + 2.7, BZ - 10.5); nm.rotation.y = Math.PI / 2; scene.add(nm);
+  g.color(0x55585c); for (const dz of [-8.4, -12.6]) { g.geo(GEO.box, mat(-14.5, KERB + 1.0, BZ + dz, 0, 0.12, 2.0, 0.12)); addCircle(-14.5, BZ + dz, 0.15); }
+  // the promenade end: no palms or lamps in the way (see buildStreetFurniture), a gap in the railing
+}
+
+/* ---------- the glass tunnel under the river ---------- */
+const UW = { col: new THREE.Color(0x2d6e72), time: { value: 0 }, group: null, fish: null, F: [], box: null };
+// fade into the green of the river with distance, and (for fish) wave the tail
+function uwMat(m, wiggle) {
+  m.fog = false;
+  m.onBeforeCompile = sh => {
+    sh.uniforms.uwCol = { value: UW.col }; sh.uniforms.uTime = UW.time;
+    sh.vertexShader = 'varying float vUWd;\nuniform float uTime;\n' + sh.vertexShader
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\n' + (wiggle ? 'float tw = smoothstep(0.2, -0.6, position.x);\ntransformed.z += sin(uTime * 8.0 + float(gl_InstanceID) * 1.7 + position.x * 5.0) * 0.12 * tw;\n' : ''))
+      .replace('#include <project_vertex>', '#include <project_vertex>\nvUWd = -mvPosition.z;');
+    sh.fragmentShader = 'varying float vUWd;\nuniform vec3 uwCol;\n' + sh.fragmentShader
+      .replace('#include <dithering_fragment>', '#include <dithering_fragment>\ngl_FragColor.rgb = mix(gl_FragColor.rgb, uwCol, smoothstep(1.5, 26.0, vUWd) * 0.94);');
+  };
+  m.customProgramCacheKey = () => wiggle ? 'uw-fish' : 'uw';
+  return m;
+}
+function buildTunnel() {
+  const T = LV.T, TZ = LV.TZ, hw = T.w / 2, axisY = T.floor + 2.0, R = T.R;
+  const name = ['อุโมงค์ลอดแม่น้ำเจ้าพระยา', 'Chao Phraya Tunnel'];
+  useChunk(-141, TZ);
+  const E = stripDeck(T.x0, TZ, T.xa, TZ, T.w, tunnelEastY, { name, tunnel: 1 });
+  const M = stripDeck(T.xa, TZ, T.xb, TZ, T.w, () => T.floor, { name, tunnel: 2 });
+  const Wd = stripDeck(T.xb, TZ, T.x1, TZ, T.w, tunnelWestY, { name, tunnel: 1 });
+  // inside the tube the sky is not reflected: materials of its own
+  // (unlit, so the sun never reaches in whatever the graphics level; brightness set for the time of day)
+  MAT.troad = new THREE.MeshBasicMaterial({ map: TEX.asphalt, color: 0x8a8a8a });
+  MAT.troof = new THREE.MeshBasicMaterial({ vertexColors: true, color: 0x9a9a9a });
+  buildStrip(E, { sides: false, seg: 5 }); buildStrip(Wd, { sides: false, seg: 5 }); buildStrip(M, { sides: false, seg: 5, top: 'troad' });
+  const ti = gb('troof');
+  // centre line
+  const m = gb('mark'); m.color(0xf0c22a);
+  for (const D of [E, M, Wd]) for (let t = 0; t < 1; t += 8 / D.L) { const a = lerp(D.ax, D.bx, t), b = lerp(D.ax, D.bx, Math.min(1, t + 4 / D.L)); const ya = D.f(t) + 0.02, yb = D.f(Math.min(1, t + 4 / D.L)) + 0.02; m.quad([a, ya, TZ + 0.08], [a, ya, TZ - 0.08], [b, yb, TZ - 0.08], [b, yb, TZ + 0.08]); }
+  // the trench walls, standing out of the water
+  const c = gb('roof'); c.color(0xa7a197);
+  const trench = (D, top) => {
+    const n = Math.ceil(D.L / 5);
+    for (let i = 0; i < n; i++) {
+      const t0 = i / n, t1 = (i + 1) / n, xa = lerp(D.ax, D.bx, t0), xb = lerp(D.ax, D.bx, t1), ya = D.f(t0), yb = D.f(t1);
+      const dir = Math.sign(D.bx - D.ax);   // −1: running west
+      for (const s of [-1, 1]) {
+        const zi = TZ + s * hw, zo = TZ + s * (hw + 0.6);
+        // inner face (towards the road)
+        if ((s > 0) === (dir < 0)) c.quad([xa, ya - 0.3, zi], [xb, yb - 0.3, zi], [xb, top, zi], [xa, top, zi]); else c.quad([xb, yb - 0.3, zi], [xa, ya - 0.3, zi], [xa, top, zi], [xb, top, zi]);
+        // outer face (towards the river)
+        if ((s > 0) === (dir < 0)) c.quad([xb, -1.5, zo], [xa, -1.5, zo], [xa, top, zo], [xb, top, zo]); else c.quad([xa, -1.5, zo], [xb, -1.5, zo], [xb, top, zo], [xa, top, zo]);
+      }
+    }
+    const xl = Math.min(D.ax, D.bx), xr = Math.max(D.ax, D.bx);
+    c.top(xl, TZ - hw - 0.6, xr, TZ - hw, top); c.top(xl, TZ + hw, xr, TZ + hw + 0.6, top);
+  };
+  trench(E, 1.0); trench(Wd, LV.WEST.y + 1.2);
+  // headwalls over the tube mouths
+  for (const [x, top, s] of [[T.xa, 1.0, -1], [T.xb, LV.WEST.y + 1.2, 1]]) {
+    const sh = new THREE.Shape(); sh.moveTo(-hw - 0.6, T.floor - 0.1); sh.lineTo(hw + 0.6, T.floor - 0.1); sh.lineTo(hw + 0.6, top); sh.lineTo(-hw - 0.6, top); sh.closePath();
+    const hole = new THREE.Path(); for (let k = 0; k <= 32; k++) { const a = -0.45 + (Math.PI + 0.9) * k / 32; const pz = Math.cos(a) * (R + 0.05), py = axisY + Math.sin(a) * (R + 0.05); k ? hole.lineTo(pz, py) : hole.moveTo(pz, py); } hole.closePath();
+    sh.holes.push(hole);
+    const pg = new THREE.ShapeGeometry(sh, 4);
+    c.color(0xa7a197); c.geo(pg, mat(x + 0.6, 0, TZ, Math.PI / 2)); c.geo(pg, mat(x - 0.6, 0, TZ, -Math.PI / 2));
+    c.box(x - 0.6, TZ - hw - 0.6, x + 0.6, TZ + hw + 0.6, top - 0.01, top, 1, 1, 0, [0, 0, 1, 1]);
+    const sg = signBoard([['อุโมงค์ลอดแม่น้ำ', 62], ['RIVER TUNNEL', 40, '"Kanit", sans-serif']], 4.2, 1.3, '#16505c');
+    sg.position.set(x - s * 0.62, axisY + R + 1.0, TZ); sg.rotation.y = s < 0 ? Math.PI / 2 : -Math.PI / 2; scene.add(sg);
+  }
+  addRect(T.x1, TZ - hw - 0.6, T.x0, TZ - hw); addRect(T.x1, TZ + hw, T.x0, TZ + hw + 0.6);
+  // under the tube: the concrete bed it lies on; low kerbs inside
+  ti.color(0x8f8a80); ti.box(T.xb, TZ - hw - 0.6, T.xa, TZ + hw + 0.6, -11.6, T.floor - 0.02, 4, 4, 0, null, 1 | 4);
+  ti.color(0x6a6660); ti.box(T.xb, TZ - hw, T.xa, TZ - hw + 0.3, T.floor, T.floor + 0.35, 1, 1, 0, [0, 0, 1, 1]); ti.box(T.xb, TZ + hw - 0.3, T.xa, TZ + hw, T.floor, T.floor + 0.35, 1, 1, 0, [0, 0, 1, 1]);
+  // steel ribs and light strips
+  const rib = new THREE.TorusGeometry(R, 0.11, 5, 20, Math.PI + 0.9).rotateZ(-0.45).rotateY(-Math.PI / 2);
+  ti.color(0x3c4247);
+  for (let x = T.xa - 3; x > T.xb; x -= 6.5) ti.geo(rib, mat(x, axisY, TZ));
+  const lmp = gb('lamp'); lmp.color(new THREE.Color(0.22, 0.29, 0.33));
+  for (const s of [-1, 1]) lmp.box(T.xb, TZ + s * (hw - 0.05) - 0.05, T.xa, TZ + s * (hw - 0.05) + 0.05, T.floor + 1.0, T.floor + 1.12, 1, 1, 0, null);
+  for (let x = T.xa - 6; x > T.xb; x -= 13) inst('pool', mat(x, T.floor + 0.05, TZ, 0, 4.5, 1, 5), col(0x3d6878));
+  // the glass
+  const glass = new THREE.Mesh(new THREE.CylinderGeometry(R, R, T.xa - T.xb, 40, 1, true, -0.45, Math.PI + 0.9).rotateZ(Math.PI / 2),
+    new THREE.MeshBasicMaterial({ color: 0xd8f2f5, transparent: true, opacity: 0.07, side: THREE.DoubleSide, depthWrite: false }));
+  glass.position.set((T.xa + T.xb) / 2, axisY, TZ); glass.renderOrder = 4; scene.add(glass); UW.glass = glass;
+  // the mouths of the tube: frames
+  ti.color(0x3c4247); for (const x of [T.xa - 0.4, T.xb + 0.4]) ti.geo(new THREE.TorusGeometry(R, 0.3, 6, 24, Math.PI + 0.9).rotateZ(-0.45).rotateY(-Math.PI / 2), mat(x, axisY, TZ));
+  // shade over the tube: the river above casts its shadow
+  shadowProxy([new THREE.BoxGeometry(T.xa - T.xb - 1, 10.4, T.w + 5).translate((T.xa + T.xb) / 2, -6.0, TZ)], scene);   // a closed box round the tube: no sun gets in, whatever its angle
+  const ps = signBoard([['อุโมงค์ลอดแม่น้ำ ↓', 60], ['RIVER TUNNEL', 40, '"Kanit", sans-serif']], 4.0, 1.3, '#16505c');
+  ps.position.set(-14.4, KERB + 2.7, TZ - 7.5); ps.rotation.y = Math.PI / 2; scene.add(ps);
+  c.color(0x55585c); for (const dz of [-5.6, -9.4]) { c.geo(GEO.box, mat(-14.5, KERB + 1.0, TZ + dz, 0, 0.12, 2.0, 0.12)); addCircle(-14.5, TZ + dz, 0.15); }
+  buildUnderwater();
+}
+// the water round the tube: its colour, the river bed, weed, rocks, light from above and fish
+function buildUnderwater() {
+  const T = LV.T, TZ = LV.TZ, axisY = T.floor + 2.0;
+  const grp = new THREE.Group(); grp.visible = false; scene.add(grp); UW.group = grp;
+  const X0 = T.xb + 2, X1 = T.xa - 2, Z0 = TZ - 24, Z1 = TZ + 24, Y0 = -11.6, Y1 = -0.7;
+  const bg = new THREE.BoxGeometry(X1 - X0, Y1 - Y0, Z1 - Z0).translate((X0 + X1) / 2, (Y0 + Y1) / 2, TZ);
+  const cols = new Float32Array(bg.attributes.position.count * 3); bg.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+  // the walls of the water: they hide the city beyond, so only the river shows through the glass
+  UW.box = new THREE.Mesh(bg, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false }));
+  grp.add(UW.box);
+  // sand
+  const [sc, sx] = makeCanvas(128, 128); sx.fillStyle = '#8c8160'; sx.fillRect(0, 0, 128, 128);
+  for (let i = 0; i < 900; i++) { sx.fillStyle = pick(['#a29572', '#7a6f50', '#968a68', '#6e6448']); sx.fillRect(R() * 128, R() * 128, 1 + R() * 2, 1 + R() * 2); }
+  const st = tex(sc); st.repeat.set(12, 5);
+  const sand = new THREE.Mesh(new THREE.PlaneGeometry(X1 - X0, Z1 - Z0).rotateX(-Math.PI / 2), uwMat(new THREE.MeshLambertMaterial({ map: st })));
+  sand.position.set((X0 + X1) / 2, Y0 + 0.02, TZ); grp.add(sand);
+  // rocks and weed
+  const rocks = new GB(), weed = new GB();
+  for (let k = 0; k < 70; k++) {
+    const x = lerp(X0, X1, R()), z = TZ + (R() < 0.5 ? -1 : 1) * (6 + R() * 17), s = 0.3 + R() * 1.3;
+    rocks.color(pick([0x6b6558, 0x5a564c, 0x7a7262])); rocks.geo(new THREE.IcosahedronGeometry(1, 0), mat(x, Y0 + s * 0.3, z, R() * 6, s * (1 + R()), s * 0.7, s));
+  }
+  for (let k = 0; k < 160; k++) {
+    const x = lerp(X0, X1, R()), z = TZ + (R() < 0.5 ? -1 : 1) * (5.5 + R() * 18), h = 1 + R() * 3.5, a = R() * 6, b = 0.25;
+    weed.color(pick([0x3f6b2a, 0x547a2e, 0x2f5a2a, 0x6b8a3a]));
+    const ox = Math.cos(a) * b, oz = Math.sin(a) * b, lx = (R() - 0.5) * 0.8, lz = (R() - 0.5) * 0.8;
+    weed.tri([x - ox, Y0, z - oz], [x + ox, Y0, z + oz], [x + lx, Y0 + h, z + lz]); weed.tri([x + ox, Y0, z + oz], [x - ox, Y0, z - oz], [x + lx, Y0 + h, z + lz]);
+  }
+  grp.add(new THREE.Mesh(rocks.build(), uwMat(new THREE.MeshLambertMaterial({ vertexColors: true }))));
+  grp.add(new THREE.Mesh(weed.build(), uwMat(new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }))));
+  // shafts of light from the surface
+  const [lc, lx] = makeCanvas(32, 128); const lg = lx.createLinearGradient(0, 0, 0, 128); lg.addColorStop(0, 'rgba(255,255,255,.9)'); lg.addColorStop(1, 'rgba(255,255,255,0)'); lx.fillStyle = lg; lx.fillRect(0, 0, 32, 128);
+  const shaftMat = new THREE.MeshBasicMaterial({ map: tex(lc), color: 0x9fe0d8, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false });
+  UW.shaftMat = shaftMat;
+  for (let k = 0; k < 14; k++) {
+    const q = new THREE.Mesh(new THREE.PlaneGeometry(2 + R() * 3, 11), shaftMat);
+    q.position.set(lerp(X0 + 6, X1 - 6, R()), -6, TZ + (R() < 0.5 ? -1 : 1) * (7 + R() * 12)); q.rotation.set(0, R() * 3, 0.25); grp.add(q);
+  }
+  // fish: silver barb, iridescent shark catfish, tilapia, giant catfish, a few orange ones
+  const fg = new GB();
+  const body = new THREE.SphereGeometry(0.5, 12, 8).scale(1, 0.36, 0.17);
+  const bp = body.attributes.position, bc = new Float32Array(bp.count * 3);
+  for (let i = 0; i < bp.count; i++) { const k = bp.getY(i) > 0 ? 0.62 : 1.0; bc.set([k, k, k], i * 3); }
+  body.setAttribute('color', new THREE.BufferAttribute(bc, 3));
+  fg.color(0xffffff); fg.geo(body, new THREE.Matrix4());
+  fg.color(0xc8c8c8);
+  fg.tri([-0.45, 0, 0], [-0.78, 0.2, 0], [-0.78, -0.2, 0]); fg.tri([-0.45, 0, 0], [-0.78, -0.2, 0], [-0.78, 0.2, 0]);
+  fg.tri([0.05, 0.16, 0], [-0.25, 0.3, 0], [-0.3, 0.12, 0]); fg.tri([0.05, 0.16, 0], [-0.3, 0.12, 0], [-0.25, 0.3, 0]);
+  const fmat = uwMat(new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide, emissive: 0x1a3236 }), true);
+  const KINDS = [[80, 0.3, 0xf0e8c4, 1.5], [44, 0.75, 0xb4bec6, 1.1], [32, 0.42, 0x8a947e, 0.9], [8, 2.0, 0x6e737a, 0.55], [12, 0.5, 0xf08a40, 1.0]];
+  const N = KINDS.reduce((a, k) => a + k[0], 0);
+  const fish = new THREE.InstancedMesh(fg.build(), fmat, N); fish.frustumCulled = false; grp.add(fish); UW.fish = fish;
+  const free = (y, z, s) => { const d = Math.hypot(y - axisY, z - TZ); return d > T.R + 0.6 + s && y > Y0 + 0.6 + s * 0.4 && y < Y1 - 0.5 && z > Z0 + 1 + s && z < Z1 - 1 - s && !(y < T.floor + 0.5 && Math.abs(z - TZ) < T.w / 2 + 1.5 + s); };
+  let i = 0;
+  for (const [n, size, colr, speed] of KINDS) {
+    // each kind swims in a few shoals
+    for (let k = 0; k < n; k++) {
+      let y, z, tries = 0; const sh = k % 3;
+      do { const a = -0.25 + R() * (Math.PI + 0.5), r = T.R + 0.9 + R() * R() * 10; y = axisY + Math.sin(a) * r; z = TZ + Math.cos(a) * r; } while (!free(y, z, size) && ++tries < 60);
+      const s = size * (0.8 + R() * 0.4);
+      UW.F.push({ x: lerp(X0 + 2, X1 - 2, R()), y, z, s, dir: (sh + (colr === 0x60656c ? 1 : 0)) % 2 ? 1 : -1, v: speed * (0.7 + R() * 0.5), ph: R() * 6.28, X0: X0 + 1, X1: X1 - 1 });
+      fish.setColorAt(i++, col(colr).multiplyScalar(0.85 + R() * 0.3));
+    }
+  }
+  fish.instanceColor.needsUpdate = true;
+  lightHooks.push(uwLight); uwLight(look);
+}
+function uwLight(L) {
+  if (!UW.box) return;
+  const t = settings.time;
+  UW.col.set(t === 'night' ? 0x08202a : t === 'dusk' ? 0x123848 : t === 'golden' ? 0x2a5f5c : 0x2d6e72);
+  const top = UW.col.clone().multiplyScalar(t === 'night' ? 1.8 : 1.7), bot = UW.col.clone().multiplyScalar(0.3);
+  const p = UW.box.geometry.attributes.position, c = UW.box.geometry.attributes.color;
+  let ymin = 1e9, ymax = -1e9; for (let i = 0; i < p.count; i++) { ymin = Math.min(ymin, p.getY(i)); ymax = Math.max(ymax, p.getY(i)); }
+  for (let i = 0; i < p.count; i++) { const k = (p.getY(i) - ymin) / (ymax - ymin); const cc = bot.clone().lerp(top, k); c.setXYZ(i, cc.r, cc.g, cc.b); }
+  c.needsUpdate = true;
+  UW.shaftMat.visible = !L.night && t !== 'dusk';
+  const k = t === 'night' ? 0.42 : t === 'dusk' ? 0.46 : t === 'golden' ? 0.52 : 0.6;
+  MAT.troad.color.setScalar(k); MAT.troof.color.setScalar(k * 1.1);
+  if (UW.glass) UW.glass.material.color.set(0xd8f2f5).multiplyScalar(t === 'night' ? 0.2 : t === 'dusk' ? 0.35 : 1);
+}
+const _fm = new THREE.Matrix4(), _fq = new THREE.Quaternion(), _fe = new THREE.Euler(), _fs = new THREE.Vector3(), _fp = new THREE.Vector3();
+function updateUnderwater(dt, time) {
+  if (!UW.group) return;
+  const T = LV.T, on = camera.position.y < -0.9 && camera.position.x < T.xa + 30 && camera.position.x > T.xb - 30 && Math.abs(camera.position.z - LV.TZ) < 30;
+  UW.group.visible = on;
+  if (!on) return;
+  UW.time.value = time;
+  UW.F.forEach((f, i) => {
+    f.x += f.dir * f.v * dt;
+    if (f.x > f.X1) f.x = f.X0; else if (f.x < f.X0) f.x = f.X1;
+    const edge = Math.min(f.x - f.X0, f.X1 - f.x), fade = clamp(edge / 4, 0, 1);
+    const wy = Math.sin(time * 0.6 + f.ph) * 0.5, wz = Math.cos(time * 0.45 + f.ph * 1.3) * 0.7;
+    _fp.set(f.x, f.y + wy, f.z + wz);
+    _fe.set(0, f.dir > 0 ? 0 : Math.PI, Math.sin(time * 0.6 + f.ph) * 0.08); _fe.y += Math.cos(time * 0.45 + f.ph * 1.3) * 0.25 * f.dir;
+    _fq.setFromEuler(_fe); _fs.setScalar(f.s * fade + 1e-4);
+    UW.fish.setMatrixAt(i, _fm.compose(_fp, _fq, _fs));
+  });
+  UW.fish.instanceMatrix.needsUpdate = true;
+}
+
+/* ---------- the car park with a roof you can ride on, and a narrow bridge down ---------- */
+function skyparkBlock(b, X0, Z0, X1, Z1) {
+  const P = LV.PARK, RY = P.roof, [bx0, bz0, bx1, bz1] = P.b;
+  // the building: three decks of a concrete car park, with cars inside
+  const g = gb('roof');
+  g.color(0x2a2b2e); g.box(bx0 + 6, bz0 + 6, bx1 - 6, bz1 - 6, KERB, RY - 0.3, 1, 1, 0, null);
+  for (const y of [KERB, 3.6, RY]) { g.color(y === RY ? 0xb9b4a8 : 0x8f8b82); g.box(bx0, bz0, bx1, bz1, y - 0.35, y + (y === RY ? 0 : 0.05), 1, 1, 0, y === RY ? null : [0, 0, 1, 1]); }
+  for (const y of [KERB, 3.6]) { g.color(0xd2cdc1); g.box(bx0 - 0.05, bz0 - 0.05, bx1 + 0.05, bz1 + 0.05, y + 0.05, y + 1.05, 1, 1, 0, null); g.color(0xe0b13a); g.box(bx0 - 0.07, bz0 - 0.07, bx1 + 0.07, bz1 + 0.07, y + 1.05, y + 1.2, 1, 1, 0, null); }
+  g.color(0x9d988c);
+  for (let x = bx0; x <= bx1 + 0.1; x += 8) for (let z = bz0; z <= bz1 + 0.1; z += 8) if (x === bx0 || x >= bx1 - 0.1 || z === bz0 || z >= bz1 - 0.1) g.box(x - 0.35, z - 0.35, x + 0.35, z + 0.35, KERB, RY - 0.3, 1, 1, 0, null);
+  const carCol = [0xe8e6e0, 0x2a2c30, 0xb03028, 0x8a9096, 0x1f3f6a, 0xd8c8a0];
+  for (const y of [KERB, 3.6]) for (let x = bx0 + 3; x < bx1 - 3; x += 3) if (R() < 0.7) for (const z of [bz0 + 3.2, bz1 - 3.2]) { g.color(pick(carCol)); g.box(x - 0.9, z - 2.1, x + 0.9, z + 2.1, y, y + 1.0, 1, 1, 0, [0, 0, 1, 1]); g.box(x - 0.8, z - 1.1, x + 0.8, z + 1.0, y + 1.0, y + 1.45, 1, 1, 0, [0, 0, 1, 1]); }
+  addRectY(bx0, bz0, bx1, bz1, -1e9, RY);
+  // the roof: asphalt, parking bays, parapets
+  rectDeck(bx0, bz0, bx1, bz1, RY, { name: ['ลานจอดรถชั้นดาดฟ้า', 'Rooftop Car Park'] });
+  gb('road').top(bx0, bz0, bx1, bz1, RY + 0.005, bx0 / 10, -bz1 / 10, bx1 / 10, -bz0 / 10);
+  const mk = gb('mark'); mk.color(0xf2f0ea);
+  for (let x = bx0 + 2; x <= bx1 - 2; x += 2.8) { mk.top(x - 0.06, bz0 + 1, x + 0.06, bz0 + 6, RY + 0.017); mk.top(x - 0.06, bz1 - 6, x + 0.06, bz1 - 1, RY + 0.017); }
+  mk.color(0xf0c22a); mk.top(bx0 + 2, (bz0 + bz1) / 2 - 0.08, bx1 - 4, (bz0 + bz1) / 2 + 0.08, RY + 0.017);
+  for (const [x, z] of [[bx0 + 4.8, bz0 + 3.5], [bx0 + 13.2, bz0 + 3.5], [bx0 + 21.6, bz1 - 3.5], [bx0 + 7.6, bz1 - 3.5]]) {
+    g.color(pick(carCol)); g.box(x - 0.9, z - 2.1, x + 0.9, z + 2.1, RY, RY + 1.0, 1, 1, 0, [0, 0, 1, 1]); g.box(x - 0.8, z - 1.1, x + 0.8, z + 1.0, RY + 1.0, RY + 1.45, 1, 1, 0, [0, 0, 1, 1]);
+    addRectY(x - 0.9, z - 2.1, x + 0.9, z + 2.1, RY - 0.2, RY + 1.5);
+  }
+  const [nx, nw] = P.narrow, n0 = nx - nw / 2, n1 = nx + nw / 2;
+  const par = (x0, z0, x1, z1) => { g.color(0xcfcabd); g.box(x0, z0, x1, z1, RY, RY + 1.05, 1, 1, 0, [0, 0, 1, 1]); g.color(0xe0b13a); g.box(x0 - 0.02, z0 - 0.02, x1 + 0.02, z1 + 0.02, RY + 1.05, RY + 1.15, 1, 1, 0, [0, 0, 1, 1]); addRectY(x0, z0, x1, z1, RY - 0.3, RY + 1.2); };
+  const [l0, lz0, l1, lz1] = P.land, [rx0, rx1, rz0, rz1] = P.ramp;
+  par(bx0 - 0.4, bz0 - 0.4, l1 + 0.4, bz0);                 // north, along the roof and the landing
+  par(bx0 - 0.4, bz0, bx0, bz1 + 0.4);                      // west
+  par(bx0, bz1, n0, bz1 + 0.4); par(n1, bz1, bx1 + 0.4, bz1 + 0.4);   // south, with the gap for the narrow bridge
+  par(bx1, lz1, bx1 + 0.4, bz1);                            // east, below the landing
+  par(l1, lz0, l1 + 0.4, lz1);                              // the landing's east side
+  par(l0, lz1, rx0, lz1 + 0.4);                             // the landing's south side, beside the ramp
+  // the landing and the ramp up to it from the street on the south side
+  rectDeck(l0, lz0, l1, lz1, RY, { name: ['ลานจอดรถชั้นดาดฟ้า', 'Rooftop Car Park'] });
+  gb('road').top(l0, lz0, l1, lz1, RY + 0.005, l0 / 10, -lz1 / 10, l1 / 10, -lz0 / 10);
+  g.color(0xb9b4a8); g.box(l0, lz0, l1, lz1, RY - 0.4, RY, 1, 1, 0, null);
+  g.color(0x9d988c); for (const [x, z] of [[l0 + 0.4, lz0 + 0.4], [l1 - 0.4, lz0 + 0.4], [l1 - 0.4, lz1 - 0.4], [l0 + 0.4, lz1 - 0.4]]) { g.box(x - 0.35, z - 0.35, x + 0.35, z + 0.35, KERB, RY - 0.4, 1, 1, 0, null); addCircleY(x, z, 0.4, -1e9, RY - 0.5); }
+  const ramp = stripDeck((rx0 + rx1) / 2, rz1, (rx0 + rx1) / 2, rz0, rx1 - rx0, t => lerp(KERB, RY, t), { name: ['ทางขึ้นลานจอดรถ', 'Car Park Ramp'] });
+  buildStrip(ramp, { solid: true, base: KERB, sideCol: 0xb9b4a8 });
+  // low concrete walls along both sides of the ramp, solid all the way down
+  g.color(0xcfcabd);
+  for (const xw of [rx0 - 0.2, rx1 + 0.2]) {
+    const ya = KERB + 1.0, yb = RY + 1.0, zA = rz1, zB = rz0;
+    for (const xf of [xw - 0.2, xw + 0.2]) {
+      if (xf > xw) g.quad([xf, KERB, zA], [xf, KERB, zB], [xf, yb, zB], [xf, ya, zA]); else g.quad([xf, KERB, zB], [xf, KERB, zA], [xf, ya, zA], [xf, yb, zB]);
+    }
+    g.quad([xw - 0.2, ya, zA], [xw + 0.2, ya, zA], [xw + 0.2, yb, zB], [xw - 0.2, yb, zB]);
+    g.quad([xw - 0.2, KERB, zA], [xw - 0.2, ya, zA], [xw + 0.2, ya, zA], [xw + 0.2, KERB, zA]);
+  }
+  addRect(rx0 - 0.4, rz0, rx0, rz1); addRect(rx1, rz0, rx1 + 0.4, rz1);
+  // chevrons up the ramp
+  mk.color(0xf0c22a);
+  const stroke = (ax, az, bx, bz, w) => { const L = Math.hypot(bx - ax, bz - az), px = -(bz - az) / L * w / 2, pz = (bx - ax) / L * w / 2, ya = lerp(KERB, RY, (rz1 - az) / (rz1 - rz0)) + 0.03, yb = lerp(KERB, RY, (rz1 - bz) / (rz1 - rz0)) + 0.03; mk.quad([ax - px, ya, az - pz], [ax + px, ya, az + pz], [bx + px, yb, bz + pz], [bx - px, yb, bz - pz]); mk.quad([ax + px, ya, az + pz], [ax - px, ya, az - pz], [bx - px, yb, bz - pz], [bx + px, yb, bz + pz]); };
+  for (let t = 0.1; t < 0.95; t += 0.14) { const z = lerp(rz1, rz0, t), cx = (rx0 + rx1) / 2; stroke(cx - 2, z + 1, cx, z - 0.6, 0.35); stroke(cx, z - 0.6, cx + 2, z + 1, 0.35); }
+  // the narrow bridge: steel grating, two metres wide, no railings, down to the street on the south side
+  const [, , nzA, nzB] = P.narrow;
+  const nb = stripDeck(nx, nzA, nx, nzB, nw, t => lerp(RY, KERB, t), { name: ['สะพานแคบ', 'The Narrow Bridge'], narrow: true });
+  buildStrip(nb, { thick: 0.35, sideCol: 0xe0b13a, topCol: 0xffffff, top: 'roof', seg: 3 });
+  const gr = gb('mark'); gr.color(0x5f656b);
+  for (let i = 0; i < 14; i++) { const t0 = i / 14, t1 = (i + 1) / 14; gr.quad([n1 - 0.12, lerp(RY, KERB, t0) + 0.012, lerp(nzA, nzB, t0)], [n0 + 0.12, lerp(RY, KERB, t0) + 0.012, lerp(nzA, nzB, t0)], [n0 + 0.12, lerp(RY, KERB, t1) + 0.012, lerp(nzA, nzB, t1)], [n1 - 0.12, lerp(RY, KERB, t1) + 0.012, lerp(nzA, nzB, t1)]); }
+  g.color(0x55595e);
+  for (const t of [0.24, 0.48]) { const z = lerp(nzA, nzB, t), y = lerp(RY, KERB, t); g.box(nx - 0.18, z - 0.18, nx + 0.18, z + 0.18, KERB, y - 0.35, 1, 1, 0, null); addCircleY(nx, z, 0.25, -1e9, y - 0.5); }
+  // you can ride under the high end; the low end is closed off underneath
+  for (let z = nzA; z < nzB; z += 1) { const h = lerp(RY, KERB, (z + 1 - nzA) / (nzB - nzA)); if (h < 2.4 && h > STEP + KERB) addRectY(n0, z, n1, z + 1, -1e9, h); }
+  // warning stripes at the top of the narrow bridge, and signs
+  for (let k = 0; k < 6; k++) { mk.color(k % 2 ? 0x1a1a1a : 0xf0c22a); mk.top(n0 + k * nw / 6, bz1 - 1.2, n0 + (k + 1) * nw / 6, bz1 - 0.2, RY + 0.018); }
+  const s1 = signBoard([['ลานจอดรถ', 70], ['SKYPARK  P', 54, '"Kanit", sans-serif']], 9, 3, '#1d4f8c');
+  s1.position.set((bx0 + bx1) / 2, 5.2, bz0 - 0.1); s1.rotation.y = Math.PI; scene.add(s1);
+  const s2 = signBoard([['สะพานแคบ ขี่ช้า ๆ', 52], ['NARROW BRIDGE · RIDE SLOWLY', 30, '"Kanit", sans-serif']], 2.6, 0.9, '#b8862a', '#1a1a1a');
+  s2.position.set(n1 + 1.5, RY + 1.9, bz1 + 0.15); s2.rotation.y = Math.PI; scene.add(s2);
+  g.color(0x55585c); g.geo(GEO.box, mat(n1 + 1.5, RY + 1.0, bz1 + 0.2, 0, 0.1, 1.2, 0.1));
+  const s3 = signBoard([['ทางขึ้นดาดฟ้า ↑', 56], ['UP TO THE ROOF', 34, '"Kanit", sans-serif']], 3.4, 1.2, '#1d4f8c');
+  s3.position.set((rx0 + rx1) / 2, 3.9, rz1 - 0.3); scene.add(s3);
+  g.color(0x55585c); g.geo(GEO.box, mat((rx0 + rx1) / 2, 4.6, rz1 - 0.35, 0, rx1 - rx0 + 0.8, 0.2, 0.2));
+  // roof lamps
+  for (const [x, z] of [[bx0 + 0.8, bz0 + 0.8], [bx1 - 0.8, bz1 - 0.8], [bx0 + 0.8, bz1 - 0.8]]) {
+    const ax = (bx0 + bx1) / 2 - x, az = (bz0 + bz1) / 2 - z, l = Math.hypot(ax, az);
+    inst('lampPole', mat(x, RY, z, Math.atan2(ax, az)), null); inst('lampHead', mat(x + ax / l * 2.3, RY + 8.35, z + az / l * 2.3, Math.atan2(ax, az)), col(COOL));
+    addCircleY(x, z, 0.22, RY - 0.3, RY + 9);
+  }
+  // the rest of the block: a garden with trees, clear of the ramp and the bridge
+  for (let k = 0; k < 9; k++) { const x = 263 + R() * 23, z = 216 + R() * 68; tree(x, z, 0.7 + R() * 0.35, 0); }
+  for (let k = 0; k < 3; k++) { const x = 222 + R() * 20, z = 262 + R() * 20; if (Math.abs(x - nx) > 3) tree(x, z, 0.6 + R() * 0.3, 0); }
+  spiritHouse(X0 + 2, b.z0 + 1.6, 0);
+}
+
+/* ---------- build it all ---------- */
+function buildLevels() {
+  buildWestBank(); buildBridge(); buildTunnel(); buildBoutiques();
+}
+/* the levels on the map */
+function drawLevelsMap(x, s) {
+  const W = LV.WEST, T = LV.T, P = LV.PARK;
+  x.fillStyle = '#1b232c'; x.fillRect(-420, -600, 144, 1600);
+  x.fillStyle = '#5b6672'; x.fillRect(W.road[0], W.z0, W.road[1] - W.road[0], W.z1 - W.z0);
+  x.fillRect(-276, LV.BZ - 6, 260, 12);
+  x.fillStyle = 'rgba(91,102,114,.55)'; x.fillRect(T.x1, LV.TZ - 4, T.x0 - T.x1, 8);
+  x.strokeStyle = '#9fd8ff'; x.lineWidth = 2 / s; x.setLineDash([6 / s, 5 / s]); x.beginPath(); x.moveTo(T.x1, LV.TZ); x.lineTo(T.x0, LV.TZ); x.stroke(); x.setLineDash([]);
+  x.fillStyle = '#3a4350'; x.fillRect(P.b[0], P.b[1], P.b[2] - P.b[0], P.b[3] - P.b[1]);
+  x.fillStyle = '#5b6672'; x.fillRect(P.ramp[0], P.ramp[2], P.ramp[1] - P.ramp[0], P.ramp[3] - P.ramp[2]); x.fillRect(P.land[0], P.land[1], P.land[2] - P.land[0], P.land[3] - P.land[1]);
+  x.fillStyle = '#d6ad5f'; x.fillRect(P.narrow[0] - P.narrow[1] / 2, P.narrow[2], P.narrow[1], P.narrow[3] - P.narrow[2]);
+}
+
+
+/* =====================================================================
+   Places for the mission: four branches of VERDANT, a (made-up) maker of
+   fine watches with green and gold shop fronts, and The Siam Times
+   building where you work.
+   ===================================================================== */
+// each shop front sits on a building line (z, running x0 → x1) and faces the street (out: +1 south, −1 north)
+const SHOPS = [
+  { id: 'siam', th: 'VERDANT สยาม', en: 'VERDANT Siam', x0: 244, x1: 256, z: 83, out: 1, road: 100, mall: true },
+  { id: 'yao', th: 'VERDANT เยาวราช', en: 'VERDANT Yaowarat', x0: 119, x1: 131, z: 289, out: 1, road: 300 },
+  { id: 'suk', th: 'VERDANT สุขุมวิท', en: 'VERDANT Sukhumvit', x0: 617, x1: 629, z: 85, out: 1, road: 100 },
+  { id: 'sip', th: 'VERDANT สี่พระยา', en: 'VERDANT Si Phraya', x0: 168, x1: 180, z: 411, out: -1, road: 400 },
+];
+for (const S of SHOPS) { S.x = (S.x0 + S.x1) / 2; S.ring = [S.x, S.z + S.out * 5.5]; S.ax = S.x; S.az = S.road; }
+// The Siam Times: a colonial building on Bamrung Mueang Road, across from the Giant Swing's block
+const STB = { x0: 23, x1: 77, z0: 128, z1: 156, h: 15, ring: [50, 117], ax: 50, az: 100, th: 'ตึก The Siam Times', en: 'The Siam Times building' };
+// a shophouse front inside one of these spans gets no awning, sign or neon: the boutique covers it
+function inBoutique(cx, cz) {
+  for (const S of SHOPS) if (!S.mall && Math.abs(cz - S.z) < 0.6 && cx > S.x0 - 0.6 && cx < S.x1 + 0.6) return true;
+  return false;
+}
+
+/* ---------- canvases ---------- */
+function verdantSign() {
+  const [c, x] = makeCanvas(1024, 256);
+  x.fillStyle = '#0b4a2c'; x.fillRect(0, 0, 1024, 256);
+  const gold = x.createLinearGradient(0, 40, 0, 220); gold.addColorStop(0, '#f2d68a'); gold.addColorStop(0.5, '#c99a3c'); gold.addColorStop(1, '#f0d288');
+  x.strokeStyle = gold; x.lineWidth = 8; x.strokeRect(14, 14, 996, 228); x.lineWidth = 2; x.strokeRect(26, 26, 972, 204);
+  // the emblem: two leaves round a dot
+  x.save(); x.translate(512, 70); x.fillStyle = gold;
+  for (const s of [-1, 1]) { x.beginPath(); x.ellipse(s * 22, 0, 26, 9, s * 0.5, 0, 7); x.fill(); }
+  x.beginPath(); x.arc(0, -4, 7, 0, 7); x.fill(); x.restore();
+  x.fillStyle = gold; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = '600 108px "Newsreader", Georgia, "Times New Roman", serif';
+  const word = 'VERDANT', sp = 26; let w = 0; for (const ch of word) w += x.measureText(ch).width + sp; w -= sp;
+  let px = 512 - w / 2; for (const ch of word) { const cw = x.measureText(ch).width; x.fillText(ch, px + cw / 2, 152); px += cw + sp; }
+  x.font = `500 30px ${FONT_TH}`; x.fillText('FINE WATCHES  ·  นาฬิกาหรู', 512, 212);
+  return c;
+}
+function verdantWindow() {
+  const [c, x] = makeCanvas(512, 384);
+  const bg = x.createLinearGradient(0, 0, 0, 384); bg.addColorStop(0, '#1d3a2a'); bg.addColorStop(1, '#0c1d14'); x.fillStyle = bg; x.fillRect(0, 0, 512, 384);
+  for (const [cx, cy] of [[128, 150], [384, 150], [256, 120]]) { const g = x.createRadialGradient(cx, cy, 4, cx, cy, 150); g.addColorStop(0, 'rgba(255,226,170,.55)'); g.addColorStop(1, 'rgba(255,226,170,0)'); x.fillStyle = g; x.fillRect(0, 0, 512, 384); }
+  x.fillStyle = '#2f5a40'; x.fillRect(30, 250, 452, 22); x.fillRect(30, 140, 452, 14);
+  const watch = (cx, cy, r, gold) => {
+    x.fillStyle = '#3a2a1a'; x.fillRect(cx - r * 0.45, cy - r * 2.1, r * 0.9, r * 4.2);
+    x.beginPath(); x.arc(cx, cy, r, 0, 7); x.fillStyle = gold ? '#d8b25a' : '#c8ccd0'; x.fill();
+    x.beginPath(); x.arc(cx, cy, r * 0.8, 0, 7); x.fillStyle = '#f4efe2'; x.fill();
+    x.strokeStyle = '#333'; x.lineWidth = Math.max(1, r * 0.08); x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx - r * 0.35, cy - r * 0.45); x.moveTo(cx, cy); x.lineTo(cx + r * 0.5, cy - r * 0.2); x.stroke();
+  };
+  [[90, 210, 22, 1], [170, 214, 18, 0], [256, 206, 26, 1], [342, 214, 18, 0], [422, 210, 22, 1], [130, 108, 14, 0], [256, 100, 16, 1], [382, 108, 14, 0]].forEach(([a, b, r, g]) => watch(a, b, r, g));
+  x.fillStyle = 'rgba(255,255,255,.08)'; x.beginPath(); x.moveTo(0, 0); x.lineTo(140, 0); x.lineTo(40, 384); x.lineTo(0, 384); x.fill();
+  return c;
+}
+function verdantClock() {
+  const [c, x] = makeCanvas(256, 256);
+  x.fillStyle = '#0b4a2c'; x.beginPath(); x.arc(128, 128, 128, 0, 7); x.fill();
+  x.fillStyle = '#c99a3c'; x.beginPath(); x.arc(128, 128, 116, 0, 7); x.fill();
+  x.fillStyle = '#f6f2e6'; x.beginPath(); x.arc(128, 128, 106, 0, 7); x.fill();
+  x.fillStyle = '#1a1a1a';
+  for (let k = 0; k < 12; k++) { x.save(); x.translate(128, 128); x.rotate(k * Math.PI / 6); x.fillRect(-3, -98, 6, k % 3 ? 14 : 22); x.restore(); }
+  x.lineCap = 'round'; x.strokeStyle = '#1a1a1a';
+  x.lineWidth = 9; x.beginPath(); x.moveTo(128, 128); x.lineTo(128 + Math.sin(-1.05) * 58, 128 - Math.cos(-1.05) * 58); x.stroke();     // 10
+  x.lineWidth = 6; x.beginPath(); x.moveTo(128, 128); x.lineTo(128 + Math.sin(1.05) * 86, 128 - Math.cos(1.05) * 86); x.stroke();       // 10 past
+  x.fillStyle = '#0b4a2c'; x.font = '600 18px Georgia, serif'; x.textAlign = 'center'; x.fillText('VERDANT', 128, 84);
+  return c;
+}
+// The Siam Times emblem: an S in Chomsky in a brass ring
+function siamTimesS(size = 256, bg = '#0c131b', fg = '#d6ad5f') {
+  const [c, x] = makeCanvas(size, size), m = size / 2;
+  x.fillStyle = bg; x.beginPath(); x.arc(m, m, m - 2, 0, 7); x.fill();
+  x.strokeStyle = fg; x.lineWidth = size * 0.035; x.beginPath(); x.arc(m, m, m * 0.88, 0, 7); x.stroke();
+  x.lineWidth = size * 0.012; x.beginPath(); x.arc(m, m, m * 0.8, 0, 7); x.stroke();
+  x.fillStyle = fg; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = `400 ${Math.round(size * 0.66)}px "Chomsky", serif`; x.fillText('S', m, m * 1.06);
+  return c;
+}
+function siamTimesFront(W, H) {
+  const [c, x] = makeCanvas(1024, Math.round(1024 * H / W)), k = c.width / W;
+  x.fillStyle = '#efe4c8'; x.fillRect(0, 0, c.width, c.height);
+  const Y = y => c.height - y * k;
+  // cornices
+  x.fillStyle = '#d9cba6'; for (const y of [4.3, 8.4, 12.4]) x.fillRect(0, Y(y + 0.35), c.width, 0.35 * k);
+  x.fillStyle = '#c9b88e'; x.fillRect(0, Y(H), c.width, 0.6 * k);
+  // ground floor arcade
+  const bays = 9, bw = W / bays;
+  for (let i = 0; i < bays; i++) {
+    const cx = (i + 0.5) * bw * k, w = bw * 0.62 * k;
+    x.fillStyle = '#2b2a26'; x.beginPath(); x.moveTo(cx - w / 2, Y(0)); x.lineTo(cx - w / 2, Y(2.6)); x.arc(cx, Y(2.6), w / 2, Math.PI, 0); x.lineTo(cx + w / 2, Y(0)); x.fill();
+    x.fillStyle = 'rgba(255,214,150,.35)'; x.fillRect(cx - w / 2 + 4, Y(2.4), w - 8, 2.2 * k);
+  }
+  // upper floors: tall shuttered windows
+  for (const y0 of [5.2, 9.3]) for (let i = 0; i < bays; i++) {
+    const cx = (i + 0.5) * bw * k, w = bw * 0.36 * k, h = 2.4 * k;
+    x.fillStyle = '#f7f1e0'; x.fillRect(cx - w / 2 - 6, Y(y0 + 2.4) - 6, w + 12, h + 12);
+    x.fillStyle = '#26302c'; x.fillRect(cx - w / 2, Y(y0 + 2.4), w, h);
+    x.fillStyle = '#2f6b4f'; x.fillRect(cx - w / 2 - w * 0.55, Y(y0 + 2.4), w * 0.5, h); x.fillRect(cx + w / 2 + w * 0.05, Y(y0 + 2.4), w * 0.5, h);
+    x.strokeStyle = 'rgba(0,0,0,.25)'; x.lineWidth = 2; for (let s = 0; s < 8; s++) { const yy = Y(y0 + 2.4) + s * h / 8; x.beginPath(); x.moveTo(cx - w / 2 - w * 0.55, yy); x.lineTo(cx - w / 2 - w * 0.05, yy); x.moveTo(cx + w / 2 + w * 0.05, yy); x.lineTo(cx + w / 2 + w * 0.55, yy); x.stroke(); }
+  }
+  // the name band over the arcade
+  x.fillStyle = '#0c131b'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = `400 ${Math.round(0.6 * k)}px "Chomsky", serif`; x.fillText('The Siam Times', c.width / 2, Y(3.95));
+  // the name, large, across the top storey
+  x.font = `400 ${Math.round(1.7 * k)}px "Chomsky", serif`; x.fillText('The Siam Times', c.width / 2, Y(13.75));
+  x.font = `600 ${Math.round(0.42 * k)}px ${FONT_TH}`; x.fillStyle = '#5a4a2a'; x.fillText('เดอะ สยาม ไทมส์ · ก่อตั้ง พ.ศ. 2407 · FOUNDED 1864', c.width / 2, Y(12.05));
+  return c;
+}
+
+/* ---------- the shop fronts ---------- */
+const PLACE = { mats: {} };
+function buildBoutiques() {
+  const M = PLACE.mats;
+  M.sign = new THREE.MeshStandardMaterial({ map: tex(verdantSign()), emissive: 0x000000, roughness: 0.45, metalness: 0.2 });
+  M.sign.emissiveMap = M.sign.map;
+  M.win = new THREE.MeshStandardMaterial({ map: tex(verdantWindow()), emissiveMap: null, emissive: 0xffffff, emissiveIntensity: 0.35, roughness: 0.15 });
+  M.win.emissiveMap = M.win.map;
+  M.clock = new THREE.MeshStandardMaterial({ map: tex(verdantClock()), roughness: 0.4, emissive: 0xffffff, emissiveIntensity: 0.1 });
+  M.clock.emissiveMap = M.clock.map;
+  M.door = new THREE.MeshStandardMaterial({ color: 0x10241a, roughness: 0.12, metalness: 0.6 });
+  for (const m of [M.sign.map, M.win.map, M.clock.map]) m.repeat.set(1, 1);
+  const sign = new GB(), win = new GB(), clock = new GB(), door = new GB();
+  for (const S of SHOPS) {
+    useChunk(S.x, S.z);
+    const o = S.out, z0 = S.z, zf = S.z + o * 0.4, g = gb('roof'), gd = gb('gold');
+    // the green front, 6.6 m tall, standing just proud of the building
+    g.color(0x0e4a2c); g.box(S.x0, Math.min(z0, zf), S.x1, Math.max(z0, zf), 0, 6.6, 1, 1, 0, [0, 0, 1, 1]);
+    // gold trims
+    for (const y of [0.05, 3.55, 6.45]) gd.box(S.x0 - 0.05, Math.min(zf, zf + o * 0.06), S.x1 + 0.05, Math.max(zf, zf + o * 0.06), y, y + 0.12, 1, 1, 0, [0, 0, 1, 1]);
+    for (const x of [S.x0, S.x1 - 0.12]) gd.box(x, Math.min(zf, zf + o * 0.06), x + 0.12, Math.max(zf, zf + o * 0.06), 0, 6.6, 1, 1, 0, [0, 0, 1, 1]);
+    // canopy over the door
+    g.color(0x0b3d24); g.box(S.x - 1.8, Math.min(zf, zf + o * 1.2), S.x + 1.8, Math.max(zf, zf + o * 1.2), 3.2, 3.42, 1, 1, 0, [0, 0, 1, 1]);
+    gd.box(S.x - 1.82, Math.min(zf + o * 1.18, zf + o * 1.24), S.x + 1.82, Math.max(zf + o * 1.18, zf + o * 1.24), 3.2, 3.42, 1, 1, 0, [0, 0, 1, 1]);
+    // potted topiary either side of the door
+    for (const s of [-1, 1]) { g.color(0x1d1d1d); g.box(S.x + s * 1.75 - 0.3, Math.min(zf + o * 0.25, zf + o * 0.85), S.x + s * 1.75 + 0.3, Math.max(zf + o * 0.25, zf + o * 0.85), 0, 0.6, 1, 1, 0, [0, 0, 1, 1]); g.color(0x2f6a2a); g.geo(GEO.sphere, mat(S.x + s * 1.75, 1.05, zf + o * 0.55, 0, 0.45, 0.5, 0.45)); }
+    addRect(S.x0, Math.min(z0, zf + o * 0.9), S.x1, Math.max(z0, zf + o * 0.9));
+    // a face of a quad facing the street at depth zq
+    const face = (b, xa, xb, ya, yb, zq) => o > 0 ? b.quad([xa, ya, zq], [xb, ya, zq], [xb, yb, zq], [xa, yb, zq]) : b.quad([xb, ya, zq], [xa, ya, zq], [xa, yb, zq], [xb, yb, zq]);
+    face(sign, S.x0 + 0.5, S.x1 - 0.5, 3.9, 6.2, zf + o * 0.02);
+    face(win, S.x0 + 0.6, S.x - 1.4, 0.7, 3.3, zf + o * 0.02); face(win, S.x + 1.4, S.x1 - 0.6, 0.7, 3.3, zf + o * 0.02);
+    face(door, S.x - 1.1, S.x + 1.1, 0.12, 3.15, zf + o * 0.02);
+    // the round clock on a bracket at the corner
+    const cx = S.x1 - 0.7, cz = zf + o * 0.9;
+    gd.box(cx - 0.05, Math.min(zf, cz), cx + 0.05, Math.max(zf, cz), 4.9, 5.0, 1, 1, 0, [0, 0, 1, 1]);
+    g.color(0x0b3d24); g.geo(GEO.cyl, new THREE.Matrix4().compose(new THREE.Vector3(cx, 4.5, cz), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 2)), new THREE.Vector3(0.62, 0.16, 0.62)));
+    for (const s of [1, -1]) clock.geo(new THREE.CircleGeometry(0.58, 28), new THREE.Matrix4().compose(new THREE.Vector3(cx + s * 0.085, 4.5, cz), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, s * Math.PI / 2, 0)), new THREE.Vector3(1, 1, 1)));
+    // the marker on the ground where you stop to go in
+    const ring = new THREE.Mesh(new THREE.RingGeometry(4.2, 5.2, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x3fe08a, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }));
+    ring.position.set(S.ring[0], KERB + 0.06, S.ring[1]); ring.renderOrder = 3; ring.visible = false; scene.add(ring); S.ringMesh = ring;
+    const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 120, 16, 1, true), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.25, 1.4, 0.6), transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+    beam.position.set(S.ring[0], 60, S.ring[1]); beam.visible = false; scene.add(beam); S.beam = beam;
+  }
+  for (const [b, m] of [[sign, M.sign], [win, M.win], [clock, M.clock], [door, M.door]]) { const mesh = new THREE.Mesh(b.build(), m); mesh.receiveShadow = true; scene.add(mesh); }
+  lightHooks.push(L => { M.win.emissiveIntensity = 0.3 + L.windows * 0.9; M.sign.emissive.setScalar(L.lamps > 0.3 ? 0.4 : 0.05); M.clock.emissiveIntensity = 0.1 + L.lamps * 0.5; });
+}
+
+/* ---------- The Siam Times building ---------- */
+function siamTimesBlock(b, X0, Z0, X1, Z1) {
+  const o = { floors: [2, 3], styles: [3, 3, 0, 2], signs: 0.45, awning: 0.35 };
+  shopRow(X0, Z0 + 2, X0, Z1 - 14, 12, 'old', o);
+  shopRow(X1, Z1 - 14, X1, Z0 + 2, 12, 'old', o);
+  shopRow(X0, Z1, X1, Z1, 14, 'old', o);
+  solidBox(X0 + 12, STB.z1, X1 - 12, Z1 - 14, 6, 0xa8714f);
+  const { x0, x1, z0, z1, h } = STB, W = x1 - x0;
+  const g = gb('roof');
+  g.color(0xe6d9b8); g.box(x0, z0, x1, z1, 0, h, 1, 1, 0, null, 1 | 2 | 8);
+  g.color(0x8d8a84); g.top(x0, z0, x1, z1, h);
+  g.color(0xd9cba6); g.box(x0 - 0.3, z0 - 0.4, x1 + 0.3, z1 + 0.3, h, h + 1.2, 1, 1, 0, [0, 0, 1, 1]);
+  // the pediment over the middle, with the emblem
+  g.color(0xe6d9b8); g.tri([STB.ring[0] - 9, h + 1.2, z0 - 0.4], [STB.ring[0] + 9, h + 1.2, z0 - 0.4], [STB.ring[0], h + 5.2, z0 - 0.4]);
+  g.color(0xd9cba6); g.tri([STB.ring[0] + 9, h + 1.2, z0 - 0.4], [STB.ring[0] - 9, h + 1.2, z0 - 0.4], [STB.ring[0], h + 5.2, z0 - 0.4]);
+  addRect(x0, z0, x1, z1);
+  const front = new THREE.Mesh(new THREE.PlaneGeometry(W, h), new THREE.MeshStandardMaterial({ map: tex(siamTimesFront(W, h)), roughness: 0.8 }));
+  front.position.set((x0 + x1) / 2, h / 2, z0 - 0.02); front.rotation.y = Math.PI; front.receiveShadow = true; scene.add(front);
+  const em = new THREE.Mesh(new THREE.CircleGeometry(1.7, 40), new THREE.MeshStandardMaterial({ map: tex(siamTimesS(256)), roughness: 0.5, emissive: 0xffffff, emissiveIntensity: 0.15 }));
+  em.material.emissiveMap = em.material.map;
+  em.position.set(STB.ring[0], h + 2.6, z0 - 0.45); em.rotation.y = Math.PI; scene.add(em);
+  PLACE.stEmblem = em;
+  // a flag with the S
+  const pole = gb('roof'); pole.color(0xd8d4ca); pole.geo(GEO.cyl, mat(x1 - 3, h + 4.6, z0 + 2, 0, 0.08, 7, 0.08));
+  const flag = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.6), new THREE.MeshStandardMaterial({ map: tex(siamTimesS(128, '#0c131b', '#d6ad5f')), side: THREE.DoubleSide, roughness: 0.8 }));
+  flag.position.set(x1 - 1.6, h + 6.9, z0 + 2); flag.rotation.y = Math.PI; scene.add(flag); PLACE.flag = flag;
+  // the forecourt: a gold marker where you stop to go in, and two lamps
+  const ring = new THREE.Mesh(new THREE.RingGeometry(4.2, 5.2, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xffc860, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false }));
+  ring.position.set(STB.ring[0], KERB + 0.06, STB.ring[1]); ring.renderOrder = 3; ring.visible = false; scene.add(ring); STB.ringMesh = ring;
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 120, 16, 1, true), new THREE.MeshBasicMaterial({ color: new THREE.Color(1.5, 1.1, 0.45), transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+  beam.position.set(STB.ring[0], 60, STB.ring[1]); beam.visible = false; scene.add(beam); STB.beam = beam;
+  for (const x of [STB.ring[0] - 9, STB.ring[0] + 9]) { inst('lampPole', mat(x, KERB, z0 - 1.2, Math.PI), null); inst('lampHead', mat(x, KERB + 8.35, z0 - 3.5, Math.PI), col(WARM)); addCircle(x, z0 - 1.2, 0.22); }
+  spiritHouse(x1 - 1.5, Z0 + 2.5, 0);
 }
 
 
@@ -2596,10 +3367,32 @@ function buildVehicleKinds() {
     [rb(0.36, 0.5, 1.4, 0.12), mat(0, 0.55, 0.1), W], [rb(0.34, 0.12, 0.6, 0.05), mat(0, 0.86, 0.25), 0x1a1a1a],
     [wheel, mat(0, 0.27, -0.66, 0, 0.1, 0.27, 0.27), TY], [wheel, mat(0, 0.27, 0.64, 0, 0.1, 0.27, 0.27), TY],
     [new THREE.CylinderGeometry(0.02, 0.02, 0.6, 5), mat(0, 1.05, -0.55, 0, 1, 1, 1, -0.3), 0x444444], [new THREE.BoxGeometry(0.6, 0.03, 0.03), mat(0, 1.33, -0.62), 0x333333],
-    [new THREE.CapsuleGeometry(0.15, 0.4, 4, 8), mat(0, 1.25, 0.15, 0, 1, 1, 1, -0.15), 0xe06a1c], [new THREE.SphereGeometry(0.14, 12, 10), mat(0, 1.68, 0.08), 0x2b2b30],
     [new THREE.CapsuleGeometry(0.06, 0.4, 4, 6), mat(0.12, 0.72, -0.25, 0, 1, 1, 1, 1.1), 0x2a3550], [new THREE.CapsuleGeometry(0.06, 0.4, 4, 6), mat(-0.12, 0.72, -0.25, 0, 1, 1, 1, 1.1), 0x2a3550]],
     [[new THREE.SphereGeometry(0.06, 10, 8), mat(0, 1.0, -0.82), HL], [new THREE.BoxGeometry(0.14, 0.06, 0.03), mat(0, 0.78, 0.82), TL]]) };
+  // the riders: women with long hair, blouses in the instance colour; the left arm apart so it can wave
+  const SKIN = 0xd9a47c, HAIR = 0x24160f;
+  const limb = (a, b, r) => { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), L = d.length(); return [new THREE.CapsuleGeometry(r, Math.max(0.01, L - 2 * r), 4, 6), new THREE.Matrix4().compose(A.clone().add(B).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()), new THREE.Vector3(1, 1, 1))]; };
+  const arm = s => { const [g, m] = limb([s * 0.17, 1.42, 0.1], [s * 0.29, 1.33, -0.58], 0.048); return [[g, m, W], [new THREE.SphereGeometry(0.05, 8, 6), mat(s * 0.29, 1.33, -0.6), SKIN]]; };
+  // the blouse takes the instance colour; head, helmet and hair do not
+  const rider = new GB(), head = new GB();
+  const [ra, rh] = arm(1);
+  for (const [g, m, c] of [[new THREE.CapsuleGeometry(0.135, 0.3, 4, 10), mat(0, 1.24, 0.14, 0, 1.08, 1, 0.82, -0.14), W], ra]) { rider.color(c); rider.geo(g, m); }
+  for (const [g, m, c] of [
+    [new THREE.CylinderGeometry(0.045, 0.05, 0.1, 8), mat(0, 1.5, 0.11), SKIN],
+    [new THREE.SphereGeometry(0.1, 12, 10), mat(0, 1.6, 0.08), SKIN],
+    [new THREE.SphereGeometry(0.135, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), mat(0, 1.615, 0.1, 0, 1, 1.05, 1.08), 0xf3efe6],
+    [new THREE.BoxGeometry(0.2, 0.03, 0.06), mat(0, 1.66, -0.04), 0x2a2a2a],
+    [new THREE.SphereGeometry(0.115, 12, 10), mat(0, 1.56, 0.15, 0, 1.05, 1, 0.9), HAIR],
+    [new THREE.CapsuleGeometry(0.1, 0.42, 4, 10), mat(0, 1.33, 0.24, 0, 1.25, 1, 0.45, -0.22), HAIR],
+    [new THREE.CapsuleGeometry(0.06, 0.16, 4, 6), mat(0, 1.08, 0.33, 0, 1.4, 1, 0.5, -0.5), HAIR],
+    rh]) { head.color(c); head.geo(g, m); }
+  const armL = new GB(); for (const [g, m, c] of arm(-1)) { armL.color(c); armL.geo(g, m); }
+  VKINDS.scooter.rider = rider.build(); VKINDS.scooter.riderHead = head.build(); VKINDS.scooter.armL = armL.build();
+  const wave = new GB(); { const [g, m] = limb([0, 0, 0], [0, 0.62, 0], 0.048); wave.color(W); wave.geo(g, m); wave.color(SKIN); wave.geo(new THREE.SphereGeometry(0.06, 8, 6), mat(0, 0.66, 0)); }
+  VKINDS.scooter.wave = wave.build();
 }
+const BLOUSES = [0xe86a8a, 0xf2efe6, 0x7ac0e0, 0xf0c040, 0x9a7ad8, 0x62b88a, 0xe0703a, 0xd94a5a];
+const riderMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.75, metalness: 0 });
 
 const CARS = [];
 const TRAFFIC = { meshes: {}, time: 0 };
@@ -2668,6 +3461,14 @@ function buildTraffic() {
     body.castShadow = true; body.receiveShadow = true; body.frustumCulled = false; lights.frustumCulled = false;
     scene.add(body, lights);
     TRAFFIC.meshes[kind] = { body, lights };
+    if (K.rider) {
+      const rider = new THREE.InstancedMesh(K.rider, riderMat, n), armL = new THREE.InstancedMesh(K.armL, riderMat, n), head = new THREE.InstancedMesh(K.riderHead, riderMat, n);
+      rider.castShadow = true; rider.frustumCulled = false; armL.frustumCulled = false; head.frustumCulled = false; scene.add(rider, armL, head);
+      for (let k = 0; k < n; k++) { const c = col(BLOUSES[k % BLOUSES.length]); rider.setColorAt(k, c); armL.setColorAt(k, c); }
+      rider.instanceColor.needsUpdate = true; armL.instanceColor.needsUpdate = true;
+      Object.assign(TRAFFIC.meshes[kind], { rider, armL, head });
+      TRAFFIC.wave = new THREE.Mesh(K.wave, riderMat.clone()); TRAFFIC.wave.material.vertexColors = true; TRAFFIC.wave.visible = false; scene.add(TRAFFIC.wave);
+    }
     for (let k = 0; k < n; k++) {
       body.setColorAt(k, col(colors[Math.floor(rr() * colors.length)]));
       // place on a random straight leg that is free
@@ -2695,7 +3496,7 @@ function placeCar(car, px, pz, dMin, dMax, rr = Math.random) {
   return false;
 }
 let recycleT = 0;
-const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(1, 1, 1), _y = new THREE.Vector3(0, 1, 0);
+const _m = new THREE.Matrix4(), _m0 = new THREE.Matrix4().makeScale(0, 0, 0), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(1, 1, 1), _y = new THREE.Vector3(0, 1, 0);
 function updateTraffic(dt, player) {
   TRAFFIC.time += dt;
   const tnow = TRAFFIC.time;
@@ -2755,8 +3556,19 @@ function updateTraffic(dt, player) {
     _q.setFromAxisAngle(_y, yaw); _p.set(car.pos.x, 0, car.pos.z);
     _m.compose(_p, _q, _s);
     M.body.setMatrixAt(car.k, _m); M.lights.setMatrixAt(car.k, _m);
+    if (M.rider) {
+      M.rider.setMatrixAt(car.k, _m); M.head.setMatrixAt(car.k, _m);
+      // a rider waving back: her left arm comes off the bars and waves
+      if (car.waveT > 0) {
+        car.waveT -= dt; M.armL.setMatrixAt(car.k, _m0);
+        const W = TRAFFIC.wave; W.visible = true; W.material.color.copy(col(BLOUSES[car.k % BLOUSES.length]));
+        W.position.set(-0.17, 1.42, 0.1).applyAxisAngle(_y, yaw).add(_p);
+        W.rotation.set(0, yaw, 0.35 + Math.sin(car.waveT * 14) * 0.45, 'YXZ');
+        if (car.waveT <= 0) W.visible = false;
+      } else M.armL.setMatrixAt(car.k, _m);
+    }
   }
-  for (const k of Object.keys(TRAFFIC.meshes)) { TRAFFIC.meshes[k].body.instanceMatrix.needsUpdate = true; TRAFFIC.meshes[k].lights.instanceMatrix.needsUpdate = true; }
+  for (const k of Object.keys(TRAFFIC.meshes)) { const M = TRAFFIC.meshes[k]; M.body.instanceMatrix.needsUpdate = true; M.lights.instanceMatrix.needsUpdate = true; if (M.rider) { M.rider.instanceMatrix.needsUpdate = true; M.armL.instanceMatrix.needsUpdate = true; M.head.instanceMatrix.needsUpdate = true; } }
   updateLights(tnow);
 }
 
@@ -2954,6 +3766,9 @@ function initAudio() {
   /* road and wind */
   AUDIO.wind = g(0); AUDIO.windF = filt('bandpass', 800, 0.5); loop(white).connect(AUDIO.windF).connect(AUDIO.wind).connect(master);
   AUDIO.tyre = g(0); loop(brown).connect(filt('lowpass', 380, 0.7)).connect(AUDIO.tyre).connect(master);
+  /* the surface: grass swishing past, water hissing and sloshing */
+  AUDIO.surf = g(0); AUDIO.surfF = filt('bandpass', 900, 0.6); loop(white).connect(AUDIO.surfF).connect(AUDIO.surf).connect(master);
+  AUDIO.slosh = g(0); { const s = loop(brown); const f = filt('lowpass', 320, 0.9); const lfo = ctx.createOscillator(); lfo.frequency.value = 2.3; const lg = g(0.5); lfo.connect(lg); const vca = g(0.5); lg.connect(vca.gain); lfo.start(); s.connect(f).connect(vca).connect(AUDIO.slosh).connect(master); AUDIO.sloshLfo = lfo; }
   /* the city: a low hum of distant traffic */
   AUDIO.hum = g(0.05); loop(brown).connect(filt('lowpass', 220, 0.7)).connect(AUDIO.hum).connect(master);
   /* passing traffic */
@@ -3055,7 +3870,12 @@ function audioUpdate(dt, s) {
   const v = s.speed;
   set(AUDIO.wind.gain, Math.min(0.5, (v / 45) ** 2 * 0.45) * (s.cam === 2 ? 1.4 : 0.8));
   set(AUDIO.windF.frequency, 500 + v * 18);
-  set(AUDIO.tyre.gain, Math.min(0.16, v * 0.004));
+  set(AUDIO.tyre.gain, s.surf === 'road' || s.surf === 'walk' || !s.surf ? Math.min(0.16, v * 0.004) : 0);
+  const df = (s.depth || 0) / 0.34;
+  set(AUDIO.surf.gain, s.surf === 'grass' ? Math.min(0.05, v * 0.006) : s.surf === 'water' ? Math.min(0.2, (0.02 + v * 0.025) * df) : 0, 0.08);
+  set(AUDIO.surfF.frequency, s.surf === 'water' ? 1700 : 850, 0.1);
+  set(AUDIO.slosh.gain, s.surf === 'water' ? Math.min(0.22, (0.05 + v * 0.03) * df) : 0, 0.1);
+  set(AUDIO.sloshLfo.frequency, 1.5 + v * 0.6, 0.2);
   set(AUDIO.hum.gain, look.night ? 0.035 : 0.055, 0.5);
   set(AUDIO.revIn.gain, s.reverb, 0.4);
   // nearest vehicles
@@ -3127,6 +3947,15 @@ const SFX = {
     gg.gain.setValueAtTime(0, t); gg.gain.linearRampToValueAtTime(0.12 * strength, t + 0.02); gg.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
     s.connect(AUDIO.filt('bandpass', 1800, 2)).connect(gg).connect(AUDIO.master); s.start(t, Math.random()); s.stop(t + 0.35);
   },
+  splash(strength) {
+    if (!AUDIO.ready) return;
+    const ctx = AUDIO.ctx, t = ctx.currentTime;
+    for (const [buf, f, q, peak, dur] of [[AUDIO.white, 1300, 0.7, 0.32, 0.7], [AUDIO.brown, 260, 0.8, 0.5, 0.5]]) {
+      const s = ctx.createBufferSource(); s.buffer = buf; const gg = AUDIO.g(0);
+      gg.gain.setValueAtTime(0, t); gg.gain.linearRampToValueAtTime(peak * strength, t + 0.015); gg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(AUDIO.filt('bandpass', f, q)).connect(gg).connect(AUDIO.master); gg.connect(AUDIO.revIn); s.start(t, Math.random()); s.stop(t + dur + 0.05);
+    }
+  },
   chime() { if (!AUDIO.ready) return; [784, 988, 1175, 1568].forEach((f, k) => setTimeout(() => bell(f, 0.05), k * 140)); },
   click() { if (!AUDIO.ready) return; voice('triangle', 900, 0.05, 0.03); },
 };
@@ -3140,37 +3969,740 @@ AUDIO.carHorn = car => {
 
 
 /* =====================================================================
+   The ground under the wheels, and what it throws up:
+   grass and earth flicked off the tyres, tyre tracks left in the grass,
+   spray and ripples in the park ponds, wet tracks after them.
+   ===================================================================== */
+// what the bike is standing on from height y: road, pavement, grass, (shallow) water, a deck, or the river
+function surfaceAt(x, z, y = 0.3) {
+  const b = groundAt(x, z), d = deckAt(x, z, y);
+  if (d && (d.h > b.h || b.h > y + STEP || b.kind === 'river')) return { kind: d.d.kind, h: d.h, deck: d.d };   // in the trench the river is above you, not under you
+  return b;
+}
+function groundAt(x, z) {
+  const rv = riverSurface(x, z); if (rv) return rv;
+  for (const L of WORLD.lakes) {
+    const q = ((x - L.x) / L.rx) ** 2 + ((z - L.z) / L.rz) ** 2;
+    if (q < 1) { const depth = 0.34 * clamp((1 - q) * 4, 0.12, 1); return { kind: 'water', h: L.wl - depth, depth, wl: L.wl }; }
+  }
+  if (x > -16.05 && x < -7) return { kind: 'walk', h: KERB };
+  if (!blockAt(x, z)) return { kind: 'road', h: 0 };
+  for (const [x0, z0, x1, z1] of WORLD.greens) if (x >= x0 && x <= x1 && z >= z0 && z <= z1) return { kind: 'grass', h: KERB + 0.02 };
+  return { kind: 'walk', h: KERB };
+}
+
+// how brightly the sky lights the spray and the tracks at each time of day
+const FX_LIGHT = new THREE.Color(1, 1, 1);
+const FX_LIGHTS = { day: [1, 1, 1], golden: [0.85, 0.72, 0.58], dusk: [0.3, 0.3, 0.42], night: [0.2, 0.22, 0.3] };
+
+/* particles: one Points object per kind, sized in metres, fading out */
+class Particles {
+  constructor(n, map, opacity = 1) {
+    this.n = n; this.i = 0;
+    this.p = new Float32Array(n * 3); this.v = new Float32Array(n * 3); this.c = new Float32Array(n * 3);
+    this.s = new Float32Array(n); this.a = new Float32Array(n); this.life = new Float32Array(n); this.max = new Float32Array(n); this.floor = new Float32Array(n); this.sink = new Uint8Array(n);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(this.p, 3).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('color', new THREE.BufferAttribute(this.c, 3).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('size', new THREE.BufferAttribute(this.s, 1).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('alpha', new THREE.BufferAttribute(this.a, 1).setUsage(THREE.DynamicDrawUsage));
+    this.mat = new THREE.ShaderMaterial({
+      uniforms: { map: { value: map }, scale: { value: 600 }, maxPx: { value: 40 }, opacity: { value: opacity }, light: { value: FX_LIGHT } }, transparent: true, depthWrite: false,
+      vertexShader: `attribute float size; attribute float alpha; attribute vec3 color; uniform float scale; uniform float maxPx; varying float vA; varying vec3 vC;
+        void main(){ vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mv; gl_PointSize = min(maxPx, size * scale / max(0.1, -mv.z)); vA = alpha; vC = color; }`,
+      fragmentShader: `uniform sampler2D map; uniform vec3 light; uniform float opacity; varying float vA; varying vec3 vC;
+        void main(){ vec4 t = texture2D(map, gl_PointCoord); float a = t.a * vA * opacity; if (a < 0.03) discard; gl_FragColor = vec4(vC * t.rgb * light, a); }`,
+    });
+    this.pts = new THREE.Points(g, this.mat); this.pts.frustumCulled = false; this.pts.renderOrder = 3;
+    scene.add(this.pts); this.live = 0;
+  }
+  spawn(x, y, z, vx, vy, vz, life, size, r, g, b, floor, sink) {
+    const k = this.i; this.i = (this.i + 1) % this.n;
+    this.p[k * 3] = x; this.p[k * 3 + 1] = y; this.p[k * 3 + 2] = z;
+    this.v[k * 3] = vx; this.v[k * 3 + 1] = vy; this.v[k * 3 + 2] = vz;
+    this.c[k * 3] = r; this.c[k * 3 + 1] = g; this.c[k * 3 + 2] = b;
+    this.s[k] = size; this.life[k] = this.max[k] = life; this.floor[k] = floor; this.sink[k] = sink ? 1 : 0;
+    this.live = Math.max(this.live, 1);
+  }
+  update(dt, gravity, drag) {
+    let any = 0;
+    for (let k = 0; k < this.n; k++) {
+      if (this.life[k] <= 0) { this.a[k] = 0; continue; }
+      any++;
+      const i3 = k * 3;
+      this.v[i3 + 1] -= gravity * dt;
+      const f = Math.max(0, 1 - drag * dt); this.v[i3] *= f; this.v[i3 + 2] *= f;
+      this.p[i3] += this.v[i3] * dt; this.p[i3 + 1] += this.v[i3 + 1] * dt; this.p[i3 + 2] += this.v[i3 + 2] * dt;
+      if (this.p[i3 + 1] < this.floor[k]) {
+        if (this.sink[k]) this.life[k] = 0;                         // a drop falls back into the pond
+        else { this.p[i3 + 1] = this.floor[k]; this.v[i3] = this.v[i3 + 1] = this.v[i3 + 2] = 0; this.life[k] = Math.min(this.life[k], 0.5); }  // a blade of grass settles
+      }
+      this.life[k] -= dt;
+      this.a[k] = clamp(this.life[k] / this.max[k] * 2, 0, 1);
+    }
+    this.live = any;
+    const g = this.pts.geometry;
+    g.attributes.position.needsUpdate = g.attributes.alpha.needsUpdate = g.attributes.color.needsUpdate = g.attributes.size.needsUpdate = true;
+    this.pts.visible = any > 0;
+  }
+}
+
+/* tyre tracks: a ring buffer of thin quads laid on the ground */
+class Tracks {
+  constructor(n) {
+    this.n = n; this.k = 0;
+    this.pos = new Float32Array(n * 12); this.col = new Float32Array(n * 16);
+    const idx = new Uint16Array(n * 6);
+    for (let q = 0; q < n; q++) { const b = q * 4; idx.set([b, b + 2, b + 1, b, b + 3, b + 2], q * 6); }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(this.pos, 3).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('color', new THREE.BufferAttribute(this.col, 4).setUsage(THREE.DynamicDrawUsage));
+    g.setIndex(new THREE.BufferAttribute(idx, 1));
+    this.mesh = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: FX_LIGHT, vertexColors: true, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6 }));
+    this.mesh.frustumCulled = false; this.mesh.renderOrder = 1; scene.add(this.mesh); this.dirty = false;
+  }
+  add(ax, az, bx, bz, y, w, r, g, b, a) {
+    const dx = bx - ax, dz = bz - az, l = Math.hypot(dx, dz) || 1, nx = -dz / l * w / 2, nz = dx / l * w / 2;
+    const q = this.k; this.k = (this.k + 1) % this.n;
+    this.pos.set([ax + nx, y, az + nz, ax - nx, y, az - nz, bx - nx, y, bz - nz, bx + nx, y, bz + nz], q * 12);
+    for (let v = 0; v < 4; v++) this.col.set([r, g, b, a * (v === 0 || v === 3 ? 0.85 : 1)], q * 16 + v * 4);
+    this.dirty = true;
+  }
+  flush() { if (!this.dirty) return; const g = this.mesh.geometry; g.attributes.position.needsUpdate = g.attributes.color.needsUpdate = true; this.dirty = false; }
+}
+
+const FX = { ready: false, grass: null, water: null, tracks: null, rings: [], ringT: 0, acc: { g: 0, w: 0 }, last: [null, null] };
+function fxTex(draw) { const [c, x] = makeCanvas(32, 32); draw(x); const t = new THREE.CanvasTexture(c); return t; }
+FX.init = () => {
+  const blade = fxTex(x => { x.fillStyle = '#fff'; x.beginPath(); x.ellipse(16, 16, 13, 5, 0.6, 0, 7); x.fill(); x.beginPath(); x.ellipse(13, 18, 7, 6, 0, 0, 7); x.fill(); });
+  const drop = fxTex(x => { const g = x.createRadialGradient(16, 16, 0, 16, 16, 16); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.55, 'rgba(240,248,255,.85)'); g.addColorStop(0.8, 'rgba(220,235,250,.3)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 32, 32); });
+  FX.grass = new Particles(600, blade);
+  FX.water = new Particles(1000, drop, 0.8);
+  FX.tracks = new Tracks(1600);
+  const ringGeo = new THREE.RingGeometry(0.9, 1, 48).rotateX(-Math.PI / 2);
+  for (let k = 0; k < 14; k++) { const m = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xdfeaf2, transparent: true, opacity: 0, depthWrite: false })); m.visible = false; m.renderOrder = 2; scene.add(m); FX.rings.push({ m, t: 1, life: 1.8 }); }
+  // the bow wave: a V of foam pushed out by the front wheel, trailing past the rear
+  const [bc, bx] = makeCanvas(128, 256);
+  const foam = (x, y, rx, ry, a) => { bx.fillStyle = `rgba(255,255,255,${a})`; bx.beginPath(); bx.ellipse(x, y, rx, ry, 0, 0, 7); bx.fill(); };
+  for (const side of [-1, 1]) {
+    for (let k = 0; k < 140; k++) {
+      const t = Math.random() ** 0.8, spread = 5 + t * 56, x = 64 + side * spread * (0.82 + Math.random() * 0.3), y = 12 + t * 238;
+      foam(x, y, 1.5 + Math.random() * 3.5 * (1 - t * 0.5), 1 + Math.random() * 2, (1 - t) ** 1.4 * (0.35 + Math.random() * 0.5));
+    }
+    bx.strokeStyle = 'rgba(255,255,255,.55)'; bx.lineWidth = 3;
+    bx.beginPath(); bx.moveTo(64 + side * 5, 10); bx.quadraticCurveTo(64 + side * 30, 110, 64 + side * 60, 250); bx.stroke();
+  }
+  const fg = bx.createRadialGradient(64, 16, 0, 64, 16, 18); fg.addColorStop(0, 'rgba(255,255,255,.9)'); fg.addColorStop(1, 'rgba(255,255,255,0)');
+  bx.fillStyle = fg; bx.fillRect(40, 0, 48, 40);
+  const bowMap = new THREE.CanvasTexture(bc); bowMap.colorSpace = THREE.SRGBColorSpace;
+  FX.bow = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 5.2).rotateX(-Math.PI / 2).translate(0, 0, 1.55),
+    new THREE.MeshBasicMaterial({ map: bowMap, transparent: true, opacity: 0, depthWrite: false, color: 0xe8f0f4 }));
+  FX.bow.visible = false; FX.bow.renderOrder = 2; scene.add(FX.bow);
+  FX.ready = true; fxLight();
+};
+const GRASS_COL = [[0.27, 0.42, 0.14], [0.36, 0.52, 0.18], [0.22, 0.34, 0.12], [0.42, 0.32, 0.2]];
+// a big splash when the bike drops into the water
+FX.splash = (x, z, wl, sp) => {
+  if (!FX.ready) return;
+  const n = Math.min(240, 70 + sp * 18), fx = -Math.sin(bike.yaw), fz = -Math.cos(bike.yaw);
+  for (let k = 0; k < n; k++) {
+    // a crown of water thrown out sideways and forwards, mostly to the sides
+    const s = Math.random() < 0.5 ? -1 : 1, a = Math.atan2(fz, fx) + s * (0.5 + Math.random() * 1.6), out = 0.8 + Math.random() * (1.2 + sp * 0.25);
+    FX.water.spawn(x + Math.cos(a) * 0.3, wl + 0.08, z + Math.sin(a) * 0.3, Math.cos(a) * out + fx * sp * 0.3, 1.4 + Math.random() * (1.4 + sp * 0.22), Math.sin(a) * out + fz * sp * 0.3, 0.6 + Math.random() * 0.5, 0.035 + Math.random() * 0.07, 0.86, 0.93, 1, wl, true);
+  }
+  for (let k = 0; k < 3; k++) ring(x + (Math.random() - 0.5), z + (Math.random() - 0.5), wl, 0.4 + k * 0.35);
+};
+function ring(x, z, wl, start) {
+  const r = FX.rings.reduce((o, c) => (c.t >= c.life ? c : (o.t >= o.life ? o : (c.t > o.t ? c : o))), FX.rings[0]);
+  r.t = 0; r.start = start; r.m.position.set(x, wl + 0.012, z); r.m.visible = true;
+}
+FX.update = (dt) => {
+  if (!FX.ready) { if (typeof scene !== 'undefined' && WORLD.blocks.length) FX.init(); else return; }
+  const riding = state === 'ride' && bike.started;
+  const sp = Math.abs(bike.v), fx = -Math.sin(bike.yaw), fz = -Math.cos(bike.yaw), rx = -fz, rz = fx;
+  const wheels = [[bike.x - fx * 0.81, bike.z - fz * 0.81, 0.26], [bike.x + fx * 0.82, bike.z + fz * 0.82, 0.19]];   // rear, front contact
+  if (riding && sp > 0.4) {
+    if (bike.surf === 'grass') {
+      // clippings and earth thrown back and up off the tyres; more with the throttle open or the bars over
+      FX.acc.g += dt * Math.min(200, sp * 12 + bike.throttle * 36 + Math.abs(bike.steer) * sp * 7);
+      while (FX.acc.g >= 1) {
+        FX.acc.g -= 1;
+        const front = Math.random() < 0.25, [wx, wz] = wheels[front ? 1 : 0], c = GRASS_COL[Math.random() * GRASS_COL.length | 0];
+        const back = (1.2 + sp * 0.32 + bike.throttle * 2.2) * (front ? 0.5 : 1), side = (Math.random() - 0.5) * (1.4 + Math.abs(bike.steer) * 2.5) + bike.steer * -1.2;
+        FX.grass.spawn(wx + (Math.random() - 0.5) * 0.2, KERB + 0.12, wz + (Math.random() - 0.5) * 0.2,
+          -fx * back + rx * side + fx * sp * 0.25, 1.0 + Math.random() * (1.6 + bike.throttle * 1.6), -fz * back + rz * side + fz * sp * 0.25,
+          0.8 + Math.random() * 0.7, 0.03 + Math.random() * 0.05, c[0], c[1], c[2], KERB + 0.03, false);
+      }
+    } else FX.acc.g = 0;
+    if (bike.surf === 'water') {
+      // sheets of spray off both sides of each wheel, a wake of rings behind
+      const df = bike.depth / 0.34;
+      FX.acc.w += dt * Math.min(420, (16 + sp * 40) * df);
+      while (FX.acc.w >= 1) {
+        FX.acc.w -= 1;
+        const [wx, wz] = wheels[Math.random() < 0.55 ? 0 : 1], s = Math.random() < 0.5 ? -1 : 1, out = 1.2 + sp * (0.35 + Math.random() * 0.25);
+        FX.water.spawn(wx + rx * s * 0.18, bike.wl + 0.05, wz + rz * s * 0.18,
+          rx * s * out + fx * sp * (0.35 + Math.random() * 0.3), 1.2 + Math.random() * (1 + sp * 0.28), rz * s * out + fz * sp * (0.35 + Math.random() * 0.3),
+          0.45 + Math.random() * 0.45, 0.025 + Math.random() * 0.055, 0.84, 0.92, 1, bike.wl, true);
+      }
+      FX.ringT -= dt;
+      if (FX.ringT <= 0) { FX.ringT = Math.max(0.16, 0.45 - sp * 0.03); ring(wheels[0][0] - fx * 0.3, wheels[0][1] - fz * 0.3, bike.wl, 0.35); }
+    } else FX.acc.w = 0;
+  }
+  // tyre tracks: in grass, and wet ones for a few seconds after the pond
+  const wet = bike.wetT > 0 && bike.surf !== 'water';
+  wheels.forEach(([wx, wz, w], i) => {
+    const marking = riding && (bike.surf === 'grass' || wet);
+    if (!marking) { FX.last[i] = null; return; }
+    const L = FX.last[i];
+    if (!L) { FX.last[i] = [wx, wz]; return; }
+    const gap = Math.hypot(wx - L[0], wz - L[1]);
+    if (gap < 0.3) return;
+    if (gap > 3) { FX.last[i] = [wx, wz]; return; }   // a jump (respawn, teleport): no track across it
+    const y = (bike.surf === 'grass' ? KERB + 0.035 : bike.gy + 0.018);
+    if (bike.surf === 'grass') FX.tracks.add(L[0], L[1], wx, wz, y, w, 0.085, 0.1, 0.04, 0.62);
+    else FX.tracks.add(L[0], L[1], wx, wz, y, w, 0.05, 0.05, 0.06, 0.5 * Math.min(1, bike.wetT / 3));
+    FX.last[i] = [wx, wz];
+  });
+  FX.tracks.flush();
+  // the bow wave follows the bike while it is in the water, stronger with speed
+  const bowA = state === 'ride' && bike.surf === 'water' ? clamp(sp / 5, 0, 1) * (0.35 + 0.65 * bike.depth / 0.34) * 0.9 : 0;
+  FX.bow.material.opacity = damp(FX.bow.material.opacity, bowA, 6, dt);
+  FX.bow.visible = FX.bow.material.opacity > 0.01;
+  if (FX.bow.visible) { FX.bow.position.set(bike.x, (bike.surf === 'water' ? bike.wl : FX.bow.position.y) + 0.014, bike.z); FX.bow.rotation.y = bike.yaw; FX.bow.scale.set(0.8 + clamp(sp / 8, 0, 1) * 0.4, 1, 0.6 + clamp(sp / 8, 0, 1) * 0.6); }
+  // ripples spread and fade
+  for (const r of FX.rings) {
+    if (r.t >= r.life) { r.m.visible = false; continue; }
+    r.t += dt; const k = r.t / r.life;
+    r.m.scale.setScalar(r.start + k * 1.9); r.m.material.opacity = 0.32 * (1 - k) * Math.min(1, r.t * 8);
+  }
+  const scale = renderer.getDrawingBufferSize(_fxV).y / (2 * Math.tan(camera.fov * Math.PI / 360));
+  FX.grass.mat.uniforms.scale.value = FX.water.mat.uniforms.scale.value = scale;
+  FX.grass.mat.uniforms.maxPx.value = _fxV.y / 22; FX.water.mat.uniforms.maxPx.value = _fxV.y / 30;
+  FX.grass.update(dt, 9.8, 1.2);
+  FX.water.update(dt, 9.8, 0.6);
+};
+const _fxV = new THREE.Vector2();
+function fxLight() {
+  FX_LIGHT.setRGB(...(FX_LIGHTS[settings.time] || FX_LIGHTS.day));
+  if (!FX.ready) return;
+  FX.tracks.mesh.material.color.copy(FX_LIGHT);
+  for (const r of FX.rings) r.m.material.color.setRGB(0.87, 0.92, 0.95).multiply(FX_LIGHT);
+  FX.bow.material.color.setRGB(0.91, 0.94, 0.96).multiply(FX_LIGHT);
+}
+lightHooks.push(fxLight);
+
+
+/* =====================================================================
+   The mission: the VERDANT 1864 dress watch.
+   Four VERDANT shops, found in any order. The first you walk into has
+   none (sign its Want List), the second will sell it only if you buy
+   another watch first (say no), the third has none (Want List), the
+   fourth has one: but it costs more than you have. Work a month at The
+   Siam Times (a cut scene), or collect tips from the women riders by
+   giving them two toots of the horn. Run more than three red lights and
+   the mission is over.
+   ===================================================================== */
+const MISSION = { price: 186400, start: 150000, salary: 45000, bundle: 420000, reds: 3 };
+const ROLE_SEQ = ['waitlist', 'bundle', 'waitlist', 'stock'];
+const MS = { here: null, lock: null, stillT: 0, honks: [], cut: null, box: null, target: null, hud: '', floats: [] };
+const baht = n => '฿' + Math.round(n).toLocaleString('en-US');
+const MX = TH ? {
+  title: 'ภารกิจ · นาฬิกา 1864', modeMission: 'ภารกิจ: ตามหานาฬิกา 1864', modeFree: 'ขี่เล่นอิสระ', mode: 'โหมด',
+  find: n => `ตามหาร้าน VERDANT สีเขียว ${n}/4 (จุดเขียวบนแผนที่)`, signAt: s => `กลับไปลงชื่อ Want List ที่ ${s}`,
+  earn: g => `เงินขาดอีก ${baht(g)} · กลับไปทำงานที่ตึก The Siam Times หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์`, buyAt: s => `เงินพอแล้ว! กลับไปซื้อ 1864 ที่ ${s}`,
+  money: 'เงิน', reds: 'ฝ่าไฟแดง', shops: 'ร้าน', enter: s => `เข้าร้าน ${s}`, enterST: 'เข้าตึก The Siam Times',
+  ran: (n, m) => `ฝ่าไฟแดง! ${n}/${m}`, ranLast: 'ฝ่าไฟแดงครบ 3 ครั้งแล้ว อีกครั้งเดียวภารกิจล้มเหลว',
+  tip: a => `สาวไบค์เกอร์โบกมือทักทาย ให้ทิป ${baht(a)}`, waveAgain: 'เธอโบกมือให้อีกครั้ง (ทิปให้ไปแล้วเมื่อกี้)', waveFree: 'สาวไบค์เกอร์โบกมือทักทาย', enough: 'เงินพอซื้อ 1864 แล้ว!',
+  resume: 'ภารกิจต่อจากเดิม', start: 'เริ่มภารกิจ', go: 'ไปต่อ', later: 'ไว้ก่อน', restart: 'เริ่มภารกิจใหม่', free: 'ขี่เล่นอิสระ', keep: 'ขี่เล่นต่อ', skip: 'แตะเพื่อข้าม',
+  introH: 'ตามหานาฬิกา Dress Watch รุ่น 1864',
+  intro: `คุณเป็นนักข่าวของ The Siam Times อยากได้นาฬิกา VERDANT รุ่น 1864 มานานแล้ว รุ่นนี้หายากมาก มีขายแค่ร้าน VERDANT สีเขียวทอง 4 สาขาในกรุงเทพฯ`,
+  rules: ['ขี่ไปหาร้าน VERDANT ทั้ง 4 ร้าน (จุดเขียวบนแผนที่ แตะปุ่มออโต้ให้พาไปได้)', 'บางร้านไม่มีของ ต้องลงชื่อไว้ใน Want List', 'บางร้านจะให้ซื้อรุ่นอื่นก่อน ต้องปฏิเสธ', `ห้ามฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง`, 'เงินไม่พอ? กลับมาทำงานที่ตึกนี้ หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์เพื่อรับทิป'],
+  budget: 'เงินเก็บ', price: 'ราคา 1864',
+  hello: 'ยินดีต้อนรับสู่ VERDANT ค่ะ',
+  wl1: 'ขออภัยนะคะ รุ่น 1864 ไม่มีของเลยค่ะ ลูกค้ารอคิวกันยาวมาก รับลงชื่อใน Want List ไว้ไหมคะ ถ้ามีของจะโทรแจ้งค่ะ',
+  wlSign: 'ลงชื่อใน Want List', wlDone: 'ลงชื่อเรียบร้อยค่ะ ลองไปสาขาอื่นดูด้วยนะคะ', wlAgain: 'คุณอยู่ใน Want List ของสาขานี้แล้วค่ะ ยังไม่มีของเข้านะคะ',
+  bundle: `รุ่น 1864 หรือคะ... ปกติทางร้านให้สิทธิ์ลูกค้าที่มีประวัติการซื้อก่อนค่ะ ถ้าวันนี้รับรุ่น Mariner 300 ไปก่อน ราคา ${baht(MISSION.bundle)} จะได้สิทธิ์ซื้อ 1864 ทันทีเลยค่ะ`,
+  bundleBuy: 'ซื้อรุ่นอื่นก่อน', bundleNo: 'ปฏิเสธ ไม่ซื้อพ่วง', bundleOk: 'เข้าใจค่ะ ถ้าเปลี่ยนใจแวะมาใหม่ได้นะคะ', bundleAgain: 'เงื่อนไขยังเหมือนเดิมนะคะ รับ Mariner 300 ก่อนไหมคะ',
+  stockNeedWL: s => `มีอยู่เรือนเดียวค่ะ แต่ขายให้เฉพาะลูกค้าที่อยู่ใน Want List ของทุกสาขาก่อน รบกวนไปลงชื่อที่ ${s} ก่อนนะคะ`,
+  stockShort: (p, g) => `โชคดีมากค่ะ! มีรุ่น 1864 อยู่เรือนเดียวพอดี ราคา ${baht(p)} ...แต่เงินของคุณยังขาดอีก ${baht(g)} ทางร้านจะเก็บไว้ให้ 1 เดือนนะคะ`,
+  stockBuy: p => `รุ่น 1864 ที่เก็บไว้ให้พร้อมแล้วค่ะ ราคา ${baht(p)} รับเลยไหมคะ`, buy: 'ซื้อเลย', notYet: 'ยังก่อน',
+  stDesk: 'ยินดีต้อนรับกลับ The Siam Times',
+  stWork: g => `บรรณาธิการมีงานให้ทำเพียบ ทำงานเก็บเงิน 1 เดือนไหม? (เก็บได้ ${baht(MISSION.salary)})${g > 0 ? ` ตอนนี้ยังขาดอีก ${baht(g)}` : ''}`,
+  stNoNeed: 'เงินพอซื้อนาฬิกาแล้ว รีบไปที่ร้านเถอะ', work: 'ทำงาน 1 เดือน',
+  month: '1 เดือนผ่านไป', days: ['เขียนข่าวหน้าหนึ่ง', 'ประชุมโต๊ะข่าวตอนเช้า', 'ตามสัมภาษณ์ทั้งวัน', 'ทำงานล่วงเวลาคืนวันศุกร์', 'ปิดเล่มทันเส้นตาย', 'เก็บเงินทุกบาท'],
+  workDone: a => `1 เดือนผ่านไป · เก็บเงินได้ ${baht(a)}`, monthName: 'เดือนแห่งการทำงาน', day: d => `วันที่ ${d}`,
+  doneH: 'ภารกิจสำเร็จ!', doneP: 'นาฬิกา VERDANT 1864 เป็นของคุณแล้ว', statShops: 'ร้านที่ไป', statReds: 'ฝ่าไฟแดง', statTips: 'ทิปจากสาวไบค์เกอร์', statWork: 'ทำงาน', months: n => `${n} เดือน`,
+  failH: 'ภารกิจล้มเหลว', failReds: `ฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง ถูกตำรวจเรียกตรวจ ยึดใบขับขี่`, failBundle: `ยอมซื้อ Mariner 300 พ่วง ${baht(MISSION.bundle)} เงินเก็บหมดเกลี้ยง ไม่เหลือพอซื้อ 1864`,
+  roleWL: 'ลง Want List แล้ว', roleWLno: 'ยังไม่ได้ลงชื่อ', roleBundle: 'ปฏิเสธการซื้อพ่วง', roleStock: 'มีของ 1864',
+} : {
+  title: 'Mission · the 1864 watch', modeMission: 'Mission: find the 1864 watch', modeFree: 'Free ride', mode: 'Mode',
+  find: n => `Find the green VERDANT shops ${n}/4 (green dots on the map)`, signAt: s => `Go back and sign the Want List at ${s}`,
+  earn: g => `${baht(g)} short · work at The Siam Times, or give the women riders two toots for tips`, buyAt: s => `You have enough! Go back to ${s} and buy the 1864`,
+  money: 'Money', reds: 'Red lights', shops: 'Shops', enter: s => `Go into ${s}`, enterST: 'Go into The Siam Times',
+  ran: (n, m) => `Ran a red light! ${n}/${m}`, ranLast: 'That was your third red light: one more and the mission is over',
+  tip: a => `A rider waves back and tips you ${baht(a)}`, waveAgain: 'She waves again (she tipped you a moment ago)', waveFree: 'A rider waves back', enough: 'You can afford the 1864 now!',
+  resume: 'Mission resumed', start: 'Start the mission', go: 'Carry on', later: 'Not now', restart: 'Start the mission again', free: 'Free ride', keep: 'Keep riding', skip: 'Tap to skip',
+  introH: 'Find the 1864 dress watch',
+  intro: 'You are a reporter at The Siam Times, and you have wanted a VERDANT 1864 dress watch for years. It is very hard to get: only the four green-and-gold VERDANT shops in Bangkok sell it.',
+  rules: ['Ride to all four VERDANT shops (green dots on the map; Auto will take you)', 'Some have none: sign their Want List', 'One will want you to buy another watch first: say no', `Do not run more than ${MISSION.reds} red lights`, 'Short of money? Come back here and work, or give the women riders two toots of the horn for tips'],
+  budget: 'Savings', price: '1864 price',
+  hello: 'Welcome to VERDANT.',
+  wl1: 'I am sorry, we have no 1864s at all, and the wait is long. May I put you on our Want List? We will call you when one comes in.',
+  wlSign: 'Sign the Want List', wlDone: 'You are on the list. Do try our other shops too.', wlAgain: 'You are already on this shop’s Want List; nothing has come in yet.',
+  bundle: `The 1864? We usually offer it to clients with a purchase history. If you take a Mariner 300 today, ${baht(MISSION.bundle)}, you could have the 1864 straight away.`,
+  bundleBuy: 'Buy the other watch first', bundleNo: 'No, thank you', bundleOk: 'Of course. Do come back if you change your mind.', bundleAgain: 'The offer stands: the Mariner 300 first?',
+  stockNeedWL: s => `We have exactly one, but it goes to clients on every shop’s Want List first. Please sign at ${s}.`,
+  stockShort: (p, g) => `You are in luck: we have one 1864, ${baht(p)}... but you are ${baht(g)} short. We will hold it for you for a month.`,
+  stockBuy: p => `Your 1864 is ready for you: ${baht(p)}. Shall we wrap it?`, buy: 'Buy it', notYet: 'Not yet',
+  stDesk: 'Welcome back to The Siam Times',
+  stWork: g => `The editor has plenty for you. Work a month and save ${baht(MISSION.salary)}?${g > 0 ? ` You are ${baht(g)} short.` : ''}`,
+  stNoNeed: 'You can afford the watch: off to the shop!', work: 'Work for a month',
+  month: 'A month later', days: ['Front-page stories', 'Morning news meetings', 'Interviews all day', 'Friday overtime', 'Making the deadline', 'Saving every baht'],
+  workDone: a => `A month later · saved ${baht(a)}`, monthName: 'A month of work', day: d => `Day ${d}`,
+  doneH: 'Mission complete!', doneP: 'The VERDANT 1864 is yours', statShops: 'Shops', statReds: 'Red lights', statTips: 'Tips from riders', statWork: 'Worked', months: n => `${n} month${n === 1 ? '' : 's'}`,
+  failH: 'Mission failed', failReds: `More than ${MISSION.reds} red lights: the police stopped you and took your licence`, failBundle: `You bought the Mariner 300 for ${baht(MISSION.bundle)} and spent all your savings: nothing left for the 1864`,
+  roleWL: 'On the Want List', roleWLno: 'Not signed yet', roleBundle: 'Said no to the bundle', roleStock: 'Has the 1864',
+};
+const shopName = S => TH ? S.th : S.en;
+// the mission in progress, or null (free ride, finished, failed)
+function mission() { const m = settings.mission; return settings.mode !== 'free' && m && !m.done && !m.failed ? m : null; }
+function newMission() { settings.mission = { money: MISSION.start, reds: 0, order: [], roles: {}, wl: [], refused: false, worked: 0, tips: 0, tipN: 0, t0: Date.now(), done: false, failed: '' }; save(); }
+function missionObjective(m) {
+  if (m.order.length < 4) return MX.find(m.order.length);
+  const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
+  if (miss) return MX.signAt(shopName(miss));
+  if (m.money < MISSION.price) return MX.earn(MISSION.price - m.money);
+  return MX.buyAt(shopName(SHOPS.find(S => m.roles[S.id] === 'stock')));
+}
+// where to go next (for Auto and the beams)
+function missionTarget(m) {
+  if (!m) return null;
+  const pt = S => ({ x: S.ring[0], z: S.ring[1], ax: S.ax, az: S.az, th: S.th, en: S.en, ring: S.ring, place: S });
+  if (m.order.length < 4) {
+    let best = null, bd = 1e9;
+    for (const S of SHOPS) { if (m.order.includes(S.id)) continue; const d = Math.hypot(S.ring[0] - bike.x, S.ring[1] - bike.z); if (d < bd) { bd = d; best = S; } }
+    return best && pt(best);
+  }
+  const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
+  if (miss) return pt(miss);
+  if (m.money < MISSION.price) return pt(STB);
+  return pt(SHOPS.find(S => m.roles[S.id] === 'stock'));
+}
+
+/* ---------- each frame while riding ---------- */
+function missionUpdate(dt) {
+  const m = mission();
+  MS.target = missionTarget(m);
+  // markers: rings at the shops still to see (and the target), beams over the target
+  for (const S of [...SHOPS, STB]) {
+    const show = !!m && (S === STB || !m.order.includes(S.id) || (MS.target && MS.target.place === S));
+    S.ringMesh.visible = show; S.beam.visible = !!m && MS.target && MS.target.place === S;
+    if (show) { const k = 0.5 + 0.5 * Math.sin(time * 3); S.ringMesh.material.opacity = 0.3 + 0.35 * k; S.ringMesh.scale.setScalar(1 + 0.04 * k); }
+  }
+  // standing in a ring: a button to go in; stopping there goes in by itself
+  let here = null;
+  if (m && Math.abs(bike.y - KERB) < 1.5) for (const S of [...SHOPS, STB]) if (Math.hypot(bike.x - S.ring[0], bike.z - S.ring[1]) < 5.4) here = S;
+  if (MS.lock && MS.lock !== here) MS.lock = null;
+  MS.here = here;
+  const btn = $('actBtn');
+  if (here && here !== MS.lock) { btn.hidden = false; const lbl = here === STB ? MX.enterST : MX.enter(shopName(here)); if (btn.textContent !== lbl) btn.textContent = lbl; }
+  else btn.hidden = true;
+  if (here && here !== MS.lock && Math.abs(bike.v) < 0.5) { MS.stillT += dt; if (MS.stillT > 0.5) openPlace(here); } else MS.stillT = 0;
+  redLights(m);
+  missionHUD(m);
+}
+// Auto takes you to the target and stops in its ring
+function missionAuto(steer, brake) {
+  const t = MS.target; if (!t) return null;
+  const d = Math.hypot(t.ring[0] - bike.x, t.ring[1] - bike.z);
+  if (d > 26) return null;
+  let e = Math.atan2(-(t.ring[0] - bike.x), -(t.ring[1] - bike.z)) - bike.yaw; e = Math.atan2(Math.sin(e), Math.cos(e));
+  const want = d < 2.5 ? 0 : Math.min(7, d * 0.5);
+  return { steer: clamp(e * 1.8, -1, 1), brake: bike.v > want + 0.5 ? clamp((bike.v - want) / 3, 0.2, 1) : d < 2.5 ? 1 : 0, thr: bike.v < want ? 0.35 : 0 };
+}
+function redLights(m) {
+  if (!m || bike.offGrid || Math.abs(bike.y) > 1.2) { MS.box = null; return; }
+  const i = clamp(Math.round(bike.x / 100), 0, NX - 1), j = clamp(Math.round((bike.z - RZ[0]) / 100), 0, NZ - 1);
+  const inBox = Math.abs(bike.x - RX[i]) < WX[i] / 2 - 0.6 && Math.abs(bike.z - RZ[j]) < WZ[j] / 2 - 0.6;
+  const key = inBox ? i * 100 + j : null;
+  if (key !== null && key !== MS.box && Math.abs(bike.v) > 1.5) {
+    const axis = Math.abs(Math.sin(bike.yaw)) > Math.abs(Math.cos(bike.yaw)) ? 'x' : 'z', node = nodeAt(i, j);
+    if (node && node.heads.some(h => h.axis === axis) && lightState(node, axis, TRAFFIC.time) === 'r') ranRed(m);
+  }
+  MS.box = key;
+}
+function ranRed(m) {
+  m.reds++; save();
+  missionSfx('whistle');
+  const f = $('flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
+  bike.shake = Math.max(bike.shake, 0.3);
+  if (m.reds > MISSION.reds) { missionFail('reds'); return; }
+  toast(m.reds === MISSION.reds ? MX.ranLast : MX.ran(m.reds, MISSION.reds), 2.6);
+}
+function missionHUD(m) {
+  const p = $('mpanel');
+  if (!m) { if (!p.hidden) p.hidden = true; return; }
+  const key = [m.money, m.reds, m.order.length, m.wl.length, m.refused].join('|');
+  if (p.hidden) { p.hidden = false; $('mpTitle').textContent = MX.title; }
+  if (key === MS.hud) return;
+  MS.hud = key;
+  $('mpObj').textContent = missionObjective(m);
+  $('mpMoney').textContent = `${MX.money} ${baht(m.money)} / ${baht(MISSION.price)}`;
+  $('mpReds').textContent = `${MX.reds} ${m.reds}/${MISSION.reds}`; $('mpReds').classList.toggle('warn', m.reds >= MISSION.reds);
+  $('mpShops').textContent = `${MX.shops} ${m.order.length}/4`;
+}
+
+/* ---------- two toots of the horn for a rider nearby ---------- */
+function missionHonk() {
+  if (state !== 'ride') return;
+  const now = performance.now() / 1000; MS.honks.push(now); MS.honks = MS.honks.filter(t => now - t < 1.3);
+  if (MS.honks.length < 2) return;
+  MS.honks = [];
+  let best = null, bd = 16;
+  for (const c of CARS) if (c.kind === 'scooter') { const d = Math.hypot(c.pos.x - bike.x, c.pos.z - bike.z); if (d < bd) { bd = d; best = c; } }
+  if (!best || Math.abs(bike.y) > 1.5) return;
+  best.waveT = 1.8;
+  const m = mission();
+  if (best.tipT !== undefined && time - best.tipT < 45) { toast(MX.waveAgain); return; }
+  best.tipT = time;
+  if (!m) { toast(MX.waveFree); floatText(best, '👋'); return; }
+  const before = m.money, amt = 3000 + Math.floor(Math.random() * 7) * 500;
+  m.money += amt; m.tips += amt; m.tipN++; save();
+  floatText(best, `👋 +${baht(amt)}`); missionSfx('cash');
+  toast(before < MISSION.price && m.money >= MISSION.price ? MX.enough : MX.tip(amt), 2.4);
+}
+function floatText(car, text) {
+  const e = document.createElement('div'); e.className = 'float'; e.textContent = text; $('floats').appendChild(e);
+  MS.floats.push({ e, car, t: 0 });
+}
+const _fv = new THREE.Vector3();
+function updateFloats(dt) {
+  for (let i = MS.floats.length - 1; i >= 0; i--) {
+    const f = MS.floats[i]; f.t += dt;
+    if (f.t > 1.8) { f.e.remove(); MS.floats.splice(i, 1); continue; }
+    _fv.set(f.car.pos.x, 2.3 + f.t * 0.8, f.car.pos.z).project(camera);
+    const w = APP.clientWidth, h = APP.clientHeight;
+    f.e.style.transform = `translate(${(_fv.x * 0.5 + 0.5) * w}px, ${(-_fv.y * 0.5 + 0.5) * h}px) translate(-50%, -50%)`;
+    f.e.style.opacity = _fv.z < 1 ? String(clamp(2 - f.t * 1.2, 0, 1)) : '0';
+  }
+}
+
+/* ---------- going into a shop, or The Siam Times ---------- */
+function openPlace(P) {
+  const m = mission(); if (!m) return;
+  MS.lock = P; MS.stillT = 0;
+  missionSfx('door');
+  if (P === STB) {
+    const gap = MISSION.price - m.money;
+    if (gap <= 0) { dialog(P, MX.stDesk, MX.stNoNeed, [[MX.go, closeCut]]); return; }
+    dialog(P, MX.stDesk, MX.stWork(m.order.length >= 4 ? gap : 0), [[MX.work, () => workMonth()], [MX.later, closeCut]]);
+    return;
+  }
+  if (!m.order.includes(P.id)) { m.roles[P.id] = ROLE_SEQ[m.order.length]; m.order.push(P.id); save(); }
+  const role = m.roles[P.id];
+  if (role === 'waitlist') {
+    if (m.wl.includes(P.id)) { dialog(P, MX.hello, MX.wlAgain, [[MX.go, closeCut]], 'none'); return; }
+    dialog(P, MX.hello, MX.wl1, [[MX.wlSign, () => { m.wl.push(P.id); save(); missionSfx('sign'); dialog(P, MX.hello, MX.wlDone, [[MX.go, closeCut]], 'list'); }], [MX.later, closeCut]], 'none');
+  } else if (role === 'bundle') {
+    dialog(P, MX.hello, m.refused ? MX.bundleAgain : MX.bundle, [[MX.bundleBuy, () => missionFail('bundle')], [MX.bundleNo, () => { m.refused = true; save(); dialog(P, MX.hello, MX.bundleOk, [[MX.go, closeCut]], 'diver'); }]], 'diver');
+  } else {
+    const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
+    if (miss) { dialog(P, MX.hello, MX.stockNeedWL(shopName(miss)), [[MX.go, closeCut]], '1864'); return; }
+    if (m.money < MISSION.price) { dialog(P, MX.hello, MX.stockShort(MISSION.price, MISSION.price - m.money), [[MX.go, closeCut]], '1864'); return; }
+    dialog(P, MX.hello, MX.stockBuy(MISSION.price), [[MX.buy, () => { m.money -= MISSION.price; missionDone(P); }], [MX.notYet, closeCut]], '1864');
+  }
+}
+// a card over a slow camera move in front of the place
+function dialog(P, head, text, buttons, pic) {
+  const isST = P === STB;
+  openCut('talk', { focus: isST ? { x: STB.ring[0], y: 5, z: STB.z0 } : { x: P.x, y: 2.6, z: P.z }, out: isST ? -1 : P.out, r: isST ? 34 : 13, h: isST ? 9 : 2.6 });
+  const card = $('cutCard'); card.className = 'cutcard talk' + (isST ? ' st' : '');
+  card.innerHTML = '';
+  const hd = document.createElement('div'); hd.className = 'shophd'; hd.innerHTML = `<span class="em">${isST ? 'S' : '❦'}</span><b></b>`; hd.querySelector('b').textContent = isST ? 'The Siam Times' : shopName(P); card.appendChild(hd);
+  const body = document.createElement('div'); body.className = 'talkbody';
+  if (pic && pic !== 'none') { const cv = document.createElement('canvas'); cv.width = cv.height = 280; cv.className = 'watchpic'; drawWatch(cv, pic); body.appendChild(cv); }
+  const tx = document.createElement('div'); tx.className = 'talktext'; tx.innerHTML = `<small></small><p></p>`; tx.querySelector('small').textContent = head; tx.querySelector('p').textContent = text;
+  body.appendChild(tx); card.appendChild(body);
+  card.appendChild(buttonRow(buttons));
+}
+function buttonRow(buttons) {
+  const row = document.createElement('div'); row.className = 'btnrow';
+  buttons.forEach(([label, fn], i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn' + (i === 0 ? ' primary' : ''); b.textContent = label; b.addEventListener('click', () => { SFX.click(); fn(); }); row.appendChild(b); });
+  return row;
+}
+
+/* ---------- cut scenes ---------- */
+function openCut(kind, o = {}) {
+  state = 'cut';
+  input.throttle = 0; input.brake = 0; input.padSteer = 0; input.padActive = false; SFX.horn(false);
+  bike.v = 0; bike.throttle = 0; bike.cruise = 0;
+  const keep = MS.cut && MS.cut.kind === kind;
+  if (MS.cut && MS.cut.timer) clearInterval(MS.cut.timer);
+  MS.cut = { kind, t: keep ? MS.cut.t : 0, a0: keep ? MS.cut.a0 : Math.random() * 6, ...o };
+  for (const S of [...SHOPS, STB]) S.beam.visible = false;     // no beams in the way of the camera
+  const el = $('cut'); el.hidden = false; el.dataset.kind = kind;
+  $('hud').classList.add('cutting'); $('actBtn').hidden = true;
+}
+function closeCut() {
+  $('cut').hidden = true; $('hud').classList.remove('cutting');
+  if (MS.cut && MS.cut.timer) clearInterval(MS.cut.timer);
+  MS.cut = null; if (state === 'cut') state = 'ride'; cam.init = false;
+  setNeutral(true, true); driveUI();
+}
+const _cl = new THREE.Vector3();
+function cutFrame(dt) {
+  const c = MS.cut; if (!c) return;
+  c.t += dt;
+  const f = c.focus || { x: bike.x, y: bike.y + 1, z: bike.z };
+  if (c.out !== undefined) {
+    // in front of a shop: a slow pan along the street
+    const a = Math.sin(c.t * 0.12 + c.a0) * 0.5;
+    camera.position.set(f.x + Math.sin(a) * c.r, f.y + c.h * 0.2 + 0.4, f.z + c.out * Math.cos(a) * c.r);
+  } else {
+    const a = c.a0 + c.t * 0.1;
+    camera.position.set(f.x + Math.cos(a) * c.r, f.y + c.h, f.z + Math.sin(a) * c.r);
+  }
+  camera.up.set(0, 1, 0); _cl.set(f.x, f.y, f.z); camera.lookAt(_cl);
+  if (Math.abs(camera.fov - 50) > 0.01) { camera.fov = cam.fov = 50; camera.updateProjectionMatrix(); }
+}
+function missionStart(restart) {
+  if (settings.mode === 'free') { missionHUD(null); return; }
+  const fresh = restart || !settings.mission || settings.mission.done || settings.mission.failed;
+  if (fresh) newMission();
+  Object.assign(bike, { x: STB.ring[0], z: STB.ring[1] - 1, yaw: 0, v: 0, y: KERB, ry: KERB, air: 0, vy: 0 });
+  cam.init = false; MS.lock = STB; MS.hud = '';
+  if (fresh) intro(); else toast(MX.resume, 2.4);
+}
+function intro() {
+  openCut('intro', { focus: { x: STB.ring[0], y: 8, z: STB.z0 }, out: -1, r: 36, h: 4 });
+  const card = $('cutCard'); card.className = 'cutcard intro'; card.innerHTML = '';
+  const hd = document.createElement('div'); hd.className = 'introhd'; hd.innerHTML = `<span class="em">S</span><div><small></small><h3></h3></div>`;
+  hd.querySelector('small').textContent = MX.title; hd.querySelector('h3').textContent = MX.introH; card.appendChild(hd);
+  const body = document.createElement('div'); body.className = 'talkbody';
+  const cv = document.createElement('canvas'); cv.width = cv.height = 280; cv.className = 'watchpic'; drawWatch(cv, '1864'); body.appendChild(cv);
+  const tx = document.createElement('div'); tx.className = 'talktext';
+  const p = document.createElement('p'); p.textContent = MX.intro; tx.appendChild(p);
+  const ul = document.createElement('ul'); for (const r of MX.rules) { const li = document.createElement('li'); li.textContent = r; ul.appendChild(li); } tx.appendChild(ul);
+  const st = document.createElement('div'); st.className = 'money'; st.innerHTML = `<span><small></small><b></b></span><span><small></small><b></b></span>`;
+  st.querySelectorAll('small')[0].textContent = MX.budget; st.querySelectorAll('b')[0].textContent = baht(MISSION.start);
+  st.querySelectorAll('small')[1].textContent = MX.price; st.querySelectorAll('b')[1].textContent = baht(MISSION.price);
+  tx.appendChild(st); body.appendChild(tx); card.appendChild(body);
+  card.appendChild(buttonRow([[MX.start, () => { closeCut(); MS.lock = STB; }], [MX.free, () => { settings.mode = 'free'; save(); closeCut(); missionHUD(null); }]]));
+}
+// a month at The Siam Times: the calendar runs through thirty days while the money adds up
+function workMonth() {
+  const m = mission(); if (!m) return;
+  openCut('work', { focus: { x: STB.ring[0], y: 9, z: STB.z0 }, out: -1, r: 40, h: 8 });
+  const card = $('cutCard'); card.className = 'cutcard work'; card.innerHTML = '';
+  card.innerHTML = `<div class="cal"><div class="calhd"></div><div class="calday"></div><div class="calsub"></div></div><div class="money big"><b></b></div><p class="skip"></p>`;
+  card.querySelector('.calhd').textContent = MX.monthName; card.querySelector('.skip').textContent = MX.skip;
+  const from = m.money, to = m.money + MISSION.salary; let d = 0;
+  const show = () => {
+    card.querySelector('.calday').textContent = String(d);
+    card.querySelector('.calsub').textContent = `${MX.day(d)} · ${MX.days[Math.min(MX.days.length - 1, Math.floor(d / 30 * MX.days.length))]}`;
+    card.querySelector('.money b').textContent = baht(from + (to - from) * d / 30);
+  };
+  const finish = () => {
+    if (MS.cut.finished) return; MS.cut.finished = true; clearInterval(MS.cut.timer);
+    d = 30; show(); m.money = to; m.worked++; save(); missionSfx('cash');
+    card.querySelector('.skip').remove();
+    const p = document.createElement('p'); p.className = 'workdone'; p.textContent = MX.workDone(MISSION.salary); card.appendChild(p);
+    card.appendChild(buttonRow([[MX.go, () => { closeCut(); toast(missionObjective(m), 3); }]]));
+  };
+  const t0 = performance.now();      // the days follow the clock, so a slow frame does not slow the month
+  MS.cut.timer = setInterval(() => { const nd = Math.min(30, Math.floor((performance.now() - t0) / 210)); if (nd !== d) { if (Math.floor(nd / 3) !== Math.floor(d / 3)) SFX.click(); d = nd; show(); } if (d >= 30) finish(); }, 60);
+  card.addEventListener('click', e => { if (e.target.tagName !== 'BUTTON') finish(); }, { once: true });
+  show();
+}
+function missionDone(P) {
+  const m = settings.mission; m.done = true; save();
+  missionSfx('win');
+  openCut('done', { focus: { x: bike.x, y: bike.y + 0.9, z: bike.z }, r: 5.5, h: 1.2 });
+  const card = $('cutCard'); card.className = 'cutcard done'; card.innerHTML = '';
+  const cv = document.createElement('canvas'); cv.width = cv.height = 320; cv.className = 'watchpic big'; drawWatch(cv, '1864'); card.appendChild(cv);
+  const h = document.createElement('h3'); h.textContent = MX.doneH; card.appendChild(h);
+  const p = document.createElement('p'); p.textContent = MX.doneP; card.appendChild(p);
+  const st = document.createElement('div'); st.className = 'stats2';
+  for (const [k, v] of [[MX.statShops, `${m.order.length}/4`], [MX.statReds, `${m.reds}/${MISSION.reds}`], [MX.statTips, baht(m.tips)], [MX.statWork, MX.months(m.worked)]]) { const d = document.createElement('div'); d.innerHTML = '<b></b><span></span>'; d.querySelector('b').textContent = v; d.querySelector('span').textContent = k; st.appendChild(d); }
+  card.appendChild(st);
+  card.appendChild(buttonRow([[MX.keep, () => { settings.mode = 'free'; save(); closeCut(); missionHUD(null); }], [MX.restart, () => { closeCut(); missionRestart(); }]]));
+  void P;
+}
+function missionFail(why) {
+  const m = settings.mission; m.failed = why; save();
+  missionSfx('fail');
+  openCut('fail', { focus: { x: bike.x, y: bike.y + 0.9, z: bike.z }, r: 7, h: 2.5 });
+  const card = $('cutCard'); card.className = 'cutcard fail'; card.innerHTML = '';
+  const h = document.createElement('h3'); h.textContent = MX.failH; card.appendChild(h);
+  const p = document.createElement('p'); p.textContent = why === 'reds' ? MX.failReds : MX.failBundle; card.appendChild(p);
+  card.appendChild(buttonRow([[MX.restart, () => { closeCut(); missionRestart(); }], [MX.free, () => { settings.mode = 'free'; save(); closeCut(); missionHUD(null); }]]));
+}
+// the mission in the pause menu
+function missionPauseBox() {
+  const b = $('mbox'), m = mission(); b.hidden = false; b.innerHTML = '';
+  const line = (k, v) => { const d = document.createElement('div'); d.innerHTML = '<b></b> <span></span>'; d.querySelector('b').textContent = k; d.querySelector('span').textContent = v; b.appendChild(d); };
+  if (!m) {
+    line(MX.title, settings.mission && settings.mission.done ? MX.doneP : settings.mission && settings.mission.failed ? MX.failH : MX.modeFree);
+    b.appendChild(buttonRow([[MX.restart, () => { pause(false); missionRestart(); }]]));
+    return;
+  }
+  line(MX.title, missionObjective(m));
+  line(MX.money, `${baht(m.money)} / ${baht(MISSION.price)} · ${MX.reds} ${m.reds}/${MISSION.reds}`);
+  const st = m.order.map(id => { const S = SHOPS.find(s => s.id === id), r = m.roles[id]; return `${shopName(S)}: ${r === 'waitlist' ? (m.wl.includes(id) ? MX.roleWL : MX.roleWLno) : r === 'bundle' ? MX.roleBundle : MX.roleStock}`; });
+  if (st.length) line(MX.shops, st.join(' · '));
+  b.appendChild(buttonRow([[MX.restart, () => { pause(false); missionRestart(); }], [MX.free, () => { settings.mode = 'free'; save(); pause(false); missionHUD(null); }]]));
+}
+function missionRestart() { settings.mode = 'mission'; save(); MS.hud = ''; missionStart(true); }
+
+/* ---------- the map: shops and The Siam Times ---------- */
+function drawMissionMap(x, s) {
+  const m = mission(); if (!m) return;
+  for (const S of SHOPS) {
+    const seen = m.order.includes(S.id), tgt = MS.target && MS.target.place === S, r = (tgt ? 11 : 8) / s * 0.55 * (s < 0.3 ? 1.6 : 1);
+    x.fillStyle = seen && !tgt ? 'rgba(63,224,138,.35)' : '#3fe08a'; x.beginPath(); x.arc(S.ring[0], S.ring[1], r, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = '#0b4a2c'; x.lineWidth = 2 / s; x.stroke();
+  }
+  const r = 10 / s * 0.55 * (s < 0.3 ? 1.6 : 1);
+  x.fillStyle = '#d6ad5f'; x.beginPath(); x.arc(STB.ring[0], STB.ring[1], r, 0, Math.PI * 2); x.fill();
+  x.fillStyle = '#0c131b'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = `${r * 1.5}px "Chomsky", serif`; x.fillText('S', STB.ring[0], STB.ring[1] + r * 0.1);
+}
+
+/* ---------- a picture of the watch ---------- */
+function drawWatch(cv, kind) {
+  const x = cv.getContext('2d'), S = cv.width, c = S / 2, R = S * 0.33;
+  x.clearRect(0, 0, S, S);
+  const diver = kind === 'diver', list = kind === 'list';
+  if (list) {
+    // a Want List card with your name on it
+    x.fillStyle = '#f6f1e3'; x.fillRect(S * 0.18, S * 0.1, S * 0.64, S * 0.8); x.strokeStyle = '#0b4a2c'; x.lineWidth = 4; x.strokeRect(S * 0.2, S * 0.12, S * 0.6, S * 0.76);
+    x.fillStyle = '#0b4a2c'; x.textAlign = 'center'; x.font = `600 ${S * 0.07}px Georgia, serif`; x.fillText('WANT LIST', c, S * 0.24);
+    x.font = `${S * 0.045}px Georgia, serif`; x.fillText('VERDANT 1864', c, S * 0.31);
+    x.strokeStyle = 'rgba(11,74,44,.35)'; x.lineWidth = 2; for (let k = 0; k < 6; k++) { x.beginPath(); x.moveTo(S * 0.27, S * (0.42 + k * 0.075)); x.lineTo(S * 0.73, S * (0.42 + k * 0.075)); x.stroke(); }
+    x.fillStyle = '#1d3a8a'; x.font = `italic ${S * 0.06}px Georgia, serif`; x.fillText(TH ? 'นักข่าว The Siam Times' : 'A. Reporter, The Siam Times', c, S * 0.7);
+    return;
+  }
+  // strap
+  x.fillStyle = diver ? '#2a2c30' : '#5a3418';
+  const strap = (y0, y1) => { x.beginPath(); if (x.roundRect) x.roundRect(c - R * 0.42, y0, R * 0.84, y1 - y0, R * 0.12); else x.rect(c - R * 0.42, y0, R * 0.84, y1 - y0); x.fill(); };
+  strap(c - R * 1.55, c); strap(c, c + R * 1.55);
+  x.strokeStyle = diver ? '#55585e' : '#d9b27a'; x.setLineDash([4, 4]); x.lineWidth = 1.5;
+  for (const sx of [-1, 1]) { x.beginPath(); x.moveTo(c + sx * R * 0.33, c - R * 1.5); x.lineTo(c + sx * R * 0.33, c + R * 1.5); x.stroke(); }
+  x.setLineDash([]);
+  // case and crown
+  const gold = x.createLinearGradient(c - R, c - R, c + R, c + R);
+  if (diver) { gold.addColorStop(0, '#e8eaee'); gold.addColorStop(0.5, '#8d939a'); gold.addColorStop(1, '#dfe2e6'); } else { gold.addColorStop(0, '#f6dc94'); gold.addColorStop(0.5, '#b8862e'); gold.addColorStop(1, '#f2d27e'); }
+  x.fillStyle = gold; x.fillRect(c + R * 0.95, c - R * 0.1, R * 0.16, R * 0.2);
+  x.beginPath(); x.arc(c, c, R, 0, Math.PI * 2); x.fill();
+  if (diver) { x.fillStyle = '#16181c'; x.beginPath(); x.arc(c, c, R * 0.92, 0, Math.PI * 2); x.fill(); x.fillStyle = '#e8eaee'; for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; x.beginPath(); x.arc(c + Math.sin(a) * R * 0.84, c - Math.cos(a) * R * 0.84, R * 0.03, 0, 7); x.fill(); } }
+  // dial
+  const dial = x.createRadialGradient(c - R * 0.2, c - R * 0.25, R * 0.1, c, c, R * 0.85);
+  if (diver) { dial.addColorStop(0, '#1d2a3a'); dial.addColorStop(1, '#0a1018'); } else { dial.addColorStop(0, '#fffaf0'); dial.addColorStop(1, '#ece2cc'); }
+  x.fillStyle = dial; x.beginPath(); x.arc(c, c, R * (diver ? 0.74 : 0.86), 0, Math.PI * 2); x.fill();
+  const ink = diver ? '#e8eaee' : '#3a2a12';
+  for (let k = 0; k < 12; k++) {
+    const a = k / 12 * Math.PI * 2, r0 = R * (diver ? 0.56 : 0.66), r1 = R * (diver ? 0.68 : 0.78);
+    x.strokeStyle = diver ? '#e8eaee' : '#b8862e'; x.lineWidth = k % 3 ? R * 0.03 : R * 0.055;
+    x.beginPath(); x.moveTo(c + Math.sin(a) * r0, c - Math.cos(a) * r0); x.lineTo(c + Math.sin(a) * r1, c - Math.cos(a) * r1); x.stroke();
+  }
+  x.fillStyle = ink; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = `600 ${R * 0.13}px Georgia, serif`; x.fillText('VERDANT', c, c - R * 0.36);
+  x.font = `${R * 0.1}px Georgia, serif`; x.fillText(diver ? 'MARINER 300' : 'DRESS', c, c - R * 0.22);
+  x.font = `italic 600 ${R * 0.17}px Georgia, serif`; x.fillText(diver ? '300 m' : '1864', c, c + R * 0.38);
+  // hands at ten past ten
+  const hand = (a, len, w, colr) => { x.save(); x.translate(c, c); x.rotate(a); x.fillStyle = colr; x.beginPath(); x.moveTo(-w, 0); x.lineTo(0, -len); x.lineTo(w, 0); x.lineTo(0, len * 0.12); x.closePath(); x.fill(); x.restore(); };
+  hand(-Math.PI / 3, R * 0.45, R * 0.05, diver ? '#e8eaee' : '#9a6a1a'); hand(Math.PI / 3, R * 0.66, R * 0.04, diver ? '#e8eaee' : '#9a6a1a');
+  x.strokeStyle = '#c0392b'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(c, c + R * 0.12); x.lineTo(c, c - R * 0.7); x.stroke();
+  x.fillStyle = gold; x.beginPath(); x.arc(c, c, R * 0.05, 0, Math.PI * 2); x.fill();
+}
+
+/* ---------- small sounds ---------- */
+function missionSfx(kind) {
+  if (!AUDIO.ready) return;
+  const ctx = AUDIO.ctx, t = ctx.currentTime, out = AUDIO.master;
+  const tone = (type, f0, f1, t0, dur, gain) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = type; o.frequency.setValueAtTime(f0, t + t0); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + t0 + dur); g.gain.setValueAtTime(0.0001, t + t0); g.gain.exponentialRampToValueAtTime(gain, t + t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + t0 + dur); o.connect(g).connect(out); o.start(t + t0); o.stop(t + t0 + dur + 0.05); return o; };
+  if (kind === 'whistle') {
+    for (const [t0, dur] of [[0, 0.22], [0.3, 0.5]]) { const o = tone('sine', 2900, 2900, t0, dur, 0.09); const l = ctx.createOscillator(), lg = ctx.createGain(); l.frequency.value = 26; lg.gain.value = 140; l.connect(lg).connect(o.frequency); l.start(t + t0); l.stop(t + t0 + dur + 0.05); }
+  } else if (kind === 'cash') { tone('square', 1318, 1318, 0, 0.09, 0.05); tone('square', 1760, 1760, 0.08, 0.22, 0.05); }
+  else if (kind === 'door') { tone('sine', 988, 988, 0, 0.6, 0.06); tone('sine', 784, 784, 0.22, 0.8, 0.06); }
+  else if (kind === 'sign') { tone('triangle', 660, 990, 0, 0.18, 0.05); }
+  else if (kind === 'fail') { tone('sawtooth', 330, 140, 0, 0.9, 0.05); tone('sine', 220, 110, 0.1, 1.0, 0.06); }
+  else if (kind === 'win') { SFX.chime(); [523, 659, 784, 1047].forEach((f, k) => tone('triangle', f, f, 0.6 + k * 0.12, 0.5, 0.05)); }
+}
+
+
+/* =====================================================================
    Riding, controls, cameras, HUD, the main loop
    ===================================================================== */
 const GEAR_TOP = [12.5, 20.8, 29.2, 37.5, 44.4, 51.4];   // m/s at the red line, gears 1–6
 const GEAR_ACC = [6.4, 5.0, 3.9, 3.1, 2.45, 1.95];
 const IDLE = 880, REDLINE = 5800;
 const START = { x: 136, z: 95, yaw: -Math.PI / 2 };       // Bamrung Mueang, by the Giant Swing, facing east
-const bike = { x: START.x, z: START.z, y: 0, gy: 0, kerbT: 0, yaw: START.yaw, v: 0, lean: 0, steer: 0, throttle: 0, brake: 0, gear: 0, rpm: IDLE, shiftT: 0, cruise: 0, pitch: 0, started: false, back: 0, shake: 0, bumpT: 0 };
+const bike = { x: START.x, z: START.z, y: 0, gy: 0, kerbT: 0, surf: 'road', raised: false, depth: 0, wl: 0, wetT: 0, yaw: START.yaw, v: 0, lean: 0, steer: 0, throttle: 0, brake: 0, gear: 0, rpm: IDLE, shiftT: 0, cruise: 0, pitch: 0, started: false, neutral: true, ry: 0, vy: 0, gvy: 0, air: 0, slope: 0, slopeS: 0, deck: null, offGrid: false, stillT: 0, hintT: 0, back: 0, shake: 0, bumpT: 0 };
 const input = { steer: 0, throttle: 0, brake: 0, keys: new Set(), padSteer: 0, padActive: false, tiltSteer: 0, horn: false };
 const titleRev = { on: false, thr: 0, blipT: 0 };
 let time = 0, last = performance.now();
 const HUDS = { road: '', roadT: 0, dist: '', distT: 0, toastT: 0, cardT: 0 };
 
+// how the bike turns at a given speed: bar lock (38° at a crawl, a few degrees at speed), lean limit, and the blend between them
+function turnModel(sp) { return { lock: 0.66 * (1 - smooth(1, 14, sp)) + 0.05, maxLean: clamp(sp / 11, 0, 1) * 0.8, w: smooth(3, 9, sp) }; }
+// coming down off an edge: a thump, a shake and some speed lost, by how fast it hits
+function landed(imp) {
+  if (imp < 1.6) return;
+  const k = Math.min(1, imp / 12);
+  SFX.thud(Math.min(1, 0.25 + k)); bike.shake = Math.max(bike.shake, 0.3 + k * 0.7);
+  bike.v *= clamp(1.05 - k * 0.6, 0.35, 1);
+  if (imp > 5) toast(T.landHard, 1.6);
+}
+// off the edge into the river: a splash, and back on the nearer bank
+function riverRescue() {
+  FX.splash(bike.x, bike.z, -0.6, 8); SFX.splash(1);
+  const east = bike.x > -146;
+  bike.x = east ? -11 : -278.5; bike.z = east ? clamp(bike.z, -700, 1100) : clamp(bike.z, LV.WEST.z0 + 6, LV.WEST.z1 - 6);
+  bike.yaw = 0; bike.v = 0; bike.vy = 0; bike.air = 0; bike.gvy = 0; bike.cruise = 0;
+  bike.y = bike.ry = surfaceAt(bike.x, bike.z, 3).h;
+  setNeutral(true, true); driveUI(); cam.init = false; toast(T.river, 2.6);
+}
 function torque(rpm) {
   let t = 0.7 + 0.3 * Math.sin(clamp((rpm - 900) / 3400, 0, 1) * Math.PI * 0.95);
   if (rpm > 4600) t *= 1 - (rpm - 4600) / 1200 * 0.35;
   return t;
 }
 
+// neutral when stopped: the rider revs it freely; D (or ▲ in the manual box) puts it in gear
+function setNeutral(on, quiet) {
+  if (bike.neutral === on) return;
+  bike.neutral = on; bike.gear = 0; bike.stillT = 0;
+  if (!quiet) { SFX.shift(!on); toast(on ? T.inN : T.inD, 1.6); }
+  driveUI();
+}
+function driveUI() {
+  const b = $('driveBtn'); if (!b) return;
+  b.classList.toggle('n', bike.neutral); b.classList.toggle('d', !bike.neutral);
+  $('driveSub').textContent = bike.neutral ? (TH ? 'ตอนนี้ N' : 'now in N') : T.drive;
+}
+// the D button: out of neutral into drive; stopped in drive, back to neutral
+function driveTap() {
+  if (!bike.started) return;
+  if (bike.neutral) { setNeutral(false); flashGear('driveBtn'); }
+  else if (Math.abs(bike.v) < 0.5) setNeutral(true);
+}
 function shiftUp() {
-  if (settings.gearbox !== 'manual' || !bike.started) return;
+  if (!bike.started) return;
+  if (bike.neutral) { setNeutral(false); if (settings.gearbox === 'manual') flashGear('gearUp'); return; }
+  if (settings.gearbox !== 'manual') return;
   if (bike.gear >= 5) { toast(T.topGear); return; }
   bike.gear++; bike.shiftT = 0.16; SFX.shift(true); flashGear('gearUp');
 }
 function shiftDown() {
-  if (settings.gearbox !== 'manual' || !bike.started) return;
-  if (bike.gear <= 0) { toast(T.firstGear); return; }
+  if (!bike.started) return;
+  if (settings.gearbox !== 'manual') { if (!bike.neutral && Math.abs(bike.v) < 0.5) setNeutral(true); return; }
+  if (bike.gear <= 0) { if (!bike.neutral && Math.abs(bike.v) < 1) { setNeutral(true); flashGear('gearDown'); } else toast(T.firstGear); return; }
   if (Math.max(0, bike.v) / GEAR_TOP[bike.gear - 1] * REDLINE > REDLINE + 250) { toast(T.overRev); return; }
   bike.gear--; bike.shiftT = 0.14; SFX.shift(false); flashGear('gearDown');
 }
 function flashGear(id) { const e = $(id); e.classList.add('on'); setTimeout(() => e.classList.remove('on'), 160); }
-function gearUI() { $('gearBox').hidden = settings.gearbox !== 'manual'; }
+function gearUI() { const m = settings.gearbox === 'manual'; $('gearUp').hidden = $('gearDown').hidden = !m; $('driveBtn').hidden = m; driveUI(); }
 
 /* ---------- steering assist: follows the left lane, turns at crossings, heads for the nearest postcard ---------- */
 const AP = { on: false, byCam: false, d: 0, ni: 0, nj: 0, next: 0, path: null, target: '', inner: false, innerT: 0, stuckT: 0 };
@@ -3181,8 +4713,9 @@ function autoUI() {
   $('steerLbl').textContent = AP.on ? T.steerAuto : T.steer;
 }
 function apTarget() {
+  const mt = missionTarget(mission()); if (mt) return mt;
   let best = null, bd = 1e9;
-  for (const L of LANDMARKS) { if (settings.visited.includes(L.id)) continue; const d = Math.hypot(L.x - bike.x, L.z - bike.z); if (d < bd) { bd = d; best = L; } }
+  for (const L of LANDMARKS) { if (settings.visited.includes(L.id) || L.noAP) continue; const d = Math.hypot(L.x - bike.x, L.z - bike.z); if (d < bd) { bd = d; best = L; } }
   return best;
 }
 // the road point the assist aims for: the place itself, or a point on the road beside it
@@ -3323,10 +4856,10 @@ function apUpdate() {
   const ttx = tx - bike.x, ttz = tz - bike.z, dd = Math.hypot(ttx, ttz) || 1;
   const alpha = Math.atan2(fz * ttx - fx * ttz, fx * ttx + fz * ttz);
   const yawRate = 2 * Math.sin(alpha) / dd * Math.max(sp, 0.5);
-  const maxLean = clamp(sp / 14, 0, 1) * 0.72;
-  let steer;
-  if (sp > 3) { const lean = Math.atan(yawRate * Math.max(sp, 6) / (9.81 * 1.3)); steer = maxLean > 0.02 ? lean / maxLean : 0; }
-  else steer = yawRate / 0.95;
+  const TM = turnModel(sp);
+  const sBars = Math.atan(yawRate * 1.62 / Math.max(sp, 0.5)) / TM.lock;
+  const sLean = TM.maxLean > 0.02 ? Math.atan(yawRate * Math.max(sp, 5) / (9.81 * 1.45)) / TM.maxLean : sBars;
+  let steer = lerp(sBars, sLean, TM.w);
   return { steer: clamp(steer * 1.1, -1, 1), brake: hold ? 1 : need > 0.8 ? clamp((need - 0.5) / 6, 0, 1) : 0 };
 }
 
@@ -3345,11 +4878,14 @@ function rideUpdate(dt) {
 
   // steering assist: it steers and slows for corners and traffic; a hand on the bars takes over
   let steerIn = handSteer, apBrake = 0;
-  if (AP.on) {
+  if (AP.on && bike.offGrid) { if (!bike.apNote) { toast(T.apOff, 2.6); bike.apNote = true; } }
+  else bike.apNote = false;
+  if (AP.on && !bike.offGrid) {
     if (userSteering) AP.path = null;
-    else { const a = apUpdate(); steerIn = a.steer; apBrake = a.brake; }
+    else { const a = apUpdate(); steerIn = a.steer; apBrake = a.brake; const fin = missionAuto(); if (fin) { steerIn = fin.steer; apBrake = fin.brake; thrIn = Math.min(thrIn, fin.thr); } }
   }
   const brkIn = Math.max(brkUser, apBrake);
+  const rawThr = thrIn;
   if (apBrake > 0.02) thrIn = 0;
 
   bike.steer = damp(bike.steer, steerIn, kSteer ? 5 : 9, dt);
@@ -3367,11 +4903,19 @@ function rideUpdate(dt) {
   let g = bike.gear;
   const rpmV = v / GEAR_TOP[g] * REDLINE;
   let rpm = Math.max(IDLE, rpmV);
-  const standing = v < 0.6 && bike.brake > 0.4;
   const manual = settings.gearbox === 'manual';
+  // stopped with the throttle closed for a moment: the box drops into neutral
+  if (!bike.neutral) {
+    if (v < 0.25 && rawThr < 0.05) { bike.stillT += dt; if (bike.stillT > 0.7) setNeutral(true); } else bike.stillT = 0;
+  } else if (rawThr > 0.3 && v < 1.5) {
+    bike.hintT -= dt;
+    if (bike.hintT <= 0) { toast(manual ? T.pressUp : T.pressD, 2.4); bike.hintT = 5; }
+  }
+  const N = bike.neutral;
+  const standing = N || (v < 0.6 && bike.brake > 0.4);
   if (g === 0) rpm = Math.max(rpm, IDLE + bike.throttle * 2300 * clamp(1 - v / 9, 0, 1));
   else if (manual) rpm = Math.max(rpm, IDLE + bike.throttle * 1900 * clamp(1 - v / (GEAR_TOP[g] * 0.28), 0, 1)); // clutch slips pulling away in a high gear
-  if (standing) rpm = IDLE + bike.throttle * 4700;      // clutch in, revving at the lights
+  if (standing) rpm = IDLE + bike.throttle * (N ? 4900 : 4700);      // in neutral or clutch in: revving at the lights
   // automatic gearbox, shifting like a relaxed rider (manual: the ▲ ▼ buttons)
   if (bike.shiftT > 0) bike.shiftT -= dt;
   else if (!standing && !manual) {
@@ -3384,28 +4928,32 @@ function rideUpdate(dt) {
   if (manual && g > 0 && rpmV < 1600) acc *= clamp(0.3 + rpmV / 2300, 0.3, 1);   // lugging in too high a gear
   if (rpmV >= REDLINE) acc = Math.min(acc, 0);
   acc -= 0.00042 * v * v + (v > 0.1 ? 0.12 : 0);
-  if (thrEff < 0.05 && v > 0.5) acc -= 0.2 + 0.6 * rpm / REDLINE;
-  if (v > 0.05) acc -= bike.brake * 8.6;
+  if (thrEff < 0.05 && v > 0.5 && !N) acc -= 0.2 + 0.6 * rpm / REDLINE;
+  if (v > 0.05) acc -= bike.brake * (bike.surf === 'water' ? 5 : bike.surf === 'grass' ? 7 : 8.6);
+  if (bike.surf === 'grass' && v > 0.1) acc -= 0.35 + 0.004 * v * v;
+  if (bike.surf === 'water' && v > 0.05) { const df = bike.depth / 0.34; acc -= df * (0.5 + 0.1 * v * v); }
+  if (bike.air <= 0) acc -= 9.81 * bike.slope / Math.sqrt(1 + bike.slope * bike.slope);   // up or down a ramp
   let nv = bike.v + acc * dt;
   // walking it backwards: stopped, brake held, no throttle
   if (v < 0.3 && bike.brake > 0.8 && bike.throttle < 0.05) { bike.back += dt; if (bike.back > 0.6) nv = -1.1; }
+  else if (bike.air <= 0 && bike.slope > 0.03 && bike.brake < 0.1 && nv < 0.3) { bike.back = 0; nv = Math.max(nv, -4); }   // rolls back down a ramp
   else { bike.back = 0; if (nv < 0) nv = bike.v < 0 ? Math.min(0, bike.v + 4 * dt) : 0; }
   bike.v = nv;
-  bike.rpm = damp(bike.rpm, rpm + (bike.shiftT > 0.1 ? -250 : 0), bike.shiftT > 0 ? 18 : 10, dt);
+  bike.rpm = damp(bike.rpm, rpm + (bike.shiftT > 0.1 ? -250 : 0), bike.shiftT > 0 ? 18 : N ? (rpm > bike.rpm ? 12 : 5) : 10, dt);   // in neutral it spins up fast and dies away slowly
 
   // lean and turn: lean grows with speed; yaw rate from lean, plus handlebar steering at walking pace
   const sp = Math.abs(bike.v);
-  const maxLean = clamp(sp / 14, 0, 1) * 0.72;
-  bike.lean = damp(bike.lean, bike.steer * maxLean, 4.2, dt);
-  let yawRate = 9.81 * Math.tan(bike.lean) / Math.max(sp, 6) * 1.3;
-  yawRate += bike.steer * 0.95 * clamp(sp / 2.5, 0, 1) * (1 - smooth(3, 8, sp));
-  if (sp < 1.2 && bike.v >= 0) yawRate += bike.steer * 0.7 * (1 - sp / 1.2) * (thrIn > 0.05 || bike.blocked > 0 ? 1 : 0.4); // paddling it round
-  if (bike.v < 0) yawRate = -bike.steer * 0.5;
+  const TMd = turnModel(sp);
+  bike.lean = damp(bike.lean, bike.steer * TMd.maxLean, 6, dt);
+  const yawBars = bike.v * Math.tan(bike.steer * TMd.lock) / 1.62;               // the bars turned, as a bicycle: tight at walking pace
+  const yawLean = 9.81 * Math.tan(bike.lean) / Math.max(sp, 5) * 1.45;         // leaning into the turn at speed
+  let yawRate = bike.v < 0 ? yawBars : lerp(yawBars, yawLean, TMd.w);
+  if (sp < 0.8 && bike.v >= 0) yawRate += bike.steer * 0.8 * (1 - sp / 0.8) * (thrIn > 0.05 || bike.blocked > 0 ? 1 : 0.4); // paddling it round
   bike.yaw += yawRate * dt;
   const fx = -Math.sin(bike.yaw), fz = -Math.cos(bike.yaw);
   const p = { x: bike.x + fx * bike.v * dt, z: bike.z + fz * bike.v * dt };
   // walls and kerbs
-  const hit = collide(p, 0.5);
+  const hit = collide(p, 0.5, bike.y);
   bike.blocked = Math.max(0, (bike.blocked || 0) - dt);
   if (hit) {
     bike.blocked = 0.5;
@@ -3419,17 +4967,37 @@ function rideUpdate(dt) {
     if (impact < 0.8) bike.yaw += dy * Math.min(1, dt * 4);
   }
   // traffic
-  const ch = collideTraffic(p, 0.55);
+  const ch = Math.abs(bike.y) < 1.2 ? collideTraffic(p, 0.55) : null;
   if (ch) {
     if (bike.bumpT <= 0) { SFX.thud(Math.min(1, 0.3 + bike.v / 12)); toast(T.bump); bike.shake = Math.min(1, 0.3 + bike.v / 10); bike.bumpT = 0.8; ch.car.bump = 1.5; AUDIO.carHorn && AUDIO.carHorn(ch.car); }
     bike.v *= 0.55;
   }
   bike.bumpT -= dt;
   bike.x = p.x; bike.z = p.z;
+  const surf = surfaceAt(bike.x, bike.z, bike.y);
+  // on the ground it follows the ground (kerbs, ramps); off an edge it falls and lands with a thump
+  if (bike.air <= 0 && bike.y - surf.h <= 0.3) {
+    bike.gvy = damp(bike.gvy, clamp((surf.h - bike.y) / dt, -8, 3), 12, dt);
+    bike.y = surf.h;
+  } else {
+    if (bike.air <= 0) bike.vy = bike.gvy;
+    bike.air += dt; bike.vy -= 9.81 * dt; bike.y += bike.vy * dt;
+    if (bike.y <= surf.h) { const imp = -bike.vy; bike.y = surf.h; bike.vy = 0; bike.air = 0; bike.gvy = 0; landed(imp); }
+  }
+  if (surf.kind === 'river' && bike.y < -0.5) { riverRescue(); return; }
+  if (bike.air <= 0) {
+    const hf = surfaceAt(bike.x + fx * 0.8, bike.z + fz * 0.8, bike.y).h, hr = surfaceAt(bike.x - fx * 0.8, bike.z - fz * 0.8, bike.y).h;
+    bike.slope = clamp((hf - hr) / 1.6, -0.45, 0.45);
+  }
+  bike.slopeS = damp(bike.slopeS, bike.slope, 10, dt);
+  bike.deck = surf.deck || null; bike.offGrid = !!surf.deck || bike.x < -14;
   // up and down kerbs: a small jolt, a little speed lost
-  const gh = groundHeight(bike.x, bike.z);
-  if (Math.abs(gh - bike.gy) > 0.05) { if (sp > 2.5 && bike.kerbT <= 0) { bike.shake = Math.max(bike.shake, Math.min(0.35, sp / 40)); SFX.thud(Math.min(0.35, sp / 50)); bike.kerbT = 0.25; bike.v *= 0.97; } bike.gy = gh; }
-  bike.kerbT -= dt;
+  const raised = surf.kind !== 'road';
+  if (raised !== bike.raised) { if (sp > 2.5 && bike.kerbT <= 0) { bike.shake = Math.max(bike.shake, Math.min(0.35, sp / 40)); SFX.thud(Math.min(0.35, sp / 50)); bike.kerbT = 0.25; bike.v *= 0.97; } bike.raised = raised; }
+  if (surf.kind === 'water' && bike.surf !== 'water' && sp > 1) { FX.splash(bike.x, bike.z, surf.wl, sp); SFX.splash(Math.min(1, sp / 9)); bike.shake = Math.max(bike.shake, Math.min(0.5, sp / 18)); }
+  if (bike.surf === 'water' && surf.kind !== 'water') bike.wetT = 4;
+  bike.surf = surf.kind; bike.depth = surf.depth || 0; bike.wl = surf.wl || 0; bike.gy = surf.h;
+  bike.kerbT -= dt; bike.wetT = Math.max(0, (bike.wetT || 0) - dt);
   bike.pitch = damp(bike.pitch, -bike.brake * 0.035 * clamp(sp / 8, 0, 1) + thrEff * 0.012 * clamp(1 - sp / 30, 0, 1), 6, dt);
 
   // trip
@@ -3439,6 +5007,7 @@ function rideUpdate(dt) {
 
   // places
   checkPlaces();
+  missionUpdate(dt);
   audioUpdate(dt, audioState(bike.throttle));
 }
 
@@ -3461,14 +5030,16 @@ function audioState(thr) {
     if (t.v > 0.5 && t.v < 7 && t.wait <= 0 && d < 80) s.trainHi = Math.max(s.trainHi, 0.012 * (1 - d / 80));
   }
   s.riverGain = bike.x < 45 ? (1 - Math.max(0, bike.x) / 45) * 0.07 : 0;
+  s.surf = state === 'ride' ? bike.surf : 'road'; s.depth = bike.depth;
   const dname = districtAt(bike.x, bike.z);
-  s.reverb = Math.abs(bike.z - 100) < 12 && bike.x > 214 ? 0.42 : dname === 'river' || dname === 'park' ? 0.13 : dname === 'old' || dname === 'temple' ? 0.2 : 0.3;
+  s.reverb = bike.deck && bike.deck.tunnel === 2 ? 0.95 : bike.deck && bike.deck.tunnel ? 0.55 : Math.abs(bike.z - 100) < 12 && bike.x > 214 ? 0.42 : dname === 'river' || dname === 'park' ? 0.13 : dname === 'old' || dname === 'temple' ? 0.2 : 0.3;
   return s;
 }
 
 /* ---------- places: road signs, districts, postcards ---------- */
 function checkPlaces() {
-  const r = roadAt(bike.x, bike.z);
+  const dk = bike.deck;
+  const r = dk && dk.name ? { th: dk.name[0], en: dk.name[1], k: 'deck' + dk.name[1] } : bike.x < -276 ? { th: 'ถนนอรุณอมรินทร์', en: 'Arun Amarin Rd', k: 'arun' } : roadAt(bike.x, bike.z);
   if (r && r.k !== HUDS.road) {
     HUDS.road = r.k; HUDS.roadT = 7;
     $('roadTh').textContent = r.th; $('roadEn').textContent = r.en; $('roadSign').classList.remove('dim');
@@ -3481,6 +5052,7 @@ function checkPlaces() {
   }
   for (const L of LANDMARKS) {
     if (settings.visited.includes(L.id)) continue;
+    if ((L.y !== undefined && bike.y < L.y) || (L.ymax !== undefined && bike.y > L.ymax)) continue;
     if (Math.hypot(bike.x - L.x, bike.z - L.z) < (L.r || 13)) {
       settings.visited.push(L.id); save();
       $('pcTitle').textContent = TH ? L.th : L.en; $('pcText').textContent = TH ? L.tTh : L.tEn;
@@ -3502,10 +5074,11 @@ function hudTimers(dt) {
 
 /* ---------- placing the bike model ---------- */
 function poseBike(dt, parked) {
-  if (state !== 'ride') bike.gy = groundHeight(bike.x, bike.z);
-  bike.y = damp(bike.y, bike.gy, 28, dt || 0.016);
-  BIKE.root.position.set(bike.x, bike.y, bike.z);
-  BIKE.root.rotation.y = bike.yaw;
+  if (state !== 'ride') { const sf = surfaceAt(bike.x, bike.z, bike.y + 0.5); bike.gy = bike.y = sf.h; bike.surf = sf.kind; bike.raised = sf.kind !== 'road'; }
+  bike.ry = bike.air > 0 || Math.abs(bike.y - bike.ry) > 0.8 ? bike.y : damp(bike.ry, bike.y, 28, dt || 0.016);
+  BIKE.root.position.set(bike.x, bike.ry, bike.z);
+  BIKE.root.rotation.order = 'YXZ';
+  BIKE.root.rotation.y = bike.yaw; BIKE.root.rotation.x = Math.atan(bike.slopeS);
   BIKE.lean.rotation.z = parked ? 0.11 : bike.lean;
   BIKE.body.rotation.x = bike.pitch;
   // a big twin shakes at idle and smooths out with revs
@@ -3516,7 +5089,7 @@ function poseBike(dt, parked) {
   const sp = Math.abs(bike.v);
   BIKE.frontW.rotation.x -= bike.v / 0.34 * dt;
   BIKE.rearW.rotation.x -= bike.v / 0.334 * dt;
-  BIKE.steer.rotation.y = parked ? 0.5 : bike.steer * (0.42 * (1 - smooth(0, 12, sp)) + 0.04);
+  BIKE.steer.rotation.y = parked ? 0.5 : bike.steer * turnModel(sp).lock;
   BIKE.stand.visible = parked;
   BIKE.rider.visible = state === 'title' || settings.cam !== 2;
   const on = !!(AUDIO.E && AUDIO.E.running) || bike.started;   // lights come on with the ignition
@@ -3533,6 +5106,7 @@ const cam = { pos: new THREE.Vector3(), look: new THREE.Vector3(), tv: null, tvT
 const _up = new THREE.Vector3(), _f = new THREE.Vector3(), _r = new THREE.Vector3(), _tmp = new THREE.Vector3();
 function updateCamera(dt, mode) {
   const sp = Math.abs(bike.v);
+  if (mode === 3 && bike.offGrid) mode = 0;
   _f.set(-Math.sin(bike.yaw), 0, -Math.cos(bike.yaw)); _r.set(Math.cos(bike.yaw), 0, -Math.sin(bike.yaw));
   const bp = _tmp.set(bike.x, 0, bike.z);
   let desired, target, roll = 0, fov = 60, k = 6, near = 0.08;
@@ -3566,13 +5140,13 @@ function updateCamera(dt, mode) {
       const side = Math.random() < 0.5 ? -1 : 1;
       const ahead = Math.max(22, sp * 2.4);
       const c = new THREE.Vector3(bike.x, 0, bike.z).addScaledVector(_f, ahead).addScaledVector(_r, side * (6 + Math.random() * 3));
-      for (let n = 0; n < 12 && insideSolid(c.x, c.z, 0.5); n++) c.addScaledVector(_r, -side * 1.2);
-      c.y = Math.random() < 0.3 ? 5 + Math.random() * 5 : 1.2 + Math.random() * 1.2;
+      for (let n = 0; n < 12 && insideSolid(c.x, c.z, 0.5, bike.y); n++) c.addScaledVector(_r, -side * 1.2);
+      c.y = bike.y + (Math.random() < 0.3 ? 5 + Math.random() * 5 : 1.2 + Math.random() * 1.2);
       cam.tv = c; cam.tvT = 0; cam.pos.copy(c);
     }
     cam.tvT += dt;
     desired = cam.tv.clone();
-    target = new THREE.Vector3(bike.x, 0.9, bike.z);
+    target = new THREE.Vector3(bike.x, bike.ry + 0.9, bike.z);
     const d = desired.distanceTo(target);
     fov = clamp(2 * Math.atan(2.6 / d) * 180 / Math.PI, 6, 55); k = 1000;
   }
@@ -3584,10 +5158,10 @@ function updateCamera(dt, mode) {
     const dx = cam.pos.x - bike.x, dz = cam.pos.z - bike.z, L = Math.hypot(dx, dz);
     if (L > 0.5) {
       let free = L;
-      for (let t = 0.8; t < L; t += 0.4) if (insideSolid(bike.x + dx * t / L, bike.z + dz * t / L, 0.25)) { free = Math.max(0.9, t - 0.4); break; }
+      for (let t = 0.8; t < L; t += 0.4) if (insideSolid(bike.x + dx * t / L, bike.z + dz * t / L, 0.25, bike.y + 0.6)) { free = Math.max(0.9, t - 0.4); break; }
       if (free < L) { cam.pos.x = bike.x + dx * free / L; cam.pos.z = bike.z + dz * free / L; cam.pos.y = Math.max(cam.pos.y, bike.y + 1.6 + (L - free) * 0.35); }
     }
-    const q = { x: cam.pos.x, z: cam.pos.z }; collide(q, 0.3); cam.pos.x = q.x; cam.pos.z = q.z;
+    const q = { x: cam.pos.x, z: cam.pos.z }; collide(q, 0.3, bike.y + 0.6); cam.pos.x = q.x; cam.pos.z = q.z;
     if (cam.pos.y < bike.y + 0.25) cam.pos.y = bike.y + 0.25;
   }
   let px = cam.pos.x, py = cam.pos.y, pz = cam.pos.z;
@@ -3636,8 +5210,9 @@ function drawGauge() {
   if (manual && hot && (time * 8 | 0) % 2 === 0) { x.fillStyle = '#ff4a2e'; x.shadowColor = '#ff4a2e'; x.shadowBlur = 16; x.beginPath(); x.arc(cx, cy - 150, 9, 0, Math.PI * 2); x.fill(); x.shadowBlur = 0; }
   // gear and digital speed
   x.fillStyle = '#efe7d4'; x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.font = '600 62px "Kanit", sans-serif'; x.fillText(bike.started ? String(bike.gear + 1) : T.gearN, cx, cy - 52);
-  x.font = '600 20px "Kanit", sans-serif'; x.fillStyle = manual ? '#f2d28c' : 'rgba(239,231,212,.45)'; x.fillText(manual ? 'M' : 'A', cx + 40, cy - 66);
+  const inN = !bike.started || bike.neutral;
+  x.font = '600 62px "Kanit", sans-serif'; x.fillStyle = inN ? '#8fd18a' : '#efe7d4'; x.fillText(inN ? T.gearN : String(bike.gear + 1), cx, cy - 52);
+  x.font = '600 20px "Kanit", sans-serif'; x.fillStyle = manual ? '#f2d28c' : inN ? 'rgba(239,231,212,.45)' : '#8fc3ea'; x.fillText(manual ? 'M' : inN ? 'A' : 'D', cx + 40, cy - 66);
   if (AP.on) { x.fillStyle = '#6ca6d1'; x.fillText(TH ? 'ออโต้' : 'AUTO', cx - 46, cy - 66); }
   x.fillStyle = '#efe7d4';
   x.font = '600 44px "Kanit", sans-serif'; x.fillStyle = '#f2d28c'; x.fillText(String(Math.round(kmh)), cx, cy + 66);
@@ -3663,11 +5238,13 @@ function drawMapBase(x, s) {
   for (let i = 0; i < NX; i++) x.fillRect(RX[i] - WX[i] / 2, RZ[0] - WZ[0] / 2, WX[i], RZ[NZ - 1] - RZ[0] + (WZ[0] + WZ[NZ - 1]) / 2);
   for (let j = 0; j < NZ; j++) x.fillRect(RX[0] - WX[0] / 2, RZ[j] - WZ[j] / 2, RX[NX - 1] - RX[0] + WX[0], WZ[j]);
   x.strokeStyle = '#8fa6bd'; x.lineWidth = 3 / s; x.beginPath(); x.moveTo(BTS.x0, 100); x.lineTo(BTS.x1, 100); x.stroke();
+  drawLevelsMap(x, s);
+  drawMissionMap(x, s);
 }
 /* the whole city, north up, in the pause menu */
 function drawBigMap() {
   const c = $('bigmap'), x = c.getContext('2d'), W = c.width, H = c.height;
-  const wx0 = -90, wx1 = MAP.x1 + 10, wz0 = MAP.z0 + 60, wz1 = MAP.z1 - 60;
+  const wx0 = -330, wx1 = MAP.x1 + 10, wz0 = MAP.z0 + 60, wz1 = MAP.z1 - 60;
   const s = Math.min((W - 20) / (wx1 - wx0), (H - 20) / (wz1 - wz0));
   const ox = (W - (wx1 - wx0) * s) / 2 - wx0 * s, oz = (H - (wz1 - wz0) * s) / 2 - wz0 * s;
   x.clearRect(0, 0, W, H); x.fillStyle = '#121a22'; x.fillRect(0, 0, W, H);
@@ -3720,7 +5297,8 @@ function bindHold(id, on, off) {
 function bindInput() {
   bindHold('throttleBtn', () => { input.throttle = 1; }, () => { input.throttle = 0; });
   bindHold('brakeBtn', () => { input.brake = 1; }, () => { input.brake = 0; });
-  bindHold('hornBtn', () => { SFX.horn(true); $('hornBtn').classList.add('on'); }, () => { SFX.horn(false); $('hornBtn').classList.remove('on'); });
+  $('actBtn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (MS.here) openPlace(MS.here); });
+  bindHold('hornBtn', () => { SFX.horn(true); $('hornBtn').classList.add('on'); missionHonk(); }, () => { SFX.horn(false); $('hornBtn').classList.remove('on'); });
   $('cruiseBtn').addEventListener('pointerdown', e => { e.preventDefault(); toggleCruise(); });
   // handlebar pad: touch anywhere in the lower left, slide sideways
   const area = $('steer'), knob = $('knob'), pad = area.querySelector('.pad');
@@ -3737,7 +5315,7 @@ function bindInput() {
     knob.style.transform = `translateX(${dx * (pad.clientWidth / 2 - 40) / 95}px)`;
   });
   const end = e => { if (e.pointerId !== pid) return; pid = null; input.padSteer = 0; input.padActive = false; knob.style.transform = ''; };
-  for (const [id, fn] of [['gearUp', shiftUp], ['gearDown', shiftDown]]) $(id).addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); });
+  for (const [id, fn] of [['gearUp', shiftUp], ['gearDown', shiftDown], ['driveBtn', driveTap]]) $(id).addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); });
   $('autoBtn').addEventListener('click', () => { apSet(!AP.on, false); toast(AP.on ? T.autoOn : T.autoOff, 2.2); });
   // the rev button on the start screen: starts the engine if it is off, then revs while held
   bindHold('revBtn', () => { initAudio(); SFX.start(); titleRev.on = true; $('revBtn').classList.add('on'); }, () => { titleRev.on = false; $('revBtn').classList.remove('on'); });
@@ -3750,7 +5328,7 @@ function bindInput() {
     if (input.keys.has(c)) return;
     input.keys.add(c);
     if (state === 'ride') {
-      if (c === 'KeyH') SFX.horn(true);
+      if (c === 'KeyH') { SFX.horn(true); missionHonk(); }
       if (c === 'KeyE' || c === 'PageUp') shiftUp();
       if (c === 'KeyQ' || c === 'PageDown') shiftDown();
       if (c === 'KeyG') { apSet(!AP.on, false); toast(AP.on ? T.autoOn : T.autoOff, 2.2); }
@@ -3851,6 +5429,8 @@ function chip(row, label, pressed, fn, cls = 'chip', style) {
   row.appendChild(b);
 }
 function chipsUI() {
+  const mr = $('modeRow'); mr.innerHTML = '';
+  [['mission', MX.modeMission], ['free', MX.modeFree]].forEach(([n, l]) => chip(mr, l, (settings.mode || 'mission') === n, () => { settings.mode = n; save(); chipsUI(); }));
   const pr = $('paintRow'); pr.innerHTML = '';
   PAINTS.forEach((p, i) => chip(pr, T.paints[i], settings.paint === i, () => { setPaint(i); chipsUI(); }, 'swatch', p.css));
   const nm = document.createElement('span'); nm.className = 'paintname'; nm.textContent = T.paints[settings.paint]; pr.appendChild(nm);
@@ -3906,12 +5486,13 @@ function startRide() {
   } catch (e) { /* not allowed here */ }
   state = 'ride';
   $('title').hidden = true; $('hud').hidden = false;
-  bike.started = false;
-  setTimeout(() => { bike.started = true; bike.rpm = 1700; }, fresh ? 950 : 50);
+  bike.started = false; setNeutral(true, true);
+  setTimeout(() => { bike.started = true; bike.rpm = 1700; toast(settings.gearbox === 'manual' ? T.pressUp : T.pressD, 3); bike.hintT = 5; }, fresh ? 950 : 50);
   cam.init = false;
   HUDS.road = ''; HUDS.dist = '';
   visUI(); soundUI(); cruiseUI(); gearUI();
   if (settings.cam === 3 && !AP.on) apSet(true, true); else autoUI();
+  missionStart();
   $('steer').classList.toggle('tilt', settings.steer === 'tilt');
   if (settings.steer === 'tilt' && !tilt.on) setSteerMode('tilt');
   resize();
@@ -3924,7 +5505,7 @@ function pause(on) {
     const al = $('album'); al.innerHTML = '';
     for (const L of LANDMARKS) { const d = document.createElement('div'); d.textContent = TH ? L.th : L.en; if (settings.visited.includes(L.id)) d.className = 'got'; al.appendChild(d); }
     $('helpText2').innerHTML = T.help;
-    drawBigMap();
+    drawBigMap(); missionPauseBox();
     chipsUI(); soundUI(); save();
   } else if (!on && state === 'pause') { state = 'ride'; $('pause').hidden = true; }
 }
@@ -3958,7 +5539,9 @@ function frame(now) {
     updateCamera(dt, 'title');
     if (AUDIO.ready) audioUpdate(dt, { ...audioState(titleRev.thr), rpm: bike.rpm });
     if ((frameNo++ & 1) === 0) revUI();
-  } else { poseBike(dt, false); updateCamera(dt, settings.cam); if (AUDIO.ready) audioUpdate(dt, { ...audioState(0), speed: 0, rpm: (bike.rpm = damp(bike.rpm, IDLE, 3, dt)) }); }
+  } else if (state === 'cut') { poseBike(dt, false); cutFrame(dt); if (AUDIO.ready) audioUpdate(dt, { ...audioState(0), speed: 0, rpm: (bike.rpm = damp(bike.rpm, IDLE, 3, dt)) }); }
+  else { poseBike(dt, false); updateCamera(dt, settings.cam); if (AUDIO.ready) audioUpdate(dt, { ...audioState(0), speed: 0, rpm: (bike.rpm = damp(bike.rpm, IDLE, 3, dt)) }); }
+  updateFloats(dt);
   if (state !== 'pause') updateTraffic(dt, bike);
   updateWorldAnim(dt, time);
   // sky follows the camera; the sun's shadow box follows the bike
@@ -3968,6 +5551,7 @@ function frame(now) {
   sun.target.position.set(sx, 0, sz); sun.position.set(sx + sunDir.x * 160, sunDir.y * 160, sz + sunDir.z * 160);
   if (state === 'ride' || state === 'pause') { if ((frameNo++ & 1) === 0) drawMinimap(); drawGauge(); }
   updateChunks();
+  FX.update(dt); updateUnderwater(dt, time);
   composer.render();
   for (const p of SHADOW.proxies) p.visible = false;
   watchPerf(dt);
@@ -4006,7 +5590,7 @@ async function boot() {
 }
 requestAnimationFrame(frame);
 boot().catch(err => { console.error(err); $('loadText').textContent = T.loadFail + ' (' + (err && err.message || err) + ')'; });
-if (/[?&]debug\b/.test(location.search)) window.__cruiser = { groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
+if (/[?&]debug\b/.test(location.search)) window.__cruiser = { cutNow: () => { state = 'cut'; }, TRAFFIC, MS, SHOPS, STB, MISSION, mission, newMission, openPlace, missionHonk, ranRed, closeCut, missionStart, missionRestart, missionTarget, get mstate() { return settings.mission; }, driveTap, setNeutral, DECKS, LV, UW, deckAt, surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
 
 </script>
 <script>
