@@ -31,7 +31,7 @@ The *Automatic* gearbox shifts like a relaxed rider: early and at low revs when 
 
 **Time of day:** day, golden hour, dusk and night. Shop windows, signs, neon, street lamps, the lanterns on Yaowarat, the Skytrain windows, the lit prang of Wat Arun and the bridge cables come on as it gets dark, and the headlight lights the road.
 
-**On the start screen** choose the paint (gloss black, candy red, midnight blue, Siam gold, pearl white), the rider's outfit, the engine sound, the gearbox (automatic or manual), the time of day and the graphics level, then **Start the engine** (ติดเครื่อง). The round **Rev it** (บิดเร่ง) button at the bottom right starts the engine if it is off and revs it for as long as you hold it, up to the rev limiter, with its rev counter round the edge; choosing another engine while it runs gives it a blip.
+**On the start screen** choose the paint (gloss black, candy red, midnight blue, Siam gold, pearl white), the rider's outfit, the engine sound, the volume (a slider, also in the pause menu; all the way left mutes), the gearbox (automatic or manual), the time of day and the graphics level, then **Start the engine** (ติดเครื่อง). The round **Rev it** (บิดเร่ง) button at the bottom right starts the engine if it is off and revs it for as long as you hold it, up to the rev limiter, with its rev counter round the edge; choosing another engine while it runs gives it a blip.
 
 **Outfits:** black leather with a full-face helmet; vintage brown leather with an open-face helmet and goggles; a denim jacket with a matt half helmet and sunglasses; the orange vest of a Bangkok motorbike taxi, numbered on the back; and a flower-print shirt with goggles. The rider sits on the bike on the start screen so you can see the outfit.
 

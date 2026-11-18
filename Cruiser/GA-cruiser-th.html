@@ -95,6 +95,15 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
   padding: 8px 14px; font: 500 14.5px/1.1 var(--font-ui); cursor: pointer; min-height: 38px;
 }
 .chip[aria-pressed="true"] { background: var(--brass); color: var(--brass-ink); border-color: var(--brass); }
+.vol { display: flex; align-items: center; gap: 12px; max-width: 380px; }
+.vol svg { width: 22px; height: 22px; color: var(--muted); flex: none; }
+.vol output { font: 600 14px var(--font-ui); color: var(--paper); min-width: 64px; font-variant-numeric: tabular-nums; }
+.vol input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 36px; background: transparent; touch-action: none; cursor: pointer; --v: 80%; }
+.vol input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--brass) var(--v), rgba(239, 231, 212, .16) var(--v)); }
+.vol input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--brass) var(--v), rgba(239, 231, 212, .16) var(--v)); }
+.vol input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -11px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #f6dfaa, var(--brass) 60%, #8d6a2a); box-shadow: 0 3px 10px rgba(0, 0, 0, .45); border: 0; }
+.vol input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 50%; background: var(--brass); border: 0; }
+.vol input[type=range]:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 4px; border-radius: 4px; }
 .swatch { width: 40px; height: 40px; border-radius: 50%; border: 2px solid transparent; padding: 3px; background-clip: content-box; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18); }
 .swatch[aria-pressed="true"] { border-color: var(--brass-hi); }
 .paintname { font: 500 14px var(--font-ui); color: var(--paper); margin-left: 4px; }
@@ -272,6 +281,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
       <div class="opt"><span data-i18n="paint"></span><div class="row" id="paintRow"></div></div>
       <div class="opt"><span data-i18n="outfit"></span><div class="row" id="outfitRow"></div></div>
       <div class="opt"><span data-i18n="engine"></span><div class="row" id="engineRow"></div></div>
+      <div class="opt"><span data-i18n="volume"></span><div class="vol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/></svg><input type="range" id="volRange" min="0" max="100" step="1" value="80"><output id="volOut" for="volRange"></output></div></div>
       <div class="opt"><span data-i18n="gearbox"></span><div class="row" id="gearRow"></div></div>
       <div class="opt"><span data-i18n="time"></span><div class="row" id="timeRow"></div></div>
       <div class="opt"><span data-i18n="quality"></span><div class="row" id="qualRow"></div></div>
@@ -289,6 +299,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
       <div class="album" id="album"></div>
       <div class="opt"><span data-i18n="gearbox"></span><div class="row" id="gearRow2"></div></div>
       <div class="opt"><span data-i18n="engine"></span><div class="row" id="engineRow2"></div></div>
+      <div class="opt"><span data-i18n="volume"></span><div class="vol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/></svg><input type="range" id="volRange2" min="0" max="100" step="1" value="80"><output id="volOut2" for="volRange2"></output></div></div>
       <div class="opt"><span data-i18n="quality"></span><div class="row" id="qualRow2"></div></div>
       <div class="opt"><span data-i18n="steerMode"></span><div class="row" id="steerRow"></div></div>
       <p class="help" id="helpText2"></p>
@@ -331,7 +342,7 @@ const STR = {
   th: {
     kicker: 'Bangkok Cruiser', title: 'ล่องกรุง',
     lede: 'บิ๊กไบค์ครูเซอร์ V-Twin เสียงลูกสูบคู่ทุ้มลึก ขี่ชมกรุงเทพฯ จากริมเจ้าพระยาถึงเยาวราช ใต้รางรถไฟฟ้า ถึงสุขุมวิท เก็บโปสการ์ดให้ครบ 8 จุด',
-    paint: 'สีรถ', time: 'ช่วงเวลา', engine: 'เสียงเครื่องยนต์', outfit: 'ชุดคนขี่', gearbox: 'เกียร์', quality: 'กราฟิก', start: 'ติดเครื่อง',
+    paint: 'สีรถ', time: 'ช่วงเวลา', engine: 'เสียงเครื่องยนต์', volume: 'ความดังเสียง', mute: 'ปิดเสียง', outfit: 'ชุดคนขี่', gearbox: 'เกียร์', quality: 'กราฟิก', start: 'ติดเครื่อง',
     gearAuto: 'อัตโนมัติ', gearManual: 'ธรรมดา (กดเปลี่ยนเอง)', rev: 'บิดเร่ง', revHold: 'กดค้างไว้', gearUp: 'เกียร์ขึ้น', gearDown: 'เกียร์ลง',
     overRev: 'เร็วเกินสำหรับเกียร์นั้น ชะลอก่อนแล้วค่อยลดเกียร์', topGear: 'เกียร์ 6 สูงสุดแล้ว', firstGear: 'เกียร์ 1 ต่ำสุดแล้ว',
     auto: 'ออโต้', steerAuto: 'ออโต้เลี้ยวให้', autoOn: 'ระบบช่วยเลี้ยว: เปิด แค่บีบคันเร่งกับเปลี่ยนเกียร์', autoOff: 'ระบบช่วยเลี้ยว: ปิด', autoTo: n => `ออโต้กำลังพาไป ${n}`, autoFree: 'ออโต้: ขี่ชมเมืองไปเรื่อย ๆ',
@@ -358,7 +369,7 @@ const STR = {
   en: {
     kicker: 'ล่องกรุง', title: 'Bangkok Cruiser',
     lede: 'A big V-twin cruiser with that deep, loping two-cylinder beat. Ride Bangkok from the Chao Phraya to Chinatown, under the Skytrain and out along Sukhumvit, and collect all 8 postcards.',
-    paint: 'Paint', time: 'Time of day', engine: 'Engine sound', outfit: 'Rider’s outfit', gearbox: 'Gearbox', quality: 'Graphics', start: 'Start the engine',
+    paint: 'Paint', time: 'Time of day', engine: 'Engine sound', volume: 'Volume', mute: 'Muted', outfit: 'Rider’s outfit', gearbox: 'Gearbox', quality: 'Graphics', start: 'Start the engine',
     gearAuto: 'Automatic', gearManual: 'Manual (tap to shift)', rev: 'Rev it', revHold: 'press and hold', gearUp: 'Up', gearDown: 'Down',
     overRev: 'Too fast for that gear: slow down, then shift down', topGear: 'Already in 6th', firstGear: 'Already in 1st',
     auto: 'Auto', steerAuto: 'Auto steering', autoOn: 'Steering assist on: just throttle and shift', autoOff: 'Steering assist off', autoTo: n => `Auto: heading for ${n}`, autoFree: 'Auto: cruising round the city',
@@ -415,7 +426,7 @@ const LANDMARKS = [
 
 /* ---------- settings (kept in this browser only) ---------- */
 const SAVE_KEY = 'tst-cruiser-v1';
-const settings = { paint: 0, time: 'golden', engine: '', outfit: 0, gearbox: 'auto', quality: 'auto', cam: 0, sound: true, steer: 'pad', visited: [], odo: 0, top: 0 };
+const settings = { paint: 0, time: 'golden', engine: '', volume: 0.8, outfit: 0, gearbox: 'auto', quality: 'auto', cam: 0, sound: true, steer: 'pad', visited: [], odo: 0, top: 0 };
 try { Object.assign(settings, JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')); } catch (e) { /* storage blocked */ }
 if (!Array.isArray(settings.visited)) settings.visited = [];
 let saveTimer = 0;
@@ -2587,7 +2598,7 @@ function initAudio() {
   const filt = (type, f, q = 0.7, gain = 0) => { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; n.gain.value = gain; return n; };
   const loop = (buf) => { const s = ctx.createBufferSource(); s.buffer = buf; s.loop = true; s.start(); return s; };
 
-  const master = g(settings.sound ? 0.8 : 0);
+  const master = g(settings.sound ? settings.volume : 0);
   const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -15; comp.knee.value = 10; comp.ratio.value = 3.5; comp.attack.value = 0.004; comp.release.value = 0.22;
   // a brick-wall limiter last, so full throttle with the horn and traffic never clips
   const lim = ctx.createDynamicsCompressor(); lim.threshold.value = -2.5; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.08;
@@ -2659,7 +2670,11 @@ function setEngine(id, quiet) {
 }
 function setSound(on) {
   settings.sound = on; save();
-  if (AUDIO.master) AUDIO.master.gain.setTargetAtTime(on ? 0.8 : 0, AUDIO.ctx.currentTime, 0.05);
+  if (AUDIO.master) AUDIO.master.gain.setTargetAtTime(on ? settings.volume : 0, AUDIO.ctx.currentTime, 0.05);
+}
+function setVolume(v) {
+  settings.volume = clamp(v, 0, 1); settings.sound = settings.volume > 0; save();
+  if (AUDIO.master) AUDIO.master.gain.setTargetAtTime(settings.sound ? settings.volume : 0, AUDIO.ctx.currentTime, 0.03);
 }
 
 function scheduleEngine() {
@@ -3414,7 +3429,21 @@ function nextCam() {
 }
 function nextTime() { const i = TIMES.indexOf(settings.time); fadeTo(() => setTime(TIMES[(i + 1) % TIMES.length]), T.times[TIMES[(i + 1) % TIMES.length]]); }
 function fadeTo(fn, msg) { $('fade').classList.add('on'); setTimeout(() => { fn(); setTimeout(() => { $('fade').classList.remove('on'); if (msg && state === 'ride') toast(msg); }, 80); }, 460); }
-function soundUI() { $('soundBtn').setAttribute('aria-pressed', settings.sound ? 'false' : 'true'); $('soundWave').style.opacity = settings.sound ? 1 : 0.15; }
+function soundUI() {
+  $('soundBtn').setAttribute('aria-pressed', settings.sound ? 'false' : 'true'); $('soundWave').style.opacity = settings.sound ? 1 : 0.15;
+  const pct = Math.round(settings.volume * 100);
+  for (const k of ['', '2']) { const r = $('volRange' + k); if (r && document.activeElement !== r) r.value = String(pct); if (r) r.style.setProperty('--v', `${settings.sound ? pct : 0}%`); const o = $('volOut' + k); if (o) o.textContent = settings.sound ? `${pct}%` : T.mute; }
+}
+function bindVolume() {
+  for (const k of ['', '2']) {
+    const r = $('volRange' + k);
+    r.setAttribute('aria-label', T.volume);
+    r.addEventListener('pointerdown', () => initAudio());
+    r.addEventListener('input', () => { initAudio(); setVolume(Number(r.value) / 100); soundUI(); });
+    // with the engine off there is nothing to hear yet, so ring a bell at the new level
+    r.addEventListener('change', () => { if (!(AUDIO.E && AUDIO.E.running) && settings.sound) bell(880, 0.06); });
+  }
+}
 
 /* tilt steering (iPad held like handlebars) */
 const tilt = { on: false, b0: 0, beta: 0 };
@@ -3491,7 +3520,7 @@ function setQuality(n) {
 function showTitle() {
   state = 'title';
   $('title').hidden = false; $('hud').hidden = true;
-  chipsUI();
+  chipsUI(); soundUI();
   $('helpText').innerHTML = T.help;
   revUI();
 }
@@ -3531,7 +3560,7 @@ function pause(on) {
     const al = $('album'); al.innerHTML = '';
     for (const L of LANDMARKS) { const d = document.createElement('div'); d.textContent = TH ? L.th : L.en; if (settings.visited.includes(L.id)) d.className = 'got'; al.appendChild(d); }
     $('helpText2').innerHTML = T.help;
-    chipsUI(); save();
+    chipsUI(); soundUI(); save();
   } else if (!on && state === 'pause') { state = 'ride'; $('pause').hidden = true; }
 }
 
@@ -3599,7 +3628,7 @@ async function boot() {
   applyQuality();
   setTime(settings.time);
   poseBike(0, true);
-  bindInput(); gearUI(); autoUI();
+  bindInput(); bindVolume(); soundUI(); gearUI(); autoUI();
   cam.init = false; updateCamera(0.016, 'title');
   try { renderer.compile(scene, camera); } catch (e) { /* compile lazily */ }
   await progress(6);
