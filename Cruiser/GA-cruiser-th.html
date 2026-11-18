@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>ล่องกรุง · The Siam Times</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="เกมขี่บิ๊กไบค์ครูเซอร์ V-Twin ชมกรุงเทพฯ ทั้งเยาวราช เสาชิงช้า ริมเจ้าพระยา ใต้รถไฟฟ้า สุขุมวิท เสียงเครื่องสังเคราะห์สด เล่นบน iPad ได้">
@@ -573,10 +573,14 @@ const LANDMARKS = [
 ];
 
 /* ---------- settings (kept in this browser only) ---------- */
-const SAVE_KEY = 'tst-cruiser-v1';
+/* In Chandler's Promise the game is the last level, opened in a frame as GA-cruiser-xx.html?story:
+   it keeps its own save there, always rides the mission, and tells the story page when the watch is home. */
+const STORY = /[?&]story\b/.test(location.search);
+const SAVE_KEY = STORY ? 'tst-cruiser-story-v1' : 'tst-cruiser-v1';
 const settings = { mode: 'mission', mission: null, nav: true, paint: 0, time: 'golden', engine: '', volume: 0.8, outfit: 0, gearbox: 'auto', quality: 'auto', cam: 0, sound: true, steer: 'pad', visited: [], odo: 0, top: 0 };
 try { Object.assign(settings, JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')); } catch (e) { /* storage blocked */ }
 if (!Array.isArray(settings.visited)) settings.visited = [];
+if (STORY) settings.mode = 'mission';
 let saveTimer = 0;
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(settings)); } catch (e) { /* storage blocked */ } }
 
@@ -4593,8 +4597,13 @@ function workMonth() {
   card.addEventListener('click', e => { if (e.target.tagName !== 'BUTTON') finish(); }, { once: true });
   show();
 }
+function storyDone(r) {
+  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'cruiser' }, r), '*'); } catch (e) { /* not in a frame */ }
+}
 function missionDone(P) {
   const m = settings.mission; m.done = true; settings.watch = true; save();
+  // the story page hears of it once the card has had a moment on its own
+  if (STORY) setTimeout(() => storyDone({ won: true, score: m.reds, reds: m.reds, worked: m.worked, tips: m.tips, text: `${MX.statReds} ${m.reds}/${MISSION.reds} · ${MX.statWork} ${MX.months(m.worked)}` }), 3200);
   missionSfx('lux'); setTimeout(() => missionSfx('applause'), 400);
   openCut('done', { focus: { x: STB.ring[0], y: 8, z: STB.z0 }, out: -1, r: 30, h: 3 });
   const card = $('cutCard'); card.className = 'cutcard lux done'; card.innerHTML = '';
@@ -6080,6 +6089,7 @@ async function boot() {
   try { renderer.compile(scene, camera); } catch (e) { /* compile lazily */ }
   await progress(6);
   window.__cruiserBooted = true;
+  if (STORY) document.querySelectorAll('.foot').forEach(e => e.remove()); // no leaving the story from inside its frame
   showTitle();
   $('loading').classList.add('gone');
   setTimeout(() => { $('loading').hidden = true; }, 700);
