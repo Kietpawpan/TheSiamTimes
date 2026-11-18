@@ -301,6 +301,28 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 .stats2 span { font-size: 12px; color: var(--muted); }
 .cutcard .btnrow { justify-content: center; margin-top: 14px; }
 #hud.cutting .tr, #hud.cutting .pedals, #hud.cutting #steer, #hud.cutting #gearBox, #hud.cutting #gauge, #hud.cutting .tl, #hud.cutting #postcard, #hud.cutting #toast, #hud.cutting #district { opacity: 0; pointer-events: none; transition: opacity .3s; }
+/* the Want List: a cream card */
+.cutcard.want { background: #efe7cf; color: #1b232c; border: 2px solid #0b4a2c; text-align: center; width: min(480px, calc(100% - 32px)); box-shadow: 0 18px 50px rgba(0,0,0,.55); }
+.wantpic { width: 100%; max-width: 420px; height: auto; display: block; margin: 0 auto; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+.wanttext { min-height: 2.9em; margin: 10px 0 0; font-weight: 500; color: #0b4a2c; }
+/* buying it, and the ending: green velvet and gold */
+#cut[data-kind="buy"], #cut[data-kind="done"] { background: radial-gradient(ellipse at center, rgba(0,0,0,0) 35%, rgba(4,10,6,.6) 100%); }
+.cutcard.lux { overflow: hidden; text-align: center; width: min(560px, calc(100% - 32px)); color: #f2ead2; background: radial-gradient(ellipse at 50% 25%, #22603f 0%, #0c3020 55%, #061a10 100%); border: 1px solid #c99a3c; box-shadow: inset 0 0 0 1px rgba(201,154,60,.3), inset 0 0 60px rgba(0,0,0,.45), 0 24px 70px rgba(0,0,0,.65); }
+.cutcard.lux h3 { position: relative; margin: 4px 0 6px; font: 400 34px/1.15 var(--font-display); color: #f2d68a; background: linear-gradient(100deg, #b8862e 25%, #fff3c8 45%, #d9a83f 60%, #b8862e 80%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 3.2s linear infinite; }
+@keyframes shimmer { from { background-position: 120% 0; } to { background-position: -130% 0; } }
+.cutcard.lux p { position: relative; margin: 0 auto; max-width: 30em; color: #e6dcbc; font-size: 14.5px; }
+.boxpic { position: relative; width: 100%; max-width: 380px; height: auto; display: block; margin: -4px auto 0; }
+.paid { position: relative; margin-top: 8px; font: 600 13px var(--font-ui); letter-spacing: .12em; color: #c99a3c; text-transform: uppercase; }
+.cutcard.lux .btn.primary { background: linear-gradient(180deg, #f2d68a, #c99a3c); color: #1a140a; border-color: #f2d68a; }
+.cutcard.lux .stats2 b { color: #f2d68a; }
+.cutcard.lux .stats2 span { color: #bfb393; }
+.sparkles { position: absolute; inset: 0; pointer-events: none; }
+.sparkles span { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #ffe7a0; box-shadow: 0 0 8px 2px rgba(255,213,106,.8); opacity: 0; animation: rise 4s linear infinite; }
+@keyframes rise { 0% { transform: translateY(0) scale(.5); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-240px) scale(1.2); opacity: 0; } }
+.confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 2; }
+.confetti i { position: absolute; top: -20px; width: 9px; height: 5px; border-radius: 1px; background: linear-gradient(90deg, #f6dc94, #b8862e); opacity: .85; animation: fall 5s linear infinite; }
+@keyframes fall { 0% { transform: translate(0, 0) rotate(0); } 50% { transform: translate(30px, 50vh) rotate(260deg); } 100% { transform: translate(-20px, 105vh) rotate(540deg); } }
+@media (prefers-reduced-motion: reduce) { .cutcard.lux h3, .sparkles span, .confetti i { animation: none; } .confetti { display: none; } }
 .mbox { border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; font: 14px/1.4 var(--font-ui); }
 .mbox b { color: #5fe39c; }
 .mbox .btnrow { margin-top: 8px; }
@@ -2803,7 +2825,7 @@ function drawLevelsMap(x, s) {
 
 
 /* =====================================================================
-   Places for the mission: four branches of VERDANT, a (made-up) maker of
+   Places for the mission: three branches of VERDANT, a (made-up) maker of
    fine watches with green and gold shop fronts, and The Siam Times
    building where you work.
    ===================================================================== */
@@ -2812,7 +2834,6 @@ const SHOPS = [
   { id: 'siam', th: 'VERDANT สยาม', en: 'VERDANT Siam', x0: 244, x1: 256, z: 83, out: 1, road: 100, mall: true },
   { id: 'yao', th: 'VERDANT เยาวราช', en: 'VERDANT Yaowarat', x0: 119, x1: 131, z: 289, out: 1, road: 300 },
   { id: 'suk', th: 'VERDANT สุขุมวิท', en: 'VERDANT Sukhumvit', x0: 617, x1: 629, z: 85, out: 1, road: 100 },
-  { id: 'sip', th: 'VERDANT สี่พระยา', en: 'VERDANT Si Phraya', x0: 168, x1: 180, z: 411, out: -1, road: 400 },
 ];
 for (const S of SHOPS) { S.x = (S.x0 + S.x1) / 2; S.ring = [S.x, S.z + S.out * 5.5]; S.ax = S.x; S.az = S.road; }
 // The Siam Times: a colonial building on Bamrung Mueang Road, across from the Giant Swing's block
@@ -3291,6 +3312,16 @@ function buildRider() {
   }
   rb.bake(rider, true, RM);
   if (o.vest) { const no = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.12), new THREE.MeshStandardMaterial({ map: vestTex, roughness: 0.7 })); no.position.set(0, 1.2, 0.282); no.rotation.x = -0.12; rider.add(no); }
+  // the 1864, on the left wrist, once it is yours
+  {
+    const wg = new THREE.Group(), gold = new THREE.MeshStandardMaterial({ color: 0xe2b04a, metalness: 1, roughness: 0.22, emissive: 0x3a2808, emissiveIntensity: 0.4 });
+    const A = new THREE.Vector3(-0.3, 1.17, -0.08), B = new THREE.Vector3(-0.385, 1.13, -0.31), d = B.clone().sub(A).normalize(), wrist = A.clone().lerp(B, 0.8);
+    const strap = new THREE.Mesh(new THREE.TorusGeometry(0.053, 0.009, 6, 18), new THREE.MeshStandardMaterial({ color: 0x5a3418, roughness: 0.6 }));
+    strap.position.copy(wrist); strap.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d); wg.add(strap);
+    const cs = new THREE.Mesh(new THREE.CylinderGeometry(0.027, 0.027, 0.013, 20), gold); cs.position.copy(wrist).add(new THREE.Vector3(0, 0.053, 0)); wg.add(cs);
+    const dial = new THREE.Mesh(new THREE.CircleGeometry(0.022, 20).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xf6efdc })); dial.position.copy(cs.position).add(new THREE.Vector3(0, 0.007, 0)); wg.add(dial);
+    wg.visible = !!settings.watch; rider.add(wg); BIKE.watch = wg;
+  }
   BIKE.body.add(rider);
   BIKE.rider = rider;
   bikeShadowProxy();
@@ -4195,29 +4226,31 @@ lightHooks.push(fxLight);
 
 /* =====================================================================
    The mission: the VERDANT 1864 dress watch.
-   Four VERDANT shops, found in any order. The first you walk into has
+   Three VERDANT shops, found in any order. The first you walk into has
    none (sign its Want List), the second will sell it only if you buy
-   another watch first (say no), the third has none (Want List), the
-   fourth has one: but it costs more than you have. Work a month at The
-   Siam Times (a cut scene), or collect tips from the women riders by
-   giving them two toots of the horn. Run more than three red lights and
-   the mission is over.
+   another watch first (say no), the third has one: but it costs more than
+   you have. Work a month at The Siam Times (a cut scene), or give two
+   toots of the horn to at least two of the women riders for their tips.
+   Run more than three red lights and the mission is over; riding round a
+   crossing on the footpath does not count.
    ===================================================================== */
-const MISSION = { price: 186400, start: 150000, salary: 45000, bundle: 420000, reds: 3 };
-const ROLE_SEQ = ['waitlist', 'bundle', 'waitlist', 'stock'];
+// one tip is never quite enough (at most 11,000 of an 11,400 gap); two always are
+const MISSION = { price: 186400, start: 175000, salary: 45000, bundle: 420000, reds: 3, tip: [6000, 11000], women: 2 };
+const ROLE_SEQ = ['waitlist', 'bundle', 'stock'];
+const NS = SHOPS.length;
 const MS = { here: null, lock: null, stillT: 0, honks: [], cut: null, box: null, target: null, hud: '', floats: [] };
 const baht = n => '฿' + Math.round(n).toLocaleString('en-US');
 const MX = TH ? {
   title: 'ภารกิจ · นาฬิกา 1864', modeMission: 'ภารกิจ: ตามหานาฬิกา 1864', modeFree: 'ขี่เล่นอิสระ', mode: 'โหมด',
-  find: n => `ตามหาร้าน VERDANT สีเขียว ${n}/4 (จุดเขียวบนแผนที่)`, signAt: s => `กลับไปลงชื่อ Want List ที่ ${s}`,
-  earn: g => `เงินขาดอีก ${baht(g)} · กลับไปทำงานที่ตึก The Siam Times หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์`, buyAt: s => `เงินพอแล้ว! กลับไปซื้อ 1864 ที่ ${s}`,
+  find: n => `ตามหาร้าน VERDANT สีเขียว ${n}/${NS} (จุดเขียวบนแผนที่)`, signAt: s => `กลับไปลงชื่อ Want List ที่ ${s}`,
+  earn: (g, n) => `เงินขาดอีก ${baht(g)} · ทำงานที่ตึก The Siam Times 1 เดือน หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์อย่างน้อย ${MISSION.women} คน (ทักแล้ว ${n} คน)`, buyAt: s => `เงินพอแล้ว! กลับไปซื้อ 1864 ที่ ${s}`,
   money: 'เงิน', reds: 'ฝ่าไฟแดง', shops: 'ร้าน', enter: s => `เข้าร้าน ${s}`, enterST: 'เข้าตึก The Siam Times',
-  ran: (n, m) => `ฝ่าไฟแดง! ${n}/${m}`, ranLast: 'ฝ่าไฟแดงครบ 3 ครั้งแล้ว อีกครั้งเดียวภารกิจล้มเหลว',
-  tip: a => `สาวไบค์เกอร์โบกมือทักทาย ให้ทิป ${baht(a)}`, waveAgain: 'เธอโบกมือให้อีกครั้ง (ทิปให้ไปแล้วเมื่อกี้)', waveFree: 'สาวไบค์เกอร์โบกมือทักทาย', enough: 'เงินพอซื้อ 1864 แล้ว!',
+  ran: (n, m) => `ฝ่าไฟแดง! ${n}/${m} · ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับ`, ranLast: 'ฝ่าไฟแดงครบ 3 ครั้งแล้ว อีกครั้งเดียวภารกิจล้มเหลว · ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับ',
+  tip: (a, n) => `สาวไบค์เกอร์คนที่ ${n} โบกมือทักทาย ให้ทิป ${baht(a)}`, waveAgain: 'เธอโบกมือให้อีกครั้ง แต่ให้ทิปไปแล้ว ลองทักคนอื่นนะ', waveFree: 'สาวไบค์เกอร์โบกมือทักทาย', enough: 'เงินพอซื้อ 1864 แล้ว!',
   resume: 'ภารกิจต่อจากเดิม', start: 'เริ่มภารกิจ', go: 'ไปต่อ', later: 'ไว้ก่อน', restart: 'เริ่มภารกิจใหม่', free: 'ขี่เล่นอิสระ', keep: 'ขี่เล่นต่อ', skip: 'แตะเพื่อข้าม',
   introH: 'ตามหานาฬิกา Dress Watch รุ่น 1864',
-  intro: `คุณเป็นนักข่าวของ The Siam Times อยากได้นาฬิกา VERDANT รุ่น 1864 มานานแล้ว รุ่นนี้หายากมาก มีขายแค่ร้าน VERDANT สีเขียวทอง 4 สาขาในกรุงเทพฯ`,
-  rules: ['ขี่ไปหาร้าน VERDANT ทั้ง 4 ร้าน (จุดเขียวบนแผนที่ แตะปุ่มออโต้ให้พาไปได้)', 'บางร้านไม่มีของ ต้องลงชื่อไว้ใน Want List', 'บางร้านจะให้ซื้อรุ่นอื่นก่อน ต้องปฏิเสธ', `ห้ามฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง`, 'เงินไม่พอ? กลับมาทำงานที่ตึกนี้ หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์เพื่อรับทิป'],
+  intro: `คุณเป็นนักข่าวของ The Siam Times อยากได้นาฬิกา VERDANT รุ่น 1864 มานานแล้ว รุ่นนี้หายากมาก มีขายแค่ร้าน VERDANT สีเขียวทอง 3 สาขาในกรุงเทพฯ`,
+  rules: ['ขี่ไปหาร้าน VERDANT ทั้ง 3 ร้าน (จุดเขียวบนแผนที่ แตะปุ่มออโต้ให้พาไปได้)', 'บางร้านไม่มีของ ต้องลงชื่อไว้ใน Want List', 'บางร้านจะให้ซื้อรุ่นอื่นก่อน ต้องปฏิเสธ', `ห้ามฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง แต่ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับว่าฝ่าไฟแดง`, `เงินไม่พอ? กลับมาทำงานที่ตึกนี้ 1 เดือน หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์ ต้องทักอย่างน้อย ${MISSION.women} คนถึงจะพอ`],
   budget: 'เงินเก็บ', price: 'ราคา 1864',
   hello: 'ยินดีต้อนรับสู่ VERDANT ค่ะ',
   wl1: 'ขออภัยนะคะ รุ่น 1864 ไม่มีของเลยค่ะ ลูกค้ารอคิวกันยาวมาก รับลงชื่อใน Want List ไว้ไหมคะ ถ้ามีของจะโทรแจ้งค่ะ',
@@ -4234,18 +4267,22 @@ const MX = TH ? {
   workDone: a => `1 เดือนผ่านไป · เก็บเงินได้ ${baht(a)}`, monthName: 'เดือนแห่งการทำงาน', day: d => `วันที่ ${d}`,
   doneH: 'ภารกิจสำเร็จ!', doneP: 'นาฬิกา VERDANT 1864 เป็นของคุณแล้ว', statShops: 'ร้านที่ไป', statReds: 'ฝ่าไฟแดง', statTips: 'ทิปจากสาวไบค์เกอร์', statWork: 'ทำงาน', months: n => `${n} เดือน`,
   failH: 'ภารกิจล้มเหลว', failReds: `ฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง ถูกตำรวจเรียกตรวจ ยึดใบขับขี่`, failBundle: `ยอมซื้อ Mariner 300 พ่วง ${baht(MISSION.bundle)} เงินเก็บหมดเกลี้ยง ไม่เหลือพอซื้อ 1864`,
+  wantH: 'Want List · VERDANT 1864', wantP: n => `ลงชื่อเรียบร้อยค่ะ คุณอยู่ลำดับที่ ${n} ถ้ามีของเข้าจะโทรแจ้งทันทีนะคะ`, wantName: 'นักข่าว The Siam Times',
+  buyH: 'นาฬิกา 1864 เป็นของคุณแล้ว', buyP: 'ผู้จัดการร้านสวมถุงมือขาว ยกกล่องกำมะหยี่สีเขียวออกมาวางตรงหน้า เปิดฝาช้า ๆ หน้าปัดสีงาช้างกับตัวเรือนทองรับแสงไฟในร้าน', paid: 'ชำระแล้ว', wear: 'สวมนาฬิกา',
+  worn: 'สวมนาฬิกา 1864 แล้ว! ขี่ตามนกพิราบกลับ The Siam Times · ไฟแดงไม่นับแล้ว', home: 'ขี่ตามนกพิราบกลับตึก The Siam Times · ไฟแดงไม่นับแล้ว',
+  arriveH: 'กลับถึง The Siam Times', arriveP: 'นาฬิกา 1864 อยู่บนข้อมือ เพื่อนร่วมงานออกมาปรบมือต้อนรับที่หน้าตึก', waveWatch: 'เธอโบกมือให้คนใส่นาฬิกาสวย 👋',
   roleWL: 'ลง Want List แล้ว', roleWLno: 'ยังไม่ได้ลงชื่อ', roleBundle: 'ปฏิเสธการซื้อพ่วง', roleStock: 'มีของ 1864',
 } : {
   title: 'Mission · the 1864 watch', modeMission: 'Mission: find the 1864 watch', modeFree: 'Free ride', mode: 'Mode',
-  find: n => `Find the green VERDANT shops ${n}/4 (green dots on the map)`, signAt: s => `Go back and sign the Want List at ${s}`,
-  earn: g => `${baht(g)} short · work at The Siam Times, or give the women riders two toots for tips`, buyAt: s => `You have enough! Go back to ${s} and buy the 1864`,
+  find: n => `Find the green VERDANT shops ${n}/${NS} (green dots on the map)`, signAt: s => `Go back and sign the Want List at ${s}`,
+  earn: (g, n) => `${baht(g)} short · work a month at The Siam Times, or give two toots to at least ${MISSION.women} women riders (${n} so far)`, buyAt: s => `You have enough! Go back to ${s} and buy the 1864`,
   money: 'Money', reds: 'Red lights', shops: 'Shops', enter: s => `Go into ${s}`, enterST: 'Go into The Siam Times',
-  ran: (n, m) => `Ran a red light! ${n}/${m}`, ranLast: 'That was your third red light: one more and the mission is over',
-  tip: a => `A rider waves back and tips you ${baht(a)}`, waveAgain: 'She waves again (she tipped you a moment ago)', waveFree: 'A rider waves back', enough: 'You can afford the 1864 now!',
+  ran: (n, m) => `Ran a red light! ${n}/${m} · going round on the footpath does not count`, ranLast: 'That was your third red light: one more and the mission is over · going round on the footpath does not count',
+  tip: (a, n) => `Rider number ${n} waves back and tips you ${baht(a)}`, waveAgain: 'She waves again, but she has tipped you already: try someone else', waveFree: 'A rider waves back', enough: 'You can afford the 1864 now!',
   resume: 'Mission resumed', start: 'Start the mission', go: 'Carry on', later: 'Not now', restart: 'Start the mission again', free: 'Free ride', keep: 'Keep riding', skip: 'Tap to skip',
   introH: 'Find the 1864 dress watch',
-  intro: 'You are a reporter at The Siam Times, and you have wanted a VERDANT 1864 dress watch for years. It is very hard to get: only the four green-and-gold VERDANT shops in Bangkok sell it.',
-  rules: ['Ride to all four VERDANT shops (green dots on the map; Auto will take you)', 'Some have none: sign their Want List', 'One will want you to buy another watch first: say no', `Do not run more than ${MISSION.reds} red lights`, 'Short of money? Come back here and work, or give the women riders two toots of the horn for tips'],
+  intro: 'You are a reporter at The Siam Times, and you have wanted a VERDANT 1864 dress watch for years. It is very hard to get: only the three green-and-gold VERDANT shops in Bangkok sell it.',
+  rules: ['Ride to all three VERDANT shops (green dots on the map; Auto will take you)', 'One has none: sign its Want List', 'One will want you to buy another watch first: say no', `Do not run more than ${MISSION.reds} red lights; riding round a crossing on the footpath does not count`, `Short of money? Come back here and work for a month, or give two toots of the horn to at least ${MISSION.women} women riders for their tips`],
   budget: 'Savings', price: '1864 price',
   hello: 'Welcome to VERDANT.',
   wl1: 'I am sorry, we have no 1864s at all, and the wait is long. May I put you on our Want List? We will call you when one comes in.',
@@ -4262,31 +4299,36 @@ const MX = TH ? {
   workDone: a => `A month later · saved ${baht(a)}`, monthName: 'A month of work', day: d => `Day ${d}`,
   doneH: 'Mission complete!', doneP: 'The VERDANT 1864 is yours', statShops: 'Shops', statReds: 'Red lights', statTips: 'Tips from riders', statWork: 'Worked', months: n => `${n} month${n === 1 ? '' : 's'}`,
   failH: 'Mission failed', failReds: `More than ${MISSION.reds} red lights: the police stopped you and took your licence`, failBundle: `You bought the Mariner 300 for ${baht(MISSION.bundle)} and spent all your savings: nothing left for the 1864`,
+  wantH: 'Want List · VERDANT 1864', wantP: n => `You are on the list, number ${n}. We will call you the moment one comes in.`, wantName: 'A. Reporter, The Siam Times',
+  buyH: 'The 1864 is yours', buyP: 'The manager, in white gloves, sets a green velvet box in front of you and opens it slowly: an ivory dial and a gold case catching the light of the shop.', paid: 'Paid', wear: 'Put it on',
+  worn: 'You are wearing the 1864! Follow the pigeon back to The Siam Times · red lights no longer count', home: 'Follow the pigeon back to The Siam Times · red lights no longer count',
+  arriveH: 'Back at The Siam Times', arriveP: 'The 1864 on your wrist, and your colleagues out on the steps to applaud.', waveWatch: 'She waves at the rider with the fine watch 👋',
   roleWL: 'On the Want List', roleWLno: 'Not signed yet', roleBundle: 'Said no to the bundle', roleStock: 'Has the 1864',
 };
 const shopName = S => TH ? S.th : S.en;
 // the mission in progress, or null (free ride, finished, failed)
-function mission() { const m = settings.mission; return settings.mode !== 'free' && m && !m.done && !m.failed ? m : null; }
-function newMission() { settings.mission = { money: MISSION.start, reds: 0, order: [], roles: {}, wl: [], refused: false, worked: 0, tips: 0, tipN: 0, t0: Date.now(), done: false, failed: '' }; save(); }
+function mission() { const m = settings.mission; return settings.mode !== 'free' && m && m.v === 2 && !m.done && !m.failed ? m : null; }
+function newMission() { settings.watch = false; settings.mission = { v: 2, money: MISSION.start, reds: 0, order: [], roles: {}, wl: [], refused: false, worked: 0, tips: 0, tipN: 0, tipped: [], t0: Date.now(), done: false, failed: '' }; save(); }
 function missionObjective(m) {
-  if (m.order.length < 4) return MX.find(m.order.length);
+  if (m.bought) return MX.home;
+  if (m.order.length < NS) return MX.find(m.order.length);
   const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
   if (miss) return MX.signAt(shopName(miss));
-  if (m.money < MISSION.price) return MX.earn(MISSION.price - m.money);
+  if (m.money < MISSION.price) return MX.earn(MISSION.price - m.money, m.tipN);
   return MX.buyAt(shopName(SHOPS.find(S => m.roles[S.id] === 'stock')));
 }
 // where to go next (for Auto and the beams)
 function missionTarget(m) {
   if (!m) return null;
   const pt = S => ({ x: S.ring[0], z: S.ring[1], ax: S.ax, az: S.az, th: S.th, en: S.en, ring: S.ring, place: S });
-  if (m.order.length < 4) {
+  if (m.order.length < NS) {
     let best = null, bd = 1e9;
     for (const S of SHOPS) { if (m.order.includes(S.id)) continue; const d = Math.hypot(S.ring[0] - bike.x, S.ring[1] - bike.z); if (d < bd) { bd = d; best = S; } }
     return best && pt(best);
   }
   const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
   if (miss) return pt(miss);
-  if (m.money < MISSION.price) return pt(STB);
+  if (m.bought || m.money < MISSION.price) return pt(STB);
   return pt(SHOPS.find(S => m.roles[S.id] === 'stock'));
 }
 
@@ -4296,7 +4338,7 @@ function missionUpdate(dt) {
   MS.target = missionTarget(m);
   // markers: rings at the shops still to see (and the target), beams over the target
   for (const S of [...SHOPS, STB]) {
-    const show = !!m && (S === STB || !m.order.includes(S.id) || (MS.target && MS.target.place === S));
+    const show = !!m && (m.bought ? S === STB : (S === STB || !m.order.includes(S.id) || (MS.target && MS.target.place === S)));
     S.ringMesh.visible = show; S.beam.visible = !!m && MS.target && MS.target.place === S;
     if (show) { const k = 0.5 + 0.5 * Math.sin(time * 3); S.ringMesh.material.opacity = 0.3 + 0.35 * k; S.ringMesh.scale.setScalar(1 + 0.04 * k); }
   }
@@ -4309,6 +4351,8 @@ function missionUpdate(dt) {
   if (here && here !== MS.lock) { btn.hidden = false; const lbl = here === STB ? MX.enterST : MX.enter(shopName(here)); if (btn.textContent !== lbl) btn.textContent = lbl; }
   else btn.hidden = true;
   if (here && here !== MS.lock && Math.abs(bike.v) < 0.5) { MS.stillT += dt; if (MS.stillT > 0.5) openPlace(here); } else MS.stillT = 0;
+  MS.walkT = bike.surf === 'walk' ? 0 : (MS.walkT ?? 9) + dt;
+  watchWaves(); updatePigeon(dt, m);
   redLights(m);
   missionHUD(m);
 }
@@ -4322,11 +4366,12 @@ function missionAuto(steer, brake) {
   return { steer: clamp(e * 1.8, -1, 1), brake: bike.v > want + 0.5 ? clamp((bike.v - want) / 3, 0.2, 1) : d < 2.5 ? 1 : 0, thr: bike.v < want ? 0.35 : 0 };
 }
 function redLights(m) {
-  if (!m || bike.offGrid || Math.abs(bike.y) > 1.2) { MS.box = null; return; }
+  if (!m || m.bought || bike.offGrid || Math.abs(bike.y) > 1.2) { MS.box = null; return; }
   const i = clamp(Math.round(bike.x / 100), 0, NX - 1), j = clamp(Math.round((bike.z - RZ[0]) / 100), 0, NZ - 1);
   const inBox = Math.abs(bike.x - RX[i]) < WX[i] / 2 - 0.6 && Math.abs(bike.z - RZ[j]) < WZ[j] / 2 - 0.6;
   const key = inBox ? i * 100 + j : null;
-  if (key !== null && key !== MS.box && Math.abs(bike.v) > 1.5) {
+  // riding round on the footpath is allowed: a crossing entered straight off the pavement does not count
+  if (key !== null && key !== MS.box && Math.abs(bike.v) > 1.5 && bike.surf === 'road' && MS.walkT > 1.2) {
     const axis = Math.abs(Math.sin(bike.yaw)) > Math.abs(Math.cos(bike.yaw)) ? 'x' : 'z', node = nodeAt(i, j);
     if (node && node.heads.some(h => h.axis === axis) && lightState(node, axis, TRAFFIC.time) === 'r') ranRed(m);
   }
@@ -4343,14 +4388,14 @@ function ranRed(m) {
 function missionHUD(m) {
   const p = $('mpanel');
   if (!m) { if (!p.hidden) p.hidden = true; return; }
-  const key = [m.money, m.reds, m.order.length, m.wl.length, m.refused].join('|');
+  const key = [m.money, m.reds, m.order.length, m.wl.length, m.refused, m.tipN, !!m.bought].join('|');
   if (p.hidden) { p.hidden = false; $('mpTitle').textContent = MX.title; }
   if (key === MS.hud) return;
   MS.hud = key;
   $('mpObj').textContent = missionObjective(m);
   $('mpMoney').textContent = `${MX.money} ${baht(m.money)} / ${baht(MISSION.price)}`;
   $('mpReds').textContent = `${MX.reds} ${m.reds}/${MISSION.reds}`; $('mpReds').classList.toggle('warn', m.reds >= MISSION.reds);
-  $('mpShops').textContent = `${MX.shops} ${m.order.length}/4`;
+  $('mpShops').textContent = `${MX.shops} ${m.order.length}/${NS}`;
 }
 
 /* ---------- two toots of the horn for a rider nearby ---------- */
@@ -4364,13 +4409,14 @@ function missionHonk() {
   if (!best || Math.abs(bike.y) > 1.5) return;
   best.waveT = 1.8;
   const m = mission();
-  if (best.tipT !== undefined && time - best.tipT < 45) { toast(MX.waveAgain); return; }
-  best.tipT = time;
-  if (!m) { toast(MX.waveFree); floatText(best, '👋'); return; }
-  const before = m.money, amt = 3000 + Math.floor(Math.random() * 7) * 500;
-  m.money += amt; m.tips += amt; m.tipN++; save();
+  if (!m) { if (best.tipT === undefined || time - best.tipT > 20) { best.tipT = time; toast(MX.waveFree); floatText(best, '👋'); } return; }
+  // each woman tips once in a mission: you need to find at least two
+  const who = best.kind + best.k;
+  if (m.tipped.includes(who)) { toast(MX.waveAgain); floatText(best, '👋'); return; }
+  const [lo, hi] = MISSION.tip, before = m.money, amt = lo + Math.floor(Math.random() * ((hi - lo) / 1000 + 1)) * 1000;
+  m.tipped.push(who); m.money += amt; m.tips += amt; m.tipN++; save();
   floatText(best, `👋 +${baht(amt)}`); missionSfx('cash');
-  toast(before < MISSION.price && m.money >= MISSION.price ? MX.enough : MX.tip(amt), 2.4);
+  toast(before < MISSION.price && m.money >= MISSION.price ? MX.enough : MX.tip(amt, m.tipN), 2.6);
 }
 function floatText(car, text) {
   const e = document.createElement('div'); e.className = 'float'; e.textContent = text; $('floats').appendChild(e);
@@ -4394,23 +4440,24 @@ function openPlace(P) {
   MS.lock = P; MS.stillT = 0;
   missionSfx('door');
   if (P === STB) {
+    if (m.bought) { missionDone(P); return; }
     const gap = MISSION.price - m.money;
     if (gap <= 0) { dialog(P, MX.stDesk, MX.stNoNeed, [[MX.go, closeCut]]); return; }
-    dialog(P, MX.stDesk, MX.stWork(m.order.length >= 4 ? gap : 0), [[MX.work, () => workMonth()], [MX.later, closeCut]]);
+    dialog(P, MX.stDesk, MX.stWork(m.order.length >= NS ? gap : 0), [[MX.work, () => workMonth()], [MX.later, closeCut]]);
     return;
   }
   if (!m.order.includes(P.id)) { m.roles[P.id] = ROLE_SEQ[m.order.length]; m.order.push(P.id); save(); }
   const role = m.roles[P.id];
   if (role === 'waitlist') {
     if (m.wl.includes(P.id)) { dialog(P, MX.hello, MX.wlAgain, [[MX.go, closeCut]], 'none'); return; }
-    dialog(P, MX.hello, MX.wl1, [[MX.wlSign, () => { m.wl.push(P.id); save(); missionSfx('sign'); dialog(P, MX.hello, MX.wlDone, [[MX.go, closeCut]], 'list'); }], [MX.later, closeCut]], 'none');
+    dialog(P, MX.hello, MX.wl1, [[MX.wlSign, () => { m.wl.push(P.id); save(); wantListScene(P); }], [MX.later, closeCut]], 'none');
   } else if (role === 'bundle') {
     dialog(P, MX.hello, m.refused ? MX.bundleAgain : MX.bundle, [[MX.bundleBuy, () => missionFail('bundle')], [MX.bundleNo, () => { m.refused = true; save(); dialog(P, MX.hello, MX.bundleOk, [[MX.go, closeCut]], 'diver'); }]], 'diver');
   } else {
     const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
     if (miss) { dialog(P, MX.hello, MX.stockNeedWL(shopName(miss)), [[MX.go, closeCut]], '1864'); return; }
     if (m.money < MISSION.price) { dialog(P, MX.hello, MX.stockShort(MISSION.price, MISSION.price - m.money), [[MX.go, closeCut]], '1864'); return; }
-    dialog(P, MX.hello, MX.stockBuy(MISSION.price), [[MX.buy, () => { m.money -= MISSION.price; missionDone(P); }], [MX.notYet, closeCut]], '1864');
+    dialog(P, MX.hello, MX.stockBuy(MISSION.price), [[MX.buy, () => { m.money -= MISSION.price; save(); buyScene(P); }], [MX.notYet, closeCut]], '1864');
   }
 }
 // a card over a slow camera move in front of the place
@@ -4441,13 +4488,15 @@ function openCut(kind, o = {}) {
   if (MS.cut && MS.cut.timer) clearInterval(MS.cut.timer);
   MS.cut = { kind, t: keep ? MS.cut.t : 0, a0: keep ? MS.cut.a0 : Math.random() * 6, ...o };
   for (const S of [...SHOPS, STB]) S.beam.visible = false;     // no beams in the way of the camera
+  if (bloomPass) bloomPass.strength = look.bloom[0] + (kind === 'buy' || kind === 'done' ? 0.35 : 0);
   const el = $('cut'); el.hidden = false; el.dataset.kind = kind;
   $('hud').classList.add('cutting'); $('actBtn').hidden = true;
 }
 function closeCut() {
   $('cut').hidden = true; $('hud').classList.remove('cutting');
   if (MS.cut && MS.cut.timer) clearInterval(MS.cut.timer);
-  MS.cut = null; if (state === 'cut') state = 'ride'; cam.init = false;
+  MS.cut = null; if (state === 'cut') state = 'ride'; cam.init = false; applyTimeLook();
+  for (const e of document.querySelectorAll('.confetti')) e.remove();
   setNeutral(true, true); driveUI();
 }
 const _cl = new THREE.Vector3();
@@ -4468,7 +4517,7 @@ function cutFrame(dt) {
 }
 function missionStart(restart) {
   if (settings.mode === 'free') { missionHUD(null); return; }
-  const fresh = restart || !settings.mission || settings.mission.done || settings.mission.failed;
+  const fresh = restart || !settings.mission || settings.mission.v !== 2 || settings.mission.done || settings.mission.failed;
   if (fresh) newMission();
   Object.assign(bike, { x: STB.ring[0], z: STB.ring[1] - 1, yaw: 0, v: 0, y: KERB, ry: KERB, air: 0, vy: 0 });
   cam.init = false; MS.lock = STB; MS.hud = '';
@@ -4516,15 +4565,17 @@ function workMonth() {
   show();
 }
 function missionDone(P) {
-  const m = settings.mission; m.done = true; save();
-  missionSfx('win');
-  openCut('done', { focus: { x: bike.x, y: bike.y + 0.9, z: bike.z }, r: 5.5, h: 1.2 });
-  const card = $('cutCard'); card.className = 'cutcard done'; card.innerHTML = '';
+  const m = settings.mission; m.done = true; settings.watch = true; save();
+  missionSfx('lux'); setTimeout(() => missionSfx('applause'), 400);
+  openCut('done', { focus: { x: STB.ring[0], y: 8, z: STB.z0 }, out: -1, r: 30, h: 3 });
+  const card = $('cutCard'); card.className = 'cutcard lux done'; card.innerHTML = '';
+  card.appendChild(sparkles(18));
   const cv = document.createElement('canvas'); cv.width = cv.height = 320; cv.className = 'watchpic big'; drawWatch(cv, '1864'); card.appendChild(cv);
   const h = document.createElement('h3'); h.textContent = MX.doneH; card.appendChild(h);
-  const p = document.createElement('p'); p.textContent = MX.doneP; card.appendChild(p);
+  const p = document.createElement('p'); p.textContent = `${MX.arriveH} · ${MX.arriveP}`; card.appendChild(p);
+  confetti();
   const st = document.createElement('div'); st.className = 'stats2';
-  for (const [k, v] of [[MX.statShops, `${m.order.length}/4`], [MX.statReds, `${m.reds}/${MISSION.reds}`], [MX.statTips, baht(m.tips)], [MX.statWork, MX.months(m.worked)]]) { const d = document.createElement('div'); d.innerHTML = '<b></b><span></span>'; d.querySelector('b').textContent = v; d.querySelector('span').textContent = k; st.appendChild(d); }
+  for (const [k, v] of [[MX.statShops, `${m.order.length}/${NS}`], [MX.statReds, `${m.reds}/${MISSION.reds}`], [MX.statTips, baht(m.tips)], [MX.statWork, MX.months(m.worked)]]) { const d = document.createElement('div'); d.innerHTML = '<b></b><span></span>'; d.querySelector('b').textContent = v; d.querySelector('span').textContent = k; st.appendChild(d); }
   card.appendChild(st);
   card.appendChild(buttonRow([[MX.keep, () => { settings.mode = 'free'; save(); closeCut(); missionHUD(null); }], [MX.restart, () => { closeCut(); missionRestart(); }]]));
   void P;
@@ -4627,7 +4678,237 @@ function missionSfx(kind) {
   else if (kind === 'door') { tone('sine', 988, 988, 0, 0.6, 0.06); tone('sine', 784, 784, 0.22, 0.8, 0.06); }
   else if (kind === 'sign') { tone('triangle', 660, 990, 0, 0.18, 0.05); }
   else if (kind === 'fail') { tone('sawtooth', 330, 140, 0, 0.9, 0.05); tone('sine', 220, 110, 0.1, 1.0, 0.06); }
+  else if (kind === 'lux') {
+    // a slow, warm arpeggio over soft chords, with a bell shimmer on top
+    const chords = [[261.6, 329.6, 392, 493.9], [220, 261.6, 329.6, 392], [174.6, 220, 261.6, 329.6], [196, 246.9, 293.7, 392]];
+    chords.forEach((ch, c) => { ch.forEach((f, k) => tone('triangle', f, f, c * 1.1 + k * 0.13, 1.6, 0.035)); tone('sine', ch[0] / 2, ch[0] / 2, c * 1.1, 1.2, 0.04); });
+    [1568, 1976, 2349, 2637, 3136].forEach((f, k) => tone('sine', f, f, 0.3 + k * 0.17, 0.9, 0.012));
+  }
+  else if (kind === 'scribble') { const n = ctx.createBufferSource(), b = ctx.createBuffer(1, ctx.sampleRate * 1.4, ctx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (0.5 + 0.5 * Math.sin(i / ctx.sampleRate * 40)); n.buffer = b; const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 3200; f.Q.value = 1.2; const g = ctx.createGain(); g.gain.value = 0.05; n.connect(f).connect(g).connect(out); n.start(t); }
+  else if (kind === 'stamp') { tone('sine', 140, 60, 0, 0.25, 0.14); tone('triangle', 900, 300, 0, 0.06, 0.04); }
+  else if (kind === 'applause') {
+    // your colleagues clapping: a crowd of short noise bursts
+    const len = ctx.sampleRate * 3.2, b = ctx.createBuffer(1, len, ctx.sampleRate), d = b.getChannelData(0);
+    for (let c = 0; c < 340; c++) { const at = Math.floor(Math.random() * (len - 2000) * (0.4 + 0.6 * Math.random())), amp = 0.3 + Math.random() * 0.7; for (let i = 0; i < 900; i++) d[at + i] += (Math.random() * 2 - 1) * amp * Math.exp(-i / 140); }
+    const n = ctx.createBufferSource(); n.buffer = b; const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1500; f.Q.value = 0.6;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.09, t + 0.3); g.gain.setValueAtTime(0.09, t + 2.2); g.gain.linearRampToValueAtTime(0.0001, t + 3.2);
+    n.connect(f).connect(g).connect(out); n.start(t);
+  }
+  else if (kind === 'coo') { tone('sine', 430, 360, 0, 0.32, 0.035); tone('sine', 410, 340, 0.4, 0.45, 0.03); }
   else if (kind === 'win') { SFX.chime(); [523, 659, 784, 1047].forEach((f, k) => tone('triangle', f, f, 0.6 + k * 0.12, 0.5, 0.05)); }
+}
+
+/* ---------- signing the Want List: the pen writes your name, the stamp comes down ---------- */
+function wantListScene(P) {
+  const m = mission(), no = 100 + Math.floor(Math.random() * 60) + (m ? m.wl.length * 7 : 0);
+  missionSfx('door');
+  openCut('want', { focus: { x: P.x, y: 2.4, z: P.z }, out: P.out, r: 9, h: 2 });
+  const card = $('cutCard'); card.className = 'cutcard want'; card.innerHTML = '';
+  const cv = document.createElement('canvas'); cv.width = 420; cv.height = 300; cv.className = 'wantpic'; card.appendChild(cv);
+  const p = document.createElement('p'); p.className = 'wanttext'; card.appendChild(p);
+  const x = cv.getContext('2d'), W = cv.width, H = cv.height, t0 = performance.now();
+  // a signature: a loop-and-flourish curve
+  // a cursive signature: loops that run on to the right, a rise in the middle, a flourish under it
+  const sig = [];
+  for (let k = 0; k <= 160; k++) { const t = k / 160; sig.push([W * 0.27 + t * W * 0.4 + Math.cos(t * 42) * 7, H * 0.655 - Math.sin(t * 42) * 9 * (0.55 + 0.45 * Math.sin(t * 6 + 1)) - Math.sin(t * Math.PI) * 6]); }
+  for (let k = 1; k <= 40; k++) { const t = k / 40; sig.push([W * 0.67 + 6 - t * W * 0.38, H * 0.655 + 9 + Math.sin(t * Math.PI) * 5]); }
+  let scribbled = false, stamped = false;
+  const draw = now => {
+    if (!MS.cut || MS.cut.kind !== 'want') return;
+    const t = (now - t0) / 1000;
+    x.clearRect(0, 0, W, H);
+    // the card: cream paper, green border, gold rule
+    x.fillStyle = '#f6f0de'; x.fillRect(0, 0, W, H);
+    x.strokeStyle = '#0b4a2c'; x.lineWidth = 6; x.strokeRect(8, 8, W - 16, H - 16);
+    x.strokeStyle = '#c99a3c'; x.lineWidth = 1.5; x.strokeRect(18, 18, W - 36, H - 36);
+    x.fillStyle = '#0b4a2c'; x.textAlign = 'center'; x.font = '600 26px Georgia, "Times New Roman", serif'; x.fillText('VERDANT', W / 2, 52);
+    x.font = '13px Georgia, serif'; x.fillStyle = '#5a6a5a'; x.fillText('WANT LIST  ·  1864 DRESS', W / 2, 74);
+    // names before yours
+    x.textAlign = 'left'; x.font = 'italic 15px Georgia, serif'; x.fillStyle = 'rgba(30,40,80,.55)';
+    ['K. Somchai', 'M. Tanaka', 'P. Arunrat', 'J. Laurent'].forEach((n, k) => { x.fillText(`${no - 4 + k}`, 34, 104 + k * 22); x.fillText(n, 84, 104 + k * 22); });
+    x.strokeStyle = 'rgba(11,74,44,.25)'; x.lineWidth = 1; for (let k = 0; k < 6; k++) { x.beginPath(); x.moveTo(30, 109 + k * 22); x.lineTo(W - 30, 109 + k * 22); x.stroke(); }
+    x.fillStyle = '#0b4a2c'; x.font = '600 16px Georgia, serif'; x.fillText(String(no), 34, H * 0.66 + 5);
+    // the pen writes
+    const f = clamp((t - 0.5) / 1.5, 0, 1);
+    if (f > 0 && !scribbled) { scribbled = true; missionSfx('scribble'); }
+    x.strokeStyle = '#1d3a8a'; x.lineWidth = 2.2; x.lineCap = 'round'; x.lineJoin = 'round';
+    x.beginPath(); const n = Math.floor(f * (sig.length - 1)); for (let k = 0; k <= n; k++) k ? x.lineTo(...sig[k]) : x.moveTo(...sig[k]); x.stroke();
+    if (f > 0 && f < 1) { const [px, py] = sig[n]; x.save(); x.translate(px, py); x.rotate(-0.7); x.fillStyle = '#1a1a1a'; x.fillRect(-3, -48, 6, 44); x.fillStyle = '#c99a3c'; x.fillRect(-3, -50, 6, 6); x.restore(); }
+    if (f >= 1) { x.fillStyle = 'rgba(30,40,80,.7)'; x.font = `12px ${FONT_TH}`; x.textAlign = 'left'; x.fillText(MX.wantName, 84, H * 0.66 + 30); }
+    // the wax seal comes down
+    const s = clamp((t - 2.2) / 0.25, 0, 1);
+    if (s > 0) {
+      if (!stamped) { stamped = true; missionSfx('stamp'); p.textContent = MX.wantP(no); card.appendChild(buttonRow([[MX.go, closeCut]])); }
+      const k = 1 + (1 - s) * 1.8, a = s;
+      x.save(); x.translate(W - 70, H - 64); x.scale(k, k); x.rotate(-0.25); x.globalAlpha = a;
+      x.fillStyle = '#0e5a35'; x.beginPath(); for (let i = 0; i < 18; i++) { const r = 34 + (i % 2) * 4, an = i / 18 * Math.PI * 2; x.lineTo(Math.cos(an) * r, Math.sin(an) * r); } x.closePath(); x.fill();
+      x.strokeStyle = '#d9b25a'; x.lineWidth = 2; x.beginPath(); x.arc(0, 0, 25, 0, Math.PI * 2); x.stroke();
+      x.fillStyle = '#f2d68a'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '600 13px Georgia, serif'; x.fillText('VERDANT', 0, -4); x.font = '10px Georgia, serif'; x.fillText(`No. ${no}`, 0, 11);
+      x.restore(); x.globalAlpha = 1;
+    }
+    requestAnimationFrame(draw);
+  };
+  requestAnimationFrame(draw);
+}
+
+/* ---------- buying it: velvet, gold and a little music; then you put it on ---------- */
+function sparkles(n) {
+  const s = document.createElement('div'); s.className = 'sparkles';
+  for (let k = 0; k < n; k++) { const e = document.createElement('span'); e.style.left = `${5 + Math.random() * 90}%`; e.style.top = `${40 + Math.random() * 55}%`; e.style.animationDelay = `${(Math.random() * 4).toFixed(2)}s`; e.style.animationDuration = `${(3 + Math.random() * 3).toFixed(2)}s`; s.appendChild(e); }
+  return s;
+}
+// gold leaf drifting down over the whole screen
+function confetti() {
+  const box = document.createElement('div'); box.className = 'confetti';
+  for (let k = 0; k < 40; k++) { const e = document.createElement('i'); e.style.left = `${Math.random() * 100}%`; e.style.animationDelay = `${(Math.random() * 3).toFixed(2)}s`; e.style.animationDuration = `${(4 + Math.random() * 3).toFixed(2)}s`; e.style.transform = `rotate(${Math.random() * 360}deg)`; box.appendChild(e); }
+  $('cut').appendChild(box);
+}
+function buyScene(P) {
+  missionSfx('lux');
+  openCut('buy', { focus: { x: bike.x, y: bike.y + 0.95, z: bike.z }, r: 4.4, h: 0.6 });
+  const card = $('cutCard'); card.className = 'cutcard lux'; card.innerHTML = '';
+  card.appendChild(sparkles(22));
+  const cv = document.createElement('canvas'); cv.width = 420; cv.height = 330; cv.className = 'boxpic'; card.appendChild(cv);
+  const h = document.createElement('h3'); h.textContent = MX.buyH; card.appendChild(h);
+  const p = document.createElement('p'); p.textContent = MX.buyP; card.appendChild(p);
+  const pd = document.createElement('div'); pd.className = 'paid'; pd.textContent = `${MX.paid} ${baht(MISSION.price)}`; card.appendChild(pd);
+  card.appendChild(buttonRow([[MX.wear, () => wearIt(P)]]));
+  confetti();
+  // the open box, the watch on its cushion, and a gleam passing over the glass
+  const x = cv.getContext('2d'), W = cv.width, H = cv.height, t0 = performance.now(), wc = document.createElement('canvas');
+  wc.width = wc.height = 300; drawWatch(wc, '1864');
+  const draw = now => {
+    if (!MS.cut || MS.cut.kind !== 'buy') return;
+    const t = (now - t0) / 1000, open = clamp(t / 1.2, 0, 1), e = 1 - (1 - open) ** 3;
+    x.clearRect(0, 0, W, H);
+    // the lid, opening
+    const lidH = 120 * e;
+    x.fillStyle = '#0d3b26'; x.fillRect(60, 150 - lidH, W - 120, lidH);
+    x.fillStyle = '#e8dfc4'; x.fillRect(70, 158 - lidH, W - 140, Math.max(0, lidH - 16));
+    if (e > 0.6) { x.globalAlpha = (e - 0.6) / 0.4; x.fillStyle = '#0b4a2c'; x.textAlign = 'center'; x.font = '600 22px Georgia, serif'; x.fillText('VERDANT', W / 2, 150 - lidH / 2 + 4); x.globalAlpha = 1; }
+    // the box and its velvet
+    const bx = x.createLinearGradient(0, 150, 0, 300); bx.addColorStop(0, '#145a38'); bx.addColorStop(1, '#082a1a');
+    x.fillStyle = bx; x.fillRect(50, 150, W - 100, 150);
+    x.strokeStyle = '#c99a3c'; x.lineWidth = 2; x.strokeRect(50, 150, W - 100, 150);
+    const vel = x.createRadialGradient(W / 2, 220, 10, W / 2, 220, 150); vel.addColorStop(0, '#2c7a52'); vel.addColorStop(1, '#0b3a24');
+    x.fillStyle = vel; x.fillRect(62, 160, W - 124, 130);
+    // the watch rises a little into the light
+    const lift = 18 * e, size = 190;
+    x.save(); x.shadowColor = 'rgba(0,0,0,.5)'; x.shadowBlur = 18; x.shadowOffsetY = 8;
+    x.drawImage(wc, W / 2 - size / 2, 225 - size / 2 - lift, size, size); x.restore();
+    // a gleam crossing the dial
+    const g = ((t * 0.45) % 1.4) - 0.2;
+    x.save(); x.beginPath(); x.arc(W / 2, 225 - lift, size * 0.3, 0, Math.PI * 2); x.clip();
+    const gl = x.createLinearGradient(W / 2 - size * 0.4 + g * size * 0.8, 0, W / 2 - size * 0.25 + g * size * 0.8, size); gl.addColorStop(0, 'rgba(255,255,255,0)'); gl.addColorStop(0.5, 'rgba(255,250,230,.55)'); gl.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = gl; x.fillRect(0, 0, W, H); x.restore();
+    // twinkles
+    for (let k = 0; k < 5; k++) {
+      const ph = (t * 1.3 + k * 0.37) % 1, a = Math.sin(ph * Math.PI);
+      const sx = W / 2 + Math.cos(k * 2.4) * size * 0.32, sy = 225 - lift + Math.sin(k * 2.4) * size * 0.32;
+      x.fillStyle = `rgba(255,244,200,${a})`; x.beginPath(); for (let i = 0; i < 8; i++) { const r = i % 2 ? 2 : 9 * a, an = i / 8 * Math.PI * 2; x.lineTo(sx + Math.cos(an) * r, sy + Math.sin(an) * r); } x.closePath(); x.fill();
+    }
+    requestAnimationFrame(draw);
+  };
+  requestAnimationFrame(draw);
+}
+function wearIt(P) {
+  const m = mission(); if (!m) return;
+  m.bought = true; settings.watch = true; save();
+  closeCut(); MS.lock = P; MS.hud = '';
+  PIGEON.path = null; PIGEON.t = 0;
+  if (PIGEON.mesh) PIGEON.mesh.position.set(bike.x, bike.y + 6, bike.z);
+  toast(MX.worn, 3.4); missionSfx('coo');
+}
+
+/* ---------- with the watch on, the women riders wave as you pass ---------- */
+function watchWaves() {
+  if (!settings.watch || Math.abs(bike.y) > 1.5) return;
+  for (const c of CARS) {
+    if (c.kind !== 'scooter' || c.waveT > 0) continue;
+    if (c.passT !== undefined && time - c.passT < 25) continue;
+    if (Math.hypot(c.pos.x - bike.x, c.pos.z - bike.z) > 9) continue;
+    c.passT = time; c.waveT = 1.8; floatText(c, '👋');
+    if (!MS.waveToldT || time - MS.waveToldT > 40) { MS.waveToldT = time; toast(MX.waveWatch, 2); }
+  }
+}
+
+/* ---------- a pigeon flies ahead and leads you home ---------- */
+const PIGEON = { mesh: null, wings: [], path: null, t: 0, cooT: 0, v: new THREE.Vector3() };
+function pigeonMesh() {
+  // a white pigeon: teardrop body, a green-violet sheen on the neck, tapered wings with dark tips, a fanned tail
+  const g = new THREE.Group(), white = new THREE.MeshStandardMaterial({ color: 0xf2f1ec, roughness: 0.6 }), grey = new THREE.MeshStandardMaterial({ color: 0xb9bcc4, roughness: 0.6, side: THREE.DoubleSide });
+  const neckM = new THREE.MeshStandardMaterial({ color: 0x7fa898, roughness: 0.3, metalness: 0.45 }), tipM = new THREE.MeshStandardMaterial({ color: 0x55585f, roughness: 0.6, side: THREE.DoubleSide });
+  const body = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), white); body.scale.set(0.11, 0.1, 0.21); body.position.z = 0.02; g.add(body);
+  const neck = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 10), neckM); neck.position.set(0, 0.06, -0.14); g.add(neck);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.058, 12, 10), white); head.position.set(0, 0.1, -0.2); g.add(head);
+  const beak = new THREE.Mesh(new THREE.ConeGeometry(0.014, 0.05, 6).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xe0a070 })); beak.position.set(0, 0.095, -0.265); g.add(beak);
+  for (const s of [-1, 1]) { const eye = new THREE.Mesh(new THREE.SphereGeometry(0.011, 6, 4), new THREE.MeshBasicMaterial({ color: 0xd8601a })); eye.position.set(s * 0.04, 0.115, -0.23); g.add(eye); }
+  const fan = new THREE.Shape(); fan.moveTo(-0.03, 0); fan.lineTo(0.03, 0); fan.lineTo(0.09, 0.2); fan.quadraticCurveTo(0, 0.24, -0.09, 0.2); fan.closePath();
+  const tail = new THREE.Mesh(new THREE.ShapeGeometry(fan).rotateX(Math.PI / 2), grey); tail.position.set(0, 0.01, 0.17); g.add(tail);
+  const wing = new THREE.Shape(); wing.moveTo(0, -0.07); wing.quadraticCurveTo(0.2, -0.1, 0.42, -0.02); wing.lineTo(0.4, 0.04); wing.quadraticCurveTo(0.22, 0.12, 0, 0.11); wing.closePath();
+  const tip = new THREE.Shape(); tip.moveTo(0.3, -0.055); tip.quadraticCurveTo(0.38, -0.05, 0.42, -0.02); tip.lineTo(0.4, 0.04); tip.quadraticCurveTo(0.35, 0.065, 0.3, 0.075); tip.closePath();
+  for (const s of [-1, 1]) {
+    const pivot = new THREE.Group(); pivot.position.set(s * 0.07, 0.05, -0.03);
+    const wg = new THREE.ShapeGeometry(wing).rotateX(Math.PI / 2), tg = new THREE.ShapeGeometry(tip).rotateX(Math.PI / 2);
+    if (s < 0) { wg.scale(-1, 1, 1); tg.scale(-1, 1, 1); }
+    pivot.add(new THREE.Mesh(wg, grey)); const t = new THREE.Mesh(tg, tipM); t.position.y = 0.002; pivot.add(t);
+    g.add(pivot); PIGEON.wings.push([pivot, s]);
+  }
+  // a soft glow round it, so it is easy to follow by day or night
+  const [hc, hx] = makeCanvas(64, 64), hg = hx.createRadialGradient(32, 32, 0, 32, 32, 32); hg.addColorStop(0, 'rgba(255,250,230,.9)'); hg.addColorStop(0.35, 'rgba(255,240,200,.35)'); hg.addColorStop(1, 'rgba(255,240,200,0)'); hx.fillStyle = hg; hx.fillRect(0, 0, 64, 64);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex(hc), transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false })); halo.scale.setScalar(0.9); g.add(halo);
+  g.scale.setScalar(2.6); g.visible = false; scene.add(g); PIGEON.mesh = g;
+}
+// the way home along the streets: nearest crossing, the crossings between, then The Siam Times
+function pigeonPath() {
+  const iA = clamp(Math.round(bike.x / 100), 0, NX - 1), jA = clamp(Math.round((bike.z - RZ[0]) / 100), 0, NZ - 1), jT = RZ.indexOf(STB.az);
+  const key = (i, j) => i * 100 + j, prev = new Map([[key(iA, jA), null]]), q = [[iA, jA]];
+  let end = null;
+  while (q.length) { const [i, j] = q.shift(); if (j === jT && (i === 0 || i === 1)) { end = [i, j]; break; } for (const [dx, dz] of DIRS) { const ni = i + dx, nj = j + dz; if (!inGrid(ni, nj) || prev.has(key(ni, nj))) continue; prev.set(key(ni, nj), [i, j]); q.push([ni, nj]); } }
+  const nodes = []; for (let n = end; n; n = prev.get(key(n[0], n[1]))) nodes.unshift([RX[n[0]], RZ[n[1]]]);
+  const pts = [[bike.x, bike.z], ...nodes, [STB.ax, STB.az], [STB.ring[0], STB.ring[1]]];
+  const cum = [0]; for (let k = 1; k < pts.length; k++) cum.push(cum[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+  return { pts, cum };
+}
+function pathPoint(P, s) {
+  const { pts, cum } = P; s = clamp(s, 0, cum[cum.length - 1]);
+  let k = 1; while (k < cum.length - 1 && cum[k] < s) k++;
+  const t = (s - cum[k - 1]) / Math.max(0.001, cum[k] - cum[k - 1]);
+  return [lerp(pts[k - 1][0], pts[k][0], t), lerp(pts[k - 1][1], pts[k][1], t)];
+}
+function pathProgress(P, x, z) {
+  let best = 0, bd = 1e9;
+  for (let k = 1; k < P.pts.length; k++) {
+    const [ax, az] = P.pts[k - 1], [bx, bz] = P.pts[k], dx = bx - ax, dz = bz - az, L2 = dx * dx + dz * dz || 1, t = clamp(((x - ax) * dx + (z - az) * dz) / L2, 0, 1);
+    const d = Math.hypot(ax + dx * t - x, az + dz * t - z); if (d < bd) { bd = d; best = P.cum[k - 1] + t * Math.sqrt(L2); }
+  }
+  return [best, bd];
+}
+const _pv = new THREE.Vector3();
+function updatePigeon(dt, m) {
+  const on = !!(m && m.bought);
+  if (!PIGEON.mesh) { if (!on) return; pigeonMesh(); }
+  PIGEON.mesh.visible = on;
+  if (!on) return;
+  PIGEON.t -= dt;
+  if (!PIGEON.path || PIGEON.t <= 0) { PIGEON.path = pigeonPath(); PIGEON.t = 2.5; }
+  const P = PIGEON.path, [s0, off] = pathProgress(P, bike.x, bike.z);
+  if (off > 30) PIGEON.t = 0;
+  const near = Math.hypot(bike.x - STB.ring[0], bike.z - STB.ring[1]) < 24;
+  let tx, tz, ty;
+  if (near) { const a = time * 0.9; tx = STB.ring[0] + Math.cos(a) * 5; tz = STB.ring[1] + 4 + Math.sin(a) * 5; ty = 7.5; }
+  else { [tx, tz] = pathPoint(P, s0 + 11); ty = bike.y + 3.1 + Math.sin(time * 1.7) * 0.3; }
+  const M = PIGEON.mesh;
+  if (Math.hypot(M.position.x - tx, M.position.z - tz) > 60) M.position.set(tx, ty + 2, tz);   // far off (a respawn, a reload): come straight back
+  _pv.copy(M.position);
+  M.position.x = damp(M.position.x, tx, 2.4, dt); M.position.z = damp(M.position.z, tz, 2.4, dt); M.position.y = damp(M.position.y, ty, 2, dt);
+  PIGEON.v.subVectors(M.position, _pv);
+  if (PIGEON.v.lengthSq() > 1e-6) M.rotation.y = damp(M.rotation.y, Math.atan2(-PIGEON.v.x, -PIGEON.v.z), 6, dt);
+  // wings beat down hard and come up softer; the body bobs with each beat
+  const ph = time * 11, flap = Math.sin(ph) * 0.8 + 0.15;
+  for (const [w, s] of PIGEON.wings) w.rotation.z = s * flap;
+  M.rotation.x = -0.12; M.position.y += Math.cos(ph) * 0.02;
+  PIGEON.cooT -= dt; if (PIGEON.cooT <= 0) { PIGEON.cooT = 7 + Math.random() * 5; missionSfx('coo'); }
 }
 
 
@@ -4840,6 +5121,13 @@ function apUpdate() {
         if (inBox || (Math.abs(along) < 0.3 && sN > -2 && sN < 28 && eta < 3.2 && c.v > 0.5)) { danger = true; break; }
       }
       if (danger) { need = Math.max(need, (sp * sp) / (2 * Math.max(0.8, toEdge - 0.8))); if (toEdge < 4 && sp < 1.2) hold = true; }
+    }
+    // in the mission it stops for a red, or an amber it cannot clear (on the way home with the watch, it does not)
+    const mm = mission();
+    if (mm && !mm.bought && toEdge > 0.3 && toEdge < 30) {
+      const node = nodeAt(AP.ni, AP.nj), axis = dx !== 0 ? 'x' : 'z';
+      const st = node && node.heads.some(h => h.axis === axis) ? lightState(node, axis, TRAFFIC.time) : 'g';
+      if (st === 'r' || (st === 'a' && toEdge > sp * 1.2)) { need = Math.max(need, (sp * sp) / (2 * Math.max(0.6, toEdge - 1.4))); if (toEdge < 3.5 && sp < 1.5) hold = true; }
     }
   }
   if (gapMin < 1e9) {
@@ -5091,6 +5379,7 @@ function poseBike(dt, parked) {
   BIKE.rearW.rotation.x -= bike.v / 0.334 * dt;
   BIKE.steer.rotation.y = parked ? 0.5 : bike.steer * turnModel(sp).lock;
   BIKE.stand.visible = parked;
+  if (BIKE.watch) BIKE.watch.visible = !!settings.watch;
   BIKE.rider.visible = state === 'title' || settings.cam !== 2;
   const on = !!(AUDIO.E && AUDIO.E.running) || bike.started;   // lights come on with the ignition
   BIKE.spot.intensity = on ? look.head * 1.7 : 0;
@@ -5590,7 +5879,7 @@ async function boot() {
 }
 requestAnimationFrame(frame);
 boot().catch(err => { console.error(err); $('loadText').textContent = T.loadFail + ' (' + (err && err.message || err) + ')'; });
-if (/[?&]debug\b/.test(location.search)) window.__cruiser = { cutNow: () => { state = 'cut'; }, TRAFFIC, MS, SHOPS, STB, MISSION, mission, newMission, openPlace, missionHonk, ranRed, closeCut, missionStart, missionRestart, missionTarget, get mstate() { return settings.mission; }, driveTap, setNeutral, DECKS, LV, UW, deckAt, surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
+if (/[?&]debug\b/.test(location.search)) window.__cruiser = { PIGEON, buyScene, wearIt, wantListScene, cutNow: () => { state = 'cut'; }, TRAFFIC, MS, SHOPS, STB, MISSION, mission, newMission, openPlace, missionHonk, ranRed, closeCut, missionStart, missionRestart, missionTarget, get mstate() { return settings.mission; }, driveTap, setNeutral, DECKS, LV, UW, deckAt, surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
 
 </script>
 <script>
