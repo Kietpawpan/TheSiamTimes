@@ -2468,7 +2468,9 @@ function initAudio() {
 
   const master = g(settings.sound ? 0.8 : 0);
   const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -15; comp.knee.value = 10; comp.ratio.value = 3.5; comp.attack.value = 0.004; comp.release.value = 0.22;
-  master.connect(comp).connect(ctx.destination);
+  // a brick-wall limiter last, so full throttle with the horn and traffic never clips
+  const lim = ctx.createDynamicsCompressor(); lim.threshold.value = -2.5; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.08;
+  master.connect(comp).connect(lim).connect(ctx.destination);
   const revIn = g(0.22), conv = ctx.createConvolver(); conv.buffer = makeImpulse(ctx, 1.7, 2.8);
   revIn.connect(conv).connect(master);
 
