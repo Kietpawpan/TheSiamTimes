@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>The Siam Times</title>
+<title>Snooker Master · The Siam Times</title>
+<meta name="description" content="Snooker Master from The Siam Times: a full frame of snooker on a full-size table, with top, screw, side and swerve. Play a friend on the same screen, or take on the Tour: five opponents, five cups and a certificate for every win.">
+<link rel="alternate" hreflang="en" href="GA-snooker.html">
+<link rel="alternate" hreflang="th" href="GA-snooker-th.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Cinzel:wght@600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Pinyon+Script&display=swap" rel="stylesheet">
@@ -34,12 +37,16 @@ body{height:100%;margin:0;background:var(--bg);color:var(--ink);
   overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .app{height:100%;display:flex;flex-direction:column;max-width:1280px;margin:0 auto;padding:6px 12px 10px;gap:6px}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
-@media (max-width:420px){.title{font-size:22px!important}.tools button{padding:3px 10px}}
+@media (max-width:420px){.title{font-size:22px!important}.tools button,.tools .lang{padding:3px 10px}}
 .title{font-family:'Chomsky','Old English Text MT','UnifrakturMaguntia',Georgia,serif;font-weight:400;font-size:27px;line-height:1;white-space:nowrap}
 .tools{display:flex;gap:6px}
 button{font:inherit;color:inherit}
-.tools button{background:transparent;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:15px;font-weight:600;cursor:pointer}
-button:focus-visible,.power:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.tools button,.lang{background:transparent;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:15px;font-weight:600;cursor:pointer}
+.lang{display:inline-flex;align-items:center;color:inherit;text-decoration:none;white-space:nowrap}
+.lang:lang(th){font-family:'Sarabun',system-ui,sans-serif;font-size:14px}
+.lang:lang(en){font-family:'Barlow Condensed','Arial Narrow','Roboto Condensed',system-ui,sans-serif;font-size:15px}
+@media (max-width:374px){.tools .lang{display:none}}
+button:focus-visible,.power:focus-visible,.lang:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .board{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:8px;padding:2px 2px 8px;border-bottom:1px solid var(--line)}
 .player{display:flex;flex-direction:column;opacity:.45;transition:opacity .25s;position:relative;min-width:0}
 .player.active{opacity:1}
@@ -83,7 +90,8 @@ button:focus-visible,.power:focus-visible{outline:2px solid var(--brass);outline
 .overlay>*{margin:auto}
 .overlay.dark{background:rgba(6,4,2,.95)}
 .overlay.hidden{display:none}
-.card{background:var(--panel);color:var(--ink);border-radius:18px;padding:22px 20px 18px;max-width:380px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.card{position:relative;background:var(--panel);color:var(--ink);border-radius:18px;padding:22px 20px 18px;max-width:380px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.card .lang{position:absolute;top:14px;right:14px;color:var(--muted)}
 .card h1{margin:0;font-family:'Chomsky','Old English Text MT','UnifrakturMaguntia',Georgia,serif;font-size:46px;line-height:1.05;font-weight:400}
 .card h2{margin:0;font-size:34px;line-height:1.05}
 .card p{margin:8px 0 0;color:var(--muted);font-size:17px;line-height:1.35}
@@ -116,13 +124,72 @@ details.help p{font-size:15px}
 .certwrap .btns button.alt{color:#f3ead6;border-color:rgba(243,234,214,.4)}
 .certnote{margin:8px 0 0;color:rgba(243,234,214,.75);font-size:15px;min-height:1.2em}
 .cab{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:6px}
-.cab button{width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:transparent;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:17px}
-.cab small{color:var(--muted);font-size:14px}
+.cab button{width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:transparent;cursor:pointer;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:2px 8px;font-size:17px}
+.cab small{color:var(--muted);font-size:14px;white-space:nowrap}
 .btns{display:flex;flex-direction:column;gap:8px;margin-top:18px}
 .btns button{padding:12px;border-radius:999px;border:none;background:var(--btn);color:var(--btn-ink);font-size:19px;font-weight:600;cursor:pointer}
 .btns button.alt{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .rack{display:block;margin:0 auto 12px}
 @media (max-width:380px){.score{font-size:36px}.hint{font-size:14px}}
+/* Thai: Barlow Condensed, Cinzel and Cormorant have no Thai, so Thai words are set in Sarabun,
+   a little smaller (it is far wider than Barlow Condensed), with room for the marks above and below. */
+html:lang(th) body{font-family:'Sarabun','Barlow Condensed',system-ui,sans-serif}
+html:lang(th) .score,html:lang(th) .elev b{font-family:'Barlow Condensed','Arial Narrow','Roboto Condensed',system-ui,sans-serif}
+html:lang(th) .tools button{font-size:14px}
+html:lang(th) .tools button,html:lang(th) .tools .lang{padding:3px 10px}
+html:lang(th) .name{font-size:15px}
+html:lang(th) .on{font-size:17px}
+html:lang(th) .meta{font-size:14px;gap:10px}
+html:lang(th) .msg{font-size:15px;line-height:1.45}
+html:lang(th) .hint{font-size:14.5px;line-height:1.35;text-wrap:balance}
+html:lang(th) .wheel span{font-size:13px;line-height:1.25;padding-top:2px}
+html:lang(th) .elev small{font-size:11px}
+html:lang(th) .card h2{font-size:28px;line-height:1.25}
+html:lang(th) .card p{font-size:16px;line-height:1.55}
+html:lang(th) .card p.kicker{font-size:15px;letter-spacing:0;text-transform:none;margin-top:6px}
+html:lang(th) .seg button{font-size:16px}
+html:lang(th) .field input{font-size:17px}
+html:lang(th) .rung .who small{font-size:13px}
+html:lang(th) .rung .tag{font-size:12.5px;letter-spacing:0;text-transform:none}
+html:lang(th) .cab button{font-size:16px}
+html:lang(th) .cab small{font-size:13px}
+html:lang(th) .btns button{font-size:17px;line-height:1.35;text-wrap:balance}
+html:lang(th) details.help summary{font-size:15px}
+html:lang(th) details.help p{font-size:14.5px}
+html:lang(th) .certmsg{font-size:17px;line-height:1.45}
+html:lang(th) .certnote{font-size:14px}
+@media (max-width:420px){html:lang(th) .tools button,html:lang(th) .tools .lang{padding:3px 9px}}
+@media (max-width:380px){html:lang(th) .hint{font-size:13.5px}}
+/* A phone on its side: the table takes the whole height on the left; scores, message and controls stack in a column on the right */
+@media (orientation:landscape) and (max-height:520px){
+  .app{display:grid;max-width:none;grid-template-columns:minmax(0,1fr) clamp(210px,34vw,300px);grid-template-rows:auto auto minmax(0,1fr) auto auto;
+    grid-template-areas:"stage top" "stage board" "stage msg" "stage aim" "stage ctl";gap:5px 12px;
+    padding:max(4px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(6px,env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px))}
+  .stage{grid-area:stage}
+  .topbar{grid-area:top;gap:4px 6px;flex-wrap:wrap}
+  .title{font-size:17px!important}
+  .tools{gap:4px;margin-left:auto}
+  .tools button,.tools .lang{padding:2px 8px!important;font-size:13px;white-space:nowrap}
+  .board{grid-area:board;gap:4px;padding:0 0 6px}
+  .player.active::after{bottom:-5px;width:40px}
+  .score{font-size:28px}
+  .name{font-size:13px}
+  .on{font-size:14px;gap:5px}
+  .meta{font-size:12px;gap:6px;flex-direction:column;align-items:center}
+  .msg{grid-area:msg;align-self:center;font-size:13px;line-height:1.3}
+  .aimrow{grid-area:aim;gap:5px}
+  .aimrow button{width:34px;height:34px;font-size:22px}
+  .wheel{height:34px}
+  .wheel span{font-size:11px;padding:2px 4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-align:center}
+  .controls{grid-area:ctl;gap:6px}
+  .spin{width:42px;height:42px}
+  .elev{width:32px;height:42px}
+  .power{height:42px}
+  .hint{font-size:12px!important}
+  html:lang(th) .msg{font-size:13px;line-height:1.35}
+  html:lang(th) .on{font-size:14px}
+  html:lang(th) .meta{font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -130,8 +197,9 @@ details.help p{font-size:15px}
   <div class="topbar">
     <span class="title">The Siam Times</span>
     <div class="tools">
-      <button id="sndBtn" type="button" aria-pressed="true">Sound on</button>
-      <button id="menuBtn" type="button">Menu</button>
+      <a class="lang" href="GA-snooker-th.html" hreflang="th" lang="th">ภาษาไทย</a>
+      <button id="sndBtn" type="button" aria-pressed="true" data-i18n="soundOn">Sound on</button>
+      <button id="menuBtn" type="button" data-i18n="menu">Menu</button>
     </div>
   </div>
   <header class="board">
@@ -143,10 +211,11 @@ details.help p{font-size:15px}
     <div class="player right" id="pl1"><span class="name" id="n1">Player 2</span><span class="score" id="s1">0</span></div>
   </header>
   <div class="stage" id="stage">
-    <canvas id="cv" aria-label="Snooker table"></canvas>
+    <canvas id="cv" aria-label="Snooker table" data-i18n-aria="tableLabel"></canvas>
   </div>
   <div class="overlay" id="menu">
     <div class="card">
+      <a class="lang" href="GA-snooker-th.html" hreflang="th" lang="th">ภาษาไทย</a>
       <svg class="rack" width="48" height="42" viewBox="0 0 64 56" aria-hidden="true">
         <g fill="#b3121d">
           <circle cx="32" cy="8" r="6"/><circle cx="26" cy="18.4" r="6"/><circle cx="38" cy="18.4" r="6"/>
@@ -156,73 +225,73 @@ details.help p{font-size:15px}
         </g>
       </svg>
       <h1>Snooker Master</h1>
-      <p class="kicker">The Siam Times Snooker Club</p>
+      <p class="kicker" data-i18n="kicker">The Siam Times Snooker Club</p>
       <div class="seg" role="tablist">
-        <button id="tabTour" type="button" role="tab" aria-selected="true">The Tour</button>
-        <button id="tabTwo" type="button" role="tab" aria-selected="false">Two players</button>
+        <button id="tabTour" type="button" role="tab" aria-selected="true" data-i18n="tabTour">The Tour</button>
+        <button id="tabTwo" type="button" role="tab" aria-selected="false" data-i18n="tabTwo">Two players</button>
       </div>
       <div id="paneTour">
-        <label class="field"><span>Your name</span><input id="nameSolo" maxlength="18" autocomplete="nickname" placeholder="Enter your name"></label>
+        <label class="field"><span data-i18n="yourName">Your name</span><input id="nameSolo" maxlength="18" autocomplete="nickname" placeholder="Enter your name" data-i18n-ph="namePh"></label>
         <ol class="ladder" id="ladder"></ol>
         <div class="btns">
-          <button id="playTour" type="button">Play</button>
-          <button id="cabinet" type="button" class="alt">Trophy cabinet</button>
+          <button id="playTour" type="button" data-i18n="play">Play</button>
+          <button id="cabinet" type="button" class="alt" data-i18n="cabinet">Trophy cabinet</button>
         </div>
       </div>
       <div id="paneTwo" hidden>
-        <label class="field"><span>Player 1</span><input id="name1" maxlength="18" autocomplete="off" placeholder="Player 1"></label>
-        <label class="field"><span>Player 2</span><input id="name2" maxlength="18" autocomplete="off" placeholder="Player 2"></label>
-        <div class="btns"><button id="playTwo" type="button">Start the frame</button></div>
+        <label class="field"><span data-i18n="p1">Player 1</span><input id="name1" maxlength="18" autocomplete="off" placeholder="Player 1" data-i18n-ph="p1"></label>
+        <label class="field"><span data-i18n="p2">Player 2</span><input id="name2" maxlength="18" autocomplete="off" placeholder="Player 2" data-i18n-ph="p2"></label>
+        <div class="btns"><button id="playTwo" type="button" data-i18n="startFrame">Start the frame</button></div>
       </div>
-      <details class="help"><summary>How to play</summary>
-        <p>To aim, drag on the table behind the cue stick’s handle. The stick follows your finger and the shot goes the other way. Drag the power bar to the right and let go to strike. Tap the white ball by the bar to choose where the cue strikes it: top, screw, left or right. Use the fine aim strip for tiny adjustments. For a curve shot, drag the Lift bar up to raise the cue and add left or right side: the gold line shows the bend.</p>
-        <p>On the Tour, beat each opponent in turn to win a certificate from The Siam Times. Every opponent plays a little smarter than the last.</p>
+      <details class="help"><summary data-i18n="howTo">How to play</summary>
+        <p data-i18n="how1">To aim, drag on the table behind the cue stick’s handle. The stick follows your finger and the shot goes the other way. Drag the power bar to the right and let go to strike. Tap the white ball by the bar to choose where the cue strikes it: top, screw, left or right. Use the fine aim strip for tiny adjustments. For a curve shot, drag the Lift bar up to raise the cue and add left or right side: the gold line shows the bend.</p>
+        <p data-i18n="how2">On the Tour, beat each opponent in turn to win a certificate from The Siam Times. Every opponent plays a little smarter than the last.</p>
       </details>
     </div>
   </div>
   <div class="overlay hidden" id="over">
     <div class="card">
-      <h2 id="overTitle">Frame over</h2>
+      <h2 id="overTitle" data-i18n="frameOver">Frame over</h2>
       <p id="overScore"></p>
       <div class="btns">
-        <button id="again" type="button">Play another frame</button>
-        <button id="toMenu" type="button" class="alt">Menu</button>
+        <button id="again" type="button" data-i18n="anotherFrame">Play another frame</button>
+        <button id="toMenu" type="button" class="alt" data-i18n="menu">Menu</button>
       </div>
     </div>
   </div>
   <div class="overlay dark hidden" id="certOv">
     <div class="certwrap">
       <p class="certmsg" id="certMsg"></p>
-      <canvas id="certCv" width="1200" height="1680" aria-label="Certificate"></canvas>
+      <canvas id="certCv" width="1200" height="1680" aria-label="Certificate" data-i18n-aria="certLabel"></canvas>
       <div class="btns">
-        <button id="certSave" type="button" hidden>Save certificate</button>
-        <button id="certNext" type="button">Next match</button>
-        <button id="certClose" type="button" class="alt">Menu</button>
+        <button id="certSave" type="button" hidden data-i18n="saveCert">Save certificate</button>
+        <button id="certNext" type="button" data-i18n="nextMatch">Next match</button>
+        <button id="certClose" type="button" class="alt" data-i18n="menu">Menu</button>
       </div>
       <p class="certnote" id="certNote" aria-live="polite"></p>
     </div>
   </div>
   <div class="overlay hidden" id="cabOv">
     <div class="card">
-      <h2>Trophy cabinet</h2>
+      <h2 data-i18n="cabinet">Trophy cabinet</h2>
       <ul class="cab" id="cabList"></ul>
       <div class="btns">
-        <button id="cabClose" type="button">Back</button>
-        <button id="tourReset" type="button" class="alt">Start the Tour again</button>
+        <button id="cabClose" type="button" data-i18n="back">Back</button>
+        <button id="tourReset" type="button" class="alt" data-i18n="tourReset">Start the Tour again</button>
       </div>
     </div>
   </div>
   <p class="msg" id="msg" aria-live="polite"></p>
   <div class="aimrow">
-    <button id="ccw" type="button" aria-label="Turn aim anticlockwise">‹</button>
-    <div class="wheel" id="wheel" tabindex="0" role="slider" aria-label="Fine aim" aria-valuetext="Drag left or right"><span>Drag here for fine aim</span></div>
-    <button id="cw" type="button" aria-label="Turn aim clockwise">›</button>
+    <button id="ccw" type="button" aria-label="Turn aim anticlockwise" data-i18n-aria="ccw">‹</button>
+    <div class="wheel" id="wheel" tabindex="0" role="slider" aria-label="Fine aim" aria-valuetext="Drag left or right" data-i18n-aria="fineAim" data-i18n-valuetext="fineAimValue"><span data-i18n="fineAimHint">Drag here for fine aim</span></div>
+    <button id="cw" type="button" aria-label="Turn aim clockwise" data-i18n-aria="cw">›</button>
   </div>
   <div class="controls">
     <button class="spin" id="spin" type="button" aria-label="Spin: centre ball"><span class="spot" id="spinDot"></span></button>
-    <div class="elev" id="elev" tabindex="0" role="slider" aria-label="Cue elevation in degrees" aria-valuemin="0" aria-valuemax="60" aria-valuenow="0" title="Raise the cue"><div class="elevfill" id="elevFill"></div><span><small>Lift</small><b id="elevTxt">0°</b></span></div>
-    <div class="power" id="power" role="slider" tabindex="0" aria-label="Shot power" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-      <div class="fill" id="fill"></div><span class="hint" id="hint">Drag right, let go to strike</span>
+    <div class="elev" id="elev" tabindex="0" role="slider" aria-label="Cue elevation in degrees" aria-valuemin="0" aria-valuemax="60" aria-valuenow="0" title="Raise the cue" data-i18n-aria="elevLabel" data-i18n-title="elevTitle"><div class="elevfill" id="elevFill"></div><span><small data-i18n="lift">Lift</small><b id="elevTxt">0°</b></span></div>
+    <div class="power" id="power" role="slider" tabindex="0" aria-label="Shot power" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-i18n-aria="powerLabel">
+      <div class="fill" id="fill"></div><span class="hint" id="hint" data-i18n="powerHint">Drag right, let go to strike</span>
     </div>
   </div>
 </div>
@@ -230,6 +299,170 @@ details.help p{font-size:15px}
 <script>
 (() => {
 'use strict';
+/* ---------- Words ----------
+   This script is the same in GA-snooker.html (English) and GA-snooker-th.html (Thai);
+   each page takes its words from its own <html lang>. */
+const THAI = /[฀-๿]/;
+// Thai runs words together but sets a space between Thai and a Latin name or a number: "ถึงตาคุณ", "ถึงตา Jimmy".
+const jw = (a, b) => a + (THAI.test(a.slice(-1)) && THAI.test(b.charAt(0)) ? '' : ' ') + b;
+const STR = {
+  th: {
+    docTitle: 'สนุกเกอร์ · The Siam Times',
+    soundOn: 'เสียง: เปิด', soundOff: 'เสียง: ปิด', menu: 'เมนู', back: 'กลับ',
+    p1: 'ผู้เล่น 1', p2: 'ผู้เล่น 2', you: 'คุณ',
+    tableLabel: 'โต๊ะสนุกเกอร์',
+    kicker: 'ชมรมสนุกเกอร์ The Siam Times',
+    tabTour: 'ทัวร์นาเมนต์', tabTwo: 'เล่นสองคน',
+    yourName: 'ชื่อของคุณ', namePh: 'พิมพ์ชื่อของคุณ',
+    play: 'เริ่มเล่น', cabinet: 'ตู้ถ้วยรางวัล', startFrame: 'เริ่มเฟรม',
+    howTo: 'วิธีเล่น',
+    how1: 'เล็งด้วยการลากนิ้วบนโต๊ะฝั่งด้ามไม้คิว ไม้คิวจะขยับตามนิ้ว ส่วนลูกขาวจะวิ่งไปทางตรงข้าม ลากแถบแรงไปทางขวาแล้วปล่อยนิ้วเพื่อแทง แตะลูกขาวข้างแถบแรงเพื่อเลือกจุดที่หัวคิวกระทบลูก จะแทงเดิน แทงดึง ใส่ข้างซ้ายหรือข้างขวาก็ได้ แถบเล็งละเอียดใช้ขยับแนวเล็งทีละนิด ถ้าจะแทงลูกโค้ง ให้ลากแถบยกคิวขึ้นเพื่อยกไม้คิว แล้วใส่ข้างซ้ายหรือขวา เส้นสีทองจะบอกว่าลูกโค้งไปทางไหน',
+    how2: 'ในโหมดทัวร์นาเมนต์ ต้องเอาชนะคู่แข่งทีละคนเพื่อรับเกียรติบัตรจาก The Siam Times คู่แข่งคนต่อไปจะเก่งกว่าคนก่อนอีกขั้น',
+    frameOver: 'จบเฟรม', anotherFrame: 'เล่นอีกเฟรม', tryAgain: 'แก้มือ',
+    certLabel: 'เกียรติบัตร', saveCert: 'บันทึกเกียรติบัตร', nextMatch: 'แมตช์ต่อไป',
+    tourReset: 'เริ่มทัวร์นาเมนต์ใหม่', tourResetSure: 'แตะอีกครั้งเพื่อลบเกียรติบัตรทั้งหมด',
+    ccw: 'หมุนแนวเล็งทวนเข็มนาฬิกา', cw: 'หมุนแนวเล็งตามเข็มนาฬิกา',
+    fineAim: 'เล็งละเอียด', fineAimValue: 'ลากไปทางซ้ายหรือขวา', fineAimHint: 'ลากตรงนี้เพื่อเล็งละเอียด',
+    elevLabel: 'มุมยกไม้คิว หน่วยเป็นองศา', elevTitle: 'ยกไม้คิว', lift: 'ยกคิว',
+    powerLabel: 'แรงแทง', powerHint: 'ลากไปทางขวา ปล่อยเพื่อแทง',
+    spinParts: {top: 'แทงเดิน', screw: 'แทงดึง', right: 'ใส่ข้างขวา', left: 'ใส่ข้างซ้าย'},
+    spinLabel: parts => 'จุดแทงลูกขาว: ' + (parts.join(' และ ') || 'กลางลูก'),
+    ball: {red: 'ลูกแดง', yellow: 'ลูกเหลือง', green: 'ลูกเขียว', brown: 'ลูกน้ำตาล', blue: 'ลูกน้ำเงิน', pink: 'ลูกชมพู', black: 'ลูกดำ'},
+    onBall: b => b, onAny: 'ลูกสีไหนก็ได้',
+    brkBoard: n => `เบรก ${n}`, remaining: n => `เหลือ ${n} แต้ม`,
+    fMiss: 'ลูกขาวไม่โดนลูกไหนเลย',
+    fFirst: b => `แทงโดน${b}ก่อนลูกแดง`,
+    fRedOn: 'แทงโดนลูกแดง ทั้งที่ต้องเล่นลูกสี',
+    fBefore: (b, t) => `แทงโดน${b}ก่อน${t}`,
+    fPot: b => `${b}ตกหลุม`,
+    fInOff: 'ลูกขาวตกหลุม',
+    foul: (why, pen, name) => `ฟาวล์! ${why} เสีย ${pen} ${jw('แต้มให้', name)}`,
+    red1: 'ลงลูกแดง', reds: n => `ลงลูกแดง ${n} ลูก`, potted: b => `ลง${b}`,
+    brk: n => `เบรก ${n}`,
+    level: name => `แต้มเท่ากัน ต้องดวลลูกดำตัดสิน ${jw(name, 'ได้แทงก่อนจากเขต D')}`,
+    anyColour: 'ต่อไปเล่นลูกสีลูกไหนก็ได้',
+    noScore: name => `ไม่ได้แต้ม ${jw('ถึงตา', name)}`,
+    inHand: name => jw(name, 'ได้วางลูกขาวใหม่ในเขต D'),
+    toPlay: name => jw('ถึงตา', name),
+    frameOverMsg: 'จบเฟรม',
+    winsFrame: name => jw(name, 'ชนะเฟรมนี้'),
+    score2: (a, as, b, bs) => `${a} ${as} – ${bs} ${b}`,
+    cpuWinsText: (a, as, o, bs, tr) => `${a} ${as} – ${bs} ${o} ต้องเอาชนะ ${o} ให้ได้ จึงจะคว้า${tr.prize}`,
+    startTour: (tr, a, o) => `${tr.event}: ${jw(a, 'พบ')} ${o} วางลูกขาวในเขต D แล้วแทงเปิดได้เลย`,
+    startTwo: a => `${jw(a, 'แทงเปิด')} ลากลูกขาวไปวางในเขต D แล้วเล็ง`,
+    goesFor: (n, b) => jw(n, `เล็ง${b}`), playsSafe: n => jw(n, 'เล่นเซฟ'),
+    tagWon: 'ชนะแล้ว', tagLocked: 'ยังล็อก', tagOpen: 'เล่นได้',
+    playFor: (o, tr) => `ดวลกับ ${o} ชิง${tr.prize}`,
+    certWorld: (n, o, a, b) => `แชมป์โลก! ${jw(n, 'ชนะ')} ${o} ${a}–${b}`,
+    certWon: (n, o, a, b, tr) => `ยินดีด้วย! ${jw(n, 'ชนะ')} ${o} ${a}–${b} คว้า${tr.prize}ไปครอง`,
+    certOld: (o, tr) => `คว้า${tr.prize}จากการชนะ ${o}`,
+    cabScore: (a, b, o) => `ชนะ ${o} ${a}–${b}`,
+    certFile: (award, name) => `The Siam Times - ${award} - ${name}.png`,
+    saved: 'บันทึกเกียรติบัตรแล้ว', wait: 'รอสักครู่แล้วลองใหม่อีกครั้ง', noSave: 'หน้านี้บันทึกเกียรติบัตรไม่ได้',
+    choose: 'เลือกก่อนว่าจะเล่นกับใคร',
+    tour: [
+      {event: 'ถ้วยสนุกเกอร์ระดับชุมชน', prize: 'ถ้วยระดับชุมชน', award: 'ถ้วยสนุกเกอร์ระดับชุมชน'},
+      {event: 'ถ้วยสนุกเกอร์ระดับภูมิภาค', prize: 'ถ้วยระดับภูมิภาค', award: 'ถ้วยสนุกเกอร์ระดับภูมิภาค'},
+      {event: 'ถ้วยสนุกเกอร์ระดับชาติ', prize: 'ถ้วยระดับชาติ', award: 'ถ้วยสนุกเกอร์ระดับชาติ'},
+      {event: 'ถ้วยสนุกเกอร์ระดับทวีป', prize: 'ถ้วยระดับทวีป', award: 'ถ้วยสนุกเกอร์ระดับทวีป'},
+      {event: 'ศึกชิงแชมป์โลก', prize: 'แชมป์โลก', award: 'แชมป์โลกสนุกเกอร์'}
+    ],
+    cert: {
+      head: 'เกียรติบัตรผู้ชนะเลิศ', headWorld: 'เกียรติบัตรแชมป์โลก',
+      certify: 'เกียรติบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า', won: 'ได้รับรางวัลชนะเลิศ', crowned: 'ได้ครองตำแหน่ง',
+      defeating: (o, a, b) => `ชนะ ${o} ${a} ต่อ ${b} แต้ม`,
+      at: d => `ณ ชมรมสนุกเกอร์ The Siam Times วันที่ ${d}`, locale: 'th-TH',
+      director: 'ผู้อำนวยการการแข่งขัน', editor: 'บรรณาธิการบริหาร',
+      no: n => `เลขที่ ${n}`,
+      font: {head: '600 30px Sarabun, sans-serif', body: '400 38px Sarabun, sans-serif', award: '700 {s}px Sarabun, sans-serif', awardSize: 58,
+        line: '400 30px Sarabun, sans-serif', role: '600 19px Sarabun, sans-serif', no: '600 18px Sarabun, sans-serif'}
+    }
+  },
+  en: {
+    docTitle: 'Snooker Master · The Siam Times',
+    soundOn: 'Sound on', soundOff: 'Sound off', menu: 'Menu', back: 'Back',
+    p1: 'Player 1', p2: 'Player 2', you: 'You',
+    tableLabel: 'Snooker table',
+    kicker: 'The Siam Times Snooker Club',
+    tabTour: 'The Tour', tabTwo: 'Two players',
+    yourName: 'Your name', namePh: 'Enter your name',
+    play: 'Play', cabinet: 'Trophy cabinet', startFrame: 'Start the frame',
+    howTo: 'How to play',
+    how1: 'To aim, drag on the table behind the cue stick’s handle. The stick follows your finger and the shot goes the other way. Drag the power bar to the right and let go to strike. Tap the white ball by the bar to choose where the cue strikes it: top, screw, left or right. Use the fine aim strip for tiny adjustments. For a curve shot, drag the Lift bar up to raise the cue and add left or right side: the gold line shows the bend.',
+    how2: 'On the Tour, beat each opponent in turn to win a certificate from The Siam Times. Every opponent plays a little smarter than the last.',
+    frameOver: 'Frame over', anotherFrame: 'Play another frame', tryAgain: 'Try again',
+    certLabel: 'Certificate', saveCert: 'Save certificate', nextMatch: 'Next match',
+    tourReset: 'Start the Tour again', tourResetSure: 'Tap again to clear all certificates',
+    ccw: 'Turn aim anticlockwise', cw: 'Turn aim clockwise',
+    fineAim: 'Fine aim', fineAimValue: 'Drag left or right', fineAimHint: 'Drag here for fine aim',
+    elevLabel: 'Cue elevation in degrees', elevTitle: 'Raise the cue', lift: 'Lift',
+    powerLabel: 'Shot power', powerHint: 'Drag right, let go to strike',
+    spinParts: {top: 'top', screw: 'screw', right: 'right side', left: 'left side'},
+    spinLabel: parts => 'Spin: ' + (parts.join(' and ') || 'centre ball'),
+    ball: {red: 'red', yellow: 'yellow', green: 'green', brown: 'brown', blue: 'blue', pink: 'pink', black: 'black'},
+    onBall: b => cap(b), onAny: 'Any colour',
+    brkBoard: n => `Break ${n}`, remaining: n => `${n} remaining`,
+    fMiss: 'the cue ball missed everything',
+    fFirst: b => `hit the ${b} before a red`,
+    fRedOn: 'hit a red when a colour was on',
+    fBefore: (b, t) => `hit the ${b} before the ${t}`,
+    fPot: b => `potted the ${b}`,
+    fInOff: 'in-off',
+    foul: (why, pen, name) => `Foul: ${why}. ${pen} to ${name}.`,
+    red1: 'Red potted.', reds: n => `${n} reds potted.`, potted: b => `${cap(b)} potted.`,
+    brk: n => `Break ${n}.`,
+    level: name => `Scores level. The black is re-spotted, ${name} to play from the D.`,
+    anyColour: 'Now any colour.',
+    noScore: name => `No score. ${name} to play.`,
+    inHand: name => `${name} has ball in hand.`,
+    toPlay: name => `${name} to play.`,
+    frameOverMsg: 'Frame over.',
+    winsFrame: name => `${name} wins the frame`,
+    score2: (a, as, b, bs) => `${a} ${as}, ${b} ${bs}`,
+    cpuWinsText: (a, as, o, bs, tr) => `${a} ${as}, ${o} ${bs}. Beat ${o} to win the ${tr.event}.`,
+    startTour: (tr, a, o) => `${tr.event}: ${a} v ${o}. Place the cue ball in the D and break.`,
+    startTwo: a => `${a} breaks. Drag the cue ball around the D to place it, then aim.`,
+    goesFor: (n, b) => `${n} goes for the ${b}.`, playsSafe: n => `${n} plays safe.`,
+    tagWon: 'Won', tagLocked: 'Locked', tagOpen: 'Open',
+    playFor: (o, tr) => `Play ${o} for the ${tr.event}`,
+    certWorld: (n, o, a, b) => `World Champion! ${n} beat ${o} ${a} to ${b}.`,
+    certWon: (n, o, a, b, tr) => `Congratulations, ${n}! You beat ${o} ${a} to ${b} and won the ${tr.event}.`,
+    certOld: (o, tr) => `${tr.event}, won against ${o}`,
+    cabScore: (a, b, o) => `${a} to ${b} v ${o}`,
+    certFile: (award, name) => `The Siam Times - ${award} - ${name}.png`,
+    saved: 'Certificate saved.', wait: 'Please wait a moment, then try again.', noSave: 'Saving isn’t available here.',
+    choose: 'Choose who you’re playing.',
+    tour: [
+      {event: 'Community Snooker Cup', award: 'Community Snooker Cup'},
+      {event: 'Regional Snooker Cup', award: 'Regional Snooker Cup'},
+      {event: 'National Snooker Cup', award: 'National Snooker Cup'},
+      {event: 'Continental Snooker Cup', award: 'Continental Snooker Cup'},
+      {event: 'World Snooker Championship', award: 'World Snooker Champion'}
+    ],
+    cert: {
+      head: 'CERTIFICATE OF CHAMPIONSHIP', headWorld: 'CERTIFICATE OF WORLD CHAMPIONSHIP',
+      certify: 'This is to certify that', won: 'has won the', crowned: 'is hereby crowned',
+      defeating: (o, a, b) => `defeating ${o} by ${a} points to ${b}`,
+      at: d => `at Snooker Club on ${d}`, locale: 'en-GB',
+      director: 'TOURNAMENT DIRECTOR', editor: 'EDITOR-IN-CHIEF',
+      no: n => `CERTIFICATE No. ${n}`,
+      font: {head: '600 25px Cinzel, Georgia, serif', body: 'italic 500 40px "Cormorant Garamond", Georgia, serif', award: '700 {s}px Cinzel, Georgia, serif', awardSize: 60,
+        line: '500 32px "Cormorant Garamond", Georgia, serif', role: '600 17px Cinzel, Georgia, serif', no: '600 16px Cinzel, Georgia, serif'}
+    }
+  }
+};
+const LANG = document.documentElement.lang === 'th' ? 'th' : 'en';
+const S = STR[LANG];
+const ballName = k => S.ball[k];
+function fillWords() {
+  document.title = S.docTitle;
+  for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = S[el.dataset.i18n];
+  for (const el of document.querySelectorAll('[data-i18n-aria]')) el.setAttribute('aria-label', S[el.dataset.i18nAria]);
+  for (const el of document.querySelectorAll('[data-i18n-ph]')) el.placeholder = S[el.dataset.i18nPh];
+  for (const el of document.querySelectorAll('[data-i18n-title]')) el.title = S[el.dataset.i18nTitle];
+  for (const el of document.querySelectorAll('[data-i18n-valuetext]')) el.setAttribute('aria-valuetext', S[el.dataset.i18nValuetext]);
+}
+
 /* ---------- Table geometry (millimetres, playing surface) ---------- */
 const L = 3569, W = 1778, R = 26.25, D2 = R * 2;
 const BAULK = 737, DR = 292, M = 150, C = 48, CG = 82, MG = 60;
@@ -280,7 +513,7 @@ let view = {portrait:false, s:1, ox:0, oy:0, dpr:1};
 /* ---------- Game state ---------- */
 const balls = [];
 let cue = null;
-let players = [{name:'Player 1', score:0}, {name:'Player 2', score:0}];
+let players = [{name:S.p1, score:0}, {name:S.p2, score:0}];
 let cur = 0, phase = 'red', seqIdx = 0, brk = 0, ballInHand = true;
 let state = 'menu';           // menu | aim | strike | rolling | over
 let vsCPU = false, tourIdx = null;
@@ -466,15 +699,15 @@ function endShot() {
   const bump = k => { if (k && VAL[k]) pen = Math.max(pen, VAL[k]); };
   if (phase === 'seq') bump(target);
   if (phase === 'color' && fh && fh !== 'red') bump(fh);
-  if (!fh) foul = 'the cue ball missed everything';
-  else if (phase === 'red' && fh !== 'red') { foul = `hit the ${fh} before a red`; bump(fh); }
-  else if (phase === 'color' && fh === 'red') foul = 'hit a red when a colour was on';
-  else if (phase === 'seq' && fh !== target) { foul = `hit the ${fh} before the ${target}`; bump(fh); }
+  if (!fh) foul = S.fMiss;
+  else if (phase === 'red' && fh !== 'red') { foul = S.fFirst(ballName(fh)); bump(fh); }
+  else if (phase === 'color' && fh === 'red') foul = S.fRedOn;
+  else if (phase === 'seq' && fh !== target) { foul = S.fBefore(ballName(fh), ballName(target)); bump(fh); }
   for (const k of pots) {
     const ok = phase === 'red' ? k === 'red' : phase === 'color' ? (k === fh && k !== 'red') : k === target;
-    if (!ok) { bump(k); if (!foul) foul = `potted the ${k}`; }
+    if (!ok) { bump(k); if (!foul) foul = S.fPot(ballName(k)); }
   }
-  if (shot.cuePotted && !foul) foul = 'in-off';
+  if (shot.cuePotted && !foul) foul = S.fInOff;
   const redsLeft = balls.filter(b => b.on && b.kind === 'red').length;
   let msg = '';
 
@@ -484,30 +717,30 @@ function endShot() {
     if (phase === 'seq' && seqIdx === 5 && me.score !== opp.score) return frameOver();
     phase = redsLeft ? 'red' : 'seq';
     cur = 1 - cur; brk = 0;
-    msg = `Foul: ${foul}. ${pen} to ${opp.name}.`;
+    msg = S.foul(foul, pen, opp.name);
   } else if (pots.length) {
     let pts = 0;
-    if (phase === 'red') { pts = pots.length; phase = 'color'; msg = pots.length > 1 ? `${pots.length} reds potted.` : 'Red potted.'; }
-    else if (phase === 'color') { pts = VAL[fh]; respotKinds([fh]); phase = redsLeft ? 'red' : 'seq'; msg = `${cap(fh)} potted.`; }
-    else { pts = VAL[target]; seqIdx++; msg = `${cap(target)} potted.`; }
+    if (phase === 'red') { pts = pots.length; phase = 'color'; msg = pots.length > 1 ? S.reds(pots.length) : S.red1; }
+    else if (phase === 'color') { pts = VAL[fh]; respotKinds([fh]); phase = redsLeft ? 'red' : 'seq'; msg = S.potted(ballName(fh)); }
+    else { pts = VAL[target]; seqIdx++; msg = S.potted(ballName(target)); }
     me.score += pts; brk += pts;
-    msg += ` Break ${brk}.`;
+    msg += ' ' + S.brk(brk);
     if (phase === 'seq' && seqIdx >= 6) {
       if (me.score === opp.score) {
         respotKinds(['black']); seqIdx = 5; cur = 1 - cur; brk = 0;
         ballInHand = true; placeCueDefault();
-        msg = `Scores level. The black is re-spotted, ${players[cur].name} to play from the D.`;
+        msg = S.level(players[cur].name);
         finishTurn(msg); return;
       }
       return frameOver();
     }
-    if (phase === 'color') msg += ' Now any colour.';
+    if (phase === 'color') msg += ' ' + S.anyColour;
   } else {
     phase = redsLeft ? 'red' : 'seq'; cur = 1 - cur; brk = 0;
-    msg = `No score. ${players[cur].name} to play.`;
+    msg = S.noScore(players[cur].name);
   }
-  if (shot.cuePotted) { ballInHand = true; placeCueDefault(); msg += ` ${players[cur].name} has ball in hand.`; }
-  else if (foul) msg += ` ${players[cur].name} to play.`;
+  if (shot.cuePotted) { ballInHand = true; placeCueDefault(); msg += ' ' + S.inHand(players[cur].name); }
+  else if (foul) msg += ' ' + S.toPlay(players[cur].name);
   finishTurn(msg);
 }
 function finishTurn(msg) {
@@ -517,14 +750,14 @@ function finishTurn(msg) {
 function frameOver() {
   state = 'over'; updateUI(); refreshBusy();
   const [a, b] = players, w = a.score > b.score ? a : b;
-  setMsg('Frame over.');
+  setMsg(S.frameOverMsg);
   if (vsCPU) {
     const T = TOUR[tourIdx];
     if (w === a) { awardCert(tourIdx, a.score, b.score); return; }
-    showOver(`${T.opp} wins the frame`, `${a.name} ${a.score}, ${T.opp} ${b.score}. Beat ${T.opp} to win the ${T.event}.`, 'Try again');
+    showOver(S.winsFrame(T.opp), S.cpuWinsText(a.name, a.score, T.opp, b.score, S.tour[tourIdx]), S.tryAgain);
     return;
   }
-  showOver(`${w.name} wins the frame`, `${a.name} ${a.score}, ${b.name} ${b.score}`, 'Play another frame');
+  showOver(S.winsFrame(w.name), S.score2(a.name, a.score, b.name, b.score), S.anotherFrame);
 }
 function showOver(title, text, againLabel) {
   $('overTitle').textContent = title;
@@ -537,25 +770,26 @@ function newFrame(cpu, tier = 0) {
   vsCPU = cpu; tourIdx = cpu ? tier : null;
   const nm = loadNames();
   players = cpu
-    ? [{name: nm.solo || 'You', score:0}, {name: TOUR[tier].opp, score:0}]
-    : [{name: nm.p1 || 'Player 1', score:0}, {name: nm.p2 || 'Player 2', score:0}];
+    ? [{name: nm.solo || S.you, score:0}, {name: TOUR[tier].opp, score:0}]
+    : [{name: nm.p1 || S.p1, score:0}, {name: nm.p2 || S.p2, score:0}];
   setup(); sinking = [];
   cur = 0; phase = 'red'; seqIdx = 0; brk = 0; ballInHand = true; aimA = 0; power = 0;
   state = 'aim';
   hideOverlays();
   updatePower(); updateUI(); refreshBusy();
   setMsg(cpu
-    ? `${TOUR[tier].event}: ${players[0].name} v ${TOUR[tier].opp}. Place the cue ball in the D and break.`
-    : `${players[0].name} breaks. Drag the cue ball around the D to place it, then aim.`);
+    ? S.startTour(S.tour[tier], players[0].name, TOUR[tier].opp)
+    : S.startTwo(players[0].name));
 }
 
 /* ---------- Computer player (The Tour) ---------- */
+// The names of the cups and awards are in STR (S.tour), in the same order.
 const TOUR = [
-  {opp:'Jimmy',   event:'Community Snooker Cup',     award:'Community Snooker Cup',   code:'CSC', aim:0.020,  minCos:0.45, pnoise:0.12,  safeAt:Infinity, pos:0},
-  {opp:'John',    event:'Regional Snooker Cup',      award:'Regional Snooker Cup',    code:'RSC', aim:0.014,  minCos:0.40, pnoise:0.09,  safeAt:Infinity, pos:0},
-  {opp:'Steve',   event:'National Snooker Cup',      award:'National Snooker Cup',    code:'NSC', aim:0.009,  minCos:0.35, pnoise:0.07,  safeAt:14000,    pos:0.5},
-  {opp:'James',   event:'Continental Snooker Cup',   award:'Continental Snooker Cup', code:'CNC', aim:0.006,  minCos:0.32, pnoise:0.05,  safeAt:11000,    pos:1},
-  {opp:'Stephen', event:'World Snooker Championship', award:'World Snooker Champion', code:'WSC', aim:0.0035, minCos:0.28, pnoise:0.035, safeAt:12000,    pos:1.5}
+  {opp:'Jimmy',   code:'CSC', aim:0.020,  minCos:0.45, pnoise:0.12,  safeAt:Infinity, pos:0},
+  {opp:'John',    code:'RSC', aim:0.014,  minCos:0.40, pnoise:0.09,  safeAt:Infinity, pos:0},
+  {opp:'Steve',   code:'NSC', aim:0.009,  minCos:0.35, pnoise:0.07,  safeAt:14000,    pos:0.5},
+  {opp:'James',   code:'CNC', aim:0.006,  minCos:0.32, pnoise:0.05,  safeAt:11000,    pos:1},
+  {opp:'Stephen', code:'WSC', aim:0.0035, minCos:0.28, pnoise:0.035, safeAt:12000,    pos:1.5}
 ];
 const lvl = () => TOUR[tourIdx ?? 0];
 function targets() {
@@ -677,7 +911,7 @@ function cpuPlay() {
   if (!isCPU() || state !== 'aim') return;
   if (ballInHand) placeCPU();
   const L0 = lvl(), plan = planCPU(), nm = players[1].name;
-  setMsg(plan.pot ? `${nm} goes for the ${plan.T.kind}.` : `${nm} plays safe.`);
+  setMsg(plan.pot ? S.goesFor(nm, ballName(plan.T.kind)) : S.playsSafe(nm));
   cpuAnim = {a0:aimA, a1:plan.angle + gauss()*L0.aim, p:Math.min(1, powerFromSpeed(plan.speed)*(1 + gauss()*L0.pnoise)), spinY:plan.spinY || 0, t:0, stage:'turn'};
 }
 function tickCPU(el) {
@@ -931,10 +1165,10 @@ function updatePower() {
 function updateSpin() {
   const d = $('spinDot');
   d.style.left = `${50 + spin.x*34}%`; d.style.top = `${50 - spin.y*34}%`;
-  const parts = [];
-  if (spin.y > 0.15) parts.push('top'); else if (spin.y < -0.15) parts.push('screw');
-  if (spin.x > 0.15) parts.push('right side'); else if (spin.x < -0.15) parts.push('left side');
-  $('spin').setAttribute('aria-label', 'Spin: ' + (parts.join(' and ') || 'centre ball'));
+  const parts = [], sw = S.spinParts;
+  if (spin.y > 0.15) parts.push(sw.top); else if (spin.y < -0.15) parts.push(sw.screw);
+  if (spin.x > 0.15) parts.push(sw.right); else if (spin.x < -0.15) parts.push(sw.left);
+  $('spin').setAttribute('aria-label', S.spinLabel(parts));
 }
 function refreshBusy() { app.classList.toggle('busy', state !== 'aim' || isCPU()); }
 function updateUI() {
@@ -945,11 +1179,11 @@ function updateUI() {
   }
   const reds = balls.filter(b => b.on && b.kind === 'red').length;
   let txt, bg, rem;
-  if (phase === 'red') { txt = 'Red'; bg = DOTCOL.red; rem = reds*8 + 27; }
-  else if (phase === 'color') { txt = 'Any colour'; bg = `conic-gradient(${ORDER.map(k => DOTCOL[k]).join(',')})`; rem = reds*8 + 27 + 7; }
-  else { const k = ORDER[Math.min(seqIdx, 5)]; txt = cap(k); bg = DOTCOL[k]; rem = ORDER.slice(seqIdx).reduce((s, k) => s + VAL[k], 0); }
+  if (phase === 'red') { txt = S.onBall(ballName('red')); bg = DOTCOL.red; rem = reds*8 + 27; }
+  else if (phase === 'color') { txt = S.onAny; bg = `conic-gradient(${ORDER.map(k => DOTCOL[k]).join(',')})`; rem = reds*8 + 27 + 7; }
+  else { const k = ORDER[Math.min(seqIdx, 5)]; txt = S.onBall(ballName(k)); bg = DOTCOL[k]; rem = ORDER.slice(seqIdx).reduce((s, k) => s + VAL[k], 0); }
   $('onText').textContent = txt; $('onDot').style.background = bg;
-  $('brk').textContent = `Break ${brk}`; $('rem').textContent = `${rem} remaining`;
+  $('brk').textContent = S.brkBoard(brk); $('rem').textContent = S.remaining(rem);
 }
 
 /* ---------- Input ---------- */
@@ -1134,14 +1368,14 @@ function renderLadder() {
     b.innerHTML = '<span class="num"></span><span class="who"><b></b><small></small></span><span class="tag"></span>';
     b.querySelector('.num').textContent = ROMAN[i];
     b.querySelector('b').textContent = t.opp;
-    b.querySelector('small').textContent = t.event;
-    b.querySelector('.tag').textContent = won ? 'Won' : locked ? 'Locked' : 'Open';
+    b.querySelector('small').textContent = S.tour[i].event;
+    b.querySelector('.tag').textContent = won ? S.tagWon : locked ? S.tagLocked : S.tagOpen;
     b.setAttribute('aria-pressed', String(i === selTier));
     b.addEventListener('click', () => { selTier = i; renderLadder(); });
     li.appendChild(b); list.appendChild(li);
   });
   const t = TOUR[selTier];
-  $('playTour').textContent = `Play ${t.opp} for the ${t.event}`;
+  $('playTour').textContent = S.playFor(t.opp, S.tour[selTier]);
   $('cabinet').hidden = !Object.keys(st.certs).length;
 }
 function awardCert(i, a, b) {
@@ -1156,14 +1390,14 @@ function awardCert(i, a, b) {
 }
 let certBack = null;
 function showCert(cert, fresh) {
-  const i = cert.tier, t = TOUR[i];
+  const i = cert.tier, tr = S.tour[i];
   $('certMsg').textContent = fresh
-    ? (i === 4 ? `World Champion! ${cert.name} beat Stephen ${cert.a} to ${cert.b}.` : `Congratulations, ${cert.name}! You beat ${cert.opp} ${cert.a} to ${cert.b} and won the ${t.event}.`)
-    : `${t.event}, won against ${cert.opp}`;
+    ? (i === 4 ? S.certWorld(cert.name, cert.opp, cert.a, cert.b) : S.certWon(cert.name, cert.opp, cert.a, cert.b, tr))
+    : S.certOld(cert.opp, tr);
   const nx = $('certNext');
-  if (fresh && i < 4) { nx.hidden = false; nx.textContent = `Play ${TOUR[i + 1].opp} for the ${TOUR[i + 1].event}`; nx.onclick = () => newFrame(true, i + 1); }
+  if (fresh && i < 4) { nx.hidden = false; nx.textContent = S.playFor(TOUR[i + 1].opp, S.tour[i + 1]); nx.onclick = () => newFrame(true, i + 1); }
   else nx.hidden = true;
-  $('certClose').textContent = fresh ? 'Menu' : 'Back';
+  $('certClose').textContent = fresh ? S.menu : S.back;
   certBack = fresh ? openMenu : openCabinet;
   $('certNote').textContent = '';
   $('certSave').onclick = () => saveCert(cert);
@@ -1175,14 +1409,14 @@ let resetArmed = false;
 function openCabinet() {
   const st = loadTour(), ul = $('cabList');
   ul.textContent = '';
-  resetArmed = false; $('tourReset').textContent = 'Start the Tour again';
+  resetArmed = false; $('tourReset').textContent = S.tourReset;
   TOUR.forEach((t, i) => {
     const c = st.certs[i]; if (!c) return;
     const li = document.createElement('li'), b = document.createElement('button');
     b.type = 'button';
     b.innerHTML = '<span></span><small></small>';
-    b.querySelector('span').textContent = t.award;
-    b.querySelector('small').textContent = `${c.a} to ${c.b} v ${c.opp}`;
+    b.querySelector('span').textContent = S.tour[i].award;
+    b.querySelector('small').textContent = S.cabScore(c.a, c.b, c.opp);
     b.addEventListener('click', () => showCert(c, false));
     li.appendChild(b); ul.appendChild(li);
   });
@@ -1201,12 +1435,12 @@ async function saveCert(cert) {
   const blob = await new Promise(r => $('certCv').toBlob(r, 'image/png'));
   if (!blob) return;
   try {
-    await downloads.save({filename:`The Siam Times - ${TOUR[cert.tier].award} - ${cert.name}.png`, data:blob});
-    $('certNote').textContent = 'Certificate saved.';
+    await downloads.save({filename:S.certFile(S.tour[cert.tier].award, cert.name), data:blob});
+    $('certNote').textContent = S.saved;
   } catch (e) {
     if (e && e.code === 'declined') return;
-    if (e && e.code === 'rate_limited') { $('certNote').textContent = 'Please wait a moment, then try again.'; return; }
-    $('certNote').textContent = 'Saving isn’t available here.';
+    if (e && e.code === 'rate_limited') { $('certNote').textContent = S.wait; return; }
+    $('certNote').textContent = S.noSave;
     $('certSave').hidden = true;
   }
 }
@@ -1214,8 +1448,10 @@ let fontsLoaded = null;
 function certFonts() {
   if (!fontsLoaded) {
     const specs = ['96px Chomsky', '600 26px Cinzel', '700 60px Cinzel', 'italic 500 40px "Cormorant Garamond"', '500 32px "Cormorant Garamond"', '100px "Pinyon Script"'];
+    // Sarabun is only on the Thai page; it comes in pieces by script, so ask for the Thai piece by name.
+    const thai = ['400 38px Sarabun', '600 30px Sarabun', '700 58px Sarabun'];
     fontsLoaded = Promise.race([
-      Promise.all(specs.map(s => document.fonts.load(s).catch(() => null))),
+      Promise.all([...specs.map(s => document.fonts.load(s).catch(() => null)), ...thai.map(s => document.fonts.load(s, 'ก').catch(() => null))]),
       new Promise(r => setTimeout(r, 4000))
     ]);
   }
@@ -1228,6 +1464,8 @@ function goldGrad(g, x0, y0, x1, y1) {
   return gr;
 }
 function spacedText(g, text, x, y, sp) {
+  // Thai is not spaced out: its vowels and tone marks sit on the letter before them and must stay with it.
+  if (THAI.test(text)) { g.fillText(text, x, y); return; }
   const chars = [...text], ws = chars.map(c => g.measureText(c).width);
   let cx = x - (ws.reduce((a, b) => a + b, 0) + sp*(chars.length - 1))/2;
   const al = g.textAlign; g.textAlign = 'left';
@@ -1285,7 +1523,7 @@ function seal(g, cx, cy, r, gold) {
 }
 async function drawCertificate(cv, cert) {
   await certFonts();
-  const g = cv.getContext('2d'), Wc = 1200, Hc = 1680, t = TOUR[cert.tier];
+  const g = cv.getContext('2d'), Wc = 1200, Hc = 1680, tr = S.tour[cert.tier], C = S.cert, F = C.font;
   const ivory = '#efe6cf', gold = goldGrad(g, 0, 0, Wc, Hc);
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.textBaseline = 'alphabetic'; g.textAlign = 'center';
@@ -1319,8 +1557,8 @@ async function drawCertificate(cv, cert) {
   g.strokeStyle = gold; g.lineWidth = 2;
   g.beginPath(); g.moveTo(300, 268); g.lineTo(572, 268); g.moveTo(628, 268); g.lineTo(900, 268); g.stroke();
   g.save(); g.translate(600, 268); g.rotate(Math.PI/4); g.fillRect(-8, -8, 16, 16); g.restore();
-  g.font = '600 25px Cinzel, Georgia, serif';
-  spacedText(g, cert.tier === 4 ? 'CERTIFICATE OF WORLD CHAMPIONSHIP' : 'CERTIFICATE OF CHAMPIONSHIP', 600, 322, 6);
+  g.font = F.head;
+  spacedText(g, cert.tier === 4 ? C.headWorld : C.head, 600, 322, 6);
   // stars + emblem
   const ns = cert.tier + 1;
   g.fillStyle = goldGrad(g, 480, 360, 720, 400);
@@ -1332,33 +1570,33 @@ async function drawCertificate(cv, cert) {
   g.fillStyle = gold; g.font = '700 60px Cinzel, Georgia, serif'; g.textBaseline = 'middle';
   g.fillText(ROMAN[cert.tier], 600, 552); g.textBaseline = 'alphabetic';
   // body
-  g.fillStyle = ivory; g.font = 'italic 500 40px "Cormorant Garamond", Georgia, serif';
-  g.fillText('This is to certify that', 600, 752);
+  g.fillStyle = ivory; g.font = F.body;
+  g.fillText(C.certify, 600, 752);
   g.fillStyle = gold;
-  fitFont(g, cert.name, '{s}px "Pinyon Script", "Cormorant Garamond", Georgia, serif', 112, 920);
+  fitFont(g, cert.name, '{s}px "Pinyon Script", "Cormorant Garamond", Sarabun, Georgia, serif', 112, 920);
   g.fillText(cert.name, 600, 870);
   g.strokeStyle = gold; g.lineWidth = 1.5;
   g.beginPath(); g.moveTo(290, 902); g.lineTo(910, 902); g.stroke();
-  g.fillStyle = ivory; g.font = 'italic 500 40px "Cormorant Garamond", Georgia, serif';
-  g.fillText(cert.tier === 4 ? 'is hereby crowned' : 'has won the', 600, 968);
+  g.fillStyle = ivory; g.font = F.body;
+  g.fillText(cert.tier === 4 ? C.crowned : C.won, 600, 968);
   g.fillStyle = gold;
-  fitFont(g, t.award.toUpperCase(), '700 {s}px Cinzel, Georgia, serif', 60, 960);
-  g.fillText(t.award.toUpperCase(), 600, 1052);
-  const dt = new Date(cert.date).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
-  g.fillStyle = ivory; g.font = '500 32px "Cormorant Garamond", Georgia, serif';
-  g.fillText(`defeating ${cert.opp} by ${cert.a} points to ${cert.b}`, 600, 1122);
-  g.fillText(`at Snooker Club on ${dt}`, 600, 1166);
+  fitFont(g, tr.award.toUpperCase(), F.award, F.awardSize, 960);
+  g.fillText(tr.award.toUpperCase(), 600, 1052);
+  const dt = new Date(cert.date).toLocaleDateString(C.locale, {day:'numeric', month:'long', year:'numeric'});
+  g.fillStyle = ivory; g.font = F.line;
+  g.fillText(C.defeating(cert.opp, cert.a, cert.b), 600, 1122);
+  g.fillText(C.at(dt), 600, 1166);
   // signatures + seal
-  for (const [x, sig, role, who] of [[270, 'J. Kietpawpan', 'TOURNAMENT DIRECTOR', 'Jeerawish Kietpawpan'], [930, 'M. Kietpawpan', 'EDITOR-IN-CHIEF', 'Monte Kietpawpan']]) {
+  for (const [x, sig, role, who] of [[270, 'J. Kietpawpan', C.director, 'Jeerawish Kietpawpan'], [930, 'M. Kietpawpan', C.editor, 'Monte Kietpawpan']]) {
     g.fillStyle = ivory; g.font = '52px "Pinyon Script", "Cormorant Garamond", Georgia, serif';
     g.fillText(sig, x, 1372);
     g.strokeStyle = gold; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x - 160, 1392); g.lineTo(x + 160, 1392); g.stroke();
-    g.fillStyle = gold; g.font = '600 17px Cinzel, Georgia, serif'; spacedText(g, role, x, 1424, 3);
+    g.fillStyle = gold; g.font = F.role; spacedText(g, role, x, 1424, 3);
     g.fillStyle = ivory; g.font = 'italic 500 23px "Cormorant Garamond", Georgia, serif'; g.fillText(who, x, 1456);
   }
   seal(g, 600, 1366, 118, gold);
-  g.fillStyle = gold; g.font = '600 16px Cinzel, Georgia, serif';
-  spacedText(g, `CERTIFICATE No. ${cert.no}`, 600, 1590, 4);
+  g.fillStyle = gold; g.font = F.no;
+  spacedText(g, C.no(cert.no), 600, 1590, 4);
 }
 
 $('tabTour').addEventListener('click', () => setTab(true));
@@ -1369,7 +1607,7 @@ $('playTwo').addEventListener('click', () => { ensureAudio(); saveNames(); newFr
 $('cabinet').addEventListener('click', openCabinet);
 $('cabClose').addEventListener('click', openMenu);
 $('tourReset').addEventListener('click', () => {
-  if (!resetArmed) { resetArmed = true; $('tourReset').textContent = 'Tap again to clear all certificates'; return; }
+  if (!resetArmed) { resetArmed = true; $('tourReset').textContent = S.tourResetSure; return; }
   store.set('sst-tour', {unlocked:0, certs:{}});
   openMenu();
 });
@@ -1379,7 +1617,7 @@ $('toMenu').addEventListener('click', openMenu);
 $('menuBtn').addEventListener('click', openMenu);
 $('sndBtn').addEventListener('click', e => {
   muted = !muted;
-  e.currentTarget.textContent = muted ? 'Sound off' : 'Sound on';
+  e.currentTarget.textContent = muted ? S.soundOff : S.soundOn;
   e.currentTarget.setAttribute('aria-pressed', String(!muted));
   if (!muted) ensureAudio();
 });
@@ -1403,8 +1641,9 @@ function frame(now) {
 }
 
 new ResizeObserver(layout).observe(stage);
+fillWords();
 setup(); layout(); updateUI(); updatePower(); updateSpin(); refreshBusy();
-setMsg('Choose who you’re playing.');
+setMsg(S.choose);
 openMenu();
 requestAnimationFrame(frame);
 })();

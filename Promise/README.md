@@ -28,7 +28,7 @@ Promise/
     └── Delivery/           Paper Run, the driving game made for chapter 12
 ```
 
-Eleven of the games in `games/` are copies of the site's games with two changes each: a `storyDone` call where a game ends (see *How the games report back*) and the no-zoom guard (see *No zooming*); and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. `Delivery/` (Paper Run) exists only here; it has its own README. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
+Eleven of the games in `games/` are copies of the site's games (both language pages where a game has two) with two changes each: a `storyDone` call where a game ends (see *How the games report back*) and the no-zoom guard (see *No zooming*); and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. `Delivery/` (Paper Run) exists only here; it has its own README. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
 
 **When a game is updated on the site**, copy its new file(s) over the one in `games/<Game>/` and put the `storyDone` function and call back in, in the places listed in the table below, and the no-zoom viewport and script (and, for Old Money, the logo link). Until then the story keeps playing the older copy.
 
@@ -65,6 +65,7 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 
 ## Version 1.2
 
+- **Every game is in Thai and English.** Darts, Makruk, Old Money Atelier (ห้องเสื้อผู้ดีเก่า), Pétanque and Snooker now have Thai pages (`GA-*-th.html`) beside the English ones, on the site and in `games/`; the Thai story opens them, and Darts' result is worded in the story's language. Checkers, which switches language inside one page, opens in the story's language.
 - **About** (เกี่ยวกับเกม) on the title screen: who made the game, fact and fiction, privacy (nothing is collected or sent; progress stays on the device), sound (all synthesised) and the fonts with their licences.
 - `privacy.html`: the privacy policy, in Thai and English, for the App Store listing (https://thesiamtimes.com/Promise/privacy.html).
 - `support.html`: how to play, common questions and the contact address, support@thesiamtimes.com, in Thai and English (the App Store's Support URL: https://thesiamtimes.com/Promise/support.html).
