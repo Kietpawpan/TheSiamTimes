@@ -41,7 +41,7 @@ The *Automatic* gearbox shifts like a relaxed rider: early and at low revs when 
 
 ## The mission: the 1864 watch
 
-Choose **Mission** or **Free ride** at the top of the start screen. In the mission you are a reporter at The Siam Times who has wanted a **VERDANT 1864** dress watch for years. VERDANT is a made-up maker of fine watches with green-and-gold shops (no real brand's name or marks), and only its three Bangkok shops sell the 1864: in front of the Siam mall on Rama I Road, on Yaowarat Road and on Sukhumvit. They are green dots on both maps, each has a pulsing green ring on the pavement and a green beam over the one to go to next, and **Auto** takes you there and stops in the ring. Stop in a ring (or tap the button that appears) to go in.
+Choose **Mission** or **Free ride** at the top of the start screen. In the mission you are a reporter at The Siam Times who has wanted a **VERDANT 1864** dress watch for years. VERDANT is a made-up maker of fine watches with green-and-gold shops (no real brand's name or marks), and only its three Bangkok shops sell the 1864: in front of the Siam mall on Rama I Road, on Yaowarat Road and on Sukhumvit. They are green dots on both maps, each has a pulsing green ring on the pavement and a green beam over the one to go to next, and **Auto** takes you there and stops in the ring. **Navigation** shows the way (see below). Within about 12 m of a shop a button appears to go in; stopping in its ring goes in by itself. In free ride the shops still show their rings, and going in offers to start the mission.
 
 - The shops are visited in any order. The **first** you go into has no 1864 and offers its **Want List**: sign it (a pen writes your name on the cream card and a green wax seal with your number comes down). The **second** will only sell you the 1864 if you first buy a Mariner 300 diving watch for ฿420,000. **Say no**: buying it spends all your savings and ends the mission. The **third** has one, but only for customers on the Want List, and it costs ฿186,400 when you have ฿175,000. They hold it for you.
 - **Money.** Go back to **The Siam Times** building, on Bamrung Mueang Road by the Giant Swing (an S on the maps), and work for a month. A cut scene runs through thirty days of the calendar while you save ฿45,000. Or skip the office: the other motorcycle riders are women with long hair, and **two toots of the horn** close to one (within about 15 m) make her wave back and tip you ฿6,000 to ฿11,000. Each woman tips you once in a mission, and one tip is never quite enough (you are ฿11,400 short), so you need **at least two** of them.
@@ -50,6 +50,16 @@ Choose **Mission** or **Free ride** at the top of the start screen. In the missi
 - **The ride home.** A white **pigeon** flies a few metres ahead of you along the streets to The Siam Times, cooing now and then, and circles the building as you arrive. Red lights no longer count on this ride. While you wear the watch, the women riders wave as you ride past them, with no horn needed, and they keep doing it in free ride afterwards. At the office, your colleagues come out to applaud: the closing scene shows the watch, how many red lights you ran, the tips you collected and the months you worked.
 - During the mission **Auto** stops for red lights (and for an amber it cannot clear), so it never costs you a red light. On the ride home it does not stop.
 - The mission is saved in the browser. The pause menu shows how far you have got and can start it again. *Free ride* is the game as before, with the postcards.
+
+## Navigation
+
+The **Route** button (top right, a map pin) turns on navigation the way a phone map does it. In the mission it leads to the next shop, or to The Siam Times when you need money and on the ride home; in free ride it leads to the nearest postcard you do not have yet.
+
+- A green banner in place of the road sign shows the next turn: an arrow, how far, and the road you turn onto (for example "150 m · Turn left onto Rama I Rd"), then where you are going, the distance left and the time.
+- The route is a blue line on the minimap and the pause map, with a red pin at the end.
+- Blue arrows on the road show the next 150 m or so, pulsing forwards.
+- Where the device has a voice for the game's language (Thai on an iPad has one), it says the turns: "in 100 metres, turn left…", then "turn left…" at the corner, and "you have arrived". With the sound off it says nothing.
+- The route is the shortest way along the streets (the crossings form the graph). It is worked out again every second and a half, and straight away if you leave it. The pigeon on the ride home follows the same route.
 
 ## The city
 

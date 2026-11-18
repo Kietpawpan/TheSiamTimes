@@ -323,6 +323,18 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 .confetti i { position: absolute; top: -20px; width: 9px; height: 5px; border-radius: 1px; background: linear-gradient(90deg, #f6dc94, #b8862e); opacity: .85; animation: fall 5s linear infinite; }
 @keyframes fall { 0% { transform: translate(0, 0) rotate(0); } 50% { transform: translate(30px, 50vh) rotate(260deg); } 100% { transform: translate(-20px, 105vh) rotate(540deg); } }
 @media (prefers-reduced-motion: reduce) { .cutcard.lux h3, .sparkles span, .confetti i { animation: none; } .confetti { display: none; } }
+/* navigation, like a phone map */
+.navbar { width: min(340px, 38vw); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,.35); font-family: var(--font-ui); }
+.navbar[hidden] { display: none; }
+.navmain { display: flex; align-items: center; gap: 10px; background: #0d7a4c; color: #fff; padding: 9px 12px; }
+.navicon { width: 38px; height: 38px; flex: none; }
+.navicon svg { width: 100%; height: 100%; display: block; }
+.navmain b { display: block; font: 700 21px/1.1 var(--font-ui); font-variant-numeric: tabular-nums; }
+.navmain span { display: block; font: 500 14px/1.25 var(--font-ui); }
+.navto { background: #0a5c39; color: #d8f2e4; font: 500 12.5px/1.3 var(--font-ui); padding: 5px 12px; }
+#hud.nav #roadSign { display: none; }
+#navBtn[aria-pressed="true"] { color: #6fe3a6; }
+@media (max-width: 700px) { .navbar { width: min(300px, 46vw); } .navmain b { font-size: 18px; } .navicon { width: 30px; height: 30px; } }
 .mbox { border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; font: 14px/1.4 var(--font-ui); }
 .mbox b { color: #5fe39c; }
 .mbox .btnrow { margin-top: 8px; }
@@ -340,6 +352,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
     <div class="tl">
       <canvas id="minimap" width="296" height="296" aria-hidden="true"></canvas>
       <div>
+        <div class="navbar" id="navBar" hidden><div class="navmain"><span class="navicon" id="navIcon"></span><div><b id="navDist"></b><span id="navWhat"></span></div></div><div class="navto" id="navTo"></div></div>
         <div class="roadsign dim" id="roadSign"><b id="roadTh"></b><span id="roadEn"></span></div>
         <div class="vis" id="visCount"></div>
         <div class="mpanel" id="mpanel" hidden><div class="mt" id="mpTitle"></div><div class="mo" id="mpObj"></div><div class="ms"><span id="mpMoney"></span><span id="mpReds"></span><span id="mpShops"></span></div></div>
@@ -347,6 +360,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
     </div>
     <div class="tr">
       <button class="ib" id="autoBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M3.6 10.5h6.2M14.2 10.5h6.2M12 14.2v6.2"/></svg><span data-i18n="auto"></span></button>
+      <button class="ib" id="navBtn" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-6.5-6.4-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.6 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.3"/></svg><span data-i18n="navBtn"></span></button>
       <button class="ib" id="camBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg><span data-i18n="cam"></span></button>
       <button class="ib" id="timeBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span data-i18n="timeBtn"></span></button>
       <button class="ib" id="soundBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="soundWave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span data-i18n="sound"></span></button>
@@ -451,7 +465,7 @@ const STR = {
     paint: 'สีรถ', time: 'ช่วงเวลา', engine: 'เสียงเครื่องยนต์', volume: 'ความดังเสียง', mute: 'ปิดเสียง', outfit: 'ชุดคนขี่', gearbox: 'เกียร์', quality: 'กราฟิก', start: 'ติดเครื่อง',
     gearAuto: 'อัตโนมัติ', gearManual: 'ธรรมดา (กดเปลี่ยนเอง)', rev: 'บิดเร่ง', revHold: 'กดค้างไว้', gearUp: 'เกียร์ขึ้น', gearDown: 'เกียร์ลง', drive: 'ขับ', neutral: 'เกียร์ว่าง',
     pressD: 'เกียร์ว่าง (N) · กดปุ่ม D เพื่อออกตัว', pressUp: 'เกียร์ว่าง (N) · กด ▲ เข้าเกียร์ 1 เพื่อออกตัว', inN: 'จอดแล้ว เข้าเกียร์ว่าง · บิดเร่งเบิ้ลเครื่องได้', inD: 'เข้าเกียร์ D',
-    mode: 'โหมด', landHard: 'ลงกระแทก!', river: 'ตกแม่น้ำ! กลับขึ้นฝั่ง', apOff: 'ออโต้ใช้ได้บนถนนในเมือง ช่วงนี้บังคับเองนะ',
+    mode: 'โหมด', navBtn: 'นำทาง', landHard: 'ลงกระแทก!', river: 'ตกแม่น้ำ! กลับขึ้นฝั่ง', apOff: 'ออโต้ใช้ได้บนถนนในเมือง ช่วงนี้บังคับเองนะ',
     overRev: 'เร็วเกินสำหรับเกียร์นั้น ชะลอก่อนแล้วค่อยลดเกียร์', topGear: 'เกียร์ 6 สูงสุดแล้ว', firstGear: 'เกียร์ 1 ต่ำสุดแล้ว',
     auto: 'ออโต้', steerAuto: 'ออโต้เลี้ยวให้', autoOn: 'ระบบช่วยเลี้ยว: เปิด แค่บีบคันเร่งกับเปลี่ยนเกียร์', autoOff: 'ระบบช่วยเลี้ยว: ปิด', autoTo: n => `ออโต้กำลังพาไป ${n}`, autoFree: 'ออโต้: ขี่ชมเมืองไปเรื่อย ๆ',
     paints: ['ดำเงา', 'แดงแคนดี้', 'น้ำเงินเที่ยงคืน', 'ทองสยาม', 'ขาวมุก'],
@@ -480,7 +494,7 @@ const STR = {
     paint: 'Paint', time: 'Time of day', engine: 'Engine sound', volume: 'Volume', mute: 'Muted', outfit: 'Rider’s outfit', gearbox: 'Gearbox', quality: 'Graphics', start: 'Start the engine',
     gearAuto: 'Automatic', gearManual: 'Manual (tap to shift)', rev: 'Rev it', revHold: 'press and hold', gearUp: 'Up', gearDown: 'Down', drive: 'Drive', neutral: 'Neutral',
     pressD: 'Neutral · tap D to pull away', pressUp: 'Neutral · tap ▲ for 1st to pull away', inN: 'Stopped: in neutral · rev it as you like', inD: 'In drive',
-    mode: 'Mode', landHard: 'Hard landing!', river: 'In the river! Back to the bank', apOff: 'Auto steering works on the city streets: steer this bit yourself',
+    mode: 'Mode', navBtn: 'Route', landHard: 'Hard landing!', river: 'In the river! Back to the bank', apOff: 'Auto steering works on the city streets: steer this bit yourself',
     overRev: 'Too fast for that gear: slow down, then shift down', topGear: 'Already in 6th', firstGear: 'Already in 1st',
     auto: 'Auto', steerAuto: 'Auto steering', autoOn: 'Steering assist on: just throttle and shift', autoOff: 'Steering assist off', autoTo: n => `Auto: heading for ${n}`, autoFree: 'Auto: cruising round the city',
     paints: ['Gloss black', 'Candy red', 'Midnight blue', 'Siam gold', 'Pearl white'],
@@ -560,7 +574,7 @@ const LANDMARKS = [
 
 /* ---------- settings (kept in this browser only) ---------- */
 const SAVE_KEY = 'tst-cruiser-v1';
-const settings = { mode: 'mission', mission: null, paint: 0, time: 'golden', engine: '', volume: 0.8, outfit: 0, gearbox: 'auto', quality: 'auto', cam: 0, sound: true, steer: 'pad', visited: [], odo: 0, top: 0 };
+const settings = { mode: 'mission', mission: null, nav: true, paint: 0, time: 'golden', engine: '', volume: 0.8, outfit: 0, gearbox: 'auto', quality: 'auto', cam: 0, sound: true, steer: 'pad', visited: [], odo: 0, top: 0 };
 try { Object.assign(settings, JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')); } catch (e) { /* storage blocked */ }
 if (!Array.isArray(settings.visited)) settings.visited = [];
 let saveTimer = 0;
@@ -4241,6 +4255,7 @@ const NS = SHOPS.length;
 const MS = { here: null, lock: null, stillT: 0, honks: [], cut: null, box: null, target: null, hud: '', floats: [] };
 const baht = n => '฿' + Math.round(n).toLocaleString('en-US');
 const MX = TH ? {
+  offer: 'อยากได้นาฬิกา VERDANT รุ่น 1864 ไหมคะ? รุ่นนี้หายากมาก ลองเริ่มภารกิจตามหาดูสิคะ (เริ่มที่ตึก The Siam Times)',
   title: 'ภารกิจ · นาฬิกา 1864', modeMission: 'ภารกิจ: ตามหานาฬิกา 1864', modeFree: 'ขี่เล่นอิสระ', mode: 'โหมด',
   find: n => `ตามหาร้าน VERDANT สีเขียว ${n}/${NS} (จุดเขียวบนแผนที่)`, signAt: s => `กลับไปลงชื่อ Want List ที่ ${s}`,
   earn: (g, n) => `เงินขาดอีก ${baht(g)} · ทำงานที่ตึก The Siam Times 1 เดือน หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์อย่างน้อย ${MISSION.women} คน (ทักแล้ว ${n} คน)`, buyAt: s => `เงินพอแล้ว! กลับไปซื้อ 1864 ที่ ${s}`,
@@ -4273,6 +4288,7 @@ const MX = TH ? {
   arriveH: 'กลับถึง The Siam Times', arriveP: 'นาฬิกา 1864 อยู่บนข้อมือ เพื่อนร่วมงานออกมาปรบมือต้อนรับที่หน้าตึก', waveWatch: 'เธอโบกมือให้คนใส่นาฬิกาสวย 👋',
   roleWL: 'ลง Want List แล้ว', roleWLno: 'ยังไม่ได้ลงชื่อ', roleBundle: 'ปฏิเสธการซื้อพ่วง', roleStock: 'มีของ 1864',
 } : {
+  offer: 'Looking for a VERDANT 1864? It is very hard to find. Why not start the mission to track one down (it begins at The Siam Times)?',
   title: 'Mission · the 1864 watch', modeMission: 'Mission: find the 1864 watch', modeFree: 'Free ride', mode: 'Mode',
   find: n => `Find the green VERDANT shops ${n}/${NS} (green dots on the map)`, signAt: s => `Go back and sign the Want List at ${s}`,
   earn: (g, n) => `${baht(g)} short · work a month at The Siam Times, or give two toots to at least ${MISSION.women} women riders (${n} so far)`, buyAt: s => `You have enough! Go back to ${s} and buy the 1864`,
@@ -4308,7 +4324,7 @@ const MX = TH ? {
 const shopName = S => TH ? S.th : S.en;
 // the mission in progress, or null (free ride, finished, failed)
 function mission() { const m = settings.mission; return settings.mode !== 'free' && m && m.v === 2 && !m.done && !m.failed ? m : null; }
-function newMission() { settings.watch = false; settings.mission = { v: 2, money: MISSION.start, reds: 0, order: [], roles: {}, wl: [], refused: false, worked: 0, tips: 0, tipN: 0, tipped: [], t0: Date.now(), done: false, failed: '' }; save(); }
+function newMission() { MS.goal = null; settings.watch = false; settings.mission = { v: 2, money: MISSION.start, reds: 0, order: [], roles: {}, wl: [], refused: false, worked: 0, tips: 0, tipN: 0, tipped: [], t0: Date.now(), done: false, failed: '' }; save(); }
 function missionObjective(m) {
   if (m.bought) return MX.home;
   if (m.order.length < NS) return MX.find(m.order.length);
@@ -4322,8 +4338,12 @@ function missionTarget(m) {
   if (!m) return null;
   const pt = S => ({ x: S.ring[0], z: S.ring[1], ax: S.ax, az: S.az, th: S.th, en: S.en, ring: S.ring, place: S });
   if (m.order.length < NS) {
+    // the nearest shop not yet seen; once chosen it stays the goal until you have been there, so the route does not jump about
+    const kept = SHOPS.find(S => S.id === MS.goal && !m.order.includes(S.id));
+    if (kept) return pt(kept);
     let best = null, bd = 1e9;
     for (const S of SHOPS) { if (m.order.includes(S.id)) continue; const d = Math.hypot(S.ring[0] - bike.x, S.ring[1] - bike.z); if (d < bd) { bd = d; best = S; } }
+    MS.goal = best && best.id;
     return best && pt(best);
   }
   const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
@@ -4342,13 +4362,16 @@ function missionUpdate(dt) {
     S.ringMesh.visible = show; S.beam.visible = !!m && MS.target && MS.target.place === S;
     if (show) { const k = 0.5 + 0.5 * Math.sin(time * 3); S.ringMesh.material.opacity = 0.3 + 0.35 * k; S.ringMesh.scale.setScalar(1 + 0.04 * k); }
   }
-  // standing in a ring: a button to go in; stopping there goes in by itself
-  let here = null;
-  if (m && Math.abs(bike.y - KERB) < 1.5) for (const S of [...SHOPS, STB]) if (Math.hypot(bike.x - S.ring[0], bike.z - S.ring[1]) < 5.4) here = S;
-  if (MS.lock && MS.lock !== here) MS.lock = null;
-  MS.here = here;
+  // in free ride the shops still show their rings, and going in offers the mission
+  const free = !m && settings.mode === 'free';
+  if (free) for (const S of SHOPS) { S.ringMesh.visible = true; S.ringMesh.material.opacity = 0.22 + 0.12 * Math.sin(time * 3); }
+  // near a place: a button to go in (from 12 m); stopping in its ring (6.5 m) goes in by itself
+  let here = null, near = null;
+  if ((m || free) && Math.abs(bike.y - KERB) < 1.5) for (const S of (m ? [...SHOPS, STB] : SHOPS)) { const d = Math.hypot(bike.x - S.ring[0], bike.z - S.ring[1]); if (d < 12) near = S; if (d < 6.5) here = S; }
+  if (MS.lock && MS.lock !== near) MS.lock = null;
+  MS.here = near;
   const btn = $('actBtn');
-  if (here && here !== MS.lock) { btn.hidden = false; const lbl = here === STB ? MX.enterST : MX.enter(shopName(here)); if (btn.textContent !== lbl) btn.textContent = lbl; }
+  if (near && near !== MS.lock) { btn.hidden = false; const lbl = near === STB ? MX.enterST : MX.enter(shopName(near)); if (btn.textContent !== lbl) btn.textContent = lbl; }
   else btn.hidden = true;
   if (here && here !== MS.lock && Math.abs(bike.v) < 0.5) { MS.stillT += dt; if (MS.stillT > 0.5) openPlace(here); } else MS.stillT = 0;
   MS.walkT = bike.surf === 'walk' ? 0 : (MS.walkT ?? 9) + dt;
@@ -4436,7 +4459,8 @@ function updateFloats(dt) {
 
 /* ---------- going into a shop, or The Siam Times ---------- */
 function openPlace(P) {
-  const m = mission(); if (!m) return;
+  const m = mission();
+  if (!m) { if (settings.mode === 'free' && P !== STB) freeShop(P); return; }
   MS.lock = P; MS.stillT = 0;
   missionSfx('door');
   if (P === STB) {
@@ -4459,6 +4483,11 @@ function openPlace(P) {
     if (m.money < MISSION.price) { dialog(P, MX.hello, MX.stockShort(MISSION.price, MISSION.price - m.money), [[MX.go, closeCut]], '1864'); return; }
     dialog(P, MX.hello, MX.stockBuy(MISSION.price), [[MX.buy, () => { m.money -= MISSION.price; save(); buyScene(P); }], [MX.notYet, closeCut]], '1864');
   }
+}
+// in free ride: the shop offers you the mission
+function freeShop(P) {
+  MS.lock = P; MS.stillT = 0; missionSfx('door');
+  dialog(P, MX.hello, MX.offer, [[MX.start, () => { closeCut(); missionRestart(); }], [MX.later, closeCut]], '1864');
 }
 // a card over a slow camera move in front of the place
 function dialog(P, head, text, buttons, pic) {
@@ -4860,16 +4889,7 @@ function pigeonMesh() {
   g.scale.setScalar(2.6); g.visible = false; scene.add(g); PIGEON.mesh = g;
 }
 // the way home along the streets: nearest crossing, the crossings between, then The Siam Times
-function pigeonPath() {
-  const iA = clamp(Math.round(bike.x / 100), 0, NX - 1), jA = clamp(Math.round((bike.z - RZ[0]) / 100), 0, NZ - 1), jT = RZ.indexOf(STB.az);
-  const key = (i, j) => i * 100 + j, prev = new Map([[key(iA, jA), null]]), q = [[iA, jA]];
-  let end = null;
-  while (q.length) { const [i, j] = q.shift(); if (j === jT && (i === 0 || i === 1)) { end = [i, j]; break; } for (const [dx, dz] of DIRS) { const ni = i + dx, nj = j + dz; if (!inGrid(ni, nj) || prev.has(key(ni, nj))) continue; prev.set(key(ni, nj), [i, j]); q.push([ni, nj]); } }
-  const nodes = []; for (let n = end; n; n = prev.get(key(n[0], n[1]))) nodes.unshift([RX[n[0]], RZ[n[1]]]);
-  const pts = [[bike.x, bike.z], ...nodes, [STB.ax, STB.az], [STB.ring[0], STB.ring[1]]];
-  const cum = [0]; for (let k = 1; k < pts.length; k++) cum.push(cum[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
-  return { pts, cum };
-}
+function pigeonPath() { return navRoute(STB.ring[0], STB.ring[1], STB.ax, STB.az); }
 function pathPoint(P, s) {
   const { pts, cum } = P; s = clamp(s, 0, cum[cum.length - 1]);
   let k = 1; while (k < cum.length - 1 && cum[k] < s) k++;
@@ -4910,6 +4930,183 @@ function updatePigeon(dt, m) {
   M.rotation.x = -0.12; M.position.y += Math.cos(ph) * 0.02;
   PIGEON.cooT -= dt; if (PIGEON.cooT <= 0) { PIGEON.cooT = 7 + Math.random() * 5; missionSfx('coo'); }
 }
+
+
+/* =====================================================================
+   Navigation, the way a phone map does it: the shortest way along the
+   streets to where you are going (the next VERDANT shop or The Siam
+   Times in the mission, the nearest postcard in free ride), a green
+   banner with the next turn and how far, the route drawn on both maps,
+   blue arrows on the road ahead, and a voice that says the turns.
+   ===================================================================== */
+const NAV = { route: null, key: '', t: 0, man: null, said: '', arrows: null, voice: null };
+const NX_ = TH ? {
+  left: 'เลี้ยวซ้าย', right: 'เลี้ยวขวา', straight: 'ตรงไป', uturn: 'กลับรถ', arrive: 'ถึงแล้ว',
+  onto: r => ` เข้า${r}`, side: s => s > 0 ? 'อยู่ทางขวา' : 'อยู่ทางซ้าย', to: n => `ไป ${n}`, m: d => `${d} ม.`, km: d => `${d} กม.`, min: n => `${n} นาที`,
+  inM: (d, what) => `อีก ${d} เมตร ${what}`, now: what => what, arrived: n => `ถึงแล้ว ${n}`, btn: 'นำทาง', on: 'เปิดการนำทาง', off: 'ปิดการนำทาง', lang: 'th-TH',
+} : {
+  left: 'Turn left', right: 'Turn right', straight: 'Continue', uturn: 'Make a U-turn', arrive: 'Arrive',
+  onto: r => ` onto ${r}`, side: s => s > 0 ? 'on the right' : 'on the left', to: n => `To ${n}`, m: d => `${d} m`, km: d => `${d} km`, min: n => `${n} min`,
+  inM: (d, what) => `In ${d} metres, ${what.toLowerCase()}`, now: what => what, arrived: n => `You have arrived at ${n}`, btn: 'Route', on: 'Navigation on', off: 'Navigation off', lang: 'en-GB',
+};
+const navOn = () => settings.nav !== false;
+
+/* ---------- the route ---------- */
+// the crossings at either end of the road a point is on (or the nearest crossing), with the distance to each
+function segEnds(x, z) {
+  const i = clamp(Math.round(x / 100), 0, NX - 1), j = clamp(Math.round((z - RZ[0]) / 100), 0, NZ - 1);
+  const onX = Math.abs(x - RX[i]) < WX[i] / 2 + 4.5, onZ = Math.abs(z - RZ[j]) < WZ[j] / 2 + 4.5;
+  if (onX && !onZ) { const j0 = clamp(Math.floor((z - RZ[0]) / 100), 0, NZ - 2); return [[i, j0, Math.abs(z - RZ[j0])], [i, j0 + 1, Math.abs(z - RZ[j0 + 1])]]; }
+  if (onZ && !onX) { const i0 = clamp(Math.floor(x / 100), 0, NX - 2); return [[i0, j, Math.abs(x - RX[i0])], [i0 + 1, j, Math.abs(x - RX[i0 + 1])]]; }
+  return [[i, j, Math.hypot(x - RX[i], z - RZ[j])]];
+}
+// the nearest point on the middle of a road, and how far it is
+function roadSnap(x, z) {
+  const i = clamp(Math.round(x / 100), 0, NX - 1), j = clamp(Math.round((z - RZ[0]) / 100), 0, NZ - 1);
+  const zc = clamp(z, RZ[0], RZ[NZ - 1]), xc = clamp(x, RX[0], RX[NX - 1]);
+  const dX = Math.hypot(x - RX[i], z - zc), dZ = Math.hypot(x - xc, z - RZ[j]);
+  return dX < dZ ? { x: RX[i], z: zc, d: dX, half: WX[i] / 2 } : { x: xc, z: RZ[j], d: dZ, half: WZ[j] / 2 };
+}
+// from the bike to a road point (ax, az) and on to the place itself (tx, tz)
+function navRoute(tx, tz, ax, az) {
+  // off the road (a forecourt, a park, the far bank): first the way out to the nearest road
+  const sn = roadSnap(bike.x, bike.z), off = sn.d > sn.half + 4.5;
+  const sx = off ? sn.x : bike.x, sz = off ? sn.z : bike.z;
+  const S = segEnds(sx, sz), E = segEnds(ax, az), key = (i, j) => i * NZ + j;
+  const pts = [[bike.x, bike.z]]; if (off) pts.push([sx, sz]);
+  const same = S.length === 2 && E.length === 2 && S.every(a => E.some(b => a[0] === b[0] && a[1] === b[1]));
+  if (!same) {
+    const dist = new Float64Array(NX * NZ).fill(1e9), prev = new Int32Array(NX * NZ).fill(-1), done = new Uint8Array(NX * NZ);
+    for (const [i, j, c] of S) { dist[key(i, j)] = c; }
+    for (;;) {
+      let u = -1, best = 1e9; for (let k = 0; k < NX * NZ; k++) if (!done[k] && dist[k] < best) { best = dist[k]; u = k; }
+      if (u < 0) break; done[u] = 1;
+      const ui = Math.floor(u / NZ), uj = u % NZ;
+      for (const [dx, dz] of DIRS) { const vi = ui + dx, vj = uj + dz; if (!inGrid(vi, vj)) continue; const v = key(vi, vj), w = best + Math.abs(RX[vi] - RX[ui]) + Math.abs(RZ[vj] - RZ[uj]); if (w < dist[v]) { dist[v] = w; prev[v] = u; } }
+    }
+    let end = -1, bc = 1e9; for (const [i, j, c] of E) { const k = key(i, j); if (dist[k] + c < bc) { bc = dist[k] + c; end = k; } }
+    const nodes = []; for (let k = end; k >= 0; k = prev[k]) nodes.unshift([RX[Math.floor(k / NZ)], RZ[k % NZ]]);
+    pts.push(...nodes);
+  }
+  pts.push([ax, az], [tx, tz]);
+  // drop points that sit on top of each other
+  const P = [pts[0]]; for (let k = 1; k < pts.length; k++) if (Math.hypot(pts[k][0] - P[P.length - 1][0], pts[k][1] - P[P.length - 1][1]) > 0.5) P.push(pts[k]);
+  const cum = [0]; for (let k = 1; k < P.length; k++) cum.push(cum[k - 1] + Math.hypot(P[k][0] - P[k - 1][0], P[k][1] - P[k - 1][1]));
+  return { pts: P, cum, len: cum[cum.length - 1] };
+}
+// where to go: the mission's next place, or the nearest postcard
+function navTarget() {
+  const mt = MS.target;
+  if (mt) return { x: mt.ring[0], z: mt.ring[1], ax: mt.ax, az: mt.az, th: mt.th, en: mt.en };
+  const L = apTarget(); if (!L) return null;
+  const [ax, az] = apPoint(L);
+  return { x: L.x, z: L.z, ax, az, th: L.th, en: L.en };
+}
+// the turns along the route
+function navManeuvers(R) {
+  const out = [], P = R.pts;
+  for (let k = 1; k < P.length - 1; k++) {
+    const d1x = P[k][0] - P[k - 1][0], d1z = P[k][1] - P[k - 1][1], d2x = P[k + 1][0] - P[k][0], d2z = P[k + 1][1] - P[k][1];
+    const l1 = Math.hypot(d1x, d1z) || 1, l2 = Math.hypot(d2x, d2z) || 1;
+    const cr = (d1x * d2z - d1z * d2x) / (l1 * l2), dt = (d1x * d2x + d1z * d2z) / (l1 * l2), a = Math.atan2(cr, dt);
+    if (k === P.length - 2) { out.push({ k, type: 'arrive', side: Math.sign(cr) || 1 }); continue; }
+    if (Math.abs(a) < 0.45) continue;
+    const mx = (P[k][0] + P[k + 1][0]) / 2, mz = (P[k][1] + P[k + 1][1]) / 2, r = roadAt(mx, mz);
+    out.push({ k, type: Math.abs(a) > 2.6 ? 'uturn' : a > 0 ? 'right' : 'left', road: r ? (TH ? r.th : r.en) : '' });
+  }
+  if (!out.length || out[out.length - 1].type !== 'arrive') out.push({ k: P.length - 1, type: 'arrive', side: 1 });
+  return out;
+}
+
+/* ---------- each frame ---------- */
+const _nv = new THREE.Vector3();
+function navUpdate(dt) {
+  const T_ = navOn() && state === 'ride' ? navTarget() : null;
+  $('hud').classList.toggle('nav', !!T_);
+  if (!T_) { $('navBar').hidden = true; if (NAV.arrows) NAV.arrows.visible = false; NAV.route = null; return; }
+  const key = `${Math.round(T_.x)},${Math.round(T_.z)}`;
+  NAV.t -= dt;
+  let prog = 0, off = 0;
+  if (NAV.route) [prog, off] = pathProgress(NAV.route, bike.x, bike.z);
+  if (!NAV.route || key !== NAV.key || NAV.t <= 0 || off > 18) { NAV.route = navRoute(T_.x, T_.z, T_.ax, T_.az); NAV.key = key; NAV.t = 1.5; NAV.mans = navManeuvers(NAV.route); [prog, off] = pathProgress(NAV.route, bike.x, bike.z); }
+  const R = NAV.route, name = TH ? T_.th : T_.en;
+  let man = NAV.mans.find(m => R.cum[m.k] > prog + 1.5) || NAV.mans[NAV.mans.length - 1];
+  let dist = Math.max(0, R.cum[man.k] - prog);
+  const left = Math.max(0, R.len - prog);
+  // the route runs back the way you came: turn round first
+  { const [x2, z2] = pathPoint(R, prog + 6), hx = x2 - bike.x, hz = z2 - bike.z, l = Math.hypot(hx, hz);
+    if (l > 2 && (hx * -Math.sin(bike.yaw) + hz * -Math.cos(bike.yaw)) / l < -0.6) { man = { k: -1, type: 'uturn', road: '' }; dist = 0; } }
+  // the banner
+  const what = man.type === 'arrive' ? `${NX_.arrive} · ${NX_.side(man.side)}` : `${NX_[man.type]}${man.road ? NX_.onto(man.road) : ''}`;
+  const dTxt = man.k < 0 ? (TH ? 'ตอนนี้' : 'Now') : dist < 1000 ? NX_.m(Math.max(10, Math.round(dist / 10) * 10)) : NX_.km((dist / 1000).toFixed(1));
+  const lTxt = left < 1000 ? NX_.m(Math.round(left / 10) * 10) : NX_.km((left / 1000).toFixed(1));
+  const eta = Math.max(1, Math.round(left / 9 / 60));
+  const sig = [man.type, dTxt, what, name, lTxt, eta].join('|');
+  if (sig !== NAV.sig) {
+    NAV.sig = sig; $('navBar').hidden = false;
+    $('navIcon').innerHTML = NAV_ICONS[man.type] || NAV_ICONS.straight;
+    $('navDist').textContent = dTxt; $('navWhat').textContent = what;
+    $('navTo').textContent = `${NX_.to(name)} · ${lTxt} · ${NX_.min(eta)}`;
+  }
+  // the voice: once a little way before each turn, and on arrival
+  const sayKey = `${NAV.key}:${man.k}`;
+  if (man.k < 0) { if (NAV.said !== sayKey) { NAV.said = sayKey; navSay(what); } navArrows(R, prog); return; }
+  if (dist < 130 && dist > 60 && NAV.said !== sayKey + 'far' && man.type !== 'arrive') { NAV.said = sayKey + 'far'; navSay(NX_.inM(Math.round(dist / 10) * 10, what)); }
+  else if (dist < 22 && NAV.said !== sayKey + 'now') { NAV.said = sayKey + 'now'; navSay(man.type === 'arrive' ? NX_.arrived(name) : NX_.now(what)); }
+  navArrows(R, prog);
+}
+function navSay(text) {
+  if (!settings.sound || settings.volume <= 0 || !('speechSynthesis' in window)) return;
+  try {
+    const vs = speechSynthesis.getVoices(), v = vs.find(v => v.lang && v.lang.toLowerCase().startsWith(NX_.lang.slice(0, 2)));
+    if (!v) return;     // no voice for this language on this device: stay quiet rather than mispronounce
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.voice = v; u.lang = v.lang; u.rate = 1.05; u.volume = Math.min(1, settings.volume + 0.2);
+    speechSynthesis.speak(u);
+  } catch (e) { /* no speech here */ }
+}
+// blue arrows painted on the road for the next stretch of the route
+function navArrows(R, prog) {
+  if (!NAV.arrows) {
+    const sh = new THREE.Shape(); sh.moveTo(0, -0.9); sh.lineTo(0.75, 0.15); sh.lineTo(0.45, 0.45); sh.lineTo(0, -0.1); sh.lineTo(-0.45, 0.45); sh.lineTo(-0.75, 0.15); sh.closePath();
+    const g = new THREE.ShapeGeometry(sh).rotateX(-Math.PI / 2).scale(1.7, 1, 1.5);
+    NAV.arrows = new THREE.InstancedMesh(g, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }), 22);
+    NAV.arrows.frustumCulled = false; NAV.arrows.renderOrder = 3; scene.add(NAV.arrows);
+    for (let k = 0; k < 22; k++) NAV.arrows.setColorAt(k, new THREE.Color(0x3d8bff));
+  }
+  const A = NAV.arrows, M = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0), s = new THREE.Vector3(1, 1, 1), c = new THREE.Color();
+  let n = 0;
+  for (let d = 8; d < 160 && n < 22; d += 7) {
+    const at = prog + d; if (at > R.len - 4) break;
+    const [x, z] = pathPoint(R, at), [x2, z2] = pathPoint(R, at + 1);
+    const y = groundAt(x, z).h + 0.04;
+    q.setFromAxisAngle(up, Math.atan2(-(x2 - x), -(z2 - z)));
+    A.setMatrixAt(n, M.compose(_nv.set(x, y, z), q, s));
+    const wave = 0.35 + 0.65 * Math.max(0, Math.sin(time * 4 - d * 0.12)), fade = Math.min(1, (160 - d) / 50);
+    A.setColorAt(n, c.setRGB(0.45, 0.85, 1.7).multiplyScalar(wave * fade)); n++;
+  }
+  A.count = n; A.visible = n > 0; A.instanceMatrix.needsUpdate = true; if (A.instanceColor) A.instanceColor.needsUpdate = true;
+}
+// the route on the minimap and the big map
+function drawNavRoute(x, s) {
+  const R = NAV.route; if (!R || !navOn()) return;
+  x.lineJoin = 'round'; x.lineCap = 'round';
+  const line = () => { x.beginPath(); R.pts.forEach(([px, pz], k) => k ? x.lineTo(px, pz) : x.moveTo(px, pz)); x.stroke(); };
+  x.strokeStyle = '#ffffff'; x.lineWidth = 11 / s * (s < 0.3 ? 0.5 : 1); line();
+  x.strokeStyle = '#2f7cf6'; x.lineWidth = 7 / s * (s < 0.3 ? 0.5 : 1); line();
+  // the destination: a red pin
+  const [px, pz] = R.pts[R.pts.length - 1], r = 9 / s * (s < 0.3 ? 0.6 : 1);
+  x.fillStyle = '#e8453c'; x.beginPath(); x.arc(px, pz - r, r, Math.PI * 0.85, Math.PI * 2.15); x.lineTo(px, pz); x.closePath(); x.fill();
+  x.fillStyle = '#ffffff'; x.beginPath(); x.arc(px, pz - r, r * 0.38, 0, Math.PI * 2); x.fill();
+}
+const NAV_ICONS = {
+  straight: '<svg viewBox="0 0 24 24"><path d="M12 3l6 7h-4v11h-4V10H6z" fill="currentColor"/></svg>',
+  left: '<svg viewBox="0 0 24 24"><path d="M9 4L3 9.5 9 15v-4h6a3 3 0 0 1 3 3v7h3v-7a6 6 0 0 0-6-6H9z" fill="currentColor"/></svg>',
+  right: '<svg viewBox="0 0 24 24"><path d="M15 4l6 5.5-6 5.5v-4H9a3 3 0 0 0-3 3v7H3v-7a6 6 0 0 1 6-6h6z" fill="currentColor"/></svg>',
+  uturn: '<svg viewBox="0 0 24 24"><path d="M6 21V9a5 5 0 0 1 10 0v4h3l-4.5 5L10 13h3V9a2 2 0 0 0-4 0v12z" fill="currentColor"/></svg>',
+  arrive: '<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="currentColor"/></svg>',
+};
+function navUI() { const b = $('navBtn'); if (b) b.setAttribute('aria-pressed', navOn() ? 'true' : 'false'); }
 
 
 /* =====================================================================
@@ -5296,6 +5493,7 @@ function rideUpdate(dt) {
   // places
   checkPlaces();
   missionUpdate(dt);
+  navUpdate(dt);
   audioUpdate(dt, audioState(bike.throttle));
 }
 
@@ -5528,12 +5726,20 @@ function drawMapBase(x, s) {
   for (let j = 0; j < NZ; j++) x.fillRect(RX[0] - WX[0] / 2, RZ[j] - WZ[j] / 2, RX[NX - 1] - RX[0] + WX[0], WZ[j]);
   x.strokeStyle = '#8fa6bd'; x.lineWidth = 3 / s; x.beginPath(); x.moveTo(BTS.x0, 100); x.lineTo(BTS.x1, 100); x.stroke();
   drawLevelsMap(x, s);
+  drawNavRoute(x, s);
   drawMissionMap(x, s);
 }
 /* the whole city, north up, in the pause menu */
 function drawBigMap() {
   const c = $('bigmap'), x = c.getContext('2d'), W = c.width, H = c.height;
-  const wx0 = -330, wx1 = MAP.x1 + 10, wz0 = MAP.z0 + 60, wz1 = MAP.z1 - 60;
+  let wx0 = -330, wx1 = MAP.x1 + 10, wz0 = MAP.z0 + 60, wz1 = MAP.z1 - 60;
+  // with a route, zoom to it (and the bike), at least 600 m across
+  if (NAV.route && navOn()) {
+    const xs = [bike.x, ...NAV.route.pts.map(p => p[0])], zs = [bike.z, ...NAV.route.pts.map(p => p[1])];
+    let a0 = Math.min(...xs) - 90, a1 = Math.max(...xs) + 90, b0 = Math.min(...zs) - 90, b1 = Math.max(...zs) + 90;
+    const want = Math.max(600, a1 - a0, (b1 - b0) * W / H), cx = (a0 + a1) / 2, cz = (b0 + b1) / 2;
+    wx0 = cx - want / 2; wx1 = cx + want / 2; wz0 = cz - want * H / W / 2; wz1 = cz + want * H / W / 2;
+  }
   const s = Math.min((W - 20) / (wx1 - wx0), (H - 20) / (wz1 - wz0));
   const ox = (W - (wx1 - wx0) * s) / 2 - wx0 * s, oz = (H - (wz1 - wz0) * s) / 2 - wz0 * s;
   x.clearRect(0, 0, W, H); x.fillStyle = '#121a22'; x.fillRect(0, 0, W, H);
@@ -5586,6 +5792,7 @@ function bindHold(id, on, off) {
 function bindInput() {
   bindHold('throttleBtn', () => { input.throttle = 1; }, () => { input.throttle = 0; });
   bindHold('brakeBtn', () => { input.brake = 1; }, () => { input.brake = 0; });
+  $('navBtn').addEventListener('click', () => { SFX.click(); settings.nav = !navOn(); save(); navUI(); toast(navOn() ? NX_.on : NX_.off); });
   $('actBtn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (MS.here) openPlace(MS.here); });
   bindHold('hornBtn', () => { SFX.horn(true); $('hornBtn').classList.add('on'); missionHonk(); }, () => { SFX.horn(false); $('hornBtn').classList.remove('on'); });
   $('cruiseBtn').addEventListener('pointerdown', e => { e.preventDefault(); toggleCruise(); });
@@ -5781,7 +5988,7 @@ function startRide() {
   HUDS.road = ''; HUDS.dist = '';
   visUI(); soundUI(); cruiseUI(); gearUI();
   if (settings.cam === 3 && !AP.on) apSet(true, true); else autoUI();
-  missionStart();
+  missionStart(); navUI(); NAV.route = null;
   $('steer').classList.toggle('tilt', settings.steer === 'tilt');
   if (settings.steer === 'tilt' && !tilt.on) setSteerMode('tilt');
   resize();
@@ -5879,7 +6086,7 @@ async function boot() {
 }
 requestAnimationFrame(frame);
 boot().catch(err => { console.error(err); $('loadText').textContent = T.loadFail + ' (' + (err && err.message || err) + ')'; });
-if (/[?&]debug\b/.test(location.search)) window.__cruiser = { PIGEON, buyScene, wearIt, wantListScene, cutNow: () => { state = 'cut'; }, TRAFFIC, MS, SHOPS, STB, MISSION, mission, newMission, openPlace, missionHonk, ranRed, closeCut, missionStart, missionRestart, missionTarget, get mstate() { return settings.mission; }, driveTap, setNeutral, DECKS, LV, UW, deckAt, surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
+if (/[?&]debug\b/.test(location.search)) window.__cruiser = { NAV, navRoute, PIGEON, buyScene, wearIt, wantListScene, cutNow: () => { state = 'cut'; }, TRAFFIC, MS, SHOPS, STB, MISSION, mission, newMission, openPlace, missionHonk, ranRed, closeCut, missionStart, missionRestart, missionTarget, get mstate() { return settings.mission; }, driveTap, setNeutral, DECKS, LV, UW, deckAt, surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
 
 </script>
 <script>
