@@ -136,6 +136,12 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 .gbtn { width: 78px; height: 62px; border-radius: 16px; border: 1px solid var(--rule); background: var(--glass); color: var(--paper); cursor: pointer; display: grid; place-content: center; font: 600 22px/1 var(--font-ui); gap: 2px; }
 .gbtn small { font: 500 10.5px/1 var(--font-ui); color: var(--muted); letter-spacing: .06em; }
 .gbtn.on { background: rgba(214, 173, 95, .35); border-color: var(--brass); }
+.gbtn[hidden] { display: none; }
+.dbtn b { font: 700 26px/1 var(--font-ui); }
+.dbtn.d b { color: #8fc3ea; }
+.dbtn.n { border-color: var(--brass); animation: dpulse 1.1s ease-in-out infinite; }
+.dbtn.n b { color: var(--brass-hi); }
+@keyframes dpulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(214, 173, 95, 0); } 50% { box-shadow: 0 0 0 6px rgba(214, 173, 95, .35); } }
 #steer.auto .pad { opacity: .45; }
 #steer.auto .lbl { color: var(--blue); }
 
@@ -207,8 +213,8 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 .pside { display: grid; gap: 14px; min-width: 0; }
 #bigmap { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--rule); background: #121a22; }
 @media (max-width: 640px) { .pgrid { grid-template-columns: 1fr; } #bigmap { max-width: 300px; justify-self: center; } }
-.album { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.album div { border: 1px solid var(--rule); border-radius: 8px; padding: 8px; font: 500 12px/1.3 var(--font-ui); color: var(--muted); min-height: 46px; }
+.album { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; align-content: start; }
+.album div { border: 1px solid var(--rule); border-radius: 8px; padding: 6px 7px; font: 500 12px/1.3 var(--font-ui); color: var(--muted); }
 .album div.got { background: #f3ecdc; color: #1b232c; border-color: #f3ecdc; }
 .album div.got::before { content: "✓ "; color: #8a6420; font-weight: 700; }
 .btnrow { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -267,7 +273,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
     <div id="postcard" aria-live="polite"><div class="stamp">T</div><div class="pk" data-i18n="postcard"></div><h3 id="pcTitle"></h3><p id="pcText"></p></div>
     <canvas id="gauge" width="460" height="460" aria-hidden="true"></canvas>
     <div id="steer"><div class="pad"><i></i><i></i><i></i><div id="knob"></div><div class="lbl" id="steerLbl" data-i18n="steer"></div></div></div>
-    <div id="gearBox" hidden><button class="gbtn" id="gearUp" type="button">▲<small data-i18n="gearUp"></small></button><button class="gbtn" id="gearDown" type="button">▼<small data-i18n="gearDown"></small></button></div>
+    <div id="gearBox"><button class="gbtn dbtn" id="driveBtn" type="button"><b>D</b><small id="driveSub"></small></button><button class="gbtn" id="gearUp" type="button" hidden>▲<small data-i18n="gearUp"></small></button><button class="gbtn" id="gearDown" type="button" hidden>▼<small data-i18n="gearDown"></small></button></div>
     <div class="pedals">
       <button class="pbtn" id="hornBtn" type="button"><span data-i18n="horn"></span></button>
       <button class="pbtn" id="cruiseBtn" type="button" aria-pressed="false"><span data-i18n="cruise"></span></button>
@@ -350,15 +356,17 @@ let state = 'loading';
 const STR = {
   th: {
     kicker: 'Bangkok Cruiser', title: 'ล่องกรุง',
-    lede: 'บิ๊กไบค์ครูเซอร์ V-Twin เสียงลูกสูบคู่ทุ้มลึก ขี่ชมกรุงเทพฯ จากริมเจ้าพระยาถึงเยาวราช ใต้รางรถไฟฟ้า ถึงสุขุมวิท ขี่ได้ทุกที่ทั้งถนน ฟุตปาธ ซอย สวน และสนามหลวง เก็บโปสการ์ดให้ครบ 13 จุด',
+    lede: 'บิ๊กไบค์ครูเซอร์ V-Twin เสียงลูกสูบคู่ทุ้มลึก ขี่ชมกรุงเทพฯ จากริมเจ้าพระยาถึงเยาวราช ใต้รางรถไฟฟ้า ถึงสุขุมวิท ขี่ได้ทุกที่ทั้งถนน ฟุตปาธ ซอย สวน และสนามหลวง ข้ามสะพาน ลอดอุโมงค์ใต้น้ำ ขึ้นดาดฟ้า เก็บโปสการ์ดให้ครบ 16 จุด',
     paint: 'สีรถ', time: 'ช่วงเวลา', engine: 'เสียงเครื่องยนต์', volume: 'ความดังเสียง', mute: 'ปิดเสียง', outfit: 'ชุดคนขี่', gearbox: 'เกียร์', quality: 'กราฟิก', start: 'ติดเครื่อง',
-    gearAuto: 'อัตโนมัติ', gearManual: 'ธรรมดา (กดเปลี่ยนเอง)', rev: 'บิดเร่ง', revHold: 'กดค้างไว้', gearUp: 'เกียร์ขึ้น', gearDown: 'เกียร์ลง',
+    gearAuto: 'อัตโนมัติ', gearManual: 'ธรรมดา (กดเปลี่ยนเอง)', rev: 'บิดเร่ง', revHold: 'กดค้างไว้', gearUp: 'เกียร์ขึ้น', gearDown: 'เกียร์ลง', drive: 'ขับ', neutral: 'เกียร์ว่าง',
+    pressD: 'เกียร์ว่าง (N) · กดปุ่ม D เพื่อออกตัว', pressUp: 'เกียร์ว่าง (N) · กด ▲ เข้าเกียร์ 1 เพื่อออกตัว', inN: 'จอดแล้ว เข้าเกียร์ว่าง · บิดเร่งเบิ้ลเครื่องได้', inD: 'เข้าเกียร์ D',
+    landHard: 'ลงกระแทก!', river: 'ตกแม่น้ำ! กลับขึ้นฝั่ง', apOff: 'ออโต้ใช้ได้บนถนนในเมือง ช่วงนี้บังคับเองนะ',
     overRev: 'เร็วเกินสำหรับเกียร์นั้น ชะลอก่อนแล้วค่อยลดเกียร์', topGear: 'เกียร์ 6 สูงสุดแล้ว', firstGear: 'เกียร์ 1 ต่ำสุดแล้ว',
     auto: 'ออโต้', steerAuto: 'ออโต้เลี้ยวให้', autoOn: 'ระบบช่วยเลี้ยว: เปิด แค่บีบคันเร่งกับเปลี่ยนเกียร์', autoOff: 'ระบบช่วยเลี้ยว: ปิด', autoTo: n => `ออโต้กำลังพาไป ${n}`, autoFree: 'ออโต้: ขี่ชมเมืองไปเรื่อย ๆ',
     paints: ['ดำเงา', 'แดงแคนดี้', 'น้ำเงินเที่ยงคืน', 'ทองสยาม', 'ขาวมุก'],
     times: { day: 'กลางวัน', golden: 'ยามเย็น', dusk: 'พลบค่ำ', night: 'กลางคืน' },
     quals: { auto: 'อัตโนมัติ', high: 'สูง', medium: 'กลาง', low: 'ประหยัด' },
-    help: '<b>ซ้าย</b> แตะค้างแล้วลากซ้าย–ขวาเพื่อเลี้ยว (เกียร์ธรรมดา: ปุ่ม ▲ ▼ อยู่เหนือแฮนด์) · <b>ขวา</b> เร่ง / เบรก (หยุดแล้วกดเบรกค้างเพื่อถอย) · <b>ครูซ</b> คงความเร็ว · <b>ออโต้</b> เลี้ยวให้เอง เปิดเองในมุมถ่ายทอด · เปิดเสียง iPad ด้วย<br>คีย์บอร์ด: ↑↓←→ หรือ WASD · Space เบรก · E / Q เกียร์ขึ้น / ลง · G ออโต้ · H แตร · X ครูซ · C มุมกล้อง · T เวลา · P พัก',
+    help: '<b>ซ้าย</b> แตะค้างแล้วลากซ้าย–ขวาเพื่อเลี้ยว · จอดนิ่งแล้วรถเข้าเกียร์ว่าง (N) บิดเร่งเบิ้ลได้ กดปุ่ม <b>D</b> เหนือแฮนด์เพื่อออกตัว (เกียร์ธรรมดา: ▲ ▼) · <b>ขวา</b> เร่ง / เบรก (หยุดแล้วกดเบรกค้างเพื่อถอย) · <b>ครูซ</b> คงความเร็ว · <b>ออโต้</b> เลี้ยวให้เอง เปิดเองในมุมถ่ายทอด · เปิดเสียง iPad ด้วย<br>คีย์บอร์ด: ↑↓←→ หรือ WASD · Space เบรก · E / Q เกียร์ขึ้น / ลง (E = D) · G ออโต้ · H แตร · X ครูซ · C มุมกล้อง · T เวลา · P พัก',
     cam: 'กล้อง', timeBtn: 'เวลา', sound: 'เสียง', pause: 'พัก',
     steer: 'แฮนด์', horn: 'แตร', cruise: 'ครูซ', brake: 'เบรก', throttle: 'เร่ง',
     postcard: 'โปสการ์ดจากกรุงเทพฯ', paused: 'พักริมทาง', odo: 'กิโลเมตรที่ขี่', topSpeed: 'ความเร็วสูงสุด กม./ชม.', postcards: 'โปสการ์ด',
@@ -377,15 +385,17 @@ const STR = {
   },
   en: {
     kicker: 'ล่องกรุง', title: 'Bangkok Cruiser',
-    lede: 'A big V-twin cruiser with that deep, loping two-cylinder beat. Ride Bangkok from the Chao Phraya to Chinatown, under the Skytrain and out along Sukhumvit. Ride anywhere you fit: roads, pavements, sois, parks and Sanam Luang. Collect all 13 postcards.',
+    lede: 'A big V-twin cruiser with that deep, loping two-cylinder beat. Ride Bangkok from the Chao Phraya to Chinatown, under the Skytrain and out along Sukhumvit. Ride anywhere you fit: roads, pavements, sois, parks and Sanam Luang, over the river, under it and up onto a roof. Collect all 16 postcards.',
     paint: 'Paint', time: 'Time of day', engine: 'Engine sound', volume: 'Volume', mute: 'Muted', outfit: 'Rider’s outfit', gearbox: 'Gearbox', quality: 'Graphics', start: 'Start the engine',
-    gearAuto: 'Automatic', gearManual: 'Manual (tap to shift)', rev: 'Rev it', revHold: 'press and hold', gearUp: 'Up', gearDown: 'Down',
+    gearAuto: 'Automatic', gearManual: 'Manual (tap to shift)', rev: 'Rev it', revHold: 'press and hold', gearUp: 'Up', gearDown: 'Down', drive: 'Drive', neutral: 'Neutral',
+    pressD: 'Neutral · tap D to pull away', pressUp: 'Neutral · tap ▲ for 1st to pull away', inN: 'Stopped: in neutral · rev it as you like', inD: 'In drive',
+    landHard: 'Hard landing!', river: 'In the river! Back to the bank', apOff: 'Auto steering works on the city streets: steer this bit yourself',
     overRev: 'Too fast for that gear: slow down, then shift down', topGear: 'Already in 6th', firstGear: 'Already in 1st',
     auto: 'Auto', steerAuto: 'Auto steering', autoOn: 'Steering assist on: just throttle and shift', autoOff: 'Steering assist off', autoTo: n => `Auto: heading for ${n}`, autoFree: 'Auto: cruising round the city',
     paints: ['Gloss black', 'Candy red', 'Midnight blue', 'Siam gold', 'Pearl white'],
     times: { day: 'Day', golden: 'Golden hour', dusk: 'Dusk', night: 'Night' },
     quals: { auto: 'Auto', high: 'High', medium: 'Medium', low: 'Saver' },
-    help: '<b>Left</b>: hold and slide left or right to steer (manual gearbox: ▲ ▼ above the bars) · <b>Right</b>: throttle and brake (stopped, hold the brake to back up) · <b>Cruise</b> holds your speed · <b>Auto</b> steers for you, and comes on by itself in the broadcast camera · Turn the iPad’s sound on<br>Keyboard: arrows or WASD · Space brake · E / Q shift up / down · G auto steering · H horn · X cruise · C camera · T time · P pause',
+    help: '<b>Left</b>: hold and slide left or right to steer · Stopped, the bike drops into neutral (N) and you can rev it; tap <b>D</b> above the bars to pull away (manual gearbox: ▲ ▼) · <b>Right</b>: throttle and brake (stopped, hold the brake to back up) · <b>Cruise</b> holds your speed · <b>Auto</b> steers for you, and comes on by itself in the broadcast camera · Turn the iPad’s sound on<br>Keyboard: arrows or WASD · Space brake · E / Q shift up / down (E = D) · G auto steering · H horn · X cruise · C camera · T time · P pause',
     cam: 'Camera', timeBtn: 'Time', sound: 'Sound', pause: 'Pause',
     steer: 'Bars', horn: 'Horn', cruise: 'Cruise', brake: 'Brake', throttle: 'Throttle',
     postcard: 'Postcard from Bangkok', paused: 'Pulled over', odo: 'km ridden', topSpeed: 'top speed km/h', postcards: 'postcards',
@@ -446,6 +456,15 @@ const LANDMARKS = [
   { id: 'market', x: 450, z: 500, th: 'ตลาดนัดกลางคืน', en: 'Night Market',
     tTh: 'หลังคาเต็นท์หลากสีเรียงเป็นแถว ทั้งของกิน เสื้อผ้ามือสอง ของเก่า และดนตรีสด',
     tEn: 'Rows of coloured tents: food, second-hand clothes, old curios and live music.' },
+  { id: 'bridge', x: -146, z: -100, r: 20, noAP: true, th: 'สะพานพระพุทธยอดฟ้า', en: 'Memorial Bridge',
+    tTh: 'สะพานพุทธ เปิดเมื่อ พ.ศ. 2475 ฉลองกรุงรัตนโกสินทร์ครบ 150 ปี เชื่อมฝั่งพระนครกับฝั่งธนบุรี จากยอดโค้งสะพานมองเห็นแม่น้ำได้ทั้งสองทาง',
+    tEn: 'Memorial Bridge, opened in 1932 for Bangkok’s 150th anniversary, joins the old city to the Thonburi bank. From the top of its arch you can see up and down the river.' },
+  { id: 'tunnel', x: -141, z: 600, r: 18, ymax: -3, noAP: true, th: 'อุโมงค์ลอดแม่น้ำ', en: 'The River Tunnel',
+    tTh: 'อุโมงค์กระจกใต้แม่น้ำเจ้าพระยา (มีในเกมนี้เท่านั้น) มองเห็นปลาบึก ปลาสวาย ปลานิล และฝูงปลาตะเพียนว่ายรอบตัว',
+    tEn: 'A glass tunnel under the Chao Phraya (only in this game): giant catfish, iridescent sharks, tilapia and shoals of silver barbs swim all round you.' },
+  { id: 'roof', x: 229, z: 229, r: 15, y: 5, noAP: true, th: 'ลานจอดรถชั้นดาดฟ้า', en: 'Rooftop Car Park',
+    tTh: 'ขี่ขึ้นทางลาดไปบนดาดฟ้า มองเห็นสวนลุมพินีกับตึกสีลม แล้วลงทางสะพานแคบ ๆ กว้างแค่ 2 เมตร ถ้ากล้าพอ',
+    tEn: 'Ride up the ramp to the roof for a view over Lumphini and the Silom towers, then come down the narrow bridge, two metres wide, if you dare.' },
 ];
 
 /* ---------- settings (kept in this browser only) ---------- */
@@ -1050,9 +1069,9 @@ function buildTextures() {
     x.fillStyle = '#fbfaf4'; x.fillRect(0, 0, 512, 384);
     x.strokeStyle = '#0b0b0b'; x.lineWidth = 12; x.strokeRect(10, 10, 492, 364);
     x.fillStyle = '#0b0b0b'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    fitText(x, '1กข', 300, 104, '700', FONT_TH); x.fillText('1กข', 256, 88);
+    fitText(x, '3ขษ', 300, 104, '700', FONT_TH); x.fillText('3ขษ', 256, 88);
     fitText(x, 'กรุงเทพมหานคร', 420, 50, '600', FONT_TH); x.fillText('กรุงเทพมหานคร', 256, 164);
-    fitText(x, '1864', 450, 176, '700', FONT_TH); x.fillText('1864', 256, 282);
+    fitText(x, '988', 450, 176, '700', FONT_TH); x.fillText('988', 256, 282);
     TEX.plate = tex(c, { repeat: false });
   }
   /* tank lettering */
@@ -1129,7 +1148,7 @@ const GRID = [
   ['river', 'river', 'biz', 'biz', 'suk', 'suk'],
   ['river', 'river', 'biz', 'biz', 'market', 'suk'],
 ];
-const SPECIAL = { '0,-2': 'palace', '1,-2': 'sanam', '3,-2': 'mount', '1,-4': 'khaosan', '1,-3': 'khaosan', '0,7': 'wheel', '8,4': 'park' };
+const SPECIAL = { '2,2': 'skypark', '0,-2': 'palace', '1,-2': 'sanam', '3,-2': 'mount', '1,-4': 'khaosan', '1,-3': 'khaosan', '0,7': 'wheel', '8,4': 'park' };
 function blockType(bx, bz) {
   const s = SPECIAL[bx + ',' + bz]; if (s) return s;
   if (bx >= 0 && bx <= 5 && bz >= 0 && bz <= 5) return GRID[bz][bx];
@@ -1144,9 +1163,11 @@ const DISTRICT = {
   sanam: ['เกาะรัตนโกสินทร์', 'Rattanakosin · Old Town'], mount: ['ภูเขาทอง–ป้อมปราบ', 'Golden Mount'], khaosan: ['บางลำพู', 'Banglamphu'],
   china: ['เยาวราช', 'Yaowarat · Chinatown'], river: ['ริมน้ำเจ้าพระยา', 'Chao Phraya Riverside'], wheel: ['ริมน้ำเจ้าพระยา', 'Chao Phraya Riverside'],
   siam: ['สยาม–ปทุมวัน', 'Siam · Pathum Wan'], biz: ['สีลม–สาทร', 'Silom · Sathon'], park: ['สวนลุมพินี', 'Lumphini'],
-  suk: ['สุขุมวิท', 'Sukhumvit'], market: ['สุขุมวิท', 'Sukhumvit'],
+  suk: ['สุขุมวิท', 'Sukhumvit'], market: ['สุขุมวิท', 'Sukhumvit'], skypark: ['สีลม–สาทร', 'Silom · Sathon'],
 };
 function districtLabel(x, z) {
+  if (x < -276) return ['ฝั่งธนบุรี', 'Thonburi'];
+  if (x < -16) return ['แม่น้ำเจ้าพระยา', 'Chao Phraya River'];
   const [bx, bz] = cellOf(x, z), t = districtAt(x, z);
   if (t === 'park' && bx === 8) return ['สวนเบญจกิติ', 'Benchakitti Park'];
   if (t === 'siam' && bz < 0) return ['ราชเทวี', 'Ratchathewi'];
@@ -1170,13 +1191,15 @@ function colInsert(o, x0, z0, x1, z1) {
     }
 }
 function addRect(x0, z0, x1, z1) { if (x1 < x0) [x0, x1] = [x1, x0]; if (z1 < z0) [z0, z1] = [z1, z0]; colInsert({ t: 0, x0, z0, x1, z1 }, x0, z0, x1, z1); }
+// colliders with y0/y1 only stop you between those heights (y: the bike's height; omitted: everything counts)
 const addCircle = (x, z, r) => colInsert({ t: 1, x, z, r }, x - r, z - r, x + r, z + r);
 const addEllipse = (x, z, rx, rz) => colInsert({ t: 2, x, z, rx, rz }, x - rx, z - rz, x + rx, z + rz);
 const colNear = (x, z) => COL.grid.get(ckey(Math.floor(x / COL.cell), Math.floor(z / COL.cell))) || NONE;
 // push point p {x,z} out of everything; returns the last contact normal or null
-function collide(p, r) {
+function collide(p, r, y) {
   let hit = null;
   const test = o => {
+    if (o.y1 !== undefined && y !== undefined && (y > o.y1 - 0.25 || y + 1.5 < o.y0)) return;
     if (o.t === 0) {
       if (p.x < o.x0 - r || p.x > o.x1 + r || p.z < o.z0 - r || p.z > o.z1 + r) return;
       const dl = p.x - (o.x0 - r), dr = (o.x1 + r) - p.x, dt = p.z - (o.z0 - r), db = (o.z1 + r) - p.z, m = Math.min(dl, dr, dt, db);
@@ -1194,8 +1217,8 @@ function collide(p, r) {
   for (const o of colNear(p.x, p.z)) test(o);
   return hit;
 }
-function insideSolid(x, z, r = 0) {
-  const p = { x, z }; const h = collide(p, r); return !!h;
+function insideSolid(x, z, r = 0, y) {
+  const p = { x, z }; const h = collide(p, r, y); return !!h;
 }
 
 /* ---------- blocks by cell, for the ground height ---------- */
@@ -1474,7 +1497,8 @@ function buildBlocks() {
   // the river promenade (ride along it), the railing and the drop to the water
   gb('walk').top(-15.6, -900, -7, 1600, KERB, -15.6 / 3.2, -1600 / 3.2, -7 / 3.2, 900 / 3.2);
   gb('curb').wall(-7, -900, -7, 1600, 0, KERB, 0, 1250, 0.03, 0.47);
-  addRect(-2000, -2000, -15.6, 3000);
+  // the river railing, open where the bridge and the tunnel start
+  for (const [a, b] of [[-3000, LV.BZ - 7], [LV.BZ + 7, LV.TZ - 4], [LV.TZ + 4, 3000]]) addRect(-16, a, -15.6, b);
   addRect(-16, MAP.z1, 2000, 3000); addRect(-16, -3000, 2000, MAP.z0); addRect(MAP.x1, -3000, 3000, 3000);
   gb('ground').top(-3000, -3000, 3600, 3600, -0.04, 0, 0, 1, 1);
 }
@@ -1488,6 +1512,7 @@ function fillBlocks() {
     if (t === 'temple') { templeBlock(b, X0, Z0, X1, Z1); continue; }
     if (t === 'park') { parkBlock(b, X0, Z0, X1, Z1); continue; }
     if (t === 'market') { marketBlock(b, X0, Z0, X1, Z1); continue; }
+    if (t === 'skypark') { skyparkBlock(b, X0, Z0, X1, Z1); continue; }
     if (t === 'palace') { palaceBlock(b, X0, Z0, X1, Z1); continue; }
     if (t === 'sanam') { sanamBlock(b, X0, Z0, X1, Z1); continue; }
     if (t === 'mount') { mountBlock(b, X0, Z0, X1, Z1); continue; }
@@ -1828,11 +1853,12 @@ function buildStreetFurniture() {
     for (let x = x0; x <= x1; x += 32) { lampSpot(x, z - w / 2 - 0.7, 0, 1, warm); lampSpot(x + 16, z + w / 2 + 0.7, 0, -1, warm); }
   }
   // river promenade: palms and lamps
-  for (let z = MAP.z0 + 120; z < MAP.z1 - 120; z += 13) palm(-12.5, z + R() * 3, 0.9 + R() * 0.3);
-  for (let z = MAP.z0 + 120; z < MAP.z1 - 120; z += 26) { inst('lampPole', mat(-8, KERB, z, Math.PI / 2), null); inst('lampHead', mat(-5.7, KERB + 8.35, z, Math.PI / 2), col(WARM)); addCircle(-8, z, 0.22); }
+  const mouth = z => Math.abs(z - LV.BZ) < 12 || Math.abs(z - LV.TZ) < 9;
+  for (let z = MAP.z0 + 120; z < MAP.z1 - 120; z += 13) { const zz = z + R() * 3, s = 0.9 + R() * 0.3; if (!mouth(zz)) palm(-12.5, zz, s); }
+  for (let z = MAP.z0 + 120; z < MAP.z1 - 120; z += 26) { if (mouth(z)) continue; inst('lampPole', mat(-8, KERB, z, Math.PI / 2), null); inst('lampHead', mat(-5.7, KERB + 8.35, z, Math.PI / 2), col(WARM)); addCircle(-8, z, 0.22); }
   useGlobal();
   const r = gb('roof'); r.color(0xd8d4ca);
-  r.box(-15.9, -900, -15.6, 1600, KERB, KERB + 1.05, 1, 1, 0, [0, 0, 1, 1]);
+  for (const [a, b] of [[-900, LV.BZ - 7], [LV.BZ + 7, LV.TZ - 4], [LV.TZ + 4, 1600]]) r.box(-15.9, a, -15.6, b, KERB, KERB + 1.05, 1, 1, 0, [0, 0, 1, 1]);
   // street trees on the avenues
   const avenue = (x0, z0, x1, z1, step) => { const L = Math.hypot(x1 - x0, z1 - z0); for (let s = 0; s <= L; s += step) { const x = lerp(x0, x1, s / L), z = lerp(z0, z1, s / L); if (!nearIntersection(x, z, 14)) tree(x, z, 0.75 + R() * 0.3, 0); } };
   const w0 = WZ[RZ.indexOf(0)], w5 = WZ[RZ.indexOf(500)], wm2 = WZ[RZ.indexOf(-200)];
@@ -1948,20 +1974,26 @@ function buildSkytrain() {
 /* ---------- the river, the far bank, Wat Arun, the pier, the bridge, boats ---------- */
 function buildRiver() {
   useGlobal();
-  const water = new THREE.Mesh(new THREE.PlaneGeometry(260, 3000).rotateX(-Math.PI / 2), MAT.water);
-  water.position.set(-146, -0.6, 300); water.receiveShadow = true; scene.add(water);
+  {
+    const wg = new GB(), T = LV.T, z0 = LV.TZ - T.w / 2 - 0.6, z1 = LV.TZ + T.w / 2 + 0.6;
+    const piece = (x0, za, x1, zb) => wg.top(x0, za, x1, zb, -0.6, (x0 + 276) / 260, (1200 - zb) / 3000, (x1 + 276) / 260, (1200 - za) / 3000);
+    piece(-276, -1200, -16, z0); piece(-276, z1, -16, 1800); piece(T.xb, z0, T.xa, z1);
+    const water = new THREE.Mesh(wg.build(), MAT.water); water.receiveShadow = true; scene.add(water);
+  }
   MAT.water.normalMap.repeat.set(20, 200);
   const r = gb('roof'); r.color(0x8c877c);
   r.wall(-16, -900, -16, 1600, -0.7, KERB, 0, 1, 0, 1);
   r.wall(-276, 1600, -276, -900, -0.7, 1.2, 0, 1, 0, 1);
   gb('ground').top(-3000, -900, -276, 1600, 1.2, 0, 0, 1, 1);
-  for (let z = -720; z < 1200; z += 9 + R() * 8) {
-    if (Math.abs(z - 250) < 70) continue;
-    const d = 8 + R() * 10, h = 5 + R() * 14;
+  for (let z = -720; z < 1200;) {
+    const z8 = z, back = z > LV.WEST.z0 - 20 && z < LV.WEST.z1 + 20, step = 9 + R() * 8;
+    z += back ? 8 : step;
+    if (Math.abs(z8 - 250) < 70) continue;
+    const d = 8 + R() * 10, h = 5 + R() * 14, fx = back ? LV.WEST.x0 : -280;
     const g = gb('shop'); g.color(pick(SHOP_TINT.river)); const s = Math.floor(R() * 4);
-    g.wall(-280, z + 8, -280, z, 1.2, h, s / 4 + 0.004, (s + 1) / 4 - 0.004, 0.0, Math.min(0.99, h / 3.5 * 0.15625));
-    g.box(-280 - d, z, -280, z + 8, 1.2, h, 30, 30, 0, null, 1 | 4 | 8);
-    gb('roof').color(0x8a6d58).top(-280 - d, z, -280, z + 8, h);
+    g.wall(fx, z8 + 8, fx, z8, 1.2, h, s / 4 + 0.004, (s + 1) / 4 - 0.004, 0.0, Math.min(0.99, h / 3.5 * 0.15625));
+    g.box(fx - d, z8, fx, z8 + 8, 1.2, h, 30, 30, 0, null, 1 | 4 | 8);
+    gb('roof').color(0x8a6d58).top(fx - d, z8, fx, z8 + 8, h);
   }
   for (let k = 0; k < 26; k++) { const z = -650 + R() * 1850; if (Math.abs(z - 250) < 90) continue; tower(-360 - R() * 300, z, 22, 22, 30 + R() * 90, R() < 0.5 ? 'condo' : 'glass', { noCol: true }); }
   const ax = -330, az = 250, base = 1.2;
@@ -2201,7 +2233,7 @@ async function buildWorld(progress) {
   buildGeo(); buildMaterials();
   await progress(1); buildRoads(); buildBlocks();
   await progress(2); fillBlocks(); buildGate(); buildSkytrain();
-  await progress(3); buildRiver(); buildStreetFurniture(); buildTrafficLights(); buildSkyline();
+  await progress(3); buildRiver(); buildStreetFurniture(); buildTrafficLights(); buildSkyline(); buildLevels();
   mergeInstances(); bakeWorld(); buildBeams(); updateChunks(true);
 }
 
@@ -2217,6 +2249,485 @@ function roadAt(x, z) {
     best = r;
   }
   return best;
+}
+
+
+/* =====================================================================
+   Above and below the street: Memorial Bridge over the river, a glass
+   tunnel under it with fish all round, Arun Amarin Road on the Thonburi
+   bank between them, and a car park whose roof you can ride up onto,
+   with a narrow bridge down.
+   Surfaces off the ground ("decks") each have a height; the bike stands
+   on the highest one it can reach from where it is (a step up of at most
+   STEP), so it can ride under a ramp or along a bridge above the water.
+   Colliders can carry a height range: a roof's parapet stops you on the
+   roof but not in the street below it.
+   ===================================================================== */
+const STEP = 0.45;
+const DECKS = [];
+const deck = o => (DECKS.push(o), o);
+// a straight strip from A to B, w wide, at height f(t) for t = 0 … 1 along it
+function stripDeck(ax, az, bx, bz, w, f, o = {}) {
+  const L = Math.hypot(bx - ax, bz - az), dx = (bx - ax) / L, dz = (bz - az) / L, nx = -dz, nz = dx, hw = w / 2;
+  const xs = [ax + nx * hw, ax - nx * hw, bx + nx * hw, bx - nx * hw], zs = [az + nz * hw, az - nz * hw, bz + nz * hw, bz - nz * hw];
+  return deck({ kind: 'road', ...o, x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs), ax, az, bx, bz, w, f, L, dx, dz, nx, nz,
+    h(x, z) { const t = ((x - ax) * dx + (z - az) * dz) / L, s = (x - ax) * nx + (z - az) * nz; return t < 0 || t > 1 || s < -hw || s > hw ? null : f(t); } });
+}
+const rectDeck = (x0, z0, x1, z1, y, o = {}) => deck({ kind: 'road', ...o, x0, z0, x1, z1, y, h: () => y });
+// the deck under a point that the bike can stand on from height y (null: none)
+function deckAt(x, z, y) {
+  let best = null, bh = -1e9;
+  for (const d of DECKS) {
+    if (x < d.x0 || x > d.x1 || z < d.z0 || z > d.z1) continue;
+    const h = d.h(x, z); if (h === null || h > y + STEP || h <= bh) continue;
+    best = d; bh = h;
+  }
+  return best ? { d: best, h: bh } : null;
+}
+const NOY = [-1e9, 1e9];
+// a collider box that only stops you between heights y0 and y1
+const addRectY = (x0, z0, x1, z1, y0, y1) => { if (x1 < x0) [x0, x1] = [x1, x0]; if (z1 < z0) [z0, z1] = [z1, z0]; colInsert({ t: 0, x0, z0, x1, z1, y0, y1 }, x0, z0, x1, z1); };
+const addCircleY = (x, z, r, y0, y1) => colInsert({ t: 1, x, z, r, y0, y1 }, x - r, z - r, x + r, z + r);
+
+/* ---------- places on these levels ---------- */
+const LV = {
+  BZ: -100,                                         // Memorial Bridge, the line of Na Phra Lan Road
+  TZ: 600,                                          // the tunnel, the line of Rama III Road
+  WEST: { x0: -296, x1: -276, road: [-292, -280], z0: -132, z1: 632, y: 1.2 },
+  T: { x0: -16, xa: -76, xb: -206, x1: -276, floor: -7.4, R: 4.6, w: 8 },
+  PARK: { roof: 7.0, b: [213, 213, 245, 245], ramp: [249, 257, 229, 287], land: [245, 213, 257, 229], narrow: [217.2, 2.0, 245, 287] },
+};
+const bridgeY = t => lerp(KERB, LV.WEST.y + 0.01, t) + 7.2 * Math.sin(Math.PI * t);
+const tunnelEastY = t => lerp(KERB, LV.T.floor, t);
+const tunnelWestY = t => lerp(LV.T.floor, LV.WEST.y + 0.01, t);
+// what the ground is where there are no decks: the river, and the Thonburi bank across it
+function riverSurface(x, z) {
+  if (x > -16.05) return null;
+  if (x > -276) return { kind: 'river', h: -1.4, wl: -0.6, depth: 3 };
+  const W = LV.WEST;
+  if (x > -280 && !((z > LV.BZ - 7 && z < LV.BZ + 7) || (z > LV.TZ - 4 && z < LV.TZ + 4))) return { kind: 'walk', h: W.y + KERB };
+  if (x > -292) return { kind: 'road', h: W.y };
+  return { kind: 'walk', h: W.y + KERB };
+}
+
+/* ---------- small builders ---------- */
+// a box from A to B (centres), w × h in section
+function beam(g, a, b, w, h) {
+  const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), L = d.length();
+  g.geo(GEO.box, new THREE.Matrix4().compose(A.clone().add(B).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()), new THREE.Vector3(w, L, h)));
+}
+// the surface, sides and underside of a strip deck
+function buildStrip(D, o = {}) {
+  const { ax, az, dx, dz, nx, nz, w, f, L } = D, hw = w / 2, n = Math.max(1, Math.ceil(L / (o.seg || 4)));
+  const P = (t, s) => [ax + dx * L * t + nx * s, az + dz * L * t + nz * s];
+  const top = gb(o.top || 'road'), side = gb('roof'), th = o.thick ?? 1.0;
+  const tc = o.topCol ?? 0xffffff, scol = o.sideCol ?? 0x7a756c;
+  const uv = (x, z) => o.top === 'walk' ? [x / 3.2, -z / 3.2] : [x / 10, -z / 10];
+  for (let i = 0; i < n; i++) {
+    const t0 = i / n, t1 = (i + 1) / n, y0 = f(t0), y1 = f(t1);
+    const a0 = P(t0, -hw), a1 = P(t0, hw), b1 = P(t1, hw), b0 = P(t1, -hw);
+    const lo0 = o.solid ? o.base : y0 - th, lo1 = o.solid ? o.base : y1 - th;
+    top.color(tc); top.quad([a0[0], y0, a0[1]], [a1[0], y0, a1[1]], [b1[0], y1, b1[1]], [b0[0], y1, b0[1]], uv(a0[0], a0[1]), uv(a1[0], a1[1]), uv(b1[0], b1[1]), uv(b0[0], b0[1]));
+    if (o.sides !== false) {
+      side.color(scol);
+      side.quad([a1[0], lo0, a1[1]], [b1[0], lo1, b1[1]], [b1[0], y1, b1[1]], [a1[0], y0, a1[1]], [0, 0], [1, 0], [1, 1], [0, 1]);
+      side.quad([b0[0], lo1, b0[1]], [a0[0], lo0, a0[1]], [a0[0], y0, a0[1]], [b0[0], y1, b0[1]], [0, 0], [1, 0], [1, 1], [0, 1]);
+      if (!o.solid) side.quad([a0[0], lo0, a0[1]], [b0[0], lo1, b0[1]], [b1[0], lo1, b1[1]], [a1[0], lo0, a1[1]]);
+    }
+  }
+}
+// a railing along a strip at offset s across it: posts and a top rail
+function railStrip(D, s, o = {}) {
+  const { ax, az, dx, dz, nx, nz, f, L } = D, hgt = o.h ?? 1.1, step = o.step ?? 2.6, g = gb('roof'); g.color(o.col ?? 0xd8d4ca);
+  const P = t => [ax + dx * L * t + nx * s, f(t), az + dz * L * t + nz * s];
+  const n = Math.max(1, Math.round(L / step));
+  for (let i = 0; i <= n; i++) { const [x, y, z] = P(i / n); g.geo(GEO.box, mat(x, y + hgt / 2, z, 0, 0.12, hgt, 0.12)); }
+  for (let i = 0; i < n; i++) { const a = P(i / n), b = P((i + 1) / n); a[1] += hgt; b[1] += hgt; beam(g, a, b, 0.16, 0.12); a[1] -= hgt * 0.55; b[1] -= hgt * 0.55; beam(g, a, b, 0.06, 0.06); }
+}
+// a sign board with lettering drawn on a canvas
+function signBoard(lines, w, h, colr = '#1d4f8c', fg = '#ffffff') {
+  const [c, x] = makeCanvas(512, Math.round(512 * h / w));
+  x.fillStyle = colr; x.fillRect(0, 0, c.width, c.height);
+  x.strokeStyle = fg; x.lineWidth = 8; x.strokeRect(10, 10, c.width - 20, c.height - 20);
+  x.fillStyle = fg; x.textAlign = 'center'; x.textBaseline = 'middle';
+  lines.forEach(([t, size, font], i) => { x.font = `600 ${size}px ${font || FONT_TH}`; x.fillText(t, c.width / 2, c.height * (i + 1) / (lines.length + 1)); });
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  const m = new THREE.MeshStandardMaterial({ map: t, emissiveMap: t, emissive: 0xffffff, emissiveIntensity: 0.25, roughness: 0.6 });
+  WORLD.signMats = WORLD.signMats || []; WORLD.signMats.push(m);
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
+}
+
+/* ---------- Arun Amarin Road along the Thonburi bank ---------- */
+function buildWestBank() {
+  const W = LV.WEST, [r0, r1] = W.road, y = W.y;
+  for (let z = W.z0; z < W.z1; z += 150) {
+    const z1 = Math.min(W.z1, z + 150);
+    useChunk(-286, (z + z1) / 2);
+    gb('road').top(r0, z, r1, z1, y + 0.005, r0 / 10, -z1 / 10, r1 / 10, -z / 10);
+    gb('walk').top(W.x0, z, r0, z1, y + KERB, W.x0 / 3.2, -z1 / 3.2, r0 / 3.2, -z / 3.2);
+    gb('curb').wall(r0, z, r0, z1, y, y + KERB, 0, (z1 - z) / 2, 0.03, 0.47);
+    const m = gb('mark'); m.color(0xf0c22a);
+    for (let a = z + 2; a < z1 - 4; a += 8) m.top(-286.1, a, -285.9, a + 4, y + 0.017);
+    m.color(0xf2f0ea); m.top(r0 + 0.3, z, r0 + 0.42, z1, y + 0.017); m.top(r1 - 0.42, z, r1 - 0.3, z1, y + 0.017);
+  }
+  // the river side: a walk with gaps where the bridge and the tunnel come in, and a railing
+  const gaps = [[W.z0, LV.BZ - 7], [LV.BZ + 7, LV.TZ - 4], [LV.TZ + 4, W.z1]];
+  for (const [a, b] of gaps) {
+    useChunk(-278, (a + b) / 2);
+    gb('walk').top(r1, a, W.x1, b, y + KERB, r1 / 3.2, -b / 3.2, W.x1 / 3.2, -a / 3.2);
+    gb('curb').wall(r1, b, r1, a, y, y + KERB, 0, (b - a) / 2, 0.03, 0.47);
+    const g = gb('roof'); g.color(0xd8d4ca); g.box(-276.3, a, -276, b, y + KERB, y + KERB + 1.05, 1, 1, 0, [0, 0, 1, 1]);
+    addRect(-276.3, a, -276, b);
+  }
+  for (const [a, b] of [[LV.BZ - 7, LV.BZ + 7], [LV.TZ - 4, LV.TZ + 4]]) { useChunk(-278, a); gb('road').top(r1, a, W.x1, b, y + 0.005, r1 / 10, -b / 10, W.x1 / 10, -a / 10); }
+  // dead ends north and south: barriers, and the shophouses go on beyond
+  for (const z of [W.z0, W.z1]) {
+    useChunk(-286, z);
+    const g = gb('roof'), s = z === W.z0 ? 1 : -1;
+    for (let x = r0 + 0.5; x < r1; x += 1.2) { g.color(((x - r0) / 1.2 | 0) % 2 ? 0xf2f0ea : 0xc23a2a); g.box(x, z + s * 0.4 - 0.15, x + 1.2, z + s * 0.4 + 0.15, y + 0.6, y + 1.0, 1, 1, 0, [0, 0, 1, 1]); }
+    g.color(0x55585c); for (const x of [r0 + 0.6, r1 - 0.6]) g.geo(GEO.box, mat(x, y + 0.5, z + s * 0.4, 0, 0.12, 1.0, 0.12));
+  }
+  addRect(-1000, W.z0 - 400, -276, W.z0 + 0.4);
+  addRect(-1000, W.z1 - 0.4, -276, W.z1 + 400);
+  addRect(-1000, W.z0, W.x0, W.z1);
+  // street lamps on the river walk, arms over the road
+  for (let z = W.z0 + 13; z < W.z1; z += 26) {
+    if (Math.abs(z - LV.BZ) < 10 || Math.abs(z - LV.TZ) < 8) continue;
+    inst('lampPole', mat(-278.4, y + KERB, z, -Math.PI / 2), null);
+    inst('lampHead', mat(-280.7, y + KERB + 8.35, z, -Math.PI / 2), col(WARM));
+    inst('pool', mat(-283, y + 0.04, z, 0, 7, 1, 7), col(0xffa050));
+    addCircle(-278.4, z, 0.22);
+  }
+  // the white wall round Wat Arun, where the shophouses stop
+  { useChunk(-300, 250); const t = gb('temple'); t.color(0xf2eee4); t.box(-297, 180, -296.4, 320, y + KERB, y + 2.6, 1, 1, 0, [0, 0, 1, 1]); t.color(0xb8402e); t.box(-297.1, 180, -296.3, 320, y + 2.6, y + 2.9, 1, 1, 0, [0, 0, 1, 1]); }
+  const s = signBoard([['ถนนอรุณอมรินทร์', 64], ['ARUN AMARIN RD', 40, '"Kanit", sans-serif']], 3.6, 1.2);
+  s.position.set(-279, y + 3.2, LV.BZ + 9); s.rotation.y = -Math.PI / 2; scene.add(s);
+}
+
+/* ---------- Memorial Bridge ---------- */
+function buildBridge() {
+  const BZ = LV.BZ, x0 = -16, x1 = -276;
+  useChunk(-146, BZ);
+  const D = stripDeck(x0, BZ, x1, BZ, 14, bridgeY, { name: ['สะพานพระพุทธยอดฟ้า', 'Memorial Bridge'], bridge: true });
+  buildStrip(D, { thick: 1.5, sideCol: 0x8d8678, seg: 5 });
+  // footpaths and lane paint drawn on the deck
+  const sub = (s0, s1, key, colr, lift) => { const Ds = { ...D, w: s1 - s0, nx: D.nx, nz: D.nz, ax: D.ax + D.nx * (s0 + s1) / 2, az: D.az + D.nz * (s0 + s1) / 2, f: t => bridgeY(t) + lift }; buildStrip(Ds, { top: key, topCol: colr, sides: false, seg: 5 }); };
+  sub(-7, -5.6, 'walk', null, 0.012); sub(5.6, 7, 'walk', null, 0.012);
+  sub(-0.25, -0.12, 'mark', 0xf0c22a, 0.02); sub(0.12, 0.25, 'mark', 0xf0c22a, 0.02);
+  sub(-5.45, -5.3, 'mark', 0xf2f0ea, 0.02); sub(5.3, 5.45, 'mark', 0xf2f0ea, 0.02);
+  railStrip(D, -6.85); railStrip(D, 6.85);
+  addRect(x1, BZ - 7.2, x0, BZ - 6.6); addRect(x1, BZ + 6.6, x0, BZ + 7.2);
+  // the steel arches over the middle span, with hangers and braces
+  const g = gb('roof'); g.color(0x5d766c);
+  const ta = 0.17, tb = 0.83, N = 28, H = 15;
+  const arch = (t, s) => [lerp(x0, x1, t), bridgeY(t) + H * Math.sin(Math.PI * clamp((t - ta) / (tb - ta), 0, 1)), BZ + s];
+  for (const s of [-7.6, 7.6]) {
+    for (let i = 0; i < N; i++) beam(g, arch(ta + (tb - ta) * i / N, s), arch(ta + (tb - ta) * (i + 1) / N, s), 0.9, 0.7);
+    for (let t = ta + 0.025; t < tb - 0.01; t += 0.025) { const a = arch(t, s), b = [a[0], bridgeY(t), a[2]]; if (a[1] - b[1] > 1.5) beam(g, b, a, 0.12, 0.12); }
+  }
+  for (let t = ta + 0.06; t < tb - 0.05; t += 0.05) { const a = arch(t, -7.6), b = arch(t, 7.6); if (a[1] - bridgeY(t) > 10) beam(g, a, b, 0.5, 0.5); }
+  // piers in the river
+  const p = gb('roof'); p.color(0x8d8678);
+  for (const t of [0.25, 0.5, 0.75]) { const x = lerp(x0, x1, t); p.box(x - 2.4, BZ - 5, x + 2.4, BZ + 5, -3, bridgeY(t) - 1.5, 4, 4, 0, null); }
+  // lamps along both railings
+  for (let t = 0.06; t < 0.97; t += 0.1) {
+    const x = lerp(x0, x1, t), y = bridgeY(t);
+    for (const s of [-1, 1]) { inst('lampPole', mat(x, y, BZ + s * 6.85, s < 0 ? 0 : Math.PI), null); inst('lampHead', mat(x, y + 8.35, BZ + s * 4.55, s < 0 ? 0 : Math.PI), col(WARM)); }
+  }
+  const nm = signBoard([['สะพานพระพุทธยอดฟ้า', 60], ['MEMORIAL BRIDGE', 40, '"Kanit", sans-serif']], 4.4, 1.4);
+  nm.position.set(-14.4, KERB + 2.7, BZ - 10.5); nm.rotation.y = Math.PI / 2; scene.add(nm);
+  g.color(0x55585c); for (const dz of [-8.4, -12.6]) { g.geo(GEO.box, mat(-14.5, KERB + 1.0, BZ + dz, 0, 0.12, 2.0, 0.12)); addCircle(-14.5, BZ + dz, 0.15); }
+  // the promenade end: no palms or lamps in the way (see buildStreetFurniture), a gap in the railing
+}
+
+/* ---------- the glass tunnel under the river ---------- */
+const UW = { col: new THREE.Color(0x2d6e72), time: { value: 0 }, group: null, fish: null, F: [], box: null };
+// fade into the green of the river with distance, and (for fish) wave the tail
+function uwMat(m, wiggle) {
+  m.fog = false;
+  m.onBeforeCompile = sh => {
+    sh.uniforms.uwCol = { value: UW.col }; sh.uniforms.uTime = UW.time;
+    sh.vertexShader = 'varying float vUWd;\nuniform float uTime;\n' + sh.vertexShader
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\n' + (wiggle ? 'float tw = smoothstep(0.2, -0.6, position.x);\ntransformed.z += sin(uTime * 8.0 + float(gl_InstanceID) * 1.7 + position.x * 5.0) * 0.12 * tw;\n' : ''))
+      .replace('#include <project_vertex>', '#include <project_vertex>\nvUWd = -mvPosition.z;');
+    sh.fragmentShader = 'varying float vUWd;\nuniform vec3 uwCol;\n' + sh.fragmentShader
+      .replace('#include <dithering_fragment>', '#include <dithering_fragment>\ngl_FragColor.rgb = mix(gl_FragColor.rgb, uwCol, smoothstep(1.5, 26.0, vUWd) * 0.94);');
+  };
+  m.customProgramCacheKey = () => wiggle ? 'uw-fish' : 'uw';
+  return m;
+}
+function buildTunnel() {
+  const T = LV.T, TZ = LV.TZ, hw = T.w / 2, axisY = T.floor + 2.0, R = T.R;
+  const name = ['อุโมงค์ลอดแม่น้ำเจ้าพระยา', 'Chao Phraya Tunnel'];
+  useChunk(-141, TZ);
+  const E = stripDeck(T.x0, TZ, T.xa, TZ, T.w, tunnelEastY, { name, tunnel: 1 });
+  const M = stripDeck(T.xa, TZ, T.xb, TZ, T.w, () => T.floor, { name, tunnel: 2 });
+  const Wd = stripDeck(T.xb, TZ, T.x1, TZ, T.w, tunnelWestY, { name, tunnel: 1 });
+  // inside the tube the sky is not reflected: materials of its own
+  // (unlit, so the sun never reaches in whatever the graphics level; brightness set for the time of day)
+  MAT.troad = new THREE.MeshBasicMaterial({ map: TEX.asphalt, color: 0x8a8a8a });
+  MAT.troof = new THREE.MeshBasicMaterial({ vertexColors: true, color: 0x9a9a9a });
+  buildStrip(E, { sides: false, seg: 5 }); buildStrip(Wd, { sides: false, seg: 5 }); buildStrip(M, { sides: false, seg: 5, top: 'troad' });
+  const ti = gb('troof');
+  // centre line
+  const m = gb('mark'); m.color(0xf0c22a);
+  for (const D of [E, M, Wd]) for (let t = 0; t < 1; t += 8 / D.L) { const a = lerp(D.ax, D.bx, t), b = lerp(D.ax, D.bx, Math.min(1, t + 4 / D.L)); const ya = D.f(t) + 0.02, yb = D.f(Math.min(1, t + 4 / D.L)) + 0.02; m.quad([a, ya, TZ + 0.08], [a, ya, TZ - 0.08], [b, yb, TZ - 0.08], [b, yb, TZ + 0.08]); }
+  // the trench walls, standing out of the water
+  const c = gb('roof'); c.color(0xa7a197);
+  const trench = (D, top) => {
+    const n = Math.ceil(D.L / 5);
+    for (let i = 0; i < n; i++) {
+      const t0 = i / n, t1 = (i + 1) / n, xa = lerp(D.ax, D.bx, t0), xb = lerp(D.ax, D.bx, t1), ya = D.f(t0), yb = D.f(t1);
+      const dir = Math.sign(D.bx - D.ax);   // −1: running west
+      for (const s of [-1, 1]) {
+        const zi = TZ + s * hw, zo = TZ + s * (hw + 0.6);
+        // inner face (towards the road)
+        if ((s > 0) === (dir < 0)) c.quad([xa, ya - 0.3, zi], [xb, yb - 0.3, zi], [xb, top, zi], [xa, top, zi]); else c.quad([xb, yb - 0.3, zi], [xa, ya - 0.3, zi], [xa, top, zi], [xb, top, zi]);
+        // outer face (towards the river)
+        if ((s > 0) === (dir < 0)) c.quad([xb, -1.5, zo], [xa, -1.5, zo], [xa, top, zo], [xb, top, zo]); else c.quad([xa, -1.5, zo], [xb, -1.5, zo], [xb, top, zo], [xa, top, zo]);
+      }
+    }
+    const xl = Math.min(D.ax, D.bx), xr = Math.max(D.ax, D.bx);
+    c.top(xl, TZ - hw - 0.6, xr, TZ - hw, top); c.top(xl, TZ + hw, xr, TZ + hw + 0.6, top);
+  };
+  trench(E, 1.0); trench(Wd, LV.WEST.y + 1.2);
+  // headwalls over the tube mouths
+  for (const [x, top, s] of [[T.xa, 1.0, -1], [T.xb, LV.WEST.y + 1.2, 1]]) {
+    const sh = new THREE.Shape(); sh.moveTo(-hw - 0.6, T.floor - 0.1); sh.lineTo(hw + 0.6, T.floor - 0.1); sh.lineTo(hw + 0.6, top); sh.lineTo(-hw - 0.6, top); sh.closePath();
+    const hole = new THREE.Path(); for (let k = 0; k <= 32; k++) { const a = -0.45 + (Math.PI + 0.9) * k / 32; const pz = Math.cos(a) * (R + 0.05), py = axisY + Math.sin(a) * (R + 0.05); k ? hole.lineTo(pz, py) : hole.moveTo(pz, py); } hole.closePath();
+    sh.holes.push(hole);
+    const pg = new THREE.ShapeGeometry(sh, 4);
+    c.color(0xa7a197); c.geo(pg, mat(x + 0.6, 0, TZ, Math.PI / 2)); c.geo(pg, mat(x - 0.6, 0, TZ, -Math.PI / 2));
+    c.box(x - 0.6, TZ - hw - 0.6, x + 0.6, TZ + hw + 0.6, top - 0.01, top, 1, 1, 0, [0, 0, 1, 1]);
+    const sg = signBoard([['อุโมงค์ลอดแม่น้ำ', 62], ['RIVER TUNNEL', 40, '"Kanit", sans-serif']], 4.2, 1.3, '#16505c');
+    sg.position.set(x - s * 0.62, axisY + R + 1.0, TZ); sg.rotation.y = s < 0 ? Math.PI / 2 : -Math.PI / 2; scene.add(sg);
+  }
+  addRect(T.x1, TZ - hw - 0.6, T.x0, TZ - hw); addRect(T.x1, TZ + hw, T.x0, TZ + hw + 0.6);
+  // under the tube: the concrete bed it lies on; low kerbs inside
+  ti.color(0x8f8a80); ti.box(T.xb, TZ - hw - 0.6, T.xa, TZ + hw + 0.6, -11.6, T.floor - 0.02, 4, 4, 0, null, 1 | 4);
+  ti.color(0x6a6660); ti.box(T.xb, TZ - hw, T.xa, TZ - hw + 0.3, T.floor, T.floor + 0.35, 1, 1, 0, [0, 0, 1, 1]); ti.box(T.xb, TZ + hw - 0.3, T.xa, TZ + hw, T.floor, T.floor + 0.35, 1, 1, 0, [0, 0, 1, 1]);
+  // steel ribs and light strips
+  const rib = new THREE.TorusGeometry(R, 0.11, 5, 20, Math.PI + 0.9).rotateZ(-0.45).rotateY(-Math.PI / 2);
+  ti.color(0x3c4247);
+  for (let x = T.xa - 3; x > T.xb; x -= 6.5) ti.geo(rib, mat(x, axisY, TZ));
+  const lmp = gb('lamp'); lmp.color(new THREE.Color(0.22, 0.29, 0.33));
+  for (const s of [-1, 1]) lmp.box(T.xb, TZ + s * (hw - 0.05) - 0.05, T.xa, TZ + s * (hw - 0.05) + 0.05, T.floor + 1.0, T.floor + 1.12, 1, 1, 0, null);
+  for (let x = T.xa - 6; x > T.xb; x -= 13) inst('pool', mat(x, T.floor + 0.05, TZ, 0, 4.5, 1, 5), col(0x3d6878));
+  // the glass
+  const glass = new THREE.Mesh(new THREE.CylinderGeometry(R, R, T.xa - T.xb, 40, 1, true, -0.45, Math.PI + 0.9).rotateZ(Math.PI / 2),
+    new THREE.MeshBasicMaterial({ color: 0xd8f2f5, transparent: true, opacity: 0.07, side: THREE.DoubleSide, depthWrite: false }));
+  glass.position.set((T.xa + T.xb) / 2, axisY, TZ); glass.renderOrder = 4; scene.add(glass); UW.glass = glass;
+  // the mouths of the tube: frames
+  ti.color(0x3c4247); for (const x of [T.xa - 0.4, T.xb + 0.4]) ti.geo(new THREE.TorusGeometry(R, 0.3, 6, 24, Math.PI + 0.9).rotateZ(-0.45).rotateY(-Math.PI / 2), mat(x, axisY, TZ));
+  // shade over the tube: the river above casts its shadow
+  shadowProxy([new THREE.BoxGeometry(T.xa - T.xb - 1, 10.4, T.w + 5).translate((T.xa + T.xb) / 2, -6.0, TZ)], scene);   // a closed box round the tube: no sun gets in, whatever its angle
+  const ps = signBoard([['อุโมงค์ลอดแม่น้ำ ↓', 60], ['RIVER TUNNEL', 40, '"Kanit", sans-serif']], 4.0, 1.3, '#16505c');
+  ps.position.set(-14.4, KERB + 2.7, TZ - 7.5); ps.rotation.y = Math.PI / 2; scene.add(ps);
+  c.color(0x55585c); for (const dz of [-5.6, -9.4]) { c.geo(GEO.box, mat(-14.5, KERB + 1.0, TZ + dz, 0, 0.12, 2.0, 0.12)); addCircle(-14.5, TZ + dz, 0.15); }
+  buildUnderwater();
+}
+// the water round the tube: its colour, the river bed, weed, rocks, light from above and fish
+function buildUnderwater() {
+  const T = LV.T, TZ = LV.TZ, axisY = T.floor + 2.0;
+  const grp = new THREE.Group(); grp.visible = false; scene.add(grp); UW.group = grp;
+  const X0 = T.xb + 2, X1 = T.xa - 2, Z0 = TZ - 24, Z1 = TZ + 24, Y0 = -11.6, Y1 = -0.7;
+  const bg = new THREE.BoxGeometry(X1 - X0, Y1 - Y0, Z1 - Z0).translate((X0 + X1) / 2, (Y0 + Y1) / 2, TZ);
+  const cols = new Float32Array(bg.attributes.position.count * 3); bg.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+  // the walls of the water: they hide the city beyond, so only the river shows through the glass
+  UW.box = new THREE.Mesh(bg, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false }));
+  grp.add(UW.box);
+  // sand
+  const [sc, sx] = makeCanvas(128, 128); sx.fillStyle = '#8c8160'; sx.fillRect(0, 0, 128, 128);
+  for (let i = 0; i < 900; i++) { sx.fillStyle = pick(['#a29572', '#7a6f50', '#968a68', '#6e6448']); sx.fillRect(R() * 128, R() * 128, 1 + R() * 2, 1 + R() * 2); }
+  const st = tex(sc); st.repeat.set(12, 5);
+  const sand = new THREE.Mesh(new THREE.PlaneGeometry(X1 - X0, Z1 - Z0).rotateX(-Math.PI / 2), uwMat(new THREE.MeshLambertMaterial({ map: st })));
+  sand.position.set((X0 + X1) / 2, Y0 + 0.02, TZ); grp.add(sand);
+  // rocks and weed
+  const rocks = new GB(), weed = new GB();
+  for (let k = 0; k < 70; k++) {
+    const x = lerp(X0, X1, R()), z = TZ + (R() < 0.5 ? -1 : 1) * (6 + R() * 17), s = 0.3 + R() * 1.3;
+    rocks.color(pick([0x6b6558, 0x5a564c, 0x7a7262])); rocks.geo(new THREE.IcosahedronGeometry(1, 0), mat(x, Y0 + s * 0.3, z, R() * 6, s * (1 + R()), s * 0.7, s));
+  }
+  for (let k = 0; k < 160; k++) {
+    const x = lerp(X0, X1, R()), z = TZ + (R() < 0.5 ? -1 : 1) * (5.5 + R() * 18), h = 1 + R() * 3.5, a = R() * 6, b = 0.25;
+    weed.color(pick([0x3f6b2a, 0x547a2e, 0x2f5a2a, 0x6b8a3a]));
+    const ox = Math.cos(a) * b, oz = Math.sin(a) * b, lx = (R() - 0.5) * 0.8, lz = (R() - 0.5) * 0.8;
+    weed.tri([x - ox, Y0, z - oz], [x + ox, Y0, z + oz], [x + lx, Y0 + h, z + lz]); weed.tri([x + ox, Y0, z + oz], [x - ox, Y0, z - oz], [x + lx, Y0 + h, z + lz]);
+  }
+  grp.add(new THREE.Mesh(rocks.build(), uwMat(new THREE.MeshLambertMaterial({ vertexColors: true }))));
+  grp.add(new THREE.Mesh(weed.build(), uwMat(new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }))));
+  // shafts of light from the surface
+  const [lc, lx] = makeCanvas(32, 128); const lg = lx.createLinearGradient(0, 0, 0, 128); lg.addColorStop(0, 'rgba(255,255,255,.9)'); lg.addColorStop(1, 'rgba(255,255,255,0)'); lx.fillStyle = lg; lx.fillRect(0, 0, 32, 128);
+  const shaftMat = new THREE.MeshBasicMaterial({ map: tex(lc), color: 0x9fe0d8, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false });
+  UW.shaftMat = shaftMat;
+  for (let k = 0; k < 14; k++) {
+    const q = new THREE.Mesh(new THREE.PlaneGeometry(2 + R() * 3, 11), shaftMat);
+    q.position.set(lerp(X0 + 6, X1 - 6, R()), -6, TZ + (R() < 0.5 ? -1 : 1) * (7 + R() * 12)); q.rotation.set(0, R() * 3, 0.25); grp.add(q);
+  }
+  // fish: silver barb, iridescent shark catfish, tilapia, giant catfish, a few orange ones
+  const fg = new GB();
+  const body = new THREE.SphereGeometry(0.5, 12, 8).scale(1, 0.36, 0.17);
+  const bp = body.attributes.position, bc = new Float32Array(bp.count * 3);
+  for (let i = 0; i < bp.count; i++) { const k = bp.getY(i) > 0 ? 0.62 : 1.0; bc.set([k, k, k], i * 3); }
+  body.setAttribute('color', new THREE.BufferAttribute(bc, 3));
+  fg.color(0xffffff); fg.geo(body, new THREE.Matrix4());
+  fg.color(0xc8c8c8);
+  fg.tri([-0.45, 0, 0], [-0.78, 0.2, 0], [-0.78, -0.2, 0]); fg.tri([-0.45, 0, 0], [-0.78, -0.2, 0], [-0.78, 0.2, 0]);
+  fg.tri([0.05, 0.16, 0], [-0.25, 0.3, 0], [-0.3, 0.12, 0]); fg.tri([0.05, 0.16, 0], [-0.3, 0.12, 0], [-0.25, 0.3, 0]);
+  const fmat = uwMat(new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide, emissive: 0x1a3236 }), true);
+  const KINDS = [[80, 0.3, 0xf0e8c4, 1.5], [44, 0.75, 0xb4bec6, 1.1], [32, 0.42, 0x8a947e, 0.9], [8, 2.0, 0x6e737a, 0.55], [12, 0.5, 0xf08a40, 1.0]];
+  const N = KINDS.reduce((a, k) => a + k[0], 0);
+  const fish = new THREE.InstancedMesh(fg.build(), fmat, N); fish.frustumCulled = false; grp.add(fish); UW.fish = fish;
+  const free = (y, z, s) => { const d = Math.hypot(y - axisY, z - TZ); return d > T.R + 0.6 + s && y > Y0 + 0.6 + s * 0.4 && y < Y1 - 0.5 && z > Z0 + 1 + s && z < Z1 - 1 - s && !(y < T.floor + 0.5 && Math.abs(z - TZ) < T.w / 2 + 1.5 + s); };
+  let i = 0;
+  for (const [n, size, colr, speed] of KINDS) {
+    // each kind swims in a few shoals
+    for (let k = 0; k < n; k++) {
+      let y, z, tries = 0; const sh = k % 3;
+      do { const a = -0.25 + R() * (Math.PI + 0.5), r = T.R + 0.9 + R() * R() * 10; y = axisY + Math.sin(a) * r; z = TZ + Math.cos(a) * r; } while (!free(y, z, size) && ++tries < 60);
+      const s = size * (0.8 + R() * 0.4);
+      UW.F.push({ x: lerp(X0 + 2, X1 - 2, R()), y, z, s, dir: (sh + (colr === 0x60656c ? 1 : 0)) % 2 ? 1 : -1, v: speed * (0.7 + R() * 0.5), ph: R() * 6.28, X0: X0 + 1, X1: X1 - 1 });
+      fish.setColorAt(i++, col(colr).multiplyScalar(0.85 + R() * 0.3));
+    }
+  }
+  fish.instanceColor.needsUpdate = true;
+  lightHooks.push(uwLight); uwLight(look);
+}
+function uwLight(L) {
+  if (!UW.box) return;
+  const t = settings.time;
+  UW.col.set(t === 'night' ? 0x08202a : t === 'dusk' ? 0x123848 : t === 'golden' ? 0x2a5f5c : 0x2d6e72);
+  const top = UW.col.clone().multiplyScalar(t === 'night' ? 1.8 : 1.7), bot = UW.col.clone().multiplyScalar(0.3);
+  const p = UW.box.geometry.attributes.position, c = UW.box.geometry.attributes.color;
+  let ymin = 1e9, ymax = -1e9; for (let i = 0; i < p.count; i++) { ymin = Math.min(ymin, p.getY(i)); ymax = Math.max(ymax, p.getY(i)); }
+  for (let i = 0; i < p.count; i++) { const k = (p.getY(i) - ymin) / (ymax - ymin); const cc = bot.clone().lerp(top, k); c.setXYZ(i, cc.r, cc.g, cc.b); }
+  c.needsUpdate = true;
+  UW.shaftMat.visible = !L.night && t !== 'dusk';
+  const k = t === 'night' ? 0.42 : t === 'dusk' ? 0.46 : t === 'golden' ? 0.52 : 0.6;
+  MAT.troad.color.setScalar(k); MAT.troof.color.setScalar(k * 1.1);
+  if (UW.glass) UW.glass.material.color.set(0xd8f2f5).multiplyScalar(t === 'night' ? 0.2 : t === 'dusk' ? 0.35 : 1);
+}
+const _fm = new THREE.Matrix4(), _fq = new THREE.Quaternion(), _fe = new THREE.Euler(), _fs = new THREE.Vector3(), _fp = new THREE.Vector3();
+function updateUnderwater(dt, time) {
+  if (!UW.group) return;
+  const T = LV.T, on = camera.position.y < -0.9 && camera.position.x < T.xa + 30 && camera.position.x > T.xb - 30 && Math.abs(camera.position.z - LV.TZ) < 30;
+  UW.group.visible = on;
+  if (!on) return;
+  UW.time.value = time;
+  UW.F.forEach((f, i) => {
+    f.x += f.dir * f.v * dt;
+    if (f.x > f.X1) f.x = f.X0; else if (f.x < f.X0) f.x = f.X1;
+    const edge = Math.min(f.x - f.X0, f.X1 - f.x), fade = clamp(edge / 4, 0, 1);
+    const wy = Math.sin(time * 0.6 + f.ph) * 0.5, wz = Math.cos(time * 0.45 + f.ph * 1.3) * 0.7;
+    _fp.set(f.x, f.y + wy, f.z + wz);
+    _fe.set(0, f.dir > 0 ? 0 : Math.PI, Math.sin(time * 0.6 + f.ph) * 0.08); _fe.y += Math.cos(time * 0.45 + f.ph * 1.3) * 0.25 * f.dir;
+    _fq.setFromEuler(_fe); _fs.setScalar(f.s * fade + 1e-4);
+    UW.fish.setMatrixAt(i, _fm.compose(_fp, _fq, _fs));
+  });
+  UW.fish.instanceMatrix.needsUpdate = true;
+}
+
+/* ---------- the car park with a roof you can ride on, and a narrow bridge down ---------- */
+function skyparkBlock(b, X0, Z0, X1, Z1) {
+  const P = LV.PARK, RY = P.roof, [bx0, bz0, bx1, bz1] = P.b;
+  // the building: three decks of a concrete car park, with cars inside
+  const g = gb('roof');
+  g.color(0x2a2b2e); g.box(bx0 + 6, bz0 + 6, bx1 - 6, bz1 - 6, KERB, RY - 0.3, 1, 1, 0, null);
+  for (const y of [KERB, 3.6, RY]) { g.color(y === RY ? 0xb9b4a8 : 0x8f8b82); g.box(bx0, bz0, bx1, bz1, y - 0.35, y + (y === RY ? 0 : 0.05), 1, 1, 0, y === RY ? null : [0, 0, 1, 1]); }
+  for (const y of [KERB, 3.6]) { g.color(0xd2cdc1); g.box(bx0 - 0.05, bz0 - 0.05, bx1 + 0.05, bz1 + 0.05, y + 0.05, y + 1.05, 1, 1, 0, null); g.color(0xe0b13a); g.box(bx0 - 0.07, bz0 - 0.07, bx1 + 0.07, bz1 + 0.07, y + 1.05, y + 1.2, 1, 1, 0, null); }
+  g.color(0x9d988c);
+  for (let x = bx0; x <= bx1 + 0.1; x += 8) for (let z = bz0; z <= bz1 + 0.1; z += 8) if (x === bx0 || x >= bx1 - 0.1 || z === bz0 || z >= bz1 - 0.1) g.box(x - 0.35, z - 0.35, x + 0.35, z + 0.35, KERB, RY - 0.3, 1, 1, 0, null);
+  const carCol = [0xe8e6e0, 0x2a2c30, 0xb03028, 0x8a9096, 0x1f3f6a, 0xd8c8a0];
+  for (const y of [KERB, 3.6]) for (let x = bx0 + 3; x < bx1 - 3; x += 3) if (R() < 0.7) for (const z of [bz0 + 3.2, bz1 - 3.2]) { g.color(pick(carCol)); g.box(x - 0.9, z - 2.1, x + 0.9, z + 2.1, y, y + 1.0, 1, 1, 0, [0, 0, 1, 1]); g.box(x - 0.8, z - 1.1, x + 0.8, z + 1.0, y + 1.0, y + 1.45, 1, 1, 0, [0, 0, 1, 1]); }
+  addRectY(bx0, bz0, bx1, bz1, -1e9, RY);
+  // the roof: asphalt, parking bays, parapets
+  rectDeck(bx0, bz0, bx1, bz1, RY, { name: ['ลานจอดรถชั้นดาดฟ้า', 'Rooftop Car Park'] });
+  gb('road').top(bx0, bz0, bx1, bz1, RY + 0.005, bx0 / 10, -bz1 / 10, bx1 / 10, -bz0 / 10);
+  const mk = gb('mark'); mk.color(0xf2f0ea);
+  for (let x = bx0 + 2; x <= bx1 - 2; x += 2.8) { mk.top(x - 0.06, bz0 + 1, x + 0.06, bz0 + 6, RY + 0.017); mk.top(x - 0.06, bz1 - 6, x + 0.06, bz1 - 1, RY + 0.017); }
+  mk.color(0xf0c22a); mk.top(bx0 + 2, (bz0 + bz1) / 2 - 0.08, bx1 - 4, (bz0 + bz1) / 2 + 0.08, RY + 0.017);
+  for (const [x, z] of [[bx0 + 4.8, bz0 + 3.5], [bx0 + 13.2, bz0 + 3.5], [bx0 + 21.6, bz1 - 3.5], [bx0 + 7.6, bz1 - 3.5]]) {
+    g.color(pick(carCol)); g.box(x - 0.9, z - 2.1, x + 0.9, z + 2.1, RY, RY + 1.0, 1, 1, 0, [0, 0, 1, 1]); g.box(x - 0.8, z - 1.1, x + 0.8, z + 1.0, RY + 1.0, RY + 1.45, 1, 1, 0, [0, 0, 1, 1]);
+    addRectY(x - 0.9, z - 2.1, x + 0.9, z + 2.1, RY - 0.2, RY + 1.5);
+  }
+  const [nx, nw] = P.narrow, n0 = nx - nw / 2, n1 = nx + nw / 2;
+  const par = (x0, z0, x1, z1) => { g.color(0xcfcabd); g.box(x0, z0, x1, z1, RY, RY + 1.05, 1, 1, 0, [0, 0, 1, 1]); g.color(0xe0b13a); g.box(x0 - 0.02, z0 - 0.02, x1 + 0.02, z1 + 0.02, RY + 1.05, RY + 1.15, 1, 1, 0, [0, 0, 1, 1]); addRectY(x0, z0, x1, z1, RY - 0.3, RY + 1.2); };
+  const [l0, lz0, l1, lz1] = P.land, [rx0, rx1, rz0, rz1] = P.ramp;
+  par(bx0 - 0.4, bz0 - 0.4, l1 + 0.4, bz0);                 // north, along the roof and the landing
+  par(bx0 - 0.4, bz0, bx0, bz1 + 0.4);                      // west
+  par(bx0, bz1, n0, bz1 + 0.4); par(n1, bz1, bx1 + 0.4, bz1 + 0.4);   // south, with the gap for the narrow bridge
+  par(bx1, lz1, bx1 + 0.4, bz1);                            // east, below the landing
+  par(l1, lz0, l1 + 0.4, lz1);                              // the landing's east side
+  par(l0, lz1, rx0, lz1 + 0.4);                             // the landing's south side, beside the ramp
+  // the landing and the ramp up to it from the street on the south side
+  rectDeck(l0, lz0, l1, lz1, RY, { name: ['ลานจอดรถชั้นดาดฟ้า', 'Rooftop Car Park'] });
+  gb('road').top(l0, lz0, l1, lz1, RY + 0.005, l0 / 10, -lz1 / 10, l1 / 10, -lz0 / 10);
+  g.color(0xb9b4a8); g.box(l0, lz0, l1, lz1, RY - 0.4, RY, 1, 1, 0, null);
+  g.color(0x9d988c); for (const [x, z] of [[l0 + 0.4, lz0 + 0.4], [l1 - 0.4, lz0 + 0.4], [l1 - 0.4, lz1 - 0.4], [l0 + 0.4, lz1 - 0.4]]) { g.box(x - 0.35, z - 0.35, x + 0.35, z + 0.35, KERB, RY - 0.4, 1, 1, 0, null); addCircleY(x, z, 0.4, -1e9, RY - 0.5); }
+  const ramp = stripDeck((rx0 + rx1) / 2, rz1, (rx0 + rx1) / 2, rz0, rx1 - rx0, t => lerp(KERB, RY, t), { name: ['ทางขึ้นลานจอดรถ', 'Car Park Ramp'] });
+  buildStrip(ramp, { solid: true, base: KERB, sideCol: 0xb9b4a8 });
+  // low concrete walls along both sides of the ramp, solid all the way down
+  g.color(0xcfcabd);
+  for (const xw of [rx0 - 0.2, rx1 + 0.2]) {
+    const ya = KERB + 1.0, yb = RY + 1.0, zA = rz1, zB = rz0;
+    for (const xf of [xw - 0.2, xw + 0.2]) {
+      if (xf > xw) g.quad([xf, KERB, zA], [xf, KERB, zB], [xf, yb, zB], [xf, ya, zA]); else g.quad([xf, KERB, zB], [xf, KERB, zA], [xf, ya, zA], [xf, yb, zB]);
+    }
+    g.quad([xw - 0.2, ya, zA], [xw + 0.2, ya, zA], [xw + 0.2, yb, zB], [xw - 0.2, yb, zB]);
+    g.quad([xw - 0.2, KERB, zA], [xw - 0.2, ya, zA], [xw + 0.2, ya, zA], [xw + 0.2, KERB, zA]);
+  }
+  addRect(rx0 - 0.4, rz0, rx0, rz1); addRect(rx1, rz0, rx1 + 0.4, rz1);
+  // chevrons up the ramp
+  mk.color(0xf0c22a);
+  const stroke = (ax, az, bx, bz, w) => { const L = Math.hypot(bx - ax, bz - az), px = -(bz - az) / L * w / 2, pz = (bx - ax) / L * w / 2, ya = lerp(KERB, RY, (rz1 - az) / (rz1 - rz0)) + 0.03, yb = lerp(KERB, RY, (rz1 - bz) / (rz1 - rz0)) + 0.03; mk.quad([ax - px, ya, az - pz], [ax + px, ya, az + pz], [bx + px, yb, bz + pz], [bx - px, yb, bz - pz]); mk.quad([ax + px, ya, az + pz], [ax - px, ya, az - pz], [bx - px, yb, bz - pz], [bx + px, yb, bz + pz]); };
+  for (let t = 0.1; t < 0.95; t += 0.14) { const z = lerp(rz1, rz0, t), cx = (rx0 + rx1) / 2; stroke(cx - 2, z + 1, cx, z - 0.6, 0.35); stroke(cx, z - 0.6, cx + 2, z + 1, 0.35); }
+  // the narrow bridge: steel grating, two metres wide, no railings, down to the street on the south side
+  const [, , nzA, nzB] = P.narrow;
+  const nb = stripDeck(nx, nzA, nx, nzB, nw, t => lerp(RY, KERB, t), { name: ['สะพานแคบ', 'The Narrow Bridge'], narrow: true });
+  buildStrip(nb, { thick: 0.35, sideCol: 0xe0b13a, topCol: 0xffffff, top: 'roof', seg: 3 });
+  const gr = gb('mark'); gr.color(0x5f656b);
+  for (let i = 0; i < 14; i++) { const t0 = i / 14, t1 = (i + 1) / 14; gr.quad([n1 - 0.12, lerp(RY, KERB, t0) + 0.012, lerp(nzA, nzB, t0)], [n0 + 0.12, lerp(RY, KERB, t0) + 0.012, lerp(nzA, nzB, t0)], [n0 + 0.12, lerp(RY, KERB, t1) + 0.012, lerp(nzA, nzB, t1)], [n1 - 0.12, lerp(RY, KERB, t1) + 0.012, lerp(nzA, nzB, t1)]); }
+  g.color(0x55595e);
+  for (const t of [0.24, 0.48]) { const z = lerp(nzA, nzB, t), y = lerp(RY, KERB, t); g.box(nx - 0.18, z - 0.18, nx + 0.18, z + 0.18, KERB, y - 0.35, 1, 1, 0, null); addCircleY(nx, z, 0.25, -1e9, y - 0.5); }
+  // you can ride under the high end; the low end is closed off underneath
+  for (let z = nzA; z < nzB; z += 1) { const h = lerp(RY, KERB, (z + 1 - nzA) / (nzB - nzA)); if (h < 2.4 && h > STEP + KERB) addRectY(n0, z, n1, z + 1, -1e9, h); }
+  // warning stripes at the top of the narrow bridge, and signs
+  for (let k = 0; k < 6; k++) { mk.color(k % 2 ? 0x1a1a1a : 0xf0c22a); mk.top(n0 + k * nw / 6, bz1 - 1.2, n0 + (k + 1) * nw / 6, bz1 - 0.2, RY + 0.018); }
+  const s1 = signBoard([['ลานจอดรถ', 70], ['SKYPARK  P', 54, '"Kanit", sans-serif']], 9, 3, '#1d4f8c');
+  s1.position.set((bx0 + bx1) / 2, 5.2, bz0 - 0.1); s1.rotation.y = Math.PI; scene.add(s1);
+  const s2 = signBoard([['สะพานแคบ ขี่ช้า ๆ', 52], ['NARROW BRIDGE · RIDE SLOWLY', 30, '"Kanit", sans-serif']], 2.6, 0.9, '#b8862a', '#1a1a1a');
+  s2.position.set(n1 + 1.5, RY + 1.9, bz1 + 0.15); s2.rotation.y = Math.PI; scene.add(s2);
+  g.color(0x55585c); g.geo(GEO.box, mat(n1 + 1.5, RY + 1.0, bz1 + 0.2, 0, 0.1, 1.2, 0.1));
+  const s3 = signBoard([['ทางขึ้นดาดฟ้า ↑', 56], ['UP TO THE ROOF', 34, '"Kanit", sans-serif']], 3.4, 1.2, '#1d4f8c');
+  s3.position.set((rx0 + rx1) / 2, 3.9, rz1 - 0.3); scene.add(s3);
+  g.color(0x55585c); g.geo(GEO.box, mat((rx0 + rx1) / 2, 4.6, rz1 - 0.35, 0, rx1 - rx0 + 0.8, 0.2, 0.2));
+  // roof lamps
+  for (const [x, z] of [[bx0 + 0.8, bz0 + 0.8], [bx1 - 0.8, bz1 - 0.8], [bx0 + 0.8, bz1 - 0.8]]) {
+    const ax = (bx0 + bx1) / 2 - x, az = (bz0 + bz1) / 2 - z, l = Math.hypot(ax, az);
+    inst('lampPole', mat(x, RY, z, Math.atan2(ax, az)), null); inst('lampHead', mat(x + ax / l * 2.3, RY + 8.35, z + az / l * 2.3, Math.atan2(ax, az)), col(COOL));
+    addCircleY(x, z, 0.22, RY - 0.3, RY + 9);
+  }
+  // the rest of the block: a garden with trees, clear of the ramp and the bridge
+  for (let k = 0; k < 9; k++) { const x = 263 + R() * 23, z = 216 + R() * 68; tree(x, z, 0.7 + R() * 0.35, 0); }
+  for (let k = 0; k < 3; k++) { const x = 222 + R() * 20, z = 262 + R() * 20; if (Math.abs(x - nx) > 3) tree(x, z, 0.6 + R() * 0.3, 0); }
+  spiritHouse(X0 + 2, b.z0 + 1.6, 0);
+}
+
+/* ---------- build it all ---------- */
+function buildLevels() {
+  buildWestBank(); buildBridge(); buildTunnel();
+}
+/* the levels on the map */
+function drawLevelsMap(x, s) {
+  const W = LV.WEST, T = LV.T, P = LV.PARK;
+  x.fillStyle = '#1b232c'; x.fillRect(-420, -600, 144, 1600);
+  x.fillStyle = '#5b6672'; x.fillRect(W.road[0], W.z0, W.road[1] - W.road[0], W.z1 - W.z0);
+  x.fillRect(-276, LV.BZ - 6, 260, 12);
+  x.fillStyle = 'rgba(91,102,114,.55)'; x.fillRect(T.x1, LV.TZ - 4, T.x0 - T.x1, 8);
+  x.strokeStyle = '#9fd8ff'; x.lineWidth = 2 / s; x.setLineDash([6 / s, 5 / s]); x.beginPath(); x.moveTo(T.x1, LV.TZ); x.lineTo(T.x0, LV.TZ); x.stroke(); x.setLineDash([]);
+  x.fillStyle = '#3a4350'; x.fillRect(P.b[0], P.b[1], P.b[2] - P.b[0], P.b[3] - P.b[1]);
+  x.fillStyle = '#5b6672'; x.fillRect(P.ramp[0], P.ramp[2], P.ramp[1] - P.ramp[0], P.ramp[3] - P.ramp[2]); x.fillRect(P.land[0], P.land[1], P.land[2] - P.land[0], P.land[3] - P.land[1]);
+  x.fillStyle = '#d6ad5f'; x.fillRect(P.narrow[0] - P.narrow[1] / 2, P.narrow[2], P.narrow[1], P.narrow[3] - P.narrow[2]);
 }
 
 
@@ -3161,13 +3672,19 @@ AUDIO.carHorn = car => {
    grass and earth flicked off the tyres, tyre tracks left in the grass,
    spray and ripples in the park ponds, wet tracks after them.
    ===================================================================== */
-// what the bike is standing on: road, pavement, grass or (shallow) water
-function surfaceAt(x, z) {
+// what the bike is standing on from height y: road, pavement, grass, (shallow) water, a deck, or the river
+function surfaceAt(x, z, y = 0.3) {
+  const b = groundAt(x, z), d = deckAt(x, z, y);
+  if (d && (d.h > b.h || b.h > y + STEP || b.kind === 'river')) return { kind: d.d.kind, h: d.h, deck: d.d };   // in the trench the river is above you, not under you
+  return b;
+}
+function groundAt(x, z) {
+  const rv = riverSurface(x, z); if (rv) return rv;
   for (const L of WORLD.lakes) {
     const q = ((x - L.x) / L.rx) ** 2 + ((z - L.z) / L.rz) ** 2;
     if (q < 1) { const depth = 0.34 * clamp((1 - q) * 4, 0.12, 1); return { kind: 'water', h: L.wl - depth, depth, wl: L.wl }; }
   }
-  if (x > -15.7 && x < -7) return { kind: 'walk', h: KERB };
+  if (x > -16.05 && x < -7) return { kind: 'walk', h: KERB };
   if (!blockAt(x, z)) return { kind: 'road', h: 0 };
   for (const [x0, z0, x1, z1] of WORLD.greens) if (x >= x0 && x <= x1 && z >= z0 && z <= z1) return { kind: 'grass', h: KERB + 0.02 };
   return { kind: 'walk', h: KERB };
@@ -3382,7 +3899,7 @@ const GEAR_TOP = [12.5, 20.8, 29.2, 37.5, 44.4, 51.4];   // m/s at the red line,
 const GEAR_ACC = [6.4, 5.0, 3.9, 3.1, 2.45, 1.95];
 const IDLE = 880, REDLINE = 5800;
 const START = { x: 136, z: 95, yaw: -Math.PI / 2 };       // Bamrung Mueang, by the Giant Swing, facing east
-const bike = { x: START.x, z: START.z, y: 0, gy: 0, kerbT: 0, surf: 'road', raised: false, depth: 0, wl: 0, wetT: 0, yaw: START.yaw, v: 0, lean: 0, steer: 0, throttle: 0, brake: 0, gear: 0, rpm: IDLE, shiftT: 0, cruise: 0, pitch: 0, started: false, back: 0, shake: 0, bumpT: 0 };
+const bike = { x: START.x, z: START.z, y: 0, gy: 0, kerbT: 0, surf: 'road', raised: false, depth: 0, wl: 0, wetT: 0, yaw: START.yaw, v: 0, lean: 0, steer: 0, throttle: 0, brake: 0, gear: 0, rpm: IDLE, shiftT: 0, cruise: 0, pitch: 0, started: false, neutral: true, ry: 0, vy: 0, gvy: 0, air: 0, slope: 0, slopeS: 0, deck: null, offGrid: false, stillT: 0, hintT: 0, back: 0, shake: 0, bumpT: 0 };
 const input = { steer: 0, throttle: 0, brake: 0, keys: new Set(), padSteer: 0, padActive: false, tiltSteer: 0, horn: false };
 const titleRev = { on: false, thr: 0, blipT: 0 };
 let time = 0, last = performance.now();
@@ -3390,25 +3907,63 @@ const HUDS = { road: '', roadT: 0, dist: '', distT: 0, toastT: 0, cardT: 0 };
 
 // how the bike turns at a given speed: bar lock (38° at a crawl, a few degrees at speed), lean limit, and the blend between them
 function turnModel(sp) { return { lock: 0.66 * (1 - smooth(1, 14, sp)) + 0.05, maxLean: clamp(sp / 11, 0, 1) * 0.8, w: smooth(3, 9, sp) }; }
+// coming down off an edge: a thump, a shake and some speed lost, by how fast it hits
+function landed(imp) {
+  if (imp < 1.6) return;
+  const k = Math.min(1, imp / 12);
+  SFX.thud(Math.min(1, 0.25 + k)); bike.shake = Math.max(bike.shake, 0.3 + k * 0.7);
+  bike.v *= clamp(1.05 - k * 0.6, 0.35, 1);
+  if (imp > 5) toast(T.landHard, 1.6);
+}
+// off the edge into the river: a splash, and back on the nearer bank
+function riverRescue() {
+  FX.splash(bike.x, bike.z, -0.6, 8); SFX.splash(1);
+  const east = bike.x > -146;
+  bike.x = east ? -11 : -278.5; bike.z = east ? clamp(bike.z, -700, 1100) : clamp(bike.z, LV.WEST.z0 + 6, LV.WEST.z1 - 6);
+  bike.yaw = 0; bike.v = 0; bike.vy = 0; bike.air = 0; bike.gvy = 0; bike.cruise = 0;
+  bike.y = bike.ry = surfaceAt(bike.x, bike.z, 3).h;
+  setNeutral(true, true); driveUI(); cam.init = false; toast(T.river, 2.6);
+}
 function torque(rpm) {
   let t = 0.7 + 0.3 * Math.sin(clamp((rpm - 900) / 3400, 0, 1) * Math.PI * 0.95);
   if (rpm > 4600) t *= 1 - (rpm - 4600) / 1200 * 0.35;
   return t;
 }
 
+// neutral when stopped: the rider revs it freely; D (or ▲ in the manual box) puts it in gear
+function setNeutral(on, quiet) {
+  if (bike.neutral === on) return;
+  bike.neutral = on; bike.gear = 0; bike.stillT = 0;
+  if (!quiet) { SFX.shift(!on); toast(on ? T.inN : T.inD, 1.6); }
+  driveUI();
+}
+function driveUI() {
+  const b = $('driveBtn'); if (!b) return;
+  b.classList.toggle('n', bike.neutral); b.classList.toggle('d', !bike.neutral);
+  $('driveSub').textContent = bike.neutral ? (TH ? 'ตอนนี้ N' : 'now in N') : T.drive;
+}
+// the D button: out of neutral into drive; stopped in drive, back to neutral
+function driveTap() {
+  if (!bike.started) return;
+  if (bike.neutral) { setNeutral(false); flashGear('driveBtn'); }
+  else if (Math.abs(bike.v) < 0.5) setNeutral(true);
+}
 function shiftUp() {
-  if (settings.gearbox !== 'manual' || !bike.started) return;
+  if (!bike.started) return;
+  if (bike.neutral) { setNeutral(false); if (settings.gearbox === 'manual') flashGear('gearUp'); return; }
+  if (settings.gearbox !== 'manual') return;
   if (bike.gear >= 5) { toast(T.topGear); return; }
   bike.gear++; bike.shiftT = 0.16; SFX.shift(true); flashGear('gearUp');
 }
 function shiftDown() {
-  if (settings.gearbox !== 'manual' || !bike.started) return;
-  if (bike.gear <= 0) { toast(T.firstGear); return; }
+  if (!bike.started) return;
+  if (settings.gearbox !== 'manual') { if (!bike.neutral && Math.abs(bike.v) < 0.5) setNeutral(true); return; }
+  if (bike.gear <= 0) { if (!bike.neutral && Math.abs(bike.v) < 1) { setNeutral(true); flashGear('gearDown'); } else toast(T.firstGear); return; }
   if (Math.max(0, bike.v) / GEAR_TOP[bike.gear - 1] * REDLINE > REDLINE + 250) { toast(T.overRev); return; }
   bike.gear--; bike.shiftT = 0.14; SFX.shift(false); flashGear('gearDown');
 }
 function flashGear(id) { const e = $(id); e.classList.add('on'); setTimeout(() => e.classList.remove('on'), 160); }
-function gearUI() { $('gearBox').hidden = settings.gearbox !== 'manual'; }
+function gearUI() { const m = settings.gearbox === 'manual'; $('gearUp').hidden = $('gearDown').hidden = !m; $('driveBtn').hidden = m; driveUI(); }
 
 /* ---------- steering assist: follows the left lane, turns at crossings, heads for the nearest postcard ---------- */
 const AP = { on: false, byCam: false, d: 0, ni: 0, nj: 0, next: 0, path: null, target: '', inner: false, innerT: 0, stuckT: 0 };
@@ -3420,7 +3975,7 @@ function autoUI() {
 }
 function apTarget() {
   let best = null, bd = 1e9;
-  for (const L of LANDMARKS) { if (settings.visited.includes(L.id)) continue; const d = Math.hypot(L.x - bike.x, L.z - bike.z); if (d < bd) { bd = d; best = L; } }
+  for (const L of LANDMARKS) { if (settings.visited.includes(L.id) || L.noAP) continue; const d = Math.hypot(L.x - bike.x, L.z - bike.z); if (d < bd) { bd = d; best = L; } }
   return best;
 }
 // the road point the assist aims for: the place itself, or a point on the road beside it
@@ -3583,11 +4138,14 @@ function rideUpdate(dt) {
 
   // steering assist: it steers and slows for corners and traffic; a hand on the bars takes over
   let steerIn = handSteer, apBrake = 0;
-  if (AP.on) {
+  if (AP.on && bike.offGrid) { if (!bike.apNote) { toast(T.apOff, 2.6); bike.apNote = true; } }
+  else bike.apNote = false;
+  if (AP.on && !bike.offGrid) {
     if (userSteering) AP.path = null;
     else { const a = apUpdate(); steerIn = a.steer; apBrake = a.brake; }
   }
   const brkIn = Math.max(brkUser, apBrake);
+  const rawThr = thrIn;
   if (apBrake > 0.02) thrIn = 0;
 
   bike.steer = damp(bike.steer, steerIn, kSteer ? 5 : 9, dt);
@@ -3605,11 +4163,19 @@ function rideUpdate(dt) {
   let g = bike.gear;
   const rpmV = v / GEAR_TOP[g] * REDLINE;
   let rpm = Math.max(IDLE, rpmV);
-  const standing = v < 0.6 && bike.brake > 0.4;
   const manual = settings.gearbox === 'manual';
+  // stopped with the throttle closed for a moment: the box drops into neutral
+  if (!bike.neutral) {
+    if (v < 0.25 && rawThr < 0.05) { bike.stillT += dt; if (bike.stillT > 0.7) setNeutral(true); } else bike.stillT = 0;
+  } else if (rawThr > 0.3 && v < 1.5) {
+    bike.hintT -= dt;
+    if (bike.hintT <= 0) { toast(manual ? T.pressUp : T.pressD, 2.4); bike.hintT = 5; }
+  }
+  const N = bike.neutral;
+  const standing = N || (v < 0.6 && bike.brake > 0.4);
   if (g === 0) rpm = Math.max(rpm, IDLE + bike.throttle * 2300 * clamp(1 - v / 9, 0, 1));
   else if (manual) rpm = Math.max(rpm, IDLE + bike.throttle * 1900 * clamp(1 - v / (GEAR_TOP[g] * 0.28), 0, 1)); // clutch slips pulling away in a high gear
-  if (standing) rpm = IDLE + bike.throttle * 4700;      // clutch in, revving at the lights
+  if (standing) rpm = IDLE + bike.throttle * (N ? 4900 : 4700);      // in neutral or clutch in: revving at the lights
   // automatic gearbox, shifting like a relaxed rider (manual: the ▲ ▼ buttons)
   if (bike.shiftT > 0) bike.shiftT -= dt;
   else if (!standing && !manual) {
@@ -3622,16 +4188,18 @@ function rideUpdate(dt) {
   if (manual && g > 0 && rpmV < 1600) acc *= clamp(0.3 + rpmV / 2300, 0.3, 1);   // lugging in too high a gear
   if (rpmV >= REDLINE) acc = Math.min(acc, 0);
   acc -= 0.00042 * v * v + (v > 0.1 ? 0.12 : 0);
-  if (thrEff < 0.05 && v > 0.5) acc -= 0.2 + 0.6 * rpm / REDLINE;
+  if (thrEff < 0.05 && v > 0.5 && !N) acc -= 0.2 + 0.6 * rpm / REDLINE;
   if (v > 0.05) acc -= bike.brake * (bike.surf === 'water' ? 5 : bike.surf === 'grass' ? 7 : 8.6);
   if (bike.surf === 'grass' && v > 0.1) acc -= 0.35 + 0.004 * v * v;
   if (bike.surf === 'water' && v > 0.05) { const df = bike.depth / 0.34; acc -= df * (0.5 + 0.1 * v * v); }
+  if (bike.air <= 0) acc -= 9.81 * bike.slope / Math.sqrt(1 + bike.slope * bike.slope);   // up or down a ramp
   let nv = bike.v + acc * dt;
   // walking it backwards: stopped, brake held, no throttle
   if (v < 0.3 && bike.brake > 0.8 && bike.throttle < 0.05) { bike.back += dt; if (bike.back > 0.6) nv = -1.1; }
+  else if (bike.air <= 0 && bike.slope > 0.03 && bike.brake < 0.1 && nv < 0.3) { bike.back = 0; nv = Math.max(nv, -4); }   // rolls back down a ramp
   else { bike.back = 0; if (nv < 0) nv = bike.v < 0 ? Math.min(0, bike.v + 4 * dt) : 0; }
   bike.v = nv;
-  bike.rpm = damp(bike.rpm, rpm + (bike.shiftT > 0.1 ? -250 : 0), bike.shiftT > 0 ? 18 : 10, dt);
+  bike.rpm = damp(bike.rpm, rpm + (bike.shiftT > 0.1 ? -250 : 0), bike.shiftT > 0 ? 18 : N ? (rpm > bike.rpm ? 12 : 5) : 10, dt);   // in neutral it spins up fast and dies away slowly
 
   // lean and turn: lean grows with speed; yaw rate from lean, plus handlebar steering at walking pace
   const sp = Math.abs(bike.v);
@@ -3645,7 +4213,7 @@ function rideUpdate(dt) {
   const fx = -Math.sin(bike.yaw), fz = -Math.cos(bike.yaw);
   const p = { x: bike.x + fx * bike.v * dt, z: bike.z + fz * bike.v * dt };
   // walls and kerbs
-  const hit = collide(p, 0.5);
+  const hit = collide(p, 0.5, bike.y);
   bike.blocked = Math.max(0, (bike.blocked || 0) - dt);
   if (hit) {
     bike.blocked = 0.5;
@@ -3659,15 +4227,32 @@ function rideUpdate(dt) {
     if (impact < 0.8) bike.yaw += dy * Math.min(1, dt * 4);
   }
   // traffic
-  const ch = collideTraffic(p, 0.55);
+  const ch = Math.abs(bike.y) < 1.2 ? collideTraffic(p, 0.55) : null;
   if (ch) {
     if (bike.bumpT <= 0) { SFX.thud(Math.min(1, 0.3 + bike.v / 12)); toast(T.bump); bike.shake = Math.min(1, 0.3 + bike.v / 10); bike.bumpT = 0.8; ch.car.bump = 1.5; AUDIO.carHorn && AUDIO.carHorn(ch.car); }
     bike.v *= 0.55;
   }
   bike.bumpT -= dt;
   bike.x = p.x; bike.z = p.z;
+  const surf = surfaceAt(bike.x, bike.z, bike.y);
+  // on the ground it follows the ground (kerbs, ramps); off an edge it falls and lands with a thump
+  if (bike.air <= 0 && bike.y - surf.h <= 0.3) {
+    bike.gvy = damp(bike.gvy, clamp((surf.h - bike.y) / dt, -8, 3), 12, dt);
+    bike.y = surf.h;
+  } else {
+    if (bike.air <= 0) bike.vy = bike.gvy;
+    bike.air += dt; bike.vy -= 9.81 * dt; bike.y += bike.vy * dt;
+    if (bike.y <= surf.h) { const imp = -bike.vy; bike.y = surf.h; bike.vy = 0; bike.air = 0; bike.gvy = 0; landed(imp); }
+  }
+  if (surf.kind === 'river' && bike.y < -0.5) { riverRescue(); return; }
+  if (bike.air <= 0) {
+    const hf = surfaceAt(bike.x + fx * 0.8, bike.z + fz * 0.8, bike.y).h, hr = surfaceAt(bike.x - fx * 0.8, bike.z - fz * 0.8, bike.y).h;
+    bike.slope = clamp((hf - hr) / 1.6, -0.45, 0.45);
+  }
+  bike.slopeS = damp(bike.slopeS, bike.slope, 10, dt);
+  bike.deck = surf.deck || null; bike.offGrid = !!surf.deck || bike.x < -14;
   // up and down kerbs: a small jolt, a little speed lost
-  const surf = surfaceAt(bike.x, bike.z), raised = surf.kind !== 'road';
+  const raised = surf.kind !== 'road';
   if (raised !== bike.raised) { if (sp > 2.5 && bike.kerbT <= 0) { bike.shake = Math.max(bike.shake, Math.min(0.35, sp / 40)); SFX.thud(Math.min(0.35, sp / 50)); bike.kerbT = 0.25; bike.v *= 0.97; } bike.raised = raised; }
   if (surf.kind === 'water' && bike.surf !== 'water' && sp > 1) { FX.splash(bike.x, bike.z, surf.wl, sp); SFX.splash(Math.min(1, sp / 9)); bike.shake = Math.max(bike.shake, Math.min(0.5, sp / 18)); }
   if (bike.surf === 'water' && surf.kind !== 'water') bike.wetT = 4;
@@ -3706,13 +4291,14 @@ function audioState(thr) {
   s.riverGain = bike.x < 45 ? (1 - Math.max(0, bike.x) / 45) * 0.07 : 0;
   s.surf = state === 'ride' ? bike.surf : 'road'; s.depth = bike.depth;
   const dname = districtAt(bike.x, bike.z);
-  s.reverb = Math.abs(bike.z - 100) < 12 && bike.x > 214 ? 0.42 : dname === 'river' || dname === 'park' ? 0.13 : dname === 'old' || dname === 'temple' ? 0.2 : 0.3;
+  s.reverb = bike.deck && bike.deck.tunnel === 2 ? 0.95 : bike.deck && bike.deck.tunnel ? 0.55 : Math.abs(bike.z - 100) < 12 && bike.x > 214 ? 0.42 : dname === 'river' || dname === 'park' ? 0.13 : dname === 'old' || dname === 'temple' ? 0.2 : 0.3;
   return s;
 }
 
 /* ---------- places: road signs, districts, postcards ---------- */
 function checkPlaces() {
-  const r = roadAt(bike.x, bike.z);
+  const dk = bike.deck;
+  const r = dk && dk.name ? { th: dk.name[0], en: dk.name[1], k: 'deck' + dk.name[1] } : bike.x < -276 ? { th: 'ถนนอรุณอมรินทร์', en: 'Arun Amarin Rd', k: 'arun' } : roadAt(bike.x, bike.z);
   if (r && r.k !== HUDS.road) {
     HUDS.road = r.k; HUDS.roadT = 7;
     $('roadTh').textContent = r.th; $('roadEn').textContent = r.en; $('roadSign').classList.remove('dim');
@@ -3725,6 +4311,7 @@ function checkPlaces() {
   }
   for (const L of LANDMARKS) {
     if (settings.visited.includes(L.id)) continue;
+    if ((L.y !== undefined && bike.y < L.y) || (L.ymax !== undefined && bike.y > L.ymax)) continue;
     if (Math.hypot(bike.x - L.x, bike.z - L.z) < (L.r || 13)) {
       settings.visited.push(L.id); save();
       $('pcTitle').textContent = TH ? L.th : L.en; $('pcText').textContent = TH ? L.tTh : L.tEn;
@@ -3746,10 +4333,11 @@ function hudTimers(dt) {
 
 /* ---------- placing the bike model ---------- */
 function poseBike(dt, parked) {
-  if (state !== 'ride') { const sf = surfaceAt(bike.x, bike.z); bike.gy = sf.h; bike.surf = sf.kind; bike.raised = sf.kind !== 'road'; }
-  bike.y = damp(bike.y, bike.gy, 28, dt || 0.016);
-  BIKE.root.position.set(bike.x, bike.y, bike.z);
-  BIKE.root.rotation.y = bike.yaw;
+  if (state !== 'ride') { const sf = surfaceAt(bike.x, bike.z, bike.y + 0.5); bike.gy = bike.y = sf.h; bike.surf = sf.kind; bike.raised = sf.kind !== 'road'; }
+  bike.ry = bike.air > 0 || Math.abs(bike.y - bike.ry) > 0.8 ? bike.y : damp(bike.ry, bike.y, 28, dt || 0.016);
+  BIKE.root.position.set(bike.x, bike.ry, bike.z);
+  BIKE.root.rotation.order = 'YXZ';
+  BIKE.root.rotation.y = bike.yaw; BIKE.root.rotation.x = Math.atan(bike.slopeS);
   BIKE.lean.rotation.z = parked ? 0.11 : bike.lean;
   BIKE.body.rotation.x = bike.pitch;
   // a big twin shakes at idle and smooths out with revs
@@ -3777,6 +4365,7 @@ const cam = { pos: new THREE.Vector3(), look: new THREE.Vector3(), tv: null, tvT
 const _up = new THREE.Vector3(), _f = new THREE.Vector3(), _r = new THREE.Vector3(), _tmp = new THREE.Vector3();
 function updateCamera(dt, mode) {
   const sp = Math.abs(bike.v);
+  if (mode === 3 && bike.offGrid) mode = 0;
   _f.set(-Math.sin(bike.yaw), 0, -Math.cos(bike.yaw)); _r.set(Math.cos(bike.yaw), 0, -Math.sin(bike.yaw));
   const bp = _tmp.set(bike.x, 0, bike.z);
   let desired, target, roll = 0, fov = 60, k = 6, near = 0.08;
@@ -3810,13 +4399,13 @@ function updateCamera(dt, mode) {
       const side = Math.random() < 0.5 ? -1 : 1;
       const ahead = Math.max(22, sp * 2.4);
       const c = new THREE.Vector3(bike.x, 0, bike.z).addScaledVector(_f, ahead).addScaledVector(_r, side * (6 + Math.random() * 3));
-      for (let n = 0; n < 12 && insideSolid(c.x, c.z, 0.5); n++) c.addScaledVector(_r, -side * 1.2);
-      c.y = Math.random() < 0.3 ? 5 + Math.random() * 5 : 1.2 + Math.random() * 1.2;
+      for (let n = 0; n < 12 && insideSolid(c.x, c.z, 0.5, bike.y); n++) c.addScaledVector(_r, -side * 1.2);
+      c.y = bike.y + (Math.random() < 0.3 ? 5 + Math.random() * 5 : 1.2 + Math.random() * 1.2);
       cam.tv = c; cam.tvT = 0; cam.pos.copy(c);
     }
     cam.tvT += dt;
     desired = cam.tv.clone();
-    target = new THREE.Vector3(bike.x, 0.9, bike.z);
+    target = new THREE.Vector3(bike.x, bike.ry + 0.9, bike.z);
     const d = desired.distanceTo(target);
     fov = clamp(2 * Math.atan(2.6 / d) * 180 / Math.PI, 6, 55); k = 1000;
   }
@@ -3828,10 +4417,10 @@ function updateCamera(dt, mode) {
     const dx = cam.pos.x - bike.x, dz = cam.pos.z - bike.z, L = Math.hypot(dx, dz);
     if (L > 0.5) {
       let free = L;
-      for (let t = 0.8; t < L; t += 0.4) if (insideSolid(bike.x + dx * t / L, bike.z + dz * t / L, 0.25)) { free = Math.max(0.9, t - 0.4); break; }
+      for (let t = 0.8; t < L; t += 0.4) if (insideSolid(bike.x + dx * t / L, bike.z + dz * t / L, 0.25, bike.y + 0.6)) { free = Math.max(0.9, t - 0.4); break; }
       if (free < L) { cam.pos.x = bike.x + dx * free / L; cam.pos.z = bike.z + dz * free / L; cam.pos.y = Math.max(cam.pos.y, bike.y + 1.6 + (L - free) * 0.35); }
     }
-    const q = { x: cam.pos.x, z: cam.pos.z }; collide(q, 0.3); cam.pos.x = q.x; cam.pos.z = q.z;
+    const q = { x: cam.pos.x, z: cam.pos.z }; collide(q, 0.3, bike.y + 0.6); cam.pos.x = q.x; cam.pos.z = q.z;
     if (cam.pos.y < bike.y + 0.25) cam.pos.y = bike.y + 0.25;
   }
   let px = cam.pos.x, py = cam.pos.y, pz = cam.pos.z;
@@ -3880,8 +4469,9 @@ function drawGauge() {
   if (manual && hot && (time * 8 | 0) % 2 === 0) { x.fillStyle = '#ff4a2e'; x.shadowColor = '#ff4a2e'; x.shadowBlur = 16; x.beginPath(); x.arc(cx, cy - 150, 9, 0, Math.PI * 2); x.fill(); x.shadowBlur = 0; }
   // gear and digital speed
   x.fillStyle = '#efe7d4'; x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.font = '600 62px "Kanit", sans-serif'; x.fillText(bike.started ? String(bike.gear + 1) : T.gearN, cx, cy - 52);
-  x.font = '600 20px "Kanit", sans-serif'; x.fillStyle = manual ? '#f2d28c' : 'rgba(239,231,212,.45)'; x.fillText(manual ? 'M' : 'A', cx + 40, cy - 66);
+  const inN = !bike.started || bike.neutral;
+  x.font = '600 62px "Kanit", sans-serif'; x.fillStyle = inN ? '#8fd18a' : '#efe7d4'; x.fillText(inN ? T.gearN : String(bike.gear + 1), cx, cy - 52);
+  x.font = '600 20px "Kanit", sans-serif'; x.fillStyle = manual ? '#f2d28c' : inN ? 'rgba(239,231,212,.45)' : '#8fc3ea'; x.fillText(manual ? 'M' : inN ? 'A' : 'D', cx + 40, cy - 66);
   if (AP.on) { x.fillStyle = '#6ca6d1'; x.fillText(TH ? 'ออโต้' : 'AUTO', cx - 46, cy - 66); }
   x.fillStyle = '#efe7d4';
   x.font = '600 44px "Kanit", sans-serif'; x.fillStyle = '#f2d28c'; x.fillText(String(Math.round(kmh)), cx, cy + 66);
@@ -3907,11 +4497,12 @@ function drawMapBase(x, s) {
   for (let i = 0; i < NX; i++) x.fillRect(RX[i] - WX[i] / 2, RZ[0] - WZ[0] / 2, WX[i], RZ[NZ - 1] - RZ[0] + (WZ[0] + WZ[NZ - 1]) / 2);
   for (let j = 0; j < NZ; j++) x.fillRect(RX[0] - WX[0] / 2, RZ[j] - WZ[j] / 2, RX[NX - 1] - RX[0] + WX[0], WZ[j]);
   x.strokeStyle = '#8fa6bd'; x.lineWidth = 3 / s; x.beginPath(); x.moveTo(BTS.x0, 100); x.lineTo(BTS.x1, 100); x.stroke();
+  drawLevelsMap(x, s);
 }
 /* the whole city, north up, in the pause menu */
 function drawBigMap() {
   const c = $('bigmap'), x = c.getContext('2d'), W = c.width, H = c.height;
-  const wx0 = -90, wx1 = MAP.x1 + 10, wz0 = MAP.z0 + 60, wz1 = MAP.z1 - 60;
+  const wx0 = -330, wx1 = MAP.x1 + 10, wz0 = MAP.z0 + 60, wz1 = MAP.z1 - 60;
   const s = Math.min((W - 20) / (wx1 - wx0), (H - 20) / (wz1 - wz0));
   const ox = (W - (wx1 - wx0) * s) / 2 - wx0 * s, oz = (H - (wz1 - wz0) * s) / 2 - wz0 * s;
   x.clearRect(0, 0, W, H); x.fillStyle = '#121a22'; x.fillRect(0, 0, W, H);
@@ -3981,7 +4572,7 @@ function bindInput() {
     knob.style.transform = `translateX(${dx * (pad.clientWidth / 2 - 40) / 95}px)`;
   });
   const end = e => { if (e.pointerId !== pid) return; pid = null; input.padSteer = 0; input.padActive = false; knob.style.transform = ''; };
-  for (const [id, fn] of [['gearUp', shiftUp], ['gearDown', shiftDown]]) $(id).addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); });
+  for (const [id, fn] of [['gearUp', shiftUp], ['gearDown', shiftDown], ['driveBtn', driveTap]]) $(id).addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); });
   $('autoBtn').addEventListener('click', () => { apSet(!AP.on, false); toast(AP.on ? T.autoOn : T.autoOff, 2.2); });
   // the rev button on the start screen: starts the engine if it is off, then revs while held
   bindHold('revBtn', () => { initAudio(); SFX.start(); titleRev.on = true; $('revBtn').classList.add('on'); }, () => { titleRev.on = false; $('revBtn').classList.remove('on'); });
@@ -4150,8 +4741,8 @@ function startRide() {
   } catch (e) { /* not allowed here */ }
   state = 'ride';
   $('title').hidden = true; $('hud').hidden = false;
-  bike.started = false;
-  setTimeout(() => { bike.started = true; bike.rpm = 1700; }, fresh ? 950 : 50);
+  bike.started = false; setNeutral(true, true);
+  setTimeout(() => { bike.started = true; bike.rpm = 1700; toast(settings.gearbox === 'manual' ? T.pressUp : T.pressD, 3); bike.hintT = 5; }, fresh ? 950 : 50);
   cam.init = false;
   HUDS.road = ''; HUDS.dist = '';
   visUI(); soundUI(); cruiseUI(); gearUI();
@@ -4212,7 +4803,7 @@ function frame(now) {
   sun.target.position.set(sx, 0, sz); sun.position.set(sx + sunDir.x * 160, sunDir.y * 160, sz + sunDir.z * 160);
   if (state === 'ride' || state === 'pause') { if ((frameNo++ & 1) === 0) drawMinimap(); drawGauge(); }
   updateChunks();
-  FX.update(dt);
+  FX.update(dt); updateUnderwater(dt, time);
   composer.render();
   for (const p of SHADOW.proxies) p.visible = false;
   watchPerf(dt);
@@ -4251,7 +4842,7 @@ async function boot() {
 }
 requestAnimationFrame(frame);
 boot().catch(err => { console.error(err); $('loadText').textContent = T.loadFail + ' (' + (err && err.message || err) + ')'; });
-if (/[?&]debug\b/.test(location.search)) window.__cruiser = { surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
+if (/[?&]debug\b/.test(location.search)) window.__cruiser = { driveTap, setNeutral, DECKS, LV, UW, deckAt, surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
 
 </script>
 <script>
