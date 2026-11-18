@@ -1406,7 +1406,7 @@ function lathe(points, segs, m, key) { const g = new THREE.LatheGeometry(points.
 const CHEDI = [[0, 0], [4.6, 0], [4.6, 0.8], [4.1, 1.1], [4.1, 1.9], [3.6, 2.2], [3.7, 3.6], [4.0, 5.2], [3.8, 6.8], [3.2, 8.2], [2.3, 9.2], [1.4, 9.8], [1.2, 10.4], [1.4, 11.0], [1.0, 11.5], [0.75, 13.5], [0.5, 15.5], [0.3, 17.5], [0.12, 19.2], [0, 20]];
 
 /* ---------- the world ---------- */
-const WORLD = { blocks: [], landmarks: [], trains: [], boats: [], trafficLights: [], beams: [], greens: [], sois: [], kites: [], wheel: null };
+const WORLD = { lakes: [], blocks: [], landmarks: [], trains: [], boats: [], trafficLights: [], beams: [], greens: [], sois: [], kites: [], wheel: null };
 
 function buildRoads() {
   const W = 0xf2f0ea, Y = 0xf0c22a;
@@ -1636,7 +1636,7 @@ function parkBlock(b, X0, Z0, X1, Z1) {
   const lx = (X0 + X1) / 2 + (big ? -4 : 4), lz = (Z0 + Z1) / 2 + 6, lrx = big ? 26 : 22, lrz = big ? 18 : 14;
   const lake = new THREE.Mesh(new THREE.CircleGeometry(1, 40).rotateX(-Math.PI / 2), MAT.water);
   lake.scale.set(lrx, 1, lrz); lake.position.set(lx, KERB + 0.06, lz); lake.receiveShadow = true; scene.add(lake);
-  addEllipse(lx, lz, lrx, lrz);
+  WORLD.lakes.push({ x: lx, z: lz, rx: lrx, rz: lrz, wl: KERB + 0.06 });   // shallow: ride through it
   const p = gb('walk'), N = 48;
   for (let i = 0; i < N; i++) {
     const a0 = i / N * Math.PI * 2, a1 = (i + 1) / N * Math.PI * 2, r0 = [lrx + 2.5, lrz + 2.5], r1 = [lrx + 5, lrz + 5];
@@ -2954,6 +2954,9 @@ function initAudio() {
   /* road and wind */
   AUDIO.wind = g(0); AUDIO.windF = filt('bandpass', 800, 0.5); loop(white).connect(AUDIO.windF).connect(AUDIO.wind).connect(master);
   AUDIO.tyre = g(0); loop(brown).connect(filt('lowpass', 380, 0.7)).connect(AUDIO.tyre).connect(master);
+  /* the surface: grass swishing past, water hissing and sloshing */
+  AUDIO.surf = g(0); AUDIO.surfF = filt('bandpass', 900, 0.6); loop(white).connect(AUDIO.surfF).connect(AUDIO.surf).connect(master);
+  AUDIO.slosh = g(0); { const s = loop(brown); const f = filt('lowpass', 320, 0.9); const lfo = ctx.createOscillator(); lfo.frequency.value = 2.3; const lg = g(0.5); lfo.connect(lg); const vca = g(0.5); lg.connect(vca.gain); lfo.start(); s.connect(f).connect(vca).connect(AUDIO.slosh).connect(master); AUDIO.sloshLfo = lfo; }
   /* the city: a low hum of distant traffic */
   AUDIO.hum = g(0.05); loop(brown).connect(filt('lowpass', 220, 0.7)).connect(AUDIO.hum).connect(master);
   /* passing traffic */
@@ -3055,7 +3058,12 @@ function audioUpdate(dt, s) {
   const v = s.speed;
   set(AUDIO.wind.gain, Math.min(0.5, (v / 45) ** 2 * 0.45) * (s.cam === 2 ? 1.4 : 0.8));
   set(AUDIO.windF.frequency, 500 + v * 18);
-  set(AUDIO.tyre.gain, Math.min(0.16, v * 0.004));
+  set(AUDIO.tyre.gain, s.surf === 'road' || s.surf === 'walk' || !s.surf ? Math.min(0.16, v * 0.004) : 0);
+  const df = (s.depth || 0) / 0.34;
+  set(AUDIO.surf.gain, s.surf === 'grass' ? Math.min(0.05, v * 0.006) : s.surf === 'water' ? Math.min(0.2, (0.02 + v * 0.025) * df) : 0, 0.08);
+  set(AUDIO.surfF.frequency, s.surf === 'water' ? 1700 : 850, 0.1);
+  set(AUDIO.slosh.gain, s.surf === 'water' ? Math.min(0.22, (0.05 + v * 0.03) * df) : 0, 0.1);
+  set(AUDIO.sloshLfo.frequency, 1.5 + v * 0.6, 0.2);
   set(AUDIO.hum.gain, look.night ? 0.035 : 0.055, 0.5);
   set(AUDIO.revIn.gain, s.reverb, 0.4);
   // nearest vehicles
@@ -3127,6 +3135,15 @@ const SFX = {
     gg.gain.setValueAtTime(0, t); gg.gain.linearRampToValueAtTime(0.12 * strength, t + 0.02); gg.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
     s.connect(AUDIO.filt('bandpass', 1800, 2)).connect(gg).connect(AUDIO.master); s.start(t, Math.random()); s.stop(t + 0.35);
   },
+  splash(strength) {
+    if (!AUDIO.ready) return;
+    const ctx = AUDIO.ctx, t = ctx.currentTime;
+    for (const [buf, f, q, peak, dur] of [[AUDIO.white, 1300, 0.7, 0.32, 0.7], [AUDIO.brown, 260, 0.8, 0.5, 0.5]]) {
+      const s = ctx.createBufferSource(); s.buffer = buf; const gg = AUDIO.g(0);
+      gg.gain.setValueAtTime(0, t); gg.gain.linearRampToValueAtTime(peak * strength, t + 0.015); gg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(AUDIO.filt('bandpass', f, q)).connect(gg).connect(AUDIO.master); gg.connect(AUDIO.revIn); s.start(t, Math.random()); s.stop(t + dur + 0.05);
+    }
+  },
   chime() { if (!AUDIO.ready) return; [784, 988, 1175, 1568].forEach((f, k) => setTimeout(() => bell(f, 0.05), k * 140)); },
   click() { if (!AUDIO.ready) return; voice('triangle', 900, 0.05, 0.03); },
 };
@@ -3140,18 +3157,239 @@ AUDIO.carHorn = car => {
 
 
 /* =====================================================================
+   The ground under the wheels, and what it throws up:
+   grass and earth flicked off the tyres, tyre tracks left in the grass,
+   spray and ripples in the park ponds, wet tracks after them.
+   ===================================================================== */
+// what the bike is standing on: road, pavement, grass or (shallow) water
+function surfaceAt(x, z) {
+  for (const L of WORLD.lakes) {
+    const q = ((x - L.x) / L.rx) ** 2 + ((z - L.z) / L.rz) ** 2;
+    if (q < 1) { const depth = 0.34 * clamp((1 - q) * 4, 0.12, 1); return { kind: 'water', h: L.wl - depth, depth, wl: L.wl }; }
+  }
+  if (x > -15.7 && x < -7) return { kind: 'walk', h: KERB };
+  if (!blockAt(x, z)) return { kind: 'road', h: 0 };
+  for (const [x0, z0, x1, z1] of WORLD.greens) if (x >= x0 && x <= x1 && z >= z0 && z <= z1) return { kind: 'grass', h: KERB + 0.02 };
+  return { kind: 'walk', h: KERB };
+}
+
+// how brightly the sky lights the spray and the tracks at each time of day
+const FX_LIGHT = new THREE.Color(1, 1, 1);
+const FX_LIGHTS = { day: [1, 1, 1], golden: [0.85, 0.72, 0.58], dusk: [0.3, 0.3, 0.42], night: [0.2, 0.22, 0.3] };
+
+/* particles: one Points object per kind, sized in metres, fading out */
+class Particles {
+  constructor(n, map, opacity = 1) {
+    this.n = n; this.i = 0;
+    this.p = new Float32Array(n * 3); this.v = new Float32Array(n * 3); this.c = new Float32Array(n * 3);
+    this.s = new Float32Array(n); this.a = new Float32Array(n); this.life = new Float32Array(n); this.max = new Float32Array(n); this.floor = new Float32Array(n); this.sink = new Uint8Array(n);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(this.p, 3).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('color', new THREE.BufferAttribute(this.c, 3).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('size', new THREE.BufferAttribute(this.s, 1).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('alpha', new THREE.BufferAttribute(this.a, 1).setUsage(THREE.DynamicDrawUsage));
+    this.mat = new THREE.ShaderMaterial({
+      uniforms: { map: { value: map }, scale: { value: 600 }, maxPx: { value: 40 }, opacity: { value: opacity }, light: { value: FX_LIGHT } }, transparent: true, depthWrite: false,
+      vertexShader: `attribute float size; attribute float alpha; attribute vec3 color; uniform float scale; uniform float maxPx; varying float vA; varying vec3 vC;
+        void main(){ vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mv; gl_PointSize = min(maxPx, size * scale / max(0.1, -mv.z)); vA = alpha; vC = color; }`,
+      fragmentShader: `uniform sampler2D map; uniform vec3 light; uniform float opacity; varying float vA; varying vec3 vC;
+        void main(){ vec4 t = texture2D(map, gl_PointCoord); float a = t.a * vA * opacity; if (a < 0.03) discard; gl_FragColor = vec4(vC * t.rgb * light, a); }`,
+    });
+    this.pts = new THREE.Points(g, this.mat); this.pts.frustumCulled = false; this.pts.renderOrder = 3;
+    scene.add(this.pts); this.live = 0;
+  }
+  spawn(x, y, z, vx, vy, vz, life, size, r, g, b, floor, sink) {
+    const k = this.i; this.i = (this.i + 1) % this.n;
+    this.p[k * 3] = x; this.p[k * 3 + 1] = y; this.p[k * 3 + 2] = z;
+    this.v[k * 3] = vx; this.v[k * 3 + 1] = vy; this.v[k * 3 + 2] = vz;
+    this.c[k * 3] = r; this.c[k * 3 + 1] = g; this.c[k * 3 + 2] = b;
+    this.s[k] = size; this.life[k] = this.max[k] = life; this.floor[k] = floor; this.sink[k] = sink ? 1 : 0;
+    this.live = Math.max(this.live, 1);
+  }
+  update(dt, gravity, drag) {
+    let any = 0;
+    for (let k = 0; k < this.n; k++) {
+      if (this.life[k] <= 0) { this.a[k] = 0; continue; }
+      any++;
+      const i3 = k * 3;
+      this.v[i3 + 1] -= gravity * dt;
+      const f = Math.max(0, 1 - drag * dt); this.v[i3] *= f; this.v[i3 + 2] *= f;
+      this.p[i3] += this.v[i3] * dt; this.p[i3 + 1] += this.v[i3 + 1] * dt; this.p[i3 + 2] += this.v[i3 + 2] * dt;
+      if (this.p[i3 + 1] < this.floor[k]) {
+        if (this.sink[k]) this.life[k] = 0;                         // a drop falls back into the pond
+        else { this.p[i3 + 1] = this.floor[k]; this.v[i3] = this.v[i3 + 1] = this.v[i3 + 2] = 0; this.life[k] = Math.min(this.life[k], 0.5); }  // a blade of grass settles
+      }
+      this.life[k] -= dt;
+      this.a[k] = clamp(this.life[k] / this.max[k] * 2, 0, 1);
+    }
+    this.live = any;
+    const g = this.pts.geometry;
+    g.attributes.position.needsUpdate = g.attributes.alpha.needsUpdate = g.attributes.color.needsUpdate = g.attributes.size.needsUpdate = true;
+    this.pts.visible = any > 0;
+  }
+}
+
+/* tyre tracks: a ring buffer of thin quads laid on the ground */
+class Tracks {
+  constructor(n) {
+    this.n = n; this.k = 0;
+    this.pos = new Float32Array(n * 12); this.col = new Float32Array(n * 16);
+    const idx = new Uint16Array(n * 6);
+    for (let q = 0; q < n; q++) { const b = q * 4; idx.set([b, b + 2, b + 1, b, b + 3, b + 2], q * 6); }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(this.pos, 3).setUsage(THREE.DynamicDrawUsage));
+    g.setAttribute('color', new THREE.BufferAttribute(this.col, 4).setUsage(THREE.DynamicDrawUsage));
+    g.setIndex(new THREE.BufferAttribute(idx, 1));
+    this.mesh = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: FX_LIGHT, vertexColors: true, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -6, polygonOffsetUnits: -6 }));
+    this.mesh.frustumCulled = false; this.mesh.renderOrder = 1; scene.add(this.mesh); this.dirty = false;
+  }
+  add(ax, az, bx, bz, y, w, r, g, b, a) {
+    const dx = bx - ax, dz = bz - az, l = Math.hypot(dx, dz) || 1, nx = -dz / l * w / 2, nz = dx / l * w / 2;
+    const q = this.k; this.k = (this.k + 1) % this.n;
+    this.pos.set([ax + nx, y, az + nz, ax - nx, y, az - nz, bx - nx, y, bz - nz, bx + nx, y, bz + nz], q * 12);
+    for (let v = 0; v < 4; v++) this.col.set([r, g, b, a * (v === 0 || v === 3 ? 0.85 : 1)], q * 16 + v * 4);
+    this.dirty = true;
+  }
+  flush() { if (!this.dirty) return; const g = this.mesh.geometry; g.attributes.position.needsUpdate = g.attributes.color.needsUpdate = true; this.dirty = false; }
+}
+
+const FX = { ready: false, grass: null, water: null, tracks: null, rings: [], ringT: 0, acc: { g: 0, w: 0 }, last: [null, null] };
+function fxTex(draw) { const [c, x] = makeCanvas(32, 32); draw(x); const t = new THREE.CanvasTexture(c); return t; }
+FX.init = () => {
+  const blade = fxTex(x => { x.fillStyle = '#fff'; x.beginPath(); x.ellipse(16, 16, 13, 5, 0.6, 0, 7); x.fill(); x.beginPath(); x.ellipse(13, 18, 7, 6, 0, 0, 7); x.fill(); });
+  const drop = fxTex(x => { const g = x.createRadialGradient(16, 16, 0, 16, 16, 16); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.55, 'rgba(240,248,255,.85)'); g.addColorStop(0.8, 'rgba(220,235,250,.3)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 32, 32); });
+  FX.grass = new Particles(600, blade);
+  FX.water = new Particles(1000, drop, 0.8);
+  FX.tracks = new Tracks(1600);
+  const ringGeo = new THREE.RingGeometry(0.9, 1, 48).rotateX(-Math.PI / 2);
+  for (let k = 0; k < 14; k++) { const m = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xdfeaf2, transparent: true, opacity: 0, depthWrite: false })); m.visible = false; m.renderOrder = 2; scene.add(m); FX.rings.push({ m, t: 1, life: 1.8 }); }
+  // the bow wave: a V of foam pushed out by the front wheel, trailing past the rear
+  const [bc, bx] = makeCanvas(128, 256);
+  const foam = (x, y, rx, ry, a) => { bx.fillStyle = `rgba(255,255,255,${a})`; bx.beginPath(); bx.ellipse(x, y, rx, ry, 0, 0, 7); bx.fill(); };
+  for (const side of [-1, 1]) {
+    for (let k = 0; k < 140; k++) {
+      const t = Math.random() ** 0.8, spread = 5 + t * 56, x = 64 + side * spread * (0.82 + Math.random() * 0.3), y = 12 + t * 238;
+      foam(x, y, 1.5 + Math.random() * 3.5 * (1 - t * 0.5), 1 + Math.random() * 2, (1 - t) ** 1.4 * (0.35 + Math.random() * 0.5));
+    }
+    bx.strokeStyle = 'rgba(255,255,255,.55)'; bx.lineWidth = 3;
+    bx.beginPath(); bx.moveTo(64 + side * 5, 10); bx.quadraticCurveTo(64 + side * 30, 110, 64 + side * 60, 250); bx.stroke();
+  }
+  const fg = bx.createRadialGradient(64, 16, 0, 64, 16, 18); fg.addColorStop(0, 'rgba(255,255,255,.9)'); fg.addColorStop(1, 'rgba(255,255,255,0)');
+  bx.fillStyle = fg; bx.fillRect(40, 0, 48, 40);
+  const bowMap = new THREE.CanvasTexture(bc); bowMap.colorSpace = THREE.SRGBColorSpace;
+  FX.bow = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 5.2).rotateX(-Math.PI / 2).translate(0, 0, 1.55),
+    new THREE.MeshBasicMaterial({ map: bowMap, transparent: true, opacity: 0, depthWrite: false, color: 0xe8f0f4 }));
+  FX.bow.visible = false; FX.bow.renderOrder = 2; scene.add(FX.bow);
+  FX.ready = true; fxLight();
+};
+const GRASS_COL = [[0.27, 0.42, 0.14], [0.36, 0.52, 0.18], [0.22, 0.34, 0.12], [0.42, 0.32, 0.2]];
+// a big splash when the bike drops into the water
+FX.splash = (x, z, wl, sp) => {
+  if (!FX.ready) return;
+  const n = Math.min(240, 70 + sp * 18), fx = -Math.sin(bike.yaw), fz = -Math.cos(bike.yaw);
+  for (let k = 0; k < n; k++) {
+    // a crown of water thrown out sideways and forwards, mostly to the sides
+    const s = Math.random() < 0.5 ? -1 : 1, a = Math.atan2(fz, fx) + s * (0.5 + Math.random() * 1.6), out = 0.8 + Math.random() * (1.2 + sp * 0.25);
+    FX.water.spawn(x + Math.cos(a) * 0.3, wl + 0.08, z + Math.sin(a) * 0.3, Math.cos(a) * out + fx * sp * 0.3, 1.4 + Math.random() * (1.4 + sp * 0.22), Math.sin(a) * out + fz * sp * 0.3, 0.6 + Math.random() * 0.5, 0.035 + Math.random() * 0.07, 0.86, 0.93, 1, wl, true);
+  }
+  for (let k = 0; k < 3; k++) ring(x + (Math.random() - 0.5), z + (Math.random() - 0.5), wl, 0.4 + k * 0.35);
+};
+function ring(x, z, wl, start) {
+  const r = FX.rings.reduce((o, c) => (c.t >= c.life ? c : (o.t >= o.life ? o : (c.t > o.t ? c : o))), FX.rings[0]);
+  r.t = 0; r.start = start; r.m.position.set(x, wl + 0.012, z); r.m.visible = true;
+}
+FX.update = (dt) => {
+  if (!FX.ready) { if (typeof scene !== 'undefined' && WORLD.blocks.length) FX.init(); else return; }
+  const riding = state === 'ride' && bike.started;
+  const sp = Math.abs(bike.v), fx = -Math.sin(bike.yaw), fz = -Math.cos(bike.yaw), rx = -fz, rz = fx;
+  const wheels = [[bike.x - fx * 0.81, bike.z - fz * 0.81, 0.26], [bike.x + fx * 0.82, bike.z + fz * 0.82, 0.19]];   // rear, front contact
+  if (riding && sp > 0.4) {
+    if (bike.surf === 'grass') {
+      // clippings and earth thrown back and up off the tyres; more with the throttle open or the bars over
+      FX.acc.g += dt * Math.min(200, sp * 12 + bike.throttle * 36 + Math.abs(bike.steer) * sp * 7);
+      while (FX.acc.g >= 1) {
+        FX.acc.g -= 1;
+        const front = Math.random() < 0.25, [wx, wz] = wheels[front ? 1 : 0], c = GRASS_COL[Math.random() * GRASS_COL.length | 0];
+        const back = (1.2 + sp * 0.32 + bike.throttle * 2.2) * (front ? 0.5 : 1), side = (Math.random() - 0.5) * (1.4 + Math.abs(bike.steer) * 2.5) + bike.steer * -1.2;
+        FX.grass.spawn(wx + (Math.random() - 0.5) * 0.2, KERB + 0.12, wz + (Math.random() - 0.5) * 0.2,
+          -fx * back + rx * side + fx * sp * 0.25, 1.0 + Math.random() * (1.6 + bike.throttle * 1.6), -fz * back + rz * side + fz * sp * 0.25,
+          0.8 + Math.random() * 0.7, 0.03 + Math.random() * 0.05, c[0], c[1], c[2], KERB + 0.03, false);
+      }
+    } else FX.acc.g = 0;
+    if (bike.surf === 'water') {
+      // sheets of spray off both sides of each wheel, a wake of rings behind
+      const df = bike.depth / 0.34;
+      FX.acc.w += dt * Math.min(420, (16 + sp * 40) * df);
+      while (FX.acc.w >= 1) {
+        FX.acc.w -= 1;
+        const [wx, wz] = wheels[Math.random() < 0.55 ? 0 : 1], s = Math.random() < 0.5 ? -1 : 1, out = 1.2 + sp * (0.35 + Math.random() * 0.25);
+        FX.water.spawn(wx + rx * s * 0.18, bike.wl + 0.05, wz + rz * s * 0.18,
+          rx * s * out + fx * sp * (0.35 + Math.random() * 0.3), 1.2 + Math.random() * (1 + sp * 0.28), rz * s * out + fz * sp * (0.35 + Math.random() * 0.3),
+          0.45 + Math.random() * 0.45, 0.025 + Math.random() * 0.055, 0.84, 0.92, 1, bike.wl, true);
+      }
+      FX.ringT -= dt;
+      if (FX.ringT <= 0) { FX.ringT = Math.max(0.16, 0.45 - sp * 0.03); ring(wheels[0][0] - fx * 0.3, wheels[0][1] - fz * 0.3, bike.wl, 0.35); }
+    } else FX.acc.w = 0;
+  }
+  // tyre tracks: in grass, and wet ones for a few seconds after the pond
+  const wet = bike.wetT > 0 && bike.surf !== 'water';
+  wheels.forEach(([wx, wz, w], i) => {
+    const marking = riding && (bike.surf === 'grass' || wet);
+    if (!marking) { FX.last[i] = null; return; }
+    const L = FX.last[i];
+    if (!L) { FX.last[i] = [wx, wz]; return; }
+    const gap = Math.hypot(wx - L[0], wz - L[1]);
+    if (gap < 0.3) return;
+    if (gap > 3) { FX.last[i] = [wx, wz]; return; }   // a jump (respawn, teleport): no track across it
+    const y = (bike.surf === 'grass' ? KERB + 0.035 : bike.gy + 0.018);
+    if (bike.surf === 'grass') FX.tracks.add(L[0], L[1], wx, wz, y, w, 0.085, 0.1, 0.04, 0.62);
+    else FX.tracks.add(L[0], L[1], wx, wz, y, w, 0.05, 0.05, 0.06, 0.5 * Math.min(1, bike.wetT / 3));
+    FX.last[i] = [wx, wz];
+  });
+  FX.tracks.flush();
+  // the bow wave follows the bike while it is in the water, stronger with speed
+  const bowA = state === 'ride' && bike.surf === 'water' ? clamp(sp / 5, 0, 1) * (0.35 + 0.65 * bike.depth / 0.34) * 0.9 : 0;
+  FX.bow.material.opacity = damp(FX.bow.material.opacity, bowA, 6, dt);
+  FX.bow.visible = FX.bow.material.opacity > 0.01;
+  if (FX.bow.visible) { FX.bow.position.set(bike.x, (bike.surf === 'water' ? bike.wl : FX.bow.position.y) + 0.014, bike.z); FX.bow.rotation.y = bike.yaw; FX.bow.scale.set(0.8 + clamp(sp / 8, 0, 1) * 0.4, 1, 0.6 + clamp(sp / 8, 0, 1) * 0.6); }
+  // ripples spread and fade
+  for (const r of FX.rings) {
+    if (r.t >= r.life) { r.m.visible = false; continue; }
+    r.t += dt; const k = r.t / r.life;
+    r.m.scale.setScalar(r.start + k * 1.9); r.m.material.opacity = 0.32 * (1 - k) * Math.min(1, r.t * 8);
+  }
+  const scale = renderer.getDrawingBufferSize(_fxV).y / (2 * Math.tan(camera.fov * Math.PI / 360));
+  FX.grass.mat.uniforms.scale.value = FX.water.mat.uniforms.scale.value = scale;
+  FX.grass.mat.uniforms.maxPx.value = _fxV.y / 22; FX.water.mat.uniforms.maxPx.value = _fxV.y / 30;
+  FX.grass.update(dt, 9.8, 1.2);
+  FX.water.update(dt, 9.8, 0.6);
+};
+const _fxV = new THREE.Vector2();
+function fxLight() {
+  FX_LIGHT.setRGB(...(FX_LIGHTS[settings.time] || FX_LIGHTS.day));
+  if (!FX.ready) return;
+  FX.tracks.mesh.material.color.copy(FX_LIGHT);
+  for (const r of FX.rings) r.m.material.color.setRGB(0.87, 0.92, 0.95).multiply(FX_LIGHT);
+  FX.bow.material.color.setRGB(0.91, 0.94, 0.96).multiply(FX_LIGHT);
+}
+lightHooks.push(fxLight);
+
+
+/* =====================================================================
    Riding, controls, cameras, HUD, the main loop
    ===================================================================== */
 const GEAR_TOP = [12.5, 20.8, 29.2, 37.5, 44.4, 51.4];   // m/s at the red line, gears 1–6
 const GEAR_ACC = [6.4, 5.0, 3.9, 3.1, 2.45, 1.95];
 const IDLE = 880, REDLINE = 5800;
 const START = { x: 136, z: 95, yaw: -Math.PI / 2 };       // Bamrung Mueang, by the Giant Swing, facing east
-const bike = { x: START.x, z: START.z, y: 0, gy: 0, kerbT: 0, yaw: START.yaw, v: 0, lean: 0, steer: 0, throttle: 0, brake: 0, gear: 0, rpm: IDLE, shiftT: 0, cruise: 0, pitch: 0, started: false, back: 0, shake: 0, bumpT: 0 };
+const bike = { x: START.x, z: START.z, y: 0, gy: 0, kerbT: 0, surf: 'road', raised: false, depth: 0, wl: 0, wetT: 0, yaw: START.yaw, v: 0, lean: 0, steer: 0, throttle: 0, brake: 0, gear: 0, rpm: IDLE, shiftT: 0, cruise: 0, pitch: 0, started: false, back: 0, shake: 0, bumpT: 0 };
 const input = { steer: 0, throttle: 0, brake: 0, keys: new Set(), padSteer: 0, padActive: false, tiltSteer: 0, horn: false };
 const titleRev = { on: false, thr: 0, blipT: 0 };
 let time = 0, last = performance.now();
 const HUDS = { road: '', roadT: 0, dist: '', distT: 0, toastT: 0, cardT: 0 };
 
+// how the bike turns at a given speed: bar lock (38° at a crawl, a few degrees at speed), lean limit, and the blend between them
+function turnModel(sp) { return { lock: 0.66 * (1 - smooth(1, 14, sp)) + 0.05, maxLean: clamp(sp / 11, 0, 1) * 0.8, w: smooth(3, 9, sp) }; }
 function torque(rpm) {
   let t = 0.7 + 0.3 * Math.sin(clamp((rpm - 900) / 3400, 0, 1) * Math.PI * 0.95);
   if (rpm > 4600) t *= 1 - (rpm - 4600) / 1200 * 0.35;
@@ -3323,10 +3561,10 @@ function apUpdate() {
   const ttx = tx - bike.x, ttz = tz - bike.z, dd = Math.hypot(ttx, ttz) || 1;
   const alpha = Math.atan2(fz * ttx - fx * ttz, fx * ttx + fz * ttz);
   const yawRate = 2 * Math.sin(alpha) / dd * Math.max(sp, 0.5);
-  const maxLean = clamp(sp / 14, 0, 1) * 0.72;
-  let steer;
-  if (sp > 3) { const lean = Math.atan(yawRate * Math.max(sp, 6) / (9.81 * 1.3)); steer = maxLean > 0.02 ? lean / maxLean : 0; }
-  else steer = yawRate / 0.95;
+  const TM = turnModel(sp);
+  const sBars = Math.atan(yawRate * 1.62 / Math.max(sp, 0.5)) / TM.lock;
+  const sLean = TM.maxLean > 0.02 ? Math.atan(yawRate * Math.max(sp, 5) / (9.81 * 1.45)) / TM.maxLean : sBars;
+  let steer = lerp(sBars, sLean, TM.w);
   return { steer: clamp(steer * 1.1, -1, 1), brake: hold ? 1 : need > 0.8 ? clamp((need - 0.5) / 6, 0, 1) : 0 };
 }
 
@@ -3385,7 +3623,9 @@ function rideUpdate(dt) {
   if (rpmV >= REDLINE) acc = Math.min(acc, 0);
   acc -= 0.00042 * v * v + (v > 0.1 ? 0.12 : 0);
   if (thrEff < 0.05 && v > 0.5) acc -= 0.2 + 0.6 * rpm / REDLINE;
-  if (v > 0.05) acc -= bike.brake * 8.6;
+  if (v > 0.05) acc -= bike.brake * (bike.surf === 'water' ? 5 : bike.surf === 'grass' ? 7 : 8.6);
+  if (bike.surf === 'grass' && v > 0.1) acc -= 0.35 + 0.004 * v * v;
+  if (bike.surf === 'water' && v > 0.05) { const df = bike.depth / 0.34; acc -= df * (0.5 + 0.1 * v * v); }
   let nv = bike.v + acc * dt;
   // walking it backwards: stopped, brake held, no throttle
   if (v < 0.3 && bike.brake > 0.8 && bike.throttle < 0.05) { bike.back += dt; if (bike.back > 0.6) nv = -1.1; }
@@ -3395,12 +3635,12 @@ function rideUpdate(dt) {
 
   // lean and turn: lean grows with speed; yaw rate from lean, plus handlebar steering at walking pace
   const sp = Math.abs(bike.v);
-  const maxLean = clamp(sp / 14, 0, 1) * 0.72;
-  bike.lean = damp(bike.lean, bike.steer * maxLean, 4.2, dt);
-  let yawRate = 9.81 * Math.tan(bike.lean) / Math.max(sp, 6) * 1.3;
-  yawRate += bike.steer * 0.95 * clamp(sp / 2.5, 0, 1) * (1 - smooth(3, 8, sp));
-  if (sp < 1.2 && bike.v >= 0) yawRate += bike.steer * 0.7 * (1 - sp / 1.2) * (thrIn > 0.05 || bike.blocked > 0 ? 1 : 0.4); // paddling it round
-  if (bike.v < 0) yawRate = -bike.steer * 0.5;
+  const TMd = turnModel(sp);
+  bike.lean = damp(bike.lean, bike.steer * TMd.maxLean, 6, dt);
+  const yawBars = bike.v * Math.tan(bike.steer * TMd.lock) / 1.62;               // the bars turned, as a bicycle: tight at walking pace
+  const yawLean = 9.81 * Math.tan(bike.lean) / Math.max(sp, 5) * 1.45;         // leaning into the turn at speed
+  let yawRate = bike.v < 0 ? yawBars : lerp(yawBars, yawLean, TMd.w);
+  if (sp < 0.8 && bike.v >= 0) yawRate += bike.steer * 0.8 * (1 - sp / 0.8) * (thrIn > 0.05 || bike.blocked > 0 ? 1 : 0.4); // paddling it round
   bike.yaw += yawRate * dt;
   const fx = -Math.sin(bike.yaw), fz = -Math.cos(bike.yaw);
   const p = { x: bike.x + fx * bike.v * dt, z: bike.z + fz * bike.v * dt };
@@ -3427,9 +3667,12 @@ function rideUpdate(dt) {
   bike.bumpT -= dt;
   bike.x = p.x; bike.z = p.z;
   // up and down kerbs: a small jolt, a little speed lost
-  const gh = groundHeight(bike.x, bike.z);
-  if (Math.abs(gh - bike.gy) > 0.05) { if (sp > 2.5 && bike.kerbT <= 0) { bike.shake = Math.max(bike.shake, Math.min(0.35, sp / 40)); SFX.thud(Math.min(0.35, sp / 50)); bike.kerbT = 0.25; bike.v *= 0.97; } bike.gy = gh; }
-  bike.kerbT -= dt;
+  const surf = surfaceAt(bike.x, bike.z), raised = surf.kind !== 'road';
+  if (raised !== bike.raised) { if (sp > 2.5 && bike.kerbT <= 0) { bike.shake = Math.max(bike.shake, Math.min(0.35, sp / 40)); SFX.thud(Math.min(0.35, sp / 50)); bike.kerbT = 0.25; bike.v *= 0.97; } bike.raised = raised; }
+  if (surf.kind === 'water' && bike.surf !== 'water' && sp > 1) { FX.splash(bike.x, bike.z, surf.wl, sp); SFX.splash(Math.min(1, sp / 9)); bike.shake = Math.max(bike.shake, Math.min(0.5, sp / 18)); }
+  if (bike.surf === 'water' && surf.kind !== 'water') bike.wetT = 4;
+  bike.surf = surf.kind; bike.depth = surf.depth || 0; bike.wl = surf.wl || 0; bike.gy = surf.h;
+  bike.kerbT -= dt; bike.wetT = Math.max(0, (bike.wetT || 0) - dt);
   bike.pitch = damp(bike.pitch, -bike.brake * 0.035 * clamp(sp / 8, 0, 1) + thrEff * 0.012 * clamp(1 - sp / 30, 0, 1), 6, dt);
 
   // trip
@@ -3461,6 +3704,7 @@ function audioState(thr) {
     if (t.v > 0.5 && t.v < 7 && t.wait <= 0 && d < 80) s.trainHi = Math.max(s.trainHi, 0.012 * (1 - d / 80));
   }
   s.riverGain = bike.x < 45 ? (1 - Math.max(0, bike.x) / 45) * 0.07 : 0;
+  s.surf = state === 'ride' ? bike.surf : 'road'; s.depth = bike.depth;
   const dname = districtAt(bike.x, bike.z);
   s.reverb = Math.abs(bike.z - 100) < 12 && bike.x > 214 ? 0.42 : dname === 'river' || dname === 'park' ? 0.13 : dname === 'old' || dname === 'temple' ? 0.2 : 0.3;
   return s;
@@ -3502,7 +3746,7 @@ function hudTimers(dt) {
 
 /* ---------- placing the bike model ---------- */
 function poseBike(dt, parked) {
-  if (state !== 'ride') bike.gy = groundHeight(bike.x, bike.z);
+  if (state !== 'ride') { const sf = surfaceAt(bike.x, bike.z); bike.gy = sf.h; bike.surf = sf.kind; bike.raised = sf.kind !== 'road'; }
   bike.y = damp(bike.y, bike.gy, 28, dt || 0.016);
   BIKE.root.position.set(bike.x, bike.y, bike.z);
   BIKE.root.rotation.y = bike.yaw;
@@ -3516,7 +3760,7 @@ function poseBike(dt, parked) {
   const sp = Math.abs(bike.v);
   BIKE.frontW.rotation.x -= bike.v / 0.34 * dt;
   BIKE.rearW.rotation.x -= bike.v / 0.334 * dt;
-  BIKE.steer.rotation.y = parked ? 0.5 : bike.steer * (0.42 * (1 - smooth(0, 12, sp)) + 0.04);
+  BIKE.steer.rotation.y = parked ? 0.5 : bike.steer * turnModel(sp).lock;
   BIKE.stand.visible = parked;
   BIKE.rider.visible = state === 'title' || settings.cam !== 2;
   const on = !!(AUDIO.E && AUDIO.E.running) || bike.started;   // lights come on with the ignition
@@ -3968,6 +4212,7 @@ function frame(now) {
   sun.target.position.set(sx, 0, sz); sun.position.set(sx + sunDir.x * 160, sunDir.y * 160, sz + sunDir.z * 160);
   if (state === 'ride' || state === 'pause') { if ((frameNo++ & 1) === 0) drawMinimap(); drawGauge(); }
   updateChunks();
+  FX.update(dt);
   composer.render();
   for (const p of SHADOW.proxies) p.visible = false;
   watchPerf(dt);
@@ -4006,7 +4251,7 @@ async function boot() {
 }
 requestAnimationFrame(frame);
 boot().catch(err => { console.error(err); $('loadText').textContent = T.loadFail + ' (' + (err && err.message || err) + ')'; });
-if (/[?&]debug\b/.test(location.search)) window.__cruiser = { groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
+if (/[?&]debug\b/.test(location.search)) window.__cruiser = { surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
 
 </script>
 <script>
