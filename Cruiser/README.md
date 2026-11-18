@@ -51,6 +51,17 @@ Choose **Mission** or **Free ride** at the top of the start screen. In the missi
 - During the mission **Auto** stops for red lights (and for an amber it cannot clear), so it never costs you a red light. On the ride home it does not stop.
 - The mission is saved in the browser. The pause menu shows how far you have got and can start it again. *Free ride* is the game as before, with the postcards.
 
+## In Chandler's Promise: the final level
+
+The story game *Chandler's Promise* (`../Promise/`) ends with this game. It keeps a copy in `Promise/games/Cruiser/` and opens it in a frame as `GA-cruiser-th.html?story` (or `-en`). With `?story` the game:
+
+- keeps its own save, under `tst-cruiser-story-v1`, so a ride on the site's own page and the story never mix;
+- always starts in the mission (a mission left half done is picked up again; a finished or failed one starts afresh);
+- drops the language and *The Siam Times* links under the title, so nobody leaves the story by accident;
+- when the watch is brought home to The Siam Times, about three seconds after the mission card opens, posts `{ tst: 'story', game: 'cruiser', won: true, score, reds, worked, tips, text }` to the page around it (`storyDone` in `07-mission.js`). The story gives a gold frame to a ride with no red lights.
+
+Opened any other way, nothing of this happens. The copy in `Promise/games/Cruiser/` is the same build, with its *The Siam Times* link pointing two folders up.
+
 ## Navigation
 
 The **Route** button (top right, a map pin) turns on navigation the way a phone map does it. In the mission it leads to the next shop, or to The Siam Times when you need money and on the ride home; in free ride it leads to the nearest postcard you do not have yet.
@@ -117,7 +128,7 @@ The **Chandler 1864** is a made-up cruiser (named after John Hassett Chandler, w
 - **The mission** keeps its state in the saved settings. Which part a shop plays is decided by the order you find the shops in, so every route meets every situation. A red light is counted when the bike rides into a crossing from the road (not from the pavement, nor within a second of leaving it) along an axis whose light is red at that moment, using the same clock that drives the traffic lights. The other riders are an instanced mesh of their own (blouses in the instance colour, long hair), and the left arm of the rider who waves is swapped for a single animated arm. Cut scenes are HTML cards over a slow camera move, with letterbox bars.
 - **Grass and water effects:** clippings and drops are point sprites (pools of 600 and 1,000) thrown from the tyres' contact patches with gravity and drag; drops vanish when they fall back into the water, clippings settle on the grass. Tyre tracks are a ring buffer of 1,600 thin quads laid every 30 cm under each wheel; ripples are fading rings; the bow wave is a foam texture that follows the bike in the water and grows with speed. All of it is tinted for the time of day.
 - **Graphics level:** *Auto* starts at Medium and drops to Saver if the game runs below about 36 frames a second (or rises to High on a fast iPad). High uses soft 2048 px shadows and up to 1.75× pixel density; Medium 1024 px shadows at 1.3×; Saver turns off shadows and bloom and draws at 1×.
-- Settings, the postcards collected, the distance ridden and the top speed are kept in the browser's local storage under `tst-cruiser-v1`.
+- Settings, the postcards collected, the distance ridden and the top speed are kept in the browser's local storage under `tst-cruiser-v1` (`tst-cruiser-story-v1` inside Chandler's Promise).
 
 Adding `?debug` to the address exposes the game's state as `window.__cruiser`, for testing.
 

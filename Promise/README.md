@@ -1,8 +1,8 @@
 # Chandler’s Promise (สัญญาของแชนด์เลอร์) – story game
 
-A story game that takes the player through every Siam Times game in one night and the day after, in Thai and in English. In December 1865 John Hassett Chandler stopped the press of The Siam Times and hoped to come back; he never did. Tonight, the night before the Return Edition goes to press, the new night-shift apprentice finds his teak type case in the basement, with twelve empty compartments for the masthead: T H E S I A M T I M E S. The sorts are scattered through the building, and each one has to be won back by playing a game, in story order. The last one is not in the building at all: it is at an old bookshop by Victory Monument, and has to be fetched by road before the evening edition.
+A story game that takes the player through every Siam Times game in one night and the day after, in Thai and in English. In December 1865 John Hassett Chandler stopped the press of The Siam Times and hoped to come back; he never did. Tonight, the night before the Return Edition goes to press, the new night-shift apprentice finds his teak type case in the basement, with twelve empty compartments for the masthead: T H E S I A M T I M E S. The sorts are scattered through the building, and each one has to be won back by playing a game, in story order. The last one is not in the building at all: it is at an old bookshop by Victory Monument, and has to be fetched by road before the evening edition. After the evening edition comes the **final level**: the next afternoon the Editor hands over the keys of the paper's motorbike, and the apprentice rides across Bangkok in Bangkok Cruiser (ล่องกรุง) for the VERDANT 1864, the dress watch named after the year The Siam Times was founded.
 
-**Version 1.2.** There is a Thai version and an English version, each a whole page in one HTML file. There is no build step: open either file in a browser. They link to each other and share the same progress. The game is not linked from the front page of the site yet.
+**Version 1.3.** There is a Thai version and an English version, each a whole page in one HTML file. There is no build step: open either file in a browser. They link to each other and share the same progress. The game is not linked from the front page of the site yet.
 
 | Version | File | On the site |
 |---|---|---|
@@ -21,26 +21,27 @@ Promise/
 ├── GA-promise-en.html      the story, in English
 ├── Chomsky-LICENSE.txt
 ├── README.md
-└── games/                  the twelve games of the story
+└── games/                  the thirteen games of the story
     ├── Fav48.png
     ├── Parking/  Wastebasket/  Darts/  Slingshot/  BBGun/  OldMoney/
     ├── Checkers/  Makruk/  Snooker/  Petanque/  PaperPlane/
-    └── Delivery/           Paper Run, the driving game made for chapter 12
+    ├── Delivery/           Paper Run, the driving game made for chapter 12
+    └── Cruiser/            Bangkok Cruiser, the final level (opened as GA-cruiser-xx.html?story)
 ```
 
-Eleven of the games in `games/` are copies of the site's games (both language pages where a game has two) with two changes each: a `storyDone` call where a game ends (see *How the games report back*) and the no-zoom guard (see *No zooming*); and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. `Delivery/` (Paper Run) exists only here; it has its own README. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
+Eleven of the games in `games/` are copies of the site's games (both language pages where a game has two) with two changes each: a `storyDone` call where a game ends (see *How the games report back*) and the no-zoom guard (see *No zooming*); and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. `Delivery/` (Paper Run) exists only here; it has its own README. `Cruiser/` is the site's Bangkok Cruiser (`../Cruiser/`, see its README), built from the same source: the story opens it with `?story`, which gives it its own save and makes it report back; the only other difference is that its *The Siam Times* link goes two folders up. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
 
 **When a game is updated on the site**, copy its new file(s) over the one in `games/<Game>/` and put the `storyDone` function and call back in, in the places listed in the table below, and the no-zoom viewport and script (and, for Old Money, the logo link). Until then the story keeps playing the older copy.
 
 ## How it plays
 
-- **Title**: the building on the Chao Phraya in the rain (at sunrise, once the story is finished). *Begin the story* plays the prologue; afterwards the button reads *Open the map*.
-- **Game map** (แผนที่): the hub of the story. The Siam Times building is drawn cut open like a doll's house, floor by floor: the archive and the snooker room in the basement; the car park and the press hall on the ground floor; the back room and the canteen on the 1st floor; the Editor's office and the teak table room on the 2nd; the style desk on the 3rd; the top-floor window on the roof. The pétanque court is out at the back and the landing stage on the river. Every chapter is a numbered badge in its room, showing its sort (lead, brass, or an outline still to win; a padlock while locked). A path joins the badges in story order through the stairwell; the part already walked is brass. A room lights up, with a glimpse of what is in it, once its chapter opens. The apprentice, with a lantern, stands at the next chapter, and after each chapter walks there along the path, with footsteps. The sky follows the night: rain, then dawn for the last two chapters, then sunrise. Tap a badge for its card: chapter, time, place, game and goal, with *Play this chapter*, or *Play the game again* and *Watch* once it is done; the card says which chapter to finish first for a locked one. The bar at the top shows the time of the next chapter, the composing stick in small, and links to the contents page and the title. On a narrow screen the map scrolls sideways and the card sits under it.
+- **Title**: the building on the Chao Phraya in the rain (at sunrise after the evening edition, and at dusk with the pigeon on the sign once the final level is done). *Begin the story* plays the prologue; afterwards the button reads *Open the map*.
+- **Game map** (แผนที่): the hub of the story. The Siam Times building is drawn cut open like a doll's house, floor by floor: the archive and the snooker room in the basement; the car park and the press hall on the ground floor; the back room and the canteen on the 1st floor; the Editor's office and the teak table room on the 2nd; the style desk on the 3rd; the top-floor window on the roof. The pétanque court is out at the back and the landing stage on the river. Every chapter is a numbered badge in its room, showing its sort (lead, brass, or an outline still to win; a padlock while locked). A path joins the badges in story order through the stairwell; the part already walked is brass. A room lights up, with a glimpse of what is in it, once its chapter opens. The apprentice, with a lantern, stands at the next chapter, and after each chapter walks there along the path, with footsteps. The sky follows the night: rain, then dawn for the last two chapters, then sunrise. After the evening edition a green-and-gold VERDANT shop lights up among the towers on the right, *Bangkok streets*, with the final level's badge (a little watch); the apprentice walks out of the back door, across the court and up into the city to it. Tap a badge for its card: chapter, time, place, game and goal, with *Play this chapter*, or *Play the game again* and *Watch* once it is done; the card says which chapter to finish first for a locked one. The bar at the top shows the time of the next chapter, the composing stick in small, and links to the contents page and the title. On a narrow screen the map scrolls sideways and the card sits under it.
 - **Cut scenes**: painted scenes, 1864–65 in sepia like an engraving and tonight in the dark blues and lamp light of the games, with a slow camera move, rain, steam, swinging lamps and so on. The words type themselves out under the picture with the speaker's name and a dateline (time and place). Tap the caption (or press Space, Enter or →) to show the whole line, tap again to go on; *Skip* (or Escape) ends the scene. Each chapter opens with a title card that shows its sort.
-- **A game**: the game opens in a frame under a bar with the chapter, the goal and *← Map*. When the game reports that a game has ended, the sort is won: a card shows it, and *Continue* plays the chapter's closing scene and returns to the map, where the apprentice walks on to the next room. *Stay in this game* keeps playing; leaving with *← Map* then plays the closing scene. After the last chapter the ending follows at once.
+- **A game**: the game opens in a frame under a bar with the chapter, the goal and *← Map*. When the game reports that a game has ended, the sort is won: a card shows it, and *Continue* plays the chapter's closing scene and returns to the map, where the apprentice walks on to the next room. *Stay in this game* keeps playing; leaving with *← Map* then plays the closing scene. After the last chapter the ending follows at once, and then the map, with the final level open.
 - **Contents**: a newsprint front page with the masthead, the composing stick with the sorts won so far, the button for the next chapter, and every chapter with its time, place and game, with the same play, replay and watch buttons. It links back to the map.
 
-Chapters open strictly in order: a chapter's game has to be played to the end before the next one opens. Finishing earns a **lead** sort; winning, or playing well, earns a **brass** one.
+Chapters open strictly in order: a chapter's game has to be played to the end before the next one opens. Finishing earns a **lead** sort; winning, or playing well, earns a **brass** one. The final level opens once the ending (the evening edition) has been seen; it wins the watch instead of a sort, and its frame turns gold for a ride without a single red light.
 
 ## The chapters
 
@@ -60,8 +61,16 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 | 11 | E | 05:15 | The top-floor window at first light, with Thongdee the pressman | Paper Plane | winning the contest |
 | 12 | S | 15:00 | Outside the building, then the road to Victory Monument and back | Paper Run (`games/Delivery/`) | back by 17:30 with at most two tickets, in normal mode |
 | — | | evening | The press hall, the landing stage at sunset | Epilogue | |
+| Final | ⌚ | 16:30, the next day | Outside the building, a VERDANT shop at golden hour; then the ride home at dusk | Bangkok Cruiser (`games/Cruiser/`) | buying the 1864 without running a single red light |
+
+**The final level** opens after the evening edition. Its opening scene: the Editor hands over the keys of the paper's motorbike (plate 3ขษ กรุงเทพมหานคร 988) and tells the apprentice about the VERDANT 1864: three shops, a Want List, a bundle to refuse, no more than three red lights, a month's work or two riders' tips if the money runs short, and a pigeon that knows the way home. Then Bangkok Cruiser opens in the frame with its mission (see `../Cruiser/README.md`). When the watch is brought home to The Siam Times, the game reports back, the watch card shows, and the closing scenes are the last of the story: the watch on the wrist, the white pigeon settling on the sign at dusk, the Editor, and *The End*. Three scenes are new: the VERDANT shop (`verdant`), the wrist (`wrist`, with the hands moving) and the building at dusk (`homecoming`, where the pigeon flies in and settles on the sign); the pickup scene has a variant, `pickup:bike`, with the motorbike at the kerb.
 
 **Paper Run** (chapter 12) is a driving game in its own right, in `games/Delivery/` (see its README). From the driver's seat of the press's right-hand-drive manual pickup, with a wheel, clutch, brake, accelerator and gear lever, the player drives from the building on Charoen Nakhon over Taksin Bridge, along Sathorn, Witthayu, Phloen Chit, Ratchadamri, Ratchaprarop, Rang Nam and Phaya Thai to the bookshops at Victory Monument, and back the same way. The way is lined with lights, zebra crossings, speed limits, traffic, rain, a flood, nails, a fuel stop and a bus-only lane with the police at the end of it. Back by 17:30 with at most two tickets earns the brass S. Paper Run also has an easy mode (an empty road with only oncoming traffic, green lights all the way, no speed limits and no hazards); finishing in it earns the lead S, and the brass one needs normal mode.
+
+## Version 1.3
+
+- **The final level: Bangkok Cruiser.** After the evening edition, the story goes on to a last level out in the city: ride the paper's motorbike to the VERDANT shops, get the 1864 and bring it home. It has its own badge on the map (in a VERDANT shop among the towers), its own place on the contents page and in the bar at the top, its own opening and closing scenes, and the story's last words. The game is the site's Bangkok Cruiser, copied into `games/Cruiser/`.
+- The title screen, after the final level, shows the building at dusk with the pigeon on the sign, and says the 1864 is on your wrist.
 
 ## Version 1.2
 
@@ -82,7 +91,7 @@ Chapters open strictly in order: a chapter's game has to be played to the end be
 
 ## No zooming
 
-On a phone or tablet, a pinch or a double tap used to zoom the page, which left the game half off the screen with its buttons out of reach, and the game seemed stuck. Every page in this folder (the story, Paper Run and the eleven copies) now keeps itself at its own size:
+On a phone or tablet, a pinch or a double tap used to zoom the page, which left the game half off the screen with its buttons out of reach, and the game seemed stuck. Every page in this folder (the story, Paper Run, Bangkok Cruiser and the eleven copies) now keeps itself at its own size:
 
 - the viewport is `width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover`;
 - a small script just before `</body>`, which starts `/* No zooming: a pinch`, cancels Safari's pinch (`gesturestart`/`gesturechange`/`gestureend`), a second finger landing and a move with two fingers or more, the double tap (`dblclick`), Ctrl + mouse wheel and Ctrl/⌘ with + − = 0, and sets `touch-action: manipulation` on the page.
@@ -91,7 +100,7 @@ Safari on iPhone and iPad lets people zoom whatever a page asks, so the pages al
 
 The games still get every finger: the driving game's wheel and pedals are held with two or three at once, and those touches reach the game as pointer events as before. A browser's own zoom setting (in its menu or accessibility settings) still works; a page cannot and should not override that.
 
-Progress (the sort won in each chapter, whether the prologue and ending have been seen, where the apprentice stands on the map, the sound setting) is kept in the browser's local storage under `tst-promise-v1`. *Start over* on the contents page clears it.
+Progress (the sort won in each chapter, the watch from the final level, whether the prologue and ending have been seen, where the apprentice stands on the map, the sound setting) is kept in the browser's local storage under `tst-promise-v1`. *Start over* on the contents page clears it.
 
 ## How the games report back
 
@@ -117,8 +126,9 @@ It is sent by a small function, `storyDone`, defined just above the function tha
 | Pétanque | `finishEnd`, when a side reaches 13 | `won`, `score` |
 | Paper Plane | `finishContest` | `won`, `score` (your best distance) |
 | Paper Run | `finish` (back at the building) | `won` (on time, at most two tickets), `score` (minutes to spare), `text` (arrival time), `onTime`, `violations`, `easy` (easy mode: never brass) |
+| Bangkok Cruiser | `missionDone` (home with the watch), about three seconds after its card opens, and only with `?story` | `won`, `score` and `reds` (red lights run), `worked` (months worked), `tips`, `text` |
 
-When you change one of the copies, keep the `storyDone(…)` call where the game ends. The `storyDone` function itself is three lines, defined just above the function named in the table, with the game's key (`'parking'`, `'darts'` and so on) written in it.
+When you change one of the copies, keep the `storyDone(…)` call where the game ends. The `storyDone` function itself is three lines, defined just above the function named in the table, with the game's key (`'parking'`, `'darts'` and so on) written in it. Bangkok Cruiser keeps its `storyDone` in its source (`07-mission.js`), so a new build of the game carries it already: build it and copy both pages into `games/Cruiser/` with the *The Siam Times* link changed to `../../index.html`.
 
 ## How it works
 
