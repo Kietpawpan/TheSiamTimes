@@ -84,6 +84,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 .mast { font: 26px/1 var(--font-mast); color: var(--paper); opacity: .92; }
 .kicker { font: 600 12px/1 var(--font-ui); letter-spacing: .22em; text-transform: uppercase; color: var(--brass); margin-top: 6px; }
 #title h1 { margin: 0; font: 400 clamp(54px, 9vw, 92px)/1.05 var(--font-display); color: var(--paper); text-wrap: balance; text-shadow: 0 4px 30px rgba(0, 0, 0, .5); }
+:root:lang(en) #title h1 { font-size: clamp(42px, 6.6vw, 72px); }
 #title h1::after { content: ""; display: block; width: 84px; height: 3px; background: var(--brass); margin-top: 14px; border-radius: 2px; }
 #title .lede { margin: 0; color: #d9d2c2; font-size: 16.5px; max-width: 36ch; }
 .opt { display: grid; gap: 8px; }
@@ -94,11 +95,21 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
   padding: 8px 14px; font: 500 14.5px/1.1 var(--font-ui); cursor: pointer; min-height: 38px;
 }
 .chip[aria-pressed="true"] { background: var(--brass); color: var(--brass-ink); border-color: var(--brass); }
+.vol { display: flex; align-items: center; gap: 12px; max-width: 380px; }
+.vol svg { width: 22px; height: 22px; color: var(--muted); flex: none; }
+.vol output { font: 600 14px var(--font-ui); color: var(--paper); min-width: 64px; font-variant-numeric: tabular-nums; }
+.vol input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 36px; background: transparent; touch-action: none; cursor: pointer; --v: 80%; }
+.vol input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--brass) var(--v), rgba(239, 231, 212, .16) var(--v)); }
+.vol input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--brass) var(--v), rgba(239, 231, 212, .16) var(--v)); }
+.vol input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -11px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #f6dfaa, var(--brass) 60%, #8d6a2a); box-shadow: 0 3px 10px rgba(0, 0, 0, .45); border: 0; }
+.vol input[type=range]::-moz-range-thumb { width: 28px; height: 28px; border-radius: 50%; background: var(--brass); border: 0; }
+.vol input[type=range]:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 4px; border-radius: 4px; }
 .swatch { width: 40px; height: 40px; border-radius: 50%; border: 2px solid transparent; padding: 3px; background-clip: content-box; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18); }
 .swatch[aria-pressed="true"] { border-color: var(--brass-hi); }
 .paintname { font: 500 14px var(--font-ui); color: var(--paper); margin-left: 4px; }
+.startbar { position: sticky; bottom: calc(-1 * (var(--safe-b) + 18px)); margin: 4px -28px calc(-1 * (var(--safe-b) + 18px)) calc(-1 * (var(--safe-l) + 12px)); padding: 14px 28px calc(var(--safe-b) + 18px) calc(var(--safe-l) + 12px); background: linear-gradient(180deg, rgba(8, 12, 18, 0), rgba(8, 12, 18, .96) 30%); display: grid; gap: 10px; }
 #startBtn {
-  margin-top: 4px; align-self: flex-start; border: 0; border-radius: 999px; cursor: pointer;
+  align-self: flex-start; justify-self: start; border: 0; border-radius: 999px; cursor: pointer;
   background: linear-gradient(180deg, var(--brass-hi), var(--brass)); color: var(--brass-ink);
   font: 600 20px/1 var(--font-ui); padding: 17px 34px 16px; box-shadow: 0 10px 30px rgba(214, 173, 95, .25);
   display: inline-flex; gap: 12px; align-items: center;
@@ -110,8 +121,23 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 .foot { font: 13px var(--font-ui); color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
 .foot a { color: var(--brass); text-decoration: none; }
 .foot a:hover { text-decoration: underline; }
-.paintcap { position: absolute; right: calc(var(--safe-r) + 6px); bottom: calc(var(--safe-b) + 8px); font: 500 13px var(--font-ui); color: rgba(239, 231, 212, .7); text-align: right; pointer-events: none; }
+.revwrap { position: absolute; right: calc(var(--safe-r) + 6px); bottom: calc(var(--safe-b) + 10px); display: flex; align-items: flex-end; gap: 18px; pointer-events: none; }
+.paintcap { font: 500 13px var(--font-ui); color: rgba(239, 231, 212, .75); text-align: right; pointer-events: none; text-shadow: 0 1px 8px rgba(0, 0, 0, .6); padding-bottom: 6px; }
 .paintcap b { display: block; font: 400 22px var(--font-display); color: var(--paper); }
+#revBtn {
+  pointer-events: auto; width: 124px; height: 124px; border-radius: 50%; border: 0; cursor: pointer; color: var(--paper); display: grid; place-content: center; gap: 3px; flex: none;
+  --r: 0; --c: #d6ad5f;
+  background: radial-gradient(circle closest-side, rgba(9, 15, 22, .9) 82%, transparent 84%), conic-gradient(from 225deg, var(--c) calc(var(--r) * 270deg), rgba(239, 231, 212, .16) 0 270deg, transparent 0);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .45); font: 600 19px/1.1 var(--font-ui);
+}
+#revBtn small { font: 500 11.5px/1.2 var(--font-ui); color: var(--muted); font-variant-numeric: tabular-nums; }
+#revBtn.on { color: var(--brass-hi); }
+#gearBox { position: absolute; left: calc(var(--safe-l) + 4px); bottom: calc(var(--safe-b) + 124px); display: flex; flex-direction: column; gap: 10px; }
+.gbtn { width: 78px; height: 62px; border-radius: 16px; border: 1px solid var(--rule); background: var(--glass); color: var(--paper); cursor: pointer; display: grid; place-content: center; font: 600 22px/1 var(--font-ui); gap: 2px; }
+.gbtn small { font: 500 10.5px/1 var(--font-ui); color: var(--muted); letter-spacing: .06em; }
+.gbtn.on { background: rgba(214, 173, 95, .35); border-color: var(--brass); }
+#steer.auto .pad { opacity: .45; }
+#steer.auto .lbl { color: var(--blue); }
 
 /* ---------- HUD ---------- */
 #hud { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
@@ -200,6 +226,10 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
   #knob { width: 64px; height: 64px; margin: -32px 0 0 -32px; }
   .ib { min-width: 46px; height: 46px; padding: 0 8px; }
   .ib span { display: none; }
+  #gearBox { bottom: calc(var(--safe-b) + 108px); gap: 8px; }
+  .gbtn { width: 64px; height: 52px; font-size: 19px; }
+  #revBtn { width: 100px; height: 100px; font-size: 16px; }
+  .revwrap .paintcap { display: none; }
 }
 @media (orientation: portrait) and (max-width: 760px) {
   #gauge { bottom: calc(var(--safe-b) + 150px); }
@@ -222,6 +252,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
       </div>
     </div>
     <div class="tr">
+      <button class="ib" id="autoBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M3.6 10.5h6.2M14.2 10.5h6.2M12 14.2v6.2"/></svg><span data-i18n="auto"></span></button>
       <button class="ib" id="camBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg><span data-i18n="cam"></span></button>
       <button class="ib" id="timeBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span data-i18n="timeBtn"></span></button>
       <button class="ib" id="soundBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="soundWave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span data-i18n="sound"></span></button>
@@ -231,7 +262,8 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
     <div id="toast"></div>
     <div id="postcard" aria-live="polite"><div class="stamp">T</div><div class="pk" data-i18n="postcard"></div><h3 id="pcTitle"></h3><p id="pcText"></p></div>
     <canvas id="gauge" width="460" height="460" aria-hidden="true"></canvas>
-    <div id="steer"><div class="pad"><i></i><i></i><i></i><div id="knob"></div><div class="lbl" data-i18n="steer"></div></div></div>
+    <div id="steer"><div class="pad"><i></i><i></i><i></i><div id="knob"></div><div class="lbl" id="steerLbl" data-i18n="steer"></div></div></div>
+    <div id="gearBox" hidden><button class="gbtn" id="gearUp" type="button">▲<small data-i18n="gearUp"></small></button><button class="gbtn" id="gearDown" type="button">▼<small data-i18n="gearDown"></small></button></div>
     <div class="pedals">
       <button class="pbtn" id="hornBtn" type="button"><span data-i18n="horn"></span></button>
       <button class="pbtn" id="cruiseBtn" type="button" aria-pressed="false"><span data-i18n="cruise"></span></button>
@@ -247,14 +279,17 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
       <h1 data-i18n="title"></h1>
       <p class="lede" data-i18n="lede"></p>
       <div class="opt"><span data-i18n="paint"></span><div class="row" id="paintRow"></div></div>
+      <div class="opt"><span data-i18n="outfit"></span><div class="row" id="outfitRow"></div></div>
+      <div class="opt"><span data-i18n="engine"></span><div class="row" id="engineRow"></div></div>
+      <div class="opt"><span data-i18n="volume"></span><div class="vol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/></svg><input type="range" id="volRange" min="0" max="100" step="1" value="80"><output id="volOut" for="volRange"></output></div></div>
+      <div class="opt"><span data-i18n="gearbox"></span><div class="row" id="gearRow"></div></div>
       <div class="opt"><span data-i18n="time"></span><div class="row" id="timeRow"></div></div>
-      <div class="opt"><span data-i18n="pipe"></span><div class="row" id="pipeRow"></div></div>
       <div class="opt"><span data-i18n="quality"></span><div class="row" id="qualRow"></div></div>
-      <button id="startBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/></svg><span data-i18n="start"></span></button>
       <p class="help" id="helpText"></p>
       <div class="foot"><a href="GA-cruiser-en.html" hreflang="en" lang="en">English</a><a href="../index.html">The Siam Times</a></div>
+      <div class="startbar"><button id="startBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/></svg><span data-i18n="start"></span></button></div>
     </div>
-    <div class="paintcap" id="paintCap"></div>
+    <div class="revwrap"><div class="paintcap" id="paintCap"></div><button id="revBtn" type="button"><span data-i18n="rev"></span><small id="revRpm"></small></button></div>
   </div>
 
   <div id="pause" hidden>
@@ -262,6 +297,9 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
       <h2 data-i18n="paused"></h2>
       <div class="stats"><div><b id="stOdo">0</b><span data-i18n="odo"></span></div><div><b id="stTop">0</b><span data-i18n="topSpeed"></span></div><div><b id="stVis">0/8</b><span data-i18n="postcards"></span></div></div>
       <div class="album" id="album"></div>
+      <div class="opt"><span data-i18n="gearbox"></span><div class="row" id="gearRow2"></div></div>
+      <div class="opt"><span data-i18n="engine"></span><div class="row" id="engineRow2"></div></div>
+      <div class="opt"><span data-i18n="volume"></span><div class="vol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/></svg><input type="range" id="volRange2" min="0" max="100" step="1" value="80"><output id="volOut2" for="volRange2"></output></div></div>
       <div class="opt"><span data-i18n="quality"></span><div class="row" id="qualRow2"></div></div>
       <div class="opt"><span data-i18n="steerMode"></span><div class="row" id="steerRow"></div></div>
       <p class="help" id="helpText2"></p>
@@ -304,12 +342,14 @@ const STR = {
   th: {
     kicker: 'Bangkok Cruiser', title: 'ล่องกรุง',
     lede: 'บิ๊กไบค์ครูเซอร์ V-Twin เสียงลูกสูบคู่ทุ้มลึก ขี่ชมกรุงเทพฯ จากริมเจ้าพระยาถึงเยาวราช ใต้รางรถไฟฟ้า ถึงสุขุมวิท เก็บโปสการ์ดให้ครบ 8 จุด',
-    paint: 'สีรถ', time: 'ช่วงเวลา', pipe: 'เสียงท่อ', quality: 'กราฟิก', start: 'ติดเครื่อง',
+    paint: 'สีรถ', time: 'ช่วงเวลา', engine: 'เสียงเครื่องยนต์', volume: 'ความดังเสียง', mute: 'ปิดเสียง', outfit: 'ชุดคนขี่', gearbox: 'เกียร์', quality: 'กราฟิก', start: 'ติดเครื่อง',
+    gearAuto: 'อัตโนมัติ', gearManual: 'ธรรมดา (กดเปลี่ยนเอง)', rev: 'บิดเร่ง', revHold: 'กดค้างไว้', gearUp: 'เกียร์ขึ้น', gearDown: 'เกียร์ลง',
+    overRev: 'เร็วเกินสำหรับเกียร์นั้น ชะลอก่อนแล้วค่อยลดเกียร์', topGear: 'เกียร์ 6 สูงสุดแล้ว', firstGear: 'เกียร์ 1 ต่ำสุดแล้ว',
+    auto: 'ออโต้', steerAuto: 'ออโต้เลี้ยวให้', autoOn: 'ระบบช่วยเลี้ยว: เปิด แค่บีบคันเร่งกับเปลี่ยนเกียร์', autoOff: 'ระบบช่วยเลี้ยว: ปิด', autoTo: n => `ออโต้กำลังพาไป ${n}`, autoFree: 'ออโต้: ขี่ชมเมืองไปเรื่อย ๆ',
     paints: ['ดำเงา', 'แดงแคนดี้', 'น้ำเงินเที่ยงคืน', 'ทองสยาม', 'ขาวมุก'],
     times: { day: 'กลางวัน', golden: 'ยามเย็น', dusk: 'พลบค่ำ', night: 'กลางคืน' },
-    pipes: { stock: 'ท่อเดิม', loud: 'ท่อแต่ง' },
     quals: { auto: 'อัตโนมัติ', high: 'สูง', medium: 'กลาง', low: 'ประหยัด' },
-    help: '<b>ซ้าย</b> แตะค้างแล้วลากซ้าย–ขวาเพื่อเลี้ยว · <b>ขวา</b> เร่ง / เบรก (หยุดแล้วกดเบรกค้างเพื่อถอย) · <b>ครูซ</b> คงความเร็ว · เปิดเสียง iPad ด้วย<br>คีย์บอร์ด: ↑↓←→ หรือ WASD · Space เบรก · H แตร · X ครูซ · C มุมกล้อง · T เวลา · P พัก',
+    help: '<b>ซ้าย</b> แตะค้างแล้วลากซ้าย–ขวาเพื่อเลี้ยว (เกียร์ธรรมดา: ปุ่ม ▲ ▼ อยู่เหนือแฮนด์) · <b>ขวา</b> เร่ง / เบรก (หยุดแล้วกดเบรกค้างเพื่อถอย) · <b>ครูซ</b> คงความเร็ว · <b>ออโต้</b> เลี้ยวให้เอง เปิดเองในมุมถ่ายทอด · เปิดเสียง iPad ด้วย<br>คีย์บอร์ด: ↑↓←→ หรือ WASD · Space เบรก · E / Q เกียร์ขึ้น / ลง · G ออโต้ · H แตร · X ครูซ · C มุมกล้อง · T เวลา · P พัก',
     cam: 'กล้อง', timeBtn: 'เวลา', sound: 'เสียง', pause: 'พัก',
     steer: 'แฮนด์', horn: 'แตร', cruise: 'ครูซ', brake: 'เบรก', throttle: 'เร่ง',
     postcard: 'โปสการ์ดจากกรุงเทพฯ', paused: 'พักริมทาง', odo: 'กิโลเมตรที่ขี่', topSpeed: 'ความเร็วสูงสุด กม./ชม.', postcards: 'โปสการ์ด',
@@ -329,12 +369,14 @@ const STR = {
   en: {
     kicker: 'ล่องกรุง', title: 'Bangkok Cruiser',
     lede: 'A big V-twin cruiser with that deep, loping two-cylinder beat. Ride Bangkok from the Chao Phraya to Chinatown, under the Skytrain and out along Sukhumvit, and collect all 8 postcards.',
-    paint: 'Paint', time: 'Time of day', pipe: 'Exhaust', quality: 'Graphics', start: 'Start the engine',
+    paint: 'Paint', time: 'Time of day', engine: 'Engine sound', volume: 'Volume', mute: 'Muted', outfit: 'Rider’s outfit', gearbox: 'Gearbox', quality: 'Graphics', start: 'Start the engine',
+    gearAuto: 'Automatic', gearManual: 'Manual (tap to shift)', rev: 'Rev it', revHold: 'press and hold', gearUp: 'Up', gearDown: 'Down',
+    overRev: 'Too fast for that gear: slow down, then shift down', topGear: 'Already in 6th', firstGear: 'Already in 1st',
+    auto: 'Auto', steerAuto: 'Auto steering', autoOn: 'Steering assist on: just throttle and shift', autoOff: 'Steering assist off', autoTo: n => `Auto: heading for ${n}`, autoFree: 'Auto: cruising round the city',
     paints: ['Gloss black', 'Candy red', 'Midnight blue', 'Siam gold', 'Pearl white'],
     times: { day: 'Day', golden: 'Golden hour', dusk: 'Dusk', night: 'Night' },
-    pipes: { stock: 'Stock', loud: 'Loud pipes' },
     quals: { auto: 'Auto', high: 'High', medium: 'Medium', low: 'Saver' },
-    help: '<b>Left</b>: hold and slide left or right to steer · <b>Right</b>: throttle and brake (stopped, hold the brake to back up) · <b>Cruise</b> holds your speed · Turn the iPad’s sound on<br>Keyboard: arrows or WASD · Space brake · H horn · X cruise · C camera · T time · P pause',
+    help: '<b>Left</b>: hold and slide left or right to steer (manual gearbox: ▲ ▼ above the bars) · <b>Right</b>: throttle and brake (stopped, hold the brake to back up) · <b>Cruise</b> holds your speed · <b>Auto</b> steers for you, and comes on by itself in the broadcast camera · Turn the iPad’s sound on<br>Keyboard: arrows or WASD · Space brake · E / Q shift up / down · G auto steering · H horn · X cruise · C camera · T time · P pause',
     cam: 'Camera', timeBtn: 'Time', sound: 'Sound', pause: 'Pause',
     steer: 'Bars', horn: 'Horn', cruise: 'Cruise', brake: 'Brake', throttle: 'Throttle',
     postcard: 'Postcard from Bangkok', paused: 'Pulled over', odo: 'km ridden', topSpeed: 'top speed km/h', postcards: 'postcards',
@@ -384,7 +426,7 @@ const LANDMARKS = [
 
 /* ---------- settings (kept in this browser only) ---------- */
 const SAVE_KEY = 'tst-cruiser-v1';
-const settings = { paint: 0, time: 'golden', pipe: 'stock', quality: 'auto', cam: 0, sound: true, steer: 'pad', visited: [], odo: 0, top: 0 };
+const settings = { paint: 0, time: 'golden', engine: '', volume: 0.8, outfit: 0, gearbox: 'auto', quality: 'auto', cam: 0, sound: true, steer: 'pad', visited: [], odo: 0, top: 0 };
 try { Object.assign(settings, JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')); } catch (e) { /* storage blocked */ }
 if (!Array.isArray(settings.visited)) settings.visited = [];
 let saveTimer = 0;
@@ -930,12 +972,14 @@ function buildTextures() {
   }
   /* Thai number plate */
   {
-    const [c, x] = makeCanvas(256, 128);
-    x.fillStyle = '#f7f6f1'; x.fillRect(0, 0, 256, 128); x.strokeStyle = '#111'; x.lineWidth = 5; x.strokeRect(5, 5, 246, 118);
-    x.fillStyle = '#111'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.font = `700 34px ${FONT_TH}`; x.fillText('1กข', 128, 34);
-    x.font = `500 18px ${FONT_TH}`; x.fillText('กรุงเทพมหานคร', 128, 62);
-    x.font = `700 46px ${FONT_TH}`; x.fillText('1864', 128, 98);
+    // Thai motorcycle plate: letters, province, then the number large; drawn big so it stays sharp
+    const [c, x] = makeCanvas(512, 384);
+    x.fillStyle = '#fbfaf4'; x.fillRect(0, 0, 512, 384);
+    x.strokeStyle = '#0b0b0b'; x.lineWidth = 12; x.strokeRect(10, 10, 492, 364);
+    x.fillStyle = '#0b0b0b'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    fitText(x, '1กข', 300, 104, '700', FONT_TH); x.fillText('1กข', 256, 88);
+    fitText(x, 'กรุงเทพมหานคร', 420, 50, '600', FONT_TH); x.fillText('กรุงเทพมหานคร', 256, 164);
+    fitText(x, '1864', 450, 176, '700', FONT_TH); x.fillText('1864', 256, 282);
     TEX.plate = tex(c, { repeat: false });
   }
   /* tank lettering */
@@ -1917,7 +1961,7 @@ function bikeMaterials() {
   BM.tail = new THREE.MeshStandardMaterial({ color: 0x3a0505, emissive: 0xff1608, emissiveIntensity: 1.2, roughness: 0.3 });
   BM.amber = new THREE.MeshStandardMaterial({ color: 0x5a3000, emissive: 0xff8a00, emissiveIntensity: 0.04, roughness: 0.3 });
   BM.decal = new THREE.MeshStandardMaterial({ map: TEX.tank, transparent: true, metalness: 0.5, roughness: 0.3, polygonOffset: true, polygonOffsetFactor: -4 });
-  BM.plate = new THREE.MeshStandardMaterial({ map: TEX.plate, roughness: 0.5 });
+  BM.plate = new THREE.MeshStandardMaterial({ map: TEX.plate, emissiveMap: TEX.plate, emissive: 0xffffff, emissiveIntensity: 0.1, roughness: 0.45 });
   BM.gauge = new THREE.MeshBasicMaterial({ color: 0xefe7d4 });
   BM.glow = new THREE.SpriteMaterial({ map: TEX.glow, color: 0xfff1d0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
 }
@@ -1929,9 +1973,9 @@ function setPaint(i) {
 class Bin {
   constructor() { this.g = {}; }
   add(key, geo, m) { (this.g[key] || (this.g[key] = new GB())).geo(geo, m); }
-  bake(parent, shadow = true) {
+  bake(parent, shadow = true, mats = BM) {
     for (const k of Object.keys(this.g)) {
-      const mesh = new THREE.Mesh(this.g[k].build(), BM[k]);
+      const mesh = new THREE.Mesh(this.g[k].build(), mats[k]);
       mesh.castShadow = shadow; mesh.receiveShadow = true;
       parent.add(mesh);
     }
@@ -2029,8 +2073,10 @@ function buildBike() {
   bin.add('paint', new THREE.CylinderGeometry(0.39, 0.39, 0.27, 40, 1, true, -0.05 * Math.PI, 0.67 * Math.PI).rotateZ(Math.PI / 2), mat(0, 0.33, 0.8));
   {
     const tl = new THREE.Mesh(new RoundedBoxGeometry(0.11, 0.045, 0.06, 2, 0.015), BM.tail); tl.position.set(0, 0.68, 1.05); tl.rotation.x = -0.6; body.add(tl); BIKE.tail = tl;
-    const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.1), BM.plate); pl.position.set(0, 0.5, 1.175); pl.rotation.x = -0.25; body.add(pl);
-    box('black', 0.22, 0.12, 0.012, 0.004, mat(0, 0.5, 1.168, 0, 1, 1, 1, -0.25));
+    // a bigger plate, tilted up towards the chase camera, with its own lamp
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.19), BM.plate); pl.position.set(0, 0.5, 1.225); pl.rotation.x = 0.28; body.add(pl);
+    box('black', 0.27, 0.21, 0.012, 0.004, mat(0, 0.5, 1.218, 0, 1, 1, 1, 0.28));
+    box('chrome', 0.1, 0.025, 0.04, 0.008, mat(0, 0.605, 1.2, 0, 1, 1, 1, 0.28));
     for (const s of [-1, 1]) { rod('chrome', [s * 0.08, 0.62, 1.0], [s * 0.17, 0.62, 1.0], 0.007, 8); const a = new THREE.Mesh(new THREE.SphereGeometry(0.025, 12, 8), BM.amber); a.position.set(s * 0.18, 0.62, 1.0); a.scale.set(1, 1, 1.5); body.add(a); }
   }
   bin.bake(body);
@@ -2105,33 +2151,96 @@ function buildBike() {
   const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 1, 6), BM.black);
   stand.applyMatrix4(between([-0.15, 0.24, 0.02], [-0.36, 0.0, 0.1], 1)); body.add(stand);
 
-  /* rider */
+  scene.add(root);
+  Object.assign(BIKE, { root, lean, body, pivot, steer, frontW, rearW, spot, glow, stand, fill });
+  buildRider();
+}
+
+/* ---------- the rider and what they wear ---------- */
+const SKIN = 0xc68a5e, HAIR = 0x18120e;
+const OUTFITS = [
+  { th: 'หนังดำคลาสสิก', en: 'Black leather', top: { c: 0x2a2522, r: 0.38, m: 0.08 }, pants: 0x2c3c58, boots: 0x1d140e, gloves: 0x18181a, helmet: 'full', hc: 0x141518 },
+  { th: 'วินเทจหนังน้ำตาล', en: 'Vintage brown leather', top: { c: 0x70452a, r: 0.5, m: 0.05 }, pants: 0x3b3a32, boots: 0x3a2414, gloves: 0x5a3a22, helmet: 'open', hc: 0xe9e0c8, goggles: true },
+  { th: 'แจ็กเก็ตยีนส์', en: 'Denim jacket', top: { c: 0x3f5f8e, r: 0.9, m: 0 }, pants: 0x1c1d22, boots: 0x111111, gloves: 0x1a1a1a, helmet: 'half', hc: 0x121315, matte: true, shades: true },
+  { th: 'เสื้อวินมอเตอร์ไซค์', en: 'Motorbike-taxi vest', top: { c: 0x3b5ea8, r: 0.85, m: 0 }, vest: 0xff6a12, pants: 0x25282e, boots: 0x161616, gloves: null, helmet: 'half', hc: 0xf0f0ec },
+  { th: 'เสื้อลายดอก', en: 'Flower shirt', top: { floral: true, r: 0.85, m: 0 }, short: true, pants: 0xc8b48c, boots: 0x6b4a2e, gloves: null, helmet: 'open', hc: 0xb8322a, goggles: true },
+];
+let floralTex = null, vestTex = null;
+function makeFloral() {
+  const [c, x] = makeCanvas(256, 256), r = rng(88);
+  x.fillStyle = '#137a7a'; x.fillRect(0, 0, 256, 256);
+  for (let k = 0; k < 26; k++) { x.fillStyle = r() < 0.5 ? '#2f9a4a' : '#1d6b3a'; x.save(); x.translate(r() * 256, r() * 256); x.rotate(r() * 6.3); x.beginPath(); x.ellipse(0, 0, 18, 6, 0, 0, 7); x.fill(); x.restore(); }
+  for (let k = 0; k < 14; k++) {
+    const cx = r() * 256, cy = r() * 256, rad = 12 + r() * 10, colr = ['#e8463a', '#f5a3c0', '#f6d04d', '#ffffff'][k % 4];
+    for (let p = 0; p < 5; p++) { const a = p / 5 * 6.283 + r(); x.fillStyle = colr; x.beginPath(); x.ellipse(cx + Math.cos(a) * rad * 0.6, cy + Math.sin(a) * rad * 0.6, rad * 0.62, rad * 0.4, a, 0, 7); x.fill(); }
+    x.fillStyle = '#f6d04d'; x.beginPath(); x.arc(cx, cy, rad * 0.22, 0, 7); x.fill();
+  }
+  const t = tex(c); t.repeat.set(2, 2); return t;
+}
+function makeVestNo() {
+  const [c, x] = makeCanvas(160, 120);
+  x.fillStyle = '#ff6a12'; x.fillRect(0, 0, 160, 120);
+  x.fillStyle = '#fbfaf4'; x.fillRect(14, 10, 132, 100);
+  x.fillStyle = '#111'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = `700 26px ${FONT_TH}`; x.fillText('วิน สยาม', 80, 32); x.font = `700 54px ${FONT_TH}`; x.fillText('27', 80, 78);
+  return tex(c, { repeat: false });
+}
+function buildRider() {
+  const o = OUTFITS[settings.outfit] || OUTFITS[0];
+  if (BIKE.rider) { BIKE.body.remove(BIKE.rider); BIKE.rider.traverse(m => { if (m.geometry) m.geometry.dispose(); }); }
+  if (o.top.floral && !floralTex) floralTex = makeFloral();
+  if (o.vest && !vestTex) vestTex = makeVestNo();
+  const std = (c, r = 0.8, m = 0) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
+  const RM = {
+    top: o.top.floral ? new THREE.MeshStandardMaterial({ map: floralTex, roughness: o.top.r }) : std(o.top.c, o.top.r, o.top.m),
+    pants: std(o.pants, 0.88), boots: std(o.boots, 0.5), gloves: std(o.gloves ?? SKIN, o.gloves ? 0.5 : 0.65), skin: std(SKIN, 0.62), hair: std(HAIR, 0.85),
+    vest: std(o.vest || 0xffffff, 0.7), helmet: new THREE.MeshPhysicalMaterial({ color: o.hc, metalness: o.matte ? 0 : 0.3, roughness: o.matte ? 0.75 : 0.3, clearcoat: o.matte ? 0 : 1, clearcoatRoughness: 0.08 }),
+    visor: BM.visor, chrome: BM.chrome, glass: new THREE.MeshStandardMaterial({ color: 0x18242c, metalness: 0.9, roughness: 0.06 }),
+  };
   const rider = new THREE.Group(), rb = new Bin();
   const limb = (k, a, b, r) => {
     const A2 = new THREE.Vector3(...a), B2 = new THREE.Vector3(...b), d = B2.clone().sub(A2), L = d.length();
     rb.add(k, new THREE.CapsuleGeometry(r, L, 5, 14), new THREE.Matrix4().compose(A2.clone().add(B2).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()), new THREE.Vector3(1, 1, 1)));
   };
-  rb.add('jacket', new THREE.CapsuleGeometry(1, 1, 8, 18), new THREE.Matrix4().compose(new THREE.Vector3(0, 1.13, 0.13), new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.12, 0, 0)), new THREE.Vector3(0.19, 0.2, 0.13)));
-  rb.add('jeans', new THREE.SphereGeometry(1, 20, 12), mat(0, 0.86, 0.17, 0, 0.17, 0.09, 0.15));
+  const torso = (k, s) => rb.add(k, new THREE.CapsuleGeometry(1, 1, 8, 18), new THREE.Matrix4().compose(new THREE.Vector3(0, 1.13, 0.13), new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.12, 0, 0)), new THREE.Vector3(0.19 * s, 0.2 * s, 0.13 * s)));
+  torso('top', 1);
+  if (o.vest) torso('vest', 1.07);
+  rb.add('pants', new THREE.SphereGeometry(1, 20, 12), mat(0, 0.86, 0.17, 0, 0.17, 0.09, 0.15));
   for (const s of [-1, 1]) {
-    limb('jacket', [s * 0.19, 1.36, 0.1], [s * 0.3, 1.17, -0.08], 0.058);
-    limb('jacket', [s * 0.3, 1.17, -0.08], [s * 0.385, 1.13, -0.31], 0.05);
-    rb.add('jacket', new THREE.SphereGeometry(0.048, 14, 10), mat(s * 0.39, 1.13, -0.32, 0, 1, 0.9, 1.3));
-    limb('jeans', [s * 0.11, 0.87, 0.13], [s * 0.21, 0.8, -0.26], 0.078);
-    limb('jeans', [s * 0.21, 0.8, -0.26], [s * 0.29, 0.44, -0.41], 0.06);
+    limb('top', [s * 0.19, 1.36, 0.1], [s * 0.3, 1.17, -0.08], 0.058);
+    limb(o.short ? 'skin' : 'top', [s * 0.3, 1.17, -0.08], [s * 0.385, 1.13, -0.31], o.short ? 0.042 : 0.05);
+    rb.add(o.gloves ? 'gloves' : 'skin', new THREE.SphereGeometry(0.048, 14, 10), mat(s * 0.39, 1.13, -0.32, 0, 1, 0.9, 1.3));
+    limb('pants', [s * 0.11, 0.87, 0.13], [s * 0.21, 0.8, -0.26], 0.078);
+    limb('pants', [s * 0.21, 0.8, -0.26], [s * 0.29, 0.44, -0.41], 0.06);
     rb.add('boots', new RoundedBoxGeometry(0.09, 0.12, 0.22, 2, 0.03), mat(s * 0.3, 0.38, -0.45, 0, 1, 1, 1, 0.15));
-    rb.add('jacket', new THREE.SphereGeometry(0.075, 16, 10), mat(s * 0.19, 1.36, 0.1));
+    rb.add(o.vest ? 'vest' : 'top', new THREE.SphereGeometry(0.075, 16, 10), mat(s * 0.19, 1.36, 0.1));
   }
-  rb.add('jacket', new THREE.CylinderGeometry(0.05, 0.06, 0.1, 12), mat(0, 1.44, 0.08));
-  rb.add('helmet', new THREE.SphereGeometry(0.135, 32, 20), mat(0, 1.58, 0.06, 0, 0.93, 1, 1.06));
-  rb.add('visor', new THREE.SphereGeometry(0.138, 32, 12, Math.PI * 1.12, Math.PI * 0.76, Math.PI * 0.38, Math.PI * 0.22), mat(0, 1.58, 0.06, 0, 0.93, 1, 1.06));
-  rb.add('helmet', new THREE.CylinderGeometry(0.1, 0.11, 0.06, 20), mat(0, 1.48, 0.06));
-  rb.bake(rider);
-  body.add(rider);
-
-  scene.add(root);
-  Object.assign(BIKE, { root, lean, body, pivot, steer, frontW, rearW, spot, glow, stand, rider, fill });
+  rb.add(o.helmet === 'full' ? 'top' : 'skin', new THREE.CylinderGeometry(0.05, 0.06, 0.1, 12), mat(0, 1.44, 0.08));
+  const H = [0, 1.58, 0.06], hs = [0.93, 1, 1.06];
+  if (o.helmet === 'full') {
+    rb.add('helmet', new THREE.SphereGeometry(0.135, 32, 20), mat(...H, 0, ...hs));
+    rb.add('visor', new THREE.SphereGeometry(0.138, 32, 12, Math.PI * 1.12, Math.PI * 0.76, Math.PI * 0.38, Math.PI * 0.22), mat(...H, 0, ...hs));
+    rb.add('helmet', new THREE.CylinderGeometry(0.1, 0.11, 0.06, 20), mat(0, 1.48, 0.06));
+  } else {
+    // a face and hair under an open-face or half helmet
+    rb.add('hair', new THREE.SphereGeometry(0.108, 24, 16), mat(0, 1.565, 0.075, 0, 0.92, 1.05, 1));
+    rb.add('skin', new THREE.SphereGeometry(0.1, 24, 16), mat(0, 1.555, 0.045, 0, 0.9, 1.05, 0.95));
+    if (o.helmet === 'open') {
+      rb.add('helmet', new THREE.SphereGeometry(0.136, 32, 20, Math.PI * 1.8, Math.PI * 1.4, 0, Math.PI * 0.72), mat(...H, 0, ...hs));
+      rb.add('helmet', new THREE.SphereGeometry(0.136, 16, 6, Math.PI * 1.2, Math.PI * 0.6, 0, Math.PI * 0.3), mat(...H, 0, ...hs));
+    } else rb.add('helmet', new THREE.SphereGeometry(0.138, 32, 12, 0, Math.PI * 2, 0, Math.PI * 0.5), mat(0, 1.585, 0.06, 0, ...hs));
+    if (o.goggles) {
+      rb.add('hair', new THREE.TorusGeometry(0.128, 0.007, 6, 40).rotateX(Math.PI / 2), mat(0, 1.6, 0.06, 0, 0.95, 1, 1.08));
+      for (const s of [-1, 1]) { rb.add('chrome', new THREE.TorusGeometry(0.026, 0.006, 6, 18), mat(s * 0.042, 1.58, -0.058)); rb.add('glass', new THREE.CircleGeometry(0.024, 16), mat(s * 0.042, 1.58, -0.06, Math.PI)); }
+    }
+    if (o.shades) rb.add('glass', new RoundedBoxGeometry(0.15, 0.032, 0.02, 2, 0.008), mat(0, 1.575, -0.05));
+  }
+  rb.bake(rider, true, RM);
+  if (o.vest) { const no = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.12), new THREE.MeshStandardMaterial({ map: vestTex, roughness: 0.7 })); no.position.set(0, 1.2, 0.282); no.rotation.x = -0.12; rider.add(no); }
+  BIKE.body.add(rider);
+  BIKE.rider = rider;
 }
+function setOutfit(i) { settings.outfit = i; save(); buildRider(); }
 
 
 /* =====================================================================
@@ -2397,17 +2506,43 @@ function updateWorldAnim(dt, time) {
 
 /* =====================================================================
    Sound, all made in the browser with Web Audio (no sound files).
-   The engine is a 45° V-twin on one crank pin: the two cylinders fire
-   315° and then 405° of crank rotation apart, which gives the loping
-   "potato-potato" beat. Each firing is a short exhaust pulse, scheduled
-   ahead of time on the audio clock, through a saturator and filters
-   that open with the throttle.
+   Each engine is a firing pattern: the crank angles between firings over
+   one 720° cycle. A 45° V-twin on one crank pin fires 315° and then 405°
+   apart, which gives the loping "potato-potato" beat; a single fires once
+   every 720°; a flat-plane four every 180°. Each firing is a short exhaust
+   pulse, scheduled ahead on the audio clock, through a saturator and
+   filters that open with the throttle. The electric motor is a whine.
    ===================================================================== */
 const AUDIO = { ctx: null, ready: false };
-const PIPES = {
-  stock: { lpBase: 340, lpThr: 2300, lpRpm: 0.25, bark: 3.5, drive: 1.6, out: 0.8, pop: 0.035, body: 3.5, chest: 4 },
-  loud: { lpBase: 480, lpThr: 3800, lpRpm: 0.42, bark: 7, drive: 2.8, out: 1.0, pop: 0.12, body: 5, chest: 5 },
+const VT = (a, b) => [{ f1: 52, f2: 134, f3: 350, d1: 0.024, d2: 0.012, d3: 0.0065 }, { f1: 46, f2: 118, f3: 340, d1: 0.024, d2: 0.012, d3: 0.0065 }];
+const ENGINES = {
+  vtwin: { th: 'V-Twin ท่อเดิม', en: 'V-twin, stock', capTh: 'V-Twin 1,868 ซีซี', capEn: 'V-twin, 1,868 cc', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
+    lpBase: 340, lpThr: 2300, lpRpm: 0.25, barkF: 520, bark: 3.5, drive: 1.6, out: 0.8, pop: 0.035, body: 3.5, chest: 4, lope: 0.08, rate: 0.45 },
+  vtwinLoud: { th: 'V-Twin ท่อแต่ง', en: 'V-twin, loud pipes', capTh: 'V-Twin 1,868 ซีซี ท่อแต่ง', capEn: 'V-twin, 1,868 cc, loud pipes', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
+    lpBase: 480, lpThr: 3800, lpRpm: 0.42, barkF: 520, bark: 7, drive: 2.8, out: 1.0, pop: 0.12, body: 5, chest: 5, lope: 0.09, rate: 0.45 },
+  // a big-inch twin with straight pipes and a hot cam: a lumpy idle with soft firings, a raw bark, crackle off the throttle
+  vtwinStraight: { th: 'V-Twin ท่อตรง แคมซิ่ง', en: 'V-twin, straight pipes, hot cam', capTh: 'V-Twin 1,923 ซีซี ท่อตรง แคมซิ่ง', capEn: 'V-twin, 1,923 cc, straight pipes, hot cam', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 820, red: 5600,
+    pulse: [{ f1: 44, f2: 112, f3: 310, d1: 0.03, d2: 0.014, d3: 0.0075, noise: 0.78 }, { f1: 40, f2: 100, f3: 292, d1: 0.03, d2: 0.014, d3: 0.0075, noise: 0.78 }],
+    lpBase: 620, lpThr: 4800, lpRpm: 0.5, barkF: 460, bark: 8, drive: 3.2, out: 1.0, pop: 0.24, body: 6, chest: 5, lope: 0.17, soft: 0.22, rate: 0.42 },
+  single: { th: 'สูบเดียว', en: 'Big single', capTh: 'สูบเดียว 650 ซีซี', capEn: 'Single, 650 cc', pattern: [720], banks: [0], pan: [0], idle: 950, red: 6400,
+    pulse: [{ f1: 40, f2: 104, f3: 290, d1: 0.034, d2: 0.016, d3: 0.008, noise: 0.7 }],
+    lpBase: 320, lpThr: 2700, lpRpm: 0.3, barkF: 470, bark: 4.5, drive: 2.1, out: 0.95, pop: 0.07, body: 4, chest: 4.5, lope: 0.05, rate: 0.5 },
+  ptwin: { th: 'สองสูบเรียง 270°', en: 'Parallel twin, 270°', capTh: 'สองสูบเรียง 1,200 ซีซี', capEn: 'Parallel twin, 1,200 cc', pattern: [270, 450], banks: [0, 1], pan: [-0.15, 0.15], idle: 1100, red: 8000,
+    pulse: [{ f1: 60, f2: 162, f3: 430, d1: 0.018, d2: 0.009, d3: 0.005 }, { f1: 56, f2: 150, f3: 410, d1: 0.018, d2: 0.009, d3: 0.005 }],
+    lpBase: 420, lpThr: 3300, lpRpm: 0.3, barkF: 660, bark: 4.5, drive: 2.0, out: 0.8, pop: 0.06, body: 2, chest: 4, lope: 0.03, rate: 0.55 },
+  i4: { th: 'สี่สูบเรียง', en: 'Inline four', capTh: 'สี่สูบเรียง 1,000 ซีซี', capEn: 'Inline four, 1,000 cc', pattern: [180, 180, 180, 180], banks: [0, 1, 1, 0], pan: [0, 0], idle: 1250, red: 12500,
+    pulse: [{ f1: 96, f2: 330, f3: 880, d1: 0.0075, d2: 0.0045, d3: 0.003, noise: 0.35 }, { f1: 90, f2: 312, f3: 840, d1: 0.0075, d2: 0.0045, d3: 0.003, noise: 0.35 }],
+    lpBase: 900, lpThr: 5200, lpRpm: 0.3, barkF: 1500, bark: 5, drive: 2.4, out: 0.55, pop: 0.05, body: 0, chest: 3, lope: 0.012, rate: 0.7 },
+  v8: { th: 'V8 บิ๊กบล็อก', en: 'Big-block V8', capTh: 'V8 5,700 ซีซี', capEn: 'V8, 5,700 cc', pattern: [90, 90, 90, 90, 90, 90, 90, 90], banks: [0, 1, 0, 0, 1, 0, 1, 1], pan: [-0.28, 0.28], idle: 720, red: 5400,
+    pulse: [{ f1: 44, f2: 112, f3: 300, d1: 0.02, d2: 0.01, d3: 0.0055 }, { f1: 40, f2: 100, f3: 282, d1: 0.02, d2: 0.01, d3: 0.0055 }],
+    lpBase: 300, lpThr: 2600, lpRpm: 0.28, barkF: 430, bark: 5, drive: 2.3, out: 0.6, pop: 0.09, body: 5, chest: 4, lope: 0.045, rate: 0.4 },
+  electric: { th: 'มอเตอร์ไฟฟ้า', en: 'Electric motor', capTh: 'มอเตอร์ไฟฟ้า 80 กิโลวัตต์', capEn: 'Electric, 80 kW', electric: true, idle: 0, red: 10000 },
 };
+const ENGINE_LIST = ['vtwin', 'vtwinLoud', 'vtwinStraight', 'single', 'ptwin', 'i4', 'v8', 'electric'];
+if (!ENGINES[settings.engine]) settings.engine = settings.pipe === 'loud' ? 'vtwinLoud' : 'vtwin';
+AUDIO.voice = ENGINES[settings.engine];
+// the bike's physics run on one rev scale; each engine's sound and rev counter use its own
+function voiceRpm(r) { const V = AUDIO.voice; if (V.electric) return clamp((r - IDLE) / (REDLINE - IDLE), 0, 1.05) * V.red; return V.idle + clamp((r - IDLE) / (REDLINE - IDLE), -0.6, 1.05) * (V.red - V.idle); }
 function softClip(k) { const n = 2048, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; c[i] = Math.tanh(k * x) / Math.tanh(k); } return c; }
 function noiseBuffer(ctx, sec, brown) {
   const len = Math.floor(ctx.sampleRate * sec), b = ctx.createBuffer(1, len, ctx.sampleRate), d = b.getChannelData(0);
@@ -2425,20 +2560,21 @@ function makeImpulse(ctx, dur, decay) {
   }
   return b;
 }
-function makePulse(ctx, seed, rear) {
-  const sr = ctx.sampleRate, len = Math.floor(sr * 0.17), b = ctx.createBuffer(1, len, sr), d = b.getChannelData(0), r = rng(seed);
-  const f1 = (rear ? 46 : 52) + r() * 6, f2 = (rear ? 118 : 134) + r() * 22, f3 = 330 + r() * 70, amp = 0.85 + r() * 0.3;
+function makePulse(ctx, seed, P) {
+  const sr = ctx.sampleRate, dur = Math.min(0.17, P.d1 * 6 + 0.03), len = Math.floor(sr * dur), b = ctx.createBuffer(1, len, sr), d = b.getChannelData(0), r = rng(seed);
+  const f1 = P.f1 * (0.94 + r() * 0.12), f2 = P.f2 * (0.92 + r() * 0.16), f3 = P.f3 * (0.9 + r() * 0.2), amp = (0.85 + r() * 0.3) * (P.amp ?? 1), nz = P.noise ?? 0.55;
+  const fall = P.d2 * 1.0;
   let lp = 0, lp2 = 0;
   for (let i = 0; i < len; i++) {
     const t = i / sr;
     const att = 1 - Math.exp(-t / 0.0007);
-    const ph1 = 2 * Math.PI * f1 * (t + 0.012 * (1 - Math.exp(-t / 0.012)) * 0.9);
-    let s = 1.0 * Math.exp(-t / 0.024) * Math.sin(ph1);
-    s += 0.8 * Math.exp(-t / 0.012) * Math.sin(2 * Math.PI * f2 * t + 0.7 * Math.sin(2 * Math.PI * f1 * t));
-    s += 0.4 * Math.exp(-t / 0.0065) * Math.sin(2 * Math.PI * f3 * t);
-    s += 0.18 * Math.exp(-t / 0.004) * Math.sin(2 * Math.PI * f3 * 1.9 * t);
+    const ph1 = 2 * Math.PI * f1 * (t + fall * (1 - Math.exp(-t / fall)) * 0.9);
+    let s = 1.0 * Math.exp(-t / P.d1) * Math.sin(ph1);
+    s += 0.8 * Math.exp(-t / P.d2) * Math.sin(2 * Math.PI * f2 * t + 0.7 * Math.sin(2 * Math.PI * f1 * t));
+    s += 0.4 * Math.exp(-t / P.d3) * Math.sin(2 * Math.PI * f3 * t);
+    s += 0.18 * Math.exp(-t / (P.d3 * 0.62)) * Math.sin(2 * Math.PI * f3 * 1.9 * t);
     const w = r() * 2 - 1; lp += (w - lp) * 0.22; lp2 += (lp - lp2) * 0.3;
-    s += 0.55 * Math.exp(-t / 0.0045) * lp2 * 2 + 0.1 * Math.exp(-t / 0.0012) * w;
+    s += nz * Math.exp(-t / (P.d3 * 0.7)) * lp2 * 2 + 0.1 * Math.exp(-t / 0.0012) * w;
     d[i] = s * att * amp * 0.62;
   }
   return b;
@@ -2466,7 +2602,7 @@ function initAudio() {
   const filt = (type, f, q = 0.7, gain = 0) => { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; n.gain.value = gain; return n; };
   const loop = (buf) => { const s = ctx.createBufferSource(); s.buffer = buf; s.loop = true; s.start(); return s; };
 
-  const master = g(settings.sound ? 0.8 : 0);
+  const master = g(settings.sound ? settings.volume : 0);
   const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -15; comp.knee.value = 10; comp.ratio.value = 3.5; comp.attack.value = 0.004; comp.release.value = 0.22;
   // a brick-wall limiter last, so full throttle with the horn and traffic never clips
   const lim = ctx.createDynamicsCompressor(); lim.threshold.value = -2.5; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.08;
@@ -2475,9 +2611,10 @@ function initAudio() {
   revIn.connect(conv).connect(master);
 
   /* engine */
-  const E = { pulses: [[], []], pops: [], click: makeClick(ctx), next: 0, cyl: 0, rpm: 0, thr: 0, running: false, cut: false };
-  for (let k = 0; k < 4; k++) { E.pulses[0].push(makePulse(ctx, 100 + k, false)); E.pulses[1].push(makePulse(ctx, 200 + k, true)); E.pops.push(makePop(ctx, 300 + k)); }
+  const E = { pulses: [], cache: {}, pops: [], click: makeClick(ctx), next: 0, cyl: 0, rpm: 0, thr: 0, running: false, starting: false };
+  for (let k = 0; k < 4; k++) E.pops.push(makePop(ctx, 300 + k));
   E.bus = g(0.5);
+  E.bankIn = [0, 1].map(() => { const gi = g(1), pn = ctx.createStereoPanner(); gi.connect(pn).connect(E.bus); gi.pan = pn; return gi; });
   E.drive = g(1.5);
   E.shaper = ctx.createWaveShaper(); E.shaper.curve = softClip(2.2); E.shaper.oversample = '2x';
   E.hp = filt('highpass', 32, 0.7);
@@ -2494,6 +2631,10 @@ function initAudio() {
   const white = noiseBuffer(ctx, 2.0, false), brown = noiseBuffer(ctx, 3.0, true);
   E.intake = g(0); E.intakeF = filt('bandpass', 700, 0.9); loop(white).connect(E.intakeF).connect(E.intake).connect(master);
   E.whine = ctx.createOscillator(); E.whine.type = 'sawtooth'; E.whine.frequency.value = 200; E.whineG = g(0); const wf = filt('bandpass', 900, 3); E.whine.connect(wf).connect(E.whineG).connect(master); E.whine.start();
+  // the electric motor: a motor tone with its octave, and the inverter's high whine
+  E.el = g(0); E.elHi = g(0); const elF = filt('lowpass', 2600, 0.7); E.el.connect(elF).connect(master); elF.connect(revIn); E.elHi.connect(master);
+  E.elOsc = [['sine', 0.6], ['triangle', 0.22], ['sine', 0.1]].map(([type, a]) => { const o = ctx.createOscillator(); o.type = type; const og = g(a); o.connect(og).connect(E.el); o.start(); return o; });
+  E.elHiOsc = ctx.createOscillator(); E.elHiOsc.type = 'sine'; E.elHiOsc.connect(E.elHi); E.elHiOsc.start();
   AUDIO.E = E;
 
   /* road and wind */
@@ -2513,61 +2654,90 @@ function initAudio() {
   /* horn */
   AUDIO.horn = g(0); { const sh = ctx.createWaveShaper(); sh.curve = softClip(3); const f = filt('bandpass', 1300, 0.8); for (const fr of [415, 498]) { const o = ctx.createOscillator(); o.type = 'square'; o.frequency.value = fr; o.connect(sh); o.start(); } sh.connect(f).connect(AUDIO.horn).connect(master); AUDIO.horn.connect(revIn); }
   AUDIO.master = master; AUDIO.revIn = revIn; AUDIO.g = g; AUDIO.filt = filt; AUDIO.white = white; AUDIO.brown = brown;
-  AUDIO.pipe = PIPES[settings.pipe] || PIPES.stock;
   AUDIO.ready = true;
+  setEngine(settings.engine, true);
   setInterval(() => scheduleEngine(), 25);
 }
 
-function setPipe(p) { settings.pipe = p; save(); AUDIO.pipe = PIPES[p] || PIPES.stock; }
+function setEngine(id, quiet) {
+  if (!ENGINES[id]) id = 'vtwin';
+  settings.engine = id; if (!quiet) save();
+  const V = AUDIO.voice = ENGINES[id];
+  const E = AUDIO.E; if (!E) return;
+  if (!V.electric) {
+    if (!E.cache[id]) E.cache[id] = V.pulse.map((P, b) => [0, 1, 2, 3].map(k => makePulse(AUDIO.ctx, 100 * (b + 1) + k + id.length * 7, P)));
+    E.pulses = E.cache[id];
+    // weak firings for a lumpy cam at idle
+    if (V.soft && !E.cache[id + ':soft']) E.cache[id + ':soft'] = V.pulse.map((P, b) => [0, 1].map(k => makePulse(AUDIO.ctx, 900 + 10 * b + k, { ...P, amp: 0.42, noise: (P.noise ?? 0.55) * 1.3 })));
+    E.soft = V.soft ? E.cache[id + ':soft'] : null;
+    E.bark.frequency.value = V.barkF;
+    E.bankIn.forEach((gi, b) => { gi.pan.pan.value = V.pan[b] ?? 0; });
+  }
+  E.cyl = 0;
+}
 function setSound(on) {
   settings.sound = on; save();
-  if (AUDIO.master) AUDIO.master.gain.setTargetAtTime(on ? 0.8 : 0, AUDIO.ctx.currentTime, 0.05);
+  if (AUDIO.master) AUDIO.master.gain.setTargetAtTime(on ? settings.volume : 0, AUDIO.ctx.currentTime, 0.05);
+}
+function setVolume(v) {
+  settings.volume = clamp(v, 0, 1); settings.sound = settings.volume > 0; save();
+  if (AUDIO.master) AUDIO.master.gain.setTargetAtTime(settings.sound ? settings.volume : 0, AUDIO.ctx.currentTime, 0.03);
 }
 
 function scheduleEngine() {
-  const E = AUDIO.E; if (!E || !E.running) return;
-  const ctx = AUDIO.ctx, now = ctx.currentTime, P = AUDIO.pipe;
+  const E = AUDIO.E, V = AUDIO.voice; if (!E || !E.running || V.electric || !E.pulses.length) return;
+  const ctx = AUDIO.ctx, now = ctx.currentTime, n = V.pattern.length;
   if (E.next < now) E.next = now + 0.005;
-  while (E.next < now + 0.11) {
-    const rpm = Math.max(350, E.rpm);
-    const cycle = 120 / rpm;
-    const interval = cycle * (E.cyl === 0 ? 315 : 405) / 720;
-    const limiter = rpm > 5820 && E.thr > 0.5 && Math.random() < 0.55;
+  while (E.next < now + 0.1) {
+    const rpm = Math.max(V.idle * 0.4, E.rpm);
+    const k = E.cyl % n;
+    const interval = 120 / rpm * V.pattern[k] / 720;
+    const limiter = rpm > V.red - 25 && E.thr > 0.5 && Math.random() < 0.55;
     if (!limiter) {
+      const bank = V.banks[k];
       const s = ctx.createBufferSource();
-      s.buffer = E.pulses[E.cyl][Math.random() * 4 | 0];
-      s.playbackRate.value = (0.8 + rpm / 6000 * 0.45) * (1 + (Math.random() - 0.5) * 0.03);
-      s.connect(E.bus); s.start(E.next);
-      if (Math.random() < 0.7) { const c = ctx.createBufferSource(); c.buffer = E.click; c.playbackRate.value = 0.8 + Math.random() * 0.5; c.connect(E.tickBus); c.start(E.next + interval * 0.3); }
+      const weak = E.soft && rpm < V.idle * 1.7 && Math.random() < V.soft;
+      s.buffer = weak ? E.soft[bank][Math.random() * 2 | 0] : E.pulses[bank][Math.random() * 4 | 0];
+      s.playbackRate.value = (0.8 + rpm / V.red * V.rate) * (1 + (Math.random() - 0.5) * 0.03);
+      s.connect(E.bankIn[bank]); s.start(E.next);
+      if (Math.random() < 0.7 * Math.min(1, 2 / n)) { const c = ctx.createBufferSource(); c.buffer = E.click; c.playbackRate.value = 0.8 + Math.random() * 0.5; c.connect(E.tickBus); c.start(E.next + interval * 0.3); }
       // off the throttle at speed: burbles and pops in the pipes
-      if (E.thr < 0.08 && rpm > 1900 && Math.random() < P.pop * (rpm / 3500)) {
+      if (E.thr < 0.08 && rpm > V.idle * 2.2 && Math.random() < V.pop * (rpm / (V.red * 0.6)) * Math.min(1, 2 / n)) {
         const p = ctx.createBufferSource(); p.buffer = E.pops[Math.random() * 4 | 0]; p.playbackRate.value = 0.8 + Math.random() * 0.5; p.connect(E.popBus); p.start(E.next + interval * (0.3 + Math.random() * 0.5));
       }
     }
-    E.next += interval * (1 + (Math.random() - 0.5) * (rpm < 1200 ? 0.08 : 0.018));
-    E.cyl ^= 1;
+    E.next += interval * (1 + (Math.random() - 0.5) * (rpm < V.idle * 1.4 ? V.lope : V.lope * 0.22));
+    E.cyl++;
   }
 }
 
 /* called every frame while riding */
 function audioUpdate(dt, s) {
   if (!AUDIO.ready) return;
-  const E = AUDIO.E, ctx = AUDIO.ctx, t = ctx.currentTime, P = AUDIO.pipe;
-  E.rpm = s.rpm; E.thr = s.throttle;
+  const E = AUDIO.E, ctx = AUDIO.ctx, t = ctx.currentTime, P = AUDIO.voice;
+  const vr = voiceRpm(s.rpm), n = clamp((s.rpm - IDLE) / (REDLINE - IDLE), 0, 1.05);
+  E.rpm = vr; E.thr = s.throttle;
   const set = (param, v, tc = 0.06) => param.setTargetAtTime(v, t, tc);
   const load = s.throttle;
-  if (E.running) {
-    set(E.bus.gain, (0.34 + 0.66 * load) * (0.75 + 0.25 * Math.min(1, s.rpm / 3000)), 0.05);
+  if (E.running && !P.electric) {
+    set(E.bus.gain, (0.34 + 0.66 * load) * (0.75 + 0.25 * Math.min(1, n * 2)), 0.05);
     set(E.drive.gain, P.drive * (0.7 + 0.6 * load));
-    set(E.lp.frequency, P.lpBase + P.lpThr * load + s.rpm * P.lpRpm, 0.05);
+    set(E.lp.frequency, P.lpBase + P.lpThr * load + vr * P.lpRpm, 0.05);
     set(E.bark.gain, P.bark * (0.4 + 0.6 * load));
     set(E.body.gain, P.body); set(E.chest.gain, P.chest);
     set(E.out.gain, P.out * (s.cam === 2 ? 0.8 : 1));
-    set(E.intake.gain, (0.01 + 0.05 * load * Math.min(1, s.rpm / 4000)) * (s.cam === 2 ? 1.6 : 1));
-    set(E.intakeF.frequency, 500 + s.rpm * 0.35);
-    set(E.whineG.gain, Math.min(0.012, s.speed * 0.0004));
-    set(E.whine.frequency, 60 + s.speed * 22);
-  } else { set(E.bus.gain, 0); set(E.intake.gain, 0); set(E.whineG.gain, 0); }
+    set(E.intake.gain, (0.01 + 0.05 * load * Math.min(1, n * 1.4)) * (s.cam === 2 ? 1.6 : 1));
+    set(E.intakeF.frequency, 500 + n * 2000);
+    set(E.el.gain, 0); set(E.elHi.gain, 0);
+  } else if (E.running) {
+    set(E.bus.gain, 0); set(E.intake.gain, 0);
+    const f = 70 + n * 820;
+    E.elOsc.forEach((o, k) => set(o.frequency, f * [1, 2.01, 3.03][k], 0.05));
+    set(E.el.gain, 0.05 + 0.1 * load + 0.05 * n, 0.05);
+    set(E.elHiOsc.frequency, 2600 + n * 2600, 0.05); set(E.elHi.gain, 0.003 + 0.009 * load, 0.05);
+  } else { set(E.bus.gain, 0); set(E.intake.gain, 0); set(E.el.gain, 0); set(E.elHi.gain, 0); }
+  set(E.whineG.gain, Math.min(0.012, s.speed * 0.0004));
+  set(E.whine.frequency, 60 + s.speed * 22);
   const v = s.speed;
   set(AUDIO.wind.gain, Math.min(0.5, (v / 45) ** 2 * 0.45) * (s.cam === 2 ? 1.4 : 0.8));
   set(AUDIO.windF.frequency, 500 + v * 18);
@@ -2611,17 +2781,25 @@ function ambientOneShot(s) {
 /* one-shot effects */
 const SFX = {
   start() {
-    if (!AUDIO.ready) return;
+    if (!AUDIO.ready) return false;
     const ctx = AUDIO.ctx, t = ctx.currentTime, E = AUDIO.E;
+    if (E.running || E.starting) return false;
+    E.starting = true;
+    if (AUDIO.voice.electric) {   // no starter: a power-on chime and the motor is live
+      [660, 990].forEach((f, k) => setTimeout(() => bell(f, 0.035), k * 150));
+      setTimeout(() => { E.running = true; E.starting = false; }, 380);
+      return true;
+    }
     // starter motor: a geared whine with compression pulses
     const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(70, t); o.frequency.linearRampToValueAtTime(95, t + 0.8);
     const am = ctx.createOscillator(); am.frequency.value = 7; const amg = AUDIO.g(0.5); am.connect(amg); const vca = AUDIO.g(0.5); amg.connect(vca.gain);
     const out = AUDIO.g(0); out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(0.18, t + 0.05); out.gain.setValueAtTime(0.18, t + 0.85); out.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
     o.connect(vca).connect(AUDIO.filt('bandpass', 900, 0.9)).connect(out).connect(AUDIO.master); o.start(t); am.start(t); o.stop(t + 1.05); am.stop(t + 1.05);
-    setTimeout(() => { E.running = true; E.next = AUDIO.ctx.currentTime + 0.01; }, 850);
+    setTimeout(() => { E.running = true; E.starting = false; E.next = AUDIO.ctx.currentTime + 0.01; }, 850);
+    return true;
   },
   horn(on) { if (!AUDIO.ready) return; AUDIO.horn.gain.setTargetAtTime(on ? 0.16 : 0, AUDIO.ctx.currentTime, on ? 0.008 : 0.03); },
-  shift(up) { if (!AUDIO.ready) return; voice('sine', up ? 85 : 110, 0.12, 0.12); const s = AUDIO.ctx.createBufferSource(); s.buffer = AUDIO.E.click; s.playbackRate.value = 0.35; const gg = AUDIO.g(0.35); s.connect(gg).connect(AUDIO.master); s.start(); },
+  shift(up) { if (!AUDIO.ready || AUDIO.voice.electric) return; voice('sine', up ? 85 : 110, 0.12, 0.12); const s = AUDIO.ctx.createBufferSource(); s.buffer = AUDIO.E.click; s.playbackRate.value = 0.35; const gg = AUDIO.g(0.35); s.connect(gg).connect(AUDIO.master); s.start(); },
   thud(strength) {
     if (!AUDIO.ready) return;
     const ctx = AUDIO.ctx, s = ctx.createBufferSource(); s.buffer = AUDIO.brown; const gg = AUDIO.g(0); const t = ctx.currentTime;
@@ -2655,7 +2833,8 @@ const GEAR_ACC = [6.4, 5.0, 3.9, 3.1, 2.45, 1.95];
 const IDLE = 880, REDLINE = 5800;
 const START = { x: 136, z: 95, yaw: -Math.PI / 2 };       // Bamrung Mueang, by the Giant Swing, facing east
 const bike = { x: START.x, z: START.z, yaw: START.yaw, v: 0, lean: 0, steer: 0, throttle: 0, brake: 0, gear: 0, rpm: IDLE, shiftT: 0, cruise: 0, pitch: 0, started: false, back: 0, shake: 0, bumpT: 0 };
-const input = { steer: 0, throttle: 0, brake: 0, keys: new Set(), padSteer: 0, tiltSteer: 0, horn: false };
+const input = { steer: 0, throttle: 0, brake: 0, keys: new Set(), padSteer: 0, padActive: false, tiltSteer: 0, horn: false };
+const titleRev = { on: false, thr: 0, blipT: 0 };
 let time = 0, last = performance.now();
 const HUDS = { road: '', roadT: 0, dist: '', distT: 0, toastT: 0, cardT: 0 };
 
@@ -2665,23 +2844,203 @@ function torque(rpm) {
   return t;
 }
 
+function shiftUp() {
+  if (settings.gearbox !== 'manual' || !bike.started) return;
+  if (bike.gear >= 5) { toast(T.topGear); return; }
+  bike.gear++; bike.shiftT = 0.16; SFX.shift(true); flashGear('gearUp');
+}
+function shiftDown() {
+  if (settings.gearbox !== 'manual' || !bike.started) return;
+  if (bike.gear <= 0) { toast(T.firstGear); return; }
+  if (Math.max(0, bike.v) / GEAR_TOP[bike.gear - 1] * REDLINE > REDLINE + 250) { toast(T.overRev); return; }
+  bike.gear--; bike.shiftT = 0.14; SFX.shift(false); flashGear('gearDown');
+}
+function flashGear(id) { const e = $(id); e.classList.add('on'); setTimeout(() => e.classList.remove('on'), 160); }
+function gearUI() { $('gearBox').hidden = settings.gearbox !== 'manual'; }
+
+/* ---------- steering assist: follows the left lane, turns at crossings, heads for the nearest postcard ---------- */
+const AP = { on: false, byCam: false, d: 0, ni: 0, nj: 0, next: 0, path: null, target: '', inner: false, innerT: 0, stuckT: 0 };
+function apSet(on, byCam) { AP.on = on; AP.byCam = on && !!byCam; AP.path = null; AP.target = ''; AP.inner = false; autoUI(); }
+function autoUI() {
+  $('autoBtn').setAttribute('aria-pressed', AP.on ? 'true' : 'false');
+  $('steer').classList.toggle('auto', AP.on);
+  $('steerLbl').textContent = AP.on ? T.steerAuto : T.steer;
+}
+function apTarget() {
+  let best = null, bd = 1e9;
+  for (const L of LANDMARKS) { if (settings.visited.includes(L.id)) continue; const d = Math.hypot(L.x - bike.x, L.z - bike.z); if (d < bd) { bd = d; best = L; } }
+  return best;
+}
+function apSeg(L) {
+  const ix = RX.indexOf(L.x);
+  if (ix >= 0) { const j0 = clamp(Math.floor(L.z / 100), 0, 5); return [[ix, j0], [ix, j0 + 1]]; }
+  const i0 = clamp(Math.floor(L.x / 100), 0, 5); return [[i0, RZ.indexOf(L.z)], [i0 + 1, RZ.indexOf(L.z)]];
+}
+function apCost(i, j, k, L) {
+  const [A, B] = apSeg(L), [ex, ez] = DIRS[k], ni = i + ex, nj = j + ez;
+  const onSeg = (i === A[0] && j === A[1] && ni === B[0] && nj === B[1]) || (i === B[0] && j === B[1] && ni === A[0] && nj === A[1]);
+  if (onSeg) return Math.hypot(L.x - RX[i], L.z - RZ[j]);
+  const dn = q => (Math.abs(ni - q[0]) + Math.abs(nj - q[1])) * 100 + Math.hypot(L.x - RX[q[0]], L.z - RZ[q[1]]);
+  return 100 + Math.min(dn(A), dn(B));
+}
+function apChoose(i, j, d) {
+  const opts = [];
+  for (let k = 0; k < 4; k++) { if (k === (d + 2) % 4) continue; const [ex, ez] = DIRS[k]; if (i + ex < 0 || i + ex > 6 || j + ez < 0 || j + ez > 6) continue; opts.push(k); }
+  if (!opts.length) return (d + 2) % 4;
+  const L = apTarget();
+  const id = L ? L.id : 'free';
+  if (id !== AP.target) { AP.target = id; toast(L ? T.autoTo(TH ? L.th : L.en) : T.autoFree, 2.2); }
+  if (!L) return opts.includes(d) && Math.random() < 0.6 ? d : opts[Math.floor(Math.random() * opts.length)];
+  let best = opts[0], bc = 1e9;
+  for (const k of opts) { const c = apCost(i, j, k, L) - (k === d ? 5 : 0); if (c < bc) { bc = c; best = k; } }
+  return best;
+}
+function apPlan() {
+  const x = bike.x, z = bike.z;
+  let i = 0, j = 0;
+  for (let k = 1; k < 7; k++) { if (Math.abs(x - RX[k]) < Math.abs(x - RX[i])) i = k; if (Math.abs(z - RZ[k]) < Math.abs(z - RZ[j])) j = k; }
+  const inX = Math.abs(x - RX[i]) < WX[i] / 2 + 1, inZ = Math.abs(z - RZ[j]) < WZ[j] / 2 + 1;
+  const fx = -Math.sin(bike.yaw), fz = -Math.cos(bike.yaw);
+  const alongZ = inX && inZ ? Math.abs(fz) > Math.abs(fx) : inX ? true : inZ ? false : Math.abs(x - RX[i]) / WX[i] < Math.abs(z - RZ[j]) / WZ[j];
+  if (alongZ) {
+    AP.d = fz >= 0 ? 1 : 3; AP.ni = i;
+    let nj = -1; if (AP.d === 1) { for (let k = 0; k < 7; k++) if (RZ[k] > z + 2) { nj = k; break; } } else { for (let k = 6; k >= 0; k--) if (RZ[k] < z - 2) { nj = k; break; } }
+    AP.nj = nj < 0 ? j : nj;
+  } else {
+    AP.d = fx >= 0 ? 0 : 2; AP.nj = j;
+    let ni = -1; if (AP.d === 0) { for (let k = 0; k < 7; k++) if (RX[k] > x + 2) { ni = k; break; } } else { for (let k = 6; k >= 0; k--) if (RX[k] < x - 2) { ni = k; break; } }
+    AP.ni = ni < 0 ? i : ni;
+  }
+  AP.next = apChoose(AP.ni, AP.nj, AP.d);
+  AP.path = apBuildPath();
+}
+function apBuildPath() {
+  const [dx, dz] = DIRS[AP.d], [ex, ez] = DIRS[AP.next], i = AP.ni, j = AP.nj, nx = RX[i], nz = RZ[j];
+  const w1 = dx !== 0 ? WZ[j] : WX[i], w2 = ex !== 0 ? WZ[j] : WX[i];
+  // the left lane, a little in from the kerb; the right-hand lane while overtaking
+  const lane = w => AP.inner ? laneOff(w)[0] + 0.2 : laneOff(w)[1] - 0.6;
+  const o1 = lane(w1), o2 = lane(w2);
+  const l1x = dz, l1z = -dx, l2x = ez, l2z = -ex;
+  const h1 = dx !== 0 ? WX[i] / 2 : WZ[j] / 2, h2 = ex !== 0 ? WX[i] / 2 : WZ[j] / 2;
+  // turning, move out towards the middle first (as a rider turning right in Thailand does), so the arc clears both kerbs
+  const turning = AP.next !== AP.d;
+  const t1 = turning ? laneOff(w1)[0] + 0.3 : o1, t2 = turning ? laneOff(w2)[0] + 0.3 : o2;
+  const bx = nx + l1x * o1, bz = nz + l1z * o1;
+  const E = [nx + l1x * t1 - dx * (h1 + 3), nz + l1z * t1 - dz * (h1 + 3)], X = [nx + l2x * t2 + ex * (h2 + 3), nz + l2z * t2 + ez * (h2 + 3)];
+  const C = ex === dx && ez === dz ? [(E[0] + X[0]) / 2, (E[1] + X[1]) / 2] : [nx + l1x * t1 + l2x * t2, nz + l1z * t1 + l2z * t2];
+  const pts = [[bx - dx * 130, bz - dz * 130], [bx - dx * (h1 + 20), bz - dz * (h1 + 20)], E];
+  for (let k = 1; k < 12; k++) { const t = k / 12; pts.push([(1 - t) ** 2 * E[0] + 2 * (1 - t) * t * C[0] + t * t * X[0], (1 - t) ** 2 * E[1] + 2 * (1 - t) * t * C[1] + t * t * X[1]]); }
+  const ox = nx + l2x * o2, oz = nz + l2z * o2;
+  pts.push(X, [ox + ex * (h2 + 18), oz + ez * (h2 + 18)], [ox + ex * 70, oz + ez * 70]);
+  return pts;
+}
+function apUpdate() {
+  if (!AP.path) apPlan();
+  // through the crossing: plan the next one
+  const [ex, ez] = DIRS[AP.next], h2 = ex !== 0 ? WX[AP.ni] / 2 : WZ[AP.nj] / 2;
+  if ((bike.x - RX[AP.ni]) * ex + (bike.z - RZ[AP.nj]) * ez > h2 + 1.5) {
+    AP.d = AP.next; AP.ni += ex; AP.nj += ez; AP.next = apChoose(AP.ni, AP.nj, AP.d); AP.path = apBuildPath();
+  }
+  const P = AP.path;
+  let best = 1e18, bi = 0, bt = 0;
+  for (let k = 0; k + 1 < P.length; k++) {
+    const ax = P[k][0], az = P[k][1], vx = P[k + 1][0] - ax, vz = P[k + 1][1] - az, l2 = vx * vx + vz * vz || 1;
+    const t = clamp(((bike.x - ax) * vx + (bike.z - az) * vz) / l2, 0, 1), qx = ax + vx * t - bike.x, qz = az + vz * t - bike.z, d2 = qx * qx + qz * qz;
+    if (d2 < best) { best = d2; bi = k; bt = t; }
+  }
+  if (best > 81) { AP.path = null; return { steer: 0, brake: 0 }; }     // knocked off the line: plan again
+  const sp = Math.abs(bike.v), lookAhead = clamp(2.2 + sp * 0.5, 3.2, 20);
+  // walk along the path to the look-ahead point; meanwhile find the tightest bend coming up
+  let rem = lookAhead, k = bi, t = bt, tx = P[P.length - 1][0], tz = P[P.length - 1][1], need = 0, dist = 0, found = false;
+  const segLen = n => Math.hypot(P[n + 1][0] - P[n][0], P[n + 1][1] - P[n][1]);
+  for (let n = bi; n + 1 < P.length; n++) {
+    const L = segLen(n), avail = L * (n === bi ? 1 - bt : 1);
+    if (!found && avail >= rem) { const f = (n === bi ? bt : 0) + rem / L; tx = P[n][0] + (P[n + 1][0] - P[n][0]) * f; tz = P[n][1] + (P[n + 1][1] - P[n][1]) * f; found = true; }
+    if (!found) rem -= avail;
+    dist += avail;
+    if (n + 2 < P.length && dist < 12 + sp * 3) {
+      const ax = P[n + 1][0] - P[n][0], az = P[n + 1][1] - P[n][1], bx2 = P[n + 2][0] - P[n + 1][0], bz2 = P[n + 2][1] - P[n + 1][1];
+      const la = Math.hypot(ax, az) || 1, lb = Math.hypot(bx2, bz2) || 1, turn = Math.acos(clamp((ax * bx2 + az * bz2) / (la * lb), -1, 1));
+      const kap = turn / Math.max(0.5, (Math.min(la, 20) + Math.min(lb, 20)) / 2), vAllow = Math.max(4.2, Math.sqrt(3.2 / Math.max(kap, 1e-4)));
+      need = Math.max(need, (sp * sp - vAllow * vAllow) / (2 * Math.max(1, dist)));
+    }
+  }
+  // traffic: slow for the vehicle in front, overtake it in the other lane when that lane is clear
+  const fx = -Math.sin(bike.yaw), fz = -Math.cos(bike.yaw), rx = -fz, rz = fx;   // right of travel
+  let gapMin = 1e9, vFront = 0, innerBusy = false, outerBusy = false;
+  for (const c of CARS) {
+    const ddx = c.pos.x - bike.x, ddz = c.pos.z - bike.z, along = ddx * fx + ddz * fz, side = ddx * rx + ddz * rz;
+    if (c.pos.hx * fx + c.pos.hz * fz < 0.3) continue;                        // oncoming or crossing
+    if (Math.abs(side) < 1.8 && along > 0 && along < 32) { const gap = along - c.len / 2 - 1.2; if (gap < gapMin) { gapMin = gap; vFront = Math.max(0, c.v); } }
+    if (along > -9 && along < 26 && side > 1.2 && side < 5.5) innerBusy = true;   // the lane to our right
+    if (along > -7 && along < 14 && side < -1.2 && side > -5.5) outerBusy = true; // the lane to our left
+  }
+  let hold = false;
+  // at a crossing: wait for traffic crossing in front, or already in the junction
+  {
+    const [dx, dz] = DIRS[AP.d], nx = RX[AP.ni], nz = RZ[AP.nj], hw = WX[AP.ni] / 2, hd = WZ[AP.nj] / 2, h1 = dx !== 0 ? hw : hd;
+    const toEdge = (nx - bike.x) * dx + (nz - bike.z) * dz - h1;
+    if (toEdge > 0.3 && toEdge < 20) {
+      let danger = false;
+      for (const c of CARS) {
+        const along = c.pos.hx * dx + c.pos.hz * dz;
+        if (along > 0.7) continue;                                   // going our way
+        const inBox = Math.abs(c.pos.x - nx) < hw + 1.5 && Math.abs(c.pos.z - nz) < hd + 1.5;
+        const sN = (nx - c.pos.x) * c.pos.hx + (nz - c.pos.z) * c.pos.hz, eta = sN / Math.max(c.v, 0.5);
+        if (inBox || (Math.abs(along) < 0.3 && sN > -2 && sN < 28 && eta < 3.2 && c.v > 0.5)) { danger = true; break; }
+      }
+      if (danger) { need = Math.max(need, (sp * sp) / (2 * Math.max(0.8, toEdge - 0.8))); if (toEdge < 4 && sp < 1.2) hold = true; }
+    }
+  }
+  if (gapMin < 1e9) {
+    const vDes = Math.max(0, Math.min(vFront + (gapMin - 6) * 0.5, (gapMin - 4) * 1.2));
+    if (sp > vDes) need = Math.max(need, (sp * sp - vDes * vDes) / (2 * Math.max(1.5, gapMin - 4)));
+    if (gapMin < 6 && sp < 1.2) hold = true;
+    const slow = vFront < Math.max(2, sp * 0.75) && gapMin < 24;
+    if (slow && !AP.inner && !innerBusy && dist > 0) { AP.inner = true; AP.innerT = 0; AP.path = apBuildPath(); }
+  }
+  if (AP.inner) { AP.innerT += 1 / 60; if (AP.innerT > 3.5 && !outerBusy && (gapMin > 12 || gapMin === 1e9)) { AP.inner = false; AP.path = apBuildPath(); } }
+  // pinned against something with the throttle open and nothing in front: plan afresh
+  if (sp < 0.3 && bike.throttle > 0.3 && !hold && gapMin > 8) { if ((AP.stuckT += 1 / 60) > 1.5) { AP.stuckT = 0; AP.path = null; } } else AP.stuckT = 0;
+  // pure pursuit: the curvature that reaches the look-ahead point, turned into a lean, then into bar input
+  const ttx = tx - bike.x, ttz = tz - bike.z, dd = Math.hypot(ttx, ttz) || 1;
+  const alpha = Math.atan2(fz * ttx - fx * ttz, fx * ttx + fz * ttz);
+  const yawRate = 2 * Math.sin(alpha) / dd * Math.max(sp, 0.5);
+  const maxLean = clamp(sp / 14, 0, 1) * 0.72;
+  let steer;
+  if (sp > 3) { const lean = Math.atan(yawRate * Math.max(sp, 6) / (9.81 * 1.3)); steer = maxLean > 0.02 ? lean / maxLean : 0; }
+  else steer = yawRate / 0.95;
+  return { steer: clamp(steer * 1.1, -1, 1), brake: hold ? 1 : need > 0.8 ? clamp((need - 0.5) / 6, 0, 1) : 0 };
+}
+
 /* ---------- physics ---------- */
 function rideUpdate(dt) {
   // inputs from keys, pad and tilt
   const k = input.keys;
   const kSteer = (k.has('ArrowLeft') || k.has('KeyA') ? 1 : 0) - (k.has('ArrowRight') || k.has('KeyD') ? 1 : 0);
-  const steerIn = clamp(kSteer || (settings.steer === 'tilt' ? input.tiltSteer : input.padSteer), -1, 1);
-  const thrIn = Math.max(input.throttle, k.has('ArrowUp') || k.has('KeyW') ? 1 : 0);
-  const brkIn = Math.max(input.brake, k.has('ArrowDown') || k.has('KeyS') || k.has('Space') ? 1 : 0);
-  $('throttleBtn').classList.toggle('on', thrIn > 0); $('brakeBtn').classList.toggle('on', brkIn > 0);
+  const handSteer = clamp(kSteer || (settings.steer === 'tilt' ? input.tiltSteer : input.padSteer), -1, 1);
+  const userSteering = kSteer !== 0 || input.padActive || (settings.steer === 'tilt' && Math.abs(input.tiltSteer) > 0.18);
+  let thrIn = Math.max(input.throttle, k.has('ArrowUp') || k.has('KeyW') ? 1 : 0);
+  const brkUser = Math.max(input.brake, k.has('ArrowDown') || k.has('KeyS') || k.has('Space') ? 1 : 0);
+  $('throttleBtn').classList.toggle('on', thrIn > 0); $('brakeBtn').classList.toggle('on', brkUser > 0);
 
   if (!bike.started) { audioUpdate(dt, audioState(0)); return; }
+
+  // steering assist: it steers and slows for corners and traffic; a hand on the bars takes over
+  let steerIn = handSteer, apBrake = 0;
+  if (AP.on) {
+    if (userSteering) AP.path = null;
+    else { const a = apUpdate(); steerIn = a.steer; apBrake = a.brake; }
+  }
+  const brkIn = Math.max(brkUser, apBrake);
+  if (apBrake > 0.02) thrIn = 0;
 
   bike.steer = damp(bike.steer, steerIn, kSteer ? 5 : 9, dt);
   // throttle opens over about half a second, closes quickly
   bike.throttle = thrIn > bike.throttle ? Math.min(thrIn, bike.throttle + dt * 2.6) : Math.max(thrIn, bike.throttle - dt * 4);
   if (bike.cruise > 0) {
-    if (brkIn > 0.05) { bike.cruise = 0; cruiseUI(); toast(T.cruiseOff); }
+    if (brkUser > 0.05) { bike.cruise = 0; cruiseUI(); toast(T.cruiseOff); }
+    else if (apBrake > 0.02) bike.throttle = Math.max(0, bike.throttle - dt * 6);
     else if (thrIn < 0.05) bike.throttle = damp(bike.throttle, clamp(0.22 + (bike.cruise - bike.v) * 0.3, 0, 0.9), 4, dt);
     else bike.cruise = Math.max(bike.cruise, bike.v);
   }
@@ -2692,17 +3051,20 @@ function rideUpdate(dt) {
   const rpmV = v / GEAR_TOP[g] * REDLINE;
   let rpm = Math.max(IDLE, rpmV);
   const standing = v < 0.6 && bike.brake > 0.4;
+  const manual = settings.gearbox === 'manual';
   if (g === 0) rpm = Math.max(rpm, IDLE + bike.throttle * 2300 * clamp(1 - v / 9, 0, 1));
+  else if (manual) rpm = Math.max(rpm, IDLE + bike.throttle * 1900 * clamp(1 - v / (GEAR_TOP[g] * 0.28), 0, 1)); // clutch slips pulling away in a high gear
   if (standing) rpm = IDLE + bike.throttle * 4700;      // clutch in, revving at the lights
-  // automatic gearbox, shifting like a relaxed rider
+  // automatic gearbox, shifting like a relaxed rider (manual: the ▲ ▼ buttons)
   if (bike.shiftT > 0) bike.shiftT -= dt;
-  else if (!standing) {
+  else if (!standing && !manual) {
     const upAt = 2900 + 2500 * bike.throttle;
     if (g < 5 && rpmV > upAt) { g = ++bike.gear; bike.shiftT = 0.3; SFX.shift(true); }
     else if (g > 0 && rpmV < (bike.throttle > 0.85 ? 2500 : 1700) && v / GEAR_TOP[g - 1] * REDLINE < 5000) { g = --bike.gear; bike.shiftT = 0.22; SFX.shift(false); }
   }
   const thrEff = bike.shiftT > 0.1 ? bike.throttle * 0.1 : bike.throttle;
   let acc = standing ? 0 : thrEff * torque(rpm) * GEAR_ACC[g];
+  if (manual && g > 0 && rpmV < 1600) acc *= clamp(0.3 + rpmV / 2300, 0.3, 1);   // lugging in too high a gear
   if (rpmV >= REDLINE) acc = Math.min(acc, 0);
   acc -= 0.00042 * v * v + (v > 0.1 ? 0.12 : 0);
   if (thrEff < 0.05 && v > 0.5) acc -= 0.2 + 0.6 * rpm / REDLINE;
@@ -2833,13 +3195,14 @@ function poseBike(dt, parked) {
   BIKE.rearW.rotation.x -= bike.v / 0.334 * dt;
   BIKE.steer.rotation.y = parked ? 0.5 : bike.steer * (0.42 * (1 - smooth(0, 12, sp)) + 0.04);
   BIKE.stand.visible = parked;
-  BIKE.rider.visible = !parked && settings.cam !== 2;
+  BIKE.rider.visible = state === 'title' || settings.cam !== 2;
   const on = !!(AUDIO.E && AUDIO.E.running) || bike.started;   // lights come on with the ignition
   BIKE.spot.intensity = on ? look.head * 1.7 : 0;
   BIKE.fill.intensity = (look.night ? 7 : look.lamps > 0.5 ? 5 : look.head > 0 ? 2.5 : 0) * (parked ? 1.6 : 1);
   BM.glow.opacity = !on ? 0 : look.lamps > 0.5 ? 0.8 : look.head > 0 ? 0.22 : 0.08;
   BM.tail.emissiveIntensity = !on ? 0.05 : bike.brake > 0.1 ? 4 : look.lamps > 0.3 ? 1.5 : 0.7;
   BM.lens.color.setScalar(!on ? 0.22 : look.lamps > 0.3 ? 2.2 : 1.3);
+  BM.plate.emissiveIntensity = !on ? 0 : look.lamps > 0.3 ? 0.6 : 0.1;
 }
 
 /* ---------- cameras ---------- */
@@ -2933,13 +3296,18 @@ function drawGauge() {
   x.clearRect(0, 0, S, S); x.drawImage(gauge.base, 0, 0);
   const kmh = Math.abs(bike.v) * 3.6;
   // rev arc
-  const rp = clamp(bike.rpm / 6000, 0, 1), a0 = 0.8 * Math.PI, a1 = a0 + 1.4 * Math.PI * rp;
+  const V = AUDIO.voice, rp = clamp(voiceRpm(bike.rpm) / V.red, 0, 1), a0 = 0.8 * Math.PI, a1 = a0 + 1.4 * Math.PI * rp;
+  const manual = settings.gearbox === 'manual', hot = rp > 0.9;
   x.lineCap = 'round'; x.lineWidth = 9;
   x.strokeStyle = 'rgba(239,231,212,.1)'; x.beginPath(); x.arc(cx, cy, R - 92, a0, 2.2 * Math.PI); x.stroke();
-  x.strokeStyle = bike.rpm > 5300 ? '#e0573f' : '#d6ad5f'; x.beginPath(); x.arc(cx, cy, R - 92, a0, Math.max(a0 + 0.01, a1)); x.stroke();
+  x.strokeStyle = hot ? '#e0573f' : V.electric ? '#6ca6d1' : '#d6ad5f'; x.beginPath(); x.arc(cx, cy, R - 92, a0, Math.max(a0 + 0.01, a1)); x.stroke();
+  if (manual && hot && (time * 8 | 0) % 2 === 0) { x.fillStyle = '#ff4a2e'; x.shadowColor = '#ff4a2e'; x.shadowBlur = 16; x.beginPath(); x.arc(cx, cy - 150, 9, 0, Math.PI * 2); x.fill(); x.shadowBlur = 0; }
   // gear and digital speed
   x.fillStyle = '#efe7d4'; x.textAlign = 'center'; x.textBaseline = 'middle';
   x.font = '600 62px "Kanit", sans-serif'; x.fillText(bike.started ? String(bike.gear + 1) : T.gearN, cx, cy - 52);
+  x.font = '600 20px "Kanit", sans-serif'; x.fillStyle = manual ? '#f2d28c' : 'rgba(239,231,212,.45)'; x.fillText(manual ? 'M' : 'A', cx + 40, cy - 66);
+  if (AP.on) { x.fillStyle = '#6ca6d1'; x.fillText(TH ? 'ออโต้' : 'AUTO', cx - 46, cy - 66); }
+  x.fillStyle = '#efe7d4';
   x.font = '600 44px "Kanit", sans-serif'; x.fillStyle = '#f2d28c'; x.fillText(String(Math.round(kmh)), cx, cy + 66);
   if (bike.cruise > 0) { x.fillStyle = '#6ca6d1'; x.font = '600 18px "Kanit", sans-serif'; x.fillText(TH ? 'ครูซ' : 'CRUISE', cx, cy + 134); }
   // needle
@@ -3003,7 +3371,7 @@ function bindInput() {
   let pid = null, x0 = 0;
   area.addEventListener('pointerdown', e => {
     e.preventDefault(); if (pid !== null) return;
-    pid = e.pointerId; x0 = e.clientX; try { area.setPointerCapture(pid); } catch (er) { /* fine */ }
+    pid = e.pointerId; x0 = e.clientX; input.padActive = true; try { area.setPointerCapture(pid); } catch (er) { /* fine */ }
     if (settings.steer === 'tilt') calibrateTilt();
   });
   area.addEventListener('pointermove', e => {
@@ -3012,7 +3380,11 @@ function bindInput() {
     input.padSteer = -dx / 95;
     knob.style.transform = `translateX(${dx * (pad.clientWidth / 2 - 40) / 95}px)`;
   });
-  const end = e => { if (e.pointerId !== pid) return; pid = null; input.padSteer = 0; knob.style.transform = ''; };
+  const end = e => { if (e.pointerId !== pid) return; pid = null; input.padSteer = 0; input.padActive = false; knob.style.transform = ''; };
+  for (const [id, fn] of [['gearUp', shiftUp], ['gearDown', shiftDown]]) $(id).addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); });
+  $('autoBtn').addEventListener('click', () => { apSet(!AP.on, false); toast(AP.on ? T.autoOn : T.autoOff, 2.2); });
+  // the rev button on the start screen: starts the engine if it is off, then revs while held
+  bindHold('revBtn', () => { initAudio(); SFX.start(); titleRev.on = true; $('revBtn').classList.add('on'); }, () => { titleRev.on = false; $('revBtn').classList.remove('on'); });
   area.addEventListener('pointerup', end); area.addEventListener('pointercancel', end); area.addEventListener('lostpointercapture', end);
 
   window.addEventListener('keydown', e => {
@@ -3023,6 +3395,9 @@ function bindInput() {
     input.keys.add(c);
     if (state === 'ride') {
       if (c === 'KeyH') SFX.horn(true);
+      if (c === 'KeyE' || c === 'PageUp') shiftUp();
+      if (c === 'KeyQ' || c === 'PageDown') shiftDown();
+      if (c === 'KeyG') { apSet(!AP.on, false); toast(AP.on ? T.autoOn : T.autoOff, 2.2); }
       if (c === 'KeyX') toggleCruise();
       if (c === 'KeyC') nextCam();
       if (c === 'KeyT') nextTime();
@@ -3032,7 +3407,7 @@ function bindInput() {
     else if (state === 'title' && c === 'Enter') startRide();
   });
   window.addEventListener('keyup', e => { input.keys.delete(e.code); if (e.code === 'KeyH') SFX.horn(false); });
-  window.addEventListener('blur', () => { input.keys.clear(); input.throttle = 0; input.brake = 0; input.padSteer = 0; SFX.horn(false); });
+  window.addEventListener('blur', () => { input.keys.clear(); input.throttle = 0; input.brake = 0; input.padSteer = 0; input.padActive = false; titleRev.on = false; SFX.horn(false); });
 
   $('camBtn').addEventListener('click', nextCam);
   $('timeBtn').addEventListener('click', nextTime);
@@ -3054,10 +3429,29 @@ function toggleCruise() {
   cruiseUI();
 }
 function cruiseUI() { $('cruiseBtn').setAttribute('aria-pressed', bike.cruise > 0 ? 'true' : 'false'); }
-function nextCam() { settings.cam = (settings.cam + 1) % 4; cam.tv = null; save(); toast(T.cams[settings.cam]); }
+function nextCam() {
+  settings.cam = (settings.cam + 1) % 4; cam.tv = null; save(); toast(T.cams[settings.cam]);
+  // the broadcast view is for watching: steering assist comes on with it
+  if (settings.cam === 3 && !AP.on) { apSet(true, true); toast(`${T.cams[3]} · ${T.autoOn}`, 2.6); }
+  else if (settings.cam !== 3 && AP.on && AP.byCam) { apSet(false); toast(`${T.cams[settings.cam]} · ${T.autoOff}`, 2); }
+}
 function nextTime() { const i = TIMES.indexOf(settings.time); fadeTo(() => setTime(TIMES[(i + 1) % TIMES.length]), T.times[TIMES[(i + 1) % TIMES.length]]); }
 function fadeTo(fn, msg) { $('fade').classList.add('on'); setTimeout(() => { fn(); setTimeout(() => { $('fade').classList.remove('on'); if (msg && state === 'ride') toast(msg); }, 80); }, 460); }
-function soundUI() { $('soundBtn').setAttribute('aria-pressed', settings.sound ? 'false' : 'true'); $('soundWave').style.opacity = settings.sound ? 1 : 0.15; }
+function soundUI() {
+  $('soundBtn').setAttribute('aria-pressed', settings.sound ? 'false' : 'true'); $('soundWave').style.opacity = settings.sound ? 1 : 0.15;
+  const pct = Math.round(settings.volume * 100);
+  for (const k of ['', '2']) { const r = $('volRange' + k); if (r && document.activeElement !== r) r.value = String(pct); if (r) r.style.setProperty('--v', `${settings.sound ? pct : 0}%`); const o = $('volOut' + k); if (o) o.textContent = settings.sound ? `${pct}%` : T.mute; }
+}
+function bindVolume() {
+  for (const k of ['', '2']) {
+    const r = $('volRange' + k);
+    r.setAttribute('aria-label', T.volume);
+    r.addEventListener('pointerdown', () => initAudio());
+    r.addEventListener('input', () => { initAudio(); setVolume(Number(r.value) / 100); soundUI(); });
+    // with the engine off there is nothing to hear yet, so ring a bell at the new level
+    r.addEventListener('change', () => { if (!(AUDIO.E && AUDIO.E.running) && settings.sound) bell(880, 0.06); });
+  }
+}
 
 /* tilt steering (iPad held like handlebars) */
 const tilt = { on: false, b0: 0, beta: 0 };
@@ -3104,11 +3498,20 @@ function chipsUI() {
   const pr = $('paintRow'); pr.innerHTML = '';
   PAINTS.forEach((p, i) => chip(pr, T.paints[i], settings.paint === i, () => { setPaint(i); chipsUI(); }, 'swatch', p.css));
   const nm = document.createElement('span'); nm.className = 'paintname'; nm.textContent = T.paints[settings.paint]; pr.appendChild(nm);
-  $('paintCap').innerHTML = `<b>Chandler 1864</b>${TH ? 'ครูเซอร์ V-Twin 1,868 ซีซี · ' : 'V-Twin cruiser, 1,868 cc · '}${T.paints[settings.paint]}`;
+  const V = ENGINES[settings.engine];
+  $('paintCap').innerHTML = `<b>Chandler 1864</b>${TH ? V.capTh : V.capEn} · ${T.paints[settings.paint]}<br>${TH ? OUTFITS[settings.outfit].th : OUTFITS[settings.outfit].en}`;
+  const or = $('outfitRow'); or.innerHTML = '';
+  OUTFITS.forEach((o, i) => chip(or, TH ? o.th : o.en, settings.outfit === i, () => { setOutfit(i); chipsUI(); }));
+  for (const id of ['engineRow', 'engineRow2']) {
+    const er = $(id); er.innerHTML = '';
+    ENGINE_LIST.forEach(n => chip(er, TH ? ENGINES[n].th : ENGINES[n].en, settings.engine === n, () => { setEngine(n); chipsUI(); if (AUDIO.E && AUDIO.E.running && state === 'title') titleRev.blipT = 0.5; }));
+  }
+  for (const id of ['gearRow', 'gearRow2']) {
+    const gr = $(id); gr.innerHTML = '';
+    [['auto', T.gearAuto], ['manual', T.gearManual]].forEach(([n, l]) => chip(gr, l, settings.gearbox === n, () => { settings.gearbox = n; save(); gearUI(); chipsUI(); }));
+  }
   const tr = $('timeRow'); tr.innerHTML = '';
   TIMES.forEach(n => chip(tr, T.times[n], settings.time === n, () => { if (settings.time !== n) fadeTo(() => { setTime(n); chipsUI(); }); }));
-  const pp = $('pipeRow'); pp.innerHTML = '';
-  ['stock', 'loud'].forEach(n => chip(pp, T.pipes[n], settings.pipe === n, () => { setPipe(n); chipsUI(); if (AUDIO.E && AUDIO.E.running) blip(); }));
   for (const id of ['qualRow', 'qualRow2']) {
     const qr = $(id); qr.innerHTML = '';
     ['auto', 'high', 'medium', 'low'].forEach(n => chip(qr, T.quals[n], settings.quality === n, () => { setQuality(n); chipsUI(); }));
@@ -3117,7 +3520,6 @@ function chipsUI() {
   chip(sr, T.steerPad, settings.steer !== 'tilt', () => setSteerMode('pad'));
   chip(sr, T.steerTilt, settings.steer === 'tilt', () => setSteerMode('tilt'));
 }
-function blip() { const r0 = bike.rpm; let t = 0; const id = setInterval(() => { t += 0.03; bike.rpm = IDLE + Math.max(0, Math.sin(Math.min(1, t / 0.7) * Math.PI)) * 2600; AUDIO.E.thr = t < 0.3 ? 1 : 0; if (t > 0.9) { clearInterval(id); bike.rpm = r0; } }, 30); }
 function setQuality(n) {
   settings.quality = n; save();
   const lv = n === 'auto' ? 'medium' : n;
@@ -3126,16 +3528,22 @@ function setQuality(n) {
 function showTitle() {
   state = 'title';
   $('title').hidden = false; $('hud').hidden = true;
-  chipsUI();
+  chipsUI(); soundUI();
   $('helpText').innerHTML = T.help;
+  revUI();
+}
+function revUI() {
+  const running = !!(AUDIO.E && AUDIO.E.running), V = AUDIO.voice, r = running ? clamp(voiceRpm(bike.rpm) / V.red, 0, 1) : 0;
+  const b = $('revBtn'); b.style.setProperty('--r', r.toFixed(3)); b.style.setProperty('--c', r > 0.9 ? '#e0573f' : V.electric ? '#6ca6d1' : '#d6ad5f');
+  $('revRpm').textContent = running ? (V.electric ? `${Math.round(r * 100)}%` : `${Math.round(voiceRpm(bike.rpm) / 50) * 50} rpm`) : T.revHold;
 }
 function toTitle() { bike.v = 0; bike.cruise = 0; cruiseUI(); bike.lean = 0; bike.steer = 0; showTitle(); cam.init = false; }
 let titleIdleT = 0;
 function startRide() {
   if (state !== 'title') return;
   initAudio();
-  const fresh = !(AUDIO.E && AUDIO.E.running);
-  if (fresh) SFX.start();
+  const fresh = SFX.start() !== false || !!(AUDIO.E && AUDIO.E.starting);
+  titleRev.on = false; $('revBtn').classList.remove('on');
   try {
     const fs = APP.requestFullscreen || APP.webkitRequestFullscreen;
     if (fs && !(document.fullscreenElement || document.webkitFullscreenElement) && matchMedia('(pointer: coarse)').matches) { const r = fs.call(APP); if (r && r.catch) r.catch(() => {}); }
@@ -3146,7 +3554,8 @@ function startRide() {
   setTimeout(() => { bike.started = true; bike.rpm = 1700; }, fresh ? 950 : 50);
   cam.init = false;
   HUDS.road = ''; HUDS.dist = '';
-  visUI(); soundUI(); cruiseUI();
+  visUI(); soundUI(); cruiseUI(); gearUI();
+  if (settings.cam === 3 && !AP.on) apSet(true, true); else autoUI();
   $('steer').classList.toggle('tilt', settings.steer === 'tilt');
   if (settings.steer === 'tilt' && !tilt.on) setSteerMode('tilt');
   resize();
@@ -3159,7 +3568,7 @@ function pause(on) {
     const al = $('album'); al.innerHTML = '';
     for (const L of LANDMARKS) { const d = document.createElement('div'); d.textContent = TH ? L.th : L.en; if (settings.visited.includes(L.id)) d.className = 'got'; al.appendChild(d); }
     $('helpText2').innerHTML = T.help;
-    chipsUI(); save();
+    chipsUI(); soundUI(); save();
   } else if (!on && state === 'pause') { state = 'ride'; $('pause').hidden = true; }
 }
 
@@ -3182,9 +3591,16 @@ function frame(now) {
   if (state === 'loading') return;
   if (state === 'ride') { rideUpdate(dt); poseBike(dt, false); updateCamera(dt, settings.cam); hudTimers(dt); }
   else if (state === 'title') {
-    poseBike(dt, !(AUDIO.E && AUDIO.E.running));
+    const running = !!(AUDIO.E && AUDIO.E.running);
+    titleRev.blipT -= dt;
+    const revving = running && (titleRev.on || titleRev.blipT > 0);
+    titleRev.thr = damp(titleRev.thr, revving ? 1 : 0, revving ? 7 : 10, dt);
+    bike.rpm = damp(bike.rpm, revving ? REDLINE + 80 : IDLE, revving ? 1.7 : 2.4, dt);
+    bike.pitch = damp(bike.pitch, titleRev.thr * 0.006, 8, dt);
+    poseBike(dt, !running);
     updateCamera(dt, 'title');
-    if (AUDIO.ready) audioUpdate(dt, { ...audioState(0), rpm: bike.rpm = damp(bike.rpm, IDLE, 3, dt) });
+    if (AUDIO.ready) audioUpdate(dt, { ...audioState(titleRev.thr), rpm: bike.rpm });
+    if ((frameNo++ & 1) === 0) revUI();
   } else { poseBike(dt, false); updateCamera(dt, settings.cam); if (AUDIO.ready) audioUpdate(dt, { ...audioState(0), speed: 0, rpm: (bike.rpm = damp(bike.rpm, IDLE, 3, dt)) }); }
   if (state !== 'pause') updateTraffic(dt, bike);
   updateWorldAnim(dt, time);
@@ -3220,7 +3636,7 @@ async function boot() {
   applyQuality();
   setTime(settings.time);
   poseBike(0, true);
-  bindInput();
+  bindInput(); bindVolume(); soundUI(); gearUI(); autoUI();
   cam.init = false; updateCamera(0.016, 'title');
   try { renderer.compile(scene, camera); } catch (e) { /* compile lazily */ }
   await progress(6);
@@ -3231,7 +3647,7 @@ async function boot() {
 }
 requestAnimationFrame(frame);
 boot().catch(err => { console.error(err); $('loadText').textContent = T.loadFail + ' (' + (err && err.message || err) + ')'; });
-if (/[?&]debug\b/.test(location.search)) window.__cruiser = { rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, PIPES, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
+if (/[?&]debug\b/.test(location.search)) window.__cruiser = { updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
 
 </script>
 <script>
