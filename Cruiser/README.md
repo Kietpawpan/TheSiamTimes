@@ -35,13 +35,13 @@ The *Automatic* gearbox shifts like a relaxed rider: early and at low revs when 
 
 **On the start screen** choose the paint (gloss black, candy red, midnight blue, Siam gold, pearl white), the rider's outfit, the engine sound, the volume (a slider, also in the pause menu; all the way left mutes), the gearbox (automatic or manual), the time of day and the graphics level, then **Start the engine** (ติดเครื่อง). The round **Rev it** (บิดเร่ง) button at the bottom right starts the engine if it is off and revs it for as long as you hold it, up to the rev limiter, with its rev counter round the edge; choosing another engine while it runs gives it a blip.
 
-**Outfits:** black leather with a full-face helmet; vintage brown leather with an open-face helmet and goggles; a denim jacket with a matt half helmet and sunglasses; the orange vest of a Bangkok motorbike taxi, numbered on the back; and a flower-print shirt with goggles. The rider sits on the bike on the start screen so you can see the outfit.
+**Outfits:** black leather with a black helmet; vintage brown leather with a cream helmet; a denim jacket with a matt black helmet; the orange vest of a Bangkok motorbike taxi, numbered on the back, with a white helmet; and a flower-print shirt with a red helmet. Every helmet is a full-face one with a dark visor, so the rider's face is never seen; the women on scooters ride in full-face helmets with dark visors too. The rider sits on the bike on the start screen so you can see the outfit.
 
 **The rider** is a person of ordinary build rather than a dummy:
 
 - a chest wider than the waist, shoulders that blend into it, and arms and legs that thin towards the wrists and ankles;
 - elbows and knees placed by two-bone reach, so the hands close round the grips (four fingers over the top and under, the thumb beneath) and the boots, with soles and heels, stand on the forward pegs;
-- a face with eyes, lids, brows, a nose, lips, cheekbones, a jaw and ears. It shows under the open-face and half helmets, and through the smoked visor of the full-face one, which has an opening for the eyes and a chin bar;
+- a full-face helmet with a dark visor, its pivots and a chin vent;
 - a belt and buckle, a jacket collar and zip.
 
 **Engines** (the sound and the rev counter; the bike rides the same): V-twin with stock or loud pipes, a big-inch V-twin with straight pipes and a hot cam (a lumpy idle with the odd soft firing, a raw bark, crackle off the throttle), a big single, a 270° parallel twin, an inline four that revs to 12,500, a big-block V8, and an electric motor.
@@ -68,8 +68,6 @@ The story game *Chandler's Promise* (`../Promise/`) ends with this game. It keep
 - when the watch is brought home to The Siam Times, about three seconds after the mission card opens, posts `{ tst: 'story', game: 'cruiser', won: true, score, reds, worked, tips, text }` to the page around it (`storyDone` in `07-mission.js`). The story gives a gold frame to a ride with no red lights.
 
 Opened any other way, nothing of this happens. The copy in `Promise/games/Cruiser/` is the same build, with its *The Siam Times* link pointing two folders up.
-
-**SIAM S MADE.** Every VERDANT dial, on the 1864 and on the Mariner 300, says where it was made the way a Swiss watch does: *SIAM S MADE* curves round the bottom edge under 6 o'clock, with the paper's S in Chomsky in the middle (`madeIn` in `07-mission.js`).
 
 ## Navigation
 

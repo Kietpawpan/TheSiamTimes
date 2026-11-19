@@ -1768,21 +1768,6 @@ function smoothPath(c, pts, closed) { // a smooth curve through the points (Catm
   }
   if (closed) c.closePath();
 }
-/* "SIAM S MADE" round the bottom edge of the dial under 6 o'clock, as a Swiss watch says where it was made;
-   the S in the middle is the paper's, in Chomsky. Read left to right, the tops of the letters towards the centre. */
-function madeIn(c, cx, cy, r, size, ink) {
-  const roman = t => [t, `600 ${size}px Georgia, "Times New Roman", serif`];
-  const parts = [...[...'SIAM'].map(roman), [' ', `${size}px Georgia, serif`], ['S', `${size * 1.6}px Chomsky, serif`], [' ', `${size}px Georgia, serif`], ...[...'MADE'].map(roman)];
-  const track = size * 0.16, ws = parts.map(([t, f]) => { c.font = f; return c.measureText(t).width + track; });
-  let s = -ws.reduce((a, b) => a + b, 0) / 2;
-  c.save(); c.fillStyle = ink; c.textAlign = 'center'; c.textBaseline = 'middle';
-  parts.forEach(([t, f], i) => {
-    const phi = Math.PI - (s + ws[i] / 2) / r;
-    c.save(); c.translate(cx + Math.sin(phi) * r, cy - Math.cos(phi) * r); c.rotate(phi - Math.PI); c.font = f; c.fillText(t, 0, t === 'S' && f.includes('Chomsky') ? size * 0.12 : 0); c.restore();
-    s += ws[i];
-  });
-  c.restore();
-}
 function sceneWrist(c, t) {
   box(c, 0, 0, 1600, 900, lin(c, 0, 0, 1600, 900, [[0, '#0e3c2a'], [1, '#05130d']]));
   for (let k = 0; k < 16; k++) { const x = (k * 263) % 1600, y = (k * 151) % 900, r = 40 + (k * 37) % 70; glow(c, x + Math.sin(t * 0.3 + k) * 20, y, r, `rgba(255,214,150,${0.12 + 0.06 * Math.sin(t + k)})`); }
@@ -1849,34 +1834,28 @@ function sceneWrist(c, t) {
   c.beginPath(); c.arc(0, 0, R, 0, Math.PI * 2); c.fillStyle = gold; c.fill(); c.restore();
   c.strokeStyle = 'rgba(255,244,210,.7)'; c.lineWidth = 2; c.beginPath(); c.arc(0, 0, R * 0.95, Math.PI * 0.95, Math.PI * 1.7); c.stroke();
   c.fillStyle = 'rgba(80,52,10,.35)'; c.beginPath(); c.arc(0, 0, R * 0.9, 0, Math.PI * 2); c.fill();
-  // the dial: ivory, a minute track, gold batons, the name, and SIAM S MADE under 6
-  const dial = c.createRadialGradient(-R * 0.25, -R * 0.3, R * 0.1, 0, 0, R * 0.9);
-  dial.addColorStop(0, '#fffbf2'); dial.addColorStop(1, '#e9ddc4');
-  c.fillStyle = dial; c.beginPath(); c.arc(0, 0, R * 0.88, 0, Math.PI * 2); c.fill();
-  c.strokeStyle = 'rgba(58,42,18,.55)'; c.lineWidth = 1;
-  for (let k = 0; k < 60; k++) { if (k % 5 === 0) continue; const a = k / 60 * Math.PI * 2; c.beginPath(); c.moveTo(Math.sin(a) * R * 0.705, -Math.cos(a) * R * 0.705); c.lineTo(Math.sin(a) * R * 0.74, -Math.cos(a) * R * 0.74); c.stroke(); }
-  for (let k = 0; k < 12; k++) {
-    const a = k / 12 * Math.PI * 2;
-    c.save(); c.rotate(a);
-    for (const dx of k === 0 ? [-R * 0.035, R * 0.035] : [0]) { c.fillStyle = '#7a5418'; c.fillRect(dx - R * 0.024, -R * 0.745, R * 0.048, R * 0.19); c.fillStyle = '#d9a947'; c.fillRect(dx - R * 0.016, -R * 0.74, R * 0.032, R * 0.18); }
-    c.restore();
+  // the dial, as it always was: ivory, a gold minute track, the name, and plain gold hands
+  const lw = R / 150, dial = c.createRadialGradient(-R * 0.2, -R * 0.25, R * 0.1, 0, 0, R * 0.88);
+  dial.addColorStop(0, '#fffaf0'); dial.addColorStop(1, '#e8dcc2'); c.fillStyle = dial;
+  c.beginPath(); c.arc(0, 0, R * 0.86, 0, Math.PI * 2); c.fill();
+  for (let k = 0; k < 60; k++) {
+    const a = k / 60 * Math.PI * 2, big = k % 5 === 0, r0 = R * (big ? 0.64 : 0.74), r1 = R * 0.79;
+    c.strokeStyle = big ? '#b8862e' : 'rgba(58,42,18,.55)'; c.lineWidth = (big ? (k % 15 ? 5 : 8) : 1.5) * lw;
+    c.beginPath(); c.moveTo(Math.sin(a) * r0, -Math.cos(a) * r0); c.lineTo(Math.sin(a) * r1, -Math.cos(a) * r1); c.stroke();
   }
   c.fillStyle = '#3a2a12'; c.textAlign = 'center'; c.textBaseline = 'middle';
   c.font = `600 ${R * 0.13}px Georgia, serif`; c.fillText('VERDANT', 0, -R * 0.36);
-  c.font = `${R * 0.075}px Georgia, serif`; c.fillText('DRESS', 0, -R * 0.24);
-  c.font = `italic 600 ${R * 0.16}px Georgia, serif`; c.fillText('1864', 0, R * 0.33);
-  madeIn(c, 0, 0, R * 0.8, R * 0.098, '#3a2a12');
-  // the hands, at golden hour, the seconds hand sweeping
-  const secs = 17 * 3600 + 52 * 60 + 12 + t;
-  const dauph = (a, len, w) => { c.save(); c.rotate(a); c.beginPath(); c.moveTo(0, -len); c.lineTo(w, -len * 0.18); c.lineTo(0, len * 0.1); c.lineTo(-w, -len * 0.18); c.closePath(); c.fillStyle = lin(c, -w, 0, w, 0, [[0, '#f6d98e'], [0.5, '#f6d98e'], [0.5, '#a8781f'], [1, '#a8781f']]); c.fill(); c.restore(); };
-  dauph((secs / 43200) * Math.PI * 2, R * 0.48, R * 0.05);
-  dauph((secs / 3600) * Math.PI * 2, R * 0.7, R * 0.042);
-  c.save(); c.rotate((secs / 60) * Math.PI * 2); c.strokeStyle = '#8a2a2a'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(0, R * 0.18); c.lineTo(0, -R * 0.76); c.stroke(); c.restore();
-  circ(c, 0, 0, R * 0.05, '#b8862e'); circ(c, 0, 0, R * 0.018, '#8a2a2a');
+  c.font = `${R * 0.09}px Georgia, serif`; c.fillText('DRESS', 0, -R * 0.22);
+  c.font = `italic 600 ${R * 0.17}px Georgia, serif`; c.fillText('1864', 0, R * 0.38);
+  // the hands, at golden hour, with a sweeping seconds hand
+  const secs = 17 * 3600 + 52 * 60 + 12 + t, hand = (a, len, w, col) => { c.strokeStyle = col; c.lineWidth = w * lw; c.lineCap = 'round'; c.beginPath(); c.moveTo(-Math.sin(a) * len * 0.18, Math.cos(a) * len * 0.18); c.lineTo(Math.sin(a) * len, -Math.cos(a) * len); c.stroke(); };
+  hand((secs / 43200) * Math.PI * 2, R * 0.46, 8, '#b8862e');
+  hand((secs / 3600) * Math.PI * 2, R * 0.68, 6, '#b8862e');
+  hand((secs / 60) * Math.PI * 2, R * 0.74, 2, '#7a2f35');
+  circ(c, 0, 0, 9 * lw, '#b8862e');
   // the glass catches the light
   c.save(); c.globalCompositeOperation = 'lighter';
-  c.fillStyle = 'rgba(255,255,255,.12)'; c.beginPath(); c.ellipse(-R * 0.32, -R * 0.4, R * 0.42, R * 0.15, -0.65, 0, Math.PI * 2); c.fill();
-  c.strokeStyle = 'rgba(255,255,255,.18)'; c.lineWidth = 3; c.beginPath(); c.arc(0, 0, R * 0.84, Math.PI * 1.05, Math.PI * 1.45); c.stroke();
+  c.fillStyle = 'rgba(255,255,255,.14)'; c.beginPath(); c.ellipse(-R * 0.3, -R * 0.42, R * 0.5, R * 0.18, -0.6, 0, Math.PI * 2); c.fill();
   c.restore();
   c.restore();
   glow(c, 520 + Math.sin(t * 0.7) * 30, 380, 70, 'rgba(255,240,200,.3)');
