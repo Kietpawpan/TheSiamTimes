@@ -22,10 +22,11 @@ Open the page in Safari, turn the iPad sideways and turn the sound up (on an iPa
 - **Cruise** (ครูซ) holds the speed you are doing, from 20 km/h; the throttle adds to it, the brake cancels it. Useful for sightseeing with one thumb.
 - **Auto** (ออโต้, top right): steering assist. The bike steers itself along the left lane, turns at the crossings towards the nearest postcard you do not have yet (it says where it is heading), slows for bends, waits behind slow traffic or overtakes it in the other lane, and waits at a crossing for traffic crossing in front. You only work the throttle (and the gears, on Manual). It works on the city streets; on the bridge, in the tunnel, on Arun Amarin Road and on the car park it lets you steer, and says so. It comes on by itself in the *Broadcast* camera and goes off when you leave it. Touching the handlebar pad takes over for as long as your thumb is on it.
 - **Horn** (แตร), for as long as you hold it.
+- **Lights** (ไฟหน้า, top right): the headlight on full beam, day or night (it comes on dim by itself at dusk and night).
 - **Top right:** camera, time of day, sound on/off, pause.
 - **Tilt the iPad** (in the pause menu) steers by turning the iPad like handlebars. Safari asks for permission to use the motion sensor; tap the handlebar pad to re-centre it.
 - **Horn twice** near another rider: she waves back (and, in the mission, gives you a tip).
-- Keyboard: arrows or WASD, Space brake, E / Q shift up / down (E is also D, Q neutral when stopped), G steering assist, H horn, X cruise, C camera, T time of day, M sound, P or Esc pause, Enter starts from the title.
+- Keyboard: arrows or WASD, Space brake, E / Q shift up / down (E is also D, Q neutral when stopped), G steering assist, H horn, L headlight, X cruise, C camera, T time of day, M sound, P or Esc pause, Enter starts from the title.
 
 The *Automatic* gearbox shifts like a relaxed rider: early and at low revs when you ride gently, late when you hold the throttle wide open. Bumping a kerb or a car slows you down and shakes the camera; nothing breaks and you never fall off. Vehicles that you hold up will sound their horns.
 

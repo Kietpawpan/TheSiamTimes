@@ -361,6 +361,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
     <div class="tr">
       <button class="ib" id="autoBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M3.6 10.5h6.2M14.2 10.5h6.2M12 14.2v6.2"/></svg><span data-i18n="auto"></span></button>
       <button class="ib" id="navBtn" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-6.5-6.4-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.6 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.3"/></svg><span data-i18n="navBtn"></span></button>
+      <button class="ib" id="lightBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13.5 6.5c3.8 0 6.5 2.4 6.5 5.5s-2.7 5.5-6.5 5.5H12v-11z"/><path d="M9 8.5H3.5M9 12H3M9 15.5H3.5"/></svg><span data-i18n="lights"></span></button>
       <button class="ib" id="camBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg><span data-i18n="cam"></span></button>
       <button class="ib" id="timeBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span data-i18n="timeBtn"></span></button>
       <button class="ib" id="soundBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="soundWave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span data-i18n="sound"></span></button>
@@ -473,7 +474,7 @@ const STR = {
     quals: { auto: 'อัตโนมัติ', high: 'สูง', medium: 'กลาง', low: 'ประหยัด' },
     help: '<b>ซ้าย</b> แตะค้างแล้วลากซ้าย–ขวาเพื่อเลี้ยว · จอดนิ่งแล้วรถเข้าเกียร์ว่าง (N) บิดเร่งเบิ้ลได้ กดปุ่ม <b>D</b> เหนือแฮนด์เพื่อออกตัว (เกียร์ธรรมดา: ▲ ▼) · <b>ขวา</b> เร่ง / เบรก (หยุดแล้วกดเบรกค้างเพื่อถอย) · <b>ครูซ</b> คงความเร็ว · <b>ออโต้</b> เลี้ยวให้เอง เปิดเองในมุมถ่ายทอด · เปิดเสียง iPad ด้วย<br>คีย์บอร์ด: ↑↓←→ หรือ WASD · Space เบรก · E / Q เกียร์ขึ้น / ลง (E = D) · G ออโต้ · H แตร · X ครูซ · C มุมกล้อง · T เวลา · P พัก',
     cam: 'กล้อง', timeBtn: 'เวลา', sound: 'เสียง', pause: 'พัก',
-    steer: 'แฮนด์', horn: 'แตร', cruise: 'ครูซ', brake: 'เบรก', throttle: 'เร่ง',
+    steer: 'แฮนด์', horn: 'แตร', lights: 'ไฟหน้า', cruise: 'ครูซ', brake: 'เบรก', throttle: 'เร่ง',
     postcard: 'โปสการ์ดจากกรุงเทพฯ', paused: 'พักริมทาง', odo: 'กิโลเมตรที่ขี่', topSpeed: 'ความเร็วสูงสุด กม./ชม.', postcards: 'โปสการ์ด',
     steerMode: 'การเลี้ยว', steerPad: 'ลากนิ้ว', steerTilt: 'เอียงเครื่อง',
     resume: 'ขี่ต่อ', toTitle: 'กลับหน้าแรก (สี/เวลา)',
@@ -502,7 +503,7 @@ const STR = {
     quals: { auto: 'Auto', high: 'High', medium: 'Medium', low: 'Saver' },
     help: '<b>Left</b>: hold and slide left or right to steer · Stopped, the bike drops into neutral (N) and you can rev it; tap <b>D</b> above the bars to pull away (manual gearbox: ▲ ▼) · <b>Right</b>: throttle and brake (stopped, hold the brake to back up) · <b>Cruise</b> holds your speed · <b>Auto</b> steers for you, and comes on by itself in the broadcast camera · Turn the iPad’s sound on<br>Keyboard: arrows or WASD · Space brake · E / Q shift up / down (E = D) · G auto steering · H horn · X cruise · C camera · T time · P pause',
     cam: 'Camera', timeBtn: 'Time', sound: 'Sound', pause: 'Pause',
-    steer: 'Bars', horn: 'Horn', cruise: 'Cruise', brake: 'Brake', throttle: 'Throttle',
+    steer: 'Bars', horn: 'Horn', lights: 'Lights', cruise: 'Cruise', brake: 'Brake', throttle: 'Throttle',
     postcard: 'Postcard from Bangkok', paused: 'Pulled over', odo: 'km ridden', topSpeed: 'top speed km/h', postcards: 'postcards',
     steerMode: 'Steering', steerPad: 'Slide', steerTilt: 'Tilt the iPad',
     resume: 'Ride on', toTitle: 'Back to the start (paint, time)',
@@ -3454,20 +3455,25 @@ const nodeAt = (i, j) => WORLD.trafficLights[i * NZ + j];
    a red turns green within about three seconds (the other road gets its amber first), and a green
    holds, up to 12 s longer, while they ride through. */
 const CALL_DIST = 55;
-function riderSignals(dt, p) {
-  if (!p) return;
+// the crossing ahead of the rider along the road they are on (footpath included), its axis, and how far to its near edge
+function nodeAhead(p) {
   const fx = -Math.sin(p.yaw), fz = -Math.cos(p.yaw);
   let node = null, axis, d = 1e9;
   if (Math.abs(fx) > 0.75) {          // riding along x, on a road at some RZ[j]
-    const j = RZ.findIndex((z, k) => Math.abs(p.z - z) < WZ[k] / 2 + WALK + 0.5); if (j < 0) return;
+    const j = RZ.findIndex((z, k) => Math.abs(p.z - z) < WZ[k] / 2 + WALK + 0.5); if (j < 0) return null;
     for (let i = 0; i < NX; i++) { const dd = (RX[i] - p.x) * Math.sign(fx) - WX[i] / 2; if (dd > -2 && dd < d) { d = dd; node = nodeAt(i, j); } }
     axis = 'x';
   } else if (Math.abs(fz) > 0.75) {   // riding along z, on a road at some RX[i]
-    const i = RX.findIndex((x, k) => Math.abs(p.x - x) < WX[k] / 2 + WALK + 0.5); if (i < 0) return;
+    const i = RX.findIndex((x, k) => Math.abs(p.x - x) < WX[k] / 2 + WALK + 0.5); if (i < 0) return null;
     for (let j = 0; j < NZ; j++) { const dd = (RZ[j] - p.z) * Math.sign(fz) - WZ[j] / 2; if (dd > -2 && dd < d) { d = dd; node = nodeAt(i, j); } }
     axis = 'z';
-  } else return;
-  if (!node || d > CALL_DIST || !node.heads.some(h => h.axis === axis)) return;
+  } else return null;
+  return node && node.heads.some(h => h.axis === axis) ? { node, axis, d } : null;
+}
+function riderSignals(dt, p) {
+  if (!p) return;
+  const a = nodeAhead(p); if (!a || a.d > CALL_DIST) return;
+  const { node, axis } = a;
   const t = ((TRAFFIC.time + node.offset) % LIGHT_CYCLE + LIGHT_CYCLE) % LIGHT_CYCLE, st = lightState(node, axis, TRAFFIC.time);
   if (st === 'r') {
     node.hold = 0;
@@ -3478,6 +3484,18 @@ function riderSignals(dt, p) {
     const left = (axis === 'x' ? 11 : 24) - t;
     if (left < 2.5 && (node.hold || 0) < 12) { node.offset -= dt; node.hold = (node.hold || 0) + dt; }
   }
+}
+/* A trick the game does not tell: three toots of the horn in quick succession and the light
+   ahead turns green there and then (with a full green ahead of it). */
+const HONKS = [];
+function secretHonk(p) {
+  const now = performance.now() / 1000; HONKS.push(now); while (HONKS.length && now - HONKS[0] > 2.2) HONKS.shift();
+  if (HONKS.length < 3) return false;
+  HONKS.length = 0;
+  const a = p && nodeAhead(p); if (!a || a.d > 90) return false;
+  const t = ((TRAFFIC.time + a.node.offset) % LIGHT_CYCLE + LIGHT_CYCLE) % LIGHT_CYCLE;
+  a.node.offset += (a.axis === 'x' ? 0.3 : 13.3) - t; a.node.hold = 0; lastLightSig = '';
+  return true;
 }
 const inGrid = (i, j) => i >= 0 && i < NX && j >= 0 && j < NZ;
 
@@ -3740,7 +3758,20 @@ function updateTraffic(dt, player) {
       car.s = over;
     }
     legPos(car.leg, car.s, car.pos);
-    if (car.pull) { const o = car.pull * (car.lane === 0 ? 2.4 : 0.9); car.pos.x += car.pos.hz * o; car.pos.z -= car.pos.hx * o; }
+    // (a trick the game does not tell) with the rider's headlight switched on, a car in the rider's lane moves over to the other one at once
+    if (!car.special) {
+      let want = 0;
+      if (player && player.beam) {
+        const dx = player.x - car.pos.x, dz = player.z - car.pos.z, along = dx * car.pos.hx + dz * car.pos.hz, left = dx * car.pos.hz - dz * car.pos.hx;
+        if (Math.abs(along) < 45 && Math.abs(left) < 1.8) {
+          if (car.leg.kind === 'line') { const L = laneOff(DIRS[car.d][0] !== 0 ? WZ[car.j] : WX[car.i]); want = (car.lane === 0 ? 1 : -1) * (L[1] - L[0]); }
+          else want = car.dodge || 0;
+        }
+      }
+      const dd = want - (car.dodge || 0), stp = 8 * dt; car.dodge = (car.dodge || 0) + (Math.abs(dd) < stp ? dd : Math.sign(dd) * stp);
+    }
+    const off = (car.pull ? car.pull * (car.lane === 0 ? 2.4 : 0.9) : 0) + (car.dodge || 0);
+    if (off) { car.pos.x += car.pos.hz * off; car.pos.z -= car.pos.hx * off; }
   }
   emergencyPost(dt, player);
   // write instance matrices
@@ -5541,6 +5572,9 @@ function gearUI() { const m = settings.gearbox === 'manual'; $('gearUp').hidden 
 /* ---------- steering assist: follows the left lane, turns at crossings, heads for the nearest postcard ---------- */
 const AP = { on: false, byCam: false, d: 0, ni: 0, nj: 0, next: 0, path: null, target: '', inner: false, innerT: 0, stuckT: 0 };
 function apSet(on, byCam) { AP.on = on; AP.byCam = on && !!byCam; AP.path = null; AP.target = ''; AP.inner = false; autoUI(); }
+// the headlight switch (full beam, day or night)
+function toggleBeam() { SFX.click(); bike.beam = !bike.beam; beamUI(); }
+function beamUI() { const b = $('lightBtn'); if (b) b.setAttribute('aria-pressed', bike.beam ? 'true' : 'false'); }
 function autoUI() {
   $('autoBtn').setAttribute('aria-pressed', AP.on ? 'true' : 'false');
   $('steer').classList.toggle('auto', AP.on);
@@ -5936,11 +5970,11 @@ function poseBike(dt, parked) {
   if (BIKE.watch) BIKE.watch.visible = !!settings.watch;
   BIKE.rider.visible = state === 'title' || settings.cam !== 2;
   const on = !!(AUDIO.E && AUDIO.E.running) || bike.started;   // lights come on with the ignition
-  BIKE.spot.intensity = on ? look.head * 1.7 : 0;
+  BIKE.spot.intensity = on ? (bike.beam ? Math.max(look.head, 45) * 2.1 : look.head * 1.7) : 0;   // the headlight switched on: bright by day too
   BIKE.fill.intensity = (look.night ? 7 : look.lamps > 0.5 ? 5 : look.head > 0 ? 2.5 : 0) * (parked ? 1.6 : 1);
-  BM.glow.opacity = !on ? 0 : look.lamps > 0.5 ? 0.8 : look.head > 0 ? 0.22 : 0.08;
+  BM.glow.opacity = !on ? 0 : bike.beam ? 0.95 : look.lamps > 0.5 ? 0.8 : look.head > 0 ? 0.22 : 0.08;
   BM.tail.emissiveIntensity = !on ? 0.05 : bike.brake > 0.1 ? 4 : look.lamps > 0.3 ? 1.5 : 0.7;
-  BM.lens.color.setScalar(!on ? 0.22 : look.lamps > 0.3 ? 2.2 : 1.3);
+  BM.lens.color.setScalar(!on ? 0.22 : bike.beam ? 2.8 : look.lamps > 0.3 ? 2.2 : 1.3);
   BM.plate.emissiveIntensity = !on ? 0 : look.lamps > 0.3 ? 0.6 : 0.1;
 }
 
@@ -6150,7 +6184,7 @@ function bindInput() {
   bindHold('brakeBtn', () => { input.brake = 1; }, () => { input.brake = 0; });
   $('navBtn').addEventListener('click', () => { SFX.click(); settings.nav = !navOn(); save(); navUI(); toast(navOn() ? NX_.on : NX_.off); });
   $('actBtn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (MS.here) openPlace(MS.here); });
-  bindHold('hornBtn', () => { SFX.horn(true); $('hornBtn').classList.add('on'); missionHonk(); }, () => { SFX.horn(false); $('hornBtn').classList.remove('on'); });
+  bindHold('hornBtn', () => { SFX.horn(true); $('hornBtn').classList.add('on'); missionHonk(); secretHonk(bike); }, () => { SFX.horn(false); $('hornBtn').classList.remove('on'); });
   $('cruiseBtn').addEventListener('pointerdown', e => { e.preventDefault(); toggleCruise(); });
   // handlebar pad: touch anywhere in the lower left, slide sideways
   const area = $('steer'), knob = $('knob'), pad = area.querySelector('.pad');
@@ -6180,7 +6214,8 @@ function bindInput() {
     if (input.keys.has(c)) return;
     input.keys.add(c);
     if (state === 'ride') {
-      if (c === 'KeyH') { SFX.horn(true); missionHonk(); }
+      if (c === 'KeyH') { SFX.horn(true); missionHonk(); secretHonk(bike); }
+      if (c === 'KeyL') toggleBeam();
       if (c === 'KeyE' || c === 'PageUp') shiftUp();
       if (c === 'KeyQ' || c === 'PageDown') shiftDown();
       if (c === 'KeyG') { apSet(!AP.on, false); toast(AP.on ? T.autoOn : T.autoOff, 2.2); }
@@ -6196,6 +6231,7 @@ function bindInput() {
   window.addEventListener('blur', () => { input.keys.clear(); input.throttle = 0; input.brake = 0; input.padSteer = 0; input.padActive = false; titleRev.on = false; SFX.horn(false); });
 
   $('camBtn').addEventListener('click', nextCam);
+  $('lightBtn').addEventListener('click', toggleBeam);
   $('timeBtn').addEventListener('click', nextTime);
   $('soundBtn').addEventListener('click', () => { setSound(!settings.sound); soundUI(); });
   $('pauseBtn').addEventListener('click', () => pause(true));
