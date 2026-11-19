@@ -3254,13 +3254,13 @@ function buildBike() {
    ankles, joints placed by two-bone reach so the hands close round the grips and the boots stand on the
    forward pegs, and a face (eyes, brows, nose, lips, ears) under an open or half helmet, or seen
    through the smoked visor of a full-face one. */
-const SKIN = 0xc68a5e, HAIR = 0x18120e;
+const SKIN = 0xc68a5e;
 const OUTFITS = [
-  { th: 'หนังดำคลาสสิก', en: 'Black leather', top: { c: 0x2a2522, r: 0.38, m: 0.08 }, pants: 0x2c3c58, boots: 0x1d140e, gloves: 0x18181a, helmet: 'full', hc: 0x141518 },
-  { th: 'วินเทจหนังน้ำตาล', en: 'Vintage brown leather', top: { c: 0x70452a, r: 0.5, m: 0.05 }, pants: 0x3b3a32, boots: 0x3a2414, gloves: 0x5a3a22, helmet: 'open', hc: 0xe9e0c8, goggles: true },
-  { th: 'แจ็กเก็ตยีนส์', en: 'Denim jacket', top: { c: 0x3f5f8e, r: 0.9, m: 0 }, pants: 0x1c1d22, boots: 0x111111, gloves: 0x1a1a1a, helmet: 'half', hc: 0x121315, matte: true, shades: true },
-  { th: 'เสื้อวินมอเตอร์ไซค์', en: 'Motorbike-taxi vest', top: { c: 0x3b5ea8, r: 0.85, m: 0 }, vest: 0xff6a12, pants: 0x25282e, boots: 0x161616, gloves: null, helmet: 'half', hc: 0xf0f0ec },
-  { th: 'เสื้อลายดอก', en: 'Flower shirt', top: { floral: true, r: 0.85, m: 0 }, short: true, pants: 0xc8b48c, boots: 0x6b4a2e, gloves: null, helmet: 'open', hc: 0xb8322a, goggles: true },
+  { th: 'หนังดำคลาสสิก', en: 'Black leather', top: { c: 0x2a2522, r: 0.38, m: 0.08 }, pants: 0x2c3c58, boots: 0x1d140e, gloves: 0x18181a, hc: 0x141518 },
+  { th: 'วินเทจหนังน้ำตาล', en: 'Vintage brown leather', top: { c: 0x70452a, r: 0.5, m: 0.05 }, pants: 0x3b3a32, boots: 0x3a2414, gloves: 0x5a3a22, hc: 0xe9e0c8 },
+  { th: 'แจ็กเก็ตยีนส์', en: 'Denim jacket', top: { c: 0x3f5f8e, r: 0.9, m: 0 }, pants: 0x1c1d22, boots: 0x111111, gloves: 0x1a1a1a, hc: 0x121315, matte: true },
+  { th: 'เสื้อวินมอเตอร์ไซค์', en: 'Motorbike-taxi vest', top: { c: 0x3b5ea8, r: 0.85, m: 0 }, vest: 0xff6a12, pants: 0x25282e, boots: 0x161616, gloves: null, hc: 0xf0f0ec },
+  { th: 'เสื้อลายดอก', en: 'Flower shirt', top: { floral: true, r: 0.85, m: 0 }, short: true, pants: 0xc8b48c, boots: 0x6b4a2e, gloves: null, hc: 0xb8322a },
 ];
 let floralTex = null, vestTex = null;
 function makeFloral() {
@@ -3290,13 +3290,12 @@ function buildRider() {
   const std = (c, r = 0.8, m = 0) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
   const RM = {
     top: o.top.floral ? new THREE.MeshStandardMaterial({ map: floralTex, roughness: o.top.r }) : std(o.top.c, o.top.r, o.top.m),
-    pants: std(o.pants, 0.88), boots: std(o.boots, 0.5), gloves: std(o.gloves ?? SKIN, o.gloves ? 0.5 : 0.65), skin: std(SKIN, 0.62), hair: std(HAIR, 0.85),
+    pants: std(o.pants, 0.88), boots: std(o.boots, 0.5), gloves: std(o.gloves ?? SKIN, o.gloves ? 0.5 : 0.65), skin: std(SKIN, 0.62), trim: std(0x24262a, 0.55),
     vest: std(o.vest || 0xffffff, 0.7), sole: std(0x121212, 0.9), belt: std(0x2a1a10, 0.5),
-    eyeW: std(0xf2eee6, 0.3), iris: std(0x22140c, 0.2), lips: std(0x9c5c46, 0.55),
-    helmet: new THREE.MeshPhysicalMaterial({ color: o.hc, metalness: o.matte ? 0 : 0.3, roughness: o.matte ? 0.75 : 0.3, clearcoat: o.matte ? 0 : 1, clearcoatRoughness: 0.08, side: THREE.DoubleSide }),
-    // a smoked visor you can see the eyes through
-    visor: new THREE.MeshPhysicalMaterial({ color: 0x0c1218, metalness: 0.25, roughness: 0.04, transparent: true, opacity: 0.5, depthWrite: false }),
-    chrome: BM.chrome, glass: new THREE.MeshStandardMaterial({ color: 0x18242c, metalness: 0.9, roughness: 0.06 }),
+    helmet: new THREE.MeshPhysicalMaterial({ color: o.hc, metalness: o.matte ? 0 : 0.3, roughness: o.matte ? 0.75 : 0.3, clearcoat: o.matte ? 0 : 1, clearcoatRoughness: 0.08 }),
+    // a dark visor: nobody sees the rider's face
+    visor: new THREE.MeshPhysicalMaterial({ color: 0x050608, metalness: 0.45, roughness: 0.06, clearcoat: 1, clearcoatRoughness: 0.03 }),
+    chrome: BM.chrome,
   };
   const rider = new THREE.Group(), rb = new Bin();
   const V = (x, y, z) => new THREE.Vector3(x, y, z), UP = V(0, 1, 0), Q0 = new THREE.Quaternion(), S1 = V(1, 1, 1);
@@ -3341,48 +3340,14 @@ function buildRider() {
   for (const s of [-1, 1]) ell('top', V(s * 0.19, 1.37, 0.112), [0.078, 0.058, 0.07]);   // shoulders, blending into the chest
   lathe('skin', V(0, 1.43, 0.102), V(0, 1.54, 0.078), [[0.02, 0.05], [0.5, 0.046], [0.98, 0.048]]);
 
-  /* ---- head and face (forward is −z) ---- */
-  ell('skin', V(0, 1.578, 0.055), [0.082, 0.108, 0.097], Q0, SPH2);                    // skull
-  ell('skin', V(0, 1.52, 0.022), [0.06, 0.046, 0.058], Q0, SPH2);                      // jaw
-  ell('skin', V(0, 1.534, -0.016), [0.03, 0.021, 0.021]);                             // round the mouth
-  ell('skin', V(0, 1.5, -0.019), [0.023, 0.017, 0.016]);                               // chin
-  for (const s of [-1, 1]) {
-    ell('eyeW', V(s * 0.031, 1.588, -0.031), [0.0112, 0.0092, 0.0112]);
-    ell('iris', V(s * 0.031, 1.588, -0.0408), [0.006, 0.006, 0.003]);
-    ell('skin', V(s * 0.031, 1.599, -0.033), [0.0145, 0.0048, 0.012], new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.3, 0, 0)));   // upper lids
-    ell('hair', V(s * 0.033, 1.609, -0.049), [0.016, 0.0028, 0.0032], new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, s * -0.14)));   // brows
-    ell('skin', V(s * 0.086, 1.572, 0.062), [0.011, 0.029, 0.019], new THREE.Quaternion().setFromEuler(new THREE.Euler(0, s * 0.25, 0)));   // ears
-    ell('skin', V(s * 0.0105, 1.546, -0.052), [0.0085, 0.007, 0.008]);                 // nostrils
-  }
-  ell('skin', V(0, 1.566, -0.047), [0.0115, 0.025, 0.017], new THREE.Quaternion().setFromEuler(new THREE.Euler(0.22, 0, 0)));   // nose
-  ell('skin', V(0, 1.548, -0.057), [0.011, 0.0105, 0.0105]);                           // tip of the nose
-  ell('lips', V(0, 1.526, -0.031), [0.019, 0.0042, 0.0085]);
-  ell('lips', V(0, 1.519, -0.029), [0.016, 0.0046, 0.0078]);
-  if (o.helmet !== 'full') ell('hair', V(0, 1.598, 0.074), [0.089, 0.108, 0.1], Q0, SPH2);
+  /* ---- the head, in a full-face helmet with a dark visor (forward is −z) ---- */
+  ell('skin', V(0, 1.575, 0.055), [0.082, 0.105, 0.095], Q0, SPH2);     // inside, should the camera look up into the helmet
   const H = [0, 1.58, 0.06], hs = [0.93, 1, 1.06];
-  if (o.helmet === 'full') {
-    // the shell with an opening for the eyes, the smoked visor across it, and the chin bar below
-    const R = 0.135, a0 = Math.PI * 1.24, a1 = Math.PI * 0.52, t0 = Math.PI * 0.39, t1 = Math.PI * 0.19;
-    rb.add('helmet', new THREE.SphereGeometry(R, 32, 10, 0, Math.PI * 2, 0, t0), mat(...H, 0, ...hs));
-    rb.add('helmet', new THREE.SphereGeometry(R, 32, 8, 0, Math.PI * 2, t0 + t1, Math.PI * 0.2), mat(...H, 0, ...hs));
-    rb.add('helmet', new THREE.SphereGeometry(R, 24, 6, a0 + a1, Math.PI * 2 - a1, t0, t1), mat(...H, 0, ...hs));
-    rb.add('visor', new THREE.SphereGeometry(R + 0.004, 32, 8, a0, a1, t0 - 0.02, t1 + 0.04), mat(...H, 0, ...hs));
-    rb.add('helmet', new THREE.CylinderGeometry(0.081, 0.09, 0.03, 28, 1, true), mat(0, 1.462, 0.06, 0, 0.93, 1, 1.06));
-  } else {
-    if (o.helmet === 'open') {
-      rb.add('helmet', new THREE.SphereGeometry(0.136, 32, 20, Math.PI * 1.8, Math.PI * 1.4, 0, Math.PI * 0.72), mat(...H, 0, ...hs));
-      rb.add('helmet', new THREE.SphereGeometry(0.136, 16, 6, Math.PI * 1.2, Math.PI * 0.6, 0, Math.PI * 0.3), mat(...H, 0, ...hs));
-    } else rb.add('helmet', new THREE.SphereGeometry(0.138, 32, 12, 0, Math.PI * 2, 0, Math.PI * 0.5), mat(0, 1.592, 0.07, 0, ...hs, 0.28));
-    if (o.goggles) {
-      // the strap: from one eyepiece, round the back of the helmet, to the other
-      rb.add('hair', new THREE.TubeGeometry(new THREE.CatmullRomCurve3([[-0.06, 1.59, -0.056], [-0.1, 1.594, -0.04], [-0.127, 1.598, 0.0], [-0.13, 1.6, 0.06], [-0.094, 1.6, 0.165], [0, 1.6, 0.207], [0.094, 1.6, 0.165], [0.13, 1.6, 0.06], [0.127, 1.598, 0.0], [0.1, 1.594, -0.04], [0.06, 1.59, -0.056]].map(p => V(...p))), 48, 0.006, 6, false), I4);
-      for (const s of [-1, 1]) { rb.add('chrome', new THREE.TorusGeometry(0.025, 0.006, 6, 18), mat(s * 0.032, 1.59, -0.058)); rb.add('glass', new THREE.CircleGeometry(0.023, 16), mat(s * 0.032, 1.59, -0.06, Math.PI)); }
-    }
-    if (o.shades) {
-      for (const s of [-1, 1]) rb.add('glass', new RoundedBoxGeometry(0.05, 0.028, 0.006, 2, 0.006), mat(s * 0.031, 1.589, -0.055, s * 0.12));
-      rb.add('glass', new THREE.BoxGeometry(0.016, 0.004, 0.004), mat(0, 1.594, -0.058));
-    }
-  }
+  rb.add('helmet', new THREE.SphereGeometry(0.135, 36, 22, 0, Math.PI * 2, 0, Math.PI * 0.8), mat(...H, 0, ...hs));
+  rb.add('visor', new THREE.SphereGeometry(0.139, 36, 10, Math.PI * 1.12, Math.PI * 0.76, Math.PI * 0.37, Math.PI * 0.23), mat(...H, 0, ...hs));
+  rb.add('helmet', new THREE.CylinderGeometry(0.081, 0.09, 0.03, 28, 1, true), mat(0, 1.462, 0.06, 0, 0.93, 1, 1.06));
+  for (const s of [-1, 1]) rb.add('trim', new THREE.CylinderGeometry(0.017, 0.017, 0.006, 18).rotateZ(Math.PI / 2), mat(s * 0.123, 1.585, 0.012, s * -0.12));   // the visor's pivots
+  rb.add('trim', new RoundedBoxGeometry(0.044, 0.016, 0.01, 2, 0.004), mat(0, 1.5, -0.056, 0, 1, 1, 1, 0.62));   // the chin vent
 
   /* ---- arms: the hands close round the grips ---- */
   let watchAt = null;
@@ -3528,7 +3493,7 @@ function buildVehicleKinds() {
     [new THREE.CylinderGeometry(0.02, 0.02, 0.6, 5), mat(0, 1.05, -0.55, 0, 1, 1, 1, -0.3), 0x444444], [new THREE.BoxGeometry(0.6, 0.03, 0.03), mat(0, 1.33, -0.62), 0x333333],
     [new THREE.CapsuleGeometry(0.06, 0.4, 4, 6), mat(0.12, 0.72, -0.25, 0, 1, 1, 1, 1.1), 0x2a3550], [new THREE.CapsuleGeometry(0.06, 0.4, 4, 6), mat(-0.12, 0.72, -0.25, 0, 1, 1, 1, 1.1), 0x2a3550]],
     [[new THREE.SphereGeometry(0.06, 10, 8), mat(0, 1.0, -0.82), HL], [new THREE.BoxGeometry(0.14, 0.06, 0.03), mat(0, 0.78, 0.82), TL]]) };
-  // the riders: women with long hair, blouses in the instance colour; the left arm apart so it can wave
+  // the riders: women with long hair, in full-face helmets, blouses in the instance colour; the left arm apart so it can wave
   const SKIN = 0xd9a47c, HAIR = 0x24160f;
   const limb = (a, b, r) => { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), L = d.length(); return [new THREE.CapsuleGeometry(r, Math.max(0.01, L - 2 * r), 4, 6), new THREE.Matrix4().compose(A.clone().add(B).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()), new THREE.Vector3(1, 1, 1))]; };
   const arm = s => { const [g, m] = limb([s * 0.17, 1.42, 0.1], [s * 0.29, 1.33, -0.58], 0.048); return [[g, m, W], [new THREE.SphereGeometry(0.05, 8, 6), mat(s * 0.29, 1.33, -0.6), SKIN]]; };
@@ -3539,8 +3504,9 @@ function buildVehicleKinds() {
   for (const [g, m, c] of [
     [new THREE.CylinderGeometry(0.045, 0.05, 0.1, 8), mat(0, 1.5, 0.11), SKIN],
     [new THREE.SphereGeometry(0.1, 12, 10), mat(0, 1.6, 0.08), SKIN],
-    [new THREE.SphereGeometry(0.135, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), mat(0, 1.615, 0.1, 0, 1, 1.05, 1.08), 0xf3efe6],
-    [new THREE.BoxGeometry(0.2, 0.03, 0.06), mat(0, 1.66, -0.04), 0x2a2a2a],
+    // a full-face helmet with a dark visor, the long hair out from under it at the back
+    [new THREE.SphereGeometry(0.135, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.8), mat(0, 1.6, 0.09, 0, 1, 1.02, 1.08), 0xf3efe6],
+    [new THREE.SphereGeometry(0.139, 18, 6, Math.PI * 1.12, Math.PI * 0.76, Math.PI * 0.37, Math.PI * 0.23), mat(0, 1.6, 0.09, 0, 1, 1.02, 1.08), 0x0b0d10],
     [new THREE.SphereGeometry(0.115, 12, 10), mat(0, 1.56, 0.15, 0, 1.05, 1, 0.9), HAIR],
     [new THREE.CapsuleGeometry(0.1, 0.42, 4, 10), mat(0, 1.33, 0.24, 0, 1.25, 1, 0.45, -0.22), HAIR],
     [new THREE.CapsuleGeometry(0.06, 0.16, 4, 6), mat(0, 1.08, 0.33, 0, 1.4, 1, 0.5, -0.5), HAIR],
@@ -4768,21 +4734,6 @@ function drawMissionMap(x, s) {
 }
 
 /* ---------- a picture of the watch ---------- */
-/* "SIAM S MADE" round the bottom edge of a dial, under 6 o'clock, the way a Swiss watch says where it was made:
-   the S in the middle is the paper's, in Chomsky. Read left to right, the tops of the letters towards the centre. */
-function madeIn(x, cx, cy, r, size, ink) {
-  const roman = t => [t, `600 ${size}px Georgia, "Times New Roman", serif`];
-  const parts = [...[...'SIAM'].map(roman), [' ', `${size}px Georgia, serif`], ['S', `${size * 1.6}px Chomsky, serif`], [' ', `${size}px Georgia, serif`], ...[...'MADE'].map(roman)];
-  const track = size * 0.16, ws = parts.map(([t, f]) => { x.font = f; return x.measureText(t).width + track; });
-  let s = -ws.reduce((a, b) => a + b, 0) / 2;
-  x.save(); x.fillStyle = ink; x.textAlign = 'center'; x.textBaseline = 'middle';
-  parts.forEach(([t, f], i) => {
-    const phi = Math.PI - (s + ws[i] / 2) / r;
-    x.save(); x.translate(cx + Math.sin(phi) * r, cy - Math.cos(phi) * r); x.rotate(phi - Math.PI); x.font = f; x.fillText(t, 0, t === 'S' && f.includes('Chomsky') ? size * 0.12 : 0); x.restore();
-    s += ws[i];
-  });
-  x.restore();
-}
 function drawWatch(cv, kind) {
   const x = cv.getContext('2d'), S = cv.width, c = S / 2, R = S * 0.33;
   x.clearRect(0, 0, S, S);
@@ -4815,15 +4766,14 @@ function drawWatch(cv, kind) {
   x.fillStyle = dial; x.beginPath(); x.arc(c, c, R * (diver ? 0.74 : 0.86), 0, Math.PI * 2); x.fill();
   const ink = diver ? '#e8eaee' : '#3a2a12';
   for (let k = 0; k < 12; k++) {
-    const a = k / 12 * Math.PI * 2, r0 = R * (diver ? 0.5 : 0.58), r1 = R * (diver ? 0.6 : 0.71);
+    const a = k / 12 * Math.PI * 2, r0 = R * (diver ? 0.56 : 0.66), r1 = R * (diver ? 0.68 : 0.78);
     x.strokeStyle = diver ? '#e8eaee' : '#b8862e'; x.lineWidth = k % 3 ? R * 0.03 : R * 0.055;
     x.beginPath(); x.moveTo(c + Math.sin(a) * r0, c - Math.cos(a) * r0); x.lineTo(c + Math.sin(a) * r1, c - Math.cos(a) * r1); x.stroke();
   }
   x.fillStyle = ink; x.textAlign = 'center'; x.textBaseline = 'middle';
   x.font = `600 ${R * 0.13}px Georgia, serif`; x.fillText('VERDANT', c, c - R * 0.36);
   x.font = `${R * 0.1}px Georgia, serif`; x.fillText(diver ? 'MARINER 300' : 'DRESS', c, c - R * 0.22);
-  x.font = `italic 600 ${R * 0.17}px Georgia, serif`; x.fillText(diver ? '300 m' : '1864', c, c + R * 0.36);
-  madeIn(x, c, c, R * (diver ? 0.665 : 0.785), R * (diver ? 0.075 : 0.088), ink);
+  x.font = `italic 600 ${R * 0.17}px Georgia, serif`; x.fillText(diver ? '300 m' : '1864', c, c + R * 0.38);
   // hands at ten past ten
   const hand = (a, len, w, colr) => { x.save(); x.translate(c, c); x.rotate(a); x.fillStyle = colr; x.beginPath(); x.moveTo(-w, 0); x.lineTo(0, -len); x.lineTo(w, 0); x.lineTo(0, len * 0.12); x.closePath(); x.fill(); x.restore(); };
   hand(-Math.PI / 3, R * 0.45, R * 0.05, diver ? '#e8eaee' : '#9a6a1a'); hand(Math.PI / 3, R * 0.66, R * 0.04, diver ? '#e8eaee' : '#9a6a1a');
