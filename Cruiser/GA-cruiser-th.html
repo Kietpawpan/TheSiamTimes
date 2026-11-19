@@ -3249,7 +3249,11 @@ function buildBike() {
   buildRider();
 }
 
-/* ---------- the rider and what they wear ---------- */
+/* ---------- the rider and what they wear ----------
+   A person of ordinary build: a chest wider than the waist, turned limbs that thin to the wrists and
+   ankles, joints placed by two-bone reach so the hands close round the grips and the boots stand on the
+   forward pegs, and a face (eyes, brows, nose, lips, ears) under an open or half helmet, or seen
+   through the smoked visor of a full-face one. */
 const SKIN = 0xc68a5e, HAIR = 0x18120e;
 const OUTFITS = [
   { th: 'หนังดำคลาสสิก', en: 'Black leather', top: { c: 0x2a2522, r: 0.38, m: 0.08 }, pants: 0x2c3c58, boots: 0x1d140e, gloves: 0x18181a, helmet: 'full', hc: 0x141518 },
@@ -3287,57 +3291,163 @@ function buildRider() {
   const RM = {
     top: o.top.floral ? new THREE.MeshStandardMaterial({ map: floralTex, roughness: o.top.r }) : std(o.top.c, o.top.r, o.top.m),
     pants: std(o.pants, 0.88), boots: std(o.boots, 0.5), gloves: std(o.gloves ?? SKIN, o.gloves ? 0.5 : 0.65), skin: std(SKIN, 0.62), hair: std(HAIR, 0.85),
-    vest: std(o.vest || 0xffffff, 0.7), helmet: new THREE.MeshPhysicalMaterial({ color: o.hc, metalness: o.matte ? 0 : 0.3, roughness: o.matte ? 0.75 : 0.3, clearcoat: o.matte ? 0 : 1, clearcoatRoughness: 0.08 }),
-    visor: BM.visor, chrome: BM.chrome, glass: new THREE.MeshStandardMaterial({ color: 0x18242c, metalness: 0.9, roughness: 0.06 }),
+    vest: std(o.vest || 0xffffff, 0.7), sole: std(0x121212, 0.9), belt: std(0x2a1a10, 0.5),
+    eyeW: std(0xf2eee6, 0.3), iris: std(0x22140c, 0.2), lips: std(0x9c5c46, 0.55),
+    helmet: new THREE.MeshPhysicalMaterial({ color: o.hc, metalness: o.matte ? 0 : 0.3, roughness: o.matte ? 0.75 : 0.3, clearcoat: o.matte ? 0 : 1, clearcoatRoughness: 0.08, side: THREE.DoubleSide }),
+    // a smoked visor you can see the eyes through
+    visor: new THREE.MeshPhysicalMaterial({ color: 0x0c1218, metalness: 0.25, roughness: 0.04, transparent: true, opacity: 0.5, depthWrite: false }),
+    chrome: BM.chrome, glass: new THREE.MeshStandardMaterial({ color: 0x18242c, metalness: 0.9, roughness: 0.06 }),
   };
   const rider = new THREE.Group(), rb = new Bin();
-  const limb = (k, a, b, r) => {
-    const A2 = new THREE.Vector3(...a), B2 = new THREE.Vector3(...b), d = B2.clone().sub(A2), L = d.length();
-    rb.add(k, new THREE.CapsuleGeometry(r, L, 5, 14), new THREE.Matrix4().compose(A2.clone().add(B2).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()), new THREE.Vector3(1, 1, 1)));
+  const V = (x, y, z) => new THREE.Vector3(x, y, z), UP = V(0, 1, 0), Q0 = new THREE.Quaternion(), S1 = V(1, 1, 1);
+  const SPH = new THREE.SphereGeometry(1, 20, 14), SPH2 = new THREE.SphereGeometry(1, 30, 22);
+  // an ellipsoid; a turned shape along a → b with radii [t, r] along it (rounded at both ends)
+  const ell = (k, c, s, q = Q0, g = SPH) => rb.add(k, g, new THREE.Matrix4().compose(c, q, V(...s)));
+  const lathe = (k, a, b, prof, seg = 16) => {
+    const d = b.clone().sub(a), L = d.length(), pts = [new THREE.Vector2(0, 0)];
+    for (const [t, r] of prof) pts.push(new THREE.Vector2(r, t * L));
+    pts.push(new THREE.Vector2(0, L));
+    rb.add(k, new THREE.LatheGeometry(pts, seg), new THREE.Matrix4().compose(a, new THREE.Quaternion().setFromUnitVectors(UP, d.normalize()), S1));
   };
-  const torso = (k, s) => rb.add(k, new THREE.CapsuleGeometry(1, 1, 8, 18), new THREE.Matrix4().compose(new THREE.Vector3(0, 1.13, 0.13), new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.12, 0, 0)), new THREE.Vector3(0.19 * s, 0.2 * s, 0.13 * s)));
-  torso('top', 1);
-  if (o.vest) torso('vest', 1.07);
-  rb.add('pants', new THREE.SphereGeometry(1, 20, 12), mat(0, 0.86, 0.17, 0, 0.17, 0.09, 0.15));
-  for (const s of [-1, 1]) {
-    limb('top', [s * 0.19, 1.36, 0.1], [s * 0.3, 1.17, -0.08], 0.058);
-    limb(o.short ? 'skin' : 'top', [s * 0.3, 1.17, -0.08], [s * 0.385, 1.13, -0.31], o.short ? 0.042 : 0.05);
-    rb.add(o.gloves ? 'gloves' : 'skin', new THREE.SphereGeometry(0.048, 14, 10), mat(s * 0.39, 1.13, -0.32, 0, 1, 0.9, 1.3));
-    limb('pants', [s * 0.11, 0.87, 0.13], [s * 0.21, 0.8, -0.26], 0.078);
-    limb('pants', [s * 0.21, 0.8, -0.26], [s * 0.29, 0.44, -0.41], 0.06);
-    rb.add('boots', new RoundedBoxGeometry(0.09, 0.12, 0.22, 2, 0.03), mat(s * 0.3, 0.38, -0.45, 0, 1, 1, 1, 0.15));
-    rb.add(o.vest ? 'vest' : 'top', new THREE.SphereGeometry(0.075, 16, 10), mat(s * 0.19, 1.36, 0.1));
+  const along = (a, b, t) => a.clone().lerp(b, t);
+  // two-bone reach: the elbow or knee between A and C, bent towards the pole
+  const bend = (A, C, L1, L2, pole) => {
+    const d = C.clone().sub(A), D = Math.min(d.length(), L1 + L2 - 1e-3), u = d.normalize();
+    const a = (L1 * L1 - L2 * L2 + D * D) / (2 * D), h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+    const p = pole.clone().sub(u.clone().multiplyScalar(pole.dot(u))).normalize();
+    return A.clone().addScaledVector(u, a).addScaledVector(p, h);
+  };
+  const basis = (x, y) => { const X = x.clone().normalize(), Z = X.clone().cross(y).normalize(), Y = Z.clone().cross(X); return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z)); };
+  const sleeve = o.short ? 'skin' : 'top', hand = o.gloves ? 'gloves' : 'skin', jacket = !o.top.floral && !o.vest;
+
+  /* ---- body: hips, a chest wider than the waist, shoulders, neck ---- */
+  const TILT = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.07, 0, 0)), T0 = V(0, 0.9, 0.15);
+  const torsoPts = (k, s, h0, h1) => {
+    const prof = [[0, 0.143], [0.05, 0.14], [0.13, 0.143], [0.24, 0.162], [0.34, 0.184], [0.42, 0.199], [0.48, 0.206], [0.53, 0.19], [0.565, 0.145], [0.59, 0.088], [0.6, 0.06]];
+    const pts = prof.filter(([h]) => h >= h0 && h <= h1).map(([h, r]) => new THREE.Vector2(r * s, h));
+    if (h0 === 0) pts.unshift(new THREE.Vector2(0, 0));
+    if (h1 >= 0.6) pts.push(new THREE.Vector2(0, 0.6));
+    rb.add(k, new THREE.LatheGeometry(pts, 26), new THREE.Matrix4().compose(T0, TILT, V(1, 1, 0.64)));
+  };
+  torsoPts('top', 1, 0, 0.6);
+  if (o.vest) torsoPts('vest', 1.07, 0.05, 0.53);
+  ell('pants', V(0, 0.885, 0.155), [0.172, 0.11, 0.15]);
+  rb.add('belt', new THREE.TorusGeometry(1, 0.08, 6, 36).rotateX(Math.PI / 2), mat(0, 0.94, 0.155, 0, 0.152, 0.25, 0.134));
+  rb.add('chrome', new RoundedBoxGeometry(0.05, 0.034, 0.012, 2, 0.004), mat(0, 0.94, 0.017, 0, 1, 1, 1, -0.07));
+  if (jacket) {
+    rb.add('chrome', new THREE.BoxGeometry(1, 1, 1), between([0, 0.98, 0.041], [0, 1.395, -0.013], 0.007, 0.004));
+    rb.add('top', new THREE.TorusGeometry(0.066, 0.017, 8, 28).rotateX(Math.PI / 2), mat(0, 1.455, 0.1, 0, 1.15, 1, 1, -0.2));
   }
-  rb.add(o.helmet === 'full' ? 'top' : 'skin', new THREE.CylinderGeometry(0.05, 0.06, 0.1, 12), mat(0, 1.44, 0.08));
+  for (const s of [-1, 1]) ell('top', V(s * 0.19, 1.37, 0.112), [0.078, 0.058, 0.07]);   // shoulders, blending into the chest
+  lathe('skin', V(0, 1.43, 0.102), V(0, 1.54, 0.078), [[0.02, 0.05], [0.5, 0.046], [0.98, 0.048]]);
+
+  /* ---- head and face (forward is −z) ---- */
+  ell('skin', V(0, 1.578, 0.055), [0.082, 0.108, 0.097], Q0, SPH2);                    // skull
+  ell('skin', V(0, 1.52, 0.022), [0.06, 0.046, 0.058], Q0, SPH2);                      // jaw
+  ell('skin', V(0, 1.534, -0.016), [0.03, 0.021, 0.021]);                             // round the mouth
+  ell('skin', V(0, 1.5, -0.019), [0.023, 0.017, 0.016]);                               // chin
+  for (const s of [-1, 1]) {
+    ell('eyeW', V(s * 0.031, 1.588, -0.031), [0.0112, 0.0092, 0.0112]);
+    ell('iris', V(s * 0.031, 1.588, -0.0408), [0.006, 0.006, 0.003]);
+    ell('skin', V(s * 0.031, 1.599, -0.033), [0.0145, 0.0048, 0.012], new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.3, 0, 0)));   // upper lids
+    ell('hair', V(s * 0.033, 1.609, -0.049), [0.016, 0.0028, 0.0032], new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, s * -0.14)));   // brows
+    ell('skin', V(s * 0.086, 1.572, 0.062), [0.011, 0.029, 0.019], new THREE.Quaternion().setFromEuler(new THREE.Euler(0, s * 0.25, 0)));   // ears
+    ell('skin', V(s * 0.0105, 1.546, -0.052), [0.0085, 0.007, 0.008]);                 // nostrils
+  }
+  ell('skin', V(0, 1.566, -0.047), [0.0115, 0.025, 0.017], new THREE.Quaternion().setFromEuler(new THREE.Euler(0.22, 0, 0)));   // nose
+  ell('skin', V(0, 1.548, -0.057), [0.011, 0.0105, 0.0105]);                           // tip of the nose
+  ell('lips', V(0, 1.526, -0.031), [0.019, 0.0042, 0.0085]);
+  ell('lips', V(0, 1.519, -0.029), [0.016, 0.0046, 0.0078]);
+  if (o.helmet !== 'full') ell('hair', V(0, 1.598, 0.074), [0.089, 0.108, 0.1], Q0, SPH2);
   const H = [0, 1.58, 0.06], hs = [0.93, 1, 1.06];
   if (o.helmet === 'full') {
-    rb.add('helmet', new THREE.SphereGeometry(0.135, 32, 20), mat(...H, 0, ...hs));
-    rb.add('visor', new THREE.SphereGeometry(0.138, 32, 12, Math.PI * 1.12, Math.PI * 0.76, Math.PI * 0.38, Math.PI * 0.22), mat(...H, 0, ...hs));
-    rb.add('helmet', new THREE.CylinderGeometry(0.1, 0.11, 0.06, 20), mat(0, 1.48, 0.06));
+    // the shell with an opening for the eyes, the smoked visor across it, and the chin bar below
+    const R = 0.135, a0 = Math.PI * 1.24, a1 = Math.PI * 0.52, t0 = Math.PI * 0.39, t1 = Math.PI * 0.19;
+    rb.add('helmet', new THREE.SphereGeometry(R, 32, 10, 0, Math.PI * 2, 0, t0), mat(...H, 0, ...hs));
+    rb.add('helmet', new THREE.SphereGeometry(R, 32, 8, 0, Math.PI * 2, t0 + t1, Math.PI * 0.2), mat(...H, 0, ...hs));
+    rb.add('helmet', new THREE.SphereGeometry(R, 24, 6, a0 + a1, Math.PI * 2 - a1, t0, t1), mat(...H, 0, ...hs));
+    rb.add('visor', new THREE.SphereGeometry(R + 0.004, 32, 8, a0, a1, t0 - 0.02, t1 + 0.04), mat(...H, 0, ...hs));
+    rb.add('helmet', new THREE.CylinderGeometry(0.081, 0.09, 0.03, 28, 1, true), mat(0, 1.462, 0.06, 0, 0.93, 1, 1.06));
   } else {
-    // a face and hair under an open-face or half helmet
-    rb.add('hair', new THREE.SphereGeometry(0.108, 24, 16), mat(0, 1.565, 0.075, 0, 0.92, 1.05, 1));
-    rb.add('skin', new THREE.SphereGeometry(0.1, 24, 16), mat(0, 1.555, 0.045, 0, 0.9, 1.05, 0.95));
     if (o.helmet === 'open') {
       rb.add('helmet', new THREE.SphereGeometry(0.136, 32, 20, Math.PI * 1.8, Math.PI * 1.4, 0, Math.PI * 0.72), mat(...H, 0, ...hs));
       rb.add('helmet', new THREE.SphereGeometry(0.136, 16, 6, Math.PI * 1.2, Math.PI * 0.6, 0, Math.PI * 0.3), mat(...H, 0, ...hs));
-    } else rb.add('helmet', new THREE.SphereGeometry(0.138, 32, 12, 0, Math.PI * 2, 0, Math.PI * 0.5), mat(0, 1.585, 0.06, 0, ...hs));
+    } else rb.add('helmet', new THREE.SphereGeometry(0.138, 32, 12, 0, Math.PI * 2, 0, Math.PI * 0.5), mat(0, 1.592, 0.07, 0, ...hs, 0.28));
     if (o.goggles) {
-      rb.add('hair', new THREE.TorusGeometry(0.128, 0.007, 6, 40).rotateX(Math.PI / 2), mat(0, 1.6, 0.06, 0, 0.95, 1, 1.08));
-      for (const s of [-1, 1]) { rb.add('chrome', new THREE.TorusGeometry(0.026, 0.006, 6, 18), mat(s * 0.042, 1.58, -0.058)); rb.add('glass', new THREE.CircleGeometry(0.024, 16), mat(s * 0.042, 1.58, -0.06, Math.PI)); }
+      // the strap: from one eyepiece, round the back of the helmet, to the other
+      rb.add('hair', new THREE.TubeGeometry(new THREE.CatmullRomCurve3([[-0.06, 1.59, -0.056], [-0.1, 1.594, -0.04], [-0.127, 1.598, 0.0], [-0.13, 1.6, 0.06], [-0.094, 1.6, 0.165], [0, 1.6, 0.207], [0.094, 1.6, 0.165], [0.13, 1.6, 0.06], [0.127, 1.598, 0.0], [0.1, 1.594, -0.04], [0.06, 1.59, -0.056]].map(p => V(...p))), 48, 0.006, 6, false), I4);
+      for (const s of [-1, 1]) { rb.add('chrome', new THREE.TorusGeometry(0.025, 0.006, 6, 18), mat(s * 0.032, 1.59, -0.058)); rb.add('glass', new THREE.CircleGeometry(0.023, 16), mat(s * 0.032, 1.59, -0.06, Math.PI)); }
     }
-    if (o.shades) rb.add('glass', new RoundedBoxGeometry(0.15, 0.032, 0.02, 2, 0.008), mat(0, 1.575, -0.05));
+    if (o.shades) {
+      for (const s of [-1, 1]) rb.add('glass', new RoundedBoxGeometry(0.05, 0.028, 0.006, 2, 0.006), mat(s * 0.031, 1.589, -0.055, s * 0.12));
+      rb.add('glass', new THREE.BoxGeometry(0.016, 0.004, 0.004), mat(0, 1.594, -0.058));
+    }
+  }
+
+  /* ---- arms: the hands close round the grips ---- */
+  let watchAt = null;
+  for (const s of [-1, 1]) {
+    const G = V(s * 0.3875, 1.125, -0.331), X = V(s * 0.105, -0.014, 0.098).normalize();
+    const Y = UP.clone().sub(X.clone().multiplyScalar(UP.dot(X))).normalize(), Zb = X.clone().cross(Y); if (Zb.z < 0) Zb.negate();
+    const P = (x, deg, r) => { const a = deg * Math.PI / 180; return G.clone().addScaledVector(X, x).addScaledVector(Y, Math.sin(a) * r).addScaledVector(Zb, Math.cos(a) * r); };
+    const Sh = V(s * 0.2, 1.37, 0.115), W = G.clone().addScaledVector(Zb, 0.074).addScaledVector(Y, 0.03).addScaledVector(X, -0.004);
+    const E = bend(Sh, W, 0.29, 0.265, V(s * 0.9, -0.45, 0.25));
+    lathe(sleeve, Sh, along(Sh, E, 1.06), [[0.02, 0.05], [0.08, 0.06], [0.3, 0.061], [0.65, 0.054], [0.93, 0.047], [0.99, 0.036]]);
+    if (o.short) lathe('top', Sh, along(Sh, E, 0.5), [[0.02, 0.062], [0.1, 0.07], [0.9, 0.066], [0.99, 0.064]]);
+    ell(sleeve, E, [0.047, 0.047, 0.047]);
+    const cuff = o.short ? 1 : 0.8;
+    lathe(o.short ? 'skin' : 'top', E, along(E, W, cuff), [[0.02, 0.046], [0.2, 0.052], [0.55, 0.046], [0.97, o.short ? 0.033 : 0.044]]);
+    if (!o.short) lathe(o.gloves ? 'gloves' : 'skin', along(E, W, 0.76), W, [[0.02, 0.034], [0.5, 0.032], [0.98, 0.031]]);
+    if (o.gloves) lathe('gloves', along(E, W, 0.95), along(E, W, 1.02), [[0.02, 0.034], [0.5, 0.035], [0.98, 0.034]]);   // a short cuff to the glove
+    // the back of the hand from the wrist to the knuckles on top of the grip, then the four fingers round it and the thumb under it
+    const K = P(-0.002, 98, 0.033), mid = W.clone().lerp(K, 0.5), dirH = K.clone().sub(W);
+    ell(hand, mid, [0.042, dirH.length() * 0.6, 0.016], basis(X, dirH));
+    [[-0.027, 0.0089, 330], [-0.009, 0.0093, 332], [0.009, 0.0088, 322], [0.026, 0.0078, 305]].forEach(([x, r, end]) => {
+      const pts = []; for (let d = 92; d <= end; d += 18) pts.push(P(x, d, 0.0295));
+      rb.add(hand, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 14, r, 8, false), I4);
+      ell(hand, pts[pts.length - 1], [r, r, r]); ell(hand, pts[0], [r * 1.15, r * 1.15, r * 1.15]);
+    });
+    {
+      const pts = [P(-0.036, 35, 0.04), P(-0.044, 5, 0.034), P(-0.046, -30, 0.031), P(-0.044, -70, 0.03), P(-0.04, -100, 0.03)];
+      rb.add(hand, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 12, 0.0108, 8, false), I4);
+      ell(hand, pts[pts.length - 1], [0.0108, 0.0108, 0.0108]);
+      ell(hand, P(-0.03, 40, 0.042), [0.022, 0.018, 0.026], basis(X, dirH));   // the ball of the thumb
+    }
+    if (s < 0) watchAt = { W, E, X, K };
+
+    /* ---- legs: knees bent, boots on the forward pegs ---- */
+    const Hj = V(s * 0.1, 0.875, 0.11), A = V(s * 0.288, 0.49, -0.33);
+    const Kn = bend(Hj, A, 0.43, 0.42, V(s * 0.35, 0.75, -0.55)), dS = A.clone().sub(Kn).normalize();
+    lathe('pants', Hj, along(Hj, Kn, 1.04), [[0.02, 0.07], [0.06, 0.085], [0.25, 0.09], [0.6, 0.076], [0.92, 0.06], [0.99, 0.048]]);
+    ell('pants', Kn, [0.058, 0.058, 0.058]);
+    lathe('pants', Kn, A, [[0.02, 0.052], [0.15, 0.057], [0.35, 0.059], [0.7, 0.048], [0.98, 0.044]]);
+    lathe('boots', A.clone().addScaledVector(dS, -0.18), A.clone().addScaledVector(dS, 0.02), [[0.01, 0.054], [0.5, 0.055], [0.99, 0.057]]);
+    const f = V(s * 0.08, 0, -1).normalize(), yaw = Math.atan2(-f.x, -f.z);
+    const foot = A.clone().addScaledVector(f, 0.076).add(V(0, -0.0365, 0));
+    rb.add('boots', new RoundedBoxGeometry(0.094, 0.076, 0.27, 3, 0.034), mat(foot.x, foot.y, foot.z, yaw));
+    rb.add('sole', new RoundedBoxGeometry(0.1, 0.018, 0.282, 2, 0.007), mat(foot.x, foot.y - 0.045, foot.z, yaw));
+    const heel = A.clone().addScaledVector(f, -0.025); rb.add('sole', new THREE.BoxGeometry(0.084, 0.03, 0.06), mat(heel.x, foot.y - 0.055, heel.z, yaw));
   }
   rb.bake(rider, true, RM);
-  if (o.vest) { const no = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.12), new THREE.MeshStandardMaterial({ map: vestTex, roughness: 0.7 })); no.position.set(0, 1.2, 0.282); no.rotation.x = -0.12; rider.add(no); }
-  // the 1864, on the left wrist, once it is yours
+  if (o.vest) { const no = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.12), new THREE.MeshStandardMaterial({ map: vestTex, roughness: 0.7 })); no.position.set(0, 1.2, 0.262); no.rotation.x = -0.07; rider.add(no); }
+
+  /* ---- the 1864, on the left wrist, once it is yours: the strap hugs the wrist, the case sits on top ---- */
   {
+    const { W, E, X, K } = watchAt, F = W.clone().sub(E).normalize();
+    let N = X.clone().cross(K.clone().sub(W)).normalize(); if (N.y < 0) N.negate();
+    N.sub(F.clone().multiplyScalar(N.dot(F))).normalize();                 // the back of the wrist, square to the forearm
+    const at = W.clone().addScaledVector(F, -0.035), across = N.clone().cross(F).normalize();
     const wg = new THREE.Group(), gold = new THREE.MeshStandardMaterial({ color: 0xe2b04a, metalness: 1, roughness: 0.22, emissive: 0x3a2808, emissiveIntensity: 0.4 });
-    const A = new THREE.Vector3(-0.3, 1.17, -0.08), B = new THREE.Vector3(-0.385, 1.13, -0.31), d = B.clone().sub(A).normalize(), wrist = A.clone().lerp(B, 0.8);
-    const strap = new THREE.Mesh(new THREE.TorusGeometry(0.053, 0.009, 6, 18), new THREE.MeshStandardMaterial({ color: 0x5a3418, roughness: 0.6 }));
-    strap.position.copy(wrist); strap.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d); wg.add(strap);
-    const cs = new THREE.Mesh(new THREE.CylinderGeometry(0.027, 0.027, 0.013, 20), gold); cs.position.copy(wrist).add(new THREE.Vector3(0, 0.053, 0)); wg.add(cs);
-    const dial = new THREE.Mesh(new THREE.CircleGeometry(0.022, 20).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xf6efdc })); dial.position.copy(cs.position).add(new THREE.Vector3(0, 0.007, 0)); wg.add(dial);
+    const wr = [0.0365, 0.0345];                                            // round the wrist, with the strap on it
+    const strap = new THREE.Mesh(new THREE.TorusGeometry(1, 0.16, 6, 30), new THREE.MeshStandardMaterial({ color: 0x5a3418, roughness: 0.6 }));
+    strap.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(across, N, F)); strap.scale.set(wr[0], wr[1], 0.058); strap.position.copy(at); wg.add(strap);
+    const face = at.clone().addScaledVector(N, wr[1] + 0.004), q = new THREE.Quaternion().setFromUnitVectors(UP, N);
+    const cs = new THREE.Mesh(new THREE.CylinderGeometry(0.0205, 0.0205, 0.01, 28), gold); cs.position.copy(face); cs.quaternion.copy(q); wg.add(cs);
+    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.0032, 0.0032, 0.006, 10), gold); crown.position.copy(face).addScaledVector(F, 0.022); crown.quaternion.setFromUnitVectors(UP, F); wg.add(crown);
+    const cv = document.createElement('canvas'); cv.width = cv.height = 256; drawWatch(cv, '1864');
+    const dt = new THREE.CanvasTexture(cv); dt.colorSpace = THREE.SRGBColorSpace; dt.repeat.set(0.57, 0.57); dt.offset.set(0.215, 0.215);
+    const dial = new THREE.Mesh(new THREE.CircleGeometry(0.018, 28), new THREE.MeshStandardMaterial({ map: dt, emissiveMap: dt, emissive: 0x3a3a3a, roughness: 0.35 }));
+    dial.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(F, N.clone().cross(F), N)); dial.position.copy(face).addScaledVector(N, 0.0053); wg.add(dial);
     wg.visible = !!settings.watch; rider.add(wg); BIKE.watch = wg;
   }
   BIKE.body.add(rider);
@@ -4658,6 +4768,21 @@ function drawMissionMap(x, s) {
 }
 
 /* ---------- a picture of the watch ---------- */
+/* "SIAM S MADE" round the bottom edge of a dial, under 6 o'clock, the way a Swiss watch says where it was made:
+   the S in the middle is the paper's, in Chomsky. Read left to right, the tops of the letters towards the centre. */
+function madeIn(x, cx, cy, r, size, ink) {
+  const roman = t => [t, `600 ${size}px Georgia, "Times New Roman", serif`];
+  const parts = [...[...'SIAM'].map(roman), [' ', `${size}px Georgia, serif`], ['S', `${size * 1.6}px Chomsky, serif`], [' ', `${size}px Georgia, serif`], ...[...'MADE'].map(roman)];
+  const track = size * 0.16, ws = parts.map(([t, f]) => { x.font = f; return x.measureText(t).width + track; });
+  let s = -ws.reduce((a, b) => a + b, 0) / 2;
+  x.save(); x.fillStyle = ink; x.textAlign = 'center'; x.textBaseline = 'middle';
+  parts.forEach(([t, f], i) => {
+    const phi = Math.PI - (s + ws[i] / 2) / r;
+    x.save(); x.translate(cx + Math.sin(phi) * r, cy - Math.cos(phi) * r); x.rotate(phi - Math.PI); x.font = f; x.fillText(t, 0, t === 'S' && f.includes('Chomsky') ? size * 0.12 : 0); x.restore();
+    s += ws[i];
+  });
+  x.restore();
+}
 function drawWatch(cv, kind) {
   const x = cv.getContext('2d'), S = cv.width, c = S / 2, R = S * 0.33;
   x.clearRect(0, 0, S, S);
@@ -4690,14 +4815,15 @@ function drawWatch(cv, kind) {
   x.fillStyle = dial; x.beginPath(); x.arc(c, c, R * (diver ? 0.74 : 0.86), 0, Math.PI * 2); x.fill();
   const ink = diver ? '#e8eaee' : '#3a2a12';
   for (let k = 0; k < 12; k++) {
-    const a = k / 12 * Math.PI * 2, r0 = R * (diver ? 0.56 : 0.66), r1 = R * (diver ? 0.68 : 0.78);
+    const a = k / 12 * Math.PI * 2, r0 = R * (diver ? 0.5 : 0.58), r1 = R * (diver ? 0.6 : 0.71);
     x.strokeStyle = diver ? '#e8eaee' : '#b8862e'; x.lineWidth = k % 3 ? R * 0.03 : R * 0.055;
     x.beginPath(); x.moveTo(c + Math.sin(a) * r0, c - Math.cos(a) * r0); x.lineTo(c + Math.sin(a) * r1, c - Math.cos(a) * r1); x.stroke();
   }
   x.fillStyle = ink; x.textAlign = 'center'; x.textBaseline = 'middle';
   x.font = `600 ${R * 0.13}px Georgia, serif`; x.fillText('VERDANT', c, c - R * 0.36);
   x.font = `${R * 0.1}px Georgia, serif`; x.fillText(diver ? 'MARINER 300' : 'DRESS', c, c - R * 0.22);
-  x.font = `italic 600 ${R * 0.17}px Georgia, serif`; x.fillText(diver ? '300 m' : '1864', c, c + R * 0.38);
+  x.font = `italic 600 ${R * 0.17}px Georgia, serif`; x.fillText(diver ? '300 m' : '1864', c, c + R * 0.36);
+  madeIn(x, c, c, R * (diver ? 0.665 : 0.785), R * (diver ? 0.075 : 0.088), ink);
   // hands at ten past ten
   const hand = (a, len, w, colr) => { x.save(); x.translate(c, c); x.rotate(a); x.fillStyle = colr; x.beginPath(); x.moveTo(-w, 0); x.lineTo(0, -len); x.lineTo(w, 0); x.lineTo(0, len * 0.12); x.closePath(); x.fill(); x.restore(); };
   hand(-Math.PI / 3, R * 0.45, R * 0.05, diver ? '#e8eaee' : '#9a6a1a'); hand(Math.PI / 3, R * 0.66, R * 0.04, diver ? '#e8eaee' : '#9a6a1a');
