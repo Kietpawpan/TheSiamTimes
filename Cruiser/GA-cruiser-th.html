@@ -3549,7 +3549,7 @@ function buildVehicleKinds() {
   VKINDS.scooter.wave = wave.build();
 }
 /* words on the vehicles: THAILAND on a tuk-tuk (both sides and the back of the canopy),
-   and an advertisement for The Siam Times along both sides of a bus */
+   and an advertisement for The Siam Times, its masthead in Chomsky, along both sides of a bus */
 function vehicleDecals() {
   const [c1, x1] = makeCanvas(512, 96);
   x1.font = '700 72px Kanit, sans-serif'; x1.textAlign = 'center'; x1.textBaseline = 'middle';
@@ -3561,10 +3561,8 @@ function vehicleDecals() {
   x2.fillStyle = '#efe7d4'; x2.fillRect(0, 0, 1280, 100);
   x2.strokeStyle = '#1d2a3a'; x2.lineWidth = 6; x2.strokeRect(3, 3, 1274, 94);
   x2.strokeStyle = '#b8862e'; x2.lineWidth = 2; x2.strokeRect(11, 11, 1258, 78);
-  x2.fillStyle = '#1d2a3a'; x2.beginPath(); x2.arc(70, 50, 34, 0, Math.PI * 2); x2.fill();
-  x2.fillStyle = '#efe7d4'; x2.textAlign = 'center'; x2.textBaseline = 'middle'; x2.font = '58px Chomsky, serif'; x2.fillText('S', 70, 55);
-  x2.fillStyle = '#1d2a3a'; x2.font = '600 64px Newsreader, Georgia, serif'; if ('letterSpacing' in x2) x2.letterSpacing = '7px';
-  x2.fillText('THE SIAM TIMES', 560, 54); if ('letterSpacing' in x2) x2.letterSpacing = '0px';
+  x2.fillStyle = '#1d2a3a'; x2.textAlign = 'center'; x2.textBaseline = 'middle';   // the masthead, in Chomsky
+  fitText(x2, 'The Siam Times', 860, 92, '400', 'Chomsky, serif'); x2.fillText('The Siam Times', 485, 58);
   x2.fillStyle = '#b8862e'; x2.fillRect(960, 22, 3, 56);
   x2.fillStyle = '#8a5a1a'; x2.textAlign = 'left';
   if (TH) { fitText(x2, 'ข่าวดี ส่งต่อได้ทุกวัน', 280, 30, '600', FONT_TH); x2.fillText('ข่าวดี ส่งต่อได้ทุกวัน', 982, 52); }
@@ -6211,7 +6209,7 @@ async function boot() {
   document.title = TH ? 'ล่องกรุง · The Siam Times' : 'Bangkok Cruiser · The Siam Times';
   await progress(0);
   if (document.fonts && document.fonts.load) {
-    await Promise.race([Promise.all([document.fonts.load('700 40px Kanit', 'กขค Kan'), document.fonts.load('600 40px Kanit', '0123'), document.fonts.load('40px Chonburi', 'กข'), document.fonts.load('40px Chomsky', 'Chandler S'), document.fonts.load('600 40px Newsreader', 'THE SIAM TIMES')]), new Promise(r => setTimeout(r, 3500))]).catch(() => {});
+    await Promise.race([Promise.all([document.fonts.load('700 40px Kanit', 'กขค Kan'), document.fonts.load('600 40px Kanit', '0123'), document.fonts.load('40px Chonburi', 'กข'), document.fonts.load('40px Chomsky', 'Chandler The Siam Times')]), new Promise(r => setTimeout(r, 3500))]).catch(() => {});
   }
   buildTextures(); buildBillboard();
   await buildWorld(progress);
