@@ -1948,6 +1948,7 @@ function nearIntersection(x, z, r) {
 function buildStreetFurniture() {
   const isWarm = (x, z) => ['old', 'china', 'river', 'temple', 'khaosan', 'palace', 'sanam', 'mount', 'wheel'].includes(districtAt(x, z));
   const lampSpot = (x, z, ax, az, warm) => {
+    if (btsColumnNear(x, z, 2.2)) return;   // the Skytrain's column stands there
     inst('lampPole', mat(x, KERB, z, Math.atan2(ax, az)), null);
     inst('lampHead', mat(x + ax * 2.3, KERB + 8.35, z + az * 2.3, Math.atan2(ax, az)), col(warm ? WARM : COOL).multiplyScalar(1.15));
     inst('pool', mat(x + ax * 2.6, 0.03, z + az * 2.6, 0, 12, 1, 12), col(warm ? 0xff9a40 : 0xb8c8ff));
@@ -2035,21 +2036,22 @@ function buildTrafficLights() {
 }
 
 /* ---------- the Skytrain along Rama I / Sukhumvit (z = 100) ---------- */
-const BTS = { x0: 214, x1: 1090, stations: [350, 550, 750, 950], ends: [262, 1038] };
+// the viaduct stands on portal frames, a column at each kerb and a beam across, so nothing stands in the road
+// and there is no median: the bike can cross Sukhumvit anywhere
+const BTS = { x0: 214, x1: 1090, stations: [350, 550, 750, 950], ends: [262, 1038], colZ: 11.8, cols: [] };
+const btsColumnNear = (x, z, r) => BTS.cols.some(([cx, cz]) => Math.abs(cx - x) < r && Math.abs(cz - z) < r);
 function buildSkytrain() {
   useGlobal();
   const r = gb('roof'), z = 100, x0 = BTS.x0, x1 = BTS.x1, y0 = 10, y1 = 11.3;
   r.color(0xa9a7a1); r.box(x0, z - 5, x1, z + 5, y0, y1, 1, 1, 0, [0, 0, 1, 1]);
   r.color(0x8f8d88); r.box(x0, z - 5, x1, z - 4.7, y1, y1 + 1.1, 1, 1, 0, [0, 0, 1, 1]); r.box(x0, z + 4.7, x1, z + 5, y1, y1 + 1.1, 1, 1, 0, [0, 0, 1, 1]);
   r.color(0x5e5c58); r.box(x0, z - 0.25, x1, z + 0.25, y1, y1 + 0.4, 1, 1, 0, [0, 0, 1, 1]);
-  r.color(0xb5b2ab);
-  for (let x = x0 + 12; x < x1; x += 30) {
-    if (nearIntersection(x, z, 4)) continue;
-    r.geo(GEO.cyl, mat(x, y0 / 2, z, 0, 1.0, y0, 1.0));
-    r.geo(GEO.box, mat(x, y0 - 0.6, z, 0, 2.4, 1.2, 9));
-    addCircle(x, z, 1.25);
-  }
-  for (let i = 2; i < NX - 1; i++) { const a = RX[i] + WX[i] / 2 + 6, b = RX[i + 1] - WX[i + 1] / 2 - 6; r.color(0xcfcbc2); r.box(a, z - 0.8, b, z + 0.8, 0, 0.22, 1, 1, 0, [0, 0, 1, 1]); addRect(a, z - 0.8, b, z + 0.8); }
+  const cz = BTS.colZ, portal = (x, top) => {   // two columns on the footpaths at the kerbs, a beam across the road under the deck
+    r.color(0xb5b2ab);
+    for (const s of [-1, 1]) { r.geo(GEO.cyl, mat(x, (KERB + top) / 2, z + s * cz, 0, 0.55, top - KERB, 0.55)); addCircle(x, z + s * cz, 0.6); BTS.cols.push([x, z + s * cz]); }
+    r.geo(GEO.box, mat(x, top + 0.5, z, 0, 1.3, 1.0, 2 * cz + 1.4));
+  };
+  for (let x = x0 + 12; x < x1; x += 30) { if (!nearIntersection(x, z, 4)) portal(x, y0 - 1.0); }
   for (const sx of BTS.stations) {
     r.color(0xd9d6cf); r.box(sx - 36, z - 11, sx + 36, z - 5, y1 - 0.4, y1 + 0.9, 1, 1, 0, [0, 0, 1, 1]); r.box(sx - 36, z + 5, sx + 36, z + 11, y1 - 0.4, y1 + 0.9, 1, 1, 0, [0, 0, 1, 1]);
     r.color(0xc4c1ba); r.box(sx - 36, z - 11, sx + 36, z - 10.6, y1 + 0.9, y1 + 2.0, 1, 1, 0, [0, 0, 1, 1]); r.box(sx - 36, z + 10.6, sx + 36, z + 11, y1 + 0.9, y1 + 2.0, 1, 1, 0, [0, 0, 1, 1]);
@@ -2060,7 +2062,7 @@ function buildSkytrain() {
     const l = gb('lamp'); l.color(new THREE.Color(0.72, 0.77, 0.85));
     for (const s of [-1, 1]) l.box(sx - 34, z + s * 8.3 - 0.15, sx + 34, z + s * 8.3 + 0.15, y1 + 5.6, y1 + 5.8, 1, 1, 0, null);
     l.box(sx - 29.8, z - 9.05, sx + 29.8, z + 9.05, 8.6, 9.2, 1, 1, 0, null);
-    for (const s of [-1, 1]) { r.color(0xb5b2ab); r.geo(GEO.box, mat(sx + s * 26, 3.2, z, 0, 1.4, 6.4, 1.4)); addCircle(sx + s * 26, z, 1.2); }
+    for (const s of [-1, 1]) portal(sx + s * 26, 5.4);   // the station's concourse rests on its own frames
   }
   for (const [track, dir] of [[-2.2, 1], [2.2, -1]]) {
     const body = new GB(), win = new GB();
