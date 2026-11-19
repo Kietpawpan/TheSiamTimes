@@ -361,6 +361,7 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
     <div class="tr">
       <button class="ib" id="autoBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2"/><path d="M3.6 10.5h6.2M14.2 10.5h6.2M12 14.2v6.2"/></svg><span data-i18n="auto"></span></button>
       <button class="ib" id="navBtn" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-6.5-6.4-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.6 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.3"/></svg><span data-i18n="navBtn"></span></button>
+      <button class="ib" id="lightBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13.5 6.5c3.8 0 6.5 2.4 6.5 5.5s-2.7 5.5-6.5 5.5H12v-11z"/><path d="M9 8.5H3.5M9 12H3M9 15.5H3.5"/></svg><span data-i18n="lights"></span></button>
       <button class="ib" id="camBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/></svg><span data-i18n="cam"></span></button>
       <button class="ib" id="timeBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span data-i18n="timeBtn"></span></button>
       <button class="ib" id="soundBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="soundWave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span data-i18n="sound"></span></button>
@@ -473,7 +474,7 @@ const STR = {
     quals: { auto: 'อัตโนมัติ', high: 'สูง', medium: 'กลาง', low: 'ประหยัด' },
     help: '<b>ซ้าย</b> แตะค้างแล้วลากซ้าย–ขวาเพื่อเลี้ยว · จอดนิ่งแล้วรถเข้าเกียร์ว่าง (N) บิดเร่งเบิ้ลได้ กดปุ่ม <b>D</b> เหนือแฮนด์เพื่อออกตัว (เกียร์ธรรมดา: ▲ ▼) · <b>ขวา</b> เร่ง / เบรก (หยุดแล้วกดเบรกค้างเพื่อถอย) · <b>ครูซ</b> คงความเร็ว · <b>ออโต้</b> เลี้ยวให้เอง เปิดเองในมุมถ่ายทอด · เปิดเสียง iPad ด้วย<br>คีย์บอร์ด: ↑↓←→ หรือ WASD · Space เบรก · E / Q เกียร์ขึ้น / ลง (E = D) · G ออโต้ · H แตร · X ครูซ · C มุมกล้อง · T เวลา · P พัก',
     cam: 'กล้อง', timeBtn: 'เวลา', sound: 'เสียง', pause: 'พัก',
-    steer: 'แฮนด์', horn: 'แตร', cruise: 'ครูซ', brake: 'เบรก', throttle: 'เร่ง',
+    steer: 'แฮนด์', horn: 'แตร', lights: 'ไฟหน้า', cruise: 'ครูซ', brake: 'เบรก', throttle: 'เร่ง',
     postcard: 'โปสการ์ดจากกรุงเทพฯ', paused: 'พักริมทาง', odo: 'กิโลเมตรที่ขี่', topSpeed: 'ความเร็วสูงสุด กม./ชม.', postcards: 'โปสการ์ด',
     steerMode: 'การเลี้ยว', steerPad: 'ลากนิ้ว', steerTilt: 'เอียงเครื่อง',
     resume: 'ขี่ต่อ', toTitle: 'กลับหน้าแรก (สี/เวลา)',
@@ -502,7 +503,7 @@ const STR = {
     quals: { auto: 'Auto', high: 'High', medium: 'Medium', low: 'Saver' },
     help: '<b>Left</b>: hold and slide left or right to steer · Stopped, the bike drops into neutral (N) and you can rev it; tap <b>D</b> above the bars to pull away (manual gearbox: ▲ ▼) · <b>Right</b>: throttle and brake (stopped, hold the brake to back up) · <b>Cruise</b> holds your speed · <b>Auto</b> steers for you, and comes on by itself in the broadcast camera · Turn the iPad’s sound on<br>Keyboard: arrows or WASD · Space brake · E / Q shift up / down (E = D) · G auto steering · H horn · X cruise · C camera · T time · P pause',
     cam: 'Camera', timeBtn: 'Time', sound: 'Sound', pause: 'Pause',
-    steer: 'Bars', horn: 'Horn', cruise: 'Cruise', brake: 'Brake', throttle: 'Throttle',
+    steer: 'Bars', horn: 'Horn', lights: 'Lights', cruise: 'Cruise', brake: 'Brake', throttle: 'Throttle',
     postcard: 'Postcard from Bangkok', paused: 'Pulled over', odo: 'km ridden', topSpeed: 'top speed km/h', postcards: 'postcards',
     steerMode: 'Steering', steerPad: 'Slide', steerTilt: 'Tilt the iPad',
     resume: 'Ride on', toTitle: 'Back to the start (paint, time)',
@@ -1948,6 +1949,7 @@ function nearIntersection(x, z, r) {
 function buildStreetFurniture() {
   const isWarm = (x, z) => ['old', 'china', 'river', 'temple', 'khaosan', 'palace', 'sanam', 'mount', 'wheel'].includes(districtAt(x, z));
   const lampSpot = (x, z, ax, az, warm) => {
+    if (btsColumnNear(x, z, 2.2)) return;   // the Skytrain's column stands there
     inst('lampPole', mat(x, KERB, z, Math.atan2(ax, az)), null);
     inst('lampHead', mat(x + ax * 2.3, KERB + 8.35, z + az * 2.3, Math.atan2(ax, az)), col(warm ? WARM : COOL).multiplyScalar(1.15));
     inst('pool', mat(x + ax * 2.6, 0.03, z + az * 2.6, 0, 12, 1, 12), col(warm ? 0xff9a40 : 0xb8c8ff));
@@ -2035,21 +2037,22 @@ function buildTrafficLights() {
 }
 
 /* ---------- the Skytrain along Rama I / Sukhumvit (z = 100) ---------- */
-const BTS = { x0: 214, x1: 1090, stations: [350, 550, 750, 950], ends: [262, 1038] };
+// the viaduct stands on portal frames, a column at each kerb and a beam across, so nothing stands in the road
+// and there is no median: the bike can cross Sukhumvit anywhere
+const BTS = { x0: 214, x1: 1090, stations: [350, 550, 750, 950], ends: [262, 1038], colZ: 11.8, cols: [] };
+const btsColumnNear = (x, z, r) => BTS.cols.some(([cx, cz]) => Math.abs(cx - x) < r && Math.abs(cz - z) < r);
 function buildSkytrain() {
   useGlobal();
   const r = gb('roof'), z = 100, x0 = BTS.x0, x1 = BTS.x1, y0 = 10, y1 = 11.3;
   r.color(0xa9a7a1); r.box(x0, z - 5, x1, z + 5, y0, y1, 1, 1, 0, [0, 0, 1, 1]);
   r.color(0x8f8d88); r.box(x0, z - 5, x1, z - 4.7, y1, y1 + 1.1, 1, 1, 0, [0, 0, 1, 1]); r.box(x0, z + 4.7, x1, z + 5, y1, y1 + 1.1, 1, 1, 0, [0, 0, 1, 1]);
   r.color(0x5e5c58); r.box(x0, z - 0.25, x1, z + 0.25, y1, y1 + 0.4, 1, 1, 0, [0, 0, 1, 1]);
-  r.color(0xb5b2ab);
-  for (let x = x0 + 12; x < x1; x += 30) {
-    if (nearIntersection(x, z, 4)) continue;
-    r.geo(GEO.cyl, mat(x, y0 / 2, z, 0, 1.0, y0, 1.0));
-    r.geo(GEO.box, mat(x, y0 - 0.6, z, 0, 2.4, 1.2, 9));
-    addCircle(x, z, 1.25);
-  }
-  for (let i = 2; i < NX - 1; i++) { const a = RX[i] + WX[i] / 2 + 6, b = RX[i + 1] - WX[i + 1] / 2 - 6; r.color(0xcfcbc2); r.box(a, z - 0.8, b, z + 0.8, 0, 0.22, 1, 1, 0, [0, 0, 1, 1]); addRect(a, z - 0.8, b, z + 0.8); }
+  const cz = BTS.colZ, portal = (x, top) => {   // two columns on the footpaths at the kerbs, a beam across the road under the deck
+    r.color(0xb5b2ab);
+    for (const s of [-1, 1]) { r.geo(GEO.cyl, mat(x, (KERB + top) / 2, z + s * cz, 0, 0.55, top - KERB, 0.55)); addCircle(x, z + s * cz, 0.6); BTS.cols.push([x, z + s * cz]); }
+    r.geo(GEO.box, mat(x, top + 0.5, z, 0, 1.3, 1.0, 2 * cz + 1.4));
+  };
+  for (let x = x0 + 12; x < x1; x += 30) { if (!nearIntersection(x, z, 4)) portal(x, y0 - 1.0); }
   for (const sx of BTS.stations) {
     r.color(0xd9d6cf); r.box(sx - 36, z - 11, sx + 36, z - 5, y1 - 0.4, y1 + 0.9, 1, 1, 0, [0, 0, 1, 1]); r.box(sx - 36, z + 5, sx + 36, z + 11, y1 - 0.4, y1 + 0.9, 1, 1, 0, [0, 0, 1, 1]);
     r.color(0xc4c1ba); r.box(sx - 36, z - 11, sx + 36, z - 10.6, y1 + 0.9, y1 + 2.0, 1, 1, 0, [0, 0, 1, 1]); r.box(sx - 36, z + 10.6, sx + 36, z + 11, y1 + 0.9, y1 + 2.0, 1, 1, 0, [0, 0, 1, 1]);
@@ -2060,7 +2063,7 @@ function buildSkytrain() {
     const l = gb('lamp'); l.color(new THREE.Color(0.72, 0.77, 0.85));
     for (const s of [-1, 1]) l.box(sx - 34, z + s * 8.3 - 0.15, sx + 34, z + s * 8.3 + 0.15, y1 + 5.6, y1 + 5.8, 1, 1, 0, null);
     l.box(sx - 29.8, z - 9.05, sx + 29.8, z + 9.05, 8.6, 9.2, 1, 1, 0, null);
-    for (const s of [-1, 1]) { r.color(0xb5b2ab); r.geo(GEO.box, mat(sx + s * 26, 3.2, z, 0, 1.4, 6.4, 1.4)); addCircle(sx + s * 26, z, 1.2); }
+    for (const s of [-1, 1]) portal(sx + s * 26, 5.4);   // the station's concourse rests on its own frames
   }
   for (const [track, dir] of [[-2.2, 1], [2.2, -1]]) {
     const body = new GB(), win = new GB();
@@ -3442,11 +3445,56 @@ function setOutfit(i) { settings.outfit = i; save(); buildRider(); }
 const DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]]; // E S W N
 const LIGHT_CYCLE = 26;
 function lightState(node, axis, time) {
-  const t = (time + node.offset) % LIGHT_CYCLE;
+  const t = ((time + node.offset) % LIGHT_CYCLE + LIGHT_CYCLE) % LIGHT_CYCLE;
   if (axis === 'x') return t < 11 ? 'g' : t < 13 ? 'a' : 'r';
   return t >= 13 && t < 24 ? 'g' : t >= 24 ? 'a' : 'r';
 }
 const nodeAt = (i, j) => WORLD.trafficLights[i * NZ + j];
+
+/* The crossing the rider is coming up to answers them, like a light with a detector in the road:
+   a red turns green within about three seconds (the other road gets its amber first), and a green
+   holds, up to 12 s longer, while they ride through. */
+const CALL_DIST = 55;
+// the crossing ahead of the rider along the road they are on (footpath included), its axis, and how far to its near edge
+function nodeAhead(p) {
+  const fx = -Math.sin(p.yaw), fz = -Math.cos(p.yaw);
+  let node = null, axis, d = 1e9;
+  if (Math.abs(fx) > 0.75) {          // riding along x, on a road at some RZ[j]
+    const j = RZ.findIndex((z, k) => Math.abs(p.z - z) < WZ[k] / 2 + WALK + 0.5); if (j < 0) return null;
+    for (let i = 0; i < NX; i++) { const dd = (RX[i] - p.x) * Math.sign(fx) - WX[i] / 2; if (dd > -2 && dd < d) { d = dd; node = nodeAt(i, j); } }
+    axis = 'x';
+  } else if (Math.abs(fz) > 0.75) {   // riding along z, on a road at some RX[i]
+    const i = RX.findIndex((x, k) => Math.abs(p.x - x) < WX[k] / 2 + WALK + 0.5); if (i < 0) return null;
+    for (let j = 0; j < NZ; j++) { const dd = (RZ[j] - p.z) * Math.sign(fz) - WZ[j] / 2; if (dd > -2 && dd < d) { d = dd; node = nodeAt(i, j); } }
+    axis = 'z';
+  } else return null;
+  return node && node.heads.some(h => h.axis === axis) ? { node, axis, d } : null;
+}
+function riderSignals(dt, p) {
+  if (!p) return;
+  const a = nodeAhead(p); if (!a || a.d > CALL_DIST) return;
+  const { node, axis } = a;
+  const t = ((TRAFFIC.time + node.offset) % LIGHT_CYCLE + LIGHT_CYCLE) % LIGHT_CYCLE, st = lightState(node, axis, TRAFFIC.time);
+  if (st === 'r') {
+    node.hold = 0;
+    // on to the last second of the other road's green: then its amber, then ours
+    if (axis === 'x' && t >= 13 && t < 23) node.offset += 23 - t;
+    else if (axis === 'z' && t < 10) node.offset += 10 - t;
+  } else if (st === 'g') {
+    const left = (axis === 'x' ? 11 : 24) - t;
+    if (left < 2.5 && (node.hold || 0) < 12) { node.offset -= dt; node.hold = (node.hold || 0) + dt; }
+  }
+}
+const HONKS = [];
+function hornTap(p) {
+  const now = performance.now() / 1000; HONKS.push(now); while (HONKS.length && now - HONKS[0] > 2.2) HONKS.shift();
+  if (HONKS.length < 3) return false;
+  HONKS.length = 0;
+  const a = p && nodeAhead(p); if (!a || a.d > 90) return false;
+  const t = ((TRAFFIC.time + a.node.offset) % LIGHT_CYCLE + LIGHT_CYCLE) % LIGHT_CYCLE;
+  a.node.offset += (a.axis === 'x' ? 0.3 : 13.3) - t; a.node.hold = 0; lastLightSig = '';
+  return true;
+}
 const inGrid = (i, j) => i >= 0 && i < NX && j >= 0 && j < NZ;
 
 /* vehicle models: one merged geometry per kind, painted white where the instance colour should show */
@@ -3516,6 +3564,30 @@ function buildVehicleKinds() {
   const wave = new GB(); { const [g, m] = limb([0, 0, 0], [0, 0.62, 0], 0.048); wave.color(W); wave.geo(g, m); wave.color(SKIN); wave.geo(new THREE.SphereGeometry(0.06, 8, 6), mat(0, 0.66, 0)); }
   VKINDS.scooter.wave = wave.build();
 }
+/* words on the vehicles: THAILAND on a tuk-tuk (both sides and the back of the canopy),
+   and an advertisement for The Siam Times, its masthead in Chomsky, along both sides of a bus */
+function vehicleDecals() {
+  const [c1, x1] = makeCanvas(512, 96);
+  x1.font = '700 72px Kanit, sans-serif'; x1.textAlign = 'center'; x1.textBaseline = 'middle';
+  if ('letterSpacing' in x1) x1.letterSpacing = '9px';
+  x1.lineJoin = 'round'; x1.lineWidth = 11; x1.strokeStyle = 'rgba(14,16,22,.92)'; x1.strokeText('THAILAND', 260, 52);
+  const g1 = x1.createLinearGradient(0, 18, 0, 86); g1.addColorStop(0, '#ffffff'); g1.addColorStop(0.55, '#e6ebf0'); g1.addColorStop(1, '#b8c2cc');
+  x1.fillStyle = g1; x1.fillText('THAILAND', 260, 52);
+  const [c2, x2] = makeCanvas(1280, 100);
+  x2.fillStyle = '#efe7d4'; x2.fillRect(0, 0, 1280, 100);
+  x2.strokeStyle = '#1d2a3a'; x2.lineWidth = 6; x2.strokeRect(3, 3, 1274, 94);
+  x2.strokeStyle = '#b8862e'; x2.lineWidth = 2; x2.strokeRect(11, 11, 1258, 78);
+  x2.fillStyle = '#1d2a3a'; x2.textAlign = 'center'; x2.textBaseline = 'middle';   // the masthead, in Chomsky
+  fitText(x2, 'The Siam Times', 860, 92, '400', 'Chomsky, serif'); x2.fillText('The Siam Times', 485, 58);
+  x2.fillStyle = '#b8862e'; x2.fillRect(960, 22, 3, 56);
+  x2.fillStyle = '#8a5a1a'; x2.textAlign = 'left';
+  if (TH) { fitText(x2, 'ข่าวดี ส่งต่อได้ทุกวัน', 280, 30, '600', FONT_TH); x2.fillText('ข่าวดี ส่งต่อได้ทุกวัน', 982, 52); }
+  else { x2.font = '600 24px Kanit, sans-serif'; x2.fillText('All the news', 982, 38); x2.fillText('that’s nice to post', 982, 66); }
+  const mk = (map, alpha) => new THREE.MeshStandardMaterial({ map, roughness: alpha ? 0.35 : 0.45, metalness: alpha ? 0.4 : 0, alphaTest: alpha ? 0.4 : 0, polygonOffset: true, polygonOffsetFactor: -2 });
+  const planes = list => { const g = new GB(); for (const [w, h, m] of list) g.geo(new THREE.PlaneGeometry(w, h), m); return g.build(); };
+  VKINDS.tuktuk.decal = { geo: planes([[1.5, 0.28, mat(0.684, 0.64, 0.38, Math.PI / 2)], [1.5, 0.28, mat(-0.684, 0.64, 0.38, -Math.PI / 2)], [0.9, 0.17, mat(0, 1.76, 1.516)]]), mat: mk(tex(c1, { repeat: false }), true) };
+  VKINDS.bus.decal = { geo: planes([[7.0, 0.55, mat(1.268, 1.56, 0.2, Math.PI / 2)], [7.0, 0.55, mat(-1.268, 1.56, 0.2, -Math.PI / 2)]]), mat: mk(tex(c2, { repeat: false }), false) };
+}
 const BLOUSES = [0xe86a8a, 0xf2efe6, 0x7ac0e0, 0xf0c040, 0x9a7ad8, 0x62b88a, 0xe0703a, 0xd94a5a];
 const riderMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.75, metalness: 0 });
 
@@ -3553,6 +3625,7 @@ function turnLegFor(car) {
   }
   let tot = opts.reduce((a, o) => a + o.w, 0), r = Math.random() * tot, nd = opts[0].k;
   for (const o of opts) { r -= o.w; if (r <= 0) { nd = o.k; break; } }
+  if (car.straight > 0 && opts.some(o => o.k === car.d)) { nd = car.d; car.straight--; }   // a motorcade or an ambulance keeps on towards the rider
   const p0 = { x: car.leg.x1, z: car.leg.z1 };
   const saved = { i: car.i, j: car.j, d: car.d };
   car.i = ni; car.j = nj; car.d = nd;
@@ -3578,7 +3651,8 @@ function legPos(leg, s, out) {
 }
 
 function buildTraffic() {
-  buildVehicleKinds();
+  buildVehicleKinds(); vehicleDecals();
+  buildEmergency();
   const rr = rng(4242);
   for (const [kind, n, colors] of KIND_LIST) {
     const K = VKINDS[kind];
@@ -3586,6 +3660,7 @@ function buildTraffic() {
     body.castShadow = true; body.receiveShadow = true; body.frustumCulled = false; lights.frustumCulled = false;
     scene.add(body, lights);
     TRAFFIC.meshes[kind] = { body, lights };
+    if (K.decal) { const decal = new THREE.InstancedMesh(K.decal.geo, K.decal.mat, n); decal.frustumCulled = false; decal.receiveShadow = true; scene.add(decal); TRAFFIC.meshes[kind].decal = decal; }
     if (K.rider) {
       const rider = new THREE.InstancedMesh(K.rider, riderMat, n), armL = new THREE.InstancedMesh(K.armL, riderMat, n), head = new THREE.InstancedMesh(K.riderHead, riderMat, n);
       rider.castShadow = true; rider.frustumCulled = false; armL.frustumCulled = false; head.frustumCulled = false; scene.add(rider, armL, head);
@@ -3624,18 +3699,21 @@ let recycleT = 0;
 const _m = new THREE.Matrix4(), _m0 = new THREE.Matrix4().makeScale(0, 0, 0), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(1, 1, 1), _y = new THREE.Vector3(0, 1, 0);
 function updateTraffic(dt, player) {
   TRAFFIC.time += dt;
+  riderSignals(dt, player);
+  emergencyPre(dt, player);
   const tnow = TRAFFIC.time;
   // the city is big: vehicles that fall far behind come back somewhere round the rider, out of sight
   if (player && (recycleT -= dt) <= 0) {
     recycleT = 0.4;
-    for (const car of CARS) if (Math.hypot(car.pos.x - player.x, car.pos.z - player.z) > 420) placeCar(car, player.x, player.z, 160, 360);
+    for (const car of CARS) if (!car.special && Math.hypot(car.pos.x - player.x, car.pos.z - player.z) > 420) placeCar(car, player.x, player.z, 160, 360);
   }
   for (const car of CARS) {
+    if (car.follow) continue;                    // a saloon in the motorcade: it keeps to the police car's track
     const hx = car.pos.hx, hz = car.pos.hz;
     let target = car.vmax;
-    if (car.leg.kind === 'curve') target = Math.min(target, 6.5);
-    // red light ahead at the end of a straight leg
-    if (car.leg.kind === 'line') {
+    if (car.leg.kind === 'curve') target = Math.min(target, car.siren ? 8.5 : 6.5);
+    // red light ahead at the end of a straight leg (not for a siren)
+    if (car.leg.kind === 'line' && !car.siren) {
       const [dx] = DIRS[car.d];
       const node = nodeAt(car.i + DIRS[car.d][0], car.j + DIRS[car.d][1]);
       const st = lightState(node, dx !== 0 ? 'x' : 'z', tnow);
@@ -3645,7 +3723,7 @@ function updateTraffic(dt, player) {
     // the vehicle in front (and the player)
     let gapMin = 1e9;
     for (const o of CARS) {
-      if (o === car) continue;
+      if (o === car || (car.siren && (o.pull > 0.3 || o.follow === car))) continue;
       const ddx = o.pos.x - car.pos.x, ddz = o.pos.z - car.pos.z;
       const along = ddx * hx + ddz * hz; if (along <= 0 || along > 22) continue;
       const lat = Math.abs(-ddx * hz + ddz * hx); if (lat > 1.7) continue;
@@ -3659,6 +3737,11 @@ function updateTraffic(dt, player) {
       if (along > 0 && along < 18 && lat < 1.9) { gapMin = Math.min(gapMin, along - car.len / 2 - 1.2); playerAhead = true; }
     }
     if (gapMin < 1e9) target = Math.min(target, Math.max(0, (gapMin - 2.2) * 1.1));
+    // a siren behind: pull over to the left and let it by
+    if (!car.special) {
+      if (sirenBehind(car)) { car.pull = Math.min(1, (car.pull || 0) + dt * 1.4); target = Math.min(target, 2.5); }
+      else if (car.pull) car.pull = Math.max(0, car.pull - dt * 0.5);
+    }
     // patience: honk at a bike in the way
     if (playerAhead && car.v < 1 && target < 0.5) { car.blocked += dt; if (car.blocked > 2.2 && car.honk <= 0) { car.honk = 3 + Math.random() * 3; AUDIO.carHorn && AUDIO.carHorn(car); } }
     else car.blocked = 0;
@@ -3673,14 +3756,29 @@ function updateTraffic(dt, player) {
       car.s = over;
     }
     legPos(car.leg, car.s, car.pos);
+    if (!car.special) {
+      let want = 0;
+      if (player && player.beam) {
+        const dx = player.x - car.pos.x, dz = player.z - car.pos.z, along = dx * car.pos.hx + dz * car.pos.hz, left = dx * car.pos.hz - dz * car.pos.hx;
+        if (Math.abs(along) < 45 && Math.abs(left) < 1.8) {
+          if (car.leg.kind === 'line') { const L = laneOff(DIRS[car.d][0] !== 0 ? WZ[car.j] : WX[car.i]); want = (car.lane === 0 ? 1 : -1) * (L[1] - L[0]); }
+          else want = car.dodge || 0;
+        }
+      }
+      const dd = want - (car.dodge || 0), stp = 8 * dt; car.dodge = (car.dodge || 0) + (Math.abs(dd) < stp ? dd : Math.sign(dd) * stp);
+    }
+    const off = (car.pull ? car.pull * (car.lane === 0 ? 2.4 : 0.9) : 0) + (car.dodge || 0);
+    if (off) { car.pos.x += car.pos.hz * off; car.pos.z -= car.pos.hx * off; }
   }
+  emergencyPost(dt, player);
   // write instance matrices
   for (const car of CARS) {
     const M = TRAFFIC.meshes[car.kind];
     const yaw = Math.atan2(-car.pos.hx, -car.pos.hz);
     _q.setFromAxisAngle(_y, yaw); _p.set(car.pos.x, 0, car.pos.z);
     _m.compose(_p, _q, _s);
-    M.body.setMatrixAt(car.k, _m); M.lights.setMatrixAt(car.k, _m);
+    M.body.setMatrixAt(car.k, _m); M.lights.setMatrixAt(car.k, _m); if (M.decal) M.decal.setMatrixAt(car.k, _m);
+    if (M.flashA) { M.flashA.setMatrixAt(car.k, _m); M.flashB.setMatrixAt(car.k, _m); if (M.decal2) M.decal2.setMatrixAt(car.k, _m); }
     if (M.rider) {
       M.rider.setMatrixAt(car.k, _m); M.head.setMatrixAt(car.k, _m);
       // a rider waving back: her left arm comes off the bars and waves
@@ -3693,7 +3791,7 @@ function updateTraffic(dt, player) {
       } else M.armL.setMatrixAt(car.k, _m);
     }
   }
-  for (const k of Object.keys(TRAFFIC.meshes)) { const M = TRAFFIC.meshes[k]; M.body.instanceMatrix.needsUpdate = true; M.lights.instanceMatrix.needsUpdate = true; if (M.rider) { M.rider.instanceMatrix.needsUpdate = true; M.armL.instanceMatrix.needsUpdate = true; M.head.instanceMatrix.needsUpdate = true; } }
+  for (const k of Object.keys(TRAFFIC.meshes)) { const M = TRAFFIC.meshes[k]; M.body.instanceMatrix.needsUpdate = true; M.lights.instanceMatrix.needsUpdate = true; if (M.decal) M.decal.instanceMatrix.needsUpdate = true; if (M.flashA) { M.flashA.instanceMatrix.needsUpdate = true; M.flashB.instanceMatrix.needsUpdate = true; if (M.decal2) M.decal2.instanceMatrix.needsUpdate = true; } if (M.rider) { M.rider.instanceMatrix.needsUpdate = true; M.armL.instanceMatrix.needsUpdate = true; M.head.instanceMatrix.needsUpdate = true; } }
   updateLights(tnow);
 }
 
@@ -3753,6 +3851,207 @@ function updateWorldAnim(dt, time) {
   if (MAT.water.normalMap) MAT.water.normalMap.offset.set(time * 0.004, time * 0.012);
   tickBillboard(dt);
 }
+
+/* =====================================================================
+   Now and then something comes through with its lights going: a police car leading a
+   motorcade of black VIP saloons with amber lights flashing, or an ambulance with its
+   siren on, going fast. It starts on the rider's road and comes their way; the lights
+   ahead of it turn green for it, the cars in front pull over to the left, and it does not
+   stop for a red. The saloons follow the police car's own track, so they take every turn
+   it takes.
+   ===================================================================== */
+const SIRENS = [];                                    // the emergency vehicles, kept out of CARS until they are on the road
+const EMERG = { next: 45, live: null, flash: 0, last: '' };
+const FLASH = {};                                      // per kind: the two flashing materials and their on/off colours
+const E_SPEED = { police: 15.5, vip: 15.5, ambulance: 19 };
+
+function buildEmergencyKinds() {
+  const rb = (w, h, d, r) => new RoundedBoxGeometry(w, h, d, 2, r), box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+  const wheel = new THREE.CylinderGeometry(1, 1, 1, 14).rotateZ(Math.PI / 2);
+  const build = parts => { const g = new GB(); for (const [geo, m, c] of parts) { g.color(c ?? 0xffffff); g.geo(geo, m); } return g.build(); };
+  const W = 0xffffff, GL = 0x1b2128, TY = 0x161616, HL = new THREE.Color(1.8, 1.75, 1.6), TL = new THREE.Color(1.6, 0.05, 0.03);
+  const wheels = (x, z1, z2, r, wd) => [[x, z1], [-x, z1], [x, z2], [-x, z2]].map(([wx, wz]) => [wheel, mat(wx, r, wz, 0, wd, r, r), TY]);
+  const both = (geo, x, y, z, c) => [[geo, mat(x, y, z), c], [geo, mat(-x, y, z), c]];
+  // the police car: white, a navy band along the sides, a red and blue light bar
+  VKINDS.police = { len: 4.7, wid: 1.82,
+    geo: [build([[rb(1.82, 0.62, 4.7, 0.18), mat(0, 0.62, 0), W], [rb(1.62, 0.56, 2.4, 0.2), mat(0, 1.18, 0.2), W], [rb(1.64, 0.42, 2.2, 0.16), mat(0, 1.2, 0.2), GL],
+      [box(1.84, 0.22, 4.1), mat(0, 0.72, 0), 0x1d2a5a], [box(1.2, 0.08, 0.34), mat(0, 1.5, 0.2), 0x202020], ...wheels(0.82, -1.45, 1.4, 0.33, 0.22)]),
+      build([...both(box(0.4, 0.12, 0.05), 0.6, 0.72, -2.36, HL), ...both(box(0.42, 0.14, 0.05), 0.62, 0.78, 2.36, TL)])],
+    flash: [build([[rb(0.52, 0.13, 0.3, 0.05), mat(-0.29, 1.6, 0.2)]]), build([[rb(0.52, 0.13, 0.3, 0.05), mat(0.29, 1.6, 0.2)]])] };
+  // the VIP saloon: long and black, an amber light on the roof and two behind the grille
+  VKINDS.vip = { len: 4.9, wid: 1.86,
+    geo: [build([[rb(1.86, 0.6, 4.9, 0.2), mat(0, 0.62, 0), W], [rb(1.66, 0.54, 2.6, 0.22), mat(0, 1.16, 0.25), W], [rb(1.68, 0.4, 2.4, 0.18), mat(0, 1.18, 0.25), GL], ...wheels(0.84, -1.55, 1.5, 0.34, 0.23)]),
+      build([...both(box(0.42, 0.1, 0.05), 0.62, 0.72, -2.46, HL), ...both(box(0.5, 0.12, 0.05), 0.6, 0.8, 2.46, TL)])],
+    flash: [build([[new THREE.SphereGeometry(0.1, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), mat(0.36, 1.42, -0.5)], [box(0.16, 0.08, 0.04), mat(-0.32, 0.6, -2.47)]]),
+      build([[new THREE.SphereGeometry(0.1, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), mat(-0.36, 1.42, -0.5)], [box(0.16, 0.08, 0.04), mat(0.32, 0.6, -2.47)]])] };
+  // the ambulance: a white van with a red band, a light bar on the cab and lights at the back
+  VKINDS.ambulance = { len: 5.3, wid: 2.0,
+    geo: [build([[rb(2.0, 1.95, 3.8, 0.18), mat(0, 1.4, 0.75), W], [rb(1.95, 1.25, 1.6, 0.2), mat(0, 0.95, -1.8), W], [box(1.72, 0.5, 0.06), mat(0, 1.24, -2.58, 0, 1, 1, 1, -0.38), GL],
+      [box(1.97, 0.4, 0.9), mat(0, 1.28, -1.75), GL], [box(2.02, 0.2, 5.0), mat(0, 0.98, -0.1), 0xd0201c], [box(1.4, 0.08, 0.32), mat(0, 1.62, -1.8), 0x202020], ...wheels(0.9, -1.8, 1.75, 0.36, 0.24)]),
+      build([...both(box(0.36, 0.16, 0.05), 0.68, 0.85, -2.62, HL), ...both(box(0.2, 0.4, 0.05), 0.85, 1.0, 2.66, TL)])],
+    flash: [build([[rb(0.6, 0.14, 0.3, 0.05), mat(-0.33, 1.73, -1.8)], [rb(0.22, 0.12, 0.16, 0.04), mat(-0.82, 2.44, 2.55)]]),
+      build([[rb(0.6, 0.14, 0.3, 0.05), mat(0.33, 1.73, -1.8)], [rb(0.22, 0.12, 0.16, 0.04), mat(0.82, 2.44, 2.55)]])] };
+  // words: ตำรวจ POLICE on the band; รถพยาบาล AMBULANCE along the van, and AMBULANCE backwards above the cab, for mirrors
+  const words = (w, h, draw) => { const [c, x] = makeCanvas(w, h); draw(x); return tex(c, { repeat: false }); };
+  const pol = words(640, 50, x => { x.fillStyle = '#ffffff'; x.font = `700 40px ${FONT_TH}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('ตำรวจ   POLICE', 320, 27); });
+  const amb = words(704, 128, x => { x.fillStyle = '#d0201c'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = `700 66px ${FONT_TH}`; x.fillText('รถพยาบาล', 352, 44); x.font = '700 44px Kanit, sans-serif'; if ('letterSpacing' in x) x.letterSpacing = '7px'; x.fillText('AMBULANCE', 355, 104); });
+  const front = words(512, 96, x => { x.translate(512, 0); x.scale(-1, 1); x.fillStyle = '#d0201c'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '700 70px Kanit, sans-serif'; x.fillText('AMBULANCE', 256, 52); });
+  const planes = list => { const g = new GB(); for (const [w, h, m] of list) g.geo(new THREE.PlaneGeometry(w, h), m); return g.build(); };
+  const dm = (map, alpha = true) => new THREE.MeshStandardMaterial({ map, roughness: 0.5, alphaTest: alpha ? 0.4 : 0, polygonOffset: true, polygonOffsetFactor: -2 });
+  VKINDS.police.decal = { geo: planes([[2.4, 0.19, mat(0.925, 0.72, 0.1, Math.PI / 2)], [2.4, 0.19, mat(-0.925, 0.72, 0.1, -Math.PI / 2)]]), mat: dm(pol) };
+  VKINDS.ambulance.decal = { geo: planes([[3.4, 0.62, mat(1.005, 1.68, 0.75, Math.PI / 2)], [3.4, 0.62, mat(-1.005, 1.68, 0.75, -Math.PI / 2)]]), mat: dm(amb) };
+  VKINDS.ambulance.decal2 = { geo: planes([[1.7, 0.32, mat(0, 1.98, -1.157, Math.PI)]]), mat: dm(front) };
+  // the flashing lights: bright enough to bloom when on
+  const fl = (on, off) => ({ on: new THREE.Color(...on), off: new THREE.Color(...off) });
+  const R = fl([3.2, 0.12, 0.08], [0.25, 0.02, 0.02]), B = fl([0.15, 0.5, 3.4], [0.02, 0.05, 0.3]), A = fl([3.0, 1.5, 0.12], [0.3, 0.16, 0.02]);
+  for (const [kind, a, b] of [['police', R, B], ['vip', A, A], ['ambulance', R, B]]) FLASH[kind] = { a, b, ma: new THREE.MeshBasicMaterial({ color: a.off.clone() }), mb: new THREE.MeshBasicMaterial({ color: b.off.clone() }) };
+}
+
+function buildEmergency() {
+  buildEmergencyKinds();
+  for (const [kind, n, colors] of [['police', 1, [0xf4f4f0]], ['vip', 3, [0x0c0d10, 0x111317, 0x0e0f12]], ['ambulance', 1, [0xf6f6f2]]]) {
+    const K = VKINDS[kind];
+    const M = { body: new THREE.InstancedMesh(K.geo[0], carMat, n), lights: new THREE.InstancedMesh(K.geo[1], carLightMat, n),
+      flashA: new THREE.InstancedMesh(K.flash[0], FLASH[kind].ma, n), flashB: new THREE.InstancedMesh(K.flash[1], FLASH[kind].mb, n) };
+    if (K.decal) M.decal = new THREE.InstancedMesh(K.decal.geo, K.decal.mat, n);
+    if (K.decal2) M.decal2 = new THREE.InstancedMesh(K.decal2.geo, K.decal2.mat, n);
+    for (const m of Object.values(M)) { m.frustumCulled = false; scene.add(m); for (let k = 0; k < n; k++) m.setMatrixAt(k, _m0); m.instanceMatrix.needsUpdate = true; }
+    M.body.castShadow = true; M.body.receiveShadow = true;
+    for (let k = 0; k < n; k++) M.body.setColorAt(k, col(colors[k % colors.length]));
+    M.body.instanceColor.needsUpdate = true;
+    TRAFFIC.meshes[kind] = M;
+    for (let k = 0; k < n; k++) SIRENS.push({ kind, k, special: true, i: 0, j: 0, d: 0, lane: 0, len: K.len, wid: K.wid, v: 0, vmax: E_SPEED[kind], pos: { x: 0, z: 0, hx: 1, hz: 0 }, blocked: 0, honk: 0, bump: 0 });
+  }
+}
+
+/* where to start: on the rider's own road, 150–300 m off, coming their way (otherwise any road that way) */
+function placeToward(car, p) {
+  const tries = [], ri = Math.round(p.x / 100), rj = Math.round((p.z - RZ[0]) / 100);
+  const onX = RZ.findIndex((z, k) => Math.abs(p.z - z) < WZ[k] / 2 + WALK + 1), onZ = RX.findIndex((x, k) => Math.abs(p.x - x) < WX[k] / 2 + WALK + 1);   // the footpath counts
+  if (onX >= 0) for (const di of [-2, 2, -3, 3]) tries.push([ri + di, onX, di < 0 ? 0 : 2]);
+  if (onZ >= 0) for (const dj of [-2, 2, -3, 3]) tries.push([onZ, rj + dj, dj < 0 ? 1 : 3]);
+  for (let k = 0; k < 24; k++) {
+    const i = ri + Math.floor(Math.random() * 7) - 3, j = rj + Math.floor(Math.random() * 7) - 3, dx = p.x - RX[clamp(i, 0, NX - 1)], dz = p.z - RZ[clamp(j, 0, NZ - 1)];
+    tries.push([i, j, Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? 0 : 2) : (dz > 0 ? 1 : 3)]);
+  }
+  for (const [i, j, d] of tries) {
+    if (!inGrid(i, j) || !inGrid(i + DIRS[d][0], j + DIRS[d][1])) continue;
+    Object.assign(car, { i, j, d, lane: 0 }); legFor(car); car.s = 0; legPos(car.leg, 0, car.pos);
+    const dist = Math.hypot(car.pos.x - p.x, car.pos.z - p.z);
+    if (dist >= 140 && dist <= 320) return true;
+  }
+  return false;
+}
+function spawnEvent(p, kind) {
+  const convoy = kind ? kind === 'convoy' : EMERG.last === 'convoy' ? Math.random() < 0.3 : Math.random() < 0.65;
+  const lead = SIRENS.find(c => c.kind === (convoy ? 'police' : 'ambulance'));
+  if (!placeToward(lead, p)) return false;
+  Object.assign(lead, { siren: true, age: 0, dist: 0, straight: 3, v: E_SPEED[lead.kind] * 0.8, vmax: E_SPEED[lead.kind], bump: 0, blocked: 0, followers: [] });
+  // the track the saloons follow, laid back along the road behind the police car to begin with
+  lead.trail = []; for (let k = 40; k >= 0; k--) lead.trail.push({ x: lead.pos.x - lead.pos.hx * k, z: lead.pos.z - lead.pos.hz * k, hx: lead.pos.hx, hz: lead.pos.hz, d: -k });
+  CARS.push(lead);
+  if (convoy) SIRENS.filter(c => c.kind === 'vip').forEach((f, n) => { Object.assign(f, { follow: lead, gap: 10 + n * 9.5, v: lead.v }); trailAt(lead.trail, -f.gap, f.pos); lead.followers.push(f); CARS.push(f); });
+  EMERG.live = { lead, convoy, siren: null, told: false, node: null, axis: 'x', hold: 0 };
+  EMERG.last = convoy ? 'convoy' : 'ambulance';
+  return true;
+}
+function endEvent() {
+  const L = EMERG.live; if (!L) return;
+  for (const c of [L.lead, ...L.lead.followers]) {
+    const ix = CARS.indexOf(c); if (ix >= 0) CARS.splice(ix, 1);
+    const M = TRAFFIC.meshes[c.kind]; for (const m of Object.values(M)) { m.setMatrixAt(c.k, _m0); m.instanceMatrix.needsUpdate = true; }
+    c.follow = null; c.siren = false;
+  }
+  stopSiren(L.siren);
+  EMERG.live = null; EMERG.next = 70 + Math.random() * 60;
+}
+// a point on the track d metres along, with its heading
+function trailAt(tr, d, out) {
+  if (d <= tr[0].d) { const a = tr[0], k = d - a.d; out.x = a.x + a.hx * k; out.z = a.z + a.hz * k; out.hx = a.hx; out.hz = a.hz; return; }
+  let i = tr.length - 2; while (i > 0 && tr[i].d > d) i--;
+  const a = tr[i], b = tr[i + 1], t = clamp((d - a.d) / Math.max(1e-4, b.d - a.d), 0, 1);
+  out.x = lerp(a.x, b.x, t); out.z = lerp(a.z, b.z, t);
+  const hx = lerp(a.hx, b.hx, t), hz = lerp(a.hz, b.hz, t), l = Math.hypot(hx, hz) || 1; out.hx = hx / l; out.hz = hz / l;
+}
+// the crossing ahead turns green for it: the other road gets its amber first, then a green that holds
+function forceGreen(node, axis, dt) {
+  const t = ((TRAFFIC.time + node.offset) % LIGHT_CYCLE + LIGHT_CYCLE) % LIGHT_CYCLE;
+  if (lightState(node, axis, TRAFFIC.time) === 'g') { if ((axis === 'x' ? 11 : 24) - t < 3) node.offset -= dt; return; }
+  if (axis === 'x' && t >= 13 && t < 24) node.offset += 24 - t;
+  else if (axis === 'z' && t < 11) node.offset += 11 - t;
+}
+// is one of them coming up behind this car, on its side of the road?
+function sirenBehind(car) {
+  const L = EMERG.live; if (!L) return false;
+  for (const e of [L.lead, ...L.lead.followers]) {
+    const dx = car.pos.x - e.pos.x, dz = car.pos.z - e.pos.z, along = dx * e.pos.hx + dz * e.pos.hz;
+    if (along < -3 || along > 38) continue;
+    if (Math.abs(-dx * e.pos.hz + dz * e.pos.hx) > 4.2) continue;
+    if (car.pos.hx * e.pos.hx + car.pos.hz * e.pos.hz < 0.6) continue;
+    return true;
+  }
+  return false;
+}
+
+function emergencyPre(dt, p) {
+  EMERG.flash += dt;
+  const L = EMERG.live;
+  if (!L) { if (p && (EMERG.next -= dt) <= 0 && !spawnEvent(p)) EMERG.next = 8; return; }
+  const c = L.lead; c.age += dt;
+  if (c.age > 90 || (p && c.age > 12 && Math.hypot(c.pos.x - p.x, c.pos.z - p.z) > 380)) { endEvent(); return; }
+  if (c.leg.kind === 'line' && c.leg.len - c.s < 50) { const [dx, dz] = DIRS[c.d]; L.node = nodeAt(c.i + dx, c.j + dz); L.axis = dx !== 0 ? 'x' : 'z'; L.hold = L.convoy ? 3.5 : 1.5; }
+  else if (L.hold > 0 && c.leg.kind === 'line') L.hold -= dt;
+  if (L.node && L.hold > 0) forceGreen(L.node, L.axis, dt);
+}
+function emergencyPost(dt, p) {
+  for (const [kind, rate] of [['police', 6], ['vip', 4], ['ambulance', 7]]) {
+    const F = FLASH[kind]; if (!F) continue; const on = Math.floor(EMERG.flash * rate) % 2 === 0;
+    F.ma.color.copy(on ? F.a.on : F.a.off); F.mb.color.copy(on ? F.b.off : F.b.on);
+  }
+  const L = EMERG.live; if (!L) return;
+  const c = L.lead;
+  if (L.convoy) {
+    const last = c.trail[c.trail.length - 1], step = Math.hypot(c.pos.x - last.x, c.pos.z - last.z);
+    if (step > 0.4) { c.dist += step; c.trail.push({ x: c.pos.x, z: c.pos.z, hx: c.pos.hx, hz: c.pos.hz, d: c.dist }); }
+    while (c.trail.length > 2 && c.trail[1].d < c.dist - 70) c.trail.shift();
+    for (const f of c.followers) { trailAt(c.trail, c.dist - f.gap, f.pos); f.v = c.v; }
+  }
+  if (!p) return;
+  if (!L.siren && AUDIO.ready) L.siren = startSiren(L.convoy ? 'yelp' : 'wail');
+  sirenUpdate(L.siren, c, p);
+  if (!L.told && Math.hypot(c.pos.x - p.x, c.pos.z - p.z) < 140) {
+    L.told = true;
+    toast(L.convoy ? (TH ? 'ขบวนรถ VIP มีตำรวจนำขบวนกำลังมา หลบให้ทางด้วย' : 'A VIP motorcade with a police escort is coming: give way')
+      : (TH ? 'รถพยาบาลฉุกเฉินเปิดหวอมา หลบให้ทางด้วย' : 'An ambulance is coming, siren on: give way'), 3);
+  }
+}
+
+/* the sirens: a slow rising and falling wail for the ambulance, a quick yelp for the police car */
+function startSiren(kind) {
+  const ctx = AUDIO.ctx, o = ctx.createOscillator(), o2 = ctx.createOscillator(), lfo = ctx.createOscillator(), lg = ctx.createGain(), lg2 = ctx.createGain();
+  const f = ctx.createBiquadFilter(), g = ctx.createGain(), p = ctx.createStereoPanner();
+  const [base, depth, rate] = kind === 'yelp' ? [1080, 380, 3.4] : [960, 430, 0.32];
+  o.type = 'sawtooth'; o2.type = 'square'; o.frequency.value = base; o2.frequency.value = base * 1.003;
+  lfo.type = kind === 'yelp' ? 'sawtooth' : 'triangle'; lfo.frequency.value = rate; lg.gain.value = depth; lg2.gain.value = depth * 1.003;
+  lfo.connect(lg).connect(o.frequency); lfo.connect(lg2).connect(o2.frequency);
+  f.type = 'lowpass'; f.frequency.value = 2400; f.Q.value = 2;
+  const mix = ctx.createGain(); mix.gain.value = 0.5; g.gain.value = 0;
+  o.connect(mix); o2.connect(mix); mix.connect(f).connect(g).connect(p).connect(AUDIO.master);
+  o.start(); o2.start(); lfo.start();
+  return { o, o2, lfo, g, p };
+}
+function sirenUpdate(S, car, p) {
+  if (!S) return;
+  const t = AUDIO.ctx.currentTime, dx = car.pos.x - p.x, dz = car.pos.z - p.z, d = Math.hypot(dx, dz);
+  S.g.gain.setTargetAtTime(0.14 * Math.pow(clamp(1 - d / 320, 0, 1), 2), t, 0.12);
+  S.p.pan.setTargetAtTime(clamp((dx * Math.cos(p.yaw) - dz * Math.sin(p.yaw)) / 30, -0.9, 0.9), t, 0.12);
+}
+function stopSiren(S) {
+  if (!S) return;
+  S.g.gain.setTargetAtTime(0, AUDIO.ctx.currentTime, 0.15);
+  setTimeout(() => { for (const n of [S.o, S.o2, S.lfo]) try { n.stop(); } catch (e) { /* already stopped */ } }, 900);
+}
+function emergencyMute() { const L = EMERG.live; if (L && L.siren) L.siren.g.gain.setTargetAtTime(0, AUDIO.ctx.currentTime, 0.1); }
 
 
 /* =====================================================================
@@ -5270,6 +5569,9 @@ function gearUI() { const m = settings.gearbox === 'manual'; $('gearUp').hidden 
 /* ---------- steering assist: follows the left lane, turns at crossings, heads for the nearest postcard ---------- */
 const AP = { on: false, byCam: false, d: 0, ni: 0, nj: 0, next: 0, path: null, target: '', inner: false, innerT: 0, stuckT: 0 };
 function apSet(on, byCam) { AP.on = on; AP.byCam = on && !!byCam; AP.path = null; AP.target = ''; AP.inner = false; autoUI(); }
+// the headlight switch (full beam, day or night)
+function toggleBeam() { SFX.click(); bike.beam = !bike.beam; beamUI(); }
+function beamUI() { const b = $('lightBtn'); if (b) b.setAttribute('aria-pressed', bike.beam ? 'true' : 'false'); }
 function autoUI() {
   $('autoBtn').setAttribute('aria-pressed', AP.on ? 'true' : 'false');
   $('steer').classList.toggle('auto', AP.on);
@@ -5665,11 +5967,11 @@ function poseBike(dt, parked) {
   if (BIKE.watch) BIKE.watch.visible = !!settings.watch;
   BIKE.rider.visible = state === 'title' || settings.cam !== 2;
   const on = !!(AUDIO.E && AUDIO.E.running) || bike.started;   // lights come on with the ignition
-  BIKE.spot.intensity = on ? look.head * 1.7 : 0;
+  BIKE.spot.intensity = on ? (bike.beam ? Math.max(look.head, 45) * 2.1 : look.head * 1.7) : 0;   // the headlight switched on: bright by day too
   BIKE.fill.intensity = (look.night ? 7 : look.lamps > 0.5 ? 5 : look.head > 0 ? 2.5 : 0) * (parked ? 1.6 : 1);
-  BM.glow.opacity = !on ? 0 : look.lamps > 0.5 ? 0.8 : look.head > 0 ? 0.22 : 0.08;
+  BM.glow.opacity = !on ? 0 : bike.beam ? 0.95 : look.lamps > 0.5 ? 0.8 : look.head > 0 ? 0.22 : 0.08;
   BM.tail.emissiveIntensity = !on ? 0.05 : bike.brake > 0.1 ? 4 : look.lamps > 0.3 ? 1.5 : 0.7;
-  BM.lens.color.setScalar(!on ? 0.22 : look.lamps > 0.3 ? 2.2 : 1.3);
+  BM.lens.color.setScalar(!on ? 0.22 : bike.beam ? 2.8 : look.lamps > 0.3 ? 2.2 : 1.3);
   BM.plate.emissiveIntensity = !on ? 0 : look.lamps > 0.3 ? 0.6 : 0.1;
 }
 
@@ -5879,7 +6181,7 @@ function bindInput() {
   bindHold('brakeBtn', () => { input.brake = 1; }, () => { input.brake = 0; });
   $('navBtn').addEventListener('click', () => { SFX.click(); settings.nav = !navOn(); save(); navUI(); toast(navOn() ? NX_.on : NX_.off); });
   $('actBtn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (MS.here) openPlace(MS.here); });
-  bindHold('hornBtn', () => { SFX.horn(true); $('hornBtn').classList.add('on'); missionHonk(); }, () => { SFX.horn(false); $('hornBtn').classList.remove('on'); });
+  bindHold('hornBtn', () => { SFX.horn(true); $('hornBtn').classList.add('on'); missionHonk(); hornTap(bike); }, () => { SFX.horn(false); $('hornBtn').classList.remove('on'); });
   $('cruiseBtn').addEventListener('pointerdown', e => { e.preventDefault(); toggleCruise(); });
   // handlebar pad: touch anywhere in the lower left, slide sideways
   const area = $('steer'), knob = $('knob'), pad = area.querySelector('.pad');
@@ -5909,7 +6211,8 @@ function bindInput() {
     if (input.keys.has(c)) return;
     input.keys.add(c);
     if (state === 'ride') {
-      if (c === 'KeyH') { SFX.horn(true); missionHonk(); }
+      if (c === 'KeyH') { SFX.horn(true); missionHonk(); hornTap(bike); }
+      if (c === 'KeyL') toggleBeam();
       if (c === 'KeyE' || c === 'PageUp') shiftUp();
       if (c === 'KeyQ' || c === 'PageDown') shiftDown();
       if (c === 'KeyG') { apSet(!AP.on, false); toast(AP.on ? T.autoOn : T.autoOff, 2.2); }
@@ -5925,6 +6228,7 @@ function bindInput() {
   window.addEventListener('blur', () => { input.keys.clear(); input.throttle = 0; input.brake = 0; input.padSteer = 0; input.padActive = false; titleRev.on = false; SFX.horn(false); });
 
   $('camBtn').addEventListener('click', nextCam);
+  $('lightBtn').addEventListener('click', toggleBeam);
   $('timeBtn').addEventListener('click', nextTime);
   $('soundBtn').addEventListener('click', () => { setSound(!settings.sound); soundUI(); });
   $('pauseBtn').addEventListener('click', () => pause(true));
@@ -6123,7 +6427,7 @@ function frame(now) {
   } else if (state === 'cut') { poseBike(dt, false); cutFrame(dt); if (AUDIO.ready) audioUpdate(dt, { ...audioState(0), speed: 0, rpm: (bike.rpm = damp(bike.rpm, IDLE, 3, dt)) }); }
   else { poseBike(dt, false); updateCamera(dt, settings.cam); if (AUDIO.ready) audioUpdate(dt, { ...audioState(0), speed: 0, rpm: (bike.rpm = damp(bike.rpm, IDLE, 3, dt)) }); }
   updateFloats(dt);
-  if (state !== 'pause') updateTraffic(dt, bike);
+  if (state !== 'pause') updateTraffic(dt, bike); else emergencyMute();
   updateWorldAnim(dt, time);
   // sky follows the camera; the sun's shadow box follows the bike
   sky.position.copy(camera.position); dome.position.copy(camera.position);
@@ -6151,7 +6455,7 @@ async function boot() {
   document.title = TH ? 'ล่องกรุง · The Siam Times' : 'Bangkok Cruiser · The Siam Times';
   await progress(0);
   if (document.fonts && document.fonts.load) {
-    await Promise.race([Promise.all([document.fonts.load('700 40px Kanit', 'กขค Kan'), document.fonts.load('600 40px Kanit', '0123'), document.fonts.load('40px Chonburi', 'กข'), document.fonts.load('40px Chomsky', 'Chandler')]), new Promise(r => setTimeout(r, 3500))]).catch(() => {});
+    await Promise.race([Promise.all([document.fonts.load('700 40px Kanit', 'กขค Kan'), document.fonts.load('600 40px Kanit', '0123'), document.fonts.load('40px Chonburi', 'กข'), document.fonts.load('40px Chomsky', 'Chandler The Siam Times')]), new Promise(r => setTimeout(r, 3500))]).catch(() => {});
   }
   buildTextures(); buildBillboard();
   await buildWorld(progress);
@@ -6172,7 +6476,7 @@ async function boot() {
 }
 requestAnimationFrame(frame);
 boot().catch(err => { console.error(err); $('loadText').textContent = T.loadFail + ' (' + (err && err.message || err) + ')'; });
-if (/[?&]debug\b/.test(location.search)) window.__cruiser = { NAV, navRoute, PIGEON, buyScene, wearIt, wantListScene, cutNow: () => { state = 'cut'; }, TRAFFIC, MS, SHOPS, STB, MISSION, mission, newMission, openPlace, missionHonk, ranRed, closeCut, missionStart, missionRestart, missionTarget, get mstate() { return settings.mission; }, driveTap, setNeutral, DECKS, LV, UW, deckAt, surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
+if (/[?&]debug\b/.test(location.search)) window.__cruiser = { EMERG, SIRENS, spawnEvent, endEvent, NAV, navRoute, PIGEON, buyScene, wearIt, wantListScene, cutNow: () => { state = 'cut'; }, TRAFFIC, MS, SHOPS, STB, MISSION, mission, newMission, openPlace, missionHonk, ranRed, closeCut, missionStart, missionRestart, missionTarget, get mstate() { return settings.mission; }, driveTap, setNeutral, DECKS, LV, UW, deckAt, surfaceAt, FX, turnModel, groundHeight, CHUNKS, COL, updateChunks, drawBigMap, updateTraffic, rideUpdate, input, collide, makePulse, makePop, makeImpulse, softClip, ENGINES, setEngine, setOutfit, apSet, AP, shiftUp, shiftDown, titleRev, snap: () => { cam.init = false; cam.tv = null; }, bike, settings, setTime, CARS, WORLD, camera, startRide, nextCam, pause, BIKE, AUDIO, renderer, get state() { return state; } };
 
 </script>
 <script>
