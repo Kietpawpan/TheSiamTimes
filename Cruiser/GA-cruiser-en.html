@@ -3485,10 +3485,8 @@ function riderSignals(dt, p) {
     if (left < 2.5 && (node.hold || 0) < 12) { node.offset -= dt; node.hold = (node.hold || 0) + dt; }
   }
 }
-/* A trick the game does not tell: three toots of the horn in quick succession and the light
-   ahead turns green there and then (with a full green ahead of it). */
 const HONKS = [];
-function secretHonk(p) {
+function hornTap(p) {
   const now = performance.now() / 1000; HONKS.push(now); while (HONKS.length && now - HONKS[0] > 2.2) HONKS.shift();
   if (HONKS.length < 3) return false;
   HONKS.length = 0;
@@ -3758,7 +3756,6 @@ function updateTraffic(dt, player) {
       car.s = over;
     }
     legPos(car.leg, car.s, car.pos);
-    // (a trick the game does not tell) with the rider's headlight switched on, a car in the rider's lane moves over to the other one at once
     if (!car.special) {
       let want = 0;
       if (player && player.beam) {
@@ -6184,7 +6181,7 @@ function bindInput() {
   bindHold('brakeBtn', () => { input.brake = 1; }, () => { input.brake = 0; });
   $('navBtn').addEventListener('click', () => { SFX.click(); settings.nav = !navOn(); save(); navUI(); toast(navOn() ? NX_.on : NX_.off); });
   $('actBtn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (MS.here) openPlace(MS.here); });
-  bindHold('hornBtn', () => { SFX.horn(true); $('hornBtn').classList.add('on'); missionHonk(); secretHonk(bike); }, () => { SFX.horn(false); $('hornBtn').classList.remove('on'); });
+  bindHold('hornBtn', () => { SFX.horn(true); $('hornBtn').classList.add('on'); missionHonk(); hornTap(bike); }, () => { SFX.horn(false); $('hornBtn').classList.remove('on'); });
   $('cruiseBtn').addEventListener('pointerdown', e => { e.preventDefault(); toggleCruise(); });
   // handlebar pad: touch anywhere in the lower left, slide sideways
   const area = $('steer'), knob = $('knob'), pad = area.querySelector('.pad');
@@ -6214,7 +6211,7 @@ function bindInput() {
     if (input.keys.has(c)) return;
     input.keys.add(c);
     if (state === 'ride') {
-      if (c === 'KeyH') { SFX.horn(true); missionHonk(); secretHonk(bike); }
+      if (c === 'KeyH') { SFX.horn(true); missionHonk(); hornTap(bike); }
       if (c === 'KeyL') toggleBeam();
       if (c === 'KeyE' || c === 'PageUp') shiftUp();
       if (c === 'KeyQ' || c === 'PageDown') shiftDown();
