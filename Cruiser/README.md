@@ -37,6 +37,13 @@ The *Automatic* gearbox shifts like a relaxed rider: early and at low revs when 
 
 **Outfits:** black leather with a full-face helmet; vintage brown leather with an open-face helmet and goggles; a denim jacket with a matt half helmet and sunglasses; the orange vest of a Bangkok motorbike taxi, numbered on the back; and a flower-print shirt with goggles. The rider sits on the bike on the start screen so you can see the outfit.
 
+**The rider** is a person of ordinary build rather than a dummy:
+
+- a chest wider than the waist, shoulders that blend into it, and arms and legs that thin towards the wrists and ankles;
+- elbows and knees placed by two-bone reach, so the hands close round the grips (four fingers over the top and under, the thumb beneath) and the boots, with soles and heels, stand on the forward pegs;
+- a face with eyes, lids, brows, a nose, lips, cheekbones, a jaw and ears. It shows under the open-face and half helmets, and through the smoked visor of the full-face one, which has an opening for the eyes and a chin bar;
+- a belt and buckle, a jacket collar and zip.
+
 **Engines** (the sound and the rev counter; the bike rides the same): V-twin with stock or loud pipes, a big-inch V-twin with straight pipes and a hot cam (a lumpy idle with the odd soft firing, a raw bark, crackle off the throttle), a big single, a 270° parallel twin, an inline four that revs to 12,500, a big-block V8, and an electric motor.
 
 ## The mission: the 1864 watch
@@ -46,7 +53,7 @@ Choose **Mission** or **Free ride** at the top of the start screen. In the missi
 - The shops are visited in any order. The **first** you go into has no 1864 and offers its **Want List**: sign it (a pen writes your name on the cream card and a green wax seal with your number comes down). The **second** will only sell you the 1864 if you first buy a Mariner 300 diving watch for ฿420,000. **Say no**: buying it spends all your savings and ends the mission. The **third** has one, but only for customers on the Want List, and it costs ฿186,400 when you have ฿175,000. They hold it for you.
 - **Money.** Go back to **The Siam Times** building, on Bamrung Mueang Road by the Giant Swing (an S on the maps), and work for a month. A cut scene runs through thirty days of the calendar while you save ฿45,000. Or skip the office: the other motorcycle riders are women with long hair, and **two toots of the horn** close to one (within about 15 m) make her wave back and tip you ฿6,000 to ฿11,000. Each woman tips you once in a mission, and one tip is never quite enough (you are ฿11,400 short), so you need **at least two** of them.
 - **Red lights.** Riding into a crossing on red counts (amber is fine). Three are allowed and each brings a whistle and a red flash. The **fourth** ends the mission. **The footpath is the way round:** riding on the pavement round a crossing never counts, and nor does dropping into a crossing straight off the pavement.
-- With enough money, go back to the third shop and buy the watch. The manager opens a green velvet box: the lid lifts, a gleam crosses the dial, gold leaf drifts down, a slow chord sequence plays and the light warms. Then you **put it on**, and it is there on the rider's left wrist from then on.
+- With enough money, go back to the third shop and buy the watch. The manager opens a green velvet box: the lid lifts, a gleam crosses the dial, gold leaf drifts down, a slow chord sequence plays and the light warms. Then you **put it on**, and it is there on the rider's left wrist from then on: a strap that hugs the wrist between the sleeve and the glove, a gold case with its crown towards the hand, and the real dial.
 - **The ride home.** A white **pigeon** flies a few metres ahead of you along the streets to The Siam Times, cooing now and then, and circles the building as you arrive. Red lights no longer count on this ride. While you wear the watch, the women riders wave as you ride past them, with no horn needed, and they keep doing it in free ride afterwards. At the office, your colleagues come out to applaud: the closing scene shows the watch, how many red lights you ran, the tips you collected and the months you worked.
 - During the mission **Auto** stops for red lights (and for an amber it cannot clear), so it never costs you a red light. On the ride home it does not stop.
 - The mission is saved in the browser. The pause menu shows how far you have got and can start it again. *Free ride* is the game as before, with the postcards.
@@ -61,6 +68,8 @@ The story game *Chandler's Promise* (`../Promise/`) ends with this game. It keep
 - when the watch is brought home to The Siam Times, about three seconds after the mission card opens, posts `{ tst: 'story', game: 'cruiser', won: true, score, reds, worked, tips, text }` to the page around it (`storyDone` in `07-mission.js`). The story gives a gold frame to a ride with no red lights.
 
 Opened any other way, nothing of this happens. The copy in `Promise/games/Cruiser/` is the same build, with its *The Siam Times* link pointing two folders up.
+
+**SIAM S MADE.** Every VERDANT dial, on the 1864 and on the Mariner 300, says where it was made the way a Swiss watch does: *SIAM S MADE* curves round the bottom edge under 6 o'clock, with the paper's S in Chomsky in the middle (`madeIn` in `07-mission.js`).
 
 ## Navigation
 
