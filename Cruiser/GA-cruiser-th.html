@@ -3444,11 +3444,41 @@ function setOutfit(i) { settings.outfit = i; save(); buildRider(); }
 const DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]]; // E S W N
 const LIGHT_CYCLE = 26;
 function lightState(node, axis, time) {
-  const t = (time + node.offset) % LIGHT_CYCLE;
+  const t = ((time + node.offset) % LIGHT_CYCLE + LIGHT_CYCLE) % LIGHT_CYCLE;
   if (axis === 'x') return t < 11 ? 'g' : t < 13 ? 'a' : 'r';
   return t >= 13 && t < 24 ? 'g' : t >= 24 ? 'a' : 'r';
 }
 const nodeAt = (i, j) => WORLD.trafficLights[i * NZ + j];
+
+/* The crossing the rider is coming up to answers them, like a light with a detector in the road:
+   a red turns green within about three seconds (the other road gets its amber first), and a green
+   holds, up to 12 s longer, while they ride through. */
+const CALL_DIST = 55;
+function riderSignals(dt, p) {
+  if (!p) return;
+  const fx = -Math.sin(p.yaw), fz = -Math.cos(p.yaw);
+  let node = null, axis, d = 1e9;
+  if (Math.abs(fx) > 0.75) {          // riding along x, on a road at some RZ[j]
+    const j = RZ.findIndex((z, k) => Math.abs(p.z - z) < WZ[k] / 2 + WALK + 0.5); if (j < 0) return;
+    for (let i = 0; i < NX; i++) { const dd = (RX[i] - p.x) * Math.sign(fx) - WX[i] / 2; if (dd > -2 && dd < d) { d = dd; node = nodeAt(i, j); } }
+    axis = 'x';
+  } else if (Math.abs(fz) > 0.75) {   // riding along z, on a road at some RX[i]
+    const i = RX.findIndex((x, k) => Math.abs(p.x - x) < WX[k] / 2 + WALK + 0.5); if (i < 0) return;
+    for (let j = 0; j < NZ; j++) { const dd = (RZ[j] - p.z) * Math.sign(fz) - WZ[j] / 2; if (dd > -2 && dd < d) { d = dd; node = nodeAt(i, j); } }
+    axis = 'z';
+  } else return;
+  if (!node || d > CALL_DIST || !node.heads.some(h => h.axis === axis)) return;
+  const t = ((TRAFFIC.time + node.offset) % LIGHT_CYCLE + LIGHT_CYCLE) % LIGHT_CYCLE, st = lightState(node, axis, TRAFFIC.time);
+  if (st === 'r') {
+    node.hold = 0;
+    // on to the last second of the other road's green: then its amber, then ours
+    if (axis === 'x' && t >= 13 && t < 23) node.offset += 23 - t;
+    else if (axis === 'z' && t < 10) node.offset += 10 - t;
+  } else if (st === 'g') {
+    const left = (axis === 'x' ? 11 : 24) - t;
+    if (left < 2.5 && (node.hold || 0) < 12) { node.offset -= dt; node.hold = (node.hold || 0) + dt; }
+  }
+}
 const inGrid = (i, j) => i >= 0 && i < NX && j >= 0 && j < NZ;
 
 /* vehicle models: one merged geometry per kind, painted white where the instance colour should show */
@@ -3518,6 +3548,32 @@ function buildVehicleKinds() {
   const wave = new GB(); { const [g, m] = limb([0, 0, 0], [0, 0.62, 0], 0.048); wave.color(W); wave.geo(g, m); wave.color(SKIN); wave.geo(new THREE.SphereGeometry(0.06, 8, 6), mat(0, 0.66, 0)); }
   VKINDS.scooter.wave = wave.build();
 }
+/* words on the vehicles: THAILAND on a tuk-tuk (both sides and the back of the canopy),
+   and an advertisement for The Siam Times along both sides of a bus */
+function vehicleDecals() {
+  const [c1, x1] = makeCanvas(512, 96);
+  x1.font = '700 72px Kanit, sans-serif'; x1.textAlign = 'center'; x1.textBaseline = 'middle';
+  if ('letterSpacing' in x1) x1.letterSpacing = '9px';
+  x1.lineJoin = 'round'; x1.lineWidth = 11; x1.strokeStyle = 'rgba(14,16,22,.92)'; x1.strokeText('THAILAND', 260, 52);
+  const g1 = x1.createLinearGradient(0, 18, 0, 86); g1.addColorStop(0, '#ffffff'); g1.addColorStop(0.55, '#e6ebf0'); g1.addColorStop(1, '#b8c2cc');
+  x1.fillStyle = g1; x1.fillText('THAILAND', 260, 52);
+  const [c2, x2] = makeCanvas(1280, 100);
+  x2.fillStyle = '#efe7d4'; x2.fillRect(0, 0, 1280, 100);
+  x2.strokeStyle = '#1d2a3a'; x2.lineWidth = 6; x2.strokeRect(3, 3, 1274, 94);
+  x2.strokeStyle = '#b8862e'; x2.lineWidth = 2; x2.strokeRect(11, 11, 1258, 78);
+  x2.fillStyle = '#1d2a3a'; x2.beginPath(); x2.arc(70, 50, 34, 0, Math.PI * 2); x2.fill();
+  x2.fillStyle = '#efe7d4'; x2.textAlign = 'center'; x2.textBaseline = 'middle'; x2.font = '58px Chomsky, serif'; x2.fillText('S', 70, 55);
+  x2.fillStyle = '#1d2a3a'; x2.font = '600 64px Newsreader, Georgia, serif'; if ('letterSpacing' in x2) x2.letterSpacing = '7px';
+  x2.fillText('THE SIAM TIMES', 560, 54); if ('letterSpacing' in x2) x2.letterSpacing = '0px';
+  x2.fillStyle = '#b8862e'; x2.fillRect(960, 22, 3, 56);
+  x2.fillStyle = '#8a5a1a'; x2.textAlign = 'left';
+  if (TH) { fitText(x2, 'ข่าวดี ส่งต่อได้ทุกวัน', 280, 30, '600', FONT_TH); x2.fillText('ข่าวดี ส่งต่อได้ทุกวัน', 982, 52); }
+  else { x2.font = '600 24px Kanit, sans-serif'; x2.fillText('All the news', 982, 38); x2.fillText('that’s nice to post', 982, 66); }
+  const mk = (map, alpha) => new THREE.MeshStandardMaterial({ map, roughness: alpha ? 0.35 : 0.45, metalness: alpha ? 0.4 : 0, alphaTest: alpha ? 0.4 : 0, polygonOffset: true, polygonOffsetFactor: -2 });
+  const planes = list => { const g = new GB(); for (const [w, h, m] of list) g.geo(new THREE.PlaneGeometry(w, h), m); return g.build(); };
+  VKINDS.tuktuk.decal = { geo: planes([[1.5, 0.28, mat(0.684, 0.64, 0.38, Math.PI / 2)], [1.5, 0.28, mat(-0.684, 0.64, 0.38, -Math.PI / 2)], [0.9, 0.17, mat(0, 1.76, 1.516)]]), mat: mk(tex(c1, { repeat: false }), true) };
+  VKINDS.bus.decal = { geo: planes([[7.0, 0.55, mat(1.268, 1.56, 0.2, Math.PI / 2)], [7.0, 0.55, mat(-1.268, 1.56, 0.2, -Math.PI / 2)]]), mat: mk(tex(c2, { repeat: false }), false) };
+}
 const BLOUSES = [0xe86a8a, 0xf2efe6, 0x7ac0e0, 0xf0c040, 0x9a7ad8, 0x62b88a, 0xe0703a, 0xd94a5a];
 const riderMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.75, metalness: 0 });
 
@@ -3580,7 +3636,7 @@ function legPos(leg, s, out) {
 }
 
 function buildTraffic() {
-  buildVehicleKinds();
+  buildVehicleKinds(); vehicleDecals();
   const rr = rng(4242);
   for (const [kind, n, colors] of KIND_LIST) {
     const K = VKINDS[kind];
@@ -3588,6 +3644,7 @@ function buildTraffic() {
     body.castShadow = true; body.receiveShadow = true; body.frustumCulled = false; lights.frustumCulled = false;
     scene.add(body, lights);
     TRAFFIC.meshes[kind] = { body, lights };
+    if (K.decal) { const decal = new THREE.InstancedMesh(K.decal.geo, K.decal.mat, n); decal.frustumCulled = false; decal.receiveShadow = true; scene.add(decal); TRAFFIC.meshes[kind].decal = decal; }
     if (K.rider) {
       const rider = new THREE.InstancedMesh(K.rider, riderMat, n), armL = new THREE.InstancedMesh(K.armL, riderMat, n), head = new THREE.InstancedMesh(K.riderHead, riderMat, n);
       rider.castShadow = true; rider.frustumCulled = false; armL.frustumCulled = false; head.frustumCulled = false; scene.add(rider, armL, head);
@@ -3626,6 +3683,7 @@ let recycleT = 0;
 const _m = new THREE.Matrix4(), _m0 = new THREE.Matrix4().makeScale(0, 0, 0), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3(1, 1, 1), _y = new THREE.Vector3(0, 1, 0);
 function updateTraffic(dt, player) {
   TRAFFIC.time += dt;
+  riderSignals(dt, player);
   const tnow = TRAFFIC.time;
   // the city is big: vehicles that fall far behind come back somewhere round the rider, out of sight
   if (player && (recycleT -= dt) <= 0) {
@@ -3682,7 +3740,7 @@ function updateTraffic(dt, player) {
     const yaw = Math.atan2(-car.pos.hx, -car.pos.hz);
     _q.setFromAxisAngle(_y, yaw); _p.set(car.pos.x, 0, car.pos.z);
     _m.compose(_p, _q, _s);
-    M.body.setMatrixAt(car.k, _m); M.lights.setMatrixAt(car.k, _m);
+    M.body.setMatrixAt(car.k, _m); M.lights.setMatrixAt(car.k, _m); if (M.decal) M.decal.setMatrixAt(car.k, _m);
     if (M.rider) {
       M.rider.setMatrixAt(car.k, _m); M.head.setMatrixAt(car.k, _m);
       // a rider waving back: her left arm comes off the bars and waves
@@ -3695,7 +3753,7 @@ function updateTraffic(dt, player) {
       } else M.armL.setMatrixAt(car.k, _m);
     }
   }
-  for (const k of Object.keys(TRAFFIC.meshes)) { const M = TRAFFIC.meshes[k]; M.body.instanceMatrix.needsUpdate = true; M.lights.instanceMatrix.needsUpdate = true; if (M.rider) { M.rider.instanceMatrix.needsUpdate = true; M.armL.instanceMatrix.needsUpdate = true; M.head.instanceMatrix.needsUpdate = true; } }
+  for (const k of Object.keys(TRAFFIC.meshes)) { const M = TRAFFIC.meshes[k]; M.body.instanceMatrix.needsUpdate = true; M.lights.instanceMatrix.needsUpdate = true; if (M.decal) M.decal.instanceMatrix.needsUpdate = true; if (M.rider) { M.rider.instanceMatrix.needsUpdate = true; M.armL.instanceMatrix.needsUpdate = true; M.head.instanceMatrix.needsUpdate = true; } }
   updateLights(tnow);
 }
 
@@ -6153,7 +6211,7 @@ async function boot() {
   document.title = TH ? 'ล่องกรุง · The Siam Times' : 'Bangkok Cruiser · The Siam Times';
   await progress(0);
   if (document.fonts && document.fonts.load) {
-    await Promise.race([Promise.all([document.fonts.load('700 40px Kanit', 'กขค Kan'), document.fonts.load('600 40px Kanit', '0123'), document.fonts.load('40px Chonburi', 'กข'), document.fonts.load('40px Chomsky', 'Chandler')]), new Promise(r => setTimeout(r, 3500))]).catch(() => {});
+    await Promise.race([Promise.all([document.fonts.load('700 40px Kanit', 'กขค Kan'), document.fonts.load('600 40px Kanit', '0123'), document.fonts.load('40px Chonburi', 'กข'), document.fonts.load('40px Chomsky', 'Chandler S'), document.fonts.load('600 40px Newsreader', 'THE SIAM TIMES')]), new Promise(r => setTimeout(r, 3500))]).catch(() => {});
   }
   buildTextures(); buildBillboard();
   await buildWorld(progress);
