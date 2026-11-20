@@ -4779,7 +4779,7 @@ lightHooks.push(fxLight);
 const MISSION = { price: 186400, start: 175000, salary: 45000, bundle: 420000, reds: 3, tip: [6000, 11000], women: 2 };
 const ROLE_SEQ = ['waitlist', 'bundle', 'stock'];
 const NS = SHOPS.length;
-const MS = { here: null, lock: null, stillT: 0, honks: [], cut: null, box: null, target: null, hud: '', floats: [] };
+const MS = { here: null, lock: null, stillT: 0, honks: [], cut: null, box: null, came: null, past: null, target: null, hud: '', floats: [] };
 const baht = n => '฿' + Math.round(n).toLocaleString('en-US');
 const MX = TH ? {
   offer: 'อยากได้นาฬิกา VERDANT รุ่น 1864 ไหมคะ? รุ่นนี้หายากมาก ลองเริ่มภารกิจตามหาดูสิคะ (เริ่มที่ตึก The Siam Times)',
@@ -4916,14 +4916,22 @@ function missionAuto(steer, brake) {
   return { steer: clamp(e * 1.8, -1, 1), brake: bike.v > want + 0.5 ? clamp((bike.v - want) / 3, 0.2, 1) : d < 2.5 ? 1 : 0, thr: bike.v < want ? 0.35 : 0 };
 }
 function redLights(m) {
-  if (!m || m.bought || bike.offGrid || Math.abs(bike.y) > 1.2) { MS.box = null; return; }
+  if (!m || m.bought || bike.offGrid || Math.abs(bike.y) > 1.2) { MS.box = null; MS.came = null; return; }
   const i = clamp(Math.round(bike.x / 100), 0, NX - 1), j = clamp(Math.round((bike.z - RZ[0]) / 100), 0, NZ - 1);
+  const onZ = Math.abs(bike.x - RX[i]) < WX[i] / 2, onX = Math.abs(bike.z - RZ[j]) < WZ[j] / 2;
+  // the road the rider comes in on: its light is the one that counts, so on a green they may go on, or turn either way
+  if (onX !== onZ) MS.came = onX ? 'x' : 'z';
+  if (MS.past && Math.hypot(bike.x - MS.past.x, bike.z - MS.past.z) > MS.past.r) MS.past = null;
   const inBox = Math.abs(bike.x - RX[i]) < WX[i] / 2 - 0.6 && Math.abs(bike.z - RZ[j]) < WZ[j] / 2 - 0.6;
   const key = inBox ? i * 100 + j : null;
   // riding round on the footpath is allowed: a crossing entered straight off the pavement does not count
-  if (key !== null && key !== MS.box && Math.abs(bike.v) > 1.5 && bike.surf === 'road' && MS.walkT > 1.2) {
-    const axis = Math.abs(Math.sin(bike.yaw)) > Math.abs(Math.cos(bike.yaw)) ? 'x' : 'z', node = nodeAt(i, j);
-    if (node && node.heads.some(h => h.axis === axis) && lightState(node, axis, TRAFFIC.time) === 'r') ranRed(m);
+  if (key !== null && key !== MS.box && (!MS.past || MS.past.key !== key)) {
+    // a wide turn that swings out of the box and back in is still the same crossing
+    MS.past = { key, x: RX[i], z: RZ[j], r: Math.max(WX[i], WZ[j]) / 2 + 8 };
+    if (Math.abs(bike.v) > 1.5 && bike.surf === 'road' && MS.walkT > 1.2) {
+      const axis = MS.came || (Math.abs(Math.sin(bike.yaw)) > Math.abs(Math.cos(bike.yaw)) ? 'x' : 'z'), node = nodeAt(i, j);
+      if (node && node.heads.some(h => h.axis === axis) && lightState(node, axis, TRAFFIC.time) === 'r') ranRed(m);
+    }
   }
   MS.box = key;
 }
