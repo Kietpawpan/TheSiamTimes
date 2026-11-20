@@ -4767,16 +4767,20 @@ lightHooks.push(fxLight);
 
 /* =====================================================================
    The mission: the VERDANT 1864 dress watch.
-   Three VERDANT shops, found in any order. The first you walk into has
-   none (sign its Want List), the second will sell it only if you buy
-   another watch first (say no), the third has one: but it costs more than
-   you have. Work a month at The Siam Times (a cut scene), or give two
-   toots of the horn to at least two of the women riders for their tips.
-   Run more than three red lights and the mission is over; riding round a
-   crossing on the footpath does not count.
+   Three VERDANT shops, found in any order; the part each plays follows the
+   order you find them in. The first has none and offers its Want List. The
+   second offers the 1864 if you buy a Mariner 300 first: buying it costs half
+   your money and brings no 1864. The third has one, but only for a customer
+   on a Want List: to anyone else it is one more shop with none, offering its
+   list. Sign a list once all three are known and the third rings you when one
+   is in. The game never says which offer to take. The watch costs more than
+   you have: work a month at a time at The Siam Times, or toot twice at the
+   women riders for their tips. Run more than three red lights and the mission
+   is over; riding round a crossing on the footpath does not count.
    ===================================================================== */
 // one tip is never quite enough (at most 11,000 of an 11,400 gap); two always are
-const MISSION = { price: 186400, start: 175000, salary: 45000, bundle: 420000, reds: 3, tip: [6000, 11000], women: 2 };
+const MISSION = { price: 186400, start: 175000, salary: 45000, reds: 3, tip: [6000, 11000], call: 14 };
+const bundlePrice = m => Math.floor(m.money / 200) * 100;   // the Mariner 300 takes half of what you have
 const ROLE_SEQ = ['waitlist', 'bundle', 'stock'];
 const NS = SHOPS.length;
 const MS = { here: null, lock: null, stillT: 0, honks: [], cut: null, box: null, came: null, past: null, target: null, hud: '', floats: [] };
@@ -4784,23 +4788,24 @@ const baht = n => '฿' + Math.round(n).toLocaleString('en-US');
 const MX = TH ? {
   offer: 'อยากได้นาฬิกา VERDANT รุ่น 1864 ไหมคะ? รุ่นนี้หายากมาก ลองเริ่มภารกิจตามหาดูสิคะ (เริ่มที่ตึก The Siam Times)',
   title: 'ภารกิจ · นาฬิกา 1864', modeMission: 'ภารกิจ: ตามหานาฬิกา 1864', modeFree: 'ขี่เล่นอิสระ', mode: 'โหมด',
-  find: n => `ตามหาร้าน VERDANT สีเขียว ${n}/${NS} (จุดเขียวบนแผนที่)`, signAt: s => `กลับไปลงชื่อ Want List ที่ ${s}`,
-  earn: (g, n) => `เงินขาดอีก ${baht(g)} · ทำงานที่ตึก The Siam Times 1 เดือน หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์อย่างน้อย ${MISSION.women} คน (ทักแล้ว ${n} คน)`, buyAt: s => `เงินพอแล้ว! กลับไปซื้อ 1864 ที่ ${s}`,
+  find: n => `ตามหาร้าน VERDANT สีเขียว ${n}/${NS} (จุดเขียวบนแผนที่)`, again: 'ยังไม่มีร้านไหนขาย 1864 ให้คุณ · ลองแวะร้าน VERDANT อีกครั้ง',
+  earn: (g, n) => `เงินขาดอีก ${baht(g)} · ทำงานที่ตึก The Siam Times หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์ (ได้ทิปแล้ว ${n} คน)`, buyAt: s => `เงินพอแล้ว! กลับไปซื้อ 1864 ที่ ${s}`,
   money: 'เงิน', reds: 'ฝ่าไฟแดง', shops: 'ร้าน', enter: s => `เข้าร้าน ${s}`, enterST: 'เข้าตึก The Siam Times',
   ran: (n, m) => `ฝ่าไฟแดง! ${n}/${m} · ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับ`, ranLast: 'ฝ่าไฟแดงครบ 3 ครั้งแล้ว อีกครั้งเดียวภารกิจล้มเหลว · ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับ',
   tip: (a, n) => `สาวไบค์เกอร์คนที่ ${n} โบกมือทักทาย ให้ทิป ${baht(a)}`, waveAgain: 'เธอโบกมือให้อีกครั้ง แต่ให้ทิปไปแล้ว ลองทักคนอื่นนะ', waveFree: 'สาวไบค์เกอร์โบกมือทักทาย', enough: 'เงินพอซื้อ 1864 แล้ว!',
   resume: 'ภารกิจต่อจากเดิม', start: 'เริ่มภารกิจ', go: 'ไปต่อ', later: 'ไว้ก่อน', restart: 'เริ่มภารกิจใหม่', free: 'ขี่เล่นอิสระ', keep: 'ขี่เล่นต่อ', skip: 'แตะเพื่อข้าม',
   introH: 'ตามหานาฬิกา Dress Watch รุ่น 1864',
   intro: `คุณเป็นนักข่าวของ The Siam Times อยากได้นาฬิกา VERDANT รุ่น 1864 มานานแล้ว รุ่นนี้หายากมาก มีขายแค่ร้าน VERDANT สีเขียวทอง 3 สาขาในกรุงเทพฯ`,
-  rules: ['ขี่ไปหาร้าน VERDANT ทั้ง 3 ร้าน (จุดเขียวบนแผนที่ แตะปุ่มออโต้ให้พาไปได้)', 'บางร้านไม่มีของ ต้องลงชื่อไว้ใน Want List', 'บางร้านจะให้ซื้อรุ่นอื่นก่อน ต้องปฏิเสธ', `ห้ามฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง แต่ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับว่าฝ่าไฟแดง`, `เงินไม่พอ? กลับมาทำงานที่ตึกนี้ 1 เดือน หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์ ต้องทักอย่างน้อย ${MISSION.women} คนถึงจะพอ`],
+  rules: ['ขี่ไปหาร้าน VERDANT ทั้ง 3 ร้าน (จุดเขียวบนแผนที่ แตะปุ่มออโต้ให้พาไปได้)', `ห้ามฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง แต่ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับว่าฝ่าไฟแดง`, `เงินไม่พอ? กลับมาทำงานที่ตึกนี้ เดือนละ ${baht(MISSION.salary)} หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์ บางคนใจดีให้ทิป (คนละครั้ง)`],
   budget: 'เงินเก็บ', price: 'ราคา 1864',
   hello: 'ยินดีต้อนรับสู่ VERDANT ค่ะ',
   wl1: 'ขออภัยนะคะ รุ่น 1864 ไม่มีของเลยค่ะ ลูกค้ารอคิวกันยาวมาก รับลงชื่อใน Want List ไว้ไหมคะ ถ้ามีของจะโทรแจ้งค่ะ',
   wlSign: 'ลงชื่อใน Want List', wlDone: 'ลงชื่อเรียบร้อยค่ะ ลองไปสาขาอื่นดูด้วยนะคะ', wlAgain: 'คุณอยู่ใน Want List ของสาขานี้แล้วค่ะ ยังไม่มีของเข้านะคะ',
-  bundle: `รุ่น 1864 หรือคะ... ปกติทางร้านให้สิทธิ์ลูกค้าที่มีประวัติการซื้อก่อนค่ะ ถ้าวันนี้รับรุ่น Mariner 300 ไปก่อน ราคา ${baht(MISSION.bundle)} จะได้สิทธิ์ซื้อ 1864 ทันทีเลยค่ะ`,
-  bundleBuy: 'ซื้อรุ่นอื่นก่อน', bundleNo: 'ปฏิเสธ ไม่ซื้อพ่วง', bundleOk: 'เข้าใจค่ะ ถ้าเปลี่ยนใจแวะมาใหม่ได้นะคะ', bundleAgain: 'เงื่อนไขยังเหมือนเดิมนะคะ รับ Mariner 300 ก่อนไหมคะ',
-  stockNeedWL: s => `มีอยู่เรือนเดียวค่ะ แต่ขายให้เฉพาะลูกค้าที่อยู่ใน Want List ของทุกสาขาก่อน รบกวนไปลงชื่อที่ ${s} ก่อนนะคะ`,
-  stockShort: (p, g) => `โชคดีมากค่ะ! มีรุ่น 1864 อยู่เรือนเดียวพอดี ราคา ${baht(p)} ...แต่เงินของคุณยังขาดอีก ${baht(g)} ทางร้านจะเก็บไว้ให้ 1 เดือนนะคะ`,
+  bundle: p => `รุ่น 1864 หรือคะ... ปกติทางร้านให้สิทธิ์ลูกค้าที่มีประวัติการซื้อก่อนค่ะ ถ้าวันนี้รับรุ่น Mariner 300 ไปก่อน ราคา ${baht(p)} จะได้สิทธิ์ซื้อ 1864 ก่อนใครเลยค่ะ`,
+  bundleBuy: 'ซื้อรุ่นอื่นก่อน', bundleNo: 'ปฏิเสธ ไม่ซื้อพ่วง', bundleOk: 'เข้าใจค่ะ ถ้าเปลี่ยนใจแวะมาใหม่ได้นะคะ', bundleAgain: p => `เงื่อนไขยังเหมือนเดิมนะคะ รับ Mariner 300 ราคา ${baht(p)} ไปก่อนไหมคะ`,
+  bundleBought: 'ขอบคุณที่อุดหนุนค่ะ Mariner 300 เป็นของคุณแล้ว ส่วนรุ่น 1864 ตอนนี้ยังไม่มีของเข้า ถ้ามีเมื่อไรจะแจ้งนะคะ', bundleAfter: 'ขอบคุณที่อุดหนุน Mariner 300 อีกครั้งนะคะ รุ่น 1864 ยังไม่มีของเข้าเลยค่ะ',
+  spent: (p, left) => `จ่ายค่า Mariner 300 ไป ${baht(p)} · เหลือเงิน ${baht(left)}`, call: s => `📞 ${s} โทรมา: รุ่น 1864 ที่คุณลงชื่อไว้มีของเข้าแล้วค่ะ ทางร้านเก็บไว้ให้`,
+  stockShort: (p, g) => `ลูกค้าใน Want List ใช่ไหมคะ โชคดีมากค่ะ! มีรุ่น 1864 เข้ามาเรือนเดียวพอดี ราคา ${baht(p)} ...แต่เงินของคุณยังขาดอีก ${baht(g)} ทางร้านจะเก็บไว้ให้นะคะ`,
   stockBuy: p => `รุ่น 1864 ที่เก็บไว้ให้พร้อมแล้วค่ะ ราคา ${baht(p)} รับเลยไหมคะ`, buy: 'ซื้อเลย', notYet: 'ยังก่อน',
   stDesk: 'ยินดีต้อนรับกลับ The Siam Times',
   stWork: g => `บรรณาธิการมีงานให้ทำเพียบ ทำงานเก็บเงิน 1 เดือนไหม? (เก็บได้ ${baht(MISSION.salary)})${g > 0 ? ` ตอนนี้ยังขาดอีก ${baht(g)}` : ''}`,
@@ -4808,32 +4813,33 @@ const MX = TH ? {
   month: '1 เดือนผ่านไป', days: ['เขียนข่าวหน้าหนึ่ง', 'ประชุมโต๊ะข่าวตอนเช้า', 'ตามสัมภาษณ์ทั้งวัน', 'ทำงานล่วงเวลาคืนวันศุกร์', 'ปิดเล่มทันเส้นตาย', 'เก็บเงินทุกบาท'],
   workDone: a => `1 เดือนผ่านไป · เก็บเงินได้ ${baht(a)}`, monthName: 'เดือนแห่งการทำงาน', day: d => `วันที่ ${d}`,
   doneH: 'ภารกิจสำเร็จ!', doneP: 'นาฬิกา VERDANT 1864 เป็นของคุณแล้ว', statShops: 'ร้านที่ไป', statReds: 'ฝ่าไฟแดง', statTips: 'ทิปจากสาวไบค์เกอร์', statWork: 'ทำงาน', months: n => `${n} เดือน`,
-  failH: 'ภารกิจล้มเหลว', failReds: `ฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง ถูกตำรวจเรียกตรวจ ยึดใบขับขี่`, failBundle: `ยอมซื้อ Mariner 300 พ่วง ${baht(MISSION.bundle)} เงินเก็บหมดเกลี้ยง ไม่เหลือพอซื้อ 1864`,
+  failH: 'ภารกิจล้มเหลว', failReds: `ฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง ถูกตำรวจเรียกตรวจ ยึดใบขับขี่`,
   wantH: 'Want List · VERDANT 1864', wantP: n => `ลงชื่อเรียบร้อยค่ะ คุณอยู่ลำดับที่ ${n} ถ้ามีของเข้าจะโทรแจ้งทันทีนะคะ`, wantName: 'นักข่าว The Siam Times',
   buyH: 'นาฬิกา 1864 เป็นของคุณแล้ว', buyP: 'ผู้จัดการร้านสวมถุงมือขาว ยกกล่องกำมะหยี่สีเขียวออกมาวางตรงหน้า เปิดฝาช้า ๆ หน้าปัดสีงาช้างกับตัวเรือนทองรับแสงไฟในร้าน', paid: 'ชำระแล้ว', wear: 'สวมนาฬิกา',
   worn: 'สวมนาฬิกา 1864 แล้ว! ขี่ตามนกพิราบกลับ The Siam Times · ไฟแดงไม่นับแล้ว', home: 'ขี่ตามนกพิราบกลับตึก The Siam Times · ไฟแดงไม่นับแล้ว',
   arriveH: 'กลับถึง The Siam Times', arriveP: 'นาฬิกา 1864 อยู่บนข้อมือ เพื่อนร่วมงานออกมาปรบมือต้อนรับที่หน้าตึก', waveWatch: 'เธอโบกมือให้คนใส่นาฬิกาสวย 👋',
-  roleWL: 'ลง Want List แล้ว', roleWLno: 'ยังไม่ได้ลงชื่อ', roleBundle: 'ปฏิเสธการซื้อพ่วง', roleStock: 'มีของ 1864',
+  roleWL: 'ลง Want List แล้ว', roleNone: 'ไม่มีของ', roleOffer: 'ให้ซื้อรุ่นอื่นก่อน', roleBundle: 'ปฏิเสธการซื้อพ่วง', roleBought: 'ซื้อ Mariner 300 แล้ว', roleStock: 'มีของ 1864',
 } : {
   offer: 'Looking for a VERDANT 1864? It is very hard to find. Why not start the mission to track one down (it begins at The Siam Times)?',
   title: 'Mission · the 1864 watch', modeMission: 'Mission: find the 1864 watch', modeFree: 'Free ride', mode: 'Mode',
-  find: n => `Find the green VERDANT shops ${n}/${NS} (green dots on the map)`, signAt: s => `Go back and sign the Want List at ${s}`,
-  earn: (g, n) => `${baht(g)} short · work a month at The Siam Times, or give two toots to at least ${MISSION.women} women riders (${n} so far)`, buyAt: s => `You have enough! Go back to ${s} and buy the 1864`,
+  find: n => `Find the green VERDANT shops ${n}/${NS} (green dots on the map)`, again: 'No shop has sold you an 1864 yet · try the VERDANT shops again',
+  earn: (g, n) => `${baht(g)} short · work at The Siam Times, or give two toots to the women riders (${n} have tipped so far)`, buyAt: s => `You have enough! Go back to ${s} and buy the 1864`,
   money: 'Money', reds: 'Red lights', shops: 'Shops', enter: s => `Go into ${s}`, enterST: 'Go into The Siam Times',
   ran: (n, m) => `Ran a red light! ${n}/${m} · going round on the footpath does not count`, ranLast: 'That was your third red light: one more and the mission is over · going round on the footpath does not count',
   tip: (a, n) => `Rider number ${n} waves back and tips you ${baht(a)}`, waveAgain: 'She waves again, but she has tipped you already: try someone else', waveFree: 'A rider waves back', enough: 'You can afford the 1864 now!',
   resume: 'Mission resumed', start: 'Start the mission', go: 'Carry on', later: 'Not now', restart: 'Start the mission again', free: 'Free ride', keep: 'Keep riding', skip: 'Tap to skip',
   introH: 'Find the 1864 dress watch',
   intro: 'You are a reporter at The Siam Times, and you have wanted a VERDANT 1864 dress watch for years. It is very hard to get: only the three green-and-gold VERDANT shops in Bangkok sell it.',
-  rules: ['Ride to all three VERDANT shops (green dots on the map; Auto will take you)', 'One has none: sign its Want List', 'One will want you to buy another watch first: say no', `Do not run more than ${MISSION.reds} red lights; riding round a crossing on the footpath does not count`, `Short of money? Come back here and work for a month, or give two toots of the horn to at least ${MISSION.women} women riders for their tips`],
+  rules: ['Ride to all three VERDANT shops (green dots on the map; Auto will take you)', `Do not run more than ${MISSION.reds} red lights; riding round a crossing on the footpath does not count`, `Short of money? Come back here and work, ${baht(MISSION.salary)} a month, or give two toots of the horn to the women riders: some of them tip (once each)`],
   budget: 'Savings', price: '1864 price',
   hello: 'Welcome to VERDANT.',
   wl1: 'I am sorry, we have no 1864s at all, and the wait is long. May I put you on our Want List? We will call you when one comes in.',
   wlSign: 'Sign the Want List', wlDone: 'You are on the list. Do try our other shops too.', wlAgain: 'You are already on this shop’s Want List; nothing has come in yet.',
-  bundle: `The 1864? We usually offer it to clients with a purchase history. If you take a Mariner 300 today, ${baht(MISSION.bundle)}, you could have the 1864 straight away.`,
-  bundleBuy: 'Buy the other watch first', bundleNo: 'No, thank you', bundleOk: 'Of course. Do come back if you change your mind.', bundleAgain: 'The offer stands: the Mariner 300 first?',
-  stockNeedWL: s => `We have exactly one, but it goes to clients on every shop’s Want List first. Please sign at ${s}.`,
-  stockShort: (p, g) => `You are in luck: we have one 1864, ${baht(p)}... but you are ${baht(g)} short. We will hold it for you for a month.`,
+  bundle: p => `The 1864? We usually offer it to clients with a purchase history. If you take a Mariner 300 today, ${baht(p)}, you would be first in line for the 1864.`,
+  bundleBuy: 'Buy the other watch first', bundleNo: 'No, thank you', bundleOk: 'Of course. Do come back if you change your mind.', bundleAgain: p => `The offer stands: the Mariner 300 first, ${baht(p)}?`,
+  bundleBought: 'Thank you: the Mariner 300 is yours. As for the 1864, none has come in yet. We will let you know.', bundleAfter: 'Thank you again for the Mariner 300. No 1864 has come in yet.',
+  spent: (p, left) => `Paid ${baht(p)} for the Mariner 300 · ${baht(left)} left`, call: s => `📞 ${s} calls: the 1864 you signed for has come in, and they are holding it for you`,
+  stockShort: (p, g) => `You are on our Want List? You are in luck: one 1864 has just come in, ${baht(p)}... but you are ${baht(g)} short. We will hold it for you.`,
   stockBuy: p => `Your 1864 is ready for you: ${baht(p)}. Shall we wrap it?`, buy: 'Buy it', notYet: 'Not yet',
   stDesk: 'Welcome back to The Siam Times',
   stWork: g => `The editor has plenty for you. Work a month and save ${baht(MISSION.salary)}?${g > 0 ? ` You are ${baht(g)} short.` : ''}`,
@@ -4841,47 +4847,49 @@ const MX = TH ? {
   month: 'A month later', days: ['Front-page stories', 'Morning news meetings', 'Interviews all day', 'Friday overtime', 'Making the deadline', 'Saving every baht'],
   workDone: a => `A month later · saved ${baht(a)}`, monthName: 'A month of work', day: d => `Day ${d}`,
   doneH: 'Mission complete!', doneP: 'The VERDANT 1864 is yours', statShops: 'Shops', statReds: 'Red lights', statTips: 'Tips from riders', statWork: 'Worked', months: n => `${n} month${n === 1 ? '' : 's'}`,
-  failH: 'Mission failed', failReds: `More than ${MISSION.reds} red lights: the police stopped you and took your licence`, failBundle: `You bought the Mariner 300 for ${baht(MISSION.bundle)} and spent all your savings: nothing left for the 1864`,
+  failH: 'Mission failed', failReds: `More than ${MISSION.reds} red lights: the police stopped you and took your licence`,
   wantH: 'Want List · VERDANT 1864', wantP: n => `You are on the list, number ${n}. We will call you the moment one comes in.`, wantName: 'A. Reporter, The Siam Times',
   buyH: 'The 1864 is yours', buyP: 'The manager, in white gloves, sets a green velvet box in front of you and opens it slowly: an ivory dial and a gold case catching the light of the shop.', paid: 'Paid', wear: 'Put it on',
   worn: 'You are wearing the 1864! Follow the pigeon back to The Siam Times · red lights no longer count', home: 'Follow the pigeon back to The Siam Times · red lights no longer count',
   arriveH: 'Back at The Siam Times', arriveP: 'The 1864 on your wrist, and your colleagues out on the steps to applaud.', waveWatch: 'She waves at the rider with the fine watch 👋',
-  roleWL: 'On the Want List', roleWLno: 'Not signed yet', roleBundle: 'Said no to the bundle', roleStock: 'Has the 1864',
+  roleWL: 'On the Want List', roleNone: 'None in stock', roleOffer: 'Wants you to buy another watch first', roleBundle: 'Said no to the bundle', roleBought: 'Bought the Mariner 300', roleStock: 'Has the 1864',
 };
 const shopName = S => TH ? S.th : S.en;
 // the mission in progress, or null (free ride, finished, failed)
 function mission() { const m = settings.mission; return settings.mode !== 'free' && m && m.v === 2 && !m.done && !m.failed ? m : null; }
-function newMission() { MS.goal = null; settings.watch = false; settings.mission = { v: 2, money: MISSION.start, reds: 0, order: [], roles: {}, wl: [], refused: false, worked: 0, tips: 0, tipN: 0, tipped: [], t0: Date.now(), done: false, failed: '' }; save(); }
+function newMission() { MS.goal = null; settings.watch = false; settings.mission = { v: 2, money: MISSION.start, reds: 0, order: [], roles: {}, wl: [], refused: false, bundled: false, called: false, callIn: 0, last: null, worked: 0, tips: 0, tipN: 0, tipped: [], t0: Date.now(), done: false, failed: '' }; save(); }
+const stockShop = m => SHOPS.find(S => m.roles[S.id] === 'stock');
 function missionObjective(m) {
   if (m.bought) return MX.home;
   if (m.order.length < NS) return MX.find(m.order.length);
-  const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
-  if (miss) return MX.signAt(shopName(miss));
+  if (!m.called) return MX.again;
   if (m.money < MISSION.price) return MX.earn(MISSION.price - m.money, m.tipN);
-  return MX.buyAt(shopName(SHOPS.find(S => m.roles[S.id] === 'stock')));
+  return MX.buyAt(shopName(stockShop(m)));
 }
 // where to go next (for Auto and the beams)
 function missionTarget(m) {
   if (!m) return null;
   const pt = S => ({ x: S.ring[0], z: S.ring[1], ax: S.ax, az: S.az, th: S.th, en: S.en, ring: S.ring, place: S });
+  const nearest = list => { let best = null, bd = 1e9; for (const S of list) { const d = Math.hypot(S.ring[0] - bike.x, S.ring[1] - bike.z); if (d < bd) { bd = d; best = S; } } return best; };
   if (m.order.length < NS) {
     // the nearest shop not yet seen; once chosen it stays the goal until you have been there, so the route does not jump about
     const kept = SHOPS.find(S => S.id === MS.goal && !m.order.includes(S.id));
     if (kept) return pt(kept);
-    let best = null, bd = 1e9;
-    for (const S of SHOPS) { if (m.order.includes(S.id)) continue; const d = Math.hypot(S.ring[0] - bike.x, S.ring[1] - bike.z); if (d < bd) { bd = d; best = S; } }
+    const best = nearest(SHOPS.filter(S => !m.order.includes(S.id)));
     MS.goal = best && best.id;
     return best && pt(best);
   }
-  const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
-  if (miss) return pt(miss);
-  if (m.bought || m.money < MISSION.price) return pt(STB);
-  return pt(SHOPS.find(S => m.roles[S.id] === 'stock'));
+  if (m.bought) return pt(STB);
+  // nothing offered yet: the nearest shop other than the one you last came out of
+  if (!m.called) { const best = nearest(SHOPS.filter(S => S.id !== m.last)); return best && pt(best); }
+  if (m.money < MISSION.price) return pt(STB);
+  return pt(stockShop(m));
 }
 
 /* ---------- each frame while riding ---------- */
 function missionUpdate(dt) {
   const m = mission();
+  if (m && m.callIn > 0 && !m.called) { m.callIn -= dt; if (m.callIn <= 0) phoneCall(m); }
   MS.target = missionTarget(m);
   // markers: rings at the shops still to see (and the target), beams over the target
   for (const S of [...SHOPS, STB]) {
@@ -4946,7 +4954,7 @@ function ranRed(m) {
 function missionHUD(m) {
   const p = $('mpanel');
   if (!m) { if (!p.hidden) p.hidden = true; return; }
-  const key = [m.money, m.reds, m.order.length, m.wl.length, m.refused, m.tipN, !!m.bought].join('|');
+  const key = [m.money, m.reds, m.order.length, m.wl.length, m.refused, !!m.bundled, !!m.called, m.tipN, !!m.bought].join('|');
   if (p.hidden) { p.hidden = false; $('mpTitle').textContent = MX.title; }
   if (key === MS.hud) return;
   MS.hud = key;
@@ -5005,19 +5013,33 @@ function openPlace(P) {
     dialog(P, MX.stDesk, MX.stWork(m.order.length >= NS ? gap : 0), [[MX.work, () => workMonth()], [MX.later, closeCut]]);
     return;
   }
-  if (!m.order.includes(P.id)) { m.roles[P.id] = ROLE_SEQ[m.order.length]; m.order.push(P.id); save(); }
+  if (!m.order.includes(P.id)) { m.roles[P.id] = ROLE_SEQ[m.order.length]; m.order.push(P.id); }
+  m.last = P.id; save();
   const role = m.roles[P.id];
-  if (role === 'waitlist') {
+  if (role === 'bundle') {
+    if (m.bundled) { dialog(P, MX.hello, MX.bundleAfter, [[MX.go, closeCut]], 'diver'); return; }
+    const price = bundlePrice(m);
+    dialog(P, MX.hello, m.refused ? MX.bundleAgain(price) : MX.bundle(price), [[MX.bundleBuy, () => buyBundle(P, price)], [MX.bundleNo, () => { m.refused = true; save(); dialog(P, MX.hello, MX.bundleOk, [[MX.go, closeCut]], 'diver'); }]], 'diver');
+  } else if (role === 'waitlist' || !m.wl.length) {
+    // the shop with the 1864 keeps it for the Want List: to anyone else it has none either
     if (m.wl.includes(P.id)) { dialog(P, MX.hello, MX.wlAgain, [[MX.go, closeCut]], 'none'); return; }
-    dialog(P, MX.hello, MX.wl1, [[MX.wlSign, () => { m.wl.push(P.id); save(); wantListScene(P); }], [MX.later, closeCut]], 'none');
-  } else if (role === 'bundle') {
-    dialog(P, MX.hello, m.refused ? MX.bundleAgain : MX.bundle, [[MX.bundleBuy, () => missionFail('bundle')], [MX.bundleNo, () => { m.refused = true; save(); dialog(P, MX.hello, MX.bundleOk, [[MX.go, closeCut]], 'diver'); }]], 'diver');
+    dialog(P, MX.hello, MX.wl1, [[MX.wlSign, () => { m.wl.push(P.id); if (m.order.length >= NS && !m.called) m.callIn = MISSION.call; save(); wantListScene(P); }], [MX.later, closeCut]], 'none');
   } else {
-    const miss = SHOPS.find(S => m.roles[S.id] === 'waitlist' && !m.wl.includes(S.id));
-    if (miss) { dialog(P, MX.hello, MX.stockNeedWL(shopName(miss)), [[MX.go, closeCut]], '1864'); return; }
+    m.called = true; m.callIn = 0; save();
     if (m.money < MISSION.price) { dialog(P, MX.hello, MX.stockShort(MISSION.price, MISSION.price - m.money), [[MX.go, closeCut]], '1864'); return; }
     dialog(P, MX.hello, MX.stockBuy(MISSION.price), [[MX.buy, () => { m.money -= MISSION.price; save(); buyScene(P); }], [MX.notYet, closeCut]], '1864');
   }
+}
+// the Mariner 300: half your money, and no 1864 for it
+function buyBundle(P, price) {
+  const m = mission(); if (!m) return;
+  m.money -= price; m.bundled = true; save(); missionSfx('cash');
+  dialog(P, MX.hello, MX.bundleBought, [[MX.go, () => { closeCut(); toast(MX.spent(price, m.money), 3.2); }]], 'diver');
+}
+// once you are on a Want List, the shop with the 1864 rings you
+function phoneCall(m) {
+  m.callIn = 0; m.called = true; save();
+  missionSfx('phone'); toast(MX.call(shopName(stockShop(m))), 4.5);
 }
 // in free ride: the shop offers you the mission
 function freeShop(P) {
@@ -5155,7 +5177,7 @@ function missionFail(why) {
   openCut('fail', { focus: { x: bike.x, y: bike.y + 0.9, z: bike.z }, r: 7, h: 2.5 });
   const card = $('cutCard'); card.className = 'cutcard fail'; card.innerHTML = '';
   const h = document.createElement('h3'); h.textContent = MX.failH; card.appendChild(h);
-  const p = document.createElement('p'); p.textContent = why === 'reds' ? MX.failReds : MX.failBundle; card.appendChild(p);
+  const p = document.createElement('p'); p.textContent = MX.failReds; card.appendChild(p);
   card.appendChild(buttonRow([[MX.restart, () => { closeCut(); missionRestart(); }], [MX.free, () => { settings.mode = 'free'; save(); closeCut(); missionHUD(null); }]]));
 }
 // the mission in the pause menu
@@ -5169,7 +5191,7 @@ function missionPauseBox() {
   }
   line(MX.title, missionObjective(m));
   line(MX.money, `${baht(m.money)} / ${baht(MISSION.price)} · ${MX.reds} ${m.reds}/${MISSION.reds}`);
-  const st = m.order.map(id => { const S = SHOPS.find(s => s.id === id), r = m.roles[id]; return `${shopName(S)}: ${r === 'waitlist' ? (m.wl.includes(id) ? MX.roleWL : MX.roleWLno) : r === 'bundle' ? MX.roleBundle : MX.roleStock}`; });
+  const st = m.order.map(id => { const S = SHOPS.find(s => s.id === id), r = m.roles[id]; return `${shopName(S)}: ${r === 'bundle' ? (m.bundled ? MX.roleBought : m.refused ? MX.roleBundle : MX.roleOffer) : r === 'stock' && m.called ? MX.roleStock : m.wl.includes(id) ? MX.roleWL : MX.roleNone}`; });
   if (st.length) line(MX.shops, st.join(' · '));
   b.appendChild(buttonRow([[MX.restart, () => { pause(false); missionRestart(); }], [MX.free, () => { settings.mode = 'free'; save(); pause(false); missionHUD(null); }]]));
 }
@@ -5245,6 +5267,7 @@ function missionSfx(kind) {
     for (const [t0, dur] of [[0, 0.22], [0.3, 0.5]]) { const o = tone('sine', 2900, 2900, t0, dur, 0.09); const l = ctx.createOscillator(), lg = ctx.createGain(); l.frequency.value = 26; lg.gain.value = 140; l.connect(lg).connect(o.frequency); l.start(t + t0); l.stop(t + t0 + dur + 0.05); }
   } else if (kind === 'cash') { tone('square', 1318, 1318, 0, 0.09, 0.05); tone('square', 1760, 1760, 0.08, 0.22, 0.05); }
   else if (kind === 'door') { tone('sine', 988, 988, 0, 0.6, 0.06); tone('sine', 784, 784, 0.22, 0.8, 0.06); }
+  else if (kind === 'phone') { for (let k = 0; k < 2; k++) for (let i = 0; i < 12; i++) tone('square', i % 2 ? 1420 : 1180, i % 2 ? 1420 : 1180, k * 0.75 + i * 0.035, 0.035, 0.022); }
   else if (kind === 'sign') { tone('triangle', 660, 990, 0, 0.18, 0.05); }
   else if (kind === 'fail') { tone('sawtooth', 330, 140, 0, 0.9, 0.05); tone('sine', 220, 110, 0.1, 1.0, 0.06); }
   else if (kind === 'lux') {
