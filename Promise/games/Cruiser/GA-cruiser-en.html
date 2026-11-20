@@ -4066,6 +4066,11 @@ function emergencyMute() { const L = EMERG.live; if (L && L.siren) L.siren.g.gai
 const AUDIO = { ctx: null, ready: false };
 const VT = (a, b) => [{ f1: 52, f2: 134, f3: 350, d1: 0.024, d2: 0.012, d3: 0.0065 }, { f1: 46, f2: 118, f3: 340, d1: 0.024, d2: 0.012, d3: 0.0065 }];
 const ENGINES = {
+  // the big carburetted 45° twin, modelled in an AudioWorklet (06-y-evo.js); the pulses below are its fallback
+  evo: { th: 'V-Twin 45° 1,340 ซีซี คาร์บู', en: '45° V-twin, 1,340 cc, carb', capTh: 'V-Twin 45° 1,340 ซีซี', capEn: '45° V-twin, 1,340 cc', worklet: true, loud: 0.3, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 950, red: 5200, pulse: VT(),
+    lpBase: 380, lpThr: 2500, lpRpm: 0.28, barkF: 500, bark: 4, drive: 1.8, out: 0.85, pop: 0.06, body: 4, chest: 4.5, lope: 0.1, rate: 0.42 },
+  evoDrag: { th: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', en: '45° V-twin, 1,340 cc, drag pipes', capTh: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', capEn: '45° V-twin, 1,340 cc, drag pipes', worklet: true, loud: 1, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 950, red: 5200, pulse: VT(),
+    lpBase: 520, lpThr: 3900, lpRpm: 0.42, barkF: 500, bark: 7, drive: 2.8, out: 1.0, pop: 0.14, body: 5, chest: 5, lope: 0.11, rate: 0.42 },
   vtwin: { th: 'V-Twin ท่อเดิม', en: 'V-twin, stock', capTh: 'V-Twin 1,868 ซีซี', capEn: 'V-twin, 1,868 cc', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
     lpBase: 340, lpThr: 2300, lpRpm: 0.25, barkF: 520, bark: 3.5, drive: 1.6, out: 0.8, pop: 0.035, body: 3.5, chest: 4, lope: 0.08, rate: 0.45 },
   vtwinLoud: { th: 'V-Twin ท่อแต่ง', en: 'V-twin, loud pipes', capTh: 'V-Twin 1,868 ซีซี ท่อแต่ง', capEn: 'V-twin, 1,868 cc, loud pipes', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
@@ -4088,8 +4093,9 @@ const ENGINES = {
     lpBase: 300, lpThr: 2600, lpRpm: 0.28, barkF: 430, bark: 5, drive: 2.3, out: 0.6, pop: 0.09, body: 5, chest: 4, lope: 0.045, rate: 0.4 },
   electric: { th: 'มอเตอร์ไฟฟ้า', en: 'Electric motor', capTh: 'มอเตอร์ไฟฟ้า 80 กิโลวัตต์', capEn: 'Electric, 80 kW', electric: true, idle: 0, red: 10000 },
 };
-const ENGINE_LIST = ['vtwin', 'vtwinLoud', 'vtwinStraight', 'single', 'ptwin', 'i4', 'v8', 'electric'];
-if (!ENGINES[settings.engine]) settings.engine = settings.pipe === 'loud' ? 'vtwinLoud' : 'vtwin';
+const ENGINE_LIST = ['evo', 'evoDrag', 'vtwin', 'vtwinLoud', 'vtwinStraight', 'single', 'ptwin', 'i4', 'v8', 'electric'];
+if (!ENGINES[settings.engine]) settings.engine = 'evo';
+if (!settings.evo) { settings.evo = 1; settings.engine = 'evo'; }   // the 1864 now has the carburetted 1,340 by default, once for everyone
 AUDIO.voice = ENGINES[settings.engine];
 // the bike's physics run on one rev scale; each engine's sound and rev counter use its own
 function voiceRpm(r) { const V = AUDIO.voice; if (V.electric) return clamp((r - IDLE) / (REDLINE - IDLE), 0, 1.05) * V.red; return V.idle + clamp((r - IDLE) / (REDLINE - IDLE), -0.6, 1.05) * (V.red - V.idle); }
@@ -4186,6 +4192,8 @@ function initAudio() {
   E.elOsc = [['sine', 0.6], ['triangle', 0.22], ['sine', 0.1]].map(([type, a]) => { const o = ctx.createOscillator(); o.type = type; const og = g(a); o.connect(og).connect(E.el); o.start(); return o; });
   E.elHiOsc = ctx.createOscillator(); E.elHiOsc.type = 'sine'; E.elHiOsc.connect(E.elHi); E.elHiOsc.start();
   AUDIO.E = E;
+  // the modelled twin: when its worklet is ready it takes over from the sampled firings
+  evoInit(ctx, [master, revIn]).then(w => { if (w) { E.evo = w; w.out.gain.value = 0.95; } });
 
   /* road and wind */
   AUDIO.wind = g(0); AUDIO.windF = filt('bandpass', 800, 0.5); loop(white).connect(AUDIO.windF).connect(AUDIO.wind).connect(master);
@@ -4238,7 +4246,7 @@ function setVolume(v) {
 }
 
 function scheduleEngine() {
-  const E = AUDIO.E, V = AUDIO.voice; if (!E || !E.running || V.electric || !E.pulses.length) return;
+  const E = AUDIO.E, V = AUDIO.voice; if (!E || !E.running || V.electric || !E.pulses.length || (V.worklet && E.evo)) return;
   const ctx = AUDIO.ctx, now = ctx.currentTime, n = V.pattern.length;
   if (E.next < now) E.next = now + 0.005;
   while (E.next < now + 0.1) {
@@ -4272,7 +4280,15 @@ function audioUpdate(dt, s) {
   E.rpm = vr; E.thr = s.throttle;
   const set = (param, v, tc = 0.06) => param.setTargetAtTime(v, t, tc);
   const load = s.throttle;
-  if (E.running && !P.electric) {
+  const W = P.worklet && E.evo;
+  if (E.evo) {
+    const wp = E.evo.p;
+    set(wp.get('run'), W ? (E.running ? 1 : E.starting ? 0.5 : 0) : 0, 0.02);
+    set(wp.get('rpm'), Math.max(0, vr), 0.03); set(wp.get('load'), load, 0.05);
+    set(wp.get('near'), s.cam === 2 ? 1 : 0, 0.2); set(wp.get('loud'), P.loud || 0, 0.2);
+  }
+  if (E.running && W) { set(E.bus.gain, 0, 0.03); set(E.intake.gain, 0); set(E.el.gain, 0); set(E.elHi.gain, 0); }
+  else if (E.running && !P.electric) {
     set(E.bus.gain, (0.34 + 0.66 * load) * (0.75 + 0.25 * Math.min(1, n * 2)), 0.05);
     set(E.drive.gain, P.drive * (0.7 + 0.6 * load));
     set(E.lp.frequency, P.lpBase + P.lpThr * load + vr * P.lpRpm, 0.05);
@@ -4357,7 +4373,17 @@ const SFX = {
     return true;
   },
   horn(on) { if (!AUDIO.ready) return; AUDIO.horn.gain.setTargetAtTime(on ? 0.16 : 0, AUDIO.ctx.currentTime, on ? 0.008 : 0.03); },
-  shift(up) { if (!AUDIO.ready || AUDIO.voice.electric) return; voice('sine', up ? 85 : 110, 0.12, 0.12); const s = AUDIO.ctx.createBufferSource(); s.buffer = AUDIO.E.click; s.playbackRate.value = 0.35; const gg = AUDIO.g(0.35); s.connect(gg).connect(AUDIO.master); s.start(); },
+  shift(up, first) {
+    if (!AUDIO.ready || AUDIO.voice.electric) return;
+    if (AUDIO.voice.worklet) {   // a big twin's gearbox: a heavy, metallic clunk, heaviest into first
+      const ctx = AUDIO.ctx, t = ctx.currentTime, k = first ? 1.25 : up ? 0.75 : 0.85;
+      voice('sine', 48, 0.24, 0.26 * k); voice('triangle', 96, 0.09, 0.09 * k);
+      const s = ctx.createBufferSource(); s.buffer = AUDIO.white; const gg = AUDIO.g(0);
+      gg.gain.setValueAtTime(0, t); gg.gain.linearRampToValueAtTime(0.2 * k, t + 0.003); gg.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+      s.connect(AUDIO.filt('bandpass', 1050, 1.3)).connect(gg).connect(AUDIO.master); s.start(t, Math.random()); s.stop(t + 0.09);
+      return;
+    }
+    voice('sine', up ? 85 : 110, 0.12, 0.12); const s = AUDIO.ctx.createBufferSource(); s.buffer = AUDIO.E.click; s.playbackRate.value = 0.35; const gg = AUDIO.g(0.35); s.connect(gg).connect(AUDIO.master); s.start(); },
   thud(strength) {
     if (!AUDIO.ready) return;
     const ctx = AUDIO.ctx, s = ctx.createBufferSource(); s.buffer = AUDIO.brown; const gg = AUDIO.g(0); const t = ctx.currentTime;
@@ -4390,6 +4416,126 @@ AUDIO.carHorn = car => {
   const pan = clamp((dx * Math.cos(bike.yaw) - dz * Math.sin(bike.yaw)) / 10, -0.9, 0.9);
   for (let k = 0; k < (car.kind === 'tuktuk' ? 2 : 1); k++) setTimeout(() => { voice('square', f, 0.28, 0.03, null, 0.01, pan); voice('square', f * 1.19, 0.28, 0.025, null, 0.01, pan); }, k * 320);
 };
+
+/* =====================================================================
+   The big carburetted 45° V-twin, 1,340 cc, modelled rather than sampled, in an AudioWorklet.
+   The crank turns through its 720°; the front cylinder fires at 0°, the rear 315° later and the
+   front again 405° after that, so the beat lopes by itself. Each cylinder's exhaust valve opens
+   into its own pipe (staggered duals, the front a little shorter), and each pipe is a waveguide:
+   the pulse runs to the open end, part of it comes back inverted, and the pipe rings at its own
+   quarter-wave note before the silencer softens it. Under that: the intake gulping through the
+   air cleaner, the tappets ticking at each valve, the clatter of the big air-cooled barrels, the
+   primary chain, the carb hunting at idle, and crackle in the pipes on the overrun.
+   ===================================================================== */
+const EVO_SRC = `
+class EvoEngine extends AudioWorkletProcessor {
+  static get parameterDescriptors() {
+    return [
+      { name: 'rpm', defaultValue: 0, minValue: 0, maxValue: 8000, automationRate: 'k-rate' },
+      { name: 'load', defaultValue: 0, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'run', defaultValue: 0, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'near', defaultValue: 0, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'loud', defaultValue: 0, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+    ];
+  }
+  constructor() {
+    super();
+    const sr = sampleRate; this.sr = sr; this.dt = 1 / sr;
+    this.th = 0; this.rpm = 0; this.load = 0; this.s = 0x9e3779b9; this.hunt = 0;
+    this.pipe = [0.9, 1.07].map(L => ({ d: Math.max(8, Math.round(L / 480 * sr)), b: new Float32Array(8192), w: 0, lp: 0, m1: 0, m2: 0, y1: 0, y2: 0 }));
+    this.cyl = [0, 315].map(tdc => ({ tdc, a: 1, fired: 0, pt: 1, pa: 0, tau: 0.004, ct: 1, ca: 0 }));
+    this.ticks = Array.from({ length: 16 }, () => ({ on: false, t: 0, a: 0, f: 0, g: 0 }));   // a fixed pool: nothing is allocated while it plays
+    this.blk = 0; this.nlp = 0; this.nlp2 = 0;
+    this.body = [0, 0, 0, 0]; this.ib = [0, 0, 0, 0]; this.ch = [0, 0, 0, 0];
+    this.hpx = 0; this.hpy = 0; this.chainPh = 0; this.clp = 0;
+  }
+  r() { let s = this.s; s ^= s << 13; s ^= s >>> 17; s ^= s << 5; this.s = s >>> 0; return this.s / 4294967296; }
+  lp(fc, q) { const w = 2 * Math.PI * fc / this.sr, c = Math.cos(w), al = Math.sin(w) / (2 * q), a0 = 1 + al; return [(1 - c) / 2 / a0, (1 - c) / a0, (1 - c) / 2 / a0, -2 * c / a0, (1 - al) / a0]; }
+  bp(fc, q) { const w = 2 * Math.PI * fc / this.sr, c = Math.cos(w), al = Math.sin(w) / (2 * q), a0 = 1 + al; return [al / a0, 0, -al / a0, -2 * c / a0, (1 - al) / a0]; }
+  bq(k, st, x) { const y = k[0] * x + k[1] * st[0] + k[2] * st[1] - k[3] * st[2] - k[4] * st[3]; st[1] = st[0]; st[0] = x; st[3] = st[2]; st[2] = y; return y; }
+  process(inputs, outputs, P) {
+    const out = outputs[0], L = out[0], R = out[1] || out[0], n = L.length, dt = this.dt;
+    const run = P.run[0], tRpm = P.rpm[0], tLoad = P.load[0], near = P.near[0], loud = P.loud[0];
+    const crank = run > 0.2 && run < 0.8, live = run >= 0.8;
+    // the silencers open up with load and revs, more with louder pipes
+    const mk = this.lp(Math.min(this.sr * 0.45, 720 + 1700 * this.load + this.rpm * 0.15 + 1700 * loud), 1.05);
+    const bk = this.bp(56 + 6 * loud, 1.3), ik = this.bp(185 + this.rpm * 0.02, 2.4), ck = this.bp(270 + 60 * this.load, 0.9);
+    for (let i = 0; i < n; i++) {
+      // revs: what the bike asks for; a starter's slow turn; at idle the carb hunts a little
+      const target = live ? tRpm : crank ? 270 : 0;
+      this.rpm += (target - this.rpm) * (target > this.rpm ? (crank ? 0.0004 : 0.0011) : 0.00045);
+      this.load += (tLoad - this.load) * 0.0008;
+      this.hunt += dt * 2 * Math.PI * 0.55;
+      const idle = live && this.rpm < 1350 && this.load < 0.12;
+      const rpm = Math.max(0, this.rpm + (idle ? 26 * Math.sin(this.hunt) + 12 * Math.sin(this.hunt * 2.63 + 1.3) : 0));
+      const d = rpm * 6 * dt, th0 = this.th; this.th += d; if (this.th >= 720) this.th -= 720;
+      let x0 = 0, x1 = 0, intake = 0, mech = 0;
+      for (let c = 0; c < 2; c++) {
+        const C = this.cyl[c];
+        let r0 = th0 - C.tdc; if (r0 < 0) r0 += 720; let r1 = r0 + d; if (r1 >= 720) r1 -= 720;
+        if (this.hit(r0, r1, 6)) {   // combustion (or only compression on the starter)
+          C.fired = live && rpm > 180 ? 1 : 0;
+          C.a = 0.84 + 0.32 * this.r();
+          if (idle && this.r() < 0.07) C.a *= 0.5;   // a lazy firing now and then: the lope
+          if (C.fired) this.blk = Math.max(this.blk, (0.4 + 0.6 * this.load) * C.a);
+        }
+        if (this.hit(r0, r1, 138)) {   // the exhaust valve opens: blowdown into the pipe
+          C.pt = 0;
+          C.pa = C.fired ? (0.3 + 0.7 * this.load) * C.a : 0.1;
+          C.tau = Math.min(0.0048, Math.max(0.0012, 32 / (rpm * 6 + 1)));
+          if (live && this.load < 0.05 && rpm > 1750 && this.r() < 0.16 * Math.min(1, (rpm - 1750) / 1400) * (1 + loud)) { C.ct = -0.002 * this.r(); C.ca = 0.6 + 0.8 * this.r(); }
+          this.tick(0.55);
+        }
+        if (this.hit(r0, r1, 352)) this.tick(0.45);   // intake valve opens
+        if (this.hit(r0, r1, 372)) this.tick(0.6);    // exhaust valve seats
+        if (this.hit(r0, r1, 578)) this.tick(0.5);    // intake valve seats
+        let v = 0;
+        if (C.pt < 0.05) { const nz = this.r() * 2 - 1; v = C.pa * ((1 - Math.exp(-C.pt / 0.00022)) * (Math.exp(-C.pt / C.tau) + 0.75 * Math.exp(-C.pt / 0.0006)) * (1 + 0.3 * nz * (0.3 + this.load)) + 0.34 * nz * Math.exp(-C.pt / (C.tau * 0.5))); C.pt += dt; }
+        if (r1 >= 180 && r1 < 362) v += 0.2 * C.pa * Math.sin(Math.PI * (r1 - 180) / 182);   // the piston pushing the rest out
+        if (C.ct < 0.03) { if (C.ct >= 0) v += C.ca * ((this.r() * 2 - 1) * Math.exp(-C.ct / 0.0011) + 0.8 * Math.exp(-C.ct / 0.0035)); C.ct += dt; }   // a crack in the pipe
+        if (c === 0) x0 = v; else x1 = v;
+        if (r1 >= 368 && r1 < 560) intake -= (0.15 + 0.85 * this.load) * Math.sin(Math.PI * (r1 - 368) / 192) * Math.min(1.4, 0.35 + rpm / 2600);
+      }
+      // the two pipes: each a waveguide with an inverting, lossy open end, then its silencer
+      let ex = 0;
+      for (let c = 0; c < 2; c++) {
+        const p = this.pipe[c], b = p.b, m = 8191;
+        p.lp += (b[(p.w - 2 * p.d) & m] - p.lp) * 0.56;
+        b[p.w] = (c ? x1 : x0) - (0.62 + 0.1 * loud) * p.lp;
+        const o = b[(p.w - p.d) & m]; p.w = (p.w + 1) & m;
+        const y = mk[0] * o + mk[1] * p.m1 + mk[2] * p.m2 - mk[3] * p.y1 - mk[4] * p.y2; p.m2 = p.m1; p.m1 = o; p.y2 = p.y1; p.y1 = y;
+        ex += y;
+      }
+      const thump = this.bq(bk, this.body, ex), chest = this.bq(ck, this.ch, ex);
+      const gulp = this.bq(ik, this.ib, intake);
+      // the barrels and heads clattering at each firing, the tappets, the primary chain
+      const w = this.r() * 2 - 1; this.nlp += (w - this.nlp) * 0.35; this.nlp2 += (this.nlp - this.nlp2) * 0.08;
+      mech += (this.nlp - this.nlp2) * this.blk * 0.8; this.blk *= Math.exp(-dt / 0.0045);
+      for (let k = 0; k < 16; k++) { const T = this.ticks[k]; if (!T.on) continue; mech += T.a * Math.exp(-T.t / 0.0011) * (Math.sin(T.f * T.t) + 0.55 * Math.sin(T.g * T.t)); T.t += dt; if (T.t > 0.008) T.on = false; }
+      this.chainPh += dt * 2 * Math.PI * rpm / 60 * 25; this.clp += ((this.r() * 2 - 1) * (0.6 + 0.4 * Math.sin(this.chainPh)) - this.clp) * 0.12;
+      mech += this.clp * 0.05 * Math.min(1, rpm / 1500);
+      let mix = ex * 0.5 + thump * (0.7 + 0.5 * loud) + chest * (0.55 + 0.4 * loud) + gulp * (0.18 + 0.3 * near) * (0.35 + this.load) + mech * (0.3 + 0.35 * near) * (live || crank ? 1 : 0);
+      const hp = mix - this.hpx + 0.997 * this.hpy; this.hpx = mix; this.hpy = hp;   // no DC
+      const g = 1.1 + 1.4 * this.load + 0.7 * loud, y = Math.tanh(hp * g) / g;
+      L[i] = y * 0.94; R[i] = y;
+    }
+    return true;
+  }
+  hit(r0, r1, a) { return r1 >= r0 ? r0 < a && a <= r1 : a > r0 || a <= r1; }
+  tick(a) { if (this.rpm < 100) return; const T = this.ticks.find(t => !t.on); if (!T) return; T.on = true; T.t = 0; T.a = a * (0.1 + 0.06 * this.r()); T.f = 2 * Math.PI * (2900 + 700 * this.r()); T.g = 2 * Math.PI * (5000 + 900 * this.r()); }
+}
+registerProcessor('evo-engine', EvoEngine);
+`;
+// load the worklet from a blob and plug it in; the old sampled firings stay as the fallback
+function evoInit(ctx, dests) {
+  if (!ctx.audioWorklet || !window.Blob || !window.URL || !window.AudioWorkletNode) return Promise.resolve(null);
+  const url = URL.createObjectURL(new Blob([EVO_SRC], { type: 'application/javascript' }));
+  return ctx.audioWorklet.addModule(url).then(() => {
+    const node = new AudioWorkletNode(ctx, 'evo-engine', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
+    const out = ctx.createGain(); out.gain.value = 0.9; node.connect(out); for (const d of dests) out.connect(d);
+    return { node, out, p: node.parameters };
+  }).catch(() => null);
+}
 
 
 /* =====================================================================
@@ -5535,7 +5681,7 @@ function torque(rpm) {
 function setNeutral(on, quiet) {
   if (bike.neutral === on) return;
   bike.neutral = on; bike.gear = 0; bike.stillT = 0;
-  if (!quiet) { SFX.shift(!on); toast(on ? T.inN : T.inD, 1.6); }
+  if (!quiet) { SFX.shift(!on, !on); toast(on ? T.inN : T.inD, 1.6); }
   driveUI();
 }
 function driveUI() {
