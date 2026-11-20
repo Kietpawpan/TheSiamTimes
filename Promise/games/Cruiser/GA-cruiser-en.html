@@ -4092,9 +4092,9 @@ const AUDIO = { ctx: null, ready: false };
 const VT = (a, b) => [{ f1: 52, f2: 134, f3: 350, d1: 0.024, d2: 0.012, d3: 0.0065 }, { f1: 46, f2: 118, f3: 340, d1: 0.024, d2: 0.012, d3: 0.0065 }];
 const ENGINES = {
   // the big carburetted 45° twin, modelled in an AudioWorklet (06-y-evo.js); the pulses below are its fallback
-  evo: { th: 'V-Twin 45° 1,340 ซีซี คาร์บู', en: '45° V-twin, 1,340 cc, carb', capTh: 'V-Twin 45° 1,340 ซีซี', capEn: '45° V-twin, 1,340 cc', worklet: true, loud: 0.3, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 740, red: 5200, pulse: VT(),
+  evo: { th: 'V-Twin 45° 1,340 ซีซี คาร์บู', en: '45° V-twin, 1,340 cc, carb', capTh: 'V-Twin 45° 1,340 ซีซี', capEn: '45° V-twin, 1,340 cc', worklet: true, loud: 0.3, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 600, red: 5200, pulse: VT(),
     lpBase: 380, lpThr: 2500, lpRpm: 0.28, barkF: 500, bark: 4, drive: 1.8, out: 0.85, pop: 0.06, body: 4, chest: 4.5, lope: 0.1, rate: 0.42 },
-  evoDrag: { th: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', en: '45° V-twin, 1,340 cc, drag pipes', capTh: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', capEn: '45° V-twin, 1,340 cc, drag pipes', worklet: true, loud: 1, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 720, red: 5200, pulse: VT(),
+  evoDrag: { th: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', en: '45° V-twin, 1,340 cc, drag pipes', capTh: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', capEn: '45° V-twin, 1,340 cc, drag pipes', worklet: true, loud: 1, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 580, red: 5200, pulse: VT(),
     lpBase: 520, lpThr: 3900, lpRpm: 0.42, barkF: 500, bark: 7, drive: 2.8, out: 1.0, pop: 0.14, body: 5, chest: 5, lope: 0.11, rate: 0.42 },
   vtwin: { th: 'V-Twin ท่อเดิม', en: 'V-twin, stock', capTh: 'V-Twin 1,868 ซีซี', capEn: 'V-twin, 1,868 cc', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
     lpBase: 340, lpThr: 2300, lpRpm: 0.25, barkF: 520, bark: 3.5, drive: 1.6, out: 0.8, pop: 0.035, body: 3.5, chest: 4, lope: 0.08, rate: 0.45 },
