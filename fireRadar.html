@@ -1,0 +1,2984 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fire Radar - Hotspot & Landfill Fire Risk Monitoring (Thailand / EPO 1-16)</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Fire Radar">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://kietpawpan.github.io/hotspot/img/EPO11App.png">
+    <link rel="manifest" href="manifest3.json">
+    <meta name="theme-color" content="#4a148c">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- นำ CSS สำหรับ Marker Cluster กลับมาใช้งาน -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <!-- เส้นลมแบบอนิเมชัน (leaflet-velocity) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-velocity@2.1.4/dist/leaflet-velocity.min.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+
+    <style>
+        body { font-family: sans-serif; background-color: #f3f4f6; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #4a148c; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 20px; }
+        .control-panel { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        .status-box { font-size: 15px; color: #4a148c; margin-bottom: 5px; background: #e9d5ff; padding: 10px; border-radius: 6px; border: 1px solid #d8b4fe; }
+        
+        #map-wrapper { position: relative; }
+        #loadingOverlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            color: white;
+            transition: opacity 0.5s ease;
+        }
+        .maps-logo-text {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.6), 0 0 30px rgba(56, 189, 248, 0.4);
+            animation: pulseText 2s infinite;
+        }
+        .maps-sub-text {
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+        .cyber-spinner {
+            width: 70px;
+            height: 70px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #38bdf8;
+            border-right: 4px solid #818cf8;
+            border-bottom: 4px solid #c084fc;
+            border-radius: 50%;
+            animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            margin-bottom: 25px;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+        .loading-status {
+            font-size: 15px;
+            color: #38bdf8;
+            font-weight: 500;
+            letter-spacing: 1px;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes pulseText {
+            0% { transform: scale(0.98); opacity: 0.8; }
+            50% { transform: scale(1.02); opacity: 1; }
+            100% { transform: scale(0.98); opacity: 0.8; }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* CSS สำหรับแจ้งเตือนภัยบ่อขยะ */
+        @keyframes blink-alert-anim {
+            0% { opacity: 0.1; transform: scale(0.95); }
+            50% { opacity: 0.6; transform: scale(1.02); }
+            100% { opacity: 0.1; transform: scale(0.95); }
+        }
+        .blink-alert {
+            animation: blink-alert-anim 1.2s infinite alternate;
+            transform-origin: center;
+        }
+
+        #map { height: 600px; width: 100%; border-radius: 8px; z-index: 10; }
+
+        .legend-wrapper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            width: 280px;
+        }
+        .legend-header {
+            background: #4a148c;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+        .legend-header:hover {
+            background: #3b0f70;
+        }
+        .legend-header.open {
+            border-radius: 8px 8px 0 0;
+        }
+        .legend-box {
+            padding: 10px 15px;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 450px;
+            overflow-y: auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .legend-title { font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 10px; }
+        .legend-title:first-child { margin-top: 0; }
+        .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px; }
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            min-width: 280px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            animation: slideIn 0.3s forwards;
+        }
+        .toast.success { background-color: #16a34a; }
+        .toast.error { background-color: #dc2626; }
+        .toast.warning { background-color: #f59e0b; color: white; }
+        .toast.info { background-color: #2563eb; }
+
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateX(100%); }
+        }
+
+        @media (max-width: 600px) {
+            .legend-wrapper { width: 180px; }
+            .legend-header { font-size: 12px; padding: 6px 10px; }
+            .legend-box { width: 160px; font-size: 12px; padding: 8px 10px; max-height: 240px; }
+            #map { height: 450px; }
+        }
+
+        .leaflet-control-scale-line {
+            border: 2px solid #4a148c !important;
+            border-top: none !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            color: #1e293b !important;
+            font-weight: bold !important;
+            font-size: 13px !important;
+            line-height: 1.2 !important;
+            padding: 4px 8px !important;
+            border-radius: 0 0 4px 4px !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+            backdrop-filter: blur(4px);
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+        .scale-hidden {
+            display: none !important;
+        }
+
+        /* ปุ่มจำลองควันใน Popup บ่อขยะ */
+        .simulate-plume-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background-color: #0284c7;
+            color: white;
+            padding: 8px 0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            margin-top: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            transition: background-color 0.2s;
+        }
+        .simulate-plume-btn:hover {
+            background-color: #0369a1;
+        }
+
+        /* ตารางสรุปจุดความร้อนรายพื้นที่ (โหมดทั้งประเทศ) */
+        .epo-row {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 2px 6px;
+            margin: 2px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            overflow: hidden;
+        }
+        .epo-row > * { position: relative; z-index: 1; }
+        .epo-row .epo-row-bar {
+            position: absolute;
+            z-index: 0;
+            left: 0; top: 0; bottom: 0;
+            background: #f3e8ff;
+            border-radius: 4px;
+        }
+        .epo-row.clickable { cursor: pointer; }
+        .epo-row.clickable:hover { outline: 1px solid #c084fc; }
+
+        /* ===== PM2.5 รายจังหวัด (สถานีกรมควบคุมมลพิษ) ===== */
+        .pm-marker {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 11px;
+            border: 1.5px solid rgba(15, 23, 42, 0.55);
+            font-size: 11px;
+            font-weight: 800;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+            cursor: pointer;
+        }
+        /* สถานี คพ. ตอนซูมออก: รูปข้าวหลามตัด (ต่างจากจุดความร้อนที่เป็นวงกลม) */
+        .pm-dot {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            border-radius: 2px;
+            transform: rotate(45deg);
+            border: 1.5px solid rgba(15, 23, 42, 0.8);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.35);
+            cursor: pointer;
+        }
+        .pm-swatch {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            transform: rotate(45deg);
+            border: 1.5px solid rgba(15, 23, 42, 0.8);
+            border-radius: 1px;
+            margin: 0 8px 0 3px;
+        }
+        .pm25-table th.rank, .pm25-table td.rank { text-align: center; width: 56px; }
+        .pm25-panel {
+            margin-top: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            background: #f8fafc;
+        }
+        .pm25-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .pm25-panel-title { font-size: 17px; font-weight: bold; color: #4a148c; }
+        .pm25-meta { font-size: 13px; color: #475569; margin-top: 3px; }
+        .pm25-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+        .pm25-tools select, .pm25-tools button {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .pm25-tools select { border: 1px solid #c084fc; color: #4a148c; background: #fff; }
+        .pm25-tools button { border: none; background: #0284c7; color: #fff; font-weight: bold; }
+        .pm25-tools button:disabled { background: #9ca3af; cursor: wait; }
+        .pm25-scale { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 6px; font-size: 12px; }
+        .pm25-chip { padding: 3px 8px; border-radius: 999px; border: 1px solid rgba(15,23,42,0.2); font-weight: bold; }
+        .pm25-summary { font-size: 14px; margin: 6px 0 8px; }
+        .pm25-table-wrap { overflow-x: auto; max-height: 460px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; }
+        .pm25-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .pm25-table th {
+            position: sticky; top: 0; z-index: 1;
+            background: #4a148c; color: #fff; padding: 7px 8px; text-align: left; white-space: nowrap; font-size: 13px;
+        }
+        .pm25-table td { padding: 6px 8px; border-top: 1px solid #f1f5f9; vertical-align: middle; }
+        .pm25-table tbody tr { cursor: pointer; }
+        .pm25-table tbody tr:hover { background: #f3e8ff; }
+        .pm25-table .num { text-align: right; white-space: nowrap; }
+        .pm25-badge { display: inline-block; min-width: 46px; text-align: center; padding: 2px 8px; border-radius: 6px; font-weight: 800; border: 1px solid rgba(15,23,42,0.2); }
+        .pm25-sub { display: block; font-size: 11px; color: #64748b; }
+        .pm25-note { font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5; }
+        .pm25-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 10px; font-size: 14px; }
+        @media (max-width: 600px) {
+            .pm25-table { font-size: 12px; }
+            .pm25-table th, .pm25-table td { padding: 5px 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="toast-container"></div>
+    <div class="container">
+        <h2 id="appTitle">MAPS 11 Pro 3.0</h2>
+        <div class="subtitle" id="appSubtitle">ระบบเฝ้าระวังไฟไหม้บ่อขยะและจำลองทิศทางควันจุดเกิดเหตุด่วน สคพ. 11 (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์)</div>
+        <!-- ลิงก์ไปเรดาร์พกพา ตรวจหาจุดความร้อนรอบตำแหน่งผู้ใช้ (ใช้ข้อมูลชุดเดียวกัน) -->
+        <div style="text-align: center; margin: -8px 0 16px;">
+            <a href="hotspotRadar.html" title="เปิดเรดาร์ตรวจหาจุดความร้อนรอบตำแหน่งของคุณ (ใช้ GPS)" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: linear-gradient(180deg, #16a34a, #15803d); color: #fff; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 999px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">📡 Hotspot Radar: ตรวจหาจุดความร้อนใกล้ตัวคุณ</a>
+        </div>
+
+        <div class="control-panel">
+            <!-- แถบเลือกพื้นที่ สคพ. 1-16 และสถานะดาวเทียม -->
+            <div class="status-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; max-width: 100%;">
+                        <label for="epoRegionSelect" style="font-weight: bold; color: #4a148c; white-space: nowrap;">🗺️ เลือกพื้นที่รับผิดชอบ:</label>
+                        <select id="epoRegionSelect" style="padding: 8px 12px; border: 2px solid #9333ea; border-radius: 6px; font-size: 15px; font-weight: bold; color: #4a148c; background-color: #fff; cursor: pointer; max-width: 100%;">
+                            <option value="all">🇹🇭 ทั้งประเทศไทย (77 จังหวัด)</option>
+                            <option value="1">สคพ. 1 (เชียงใหม่ เชียงราย ลำพูน แม่ฮ่องสอน)</option>
+                            <option value="2">สคพ. 2 (ลำปาง แพร่ พะเยา น่าน)</option>
+                            <option value="3">สคพ. 3 (พิษณุโลก สุโขทัย ตาก อุตรดิตถ์ เพชรบูรณ์)</option>
+                            <option value="4">สคพ. 4 (นครสวรรค์ กำแพงเพชร อุทัยธานี พิจิตร)</option>
+                            <option value="5">สคพ. 5 (นครปฐม ชัยนาท สุพรรณบุรี สมุทรสาคร)</option>
+                            <option value="6">สคพ. 6 (นนทบุรี สิงห์บุรี อ่างทอง พระนครศรีอยุธยา ปทุมธานี)</option>
+                            <option value="7">สคพ. 7 (สระบุรี ลพบุรี นครนายก ปราจีนบุรี สระแก้ว)</option>
+                            <option value="8">สคพ. 8 (ราชบุรี กาญจนบุรี สมุทรสงคราม เพชรบุรี ประจวบคีรีขันธ์)</option>
+                            <option value="9">สคพ. 9 (อุดรธานี หนองคาย เลย นครพนม สกลนคร บึงกาฬ)</option>
+                            <option value="10">สคพ. 10 (ขอนแก่น มหาสารคาม กาฬสินธุ์ หนองบัวลำภู ร้อยเอ็ด)</option>
+                            <option value="11" selected>สคพ. 11 (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์)</option>
+                            <option value="12">สคพ. 12 (อุบลราชธานี ศรีสะเกษ ยโสธร อำนาจเจริญ มุกดาหาร)</option>
+                            <option value="13">สคพ. 13 (ชลบุรี ระยอง ตราด ฉะเชิงเทรา จันทบุรี สมุทรปราการ)</option>
+                            <option value="14">สคพ. 14 (สุราษฎร์ธานี ชุมพร นครศรีธรรมราช พัทลุง)</option>
+                            <option value="15">สคพ. 15 (ภูเก็ต กระบี่ ตรัง พังงา ระนอง)</option>
+                            <option value="16">สคพ. 16 (สงขลา สตูล ปัตตานี ยะลา นราธิวาส)</option>
+                        </select>
+                    </div>
+
+                    <div style="flex: 1; min-width: 240px;">
+                        🛰️ <b>สถานะข้อมูล:</b> <span id="lastUpdateDisplay" style="color: #b91c1c; font-weight: bold;">กำลังดาวน์โหลดและประมวลผลข้อมูล NASA...</span>
+                        <div style="font-size: 13px; color: #475569; margin-top: 4px;">
+                            🕒 <b>อัปเดตข้อมูลดาวเทียมล่าสุด:</b> <span id="lastSyncDisplay">-</span>
+                        </div>
+                    </div>
+
+                    <button id="forceSyncBtn" style="padding: 10px 15px; background-color: #d97706; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background 0.2s;">
+                        🔄 อัปเดตดาวเทียมเดี๋ยวนี้
+                    </button>
+                </div>
+            </div>
+          
+            <div id="timeSelectorContainer" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
+                <label style="font-size: 16px; margin-bottom: 10px; display: block;">
+                    <b>ช่วงเวลาจุดความร้อนที่ใช้ประเมินความเสี่ยงบ่อขยะ: </b>
+                    <span style="font-size: 14px; color: #64748b;">(นับจากเวลาปัจจุบัน)</span>
+                </label>
+                <div style="display: flex; gap: 15px; align-items: center; font-size: 15px; margin-top: 10px; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="radio" name="timeFilter" value="12-all" class="time-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;" checked> 12 ชม. ล่าสุด
+                    </label>
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="radio" name="timeFilter" value="24-all" class="time-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> 24 ชม.
+                    </label>
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="radio" name="timeFilter" value="12-morning" class="time-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> 12 ชม. รอบเช้า (00:00 - 11:59 น.)
+                    </label>
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="radio" name="timeFilter" value="12-afternoon" class="time-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> 12 ชม. รอบบ่าย (12:00 - 23:59 น.)
+                    </label>
+                </div>
+            </div>
+
+            <!-- ตัวเลือกแสดงค่า PM2.5 รายจังหวัดจากสถานีกรมควบคุมมลพิษ -->
+            <div id="pm25ToggleContainer" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 16px; flex-wrap: wrap;">
+                    <input type="checkbox" id="pm25Toggle" style="width: 18px; height: 18px; accent-color: #4a148c; margin: 0;">
+                    <b>🌫️ แสดงค่า PM2.5 รายจังหวัด พร้อมจัดอันดับ</b>
+                    <span style="font-size: 14px; color: #64748b;">(สถานีตรวจวัดคุณภาพอากาศ กรมควบคุมมลพิษ)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 16px; flex-wrap: wrap; margin-top: 10px;">
+                    <input type="checkbox" id="windToggle" style="width: 18px; height: 18px; accent-color: #4a148c; margin: 0;">
+                    <b>💨 แสดงเส้นลม (ทิศทางและความเร็วลม)</b>
+                    <span style="font-size: 14px; color: #64748b;">(ลมผิวพื้นจาก Open-Meteo · ชี้เมาส์บนแผนที่เพื่อดูค่า ณ จุดนั้น)</span>
+                </label>
+                <div id="windOffsetGroup" style="display: none; align-items: center; gap: 14px; flex-wrap: wrap; margin: 8px 0 0 26px; font-size: 15px;">
+                    <span style="color: #475569;">ดูลม:</span>
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="radio" name="windOffset" value="0" class="wind-offset-radio" style="width: 16px; height: 16px; accent-color: #4a148c; margin: 0;"> ตอนนี้
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="radio" name="windOffset" value="6" class="wind-offset-radio" style="width: 16px; height: 16px; accent-color: #4a148c; margin: 0;"> ล่วงหน้า 6 ชม.
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="radio" name="windOffset" value="12" class="wind-offset-radio" style="width: 16px; height: 16px; accent-color: #4a148c; margin: 0;"> ล่วงหน้า 12 ชม.
+                    </label>
+                </div>
+            </div>
+
+            <!-- ส่วนปักหมุดจุดเกิดเหตุด่วนและจำลองกรวยควันตามทิศลม -->
+            <div id="incidentContainer" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background-color: #fff1f2; padding: 10px; border-radius: 8px;">
+                <label style="font-size: 16px; font-weight: bold; color: #be123c;">🚨 จุดเกิดเหตุด่วน:</label>
+                <input type="text" id="incidentName" placeholder="ชื่อเหตุการณ์" style="padding: 8px; border: 1px solid #fda4af; border-radius: 6px; flex: 1; min-width: 150px;">
+                <input type="number" id="latInput" placeholder="Lat" step="any" style="padding: 8px; border: 1px solid #fda4af; border-radius: 6px; width: 90px;">
+                <input type="number" id="lonInput" placeholder="Lon" step="any" style="padding: 8px; border: 1px solid #fda4af; border-radius: 6px; width: 90px;">
+                
+                <div style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
+                    <button id="dropPinBtn" style="padding: 8px 12px; background-color: #e11d48; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">📍 ปักหมุด</button>
+                    <button id="editPinBtn" style="padding: 8px 12px; background-color: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">✏️ Edit</button>
+                    <button id="clearPinBtn" style="padding: 8px 12px; background-color: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🗑️ ล้าง</button>
+                    <label style="display: flex; align-items: center; cursor: pointer; margin-left: 5px; font-size: 14px; color: #475569; font-weight: bold;">
+                        <input type="checkbox" id="togglePlumeBtn" checked style="margin-right: 5px; width: 16px; height: 16px; accent-color: #64748b;"> แสดงควัน
+                    </label>
+                    <label style="display: flex; align-items: center; cursor: pointer; margin-left: 10px; font-size: 14px; color: #475569; font-weight: bold;">
+                        <input type="checkbox" id="toggleRadiusBtn" checked style="margin-right: 5px; width: 16px; height: 16px; accent-color: #ef4444;"> แสดงรัศมี
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 5px; align-items: center; border-left: 2px solid #fda4af; padding-left: 10px; margin-left: 5px;">
+                    <label style="font-size: 14px; font-weight: bold; color: #be123c;">ทิศลม (องศา):</label>
+                    <input type="number" id="manualWindDir" placeholder="0-360" min="0" max="360" style="padding: 8px; border: 1px solid #fda4af; border-radius: 6px; width: 80px;">
+                    <button id="updateWindBtn" style="padding: 8px 12px; background-color: #0284c7; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔄 ปรับทิศ</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="map-wrapper">
+            <div id="loadingOverlay">
+                <div class="maps-logo-text" id="overlayLogoText">MAPS 11</div>
+                <div class="maps-sub-text" id="overlaySubText">Management of Air Pollution Sector 11</div>
+                <div class="cyber-spinner"></div>
+                <div class="loading-status" id="loadingStatusText">INITIATING SATELLITE CONNECTION...</div>
+            </div>
+            <div id="map"></div>
+        </div>
+
+        <!-- ตารางจัดอันดับค่า PM2.5 รายจังหวัด (แสดงเมื่อเปิดตัวเลือก PM2.5) -->
+        <div id="pm25Panel" class="pm25-panel" style="display: none;">
+            <div class="pm25-panel-header">
+                <div>
+                    <div class="pm25-panel-title">🌫️ อันดับค่า PM2.5 รายจังหวัด <span id="pm25Scope" style="font-weight: normal; color: #475569;"></span></div>
+                    <div class="pm25-meta" id="pm25Meta">-</div>
+                </div>
+                <div class="pm25-tools">
+                    <label for="pm25AggSelect">ค่าจังหวัดจาก:</label>
+                    <select id="pm25AggSelect">
+                        <option value="max" selected>สถานีที่ค่าสูงสุด</option>
+                        <option value="mean">ค่าเฉลี่ยทุกสถานี</option>
+                    </select>
+                    <button type="button" id="pm25RefreshBtn">🔄 รีเฟรช</button>
+                    <label id="pm25BkkLabel" style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex-basis: 100%; font-size: 13px; color: #475569;">
+                        <input type="checkbox" id="pm25IncludeBkk" style="width: 16px; height: 16px; accent-color: #4a148c; margin: 0;">
+                        นับรวมสถานีของกรุงเทพมหานคร (กทม.) ด้วย
+                    </label>
+                </div>
+            </div>
+            <div class="pm25-scale" id="pm25Scale"></div>
+            <div class="pm25-summary" id="pm25Summary"></div>
+            <div class="pm25-table-wrap">
+                <table class="pm25-table">
+                    <thead>
+                        <tr>
+                            <th class="rank">อันดับ</th>
+                            <th>จังหวัด</th>
+                            <th class="num">PM2.5<span class="pm25-sub" style="color:#e9d5ff;">มคก./ลบ.ม. (เฉลี่ย 24 ชม.)</span></th>
+                            <th>ระดับคุณภาพอากาศ</th>
+                            <th class="num">สถานี</th>
+                            <th class="num" id="pm25HotspotHeader">🔥 จุดความร้อน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pm25TableBody"></tbody>
+                </table>
+            </div>
+            <div class="pm25-note" id="pm25Missing"></div>
+            <div class="pm25-note">
+                ที่มา: สถานีตรวจวัดคุณภาพอากาศ กรมควบคุมมลพิษ (Air4Thai) · เกณฑ์สีตามดัชนีคุณภาพอากาศของ คพ. ·
+                มาตรฐาน PM2.5 เฉลี่ย 24 ชม. ไม่เกิน 37.5 มคก./ลบ.ม. · คลิกแถวเพื่อซูมไปที่จังหวัด
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- นำ JS สำหรับ Marker Cluster กลับมาใช้งาน -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet-velocity@2.1.4/dist/leaflet-velocity.min.js"></script>
+
+    <script>
+        // ============================================================================
+        // ฐานข้อมูลพื้นที่รับผิดชอบของสำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 1–16 (สคพ. 1–16)
+        // ============================================================================
+        const EPO_REGIONS = {
+            "1": {
+                name: "สคพ. 1 (เชียงใหม่)",
+                center: [19.00, 99.00],
+                provincesTH: ["เชียงใหม่", "เชียงราย", "ลำพูน", "แม่ฮ่องสอน"],
+                keywordsEN: ["Chiang Mai", "Chiang Rai", "Lamphun", "Mae Hong Son"]
+            },
+            "2": {
+                name: "สคพ. 2 (ลำปาง)",
+                center: [18.60, 100.15],
+                provincesTH: ["ลำปาง", "แพร่", "พะเยา", "น่าน"],
+                keywordsEN: ["Lampang", "Phrae", "Phayao", "Nan"]
+            },
+            "3": {
+                name: "สคพ. 3 (พิษณุโลก)",
+                center: [16.82, 100.26],
+                provincesTH: ["พิษณุโลก", "สุโขทัย", "ตาก", "อุตรดิตถ์", "เพชรบูรณ์"],
+                keywordsEN: ["Phitsanulok", "Sukhothai", "Tak", "Uttaradit", "Phetchabun"]
+            },
+            "4": {
+                name: "สคพ. 4 (นครสวรรค์)",
+                center: [15.85, 99.90],
+                provincesTH: ["นครสวรรค์", "กำแพงเพชร", "อุทัยธานี", "พิจิตร"],
+                keywordsEN: ["Nakhon Sawan", "Kamphaeng Phet", "Uthai Thani", "Phichit"]
+            },
+            "5": {
+                name: "สคพ. 5 (นครปฐม)",
+                center: [14.35, 100.05],
+                provincesTH: ["นครปฐม", "ชัยนาท", "สุพรรณบุรี", "สมุทรสาคร"],
+                keywordsEN: ["Nakhon Pathom", "Chai Nat", "Chainat", "Suphan Buri", "Suphanburi", "Samut Sakhon"]
+            },
+            "6": {
+                name: "สคพ. 6 (นนทบุรี)",
+                center: [14.35, 100.50],
+                provincesTH: ["นนทบุรี", "สิงห์บุรี", "อ่างทอง", "พระนครศรีอยุธยา", "ปทุมธานี"],
+                keywordsEN: ["Nonthaburi", "Sing Buri", "Singburi", "Ang Thong", "Phra Nakhon Si Ayutthaya", "Ayutthaya", "Pathum Thani"]
+            },
+            "7": {
+                name: "สคพ. 7 (สระบุรี)",
+                center: [14.30, 101.50],
+                provincesTH: ["สระบุรี", "ลพบุรี", "นครนายก", "ปราจีนบุรี", "สระแก้ว"],
+                keywordsEN: ["Saraburi", "Lop Buri", "Lopburi", "Nakhon Nayok", "Prachin Buri", "Prachinburi", "Sa Kaeo"]
+            },
+            "8": {
+                name: "สคพ. 8 (ราชบุรี)",
+                center: [13.20, 99.50],
+                provincesTH: ["ราชบุรี", "กาญจนบุรี", "สมุทรสงคราม", "เพชรบุรี", "ประจวบคีรีขันธ์"],
+                keywordsEN: ["Ratchaburi", "Kanchanaburi", "Samut Songkhram", "Phetchaburi", "Prachuap Khiri Khan"]
+            },
+            "9": {
+                name: "สคพ. 9 (อุดรธานี)",
+                center: [17.40, 103.20],
+                provincesTH: ["อุดรธานี", "หนองคาย", "เลย", "นครพนม", "สกลนคร", "บึงกาฬ"],
+                keywordsEN: ["Udon Thani", "Nong Khai", "Loei", "Nakhon Phanom", "Sakon Nakhon", "Bueng Kan"]
+            },
+            "10": {
+                name: "สคพ. 10 (ขอนแก่น)",
+                center: [16.35, 103.30],
+                provincesTH: ["ขอนแก่น", "มหาสารคาม", "กาฬสินธุ์", "หนองบัวลำภู", "ร้อยเอ็ด"],
+                keywordsEN: ["Khon Kaen", "Maha Sarakham", "Kalasin", "Nong Bua Lam Phu", "Roi Et"]
+            },
+            "11": {
+                name: "สคพ. 11 (นครราชสีมา)",
+                center: [15.20, 102.50],
+                provincesTH: ["นครราชสีมา", "ชัยภูมิ", "บุรีรัมย์", "สุรินทร์"],
+                keywordsEN: ["Nakhon Ratchasima", "Chaiyaphum", "Buri Ram", "Buriram", "Surin"]
+            },
+            "12": {
+                name: "สคพ. 12 (อุบลราชธานี)",
+                center: [15.50, 104.60],
+                provincesTH: ["อุบลราชธานี", "ศรีสะเกษ", "ยโสธร", "อำนาจเจริญ", "มุกดาหาร"],
+                keywordsEN: ["Ubon Ratchathani", "Si Sa Ket", "Sisaket", "Yasothon", "Amnat Charoen", "Mukdahan"]
+            },
+            "13": {
+                name: "สคพ. 13 (ชลบุรี)",
+                center: [13.10, 101.60],
+                provincesTH: ["ชลบุรี", "ระยอง", "ตราด", "ฉะเชิงเทรา", "จันทบุรี", "สมุทรปราการ"],
+                keywordsEN: ["Chon Buri", "Chonburi", "Rayong", "Trat", "Chachoengsao", "Chanthaburi", "Samut Prakan"]
+            },
+            "14": {
+                name: "สคพ. 14 (สุราษฎร์ธานี)",
+                center: [9.00, 99.40],
+                provincesTH: ["สุราษฎร์ธานี", "ชุมพร", "นครศรีธรรมราช", "พัทลุง"],
+                keywordsEN: ["Surat Thani", "Chumphon", "Nakhon Si Thammarat", "Phatthalung"]
+            },
+            "15": {
+                name: "สคพ. 15 (ภูเก็ต)",
+                center: [8.40, 98.80],
+                provincesTH: ["ภูเก็ต", "กระบี่", "ตรัง", "พังงา", "ระนอง"],
+                keywordsEN: ["Phuket", "Krabi", "Trang", "Phangnga", "Phang Nga", "Ranong"]
+            },
+            "16": {
+                name: "สคพ. 16 (สงขลา)",
+                center: [6.70, 100.80],
+                provincesTH: ["สงขลา", "สตูล", "ปัตตานี", "ยะลา", "นราธิวาส"],
+                keywordsEN: ["Songkhla", "Satun", "Pattani", "Yala", "Narathiwat"]
+            }
+        };
+
+        const EN_TO_TH_PROVINCE = {
+            "Chiang Mai": "เชียงใหม่", "Chiang Rai": "เชียงราย", "Lamphun": "ลำพูน", "Mae Hong Son": "แม่ฮ่องสอน",
+            "Lampang": "ลำปาง", "Phrae": "แพร่", "Phayao": "พะเยา", "Nan": "น่าน",
+            "Phitsanulok": "พิษณุโลก", "Sukhothai": "สุโขทัย", "Tak": "ตาก", "Uttaradit": "อุตรดิตถ์", "Phetchabun": "เพชรบูรณ์",
+            "Nakhon Sawan": "นครสวรรค์", "Kamphaeng Phet": "กำแพงเพชร", "Uthai Thani": "อุทัยธานี", "Phichit": "พิจิตร",
+            "Nakhon Pathom": "นครปฐม", "Chai Nat": "ชัยนาท", "Chainat": "ชัยนาท", "Suphan Buri": "สุพรรณบุรี", "Suphanburi": "สุพรรณบุรี", "Samut Sakhon": "สมุทรสาคร",
+            "Nonthaburi": "นนทบุรี", "Sing Buri": "สิงห์บุรี", "Singburi": "สิงห์บุรี", "Ang Thong": "อ่างทอง", "Phra Nakhon Si Ayutthaya": "พระนครศรีอยุธยา", "Ayutthaya": "พระนครศรีอยุธยา", "Pathum Thani": "ปทุมธานี",
+            "Saraburi": "สระบุรี", "Lop Buri": "ลพบุรี", "Lopburi": "ลพบุรี", "Nakhon Nayok": "นครนายก", "Prachin Buri": "ปราจีนบุรี", "Prachinburi": "ปราจีนบุรี", "Sa Kaeo": "สระแก้ว",
+            "Ratchaburi": "ราชบุรี", "Kanchanaburi": "กาญจนบุรี", "Samut Songkhram": "สมุทรสงคราม", "Phetchaburi": "เพชรบุรี", "Prachuap Khiri Khan": "ประจวบคีรีขันธ์",
+            "Udon Thani": "อุดรธานี", "Nong Khai": "หนองคาย", "Loei": "เลย", "Nakhon Phanom": "นครพนม", "Sakon Nakhon": "สกลนคร", "Bueng Kan": "บึงกาฬ",
+            "Khon Kaen": "ขอนแก่น", "Maha Sarakham": "มหาสารคาม", "Kalasin": "กาฬสินธุ์", "Nong Bua Lam Phu": "หนองบัวลำภู", "Roi Et": "ร้อยเอ็ด",
+            "Nakhon Ratchasima": "นครราชสีมา", "Chaiyaphum": "ชัยภูมิ", "Buri Ram": "บุรีรัมย์", "Buriram": "บุรีรัมย์", "Surin": "สุรินทร์",
+            "Ubon Ratchathani": "อุบลราชธานี", "Si Sa Ket": "ศรีสะเกษ", "Sisaket": "ศรีสะเกษ", "Yasothon": "ยโสธร", "Amnat Charoen": "อำนาจเจริญ", "Mukdahan": "มุกดาหาร",
+            "Chon Buri": "ชลบุรี", "Chonburi": "ชลบุรี", "Rayong": "ระยอง", "Trat": "ตราด", "Chachoengsao": "ฉะเชิงเทรา", "Chanthaburi": "จันทบุรี", "Samut Prakan": "สมุทรปราการ",
+            "Surat Thani": "สุราษฎร์ธานี", "Chumphon": "ชุมพร", "Nakhon Si Thammarat": "นครศรีธรรมราช", "Phatthalung": "พัทลุง",
+            "Phuket": "ภูเก็ต", "Krabi": "กระบี่", "Trang": "ตรัง", "Phangnga": "พังงา", "Phang Nga": "พังงา", "Ranong": "ระนอง",
+            "Songkhla": "สงขลา", "Satun": "สตูล", "Pattani": "ปัตตานี", "Yala": "ยะลา", "Narathiwat": "นราธิวาส",
+            "Bangkok Metropolis": "กรุงเทพมหานคร", "Bangkok": "กรุงเทพมหานคร"
+        };
+
+        // ============================================================================
+        // โหมดแสดงผลทั้งประเทศไทย (Fire Radar)
+        // ============================================================================
+        const NATIONAL_ID = "all";
+        const NATIONAL_VIEW = { name: "ทั่วประเทศไทย", center: [13.0, 101.0], zoom: 6 };
+
+        // จังหวัด (ภาษาไทย) -> รหัส สคพ. ที่รับผิดชอบ (กรุงเทพมหานครไม่อยู่ในเขต สคพ. 1-16)
+        const PROVINCE_TO_EPO = {};
+        Object.entries(EPO_REGIONS).forEach(([id, r]) => r.provincesTH.forEach(p => { PROVINCE_TO_EPO[p] = id; }));
+
+        function isNational(epoId = currentEpoId) {
+            return epoId === NATIONAL_ID;
+        }
+
+        // ข้อความระบุพื้นที่สั้น ๆ สำหรับแสดงในสถานะ/คำอธิบายสัญลักษณ์/การแจ้งเตือน
+        function regionLabel(epoId = currentEpoId) {
+            return isNational(epoId) ? "ทั่วประเทศ" : `สคพ. ${epoId}`;
+        }
+
+        function regionFullName(epoId = currentEpoId) {
+            return isNational(epoId) ? NATIONAL_VIEW.name : EPO_REGIONS[epoId].name;
+        }
+
+        // ============================================================================
+        // PM2.5 จากสถานีตรวจวัดคุณภาพอากาศ กรมควบคุมมลพิษ (Air4Thai)
+        // ============================================================================
+        // เกณฑ์สีตามดัชนีคุณภาพอากาศของ คพ. (มคก./ลบ.ม.)
+        const PM25_LEVELS = [
+            { max: 15.0,     color: '#3BCCFF', text: '#0f172a', range: '0 - 15.0',    label: 'ดีมาก' },
+            { max: 25.0,     color: '#92D050', text: '#0f172a', range: '15.1 - 25.0', label: 'ดี' },
+            { max: 37.5,     color: '#FFFF00', text: '#0f172a', range: '25.1 - 37.5', label: 'ปานกลาง' },
+            { max: 75.0,     color: '#FFA200', text: '#0f172a', range: '37.6 - 75.0', label: 'เริ่มมีผลกระทบต่อสุขภาพ' },
+            { max: Infinity, color: '#F04646', text: '#ffffff', range: '75.1 ขึ้นไป',  label: 'มีผลกระทบต่อสุขภาพ' }
+        ];
+        const PM25_STANDARD = 37.5;          // มาตรฐานเฉลี่ย 24 ชม.
+        const PM25_REFRESH_MINUTES = 15;     // รีเฟรชอัตโนมัติขณะเปิดตัวเลือก
+        const PM25_LABEL_ZOOM = 8;           // ซูมตั้งแต่ระดับนี้แสดงตัวเลขบนหมุดสถานี (ต่ำกว่านี้แสดงเป็นจุดสี)
+        const PM25_STALE_HOURS = 3;          // ข้อมูลเก่ากว่าเวลาล่าสุดของทั้งชุดตั้งแต่กี่ชั่วโมง ถือว่าล่าช้า (ยังนับ แต่ติดป้าย)
+        const PM25_EXPIRE_HOURS = 24;        // เก่ากว่านี้ไม่นำมาคิดค่าจังหวัด/จัดอันดับ (บางสถานีค้างเป็นสัปดาห์)
+        const ALL_TH_PROVINCES = Object.keys(PROVINCE_TO_EPO).concat(["กรุงเทพมหานคร"]);
+
+        // เส้นลม (Open-Meteo + leaflet-velocity)
+        const WIND_CACHE_MINUTES = 30;       // เก็บข้อมูลลมไว้ในเครื่อง 30 นาที (Open-Meteo ฟรีแต่จำกัดจำนวนครั้ง)
+        const WIND_MAX_VELOCITY_MS = 8;      // ความเร็วที่ได้สีเข้มสุด (~29 กม./ชม.)
+        // สีเข้มพอให้เห็นบนแผนที่ถนนพื้นสว่าง (ลมทั่วไปในไทย 10–20 กม./ชม. อยู่ช่วงเขียว–ทอง)
+        const WIND_COLORS = ['#2b6cb0', '#3182ce', '#2c9a8f', '#2f9e55', '#c99a1e', '#dd6b20', '#d43f3f', '#9b2c2c'];
+        const WIND_MAX_POINTS = 180;         // จำนวนจุดสูงสุดต่อคำขอ (เลือกความละเอียดตาราง 0.5° หรือ 1° ให้ไม่เกินนี้)
+
+        const gasWebappUrl = 'https://script.google.com/macros/s/AKfycbyJfWRJFtBwsIZecPHZYJda69wXoWdmp1fINaU8-qagZdI7sc8TvB5FzKpGqosbxaUf/exec';
+        const landfillGasUrl = 'https://script.google.com/macros/s/AKfycbwWI0NvtyToeNBq5Y0Yu6VCKiJh27JDSDBZTJ0IbQ1mGsErkJfFdzYdkiVAw72GGWKZ/exec';
+        const longdoApiKey = 'bce812933744d2530d26f0fabb0017cf';
+        
+        // ใส่ลิงก์โฟลเดอร์หลักบน GitHub ที่เก็บไฟล์ EPO1 ถึง EPO16
+        const githubBaseUrl = 'https://raw.githubusercontent.com/Kietpawpan/hotspot/refs/heads/main/';
+        const thailandBoundariesUrl = 'https://raw.githubusercontent.com/apisit/thailand.json/master/thailand.json';
+
+        // ตัวแปรสำหรับเก็บข้อมูลที่โหลดมาแล้ว จะได้ไม่ต้องโหลดซ้ำ
+        let boundaryCache = {};
+
+        // เปิดหน้าด้วยพื้นที่ที่ต้องการผ่าน URL ได้ เช่น ?epo=all (ทั้งประเทศ) หรือ ?epo=11
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramEpo = String(urlParams.get('epo') || '').trim().toLowerCase();
+        let currentEpoId = (paramEpo === NATIONAL_ID || EPO_REGIONS[paramEpo]) ? paramEpo : "11";
+        document.getElementById('epoRegionSelect').value = currentEpoId;
+
+        // อัปเดตพารามิเตอร์ ?epo= บนแถบที่อยู่ เพื่อให้คัดลอกลิงก์ไปแชร์แล้วเปิดพื้นที่เดิมได้
+        function setUrlParam(key, value) {
+            try {
+                const u = new URL(window.location.href);
+                if (value === null || value === undefined) u.searchParams.delete(key);
+                else u.searchParams.set(key, value);
+                window.history.replaceState(null, '', u.toString());
+            } catch (e) { /* ไม่รองรับ history API ก็ข้ามไป */ }
+        }
+
+        function syncEpoUrlParam(epoId) {
+            setUrlParam('epo', epoId);
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            let icon = 'ℹ️';
+            if (type === 'success') icon = '✅';
+            if (type === 'error') icon = '❌';
+            if (type === 'warning') icon = '⚠️';
+
+            toast.innerHTML = `<span style="margin-right:8px; font-size:16px;">${icon}</span> ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s forwards';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        const map = L.map('map', {
+            zoomSnap: 0.25,
+            zoomDelta: 0.5,
+            wheelPxPerZoomLevel: 120
+        }).setView(
+            isNational() ? NATIONAL_VIEW.center : EPO_REGIONS[currentEpoId].center,
+            isNational() ? NATIONAL_VIEW.zoom : 8
+        );
+
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap | EPO'
+        });
+
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 18,
+            attribution: '© Esri | EPO'
+        });
+
+        const googleHybridLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '© Google Maps | EPO'
+        });
+
+        osmLayer.addTo(map);
+
+        const baseMaps = {
+            "แผนที่ถนน (OSM)": osmLayer,
+            "ภาพถ่ายดาวเทียม (Esri)": satelliteLayer,
+            "ภาพถ่ายดาวเทียม (Google)": googleHybridLayer
+        };
+
+        const boundaryLayerGroup = L.layerGroup().addTo(map);
+        const riskAlertLayer = L.layerGroup().addTo(map);
+        const incidentLayer = L.layerGroup().addTo(map);
+        const landfillLayer = L.layerGroup();
+
+        // ชั้นข้อมูล PM2.5 รายจังหวัด: สีพื้นจังหวัดอยู่ใน pane ที่ต่ำกว่าจุดความร้อน เพื่อไม่ให้บังหมุดอื่น
+        map.createPane('pm25Pane');
+        map.getPane('pm25Pane').style.zIndex = 350;
+        const PM25_LAYER_NAME = "🌫️ PM2.5 รายจังหวัด (คพ.)";
+        const pm25Layer = L.layerGroup();
+
+        // ชั้นข้อมูลเส้นลม: อยู่เหนือสีพื้น PM2.5 แต่ใต้จุดความร้อน และไม่รับการคลิก (คลิกทะลุไปที่แผนที่ได้)
+        map.createPane('windPane');
+        map.getPane('windPane').style.zIndex = 380;
+        map.getPane('windPane').style.pointerEvents = 'none';
+        const WIND_LAYER_NAME = "💨 เส้นลม (Open-Meteo)";
+        const windLayer = L.layerGroup();
+        
+        // กำหนดเลเยอร์จัดกลุ่มจุดความร้อน
+        const hotspotLayer = L.markerClusterGroup({
+            maxClusterRadius: 40,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true,
+            chunkedLoading: true // ทยอยวาดหมุด ไม่ให้หน้าเว็บค้างเมื่อแสดงจุดความร้อนทั้งประเทศ
+        }).addTo(map);
+
+        const overlayMaps = {
+            "🔥 จุดความร้อน (NASA)": hotspotLayer,
+            "🚨 แจ้งเตือนไฟไหม้บ่อขยะ": riskAlertLayer,
+            "จุดเกิดเหตุด่วน (🚨)": incidentLayer,
+            "🗑️ สถานที่กำจัดขยะ": landfillLayer,
+            [PM25_LAYER_NAME]: pm25Layer,
+            [WIND_LAYER_NAME]: windLayer
+        };
+
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+        let thailandGeoJSONData = null;
+        let boundaryGeoJSON = null;
+
+        let rawHotspotPoints = [];
+        let rawLandfillRows = [];
+
+        let globalCoreFeatures = [];
+        let currentFilteredHotspots = [];
+        let landfillMarkers = [];
+        let currentRiskCount = 0;
+        let landfillCounts = { size1: 0, size2: 0, size3: 0, size4: 0, size5: 0, risk: 0, closed: 0 };
+
+        let currentTimeframe = 12;   // ค่าเริ่มต้น: 12 ชม. ล่าสุด (ทุกช่วงเวลา)
+        let currentTimeOfDay = 'all';
+        const RISK_RADIUS_KM = 0.5;
+
+        // เปิดใช้งานเลเยอร์จุดความร้อนเป็นค่าเริ่มต้นด้วย
+        let activeLayers = new Set(["🔥 จุดความร้อน (NASA)", "🚨 แจ้งเตือนไฟไหม้บ่อขยะ", "จุดเกิดเหตุด่วน (🚨)"]);
+
+        let currentIncidentData = null;
+        let currentPlumeLayer = null;
+        let currentRadiiLayer = null;
+        let currentWindSpeed = 0;
+
+        // สถานะข้อมูล PM2.5 (โหลดเมื่อเปิดตัวเลือกครั้งแรก)
+        let pm25Stations = null;      // รายการสถานีที่จัดรูปแบบแล้ว
+        let pm25LoadedAt = 0;         // เวลาที่โหลดข้อมูลล่าสุด (ms)
+        let pm25LoadPromise = null;   // กันการโหลดซ้อน
+        let pm25LoadError = null;     // ข้อความผิดพลาดล่าสุด
+        let pm25LegendSummary = null; // สรุปสำหรับคำอธิบายสัญลักษณ์บนแผนที่
+        let pm25LastDetailed = null;  // หมุดสถานีแสดงแบบตัวเลข (true) หรือจุดสี (false)
+
+        // สถานะข้อมูลเส้นลม (โหลดเมื่อเปิดตัวเลือกเส้นลม)
+        let windVelocityLayer = null; // ชั้นอนิเมชันอนุภาคลม (สร้างครั้งแรกเมื่อได้ข้อมูล)
+        let windMeta = null;          // สรุป: เวลา ความเร็วเฉลี่ย ทิศลมเด่น
+        let windLoadError = null;
+        let windLoadedKey = null;     // ตารางพิกัดที่แสดงอยู่ (เปลี่ยนเมื่อสลับพื้นที่)
+        let windLoadedAt = 0;
+        let windLoadingKey = null;    // ตารางที่กำลังโหลดอยู่ (กันโหลดซ้ำซ้อน)
+        let windFailKey = null;       // ตารางที่โหลดไม่สำเร็จล่าสุด และเวลา (เว้นระยะก่อนลองใหม่อัตโนมัติ)
+        let windFailAt = 0;
+        let windFields = null;        // ชุดลมของพื้นที่ปัจจุบัน แยกตามช่วงเวลา {0: ตอนนี้, 6: +6 ชม., 12: +12 ชม.}
+        let windOffset = [6, 12].includes(Number(urlParams.get('windh'))) ? Number(urlParams.get('windh')) : 0; // ?windh=6 หรือ 12
+
+        function matchFeatureToProvince(feature, regionConfig) {
+            const props = feature.properties || {};
+            const propValues = Object.values(props).map(v => String(v || ""));
+            const propStr = JSON.stringify(props);
+
+            for (let thProv of regionConfig.provincesTH) {
+                if (propStr.includes(thProv)) {
+                    return thProv;
+                }
+            }
+
+            for (let enKey of regionConfig.keywordsEN) {
+                const regex = new RegExp(`\\b${enKey}\\b`, 'i');
+                if (propValues.some(val => regex.test(val))) {
+                    return EN_TO_TH_PROVINCE[enKey] || enKey;
+                }
+            }
+
+            return null;
+        }
+
+        // โหลดขอบเขต 77 จังหวัด: ลองจากแหล่งเดิมก่อน ถ้าไม่ได้ใช้ไฟล์ thailand.json ในรีโปนี้ (ข้อมูลชุดเดียวกัน)
+        let thailandBoundariesPromise = null; // กันการโหลดไฟล์ซ้ำเมื่อถูกเรียกพร้อมกันหลายจุด
+        function ensureThailandBoundaries() {
+            if (thailandGeoJSONData && Array.isArray(thailandGeoJSONData.features)) return Promise.resolve(thailandGeoJSONData);
+            if (thailandBoundariesPromise) return thailandBoundariesPromise;
+            thailandBoundariesPromise = (async () => {
+                const urls = [thailandBoundariesUrl, 'thailand.json', githubBaseUrl + 'thailand.json'];
+                for (const url of urls) {
+                    try {
+                        const res = await fetch(url);
+                        if (!res.ok) continue;
+                        const data = await res.json();
+                        if (data && Array.isArray(data.features)) {
+                            thailandGeoJSONData = data;
+                            return data;
+                        }
+                    } catch (e) {
+                        console.warn('โหลดขอบเขตจังหวัดไม่สำเร็จ:', url, e);
+                    }
+                }
+                return null;
+            })().finally(() => { thailandBoundariesPromise = null; });
+            return thailandBoundariesPromise;
+        }
+
+        // โหมดทั้งประเทศ: วาดเส้นขอบ 77 จังหวัด และผูกชื่อจังหวัด (ไทย) + สคพ. ที่รับผิดชอบไว้กับแต่ละ polygon
+        async function updateNationalUIAndBoundaries(fitMap = true) {
+            document.title = 'Fire Radar - ระบบเฝ้าระวังจุดความร้อนและไฟไหม้บ่อขยะ (ทั่วประเทศไทย)';
+            document.getElementById('appTitle').innerText = 'MAPS Fire Radar 🇹🇭';
+            document.getElementById('appSubtitle').innerText = 'ระบบเฝ้าระวังจุดความร้อน ไฟไหม้บ่อขยะ และจำลองทิศทางควันจุดเกิดเหตุด่วน ทั่วประเทศไทย (77 จังหวัด / สคพ. 1–16)';
+            document.getElementById('overlayLogoText').innerText = 'FIRE RADAR';
+            document.getElementById('overlaySubText').innerText = 'Management of Air Pollution Sector · Thailand';
+
+            const thaiData = await ensureThailandBoundaries();
+            boundaryLayerGroup.clearLayers();
+
+            const matchedFeatures = [];
+            if (thaiData) {
+                thaiData.features.forEach(f => {
+                    const enName = String((f.properties || {}).name || '').trim();
+                    const thName = EN_TO_TH_PROVINCE[enName] || enName || 'ไม่ระบุจังหวัด';
+                    // ไม่ deep-clone geometry (ไฟล์ใหญ่) เพราะไม่มีการแก้ไขพิกัด
+                    const feature = {
+                        type: 'Feature',
+                        properties: Object.assign({}, f.properties, {
+                            matched_prov_th: thName,
+                            epo_id: PROVINCE_TO_EPO[thName] || null
+                        }),
+                        geometry: f.geometry
+                    };
+                    feature.bbox = turf.bbox(feature);
+                    matchedFeatures.push(feature);
+                });
+            }
+
+            boundaryGeoJSON = {
+                type: 'FeatureCollection',
+                features: matchedFeatures
+            };
+
+            const geoLayer = L.geoJSON(boundaryGeoJSON, {
+                interactive: false,
+                style: {
+                    color: '#4a148c',
+                    weight: 1.2,
+                    opacity: 0.8,
+                    fillOpacity: 0.03
+                }
+            }).addTo(boundaryLayerGroup);
+
+            if (fitMap) {
+                if (matchedFeatures.length > 0) {
+                    map.fitBounds(geoLayer.getBounds());
+                } else {
+                    map.setView(NATIONAL_VIEW.center, NATIONAL_VIEW.zoom);
+                }
+            }
+        }
+
+        async function updateRegionUIAndBoundaries(epoId, fitMap = true) {
+            if (isNational(epoId)) return updateNationalUIAndBoundaries(fitMap);
+
+            const region = EPO_REGIONS[epoId];
+            if (!region) return;
+
+            const provListText = region.provincesTH.join(" ");
+            document.title = `MAPS ${epoId} - ระบบเฝ้าระวังไฟไหม้บ่อขยะ (${region.name})`;
+            document.getElementById('appTitle').innerText = `MAPS ${epoId} Pro 3.0`;
+            document.getElementById('appSubtitle').innerText = `ระบบเฝ้าระวังไฟไหม้บ่อขยะและจำลองทิศทางควันจุดเกิดเหตุด่วน สคพ. ${epoId} (${provListText})`;
+            document.getElementById('overlayLogoText').innerText = `MAPS ${epoId}`;
+            document.getElementById('overlaySubText').innerText = `Management of Air Pollution Sector ${epoId}`;
+
+            boundaryLayerGroup.clearLayers();
+            let matchedFeatures = [];
+
+            // ตรวจสอบว่าเคยโหลดไฟล์ของ สคพ. นี้มาแล้วหรือยัง
+            let primarySource = boundaryCache[epoId];
+            
+            // ถ้ายังไม่เคยโหลด ให้ดึงไฟล์จาก GitHub
+            if (!primarySource) {
+                // สร้างชื่อไฟล์ตาม สคพ. เช่น EPO1_boundary.json
+                // ถ้าเป็น สคพ. 11 จะดึงไฟล์ MAPS11_boundary_highres-Overpass24Percent.json
+                let fileName = (epoId === "11") ? "MAPS11_boundary_highres-Overpass24Percent.json" : `EPO${epoId}_boundary.json`;
+                let fileUrl = `${githubBaseUrl}${fileName}`;
+                try {
+                    let res = await fetch(fileUrl);
+                    if (res.ok) {
+                        primarySource = await res.json();
+                        boundaryCache[epoId] = primarySource; // เก็บไว้ใน Cache
+                    }
+                } catch (err) {
+                    console.warn(`ไม่พบไฟล์ขอบเขตความละเอียดสูงของ สคพ. ${epoId}`);
+                }
+            }
+
+            const fallbackSource = thailandGeoJSONData;
+
+if (primarySource && primarySource.features) {
+                primarySource.features.forEach(f => {
+                    let matchedProv = matchFeatureToProvince(f, region);
+                    
+                    // เพิ่มเงื่อนไข: หากโหลดไฟล์ EPO สำเร็จ (ไม่ใช่ไฟล์สำรอง) ให้ใช้เส้นนี้วาดได้เลยแม้ไม่มีชื่อจังหวัด
+                    if (!matchedProv && primarySource !== fallbackSource) {
+                        matchedProv = region.name;
+                    }
+
+                    if (matchedProv) {
+                        let clone = JSON.parse(JSON.stringify(f));
+                        clone.properties = clone.properties || {};
+                        clone.properties.matched_prov_th = matchedProv;
+                        clone.bbox = turf.bbox(clone);
+                        matchedFeatures.push(clone);
+                    }
+                });
+            }       
+
+
+            if (fallbackSource && primarySource !== fallbackSource) {
+                const foundProvs = new Set(matchedFeatures.map(f => f.properties.matched_prov_th));
+                fallbackSource.features.forEach(f => {
+                    const matchedProv = matchFeatureToProvince(f, region);
+                    if (matchedProv && !foundProvs.has(matchedProv)) {
+                        let clone = JSON.parse(JSON.stringify(f));
+                        clone.properties = clone.properties || {};
+                        clone.properties.matched_prov_th = matchedProv;
+                        clone.bbox = turf.bbox(clone);
+                        matchedFeatures.push(clone);
+                    }
+                });
+            }
+
+            boundaryGeoJSON = {
+                type: "FeatureCollection",
+                features: matchedFeatures
+            };
+
+            const geoLayer = L.geoJSON(boundaryGeoJSON, {
+                style: {
+                    color: "#4a148c",
+                    weight: 5,
+                    opacity: 1,
+                    fillOpacity: 0.05
+                }
+            }).addTo(boundaryLayerGroup);
+
+            if (fitMap) {
+                if (matchedFeatures.length > 0) {
+                    map.fitBounds(geoLayer.getBounds());
+                } else {
+                    map.setView(region.center, 8);
+                }
+            }
+        }
+
+        function getLandfillColor(area, status) {
+            if (status && status.trim() !== "เปิดดำเนินงาน") {
+                return "#1f2937";
+            }
+            let areaNum = parseFloat(area);
+            if (isNaN(areaNum)) return "#a1a1aa";
+            if (areaNum <= 15) return "#38bdf8";
+            else if (areaNum <= 25.0) return "#4ade80";
+            else if (areaNum <= 37.5) return "#facc15";
+            else if (areaNum <= 75.0) return "#fb923c";
+            else return "#f87171";
+        }
+
+        // แคชผลการจับคู่จุดความร้อนกับจังหวัด (point-in-polygon ใช้เวลามากในโหมดทั้งประเทศ)
+        let hotspotFeatureCache = { points: null, boundary: null, epoId: null, features: [] };
+
+        function processRegionalData() {
+            const national = isNational();
+            const region = national ? null : EPO_REGIONS[currentEpoId];
+            if (!national && !region) return;
+
+            // 1. คัดกรองและวาดหมุดบ่อขยะในพื้นที่ สคพ. ที่เลือก (โหมดทั้งประเทศ = ทุกแห่ง)
+            landfillLayer.clearLayers();
+            landfillMarkers = [];
+            landfillCounts = { size1: 0, size2: 0, size3: 0, size4: 0, size5: 0, risk: 0, closed: 0 };
+
+            rawLandfillRows.forEach(row => {
+                let prov = String(row["จังหวัด"] || "");
+                let isTarget = national || region.provincesTH.some(p => prov.includes(p));
+
+                if (isTarget) {
+                    let lat = parseFloat(row["ละติจูด"]);
+                    let lon = parseFloat(row["ลองจิจูด"]);
+                    
+                    if (!isNaN(lat) && !isNaN(lon)) {
+                        let siteName = row["ชื่อสถานที่"] || "ไม่ระบุชื่อ";
+                        let agency = row["ชื่อผู้ดำเนินการ"] || "-";
+                        let address = row["ที่ตั้ง"] || "-";
+                        let type = row["รูปแบบการกำจัด"] || "-";
+                        let area = row["เนื้อที่ (ไร่)"] || "-";
+                        let wasteAmount = row["ปริมาณขยะ (ตัน/วัน)"] || "-";
+                        let siteStatus = row["สถานะการดำเนินงานในปัจจุบัน"] || "-";
+                        let yearStart = row["ปีที่เปิดดำเนินงาน"] || "-";
+
+                        let trashColor = getLandfillColor(area, siteStatus);
+                        let wasteNum = parseFloat(wasteAmount);
+                        let areaNum = parseFloat(area);
+                        let isAtRisk = false;
+                        let riskReason = "";
+
+                        if (siteStatus.includes("เต็ม") || siteStatus.includes("วิกฤต")) {
+                            isAtRisk = true;
+                            riskReason = "สถานะแจ้งว่าพื้นที่เต็ม";
+                        } else if (!isNaN(wasteNum) && !isNaN(areaNum) && areaNum > 0) {
+                            let density = wasteNum / areaNum;
+                            if (density > 1) { 
+                                isAtRisk = true;
+                                riskReason = `ปริมาณขยะมาก (${density.toFixed(2)} ตัน/ไร่/วัน)`;
+                            }
+                        }
+
+                        let bufferWeight = 1.5;
+                        if (isAtRisk) {
+                            trashColor = "#7f1d1d"; 
+                            bufferWeight = 3;
+                        }
+
+                        const trashSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 6V20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V6H5Z" fill="${trashColor}"/>
+                            <path d="M9 4V2H15V4H20V6H4V4H9Z" fill="#5D4037"/>
+                        </svg>`;
+
+                        const trashIcon = L.divIcon({
+                            html: trashSvg,
+                            className: '',
+                            iconSize: [24, 24],
+                            iconAnchor: [12, 12],
+                            popupAnchor: [0, -12]
+                        });
+
+                        let marker = L.marker([lat, lon], { icon: trashIcon });
+
+                        let bufferCircle = L.circle([lat, lon], {
+                            color: trashColor,
+                            fillColor: trashColor,
+                            fillOpacity: 0.1,
+                            weight: bufferWeight,
+                            dashArray: '5, 5'
+                        });
+                        bufferCircle.addTo(landfillLayer);
+
+                        let mapNavUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+                        
+                        let popupHTML = `<div style='font-size: 14px;'>
+                            <div style='background-color:#5D4037; color:white; padding:5px; border-radius:4px; margin-bottom:8px; text-align:center;'><b>สถานที่กำจัดขยะมูลฝอย</b></div>`;
+                        
+                        if (isAtRisk) {
+                            popupHTML += `<div style='background-color:#fef2f2; color:#b91c1c; padding:8px; border-left:4px solid #b91c1c; margin-bottom:10px; font-weight:bold;'>⚠️ เฝ้าระวัง: ${riskReason}</div>`;
+                        }
+
+                        popupHTML += `<b>สถานที่:</b> ${siteName}<br>
+                            <b>หน่วยงานดูแล:</b> ${agency}<br>
+                            <b>ที่ตั้ง:</b> ${address}<br>
+                            <b>รูปแบบการกำจัด:</b> ${type}<br>
+                            <b>เนื้อที่:</b> <span style='font-weight:bold; color:${trashColor};'>${area}</span> ไร่<br>
+                            <b>ปีเปิด:</b> ${yearStart}<br>
+                            <b>สถานะ:</b> ${siteStatus}<br>
+                            <b>ปริมาณขยะ:</b> ${wasteAmount} ตัน/วัน<br>
+                            <br><a href='${mapNavUrl}' target='_blank' style='display:block; text-align:center; background-color:#16a34a; color:white; padding:8px 0; border-radius:6px; text-decoration:none; font-weight:bold;'>📍 เปิดนำทางด้วย Google Maps</a>
+                        </div>`;
+
+                        marker.bindPopup(popupHTML);
+                        landfillLayer.addLayer(marker);
+
+                        landfillMarkers.push({
+                            marker: marker,
+                            address: address,
+                            name: siteName,
+                            province: prov
+                        });
+
+                        if (siteStatus && siteStatus.trim() !== "เปิดดำเนินงาน") {
+                            landfillCounts.closed++;
+                        } else if (isAtRisk) {
+                            landfillCounts.risk++;
+                        } else {
+                            if (!isNaN(areaNum)) {
+                                if (areaNum <= 15) landfillCounts.size1++;
+                                else if (areaNum <= 25.0) landfillCounts.size2++;
+                                else if (areaNum <= 37.5) landfillCounts.size3++;
+                                else if (areaNum <= 75.0) landfillCounts.size4++;
+                                else landfillCounts.size5++;
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. คัดกรองจุดความร้อนในพื้นที่ สคพ. ที่เลือก (โหมดทั้งประเทศ = เฉพาะจุดที่อยู่ในเขตประเทศไทย)
+            if (hotspotFeatureCache.points === rawHotspotPoints &&
+                hotspotFeatureCache.boundary === boundaryGeoJSON &&
+                hotspotFeatureCache.epoId === currentEpoId) {
+                globalCoreFeatures = hotspotFeatureCache.features;
+                applyTimeFilter();
+                return;
+            }
+
+            globalCoreFeatures = [];
+            const hasBoundary = boundaryGeoJSON && boundaryGeoJSON.features && boundaryGeoJSON.features.length > 0;
+
+            rawHotspotPoints.forEach(pt => {
+                const lat = parseFloat(pt.lat);
+                const lon = parseFloat(pt.lon);
+
+                if (!isNaN(lat) && !isNaN(lon)) {
+                    let turfPt = turf.point([lon, lat]);
+                    let strictProvName = null;
+                    let epoId = national ? null : currentEpoId;
+                    const backendProv = String(pt.prov || "").trim();
+
+                    if (backendProv) {
+                        // GAS ส่งเฉพาะจุดในไทยและระบุจังหวัด (ชื่อไทย) มาแล้ว ใช้ค่านี้ได้เลยทั้งโหมดทั้งประเทศและราย สคพ.
+                        // ไม่ต้องคำนวณซ้ำด้วยเส้นขอบในหน้าเว็บ ตัวเลขทุกโหมดจึงตรงกับ backend เสมอ
+                        const matched = PROVINCE_TO_EPO[backendProv]
+                            ? backendProv
+                            : Object.keys(PROVINCE_TO_EPO).find(p => backendProv.includes(p));
+                        if (national) {
+                            strictProvName = matched || backendProv;
+                            epoId = matched ? PROVINCE_TO_EPO[matched] : null;
+                        } else if (matched && PROVINCE_TO_EPO[matched] === currentEpoId) {
+                            strictProvName = matched;
+                        }
+                    } else if (hasBoundary) {
+                        // สำรอง: จุดที่ไม่มีชื่อจังหวัดจาก GAS ให้ตรวจด้วยเส้นขอบ (วิธีเดิม)
+                        for (let b of boundaryGeoJSON.features) {
+                            if (lon >= b.bbox[0] && lat >= b.bbox[1] && lon <= b.bbox[2] && lat <= b.bbox[3]) {
+                                if (turf.booleanPointInPolygon(turfPt, b)) {
+                                    strictProvName = b.properties.matched_prov_th || (region ? region.provincesTH[0] : "ไม่ระบุจังหวัด");
+                                    if (national) epoId = b.properties.epo_id || PROVINCE_TO_EPO[strictProvName] || null;
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (national) {
+                        // ไม่มีชื่อจังหวัดจาก GAS และโหลดขอบเขตไม่ได้: แสดงทุกจุดที่ระบบส่วนกลางส่งมา
+                        strictProvName = "ไม่ระบุจังหวัด";
+                    }
+
+                    if (strictProvName) {
+                        let props = {
+                            latitude: lat,
+                            longitude: lon,
+                            acq_date: pt.date,
+                            acq_time: pt.time,
+                            prov_name: strictProvName,
+                            epo_id: epoId,
+                            confidence: pt.confidence || "n"
+                        };
+
+                        const dateParts = String(pt.date).split('-');
+                        if (dateParts.length === 3) {
+                            const timeStr = String(pt.time).padStart(4, '0');
+                            const hours = parseInt(timeStr.substring(0, 2), 10);
+                            const mins = parseInt(timeStr.substring(2, 4), 10);
+                            props.parsed_datetime = new Date(Date.UTC(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10), hours, mins));
+                        } else {
+                            props.parsed_datetime = new Date();
+                        }
+
+                        globalCoreFeatures.push({
+                            type: "Feature",
+                            geometry: turfPt.geometry,
+                            properties: props
+                        });
+                    }
+                }
+            });
+
+            hotspotFeatureCache = {
+                points: rawHotspotPoints,
+                boundary: boundaryGeoJSON,
+                epoId: currentEpoId,
+                features: globalCoreFeatures
+            };
+
+            applyTimeFilter();
+        }
+
+        // ฟังก์ชันสำหรับวาดหมุดจุดความร้อนลงบนแผนที่
+        function renderHotspots(features) {
+            hotspotLayer.clearLayers();
+            
+            const geoJsonOptions = {
+                pointToLayer: function (feature, latlng) {
+                    let props = feature.properties || {};
+                    let conf = String(props.confidence || "").trim().toLowerCase();
+                    let markerColor = "#ffc107"; 
+                    
+                    if (conf === 'h' || conf === 'high') markerColor = "#dc3545"; 
+                    else if (conf === 'n' || conf === 'nominal') markerColor = "#fd7e14"; 
+
+                    return L.circleMarker(latlng, {
+                        radius: 6,
+                        fillColor: markerColor,
+                        color: "#fff",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.9
+                    });
+                },
+                onEachFeature: function (feature, layer) {
+                    let props = feature.properties || {};
+                    let dt = props.parsed_datetime;
+                    let dateDisplay = "-", timeDisplay = "-";
+                    const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+                    
+                    if (dt) {
+                        let thDate = new Date(dt.getTime() + (7 * 60 * 60 * 1000));
+                        dateDisplay = thDate.getUTCDate() + " " + thaiMonths[thDate.getUTCMonth()] + " " + (thDate.getUTCFullYear() + 543);
+                        timeDisplay = String(thDate.getUTCHours()).padStart(2, '0') + ":" + String(thDate.getUTCMinutes()).padStart(2, '0') + " น.";
+                    }
+                    
+                    let lat = props.latitude || "-";
+                    let lon = props.longitude || "-";
+                    let prov = props.prov_name || "-";
+                    let conf = String(props.confidence || "-").trim().toLowerCase();
+                    let confDisplay = conf === 'h' || conf === 'high' ? "สูง (High)" : (conf === 'n' || conf === 'nominal' ? "ปานกลาง (Nominal)" : "ต่ำ (Low)");
+                    let epoDisplay = props.epo_id && EPO_REGIONS[props.epo_id]
+                        ? EPO_REGIONS[props.epo_id].name
+                        : (prov === "กรุงเทพมหานคร" ? "กรุงเทพมหานคร (นอกเขต สคพ. 1-16)" : "-");
+
+                    let popupContent = `<div style='font-size: 14px;'>
+                        <div style='background-color:#4a148c; color:white; padding:5px; border-radius:4px; margin-bottom:8px; text-align:center;'><b>รายละเอียดจุดความร้อน (NASA)</b></div>
+                        <b>พิกัด:</b> ${lat}  ${lon}<br>
+                        <b>จังหวัด:</b> <span style='color:#0284c7; font-weight:bold;'>${prov}</span><br>
+                        <b>พื้นที่รับผิดชอบ:</b> ${epoDisplay}<br>
+                        <b>วันที่:</b> ${dateDisplay}<br>
+                        <b>เวลา:</b> ${timeDisplay} (เวลาไทย)<br>
+                        <b>ความเชื่อมั่น:</b> ${confDisplay}<br>
+                        <br><a href='https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}' target='_blank' style='display:block; text-align:center; background-color:#16a34a; color:white; padding:8px 0; border-radius:6px; text-decoration:none; font-weight:bold;'>📍 เปิดนำทางด้วย Google Maps</a>
+                        </div>`;
+                    
+                    layer.bindPopup(popupContent);
+                }
+            };
+            
+            const geoJsonLayer = L.geoJSON({ type: "FeatureCollection", features: features }, geoJsonOptions);
+            hotspotLayer.addLayers(geoJsonLayer.getLayers());
+        }
+
+        // ปรับการโหลดตอนเริ่มต้น
+        ensureThailandBoundaries()
+        .then(() => {
+            updateRegionUIAndBoundaries(currentEpoId, true).then(() => {
+                fetchNasaData();
+                fetchLandfillData();
+                refreshWind(false); // กรณีเปิดหน้าพร้อม ?wind=1 ในโหมดราย สคพ. (ต้องรู้ขอบเขตพื้นที่ก่อน)
+            });
+        });
+
+        // สลับพื้นที่ (ใช้ทั้งจากเมนูเลือกพื้นที่ และการคลิกรายการ สคพ. ในคำอธิบายสัญลักษณ์โหมดทั้งประเทศ)
+        async function switchRegion(epoId) {
+            if (!isNational(epoId) && !EPO_REGIONS[epoId]) return;
+            currentEpoId = epoId;
+            document.getElementById('epoRegionSelect').value = epoId;
+            syncEpoUrlParam(epoId);
+            await updateRegionUIAndBoundaries(currentEpoId, true);
+            processRegionalData();
+            refreshWind(false); // ตารางลมของพื้นที่ใหม่ (ถ้าเปิดเส้นลมอยู่)
+            showToast(`สลับพื้นที่ไปยัง ${regionFullName()} เรียบร้อยแล้ว`, "info");
+        }
+
+        document.getElementById('epoRegionSelect').addEventListener('change', function() {
+            switchRegion(this.value);
+        });
+
+        const dynamicLegendControl = L.control({position: 'bottomleft'});
+        dynamicLegendControl.onAdd = function () {
+            const wrapper = L.DomUtil.create('div', 'legend-wrapper');
+            L.DomEvent.disableClickPropagation(wrapper);
+            L.DomEvent.disableScrollPropagation(wrapper);
+
+            const header = L.DomUtil.create('div', 'legend-header open', wrapper);
+            header.innerHTML = '<span>📋 คำอธิบายสัญลักษณ์</span><span id="legend-toggle-icon">▼</span>';
+            
+            const content = L.DomUtil.create('div', 'legend-box', wrapper);
+            content.id = 'dynamic-legend';
+
+            header.onclick = function() {
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    header.className = 'legend-header open';
+                    document.getElementById('legend-toggle-icon').innerText = '▼';
+                } else {
+                    content.style.display = 'none';
+                    header.className = 'legend-header';
+                    document.getElementById('legend-toggle-icon').innerText = '▲';
+                }
+            };
+
+            return wrapper;
+        };
+        dynamicLegendControl.addTo(map);
+
+        function updateDynamicLegend() {
+            const legendDiv = document.getElementById('dynamic-legend');
+            if (!legendDiv) return;
+
+            if (activeLayers.size === 0) {
+                legendDiv.innerHTML = '<div style="color:#64748b; text-align:center;">ไม่ได้เลือกข้อมูลแสดงผล</div>';
+                return;
+            }
+
+            let html = '';
+
+            // เพิ่ม Legend สำหรับจุดความร้อน
+            if (activeLayers.has("🔥 จุดความร้อน (NASA)")) {
+                html += `<div class="legend-title">🔥 สรุปจุดความร้อน (${regionLabel()})</div>`;
+                if (currentFilteredHotspots.length === 0) {
+                    html += '<div style="color:#d84315; font-weight:bold; margin-bottom:10px;">ไม่พบจุดความร้อนในช่วงเวลาที่กำหนด</div>';
+                } else {
+                    html += `<div>รวมพบ: <b>${currentFilteredHotspots.length}</b> จุด (รอบ ${currentTimeframe} ชม.)</div>`;
+                    html += '<div style="margin-top:5px;"><b>ระดับความเชื่อมั่น:</b></div>';
+                    html += '<div><span class="dot" style="background:#dc3545;"></span> สูง (High)</div>';
+                    html += '<div><span class="dot" style="background:#fd7e14;"></span> ปานกลาง (Nominal)</div>';
+                    html += '<div><span class="dot" style="background:#ffc107;"></span> ต่ำ (Low)</div>';
+
+                    if (isNational()) {
+                        html += buildNationalHotspotSummary(currentFilteredHotspots);
+                    }
+                }
+            }
+
+            if (activeLayers.has(PM25_LAYER_NAME)) {
+                html += `<div class="legend-title">🌫️ PM2.5 รายจังหวัด (${regionLabel()})</div>`;
+                html += '<div style="font-size:12px; color:#475569; margin-bottom:2px;">◆ สถานี คพ. · สีพื้น = ค่าจังหวัด · ซูมเข้าเพื่อดูตัวเลข</div>';
+                PM25_LEVELS.forEach(lv => {
+                    html += `<div><span class="pm-swatch" style="background:${lv.color};"></span>${lv.range} ${lv.label}</div>`;
+                });
+                if (pm25LegendSummary) {
+                    html += `<div style="margin-top:4px; font-size:13px;">มีข้อมูล <b>${pm25LegendSummary.provinces}</b> จังหวัด · เกินมาตรฐาน <b style="color:#b91c1c;">${pm25LegendSummary.overStd}</b> จังหวัด</div>`;
+                } else if (pm25LoadError) {
+                    html += '<div style="margin-top:4px; font-size:13px; color:#b91c1c;">โหลดข้อมูล PM2.5 ไม่สำเร็จ</div>';
+                } else {
+                    html += '<div style="margin-top:4px; font-size:13px; color:#64748b;">กำลังโหลดข้อมูล...</div>';
+                }
+            }
+
+            if (activeLayers.has(WIND_LAYER_NAME)) {
+                const maxKmh = Math.round(WIND_MAX_VELOCITY_MS * 3.6);
+                const shownOffset = windMeta ? windMeta.offset : windOffset; // ตามข้อมูลที่แสดงจริง
+                const windWhen = shownOffset ? `พยากรณ์ +${shownOffset} ชม.` : 'ตอนนี้';
+                html += `<div class="legend-title">💨 เส้นลมผิวพื้น · ${windWhen} (${regionLabel()})</div>`;
+                html += `<div style="height:8px; border-radius:4px; margin:4px 0 2px; background:linear-gradient(to right, ${WIND_COLORS.join(', ')});"></div>`;
+                html += `<div style="display:flex; justify-content:space-between; font-size:11px; color:#475569;"><span>0</span><span>${Math.round(maxKmh / 2)}</span><span>${maxKmh}+ กม./ชม.</span></div>`;
+                if (windMeta) {
+                    const dirTxt = windMeta.steadiness >= 0.5
+                        ? `ส่วนใหญ่พัดจากทิศ<b>${thaiCompass(windMeta.dirFrom)}</b>`
+                        : 'ทิศทางแปรปรวนในพื้นที่';
+                    html += `<div style="font-size:13px; margin-top:4px;">ลมเฉลี่ย <b>${windMeta.meanKmh.toFixed(1)}</b> กม./ชม. ${dirTxt}</div>`;
+                    const whenTxt = formatAir4ThaiTime(...String(windMeta.time).split('T'));
+                    if (windOffset && windMeta.offset !== windOffset) {
+                        html += `<div style="font-size:12px; color:#b45309;">ไม่มีข้อมูลพยากรณ์ +${windOffset} ชม. แสดงลมตอนนี้แทน</div>`;
+                    }
+                    html += `<div style="font-size:12px; color:#64748b;">${windMeta.offset ? 'ลมพยากรณ์สำหรับ' : 'ข้อมูล ณ'} ${whenTxt} · เส้นวิ่งไปตามทิศที่ลมพัดไป สีบอกความเร็ว</div>`;
+                } else if (windLoadError) {
+                    html += '<div style="font-size:13px; margin-top:4px; color:#b91c1c;">โหลดข้อมูลลมไม่สำเร็จ</div>';
+                } else {
+                    html += '<div style="font-size:13px; margin-top:4px; color:#64748b;">กำลังโหลดข้อมูลลม...</div>';
+                }
+            }
+
+            if (activeLayers.has("🚨 แจ้งเตือนไฟไหม้บ่อขยะ")) {
+                html += `<div class="legend-title" style="color:#d50000;">🚨 เฝ้าระวังไฟไหม้บ่อขยะ (${regionLabel()})</div>`;
+                html += '<div><span class="dot" style="background:#ff1744; animation: blink-alert-anim 1.2s infinite alternate;"></span> รัศมีเฝ้าระวัง ' + RISK_RADIUS_KM + ' กม.</div>';
+                html += '<div style="margin-top:4px; font-size:13px;">บ่อขยะในพื้นที่: <b>' + landfillMarkers.length + '</b> แห่ง</div>';
+                html += '<div style="font-size:13px;">พบพื้นที่เสี่ยงไฟไหม้: <b style="color:#b91c1c;">' + currentRiskCount + '</b> แห่ง</div>';
+            }
+
+            if (activeLayers.has("จุดเกิดเหตุด่วน (🚨)") && currentIncidentData && document.getElementById('toggleRadiusBtn').checked) {
+                html += '<div class="legend-title">🚨 รัศมีจุดเกิดเหตุ</div>';
+                html += '<div><span style="display:inline-block; width:15px; border-top:3px dashed #ef4444; margin-right:5px; vertical-align:middle;"></span> ระยะ 500 เมตร</div>';
+                html += '<div><span style="display:inline-block; width:15px; border-top:3px dashed #f97316; margin-right:5px; vertical-align:middle;"></span> ระยะ 1 กิโลเมตร</div>';
+                html += '<div><span style="display:inline-block; width:15px; border-top:3px dashed #eab308; margin-right:5px; vertical-align:middle;"></span> ระยะ 1.5 กิโลเมตร</div>';
+                html += '<div><span style="display:inline-block; width:15px; border-top:3px dashed #16a34a; margin-right:5px; vertical-align:middle;"></span> ระยะ 2 กิโลเมตร</div>';
+            }
+
+            if (activeLayers.has("🗑️ สถานที่กำจัดขยะ")) {
+                html += '<div class="legend-title">🗑️ สถานที่กำจัดขยะ (ขนาดพื้นที่)</div>';
+                html += '<div><span class="dot" style="background:#38bdf8;"></span> ≤ 15 ไร่ (' + landfillCounts.size1 + ' แห่ง)</div>';
+                html += '<div><span class="dot" style="background:#4ade80;"></span> 15.1 - 25 ไร่ (' + landfillCounts.size2 + ' แห่ง)</div>';
+                html += '<div><span class="dot" style="background:#facc15;"></span> 25.1 - 37.5 ไร่ (' + landfillCounts.size3 + ' แห่ง)</div>';
+                html += '<div><span class="dot" style="background:#fb923c;"></span> 37.6 - 75 ไร่ (' + landfillCounts.size4 + ' แห่ง)</div>';
+                html += '<div><span class="dot" style="background:#f87171;"></span> > 75 ไร่ (' + landfillCounts.size5 + ' แห่ง)</div>';
+                html += '<div><span class="dot" style="background:#7f1d1d;"></span> เสี่ยงขยะล้น/พื้นที่เต็ม ⚠️ (' + landfillCounts.risk + ' แห่ง)</div>';
+                html += '<div><span class="dot" style="background:#1f2937;"></span> ปิด/ไม่ได้ดำเนินการ (' + landfillCounts.closed + ' แห่ง)</div>';
+            }
+
+            legendDiv.innerHTML = html || '<div style="color:#64748b; text-align:center;">ไม่มีสัญลักษณ์เพิ่มเติม</div>';
+
+            // คลิกรายการ สคพ. ในสรุปทั้งประเทศ เพื่อซูมเข้าไปดูพื้นที่นั้น
+            legendDiv.querySelectorAll('.epo-row[data-epo]').forEach(el => {
+                el.addEventListener('click', () => switchRegion(el.getAttribute('data-epo')));
+            });
+        }
+
+        // สรุปจำนวนจุดความร้อนรายพื้นที่ สคพ. และ 5 จังหวัดที่พบมากที่สุด (โหมดทั้งประเทศ)
+        function buildNationalHotspotSummary(features) {
+            const byEpo = {};
+            const byProv = {};
+            features.forEach(f => {
+                const p = f.properties || {};
+                const prov = p.prov_name || "ไม่ระบุจังหวัด";
+                const key = p.epo_id || (prov === "กรุงเทพมหานคร" ? "bkk" : "other");
+                byEpo[key] = (byEpo[key] || 0) + 1;
+                byProv[prov] = (byProv[prov] || 0) + 1;
+            });
+
+            const epoEntries = Object.entries(byEpo).sort((a, b) => b[1] - a[1]);
+            const maxEpo = epoEntries.length ? epoEntries[0][1] : 1;
+
+            let out = '<div style="margin-top:8px;"><b>จำแนกตาม สคพ.:</b> <span style="font-size:11px; color:#64748b;">(คลิกเพื่อซูม)</span></div>';
+            epoEntries.forEach(([key, count]) => {
+                const isEpo = !!EPO_REGIONS[key];
+                const label = isEpo ? EPO_REGIONS[key].name : (key === "bkk" ? "กรุงเทพมหานคร" : "ไม่ระบุพื้นที่");
+                const width = (count / maxEpo * 100).toFixed(1);
+                out += `<div class="epo-row${isEpo ? ' clickable' : ''}"${isEpo ? ` data-epo="${key}" title="ซูมไปที่ ${label}"` : ''}>
+                    <span class="epo-row-bar" style="width:${width}%;"></span>
+                    <span>${label}</span><b>${count}</b>
+                </div>`;
+            });
+
+            const topProv = Object.entries(byProv).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            if (topProv.length > 0) {
+                out += '<div style="margin-top:8px;"><b>5 จังหวัดที่พบมากที่สุด:</b></div>';
+                topProv.forEach(([prov, count], i) => {
+                    out += `<div style="font-size:13px;">${i + 1}. ${prov} <b style="float:right;">${count}</b></div>`;
+                });
+            }
+            return out;
+        }
+
+        map.on('overlayadd', function(e) {
+            activeLayers.add(e.name);
+            updateDynamicLegend();
+        });
+
+        map.on('overlayremove', function(e) {
+            activeLayers.delete(e.name);
+            updateDynamicLegend();
+        });
+
+        // ============================================================================
+        // เวลาอัปเดตล่าสุดของข้อมูลจาก GAS (ค่า updated = LAST_SYNC ที่ trigger ซิงก์ NASA ทุก 30 นาที)
+        // ============================================================================
+        const SYNC_STALE_MINUTES = 120; // เกิน 2 ชม. ถือว่าข้อมูลอาจค้าง (ควรอัปเดตทุก 30 นาที)
+        let lastSyncIso = null;
+
+        function formatThaiDateTime(date) {
+            const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            const th = new Date(date.getTime() + (7 * 60 * 60 * 1000)); // เวลาไทย UTC+7
+            return th.getUTCDate() + " " + thaiMonths[th.getUTCMonth()] + " " + (th.getUTCFullYear() + 543) +
+                " เวลา " + String(th.getUTCHours()).padStart(2, '0') + ":" + String(th.getUTCMinutes()).padStart(2, '0') + " น.";
+        }
+
+        function formatAgo(minutes) {
+            if (minutes < 1) return "เมื่อสักครู่";
+            if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
+            if (minutes < 24 * 60) {
+                const h = Math.floor(minutes / 60), m = minutes % 60;
+                return m ? `${h} ชม. ${m} นาทีที่แล้ว` : `${h} ชม.ที่แล้ว`;
+            }
+            return `${Math.floor(minutes / (24 * 60))} วันที่แล้ว`;
+        }
+
+        function renderLastSync() {
+            const el = document.getElementById('lastSyncDisplay');
+            if (!el) return;
+
+            const syncDate = lastSyncIso ? new Date(lastSyncIso) : null;
+            if (!syncDate || isNaN(syncDate.getTime())) {
+                el.innerHTML = '<span style="color:#64748b;">ไม่มีข้อมูลเวลาอัปเดตจากระบบส่วนกลาง</span>';
+                return;
+            }
+
+            const minutesAgo = Math.max(0, Math.floor((Date.now() - syncDate.getTime()) / 60000));
+            const isStale = minutesAgo > SYNC_STALE_MINUTES;
+            const color = isStale ? '#b45309' : '#15803d';
+            el.innerHTML = `<span style="color:${color}; font-weight:bold;">${formatThaiDateTime(syncDate)}</span>` +
+                ` <span style="color:${color};">(${formatAgo(minutesAgo)})</span>` +
+                (isStale ? ' <span style="color:#b45309;" title="ปกติระบบอัปเดตทุก 30 นาที">⚠️ ข้อมูลอาจไม่เป็นปัจจุบัน ลองกดอัปเดตดาวเทียม</span>' : '');
+        }
+
+        // อัปเดตข้อความ "x นาทีที่แล้ว" ทุก 1 นาที
+        setInterval(renderLastSync, 60000);
+
+        function fetchNasaData() {
+            let statusEl = document.getElementById('lastUpdateDisplay');
+            if (statusEl) statusEl.innerHTML = `<span style="color:#0284c7;">กำลังดึงข้อมูลและตรวจสอบพิกัดเชิงพื้นที่...</span>`;
+            
+            let overlayStatus = document.getElementById('loadingStatusText');
+            if (overlayStatus) overlayStatus.innerText = `FETCHING HOTSPOTS FROM DATABASE...`;
+
+            fetch(gasWebappUrl + "?action=hotspots")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+
+                    rawHotspotPoints = Array.isArray(data.points) ? data.points : [];
+                    lastSyncIso = data.updated || null;
+                    renderLastSync();
+
+                    let loadingOverlay = document.getElementById('loadingOverlay');
+                    if (loadingOverlay) {
+                        loadingOverlay.style.display = 'none';
+                        clearInterval(loadingInterval);
+                    }
+
+                    processRegionalData();
+                    showToast("ประมวลผลข้อมูลสำเร็จ", "success");
+                })
+                .catch(error => {
+                    console.error('เกิดข้อผิดพลาดในการดึงข้อมูลจาก GAS', error);
+                    document.getElementById('lastUpdateDisplay').innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูลส่วนกลาง";
+                    let loadingOverlay = document.getElementById('loadingOverlay');
+                    if (loadingOverlay) loadingOverlay.style.display = 'none';
+                });
+        }
+
+        // ข้อมูลสถานที่กำจัดขยะครบ สคพ. 1-16 (ไฟล์ JSON วางไว้ในโฟลเดอร์เดียวกับหน้านี้บน GitHub)
+        const landfillStaticFile = 'landfill_sites_epo1-16.json';
+        // true = จังหวัดที่มีข้อมูลใน Google Sheet (landfillGasUrl) อยู่แล้ว ให้ใช้ข้อมูลจาก Sheet แทนไฟล์ JSON
+        // false = ใช้ไฟล์ JSON ทั้งหมด (Google Sheet ใช้เป็นตัวสำรองเมื่อโหลดไฟล์ JSON ไม่ได้เท่านั้น)
+        const PREFER_SHEET_FOR_PROVINCES_IN_SHEET = true;
+
+        async function loadStaticLandfillRows() {
+            const urls = [landfillStaticFile, githubBaseUrl + landfillStaticFile];
+            for (const url of urls) {
+                try {
+                    const res = await fetch(url, { cache: 'no-cache' });
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    if (Array.isArray(data)) return data;
+                    if (data && Array.isArray(data.columns) && Array.isArray(data.rows)) {
+                        return data.rows.map(r => Object.fromEntries(data.columns.map((c, i) => [c, r[i]])));
+                    }
+                } catch (e) {
+                    console.warn('โหลดไฟล์ข้อมูลสถานที่กำจัดขยะไม่สำเร็จ:', url, e);
+                }
+            }
+            return [];
+        }
+
+        async function loadSheetLandfillRows() {
+            try {
+                const res = await fetch(landfillGasUrl);
+                const data = await res.json();
+                return Array.isArray(data) ? data : [];
+            } catch (e) {
+                console.warn('โหลดข้อมูลสถานที่กำจัดขยะจาก Google Sheet ไม่สำเร็จ', e);
+                return [];
+            }
+        }
+
+        async function fetchLandfillData() {
+            const [staticRows, sheetRows] = await Promise.all([loadStaticLandfillRows(), loadSheetLandfillRows()]);
+            let rows;
+            if (staticRows.length === 0) {
+                rows = sheetRows;
+            } else if (PREFER_SHEET_FOR_PROVINCES_IN_SHEET && sheetRows.length > 0) {
+                const sheetProvinces = new Set(sheetRows.map(r => String(r["จังหวัด"] || "").trim()).filter(Boolean));
+                rows = sheetRows.concat(staticRows.filter(r => !sheetProvinces.has(String(r["จังหวัด"] || "").trim())));
+            } else {
+                rows = staticRows;
+            }
+            rawLandfillRows = rows;
+            if (rows.length === 0) console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลสถานที่กำจัดขยะ");
+            processRegionalData();
+        }
+
+        function applyTimeFilter() {
+            let filteredFeatures = [];
+
+            let now = new Date();
+            if (globalCoreFeatures.length > 0) {
+                let maxTime = 0;
+                globalCoreFeatures.forEach(f => {
+                    let t = f.properties.parsed_datetime.getTime();
+                    if (t > maxTime) maxTime = t;
+                });
+                now = new Date(maxTime);
+            }
+            let cutoffTime = new Date(now.getTime() - (currentTimeframe * 60 * 60 * 1000));
+
+            globalCoreFeatures.forEach(feature => {
+                if (feature.properties.parsed_datetime >= cutoffTime) {
+                    let dt = feature.properties.parsed_datetime;
+                    let localHour = (dt.getUTCHours() + 7) % 24;
+                    let isMorning = localHour >= 0 && localHour < 12;
+                    let isAfternoon = localHour >= 12 && localHour < 24;
+
+                    let matchTimeOfDay = true;
+                    if (currentTimeOfDay === 'morning' && !isMorning) matchTimeOfDay = false;
+                    if (currentTimeOfDay === 'afternoon' && !isAfternoon) matchTimeOfDay = false;
+
+                    if (matchTimeOfDay) {
+                        filteredFeatures.push(feature);
+                    }
+                }
+            });
+
+            if (filteredFeatures.length === 0 && globalCoreFeatures.length === 0) {
+                document.getElementById('lastUpdateDisplay').innerText = isNational()
+                    ? `ไม่พบจุดความร้อนทั่วประเทศไทย (รอบ ${currentTimeframe} ชม.)`
+                    : `ไม่พบจุดความร้อนในเขต สคพ. ${currentEpoId} (รอบ ${currentTimeframe} ชม.)`;
+            } else {
+                let displayTxt = `${regionLabel()}: วิเคราะห์จุดความร้อน ${filteredFeatures.length} จุด (รอบ ${currentTimeframe} ชม.`;
+                if (currentTimeframe === 12) {
+                    if (currentTimeOfDay === 'morning') displayTxt += " เฉพาะรอบเช้า";
+                    else if (currentTimeOfDay === 'afternoon') displayTxt += " เฉพาะรอบบ่าย";
+                }
+                document.getElementById('lastUpdateDisplay').innerText = displayTxt + ")";
+            }
+
+            currentFilteredHotspots = filteredFeatures;
+            
+            // วาดจุดความร้อนลงแผนที่
+            renderHotspots(currentFilteredHotspots);
+            
+            // คำนวณความเสี่ยงบ่อขยะใหม่หลังจากกรองเวลาแล้ว
+            calculateWasteFireRisk();
+
+            // อัปเดตตาราง PM2.5 (คอลัมน์จุดความร้อน/ขอบเขตพื้นที่) ถ้าเปิดตัวเลือกอยู่
+            if (map.hasLayer(pm25Layer)) renderPm25();
+        }
+
+        function readTimeRadio(radio) {
+            const parts = radio.value.split('-');
+            currentTimeframe = parseInt(parts[0], 10);
+            currentTimeOfDay = parts[1];
+        }
+        document.querySelectorAll('.time-radio').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    readTimeRadio(this);
+                    applyTimeFilter();
+                }
+            });
+        });
+        // บางเบราว์เซอร์ (เช่น Firefox) จำตัวเลือกที่ติ๊กไว้เมื่อรีเฟรชหน้า ให้ค่าที่ใช้กรองตรงกับที่แสดงบนจอเสมอ
+        const initialTimeRadio = document.querySelector('.time-radio:checked');
+        if (initialTimeRadio) readTimeRadio(initialTimeRadio);
+
+        // ระบบเรดาร์คำนวณและแจ้งเตือนภัยไฟไหม้บ่อขยะอัตโนมัติ
+        function calculateWasteFireRisk() {
+            riskAlertLayer.clearLayers();
+
+            if (!landfillMarkers || landfillMarkers.length === 0 || !currentFilteredHotspots || currentFilteredHotspots.length === 0) {
+                currentRiskCount = 0;
+                updateDynamicLegend();
+                return;
+            }
+
+            let risksFound = [];
+
+            // จัดจุดความร้อนลงตาราง (grid) ขนาด 0.01° (~1.1 กม. > รัศมี 0.5 กม.)
+            // แล้วตรวจเฉพาะช่องรอบ ๆ บ่อขยะ แทนการวนเทียบทุกคู่ (จำเป็นสำหรับโหมดทั้งประเทศ)
+            const GRID_DEG = 0.01;
+            const cellKey = (i, j) => i + ':' + j;
+            const hotspotGrid = new Map();
+            currentFilteredHotspots.forEach(f => {
+                const [lon, lat] = f.geometry.coordinates;
+                const key = cellKey(Math.floor(lat / GRID_DEG), Math.floor(lon / GRID_DEG));
+                if (!hotspotGrid.has(key)) hotspotGrid.set(key, []);
+                hotspotGrid.get(key).push(f.geometry.coordinates);
+            });
+
+            landfillMarkers.forEach(site => {
+                const ll = site.marker.getLatLng();
+                const sitePt = turf.point([ll.lng, ll.lat]);
+                const ci = Math.floor(ll.lat / GRID_DEG);
+                const cj = Math.floor(ll.lng / GRID_DEG);
+                let nearHotspots = 0;
+
+                for (let di = -1; di <= 1; di++) {
+                    for (let dj = -1; dj <= 1; dj++) {
+                        const bucket = hotspotGrid.get(cellKey(ci + di, cj + dj));
+                        if (!bucket) continue;
+                        bucket.forEach(coords => {
+                            if (turf.distance(sitePt, turf.point(coords), {units: 'kilometers'}) <= RISK_RADIUS_KM) {
+                                nearHotspots++;
+                            }
+                        });
+                    }
+                }
+
+                if (nearHotspots > 0) {
+                    risksFound.push({
+                        siteName: site.name,
+                        address: site.address,
+                        province: site.province,
+                        latlng: ll,
+                        count: nearHotspots
+                    });
+                }
+            });
+
+            currentRiskCount = risksFound.length;
+            updateDynamicLegend();
+            displayFireRiskAlerts(risksFound);
+        }
+
+        function displayFireRiskAlerts(risks) {
+            if (risks.length > 0) {
+                risks.forEach(risk => {
+                    let navUrl = `https://www.google.com/maps/dir/?api=1&destination=${risk.latlng.lat},${risk.latlng.lng}`;
+                    
+                    let popupDiv = document.createElement('div');
+                    popupDiv.style.cssText = 'text-align:center; font-size:14px; min-width:220px;';
+                    popupDiv.innerHTML = `
+                        <div style="background-color:#d50000; color:white; padding:5px; border-radius:4px; margin-bottom:8px;">
+                            <b>🚨 พื้นที่เสี่ยงไฟไหม้บ่อขยะ!</b>
+                        </div>
+                        <b>บ่อขยะ:</b> <span style="color:#b91c1c; font-weight:bold;">${risk.siteName}</span><br>
+                        <b>ที่ตั้ง:</b> ${risk.address}<br>
+                        ${risk.province ? `<b>จังหวัด:</b> ${risk.province}<br>` : ''}
+                        <b>ตรวจพบจุดความร้อน:</b> <span style="color:#d50000; font-weight:bold;">${risk.count}</span> จุด (ในรัศมี ${RISK_RADIUS_KM} กม.)<br>
+                        <button type="button" class="simulate-plume-btn">💨 จำลองทิศทางควันและพื้นที่ท้ายลม</button>
+                        <a href="${navUrl}" target="_blank" style="display:block; text-align:center; background-color:#16a34a; color:white; padding:8px 0; border-radius:6px; text-decoration:none; font-weight:bold; margin-top:6px;">📍 เปิดนำทางด้วย Google Maps</a>
+                    `;
+
+                    const simBtn = popupDiv.querySelector('.simulate-plume-btn');
+                    simBtn.addEventListener('click', function(e) {
+                        L.DomEvent.stopPropagation(e);
+                        triggerLandfillIncidentPlume(risk.siteName, risk.latlng.lat, risk.latlng.lng);
+                    });
+
+                    L.circle(risk.latlng, {
+                        radius: RISK_RADIUS_KM * 1000,
+                        color: '#d50000',
+                        fillColor: '#ff1744',
+                        fillOpacity: 0.3,
+                        weight: 3,
+                        className: 'blink-alert'
+                    }).addTo(riskAlertLayer)
+                      .bindPopup(popupDiv);
+                });
+                
+                showToast(`⚠️ เฝ้าระวังฉุกเฉิน พบจุดความร้อนใกล้บ่อขยะ ${risks.length} แห่ง ${isNational() ? 'ทั่วประเทศ' : `ในเขต สคพ. ${currentEpoId}`}`, "error");
+            }
+        }
+
+        // ฟังก์ชันสั่งปักหมุดและวาดกรวยควันทันทีเมื่อกดปุ่มจาก Popup แจ้งเตือนไฟไหม้บ่อขยะ
+        function triggerLandfillIncidentPlume(siteName, lat, lng) {
+            document.getElementById('incidentName').value = `เฝ้าระวังไฟไหม้บ่อขยะ: ${siteName}`;
+            document.getElementById('latInput').value = Number(lat).toFixed(5);
+            document.getElementById('lonInput').value = Number(lng).toFixed(5);
+
+            if (!map.hasLayer(incidentLayer)) {
+                map.addLayer(incidentLayer);
+                activeLayers.add("จุดเกิดเหตุด่วน (🚨)");
+            }
+
+            createIncidentMarker();
+            showToast(`จำลองทิศทางควันสำหรับ "${siteName}" เรียบร้อยแล้ว`, "info");
+        }
+
+        // ==========================================
+        // ฟังก์ชันจุดเกิดเหตุด่วน & กรวยควันตามทิศทางลม
+        // ==========================================
+        document.getElementById('dropPinBtn').addEventListener('click', createIncidentMarker);
+
+        [document.getElementById('latInput'), document.getElementById('lonInput')].forEach(input => {
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter') createIncidentMarker(); });
+        });
+
+        document.getElementById('toggleRadiusBtn').addEventListener('change', function() {
+            if (currentRadiiLayer) {
+                if (this.checked) {
+                    currentRadiiLayer.addTo(incidentLayer);
+                } else {
+                    incidentLayer.removeLayer(currentRadiiLayer);
+                }
+                updateDynamicLegend();
+            }
+        });
+
+        document.getElementById('togglePlumeBtn').addEventListener('change', function() {
+            if (currentPlumeLayer) {
+                if (this.checked) {
+                    currentPlumeLayer.addTo(incidentLayer);
+                } else {
+                    incidentLayer.removeLayer(currentPlumeLayer);
+                }
+            }
+        });
+
+        document.getElementById('clearPinBtn').addEventListener('click', function() {
+            incidentLayer.clearLayers();
+            currentIncidentData = null;
+            currentPlumeLayer = null;
+            currentRadiiLayer = null;
+            currentWindSpeed = 0;
+            document.getElementById('incidentName').value = "";
+            document.getElementById('latInput').value = "";
+            document.getElementById('lonInput').value = "";
+            document.getElementById('manualWindDir').value = "";
+            showToast("ล้างจุดปักหมุดเรียบร้อยแล้ว", "info");
+            updateDynamicLegend();
+        });
+
+        document.getElementById('editPinBtn').addEventListener('click', function() {
+            if (!currentIncidentData) {
+                showToast("ไม่พบจุดที่ปักไว้ให้แก้ไข", "warning");
+                return;
+            }
+            document.getElementById('incidentName').value = currentIncidentData.name;
+            document.getElementById('latInput').value = currentIncidentData.lat;
+            document.getElementById('lonInput').value = currentIncidentData.lon;
+            if (currentIncidentData.windDir !== undefined) {
+                document.getElementById('manualWindDir').value = currentIncidentData.windDir;
+            }
+            showToast("ดึงข้อมูลมาที่ช่องแก้ไขแล้ว", "success");
+        });
+
+        document.getElementById('updateWindBtn').addEventListener('click', function() {
+            if (!currentIncidentData) {
+                showToast("กรุณาปักหมุดจุดเกิดเหตุก่อนครับ", "warning");
+                return;
+            }
+            
+            const manualDir = parseFloat(document.getElementById('manualWindDir').value);
+            if (isNaN(manualDir) || manualDir < 0 || manualDir > 360) {
+                showToast("กรุณาระบุองศาลมระหว่าง 0-360", "warning");
+                return;
+            }
+
+            currentIncidentData.windDir = manualDir;
+            
+            const dirEl = document.getElementById('inc-wind-dir');
+            if (dirEl) {
+                dirEl.innerHTML = `<span style="display:inline-block; transform: rotate(${manualDir + 180}deg); color:#0284c7;">⬆️</span> <span style="color:#0284c7; font-weight:bold;">${manualDir}° (ปรับแก้เอง)</span>`;
+            }
+            
+            drawPlumeAndCalculateRisk(currentIncidentData.lat, currentIncidentData.lon, manualDir, currentWindSpeed || 5);
+            showToast("อัปเดตทิศทางควันเรียบร้อยแล้ว", "success");
+        });
+
+        async function createIncidentMarker() {
+            const name = document.getElementById('incidentName').value.trim() || "ไม่ได้ระบุชื่อเหตุการณ์";
+            const lat = parseFloat(document.getElementById('latInput').value);
+            const lon = parseFloat(document.getElementById('lonInput').value);
+
+            if (isNaN(lat) || isNaN(lon)) {
+                showToast("กรุณากรอกพิกัดให้ครบถ้วน", "warning");
+                return;
+            }
+
+            currentIncidentData = { name, lat, lon };
+            updateDynamicLegend();
+
+            incidentLayer.clearLayers();
+            currentPlumeLayer = null;
+            currentRadiiLayer = L.layerGroup();
+
+            const radii = [
+                { r: 2000, color: '#16a34a' },
+                { r: 1500, color: '#eab308' },
+                { r: 1000, color: '#f97316' },
+                { r: 500, color: '#ef4444' }
+            ];
+
+            radii.forEach(item => {
+                L.circle([lat, lon], {
+                    radius: item.r,
+                    color: item.color,
+                    fillColor: item.color,
+                    fillOpacity: 0.15,
+                    weight: 2,
+                    dashArray: '5 5'
+                }).addTo(currentRadiiLayer);
+            });
+
+            if (document.getElementById('toggleRadiusBtn').checked) {
+                currentRadiiLayer.addTo(incidentLayer);
+            }
+
+            const fireIcon = L.divIcon({
+                html: `<div style="font-size: 30px; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); cursor: pointer;">🔥</div>`,
+                className: '',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30],
+                popupAnchor: [0, -30]
+            });
+
+            const marker = L.marker([lat, lon], { icon: fireIcon }).addTo(incidentLayer);
+            
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('th-TH');
+            const dateStr = now.toLocaleDateString('th-TH');
+
+            let popupContent = `
+                <div style='font-size: 14px; min-width: 220px;'>
+                    <div style='background-color:#e11d48; color:white; padding:6px; border-radius:4px; margin-bottom:8px; text-align:center; line-height:1.4;'>
+                        <b>🚨 รายงานจุดเกิดเหตุ<br>(${name})</b>
+                    </div>
+                    <b>จังหวัด:</b> <span id="inc-province" style="color:#0284c7; font-weight:bold;">กำลังค้นหา...</span><br>
+                    <b>พิกัด:</b> ${lat.toFixed(5)}  ${lon.toFixed(5)}<br>
+                    <b>เวลาที่รายงาน:</b> ${dateStr} ${timeStr}<br>
+                    
+                    <div style='background-color:#f8fafc; padding:8px; border:1px solid #e2e8f0; border-radius:6px; margin-top:8px;'>
+                        <div style='color:#475569; font-weight:bold; margin-bottom:4px; font-size:13px;'>💨 สภาพลม ณ จุดเกิดเหตุ</div>
+                        <b>ทิศทางลม:</b> <span id="inc-wind-dir">กำลังโหลด...</span><br>
+                        <b>ความเร็ว:</b> <span id="inc-wind-speed">กำลังโหลด...</span>
+                        <div style='background-color:#fef2f2; padding:6px; border:1px solid #fca5a5; border-radius:4px; margin-top:6px;'>
+                            <div style='color:#b91c1c; font-weight:bold; font-size:12px; margin-bottom:2px;'>⚠️ คาดการณ์ตำบลท้ายลม (2-5 กม.)</div>
+                            <span id="inc-downwind" style='color:#7f1d1d; font-size:13px; font-weight:bold;'>กำลังวิเคราะห์...</span>
+                        </div>
+                    </div>
+                    <br>
+                    <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank" style='display:block; text-align:center; background-color:#16a34a; color:white; padding:8px 0; border-radius:6px; text-decoration:none; font-weight:bold;'>📍 เปิด Google Maps</a>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent).openPopup();
+            map.setView([lat, lon], 13);
+
+            fetch(`https://api.longdo.com/map/services/address?lon=${lon}&lat=${lat}&key=${longdoApiKey}`)
+                .then(res => res.json())
+                .then(data => {
+                    const provEl = document.getElementById('inc-province');
+                    if (provEl && data && data.province) {
+                        provEl.innerText = data.province.replace(/^จังหวัด/g, '').trim();
+                    } else if (provEl) {
+                        provEl.innerText = "ไม่พบข้อมูลจังหวัด";
+                    }
+                })
+                .catch(() => {
+                    if (document.getElementById('inc-province')) document.getElementById('inc-province').innerText = "ข้อผิดพลาดเครือข่าย";
+                });
+
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_direction_10m`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.current) {
+                        currentWindSpeed = data.current.wind_speed_10m;
+                        currentIncidentData.windDir = data.current.wind_direction_10m;
+                        
+                        document.getElementById('manualWindDir').value = currentIncidentData.windDir;
+
+                        const dirEl = document.getElementById('inc-wind-dir');
+                        const speedEl = document.getElementById('inc-wind-speed');
+
+                        if (dirEl) dirEl.innerHTML = `<span style="display:inline-block; transform: rotate(${currentIncidentData.windDir + 180}deg);">⬆️</span> ${currentIncidentData.windDir}°`;
+                        if (speedEl) speedEl.innerText = `${currentWindSpeed} กม./ชม.`;
+
+                        drawPlumeAndCalculateRisk(lat, lon, currentIncidentData.windDir, currentWindSpeed);
+                    }
+                });
+        }
+
+        async function drawPlumeAndCalculateRisk(lat, lon, dir, speed) {
+            if (currentPlumeLayer) {
+                incidentLayer.removeLayer(currentPlumeLayer);
+                currentPlumeLayer = null;
+            }
+
+            const downwindEl = document.getElementById('inc-downwind');
+
+            if (speed > 1) {
+                const smokeAngle = (dir + 180) % 360;
+                const bearing = smokeAngle > 180 ? smokeAngle - 360 : smokeAngle;
+                
+                const distance = 5;
+                const spread = 40;
+                
+                const leftBearing = bearing - (spread / 2);
+                const rightBearing = bearing + (spread / 2);
+                
+                const leftPt = turf.destination([lon, lat], distance, leftBearing, {units: 'kilometers'}).geometry.coordinates;
+                const rightPt = turf.destination([lon, lat], distance, rightBearing, {units: 'kilometers'}).geometry.coordinates;
+                
+                const coneCoords = [
+                    [lat, lon],
+                    [leftPt[1], leftPt[0]],
+                    [rightPt[1], rightPt[0]]
+                ];
+                
+                currentPlumeLayer = L.polygon(coneCoords, {
+                    color: '#64748b',
+                    fillColor: '#94a3b8',
+                    fillOpacity: 0.4,
+                    weight: 1,
+                    dashArray: '4, 4'
+                });
+                
+                if (document.getElementById('togglePlumeBtn').checked) {
+                    currentPlumeLayer.addTo(incidentLayer);
+                }
+
+                const pt1 = turf.destination([lon, lat], 2.5, bearing, {units: 'kilometers'}).geometry.coordinates;
+                const pt2 = turf.destination([lon, lat], 5, bearing, {units: 'kilometers'}).geometry.coordinates;
+
+                if (downwindEl) downwindEl.innerHTML = "<span style='color:#64748b;'>กำลังคำนวณพื้นที่ใหม่...</span>";
+
+                try {
+                    const results = await Promise.all([
+                        fetch(`https://api.longdo.com/map/services/address?lon=${pt1[0]}&lat=${pt1[1]}&key=${longdoApiKey}`).then(r => r.json()),
+                        fetch(`https://api.longdo.com/map/services/address?lon=${pt2[0]}&lat=${pt2[1]}&key=${longdoApiKey}`).then(r => r.json())
+                    ]);
+
+                    let riskAreas = [];
+                    results.forEach(res => {
+                        if (res && res.subdistrict) {
+                            const t = res.subdistrict.replace(/^ตำบล|แขวง/g, '').trim();
+                            const a = res.district ? res.district.replace(/^อำเภอ|เขต/g, '').trim() : '';
+                            if (!riskAreas.includes(`${t} ${a}`)) riskAreas.push(`${t} ${a}`);
+                        }
+                    });
+                    if (downwindEl) downwindEl.innerHTML = riskAreas.length > 0 ? riskAreas.join(' และ ') : "ไม่พบข้อมูลชุมชน";
+                } catch (e) {
+                    if (downwindEl) downwindEl.innerHTML = "การวิเคราะห์พิกัดขัดข้อง";
+                }
+            } else {
+                if (downwindEl) downwindEl.innerHTML = "ลมสงบ ควันอาจสะสมในพื้นที่เกิดเหตุ";
+            }
+        }
+
+        // คลิกบนแผนที่เพื่อดึงพิกัดลงช่องจุดเกิดเหตุด่วน
+        map.on('click', function(e) {
+            let clickLat = e.latlng.lat.toFixed(5);
+            let clickLon = e.latlng.lng.toFixed(5);
+            let popupContent = `<div style='text-align:center; font-size:14px;'>
+                <b>📍 พิกัดที่เลือก</b><br>
+                Lat: <span style='color:#e11d48; font-weight:bold;'>${clickLat}</span><br>
+                Lon: <span style='color:#e11d48; font-weight:bold;'>${clickLon}</span><br>
+                <a href="https://www.google.com/maps/search/?api=1&query=${clickLat},${clickLon}" target="_blank" style="display:block; text-align:center; background-color:#3b82f6; color:white; padding:8px 0; border-radius:6px; text-decoration:none; font-weight:bold; margin-top:10px;">🔍 เปิดดูพื้นที่บน Google Maps</a>
+            </div>`;
+
+            L.popup()
+                .setLatLng(e.latlng)
+                .setContent(popupContent)
+                .openOn(map);
+
+            let latInputEl = document.getElementById('latInput');
+            let lonInputEl = document.getElementById('lonInput');
+
+            if (latInputEl && lonInputEl) {
+                latInputEl.value = clickLat;
+                lonInputEl.value = clickLon;
+                showToast("ดึงพิกัดลงช่องเกิดเหตุด่วนเรียบร้อยแล้ว", "success");
+            }
+        });
+
+        const statusTexts = [
+            "INITIATING SATELLITE CONNECTION...",
+            "ANALYZING NASA FIRMS DATA...",
+            "CHECKING LANDFILL RISK BUFFERS..."
+        ];
+        let statusIndex = 0;
+        const loadingInterval = setInterval(() => {
+            const statusEl = document.getElementById('loadingStatusText');
+            if (statusEl) {
+                statusIndex = (statusIndex + 1) % statusTexts.length;
+                statusEl.innerText = statusTexts[statusIndex];
+            }
+        }, 1200);
+
+        // ปุ่ม Force Sync NASA
+        document.getElementById('forceSyncBtn').addEventListener('click', function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.style.backgroundColor = '#9ca3af';
+            btn.style.cursor = 'wait';
+            btn.innerHTML = '⏳ กำลังสั่งการเซิร์ฟเวอร์...';
+            
+            showToast("กำลังสั่งการระบบหลังบ้านให้ดึงข้อมูลจาก NASA (อาจใช้เวลา 15-30 วินาที กรุณารอ)...", "info");
+
+            fetch(gasWebappUrl + "?action=force_sync_nasa")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    showToast("ดึงข้อมูลดาวเทียม NASA ล่าสุดสำเร็จ! กำลังประมวลผลใหม่...", "success");
+                    fetchNasaData();
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast("เกิดข้อผิดพลาดในการดึงข้อมูลสด กรุณาลองใหม่อีกครั้ง", "error");
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.style.backgroundColor = '#d97706';
+                    btn.style.cursor = 'pointer';
+                    btn.innerHTML = '🔄 อัปเดตดาวเทียมเดี๋ยวนี้';
+                });
+        });
+
+        // ============================================================================
+        // PM2.5 รายจังหวัด: โหลดข้อมูล → ระบุจังหวัด → สรุปรายจังหวัด → วาดแผนที่และตารางจัดอันดับ
+        // ============================================================================
+        // แหล่งข้อมูลเรียงตามลำดับ: (1) GAS ?action=pm25 (ดึง Air4Thai ฝั่งเซิร์ฟเวอร์ ไม่ติด CORS)
+        // (2) เรียก Air4Thai ตรงจากเบราว์เซอร์ (ใช้ได้เฉพาะเมื่อ Air4Thai อนุญาต CORS)
+        const PM25_SOURCES = [
+            gasWebappUrl + '?action=pm25',
+            'https://air4thai.pcd.go.th/services/getNewAQI_JSON.php',
+            'https://air4thai.com/forweb/getAQI_JSON.php'
+        ];
+
+        let pm25ProvinceIndex = null;
+        let pm25StationMarkers = new Map(); // station id -> marker
+
+        function escHtml(v) {
+            return String(v === null || v === undefined ? '' : v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function getPm25Level(v) {
+            if (v === null || v === undefined || isNaN(v)) return null;
+            return PM25_LEVELS.find(lv => v <= lv.max);
+        }
+
+        function fmtPm(v) {
+            if (v === null || v === undefined || isNaN(v)) return '-';
+            return Number.isInteger(v) ? String(v) : v.toFixed(1);
+        }
+
+        function formatAir4ThaiTime(date, time) {
+            const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            const p = String(date || '').split('-');
+            if (p.length !== 3) return [date, time].filter(Boolean).join(' ') || '-';
+            let y = parseInt(p[0], 10);
+            if (y < 2500) y += 543;
+            const t = String(time || '').split(':').slice(0, 2).join(':');
+            return `${parseInt(p[2], 10)} ${thaiMonths[parseInt(p[1], 10) - 1] || p[1]} ${y}${t ? ' ' + t + ' น.' : ''}`;
+        }
+
+        // เวลาตรวจวัด (เวลาไทยตามที่ Air4Thai ส่งมา) แปลงเป็นตัวเลขไว้เทียบความล่าช้าระหว่างสถานี
+        function parseAir4ThaiTs(date, time) {
+            const d = String(date || '').split('-').map(Number);
+            const t = String(time || '').split(':').map(Number);
+            if (d.length !== 3 || d.some(isNaN)) return NaN;
+            let y = d[0];
+            if (y > 2400) y -= 543;
+            return Date.UTC(y, d[1] - 1, d[2], t[0] || 0, t[1] || 0);
+        }
+
+        function stationNetworkLabel(type) {
+            const t = String(type || '').toUpperCase();
+            if (t === 'GROUND') return 'กรมควบคุมมลพิษ';
+            if (t === 'MOBILE') return 'หน่วยตรวจวัดเคลื่อนที่ (คพ.)';
+            if (t === 'BKK') return 'กรุงเทพมหานคร (กทม.)';
+            return type || '-';
+        }
+
+        // ความสดของข้อมูล: เทียบกับเวลาตรวจวัดล่าสุดของทั้งชุด
+        // ageHours = ช้ากว่าล่าสุดกี่ชั่วโมง, expired = เก่าเกิน PM25_EXPIRE_HOURS (ไม่นำมาจัดอันดับ)
+        function annotatePm25Freshness(stations) {
+            let latest = NaN;
+            stations.forEach(st => { if (st.pm25 !== null && !isNaN(st.ts) && !(st.ts <= latest)) latest = st.ts; });
+            stations.forEach(st => {
+                st.ageHours = (isNaN(latest) || isNaN(st.ts)) ? 0 : Math.floor((latest - st.ts) / 3600000);
+                st.expired = st.pm25 !== null && st.ageHours >= PM25_EXPIRE_HOURS;
+            });
+            return stations;
+        }
+
+        // ดัชนีขอบเขต 77 จังหวัด (ชื่อไทย + bbox) สำหรับระบุจังหวัดของสถานีจากพิกัด
+        function getPm25ProvinceIndex() {
+            if (pm25ProvinceIndex) return pm25ProvinceIndex;
+            if (!thailandGeoJSONData || !thailandGeoJSONData.features) return [];
+            pm25ProvinceIndex = thailandGeoJSONData.features.map(f => {
+                const en = String((f.properties || {}).name || '').trim();
+                return { th: EN_TO_TH_PROVINCE[en] || en, bbox: turf.bbox(f), feature: f };
+            });
+            return pm25ProvinceIndex;
+        }
+
+        function matchThaiProvinceName(text) {
+            let t = String(text || '').trim().replace(/^(จังหวัด|จ\.)\s*/, '').trim()
+                // แก้ลำดับวรรณยุกต์/สระที่พิมพ์สลับ เช่น "กาฬสินธ์ุ" → "กาฬสินธุ์"
+                .replace(/์([ุู])/g, '$1์');
+            if (!t) return null;
+            if (t.includes('กรุงเทพ')) return 'กรุงเทพมหานคร';
+            if (ALL_TH_PROVINCES.includes(t)) return t;
+            const byLength = ALL_TH_PROVINCES.slice().sort((a, b) => b.length - a.length);
+            return byLength.find(p => t.includes(p)) || null;
+        }
+
+        // ระบุจังหวัดของสถานี ตามลำดับความน่าเชื่อถือ:
+        // 1) ส่วนท้ายหลังจุลภาคของที่อยู่ คพ. เช่น "ต.ปากน้ำ อ.เมือง, กระบี่"
+        // 2) ที่อยู่ที่ระบุชัด เช่น "จ.xxx" / "จังหวัดxxx" / "กรุงเทพ"
+        //    (ไม่ค้นชื่อจังหวัดในข้อความทั้งก้อน เพราะชื่ออำเภออาจมีชื่อจังหวัดซ้อน เช่น "อ.ตากฟ้า")
+        // 3) ชื่อจังหวัดจาก GAS  4) พิกัดเทียบขอบเขตจังหวัด
+        function resolveStationProvince(provHint, area, lat, lon) {
+            const a = String(area || '');
+            if (a.includes(',')) {
+                const fromTail = matchThaiProvinceName(a.split(',').pop());
+                if (fromTail) return fromTail;
+            }
+            if (a.includes('กรุงเทพ')) return 'กรุงเทพมหานคร';
+            const explicit = a.match(/(?:จ\.|จังหวัด)\s*([ก-๙]+)/);
+            if (explicit) {
+                const fromExplicit = matchThaiProvinceName(explicit[1]);
+                if (fromExplicit) return fromExplicit;
+            }
+            const fromHint = matchThaiProvinceName(provHint);
+            if (fromHint) return fromHint;
+            const pt = turf.point([lon, lat]);
+            const hit = getPm25ProvinceIndex().find(p =>
+                lon >= p.bbox[0] && lat >= p.bbox[1] && lon <= p.bbox[2] && lat <= p.bbox[3] &&
+                turf.booleanPointInPolygon(pt, p.feature));
+            return hit ? hit.th : null;
+        }
+
+        // รองรับทั้งรูปแบบจาก GAS (ย่อแล้ว) และรูปแบบดิบของ Air4Thai (stations[].AQILast.PM25.value)
+        function normalizePm25Stations(data) {
+            const list = Array.isArray(data) ? data : (data && Array.isArray(data.stations) ? data.stations : null);
+            if (!list || list.length === 0) return null;
+
+            const out = [];
+            list.forEach((s, i) => {
+                const last = s.AQILast || {};
+                const lat = parseFloat(s.lat);
+                const lon = parseFloat(s.lon !== undefined ? s.lon : (s.long !== undefined ? s.long : s.lng));
+                if (isNaN(lat) || isNaN(lon)) return;
+
+                const rawPm = (s.pm25 !== undefined) ? s.pm25 : (last.PM25 ? last.PM25.value : undefined);
+                let pm = parseFloat(rawPm);
+                pm = (isNaN(pm) || pm < 0) ? null : Math.round(pm * 10) / 10;
+
+                const rawAqi = (s.aqi !== undefined) ? s.aqi : (last.AQI ? last.AQI.aqi : undefined);
+                let aqi = parseFloat(rawAqi);
+                aqi = (isNaN(aqi) || aqi < 0) ? null : aqi;
+
+                const area = String(s.area !== undefined ? s.area : (s.areaTH || '')).trim();
+                const prov = resolveStationProvince(s.prov !== undefined ? s.prov : s.prov_name, area, lat, lon);
+                const date = String(s.date || last.date || '');
+                const time = String(s.time || last.time || '');
+
+                out.push({
+                    id: String(s.id || s.stationID || ('st' + i)),
+                    name: String(s.name || s.nameTH || 'ไม่ระบุชื่อสถานี').trim(),
+                    area: area,
+                    type: String(s.type || s.stationType || ''),
+                    lat: lat,
+                    lon: lon,
+                    prov: prov,
+                    epo: prov ? (PROVINCE_TO_EPO[prov] || null) : null,
+                    pm25: pm,
+                    aqi: aqi,
+                    date: date,
+                    time: time,
+                    ts: parseAir4ThaiTs(date, time)
+                });
+            });
+            return out.length ? out : null;
+        }
+
+        async function fetchJsonWithTimeout(url, ms) {
+            const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), ms) : null;
+            try {
+                const res = await fetch(url, ctrl ? { signal: ctrl.signal } : {});
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return await res.json();
+            } finally {
+                if (timer) clearTimeout(timer);
+            }
+        }
+
+        function loadPm25Data(force = false) {
+            if (pm25LoadPromise) return pm25LoadPromise;
+            const fresh = pm25Stations && (Date.now() - pm25LoadedAt) < PM25_REFRESH_MINUTES * 60000;
+            if (fresh && !force) return Promise.resolve(pm25Stations);
+
+            pm25LoadPromise = (async () => {
+                await ensureThailandBoundaries();
+                const errors = [];
+                for (const url of PM25_SOURCES) {
+                    try {
+                        const data = await fetchJsonWithTimeout(url, 20000);
+                        if (data && data.error) throw new Error(data.error);
+                        const stations = normalizePm25Stations(data);
+                        if (!stations) throw new Error('ไม่พบข้อมูลสถานี');
+                        annotatePm25Freshness(stations);
+                        pm25Stations = stations;
+                        pm25LoadedAt = Date.now();
+                        pm25LoadError = null;
+                        return stations;
+                    } catch (err) {
+                        errors.push(`${url.split('?')[0].split('/').slice(0, 3).join('/')}: ${err.message || err}`);
+                    }
+                }
+                console.warn('โหลดข้อมูล PM2.5 ไม่สำเร็จทุกแหล่ง:', errors);
+                pm25LoadError = 'ดึงข้อมูล PM2.5 จากกรมควบคุมมลพิษไม่สำเร็จ กรุณาลองใหม่ภายหลัง';
+                if (!pm25Stations) throw new Error(pm25LoadError);
+                return pm25Stations; // ใช้ข้อมูลชุดเดิมต่อ
+            })().finally(() => { pm25LoadPromise = null; });
+
+            return pm25LoadPromise;
+        }
+
+        // สรุปรายจังหวัด: ค่าสูงสุด/ค่าเฉลี่ยของสถานีที่มีข้อมูล และสถานีที่ค่าสูงสุด
+        function aggregatePm25ByProvince(stations, mode) {
+            const byProv = new Map();
+            stations.forEach(st => {
+                if (!st.prov) return;
+                if (!byProv.has(st.prov)) byProv.set(st.prov, { prov: st.prov, epo: st.epo, stations: [] });
+                byProv.get(st.prov).stations.push(st);
+            });
+
+            const rows = [];
+            byProv.forEach(p => {
+                const valid = p.stations.filter(s => s.pm25 !== null && !s.expired);
+                let max = null, mean = null, top = null, latest = '';
+                if (valid.length) {
+                    top = valid.reduce((a, b) => (b.pm25 > a.pm25 ? b : a));
+                    max = top.pm25;
+                    mean = Math.round(valid.reduce((sum, s) => sum + s.pm25, 0) / valid.length * 10) / 10;
+                    valid.forEach(s => { const k = `${s.date} ${s.time}`; if (k > latest) latest = k; });
+                }
+                rows.push(Object.assign(p, {
+                    validCount: valid.length,
+                    max: max,
+                    mean: mean,
+                    value: mode === 'mean' ? mean : max,
+                    top: top,
+                    latest: latest
+                }));
+            });
+            return rows;
+        }
+
+        // ค่าเริ่มต้นนับเฉพาะสถานีของกรมควบคุมมลพิษ (รวมหน่วยเคลื่อนที่) ติ๊กช่องเพื่อนับรวมสถานีของ กทม. (type BKK)
+        function isBkkStation(st) {
+            return String(st.type || '').toUpperCase() === 'BKK';
+        }
+
+        function pm25ActiveStations() {
+            const includeBkk = document.getElementById('pm25IncludeBkk').checked;
+            return includeBkk ? pm25Stations : pm25Stations.filter(st => !isBkkStation(st));
+        }
+
+        function pm25InScope(prov) {
+            if (isNational()) return true;
+            return PROVINCE_TO_EPO[prov] === currentEpoId;
+        }
+
+        function renderPm25() {
+            const panel = document.getElementById('pm25Panel');
+            const tbody = document.getElementById('pm25TableBody');
+            const meta = document.getElementById('pm25Meta');
+            const summaryEl = document.getElementById('pm25Summary');
+            const missingEl = document.getElementById('pm25Missing');
+            document.getElementById('pm25Scope').innerText = isNational() ? '(ทั่วประเทศ)' : `(${EPO_REGIONS[currentEpoId].name})`;
+            document.getElementById('pm25HotspotHeader').innerText = `🔥 จุดความร้อน (${currentTimeframe} ชม.)`;
+
+            // จำสถานีที่เปิดป้ายข้อมูลค้างไว้ เพื่อเปิดใหม่หลังวาดหมุดใหม่ (เช่น เมื่อซูมข้ามระดับแสดงตัวเลข)
+            let reopenStationId = null;
+            pm25StationMarkers.forEach((m, id) => { if (m.isPopupOpen()) reopenStationId = id; });
+
+            pm25Layer.clearLayers();
+            pm25StationMarkers = new Map();
+            const detailed = map.getZoom() >= PM25_LABEL_ZOOM;
+            pm25LastDetailed = detailed;
+
+            if (!pm25Stations) {
+                pm25LegendSummary = null;
+                tbody.innerHTML = '';
+                missingEl.innerHTML = '';
+                summaryEl.innerHTML = pm25LoadError
+                    ? `<div class="pm25-error">⚠️ ${escHtml(pm25LoadError)}</div>`
+                    : '<div style="color:#0284c7;">⏳ กำลังโหลดข้อมูล PM2.5 จากสถานีกรมควบคุมมลพิษ...</div>';
+                meta.innerText = '-';
+                updateDynamicLegend();
+                return;
+            }
+
+            const mode = document.getElementById('pm25AggSelect').value;
+            const activeStations = pm25ActiveStations();
+            // ช่องเลือกสถานี กทม. มีผลเฉพาะโหมดทั้งประเทศ (กรุงเทพฯ ไม่อยู่ในเขต สคพ. ใด)
+            document.getElementById('pm25BkkLabel').style.display = isNational() ? 'flex' : 'none';
+            const allRows = aggregatePm25ByProvince(activeStations, mode);
+
+            // อันดับระดับประเทศ (ใช้แสดงประกอบในโหมดราย สคพ.)
+            const nationalRanked = allRows.filter(r => r.value !== null).sort((a, b) => b.value - a.value || a.prov.localeCompare(b.prov, 'th'));
+            const nationalRank = new Map(nationalRanked.map((r, i) => [r.prov, i + 1]));
+
+            const scopeRows = allRows.filter(r => pm25InScope(r.prov));
+            const ranked = scopeRows.filter(r => r.value !== null).sort((a, b) => b.value - a.value || a.prov.localeCompare(b.prov, 'th'));
+            const scopeProvs = isNational() ? ALL_TH_PROVINCES : EPO_REGIONS[currentEpoId].provincesTH;
+            const missing = scopeProvs.filter(p => !ranked.some(r => r.prov === p));
+
+            // ข้อมูลล่าช้า (ยังนับ แต่ติดป้าย) — ข้อมูลที่เก่าเกิน 24 ชม. ถูกตัดออกตั้งแต่ขั้นสรุปรายจังหวัดแล้ว
+            const isStale = st => !!st && !st.expired && st.ageHours >= PM25_STALE_HOURS;
+
+            // จำนวนจุดความร้อนรายจังหวัดในช่วงเวลาที่เลือก
+            const hotspotByProv = {};
+            currentFilteredHotspots.forEach(f => {
+                const p = f.properties.prov_name;
+                hotspotByProv[p] = (hotspotByProv[p] || 0) + 1;
+            });
+
+            // --- แผนที่: สีพื้นจังหวัดตามค่า PM2.5 ---
+            const provFeatures = [];
+            getPm25ProvinceIndex().forEach(pi => {
+                const row = ranked.find(r => r.prov === pi.th);
+                if (row) provFeatures.push({ type: 'Feature', properties: { color: getPm25Level(row.value).color }, geometry: pi.feature.geometry });
+            });
+            L.geoJSON({ type: 'FeatureCollection', features: provFeatures }, {
+                pane: 'pm25Pane',
+                interactive: false,
+                style: f => ({ stroke: false, fillColor: f.properties.color, fillOpacity: 0.35 })
+            }).addTo(pm25Layer);
+
+            // --- แผนที่: หมุดค่าสถานี ---
+            activeStations.filter(st => st.prov && pm25InScope(st.prov)).forEach(st => {
+                const lv = st.expired ? null : getPm25Level(st.pm25); // ข้อมูลเก่าเกิน 24 ชม. แสดงเป็นสีเทา
+                const bg = lv ? lv.color : '#cbd5e1';
+                const fg = lv ? lv.text : '#475569';
+                const icon = detailed
+                    ? L.divIcon({
+                        className: '',
+                        html: `<div class="pm-marker" style="background:${bg}; color:${fg};">${fmtPm(st.pm25)}</div>`,
+                        iconSize: [40, 22],
+                        iconAnchor: [20, 11],
+                        popupAnchor: [0, -11]
+                    })
+                    : L.divIcon({
+                        className: '',
+                        html: `<div class="pm-dot" style="background:${bg};"></div>`,
+                        iconSize: [11, 11],
+                        iconAnchor: [5.5, 5.5],
+                        popupAnchor: [0, -7]
+                    });
+                const epoTxt = st.epo ? `สคพ. ${st.epo}` : (st.prov === 'กรุงเทพมหานคร' ? 'กรุงเทพมหานคร' : '-');
+                const staleNote = st.expired
+                    ? `<div style="background:#fef3c7; color:#92400e; padding:4px 6px; border-radius:4px; margin-top:4px; font-size:13px;">⚠️ ข้อมูลเก่าเกิน ${PM25_EXPIRE_HOURS} ชม. (สถานีไม่อัปเดต) จึงไม่นำมาคิดค่าจังหวัดและจัดอันดับ</div>`
+                    : (st.pm25 !== null && isStale(st))
+                        ? ` <span style="color:#b45309; font-weight:bold;">⏱ ล่าช้า ${st.ageHours} ชม.</span>` : '';
+                const popup = `<div style="font-size:14px; min-width:220px;">
+                    <div style="background:${bg}; color:${fg}; padding:5px; border-radius:4px; margin-bottom:8px; text-align:center; border:1px solid rgba(15,23,42,0.2);"><b>สถานีตรวจวัดคุณภาพอากาศ (Air4Thai)</b></div>
+                    <b>สถานี:</b> ${escHtml(st.name)} <span style="color:#64748b;">(${escHtml(st.id)})</span><br>
+                    <b>ที่ตั้ง:</b> ${escHtml(st.area || '-')}<br>
+                    <b>จังหวัด:</b> <span style="color:#0284c7; font-weight:bold;">${escHtml(st.prov)}</span> (${epoTxt})<br>
+                    <b>เครือข่ายสถานี:</b> ${escHtml(stationNetworkLabel(st.type))}<br>
+                    <b>PM2.5 (เฉลี่ย 24 ชม.):</b> <span style="font-size:16px; font-weight:bold;">${fmtPm(st.pm25)}</span> มคก./ลบ.ม. ${lv ? '— ' + lv.label : (st.pm25 === null ? '(ไม่มีข้อมูล)' : '')}<br>
+                    ${st.aqi !== null ? `<b>AQI (ภาพรวมทุกสาร):</b> ${st.aqi}<br>` : ''}
+                    <b>เวลาตรวจวัด:</b> ${escHtml(formatAir4ThaiTime(st.date, st.time))}${staleNote}<br>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${st.lat},${st.lon}" target="_blank" style="display:block; text-align:center; background-color:#16a34a; color:white; padding:8px 0; border-radius:6px; text-decoration:none; font-weight:bold; margin-top:8px;">📍 เปิดนำทางด้วย Google Maps</a>
+                </div>`;
+                const marker = L.marker([st.lat, st.lon], { icon: icon, zIndexOffset: (st.pm25 === null || st.expired) ? 0 : Math.round(st.pm25 * 10) })
+                    .bindPopup(popup)
+                    .addTo(pm25Layer);
+                if (!detailed) {
+                    marker.bindTooltip(`${escHtml(st.prov)}: <b>${fmtPm(st.pm25)}</b> มคก./ลบ.ม.${st.expired ? ' (ข้อมูลเก่า)' : ''}`, { direction: 'top', offset: [0, -6] });
+                }
+                pm25StationMarkers.set(st.id, marker);
+            });
+            if (reopenStationId && pm25StationMarkers.has(reopenStationId)) {
+                pm25StationMarkers.get(reopenStationId).openPopup();
+            }
+
+            // --- ตารางจัดอันดับ ---
+            let latest = '';
+            ranked.forEach(r => { if (r.latest > latest) latest = r.latest; });
+            const scopeStations = activeStations.filter(st => st.prov && pm25InScope(st.prov));
+            const hiddenBkk = activeStations === pm25Stations ? 0
+                : pm25Stations.filter(st => isBkkStation(st) && st.prov && pm25InScope(st.prov)).length;
+            const staleCount = scopeStations.filter(st => st.pm25 !== null && isStale(st)).length;
+            const expiredCount = scopeStations.filter(st => st.expired).length;
+            meta.innerText = `ข้อมูล ณ ${latest ? formatAir4ThaiTime(...latest.split(' ')) : '-'} · ${scopeStations.length} สถานี` +
+                (hiddenBkk ? ` (เฉพาะสถานี คพ. ไม่รวมสถานี กทม. ${hiddenBkk} แห่ง)` : '') +
+                (staleCount ? ` · ล่าช้าเกิน ${PM25_STALE_HOURS} ชม. ${staleCount} สถานี ⏱` : '') +
+                (expiredCount ? ` · ข้อมูลเก่าเกิน ${PM25_EXPIRE_HOURS} ชม. ${expiredCount} สถานี (ไม่นำมาจัดอันดับ)` : '') + ' · ' +
+                (mode === 'mean' ? 'ค่าจังหวัด = ค่าเฉลี่ยทุกสถานีในจังหวัด' : 'ค่าจังหวัด = สถานีที่ค่าสูงสุดในจังหวัด');
+
+            const overStd = ranked.filter(r => r.value > PM25_STANDARD).length;
+            summaryEl.innerHTML = `จังหวัดที่มีข้อมูล <b>${ranked.length}</b> จังหวัด · ` +
+                `เกินมาตรฐาน (> ${PM25_STANDARD}) <b style="color:#b91c1c;">${overStd}</b> จังหวัด` +
+                (ranked.length ? ` · สูงสุด <b>${escHtml(ranked[0].prov)}</b> ${fmtPm(ranked[0].value)} มคก./ลบ.ม.` : '');
+            pm25LegendSummary = { provinces: ranked.length, overStd: overStd };
+
+            tbody.innerHTML = ranked.map((r, i) => {
+                const lv = getPm25Level(r.value);
+                const sub = isNational()
+                    ? (r.epo ? `สคพ. ${r.epo}` : 'กทม.')
+                    : `อันดับ ${nationalRank.get(r.prov)} ของประเทศ`;
+                // ค่าที่ใช้จัดอันดับมาจากข้อมูลล่าช้าหรือไม่ (โหมดสูงสุด = สถานีที่ค่าสูงสุด, โหมดเฉลี่ย = ข้อมูลใหม่สุดของจังหวัด)
+                const provNewest = r.stations.filter(s => s.pm25 !== null && !s.expired).reduce((a, b) => (!a || b.ts > a.ts ? b : a), null);
+                const refStation = mode === 'max' ? r.top : provNewest;
+                const staleSub = isStale(refStation)
+                    ? `<span class="pm25-sub" style="color:#b45309;">⏱ ข้อมูล ${escHtml(refStation.ageHours >= 24
+                        ? formatAir4ThaiTime(refStation.date, refStation.time)
+                        : refStation.time + ' น.')}</span>` : '';
+                return `<tr data-prov="${escHtml(r.prov)}">
+                    <td class="rank"><b>${i + 1}</b></td>
+                    <td><b>${escHtml(r.prov)}</b><span class="pm25-sub">${sub}</span></td>
+                    <td class="num"><span class="pm25-badge" style="background:${lv.color}; color:${lv.text};">${fmtPm(r.value)}</span>${mode === 'max' && r.validCount > 1 ? `<span class="pm25-sub">เฉลี่ย ${fmtPm(r.mean)}</span>` : ''}${staleSub}</td>
+                    <td>${lv.label}</td>
+                    <td class="num">${r.validCount}${r.stations.length > r.validCount ? `<span class="pm25-sub">จาก ${r.stations.length}</span>` : ''}</td>
+                    <td class="num">${hotspotByProv[r.prov] || 0}</td>
+                </tr>`;
+            }).join('') || '<tr><td colspan="6" style="text-align:center; color:#64748b; padding:15px;">ไม่มีข้อมูล PM2.5 ในพื้นที่นี้</td></tr>';
+
+            tbody.querySelectorAll('tr[data-prov]').forEach(tr => {
+                tr.addEventListener('click', () => focusPm25Province(tr.getAttribute('data-prov'), ranked));
+            });
+
+            // จังหวัดที่มีแต่ข้อมูลเก่า: บอกเวลาข้อมูลล่าสุดของสถานี
+            const lastOldReading = prov => {
+                const olds = activeStations.filter(s => s.prov === prov && s.pm25 !== null);
+                if (!olds.length) return '';
+                const newest = olds.reduce((a, b) => (b.ts > a.ts ? b : a));
+                return ` (ข้อมูลล่าสุด ${escHtml(formatAir4ThaiTime(newest.date, newest.time))})`;
+            };
+            missingEl.innerHTML = missing.length
+                ? `ไม่มีข้อมูล PM2.5 ที่เป็นปัจจุบัน (${missing.length} จังหวัด): ${missing.map(p => escHtml(p) + lastOldReading(p)).join(', ')}`
+                : '';
+            if (pm25LoadError) {
+                missingEl.innerHTML += `<div style="color:#b45309;">⚠️ รีเฟรชล่าสุดไม่สำเร็จ แสดงข้อมูลชุดก่อนหน้า</div>`;
+            }
+
+            updateDynamicLegend();
+        }
+
+        // คลิกแถวในตาราง: ซูมไปที่จังหวัด และเปิดป้ายข้อมูลของสถานีที่ค่าสูงสุด
+        function focusPm25Province(prov, rows) {
+            const row = rows.find(r => r.prov === prov);
+            const stationId = row && row.top ? row.top.id : null;
+            // หมุดอาจถูกวาดใหม่หลังซูม จึงค้นหาหมุดล่าสุดจาก id ตอนจะเปิดป้าย
+            const openTop = () => {
+                const m = stationId ? pm25StationMarkers.get(stationId) : null;
+                if (m && !m.isPopupOpen()) m.openPopup();
+            };
+            const pi = getPm25ProvinceIndex().find(p => p.th === prov);
+            if (pi) {
+                map.once('moveend', () => setTimeout(openTop, 50));
+                map.fitBounds(L.geoJSON(pi.feature).getBounds(), { maxZoom: 10 });
+            }
+            setTimeout(openTop, 900); // สำรองกรณีแผนที่ไม่ได้ขยับ
+            document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // สลับรูปแบบหมุดสถานี (จุดสี ↔ ตัวเลข) เมื่อซูมข้ามระดับ PM25_LABEL_ZOOM
+        map.on('zoomend', function () {
+            if (!map.hasLayer(pm25Layer) || !pm25Stations) return;
+            if ((map.getZoom() >= PM25_LABEL_ZOOM) !== pm25LastDetailed) renderPm25();
+        });
+
+        async function refreshPm25(force) {
+            const btn = document.getElementById('pm25RefreshBtn');
+            btn.disabled = true;
+            btn.innerText = '⏳ กำลังโหลด...';
+            renderPm25(); // แสดงสถานะกำลังโหลด (ถ้ายังไม่มีข้อมูล)
+            try {
+                await loadPm25Data(force);
+                if (force) showToast('อัปเดตข้อมูล PM2.5 เรียบร้อยแล้ว', 'success');
+            } catch (err) {
+                showToast(pm25LoadError || 'ดึงข้อมูล PM2.5 ไม่สำเร็จ', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '🔄 รีเฟรช';
+                if (map.hasLayer(pm25Layer)) renderPm25();
+            }
+        }
+
+        // เปิด/ปิดได้ทั้งจากช่องติ๊กในแผงควบคุม และจากเมนูชั้นข้อมูลบนแผนที่ (ซิงก์กันผ่าน overlayadd/overlayremove)
+        document.getElementById('pm25Toggle').addEventListener('change', function () {
+            if (this.checked) map.addLayer(pm25Layer);
+            else map.removeLayer(pm25Layer);
+        });
+
+        map.on('overlayadd', function (e) {
+            if (e.layer !== pm25Layer) return;
+            document.getElementById('pm25Toggle').checked = true;
+            document.getElementById('pm25Panel').style.display = 'block';
+            setUrlParam('pm25', '1');
+            refreshPm25(false);
+        });
+
+        map.on('overlayremove', function (e) {
+            if (e.layer !== pm25Layer) return;
+            document.getElementById('pm25Toggle').checked = false;
+            document.getElementById('pm25Panel').style.display = 'none';
+            setUrlParam('pm25', null);
+        });
+
+        document.getElementById('pm25AggSelect').addEventListener('change', renderPm25);
+
+        // นับรวมสถานี กทม. หรือไม่ (จำไว้ในลิงก์ด้วย ?pm25bkk=1 เพื่อแชร์มุมมองเดียวกันได้)
+        document.getElementById('pm25IncludeBkk').checked = urlParams.get('pm25bkk') === '1';
+        document.getElementById('pm25IncludeBkk').addEventListener('change', function () {
+            setUrlParam('pm25bkk', this.checked ? '1' : null);
+            if (pm25Stations) renderPm25();
+        });
+        document.getElementById('pm25RefreshBtn').addEventListener('click', () => refreshPm25(true));
+
+        document.getElementById('pm25Scale').innerHTML = PM25_LEVELS.map(lv =>
+            `<span class="pm25-chip" style="background:${lv.color}; color:${lv.text};">${lv.range} ${lv.label}</span>`).join('');
+
+        // รีเฟรชอัตโนมัติขณะเปิดตัวเลือก PM2.5 (Air4Thai อัปเดตรายชั่วโมง)
+        setInterval(() => {
+            if (map.hasLayer(pm25Layer) && Date.now() - pm25LoadedAt > PM25_REFRESH_MINUTES * 60000) {
+                loadPm25Data(true).then(renderPm25).catch(() => renderPm25());
+            }
+        }, 60000);
+
+        // เปิดหน้าพร้อมตัวเลือก PM2.5 ได้ด้วย ?pm25=1
+        if (urlParams.get('pm25') === '1') map.addLayer(pm25Layer);
+
+        // ============================================================================
+        // เส้นลม: ดึงลมผิวพื้น (10 ม.) เป็นตารางพิกัดจาก Open-Meteo → แปลงเป็นเวกเตอร์ u/v
+        // → วาดอนุภาคลมวิ่งด้วย leaflet-velocity (สีบอกความเร็ว ชี้เมาส์ดูทิศ/ความเร็ว ณ จุด)
+        // ============================================================================
+        const WIND_VELOCITY_OPTIONS = {
+            displayValues: true,
+            displayOptions: {
+                velocityType: 'ลม',
+                position: 'bottomright',
+                emptyString: 'ชี้เมาส์บนแผนที่เพื่อดูทิศและความเร็วลม',
+                angleConvention: 'meteoCW',   // องศาที่ลมพัดมา วัดตามเข็มนาฬิกาจากทิศเหนือ (แบบอุตุนิยมวิทยา)
+                speedUnit: 'k/h',
+                directionString: 'พัดจาก',
+                speedString: 'ความเร็ว'
+            },
+            paneName: 'windPane',
+            minVelocity: 0,
+            maxVelocity: WIND_MAX_VELOCITY_MS,
+            velocityScale: 0.008,
+            particleAge: 60,
+            lineWidth: 2,
+            particleMultiplier: 1 / 250,
+            frameRate: 20,
+            opacity: 0.95,
+            colorScale: WIND_COLORS
+        };
+
+        function thaiCompass(deg) {
+            const names = ['เหนือ', 'ตะวันออกเฉียงเหนือ', 'ตะวันออก', 'ตะวันออกเฉียงใต้', 'ใต้', 'ตะวันตกเฉียงใต้', 'ตะวันตก', 'ตะวันตกเฉียงเหนือ'];
+            return names[Math.round((((deg % 360) + 360) % 360) / 45) % 8];
+        }
+
+        // ตารางพิกัด: ทั้งประเทศใช้กรอบประเทศไทย, ราย สคพ. ใช้กรอบเขตพื้นที่ขยายออก 1°
+        // เลือกระยะห่าง 0.5° ถ้าจำนวนจุดไม่เกิน WIND_MAX_POINTS ไม่เช่นนั้นใช้ 1°
+        function windGridSpec() {
+            let b; // [west, south, east, north]
+            if (isNational()) {
+                b = [97, 5, 106, 21];
+            } else {
+                if (!boundaryGeoJSON || !boundaryGeoJSON.features || !boundaryGeoJSON.features.length) return null; // รอขอบเขตพื้นที่
+                const boxes = boundaryGeoJSON.features.map(f => f.bbox).filter(Boolean);
+                b = [
+                    Math.min(...boxes.map(x => x[0])) - 1, Math.min(...boxes.map(x => x[1])) - 1,
+                    Math.max(...boxes.map(x => x[2])) + 1, Math.max(...boxes.map(x => x[3])) + 1
+                ];
+            }
+            for (const res of [0.5, 1]) {
+                const west = Math.floor(b[0] / res) * res, east = Math.ceil(b[2] / res) * res;
+                const south = Math.floor(b[1] / res) * res, north = Math.ceil(b[3] / res) * res;
+                const nx = Math.round((east - west) / res) + 1, ny = Math.round((north - south) / res) + 1;
+                if (nx * ny <= WIND_MAX_POINTS || res === 1) {
+                    return { res, west, east, south, north, nx, ny, key: `${res}:${west},${south},${east},${north}` };
+                }
+            }
+        }
+
+        // ช่วงเวลาลมที่เลือกดูได้: ตอนนี้, พยากรณ์ล่วงหน้า 6 และ 12 ชั่วโมง
+        const WIND_OFFSETS = [0, 6, 12];
+
+        // แปลงรายการลม (ความเร็ว ม./วินาที + ทิศที่ลมพัดมา) เป็นชุดข้อมูล u/v ของ leaflet-velocity + สรุป
+        function buildWindField(spec, samples, time, offset) {
+            const u = [], v = [];
+            let sumU = 0, sumV = 0, sumS = 0, n = 0;
+            samples.forEach(w => {
+                const s = Number(w && w.s), d = Number(w && w.d);
+                if (!isFinite(s) || !isFinite(d)) { u.push(0); v.push(0); return; }
+                // ทิศลมแบบอุตุฯ คือทิศที่ลม "พัดมา" จึงกลับทิศเป็นเวกเตอร์ที่ลมพัดไป
+                const rad = d * Math.PI / 180;
+                const uu = -s * Math.sin(rad), vv = -s * Math.cos(rad);
+                u.push(+uu.toFixed(2));
+                v.push(+vv.toFixed(2));
+                sumU += uu; sumV += vv; sumS += s; n++;
+            });
+            if (!n) return null;
+            const header = { parameterCategory: 2, nx: spec.nx, ny: spec.ny, lo1: spec.west, la1: spec.north, lo2: spec.east, la2: spec.south, dx: spec.res, dy: spec.res, refTime: time };
+            const meanU = sumU / n, meanV = sumV / n, meanS = sumS / n;
+            return {
+                data: [
+                    { header: Object.assign({ parameterNumber: 2 }, header), data: u },
+                    { header: Object.assign({ parameterNumber: 3 }, header), data: v }
+                ],
+                meta: {
+                    offset: offset,
+                    time: time,
+                    points: n,
+                    res: spec.res,
+                    meanKmh: meanS * 3.6,
+                    dirFrom: (Math.atan2(-meanU, -meanV) * 180 / Math.PI + 360) % 360, // ทิศลมเด่น (ทิศที่ลมพัดมา)
+                    steadiness: meanS > 0 ? Math.sqrt(meanU * meanU + meanV * meanV) / meanS : 0 // 1 = ลมทิศเดียวกันทั้งพื้นที่
+                }
+            };
+        }
+
+        // เวลาแบบ "2026-11-20T10:45" (เวลาไทยตามที่ขอ) → ตัวเลขไว้เทียบกัน
+        const windTimeValue = t => Date.parse(String(t || '') + ':00Z');
+
+        async function fetchWindField(spec) {
+            const cacheKey = 'fireRadarWind2:' + spec.key;
+            try {
+                const c = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+                if (c && Date.now() - c.t < WIND_CACHE_MINUTES * 60000) return Object.assign({}, c.v, { loadedAt: c.t });
+            } catch (e) { /* ไม่มี localStorage ก็ข้ามแคช */ }
+
+            // จุดเรียงจากเหนือลงใต้ แต่ละแถวจากตะวันตกไปตะวันออก (ตามรูปแบบที่ leaflet-velocity ใช้)
+            const lats = [], lons = [];
+            for (let j = 0; j < spec.ny; j++) {
+                for (let i = 0; i < spec.nx; i++) {
+                    lats.push(+(spec.north - j * spec.res).toFixed(2));
+                    lons.push(+(spec.west + i * spec.res).toFixed(2));
+                }
+            }
+            // คำขอเดียวได้ทั้งลมปัจจุบันและพยากรณ์รายชั่วโมง 14 ชม. ข้างหน้า (ไม่เพิ่มจำนวนครั้งที่เรียก)
+            const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lats.join(',') + '&longitude=' + lons.join(',') +
+                '&current=wind_speed_10m,wind_direction_10m' +
+                '&hourly=wind_speed_10m,wind_direction_10m&forecast_hours=14' +
+                '&wind_speed_unit=ms&timezone=Asia%2FBangkok';
+            const res = await fetch(url);
+            if (res.status === 429) throw new Error('บริการข้อมูลลมจำกัดจำนวนครั้งต่อวัน กรุณาลองใหม่ภายหลัง');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const json = await res.json();
+            const list = Array.isArray(json) ? json : [json]; // หลายพิกัด = ได้ผลเป็นรายการตามลำดับที่ขอ
+            if (list.length !== lats.length) throw new Error('ได้ข้อมูลลมไม่ครบทุกจุด');
+
+            const fields = {};
+            // ตอนนี้
+            const nowTime = (list.find(p => p && p.current && p.current.time) || {}).current?.time || '';
+            const nowField = buildWindField(spec, list.map(p => {
+                const c = (p && p.current) || {};
+                return { s: c.wind_speed_10m, d: c.wind_direction_10m };
+            }), nowTime, 0);
+            if (!nowField) throw new Error('ไม่พบข้อมูลลม');
+            fields[0] = nowField;
+
+            // พยากรณ์: เลือกชั่วโมงที่ใกล้ "ตอนนี้ + N ชม." ที่สุด
+            const hourlyRef = (list.find(p => p && p.hourly && Array.isArray(p.hourly.time)) || {}).hourly;
+            if (hourlyRef && nowTime) {
+                const base = windTimeValue(nowTime);
+                WIND_OFFSETS.filter(h => h > 0).forEach(h => {
+                    const target = base + h * 3600000;
+                    let best = -1, bestDiff = Infinity;
+                    hourlyRef.time.forEach((t, i) => {
+                        const diff = Math.abs(windTimeValue(t) - target);
+                        if (diff < bestDiff) { best = i; bestDiff = diff; }
+                    });
+                    if (best < 0 || bestDiff > 90 * 60000) return; // ไม่มีชั่วโมงที่ใกล้พอ
+                    const f = buildWindField(spec, list.map(p => {
+                        const hr = (p && p.hourly) || {};
+                        return { s: (hr.wind_speed_10m || [])[best], d: (hr.wind_direction_10m || [])[best] };
+                    }), hourlyRef.time[best], h);
+                    if (f) fields[h] = f;
+                });
+            }
+
+            const value = { key: spec.key, fields: fields };
+            try { localStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), v: value })); } catch (e) { /* เต็ม/ไม่อนุญาต ก็ข้าม */ }
+            return Object.assign({}, value, { loadedAt: Date.now() });
+        }
+
+        async function refreshWind(force = false) {
+            if (!map.hasLayer(windLayer)) return;
+            const spec = windGridSpec();
+            if (!spec) return; // ยังไม่มีขอบเขตพื้นที่ จะถูกเรียกอีกครั้งเมื่อโหลดเสร็จ
+            const fresh = windLoadedKey === spec.key && Date.now() - windLoadedAt < WIND_CACHE_MINUTES * 60000;
+            if (fresh && !force) return;
+            if (windLoadingKey === spec.key) return; // กำลังโหลดตารางนี้อยู่แล้ว
+            // เพิ่งโหลดไม่สำเร็จ (เช่น เกินโควตา) รอ 10 นาทีก่อนลองใหม่อัตโนมัติ ไม่ยิงซ้ำให้โควตาหมดเร็วขึ้น
+            if (!force && windFailKey === spec.key && Date.now() - windFailAt < 10 * 60000) return;
+            if (force) { try { localStorage.removeItem('fireRadarWind2:' + spec.key); } catch (e) { /* ข้าม */ } }
+
+            windLoadError = null;
+            if (windLoadedKey !== spec.key) { windMeta = null; windFields = null; } // พื้นที่ใหม่: แสดง "กำลังโหลด" แทนสรุปของพื้นที่เดิม
+            updateDynamicLegend();
+            windLoadingKey = spec.key;
+            try {
+                const field = await fetchWindField(spec);
+                const now = windGridSpec();
+                if (!map.hasLayer(windLayer) || !now || now.key !== field.key) return; // ปิดหรือสลับพื้นที่ระหว่างโหลด
+                windFields = field.fields;
+                windLoadedKey = field.key;
+                windLoadedAt = field.loadedAt;
+                windFailKey = null;
+                applyWindOffset();
+            } catch (err) {
+                console.warn('โหลดข้อมูลลมไม่สำเร็จ', err);
+                windLoadError = err.message || String(err);
+                windFailKey = spec.key;
+                windFailAt = Date.now();
+                showToast('ดึงข้อมูลลมไม่สำเร็จ: ' + windLoadError, 'error');
+            } finally {
+                if (windLoadingKey === spec.key) windLoadingKey = null;
+            }
+            updateDynamicLegend();
+        }
+
+        // แสดงชุดลมตามช่วงเวลาที่เลือก (สลับได้ทันที ไม่ต้องโหลดใหม่)
+        function applyWindOffset() {
+            if (!windFields || !windFields[0]) return;
+            const f = windFields[windOffset] || windFields[0]; // ไม่มีพยากรณ์ช่วงนั้น → แสดงลมตอนนี้
+            windMeta = f.meta;
+            if (!windVelocityLayer) {
+                windVelocityLayer = L.velocityLayer(Object.assign({}, WIND_VELOCITY_OPTIONS, { data: f.data }));
+                windLayer.addLayer(windVelocityLayer);
+            } else {
+                windVelocityLayer.setData(f.data);
+            }
+            document.querySelectorAll('.wind-offset-radio').forEach(r => {
+                r.disabled = !windFields[Number(r.value)];
+            });
+        }
+
+        document.querySelectorAll('.wind-offset-radio').forEach(r => {
+            r.checked = Number(r.value) === windOffset;
+            r.addEventListener('change', function () {
+                if (!this.checked) return;
+                windOffset = Number(this.value);
+                setUrlParam('windh', windOffset ? String(windOffset) : null);
+                applyWindOffset();
+                updateDynamicLegend();
+            });
+        });
+
+        document.getElementById('windToggle').addEventListener('change', function () {
+            if (this.checked) map.addLayer(windLayer);
+            else map.removeLayer(windLayer);
+        });
+
+        map.on('overlayadd', function (e) {
+            if (e.layer !== windLayer) return;
+            document.getElementById('windToggle').checked = true;
+            document.getElementById('windOffsetGroup').style.display = 'flex';
+            setUrlParam('wind', '1');
+            refreshWind(false);
+        });
+
+        map.on('overlayremove', function (e) {
+            if (e.layer !== windLayer) return;
+            document.getElementById('windToggle').checked = false;
+            document.getElementById('windOffsetGroup').style.display = 'none';
+            setUrlParam('wind', null);
+        });
+
+        // ตรวจทุก 5 นาที: ถ้าข้อมูลเก่าเกิน 30 นาทีและยังเปิดเส้นลมอยู่ จะโหลดใหม่
+        setInterval(() => { if (map.hasLayer(windLayer)) refreshWind(false); }, 5 * 60000);
+
+        // เปิดหน้าพร้อมเส้นลมได้ด้วย ?wind=1
+        if (urlParams.get('wind') === '1') map.addLayer(windLayer);
+
+        // มาตราส่วนแผนที่ (Scale Control)
+        const scaleControl = L.control.scale({
+            position: 'bottomright',
+            metric: true,
+            imperial: false,
+            maxWidth: 200
+        }).addTo(map);
+
+        const scaleContainer = scaleControl.getContainer();
+        L.DomEvent.disableClickPropagation(scaleContainer);
+
+        scaleContainer.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.add('scale-hidden');
+            showToast("ซ่อนมาตราส่วนแล้ว (ซูมแผนที่เพื่อแสดงอีกครั้ง)", "info");
+        });
+
+        map.on('zoomend', function() {
+            if (scaleContainer.classList.contains('scale-hidden')) {
+                scaleContainer.classList.remove('scale-hidden');
+            }
+        });
+    </script>
+</body>
+</html>
