@@ -2033,6 +2033,8 @@ function buildTrafficLights() {
         inst(k, mat(a.x + fx, KERB + y, a.z + fz, 0, 0.13, 0.13, 0.13), col(0x222222));
       }
       node.heads.push({ axis: a.axis, idx });
+      // under the lamps, the blue plate of a Bangkok junction: left turn at any time
+      inst('tlLeft', mat(a.x + Math.sin(a.ry) * -0.17, KERB + 3.15, a.z + Math.cos(a.ry) * -0.17, a.ry + Math.PI), null);
     }
     WORLD.trafficLights.push(node);
   }
@@ -2236,6 +2238,7 @@ function instGeometries() {
   IG.spirit = merged([[new THREE.CylinderGeometry(0.18, 0.22, 1.4, 8), mat(0, 0.7, 0), 0xf0ece4], [new THREE.BoxGeometry(0.9, 0.08, 0.9), mat(0, 1.42, 0), 0xe8dcc0], [new THREE.BoxGeometry(0.6, 0.55, 0.6), mat(0, 1.74, 0), 0xd4a63a], [new THREE.ConeGeometry(0.5, 0.6, 4).rotateY(Math.PI / 4), mat(0, 2.3, 0), 0xb83a22], [new THREE.ConeGeometry(0.06, 0.45, 6), mat(0, 2.75, 0), 0xe0b040], [new THREE.SphereGeometry(0.1, 6, 4), mat(0.32, 1.52, 0.32), 0xff7da0], [new THREE.SphereGeometry(0.1, 6, 4), mat(-0.3, 1.52, 0.3), 0xffe14d]]);
   IG.tlPole = merged([[new THREE.CylinderGeometry(0.07, 0.09, 3.5, 6), mat(0, 1.75, 0), 0x3c3f44], [new THREE.BoxGeometry(0.42, 1.25, 0.3), mat(0, 4.2, 0), 0x16181b]]);
   IG.tl = new THREE.SphereGeometry(1, 6, 4);
+  IG.tlLeft = new THREE.BoxGeometry(0.78, 0.52, 0.025);
   return IG;
 }
 const MERGE = { trunk: 'roof', canopy: 'roof', palmTrunk: 'roof', lampPole: 'roof', pole: 'roof', cart: 'roof', tlPole: 'roof', spirit: 'roof', palmTop: 'frond', lampHead: 'lamp', bulb: 'lamp', lantern: 'lamp', pool: 'pool', tent: 'temple', umbrella: 'temple' };
@@ -2255,6 +2258,26 @@ function mergeInstances() {
     if (list.length) mesh.instanceColor.needsUpdate = true;
     mesh.frustumCulled = false; scene.add(mesh); IMESH[k] = mesh;
   }
+  { const list = INST.tlLeft || [], back = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.6, metalness: 0.5 });
+    const mesh = new THREE.InstancedMesh(IG.tlLeft, [back, back, back, back, leftTurnSign(), back], list.length);
+    list.forEach((e, i) => mesh.setMatrixAt(i, e.m)); mesh.frustumCulled = false; scene.add(mesh); IMESH.tlLeft = mesh; }
+}
+// เลี้ยวซ้ายผ่านตลอด: white on blue, an arrow to the left, and the English under it
+function leftTurnSign() {
+  const [c, x] = makeCanvas(512, 340), t = tex(c, { repeat: false });
+  const draw = () => {
+    x.fillStyle = '#1f4fa3'; x.fillRect(0, 0, 512, 340);
+    x.strokeStyle = '#fff'; x.lineWidth = 10; x.beginPath(); x.roundRect(14, 14, 484, 312, 22); x.stroke();
+    // the arrow: a shaft and a head, pointing left
+    x.fillStyle = '#fff'; x.beginPath(); x.moveTo(40, 128); x.lineTo(108, 66); x.lineTo(108, 104); x.lineTo(166, 104); x.lineTo(166, 152); x.lineTo(108, 152); x.lineTo(108, 190); x.closePath(); x.fill();
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.font = `600 74px ${FONT_TH}`; x.fillText('เลี้ยวซ้าย', 336, 92);
+    x.fillText('ผ่านตลอด', 336, 186);
+    x.font = '600 30px Kanit, "Helvetica Neue", Arial, sans-serif'; x.fillText('LEFT TURN ANY TIME', 256, 268);
+    t.needsUpdate = true;
+  };
+  draw(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+  return new THREE.MeshStandardMaterial({ map: t, roughness: 0.45, metalness: 0.1 });
 }
 
 /* ---------- turn the builders into meshes, chunk by chunk ---------- */
@@ -4783,7 +4806,7 @@ const MISSION = { price: 186400, start: 175000, salary: 45000, reds: 3, tip: [60
 const bundlePrice = m => Math.floor(m.money / 200) * 100;   // the Mariner 300 takes half of what you have
 const ROLE_SEQ = ['waitlist', 'bundle', 'stock'];
 const NS = SHOPS.length;
-const MS = { here: null, lock: null, stillT: 0, honks: [], cut: null, box: null, came: null, past: null, target: null, hud: '', floats: [] };
+const MS = { here: null, lock: null, stillT: 0, honks: [], cut: null, box: null, came: null, past: null, red: null, target: null, hud: '', floats: [] };
 const baht = n => '฿' + Math.round(n).toLocaleString('en-US');
 const MX = TH ? {
   offer: 'อยากได้นาฬิกา VERDANT รุ่น 1864 ไหมคะ? รุ่นนี้หายากมาก ลองเริ่มภารกิจตามหาดูสิคะ (เริ่มที่ตึก The Siam Times)',
@@ -4796,7 +4819,7 @@ const MX = TH ? {
   resume: 'ภารกิจต่อจากเดิม', start: 'เริ่มภารกิจ', go: 'ไปต่อ', later: 'ไว้ก่อน', restart: 'เริ่มภารกิจใหม่', free: 'ขี่เล่นอิสระ', keep: 'ขี่เล่นต่อ', skip: 'แตะเพื่อข้าม',
   introH: 'ตามหานาฬิกา Dress Watch รุ่น 1864',
   intro: `คุณเป็นนักข่าวของ The Siam Times อยากได้นาฬิกา VERDANT รุ่น 1864 มานานแล้ว รุ่นนี้หายากมาก มีขายแค่ร้าน VERDANT สีเขียวทอง 3 สาขาในกรุงเทพฯ`,
-  rules: ['ขี่ไปหาร้าน VERDANT ทั้ง 3 ร้าน (จุดเขียวบนแผนที่ แตะปุ่มออโต้ให้พาไปได้)', `ห้ามฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง แต่ขี่บนฟุตบาทอ้อมแยกได้ ไม่นับว่าฝ่าไฟแดง`, `เงินไม่พอ? กลับมาทำงานที่ตึกนี้ เดือนละ ${baht(MISSION.salary)} หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์ บางคนใจดีให้ทิป (คนละครั้ง)`],
+  rules: ['ขี่ไปหาร้าน VERDANT ทั้ง 3 ร้าน (จุดเขียวบนแผนที่ แตะปุ่มออโต้ให้พาไปได้)', `ห้ามฝ่าไฟแดงเกิน ${MISSION.reds} ครั้ง · เลี้ยวซ้ายผ่านตลอด และขี่บนฟุตบาทอ้อมแยกได้ ไม่นับว่าฝ่าไฟแดง`, `เงินไม่พอ? กลับมาทำงานที่ตึกนี้ เดือนละ ${baht(MISSION.salary)} หรือบีบแตร 2 ครั้งทักสาวไบค์เกอร์ บางคนใจดีให้ทิป (คนละครั้ง)`],
   budget: 'เงินเก็บ', price: 'ราคา 1864',
   hello: 'ยินดีต้อนรับสู่ VERDANT ค่ะ',
   wl1: 'ขออภัยนะคะ รุ่น 1864 ไม่มีของเลยค่ะ ลูกค้ารอคิวกันยาวมาก รับลงชื่อใน Want List ไว้ไหมคะ ถ้ามีของจะโทรแจ้งค่ะ',
@@ -4830,7 +4853,7 @@ const MX = TH ? {
   resume: 'Mission resumed', start: 'Start the mission', go: 'Carry on', later: 'Not now', restart: 'Start the mission again', free: 'Free ride', keep: 'Keep riding', skip: 'Tap to skip',
   introH: 'Find the 1864 dress watch',
   intro: 'You are a reporter at The Siam Times, and you have wanted a VERDANT 1864 dress watch for years. It is very hard to get: only the three green-and-gold VERDANT shops in Bangkok sell it.',
-  rules: ['Ride to all three VERDANT shops (green dots on the map; Auto will take you)', `Do not run more than ${MISSION.reds} red lights; riding round a crossing on the footpath does not count`, `Short of money? Come back here and work, ${baht(MISSION.salary)} a month, or give two toots of the horn to the women riders: some of them tip (once each)`],
+  rules: ['Ride to all three VERDANT shops (green dots on the map; Auto will take you)', `Do not run more than ${MISSION.reds} red lights; turning left is allowed at any time, and riding round a crossing on the footpath does not count`, `Short of money? Come back here and work, ${baht(MISSION.salary)} a month, or give two toots of the horn to the women riders: some of them tip (once each)`],
   budget: 'Savings', price: '1864 price',
   hello: 'Welcome to VERDANT.',
   wl1: 'I am sorry, we have no 1864s at all, and the wait is long. May I put you on our Want List? We will call you when one comes in.',
@@ -4924,7 +4947,8 @@ function missionAuto(steer, brake) {
   return { steer: clamp(e * 1.8, -1, 1), brake: bike.v > want + 0.5 ? clamp((bike.v - want) / 3, 0.2, 1) : d < 2.5 ? 1 : 0, thr: bike.v < want ? 0.35 : 0 };
 }
 function redLights(m) {
-  if (!m || m.bought || bike.offGrid || Math.abs(bike.y) > 1.2) { MS.box = null; MS.came = null; return; }
+  if (!m || m.bought) { MS.box = null; MS.came = null; MS.red = null; return; }
+  if (bike.offGrid || Math.abs(bike.y) > 1.2) { MS.box = null; MS.came = null; return; }
   const i = clamp(Math.round(bike.x / 100), 0, NX - 1), j = clamp(Math.round((bike.z - RZ[0]) / 100), 0, NZ - 1);
   const onZ = Math.abs(bike.x - RX[i]) < WX[i] / 2, onX = Math.abs(bike.z - RZ[j]) < WZ[j] / 2;
   // the road the rider comes in on: its light is the one that counts, so on a green they may go on, or turn either way
@@ -4938,10 +4962,20 @@ function redLights(m) {
     MS.past = { key, x: RX[i], z: RZ[j], r: Math.max(WX[i], WZ[j]) / 2 + 8 };
     if (Math.abs(bike.v) > 1.5 && bike.surf === 'road' && MS.walkT > 1.2) {
       const axis = MS.came || (Math.abs(Math.sin(bike.yaw)) > Math.abs(Math.cos(bike.yaw)) ? 'x' : 'z'), node = nodeAt(i, j);
-      if (node && node.heads.some(h => h.axis === axis) && lightState(node, axis, TRAFFIC.time) === 'r') ranRed(m);
+      if (node && node.heads.some(h => h.axis === axis) && lightState(node, axis, TRAFFIC.time) === 'r') {
+        // in on a red: it counts unless the rider turns left, which is allowed at any time; see which way they leave
+        const fx = axis === 'x' ? -Math.sign(bike.x - RX[i]) || -Math.sin(bike.yaw) : 0, fz = axis === 'z' ? -Math.sign(bike.z - RZ[j]) || -Math.cos(bike.yaw) : 0;
+        MS.red = { x: RX[i], z: RZ[j], fx, fz, r: Math.max(WX[i], WZ[j]) / 2 + 3 };
+      }
     }
   }
   MS.box = key;
+  // clear of the crossing: well out to the left is a left turn; straight on, right or back is a red light run
+  const R = MS.red;
+  if (R && !inBox) {
+    const rx = bike.x - R.x, rz = bike.z - R.z;
+    if (Math.hypot(rx, rz) > R.r) { MS.red = null; const along = rx * R.fx + rz * R.fz, left = rx * R.fz - rz * R.fx; if (!(left > Math.abs(along))) ranRed(m); }
+  }
 }
 function ranRed(m) {
   m.reds++; save();
