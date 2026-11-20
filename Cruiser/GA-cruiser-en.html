@@ -4092,31 +4092,31 @@ const AUDIO = { ctx: null, ready: false };
 const VT = (a, b) => [{ f1: 52, f2: 134, f3: 350, d1: 0.024, d2: 0.012, d3: 0.0065 }, { f1: 46, f2: 118, f3: 340, d1: 0.024, d2: 0.012, d3: 0.0065 }];
 const ENGINES = {
   // the big carburetted 45° twin, modelled in an AudioWorklet (06-y-evo.js); the pulses below are its fallback
-  evo: { mk: [9, 16], th: 'V-Twin 45° 1,340 ซีซี คาร์บู', en: '45° V-twin, 1,340 cc, carb', capTh: 'V-Twin 45° 1,340 ซีซี', capEn: '45° V-twin, 1,340 cc', worklet: true, loud: 0.3, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 600, red: 5200, pulse: VT(),
+  evo: { th: 'V-Twin 45° 1,340 ซีซี คาร์บู', en: '45° V-twin, 1,340 cc, carb', capTh: 'V-Twin 45° 1,340 ซีซี', capEn: '45° V-twin, 1,340 cc', worklet: true, loud: 0.3, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 600, red: 5200, pulse: VT(),
     lpBase: 380, lpThr: 2500, lpRpm: 0.28, barkF: 500, bark: 4, drive: 1.8, out: 0.85, pop: 0.06, body: 4, chest: 4.5, lope: 0.1, rate: 0.42 },
-  evoDrag: { mk: [11, 17], th: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', en: '45° V-twin, 1,340 cc, drag pipes', capTh: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', capEn: '45° V-twin, 1,340 cc, drag pipes', worklet: true, loud: 1, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 580, red: 5200, pulse: VT(),
+  evoDrag: { th: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', en: '45° V-twin, 1,340 cc, drag pipes', capTh: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', capEn: '45° V-twin, 1,340 cc, drag pipes', worklet: true, loud: 1, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 580, red: 5200, pulse: VT(),
     lpBase: 520, lpThr: 3900, lpRpm: 0.42, barkF: 500, bark: 7, drive: 2.8, out: 1.0, pop: 0.14, body: 5, chest: 5, lope: 0.11, rate: 0.42 },
-  vtwin: { mk: [9.2, 16.9], th: 'V-Twin ท่อเดิม', en: 'V-twin, stock', capTh: 'V-Twin 1,868 ซีซี', capEn: 'V-twin, 1,868 cc', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
+  vtwin: { th: 'V-Twin ท่อเดิม', en: 'V-twin, stock', capTh: 'V-Twin 1,868 ซีซี', capEn: 'V-twin, 1,868 cc', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
     lpBase: 340, lpThr: 2300, lpRpm: 0.25, barkF: 520, bark: 3.5, drive: 1.6, out: 0.8, pop: 0.035, body: 3.5, chest: 4, lope: 0.08, rate: 0.45 },
-  vtwinLoud: { mk: [10.6, 15.2], th: 'V-Twin ท่อแต่ง', en: 'V-twin, loud pipes', capTh: 'V-Twin 1,868 ซีซี ท่อแต่ง', capEn: 'V-twin, 1,868 cc, loud pipes', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
+  vtwinLoud: { th: 'V-Twin ท่อแต่ง', en: 'V-twin, loud pipes', capTh: 'V-Twin 1,868 ซีซี ท่อแต่ง', capEn: 'V-twin, 1,868 cc, loud pipes', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
     lpBase: 480, lpThr: 3800, lpRpm: 0.42, barkF: 520, bark: 7, drive: 2.8, out: 1.0, pop: 0.12, body: 5, chest: 5, lope: 0.09, rate: 0.45 },
   // a big-inch twin with straight pipes and a hot cam: a lumpy idle with soft firings, a raw bark, crackle off the throttle
-  vtwinStraight: { mk: [10.9, 17.2], th: 'V-Twin ท่อตรง แคมซิ่ง', en: 'V-twin, straight pipes, hot cam', capTh: 'V-Twin 1,923 ซีซี ท่อตรง แคมซิ่ง', capEn: 'V-twin, 1,923 cc, straight pipes, hot cam', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 820, red: 5600,
+  vtwinStraight: { th: 'V-Twin ท่อตรง แคมซิ่ง', en: 'V-twin, straight pipes, hot cam', capTh: 'V-Twin 1,923 ซีซี ท่อตรง แคมซิ่ง', capEn: 'V-twin, 1,923 cc, straight pipes, hot cam', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 820, red: 5600,
     pulse: [{ f1: 44, f2: 112, f3: 310, d1: 0.03, d2: 0.014, d3: 0.0075, noise: 0.78 }, { f1: 40, f2: 100, f3: 292, d1: 0.03, d2: 0.014, d3: 0.0075, noise: 0.78 }],
     lpBase: 620, lpThr: 4800, lpRpm: 0.5, barkF: 460, bark: 8, drive: 3.2, out: 1.0, pop: 0.24, body: 6, chest: 5, lope: 0.17, soft: 0.22, rate: 0.42 },
-  single: { mk: [9.5, 13.5], th: 'สูบเดียว', en: 'Big single', capTh: 'สูบเดียว 650 ซีซี', capEn: 'Single, 650 cc', pattern: [720], banks: [0], pan: [0], idle: 950, red: 6400,
+  single: { th: 'สูบเดียว', en: 'Big single', capTh: 'สูบเดียว 650 ซีซี', capEn: 'Single, 650 cc', pattern: [720], banks: [0], pan: [0], idle: 950, red: 6400,
     pulse: [{ f1: 40, f2: 104, f3: 290, d1: 0.034, d2: 0.016, d3: 0.008, noise: 0.7 }],
     lpBase: 320, lpThr: 2700, lpRpm: 0.3, barkF: 470, bark: 4.5, drive: 2.1, out: 0.95, pop: 0.07, body: 4, chest: 4.5, lope: 0.05, rate: 0.5 },
-  ptwin: { mk: [10.7, 17.7], th: 'สองสูบเรียง 270°', en: 'Parallel twin, 270°', capTh: 'สองสูบเรียง 1,200 ซีซี', capEn: 'Parallel twin, 1,200 cc', pattern: [270, 450], banks: [0, 1], pan: [-0.15, 0.15], idle: 1100, red: 8000,
+  ptwin: { th: 'สองสูบเรียง 270°', en: 'Parallel twin, 270°', capTh: 'สองสูบเรียง 1,200 ซีซี', capEn: 'Parallel twin, 1,200 cc', pattern: [270, 450], banks: [0, 1], pan: [-0.15, 0.15], idle: 1100, red: 8000,
     pulse: [{ f1: 60, f2: 162, f3: 430, d1: 0.018, d2: 0.009, d3: 0.005 }, { f1: 56, f2: 150, f3: 410, d1: 0.018, d2: 0.009, d3: 0.005 }],
     lpBase: 420, lpThr: 3300, lpRpm: 0.3, barkF: 660, bark: 4.5, drive: 2.0, out: 0.8, pop: 0.06, body: 2, chest: 4, lope: 0.03, rate: 0.55 },
-  i4: { mk: [10.8, 18.4], th: 'สี่สูบเรียง', en: 'Inline four', capTh: 'สี่สูบเรียง 1,000 ซีซี', capEn: 'Inline four, 1,000 cc', pattern: [180, 180, 180, 180], banks: [0, 1, 1, 0], pan: [0, 0], idle: 1250, red: 12500,
+  i4: { th: 'สี่สูบเรียง', en: 'Inline four', capTh: 'สี่สูบเรียง 1,000 ซีซี', capEn: 'Inline four, 1,000 cc', pattern: [180, 180, 180, 180], banks: [0, 1, 1, 0], pan: [0, 0], idle: 1250, red: 12500,
     pulse: [{ f1: 96, f2: 330, f3: 880, d1: 0.0075, d2: 0.0045, d3: 0.003, noise: 0.35 }, { f1: 90, f2: 312, f3: 840, d1: 0.0075, d2: 0.0045, d3: 0.003, noise: 0.35 }],
     lpBase: 900, lpThr: 5200, lpRpm: 0.3, barkF: 1500, bark: 5, drive: 2.4, out: 0.55, pop: 0.05, body: 0, chest: 3, lope: 0.012, rate: 0.7 },
-  v8: { mk: [13.4, 17.4], th: 'V8 บิ๊กบล็อก', en: 'Big-block V8', capTh: 'V8 5,700 ซีซี', capEn: 'V8, 5,700 cc', pattern: [90, 90, 90, 90, 90, 90, 90, 90], banks: [0, 1, 0, 0, 1, 0, 1, 1], pan: [-0.28, 0.28], idle: 720, red: 5400,
+  v8: { th: 'V8 บิ๊กบล็อก', en: 'Big-block V8', capTh: 'V8 5,700 ซีซี', capEn: 'V8, 5,700 cc', pattern: [90, 90, 90, 90, 90, 90, 90, 90], banks: [0, 1, 0, 0, 1, 0, 1, 1], pan: [-0.28, 0.28], idle: 720, red: 5400,
     pulse: [{ f1: 44, f2: 112, f3: 300, d1: 0.02, d2: 0.01, d3: 0.0055 }, { f1: 40, f2: 100, f3: 282, d1: 0.02, d2: 0.01, d3: 0.0055 }],
     lpBase: 300, lpThr: 2600, lpRpm: 0.28, barkF: 430, bark: 5, drive: 2.3, out: 0.6, pop: 0.09, body: 5, chest: 4, lope: 0.045, rate: 0.4 },
-  electric: { mk: [0, 2.1], th: 'มอเตอร์ไฟฟ้า', en: 'Electric motor', capTh: 'มอเตอร์ไฟฟ้า 80 กิโลวัตต์', capEn: 'Electric, 80 kW', electric: true, idle: 0, red: 10000 },
+  electric: { th: 'มอเตอร์ไฟฟ้า', en: 'Electric motor', capTh: 'มอเตอร์ไฟฟ้า 80 กิโลวัตต์', capEn: 'Electric, 80 kW', electric: true, idle: 0, red: 10000 },
 };
 const ENGINE_LIST = ['evo', 'evoDrag', 'vtwin', 'vtwinLoud', 'vtwinStraight', 'single', 'ptwin', 'i4', 'v8', 'electric'];
 if (!ENGINES[settings.engine]) settings.engine = 'evo';
@@ -4218,7 +4218,17 @@ function initAudio() {
   E.elHiOsc = ctx.createOscillator(); E.elHiOsc.type = 'sine'; E.elHiOsc.connect(E.elHi); E.elHiOsc.start();
   AUDIO.E = E;
   // the modelled twin: when its worklet is ready it takes over from the sampled firings
-  evoInit(ctx, [master, revIn]).then(w => { if (w) { E.evo = w; w.out.gain.value = 0.95; } });
+  evoInit(ctx, [master, revIn]).then(w => {
+    if (!w) return;
+    E.evo = w; w.out.gain.value = 0.95;
+    // the other engines' firings, played on the audio thread too, so a slow frame never drops them
+    if (w.pulse) {
+      const sp = ctx.createChannelSplitter(4); w.pulse.node.connect(sp);
+      sp.connect(E.bankIn[0], 0); sp.connect(E.bankIn[1], 1); sp.connect(E.tickBus, 2); sp.connect(E.popBus, 3);
+      w.pulse.node.port.postMessage({ click: E.click.getChannelData(0), pops: E.pops.map(b => b.getChannelData(0)) });
+      E.pw = w.pulse; pulseVoice();
+    }
+  });
 
   /* road and wind */
   AUDIO.wind = g(0); AUDIO.windF = filt('bandpass', 800, 0.5); loop(white).connect(AUDIO.windF).connect(AUDIO.wind).connect(master);
@@ -4245,6 +4255,13 @@ function initAudio() {
   setInterval(() => scheduleEngine(), 25);
 }
 
+// hand the worklet the firings of the engine chosen
+function pulseVoice() {
+  const E = AUDIO.E, V = AUDIO.voice; if (!E || !E.pw) return;
+  if (V.electric || !V.pattern) { E.pw.node.port.postMessage({ voice: null }); return; }
+  const data = bank => bank.map(b => b.getChannelData(0));
+  E.pw.node.port.postMessage({ voice: { pattern: V.pattern, banks: V.banks, idle: V.idle, red: V.red, rate: V.rate, lope: V.lope, pop: V.pop, soft: V.soft || 0, pulses: E.pulses.map(data), softBufs: E.soft ? E.soft.map(data) : null } });
+}
 function setEngine(id, quiet) {
   if (!ENGINES[id]) id = 'vtwin';
   settings.engine = id; if (!quiet) save();
@@ -4260,6 +4277,7 @@ function setEngine(id, quiet) {
     E.bankIn.forEach((gi, b) => { gi.pan.pan.value = V.pan[b] ?? 0; });
   }
   E.cyl = 0;
+  pulseVoice();
 }
 function setSound(on) {
   settings.sound = on; save();
@@ -4271,7 +4289,8 @@ function setVolume(v) {
 }
 
 function scheduleEngine() {
-  const E = AUDIO.E, V = AUDIO.voice; if (!E || !E.running || V.electric || !E.pulses.length || (V.worklet && E.evo)) return;
+  // the fallback where there is no AudioWorklet: firings scheduled from the main thread, 100 ms ahead
+  const E = AUDIO.E, V = AUDIO.voice; if (!E || E.pw || !E.running || V.electric || !E.pulses.length || (V.worklet && E.evo)) return;
   const ctx = AUDIO.ctx, now = ctx.currentTime, n = V.pattern.length;
   if (E.next < now) E.next = now + 0.005;
   while (E.next < now + 0.1) {
@@ -4306,14 +4325,13 @@ function audioUpdate(dt, s) {
   const set = (param, v, tc = 0.06) => param.setTargetAtTime(v, t, tc);
   const load = s.throttle;
   const W = P.worklet && E.evo;
-  // make-up gain, so every engine sits as loud as the modelled twin, quiet at idle and full at the top
-  const mf = clamp(0.55 * load + 0.45 * n, 0, 1), mk = P.mk ? Math.pow(10, (P.mk[0] + (P.mk[1] - P.mk[0]) * mf) / 20) : 1;
   if (E.evo) {
     const wp = E.evo.p;
     set(wp.get('run'), W ? (E.running ? 1 : E.starting ? 0.5 : 0) : 0, 0.02);
     set(wp.get('rpm'), Math.max(0, vr), 0.03); set(wp.get('load'), load, 0.05);
     set(wp.get('near'), s.cam === 2 ? 1 : 0, 0.2); set(wp.get('loud'), P.loud || 0, 0.2);
   }
+  if (E.pw) { const pp = E.pw.p; set(pp.get('run'), E.running && !W && !P.electric ? 1 : 0, 0.01); set(pp.get('rpm'), Math.max(0, vr), 0.02); set(pp.get('thr'), load, 0.02); }
   if (E.running && W) { set(E.bus.gain, 0, 0.03); set(E.intake.gain, 0); set(E.el.gain, 0); set(E.elHi.gain, 0); }
   else if (E.running && !P.electric) {
     set(E.bus.gain, (0.34 + 0.66 * load) * (0.75 + 0.25 * Math.min(1, n * 2)), 0.05);
@@ -4321,7 +4339,7 @@ function audioUpdate(dt, s) {
     set(E.lp.frequency, P.lpBase + P.lpThr * load + vr * P.lpRpm, 0.05);
     set(E.bark.gain, P.bark * (0.4 + 0.6 * load));
     set(E.body.gain, P.body); set(E.chest.gain, P.chest);
-    set(E.out.gain, P.out * mk * (s.cam === 2 ? 0.8 : 1));
+    set(E.out.gain, P.out * (s.cam === 2 ? 0.8 : 1));
     set(E.intake.gain, (0.01 + 0.05 * load * Math.min(1, n * 1.4)) * (s.cam === 2 ? 1.6 : 1));
     set(E.intakeF.frequency, 500 + n * 2000);
     set(E.el.gain, 0); set(E.elHi.gain, 0);
@@ -4329,8 +4347,8 @@ function audioUpdate(dt, s) {
     set(E.bus.gain, 0); set(E.intake.gain, 0);
     const f = 70 + n * 820;
     E.elOsc.forEach((o, k) => set(o.frequency, f * [1, 2.01, 3.03][k], 0.05));
-    set(E.el.gain, (0.05 + 0.1 * load + 0.05 * n) * mk, 0.05);
-    set(E.elHiOsc.frequency, 2600 + n * 2600, 0.05); set(E.elHi.gain, (0.003 + 0.009 * load) * mk, 0.05);
+    set(E.el.gain, 0.05 + 0.1 * load + 0.05 * n, 0.05);
+    set(E.elHiOsc.frequency, 2600 + n * 2600, 0.05); set(E.elHi.gain, 0.003 + 0.009 * load, 0.05);
   } else { set(E.bus.gain, 0); set(E.intake.gain, 0); set(E.el.gain, 0); set(E.elHi.gain, 0); }
   set(E.whineG.gain, Math.min(0.012, s.speed * 0.0004));
   set(E.whine.frequency, 60 + s.speed * 22);
@@ -4552,6 +4570,59 @@ class EvoEngine extends AudioWorkletProcessor {
   tick(a) { if (this.rpm < 100) return; const T = this.ticks.find(t => !t.on); if (!T) return; T.on = true; T.t = 0; T.a = a * (0.1 + 0.06 * this.r()); T.f = 2 * Math.PI * (2900 + 700 * this.r()); T.g = 2 * Math.PI * (5000 + 900 * this.r()); }
 }
 registerProcessor('evo-engine', EvoEngine);
+// the other engines: their pre-made firings, started on time by the audio thread rather than by the main
+// thread's timer, which a slow frame or a busy moment can hold up long enough to drop a run of them
+class PulseEngine extends AudioWorkletProcessor {
+  static get parameterDescriptors() {
+    return [
+      { name: 'rpm', defaultValue: 0, minValue: 0, maxValue: 20000, automationRate: 'k-rate' },
+      { name: 'thr', defaultValue: 0, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'run', defaultValue: 0, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+    ];
+  }
+  constructor() {
+    super();
+    this.V = null; this.click = null; this.pops = []; this.next = 0; this.cyl = 0; this.s = 0x2545f491;
+    this.voices = Array.from({ length: 96 }, () => ({ on: false, b: null, pos: 0, rate: 1, ch: 0 }));   // a fixed pool
+    this.port.onmessage = e => { const m = e.data; if (m.click) this.click = m.click; if (m.pops) this.pops = m.pops; if ('voice' in m) { this.V = m.voice; this.cyl = 0; } };
+  }
+  r() { let s = this.s; s ^= s << 13; s ^= s >>> 17; s ^= s << 5; this.s = s >>> 0; return this.s / 4294967296; }
+  // start a buffer "at" samples into this block (or a later one)
+  play(b, rate, ch, at) { if (!b) return; for (const v of this.voices) if (!v.on) { v.on = true; v.b = b; v.rate = rate; v.ch = ch; v.pos = -at * rate; return; } }
+  process(inputs, outputs, P) {
+    const out = outputs[0], n = out[0].length;
+    for (const c of out) c.fill(0);
+    const V = this.V, rpm0 = P.rpm[0], thr = P.thr[0];
+    if (V && P.run[0] > 0.5) {
+      const rpm = Math.max(V.idle * 0.4, rpm0), np = V.pattern.length, sr = sampleRate;
+      while (this.next < n) {
+        const k = this.cyl % np, iv = 120 / rpm * V.pattern[k] / 720 * sr, at = Math.max(0, this.next);
+        const limiter = rpm > V.red - 25 && thr > 0.5 && this.r() < 0.55;
+        if (!limiter) {
+          const bank = V.banks[k], weak = V.softBufs && rpm < V.idle * 1.7 && this.r() < V.soft;
+          this.play(weak ? V.softBufs[bank][this.r() * 2 | 0] : V.pulses[bank][this.r() * 4 | 0], (0.8 + rpm / V.red * V.rate) * (1 + (this.r() - 0.5) * 0.03), bank, at);
+          if (this.r() < 0.7 * Math.min(1, 2 / np)) this.play(this.click, 0.8 + this.r() * 0.5, 2, at + iv * 0.3);
+          // off the throttle at speed: burbles and pops in the pipes
+          if (thr < 0.08 && rpm > V.idle * 2.2 && this.r() < V.pop * (rpm / (V.red * 0.6)) * Math.min(1, 2 / np)) this.play(this.pops[this.r() * 4 | 0], 0.8 + this.r() * 0.5, 3, at + iv * (0.3 + this.r() * 0.5));
+        }
+        this.next = at + iv * (1 + (this.r() - 0.5) * (rpm < V.idle * 1.4 ? V.lope : V.lope * 0.22));
+        this.cyl++;
+      }
+      this.next -= n;
+    } else this.next = 0;
+    for (const v of this.voices) {
+      if (!v.on) continue;
+      const o = out[v.ch] || out[0], b = v.b, last = b.length - 1;
+      for (let i = 0; i < n; i++) {
+        const p = v.pos;
+        if (p >= 0) { const j = p | 0; if (j >= last) { v.on = false; break; } o[i] += b[j] + (b[j + 1] - b[j]) * (p - j); }
+        v.pos += v.rate;
+      }
+    }
+    return true;
+  }
+}
+registerProcessor('pulse-engine', PulseEngine);
 `;
 // load the worklet from a blob and plug it in; the old sampled firings stay as the fallback
 function evoInit(ctx, dests) {
@@ -4560,7 +4631,9 @@ function evoInit(ctx, dests) {
   return ctx.audioWorklet.addModule(url).then(() => {
     const node = new AudioWorkletNode(ctx, 'evo-engine', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
     const out = ctx.createGain(); out.gain.value = 0.9; node.connect(out); for (const d of dests) out.connect(d);
-    return { node, out, p: node.parameters };
+    let pulse = null;
+    try { const pn = new AudioWorkletNode(ctx, 'pulse-engine', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [4] }); pulse = { node: pn, p: pn.parameters }; } catch (e) { /* the main-thread firings stay */ }
+    return { node, out, p: node.parameters, pulse };
   }).catch(() => null);
 }
 
