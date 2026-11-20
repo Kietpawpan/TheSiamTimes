@@ -4092,31 +4092,31 @@ const AUDIO = { ctx: null, ready: false };
 const VT = (a, b) => [{ f1: 52, f2: 134, f3: 350, d1: 0.024, d2: 0.012, d3: 0.0065 }, { f1: 46, f2: 118, f3: 340, d1: 0.024, d2: 0.012, d3: 0.0065 }];
 const ENGINES = {
   // the big carburetted 45° twin, modelled in an AudioWorklet (06-y-evo.js); the pulses below are its fallback
-  evo: { th: 'V-Twin 45° 1,340 ซีซี คาร์บู', en: '45° V-twin, 1,340 cc, carb', capTh: 'V-Twin 45° 1,340 ซีซี', capEn: '45° V-twin, 1,340 cc', worklet: true, loud: 0.3, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 600, red: 5200, pulse: VT(),
+  evo: { mk: [9, 16], th: 'V-Twin 45° 1,340 ซีซี คาร์บู', en: '45° V-twin, 1,340 cc, carb', capTh: 'V-Twin 45° 1,340 ซีซี', capEn: '45° V-twin, 1,340 cc', worklet: true, loud: 0.3, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 600, red: 5200, pulse: VT(),
     lpBase: 380, lpThr: 2500, lpRpm: 0.28, barkF: 500, bark: 4, drive: 1.8, out: 0.85, pop: 0.06, body: 4, chest: 4.5, lope: 0.1, rate: 0.42 },
-  evoDrag: { th: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', en: '45° V-twin, 1,340 cc, drag pipes', capTh: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', capEn: '45° V-twin, 1,340 cc, drag pipes', worklet: true, loud: 1, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 580, red: 5200, pulse: VT(),
+  evoDrag: { mk: [11, 17], th: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', en: '45° V-twin, 1,340 cc, drag pipes', capTh: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', capEn: '45° V-twin, 1,340 cc, drag pipes', worklet: true, loud: 1, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 580, red: 5200, pulse: VT(),
     lpBase: 520, lpThr: 3900, lpRpm: 0.42, barkF: 500, bark: 7, drive: 2.8, out: 1.0, pop: 0.14, body: 5, chest: 5, lope: 0.11, rate: 0.42 },
-  vtwin: { th: 'V-Twin ท่อเดิม', en: 'V-twin, stock', capTh: 'V-Twin 1,868 ซีซี', capEn: 'V-twin, 1,868 cc', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
+  vtwin: { mk: [9.2, 16.9], th: 'V-Twin ท่อเดิม', en: 'V-twin, stock', capTh: 'V-Twin 1,868 ซีซี', capEn: 'V-twin, 1,868 cc', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
     lpBase: 340, lpThr: 2300, lpRpm: 0.25, barkF: 520, bark: 3.5, drive: 1.6, out: 0.8, pop: 0.035, body: 3.5, chest: 4, lope: 0.08, rate: 0.45 },
-  vtwinLoud: { th: 'V-Twin ท่อแต่ง', en: 'V-twin, loud pipes', capTh: 'V-Twin 1,868 ซีซี ท่อแต่ง', capEn: 'V-twin, 1,868 cc, loud pipes', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
+  vtwinLoud: { mk: [10.6, 15.2], th: 'V-Twin ท่อแต่ง', en: 'V-twin, loud pipes', capTh: 'V-Twin 1,868 ซีซี ท่อแต่ง', capEn: 'V-twin, 1,868 cc, loud pipes', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
     lpBase: 480, lpThr: 3800, lpRpm: 0.42, barkF: 520, bark: 7, drive: 2.8, out: 1.0, pop: 0.12, body: 5, chest: 5, lope: 0.09, rate: 0.45 },
   // a big-inch twin with straight pipes and a hot cam: a lumpy idle with soft firings, a raw bark, crackle off the throttle
-  vtwinStraight: { th: 'V-Twin ท่อตรง แคมซิ่ง', en: 'V-twin, straight pipes, hot cam', capTh: 'V-Twin 1,923 ซีซี ท่อตรง แคมซิ่ง', capEn: 'V-twin, 1,923 cc, straight pipes, hot cam', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 820, red: 5600,
+  vtwinStraight: { mk: [10.9, 17.2], th: 'V-Twin ท่อตรง แคมซิ่ง', en: 'V-twin, straight pipes, hot cam', capTh: 'V-Twin 1,923 ซีซี ท่อตรง แคมซิ่ง', capEn: 'V-twin, 1,923 cc, straight pipes, hot cam', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 820, red: 5600,
     pulse: [{ f1: 44, f2: 112, f3: 310, d1: 0.03, d2: 0.014, d3: 0.0075, noise: 0.78 }, { f1: 40, f2: 100, f3: 292, d1: 0.03, d2: 0.014, d3: 0.0075, noise: 0.78 }],
     lpBase: 620, lpThr: 4800, lpRpm: 0.5, barkF: 460, bark: 8, drive: 3.2, out: 1.0, pop: 0.24, body: 6, chest: 5, lope: 0.17, soft: 0.22, rate: 0.42 },
-  single: { th: 'สูบเดียว', en: 'Big single', capTh: 'สูบเดียว 650 ซีซี', capEn: 'Single, 650 cc', pattern: [720], banks: [0], pan: [0], idle: 950, red: 6400,
+  single: { mk: [9.5, 13.5], th: 'สูบเดียว', en: 'Big single', capTh: 'สูบเดียว 650 ซีซี', capEn: 'Single, 650 cc', pattern: [720], banks: [0], pan: [0], idle: 950, red: 6400,
     pulse: [{ f1: 40, f2: 104, f3: 290, d1: 0.034, d2: 0.016, d3: 0.008, noise: 0.7 }],
     lpBase: 320, lpThr: 2700, lpRpm: 0.3, barkF: 470, bark: 4.5, drive: 2.1, out: 0.95, pop: 0.07, body: 4, chest: 4.5, lope: 0.05, rate: 0.5 },
-  ptwin: { th: 'สองสูบเรียง 270°', en: 'Parallel twin, 270°', capTh: 'สองสูบเรียง 1,200 ซีซี', capEn: 'Parallel twin, 1,200 cc', pattern: [270, 450], banks: [0, 1], pan: [-0.15, 0.15], idle: 1100, red: 8000,
+  ptwin: { mk: [10.7, 17.7], th: 'สองสูบเรียง 270°', en: 'Parallel twin, 270°', capTh: 'สองสูบเรียง 1,200 ซีซี', capEn: 'Parallel twin, 1,200 cc', pattern: [270, 450], banks: [0, 1], pan: [-0.15, 0.15], idle: 1100, red: 8000,
     pulse: [{ f1: 60, f2: 162, f3: 430, d1: 0.018, d2: 0.009, d3: 0.005 }, { f1: 56, f2: 150, f3: 410, d1: 0.018, d2: 0.009, d3: 0.005 }],
     lpBase: 420, lpThr: 3300, lpRpm: 0.3, barkF: 660, bark: 4.5, drive: 2.0, out: 0.8, pop: 0.06, body: 2, chest: 4, lope: 0.03, rate: 0.55 },
-  i4: { th: 'สี่สูบเรียง', en: 'Inline four', capTh: 'สี่สูบเรียง 1,000 ซีซี', capEn: 'Inline four, 1,000 cc', pattern: [180, 180, 180, 180], banks: [0, 1, 1, 0], pan: [0, 0], idle: 1250, red: 12500,
+  i4: { mk: [10.8, 18.4], th: 'สี่สูบเรียง', en: 'Inline four', capTh: 'สี่สูบเรียง 1,000 ซีซี', capEn: 'Inline four, 1,000 cc', pattern: [180, 180, 180, 180], banks: [0, 1, 1, 0], pan: [0, 0], idle: 1250, red: 12500,
     pulse: [{ f1: 96, f2: 330, f3: 880, d1: 0.0075, d2: 0.0045, d3: 0.003, noise: 0.35 }, { f1: 90, f2: 312, f3: 840, d1: 0.0075, d2: 0.0045, d3: 0.003, noise: 0.35 }],
     lpBase: 900, lpThr: 5200, lpRpm: 0.3, barkF: 1500, bark: 5, drive: 2.4, out: 0.55, pop: 0.05, body: 0, chest: 3, lope: 0.012, rate: 0.7 },
-  v8: { th: 'V8 บิ๊กบล็อก', en: 'Big-block V8', capTh: 'V8 5,700 ซีซี', capEn: 'V8, 5,700 cc', pattern: [90, 90, 90, 90, 90, 90, 90, 90], banks: [0, 1, 0, 0, 1, 0, 1, 1], pan: [-0.28, 0.28], idle: 720, red: 5400,
+  v8: { mk: [13.4, 17.4], th: 'V8 บิ๊กบล็อก', en: 'Big-block V8', capTh: 'V8 5,700 ซีซี', capEn: 'V8, 5,700 cc', pattern: [90, 90, 90, 90, 90, 90, 90, 90], banks: [0, 1, 0, 0, 1, 0, 1, 1], pan: [-0.28, 0.28], idle: 720, red: 5400,
     pulse: [{ f1: 44, f2: 112, f3: 300, d1: 0.02, d2: 0.01, d3: 0.0055 }, { f1: 40, f2: 100, f3: 282, d1: 0.02, d2: 0.01, d3: 0.0055 }],
     lpBase: 300, lpThr: 2600, lpRpm: 0.28, barkF: 430, bark: 5, drive: 2.3, out: 0.6, pop: 0.09, body: 5, chest: 4, lope: 0.045, rate: 0.4 },
-  electric: { th: 'มอเตอร์ไฟฟ้า', en: 'Electric motor', capTh: 'มอเตอร์ไฟฟ้า 80 กิโลวัตต์', capEn: 'Electric, 80 kW', electric: true, idle: 0, red: 10000 },
+  electric: { mk: [0, 2.1], th: 'มอเตอร์ไฟฟ้า', en: 'Electric motor', capTh: 'มอเตอร์ไฟฟ้า 80 กิโลวัตต์', capEn: 'Electric, 80 kW', electric: true, idle: 0, red: 10000 },
 };
 const ENGINE_LIST = ['evo', 'evoDrag', 'vtwin', 'vtwinLoud', 'vtwinStraight', 'single', 'ptwin', 'i4', 'v8', 'electric'];
 if (!ENGINES[settings.engine]) settings.engine = 'evo';
@@ -4306,6 +4306,8 @@ function audioUpdate(dt, s) {
   const set = (param, v, tc = 0.06) => param.setTargetAtTime(v, t, tc);
   const load = s.throttle;
   const W = P.worklet && E.evo;
+  // make-up gain, so every engine sits as loud as the modelled twin, quiet at idle and full at the top
+  const mf = clamp(0.55 * load + 0.45 * n, 0, 1), mk = P.mk ? Math.pow(10, (P.mk[0] + (P.mk[1] - P.mk[0]) * mf) / 20) : 1;
   if (E.evo) {
     const wp = E.evo.p;
     set(wp.get('run'), W ? (E.running ? 1 : E.starting ? 0.5 : 0) : 0, 0.02);
@@ -4319,7 +4321,7 @@ function audioUpdate(dt, s) {
     set(E.lp.frequency, P.lpBase + P.lpThr * load + vr * P.lpRpm, 0.05);
     set(E.bark.gain, P.bark * (0.4 + 0.6 * load));
     set(E.body.gain, P.body); set(E.chest.gain, P.chest);
-    set(E.out.gain, P.out * (s.cam === 2 ? 0.8 : 1));
+    set(E.out.gain, P.out * mk * (s.cam === 2 ? 0.8 : 1));
     set(E.intake.gain, (0.01 + 0.05 * load * Math.min(1, n * 1.4)) * (s.cam === 2 ? 1.6 : 1));
     set(E.intakeF.frequency, 500 + n * 2000);
     set(E.el.gain, 0); set(E.elHi.gain, 0);
@@ -4327,8 +4329,8 @@ function audioUpdate(dt, s) {
     set(E.bus.gain, 0); set(E.intake.gain, 0);
     const f = 70 + n * 820;
     E.elOsc.forEach((o, k) => set(o.frequency, f * [1, 2.01, 3.03][k], 0.05));
-    set(E.el.gain, 0.05 + 0.1 * load + 0.05 * n, 0.05);
-    set(E.elHiOsc.frequency, 2600 + n * 2600, 0.05); set(E.elHi.gain, 0.003 + 0.009 * load, 0.05);
+    set(E.el.gain, (0.05 + 0.1 * load + 0.05 * n) * mk, 0.05);
+    set(E.elHiOsc.frequency, 2600 + n * 2600, 0.05); set(E.elHi.gain, (0.003 + 0.009 * load) * mk, 0.05);
   } else { set(E.bus.gain, 0); set(E.intake.gain, 0); set(E.el.gain, 0); set(E.elHi.gain, 0); }
   set(E.whineG.gain, Math.min(0.012, s.speed * 0.0004));
   set(E.whine.frequency, 60 + s.speed * 22);
