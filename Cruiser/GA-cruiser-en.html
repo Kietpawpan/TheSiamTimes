@@ -1936,6 +1936,7 @@ function tree(x, z, s, kind, y = 0, noCol = false) {
 }
 function palm(x, z, s) { inst('palmTrunk', mat(x, KERB, z, R() * 6, s, s, s, (R() - 0.5) * 0.12, (R() - 0.5) * 0.12), null); inst('palmTop', mat(x, KERB + 8.6 * s, z, R() * 6, s, s, s), null); addCircle(x, z, 0.35); }
 function foodCart(x, z, ry) {
+  if (nearIntersection(x, z, 2.5)) return;   // not out in a side street
   inst('cart', mat(x, KERB, z, ry), null);
   inst('umbrella', mat(x, KERB, z, ry), col(pick([0xd8352a, 0x2d6fb5, 0xf2c230, 0x3a9a55, 0xe8762a])));
   inst('bulb', mat(x, KERB + 2.05, z, 0, 0.12, 0.12, 0.12), col(0xffd090));
@@ -1950,6 +1951,7 @@ function buildStreetFurniture() {
   const isWarm = (x, z) => ['old', 'china', 'river', 'temple', 'khaosan', 'palace', 'sanam', 'mount', 'wheel'].includes(districtAt(x, z));
   const lampSpot = (x, z, ax, az, warm) => {
     if (btsColumnNear(x, z, 2.2)) return;   // the Skytrain's column stands there
+    if (nearIntersection(x, z, 4)) return;  // never out in the cross street, on its zebra crossing
     inst('lampPole', mat(x, KERB, z, Math.atan2(ax, az)), null);
     inst('lampHead', mat(x + ax * 2.3, KERB + 8.35, z + az * 2.3, Math.atan2(ax, az)), col(warm ? WARM : COOL).multiplyScalar(1.15));
     inst('pool', mat(x + ax * 2.6, 0.03, z + az * 2.6, 0, 12, 1, 12), col(warm ? 0xff9a40 : 0xb8c8ff));
@@ -4067,9 +4069,9 @@ const AUDIO = { ctx: null, ready: false };
 const VT = (a, b) => [{ f1: 52, f2: 134, f3: 350, d1: 0.024, d2: 0.012, d3: 0.0065 }, { f1: 46, f2: 118, f3: 340, d1: 0.024, d2: 0.012, d3: 0.0065 }];
 const ENGINES = {
   // the big carburetted 45° twin, modelled in an AudioWorklet (06-y-evo.js); the pulses below are its fallback
-  evo: { th: 'V-Twin 45° 1,340 ซีซี คาร์บู', en: '45° V-twin, 1,340 cc, carb', capTh: 'V-Twin 45° 1,340 ซีซี', capEn: '45° V-twin, 1,340 cc', worklet: true, loud: 0.3, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 950, red: 5200, pulse: VT(),
+  evo: { th: 'V-Twin 45° 1,340 ซีซี คาร์บู', en: '45° V-twin, 1,340 cc, carb', capTh: 'V-Twin 45° 1,340 ซีซี', capEn: '45° V-twin, 1,340 cc', worklet: true, loud: 0.3, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 740, red: 5200, pulse: VT(),
     lpBase: 380, lpThr: 2500, lpRpm: 0.28, barkF: 500, bark: 4, drive: 1.8, out: 0.85, pop: 0.06, body: 4, chest: 4.5, lope: 0.1, rate: 0.42 },
-  evoDrag: { th: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', en: '45° V-twin, 1,340 cc, drag pipes', capTh: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', capEn: '45° V-twin, 1,340 cc, drag pipes', worklet: true, loud: 1, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 950, red: 5200, pulse: VT(),
+  evoDrag: { th: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', en: '45° V-twin, 1,340 cc, drag pipes', capTh: 'V-Twin 45° 1,340 ซีซี ท่อดรัก', capEn: '45° V-twin, 1,340 cc, drag pipes', worklet: true, loud: 1, pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 720, red: 5200, pulse: VT(),
     lpBase: 520, lpThr: 3900, lpRpm: 0.42, barkF: 500, bark: 7, drive: 2.8, out: 1.0, pop: 0.14, body: 5, chest: 5, lope: 0.11, rate: 0.42 },
   vtwin: { th: 'V-Twin ท่อเดิม', en: 'V-twin, stock', capTh: 'V-Twin 1,868 ซีซี', capEn: 'V-twin, 1,868 cc', pattern: [315, 405], banks: [0, 1], pan: [0, 0], idle: 880, red: 5800, pulse: VT(),
     lpBase: 340, lpThr: 2300, lpRpm: 0.25, barkF: 520, bark: 3.5, drive: 1.6, out: 0.8, pop: 0.035, body: 3.5, chest: 4, lope: 0.08, rate: 0.45 },
@@ -4465,9 +4467,9 @@ class EvoEngine extends AudioWorkletProcessor {
       const target = live ? tRpm : crank ? 270 : 0;
       this.rpm += (target - this.rpm) * (target > this.rpm ? (crank ? 0.0004 : 0.0011) : 0.00045);
       this.load += (tLoad - this.load) * 0.0008;
-      this.hunt += dt * 2 * Math.PI * 0.55;
+      this.hunt += dt * 2 * Math.PI * 0.45;
       const idle = live && this.rpm < 1350 && this.load < 0.12;
-      const rpm = Math.max(0, this.rpm + (idle ? 26 * Math.sin(this.hunt) + 12 * Math.sin(this.hunt * 2.63 + 1.3) : 0));
+      const rpm = Math.max(0, this.rpm + (idle ? 30 * Math.sin(this.hunt) + 14 * Math.sin(this.hunt * 2.63 + 1.3) : 0));
       const d = rpm * 6 * dt, th0 = this.th; this.th += d; if (this.th >= 720) this.th -= 720;
       let x0 = 0, x1 = 0, intake = 0, mech = 0;
       for (let c = 0; c < 2; c++) {
@@ -4475,8 +4477,8 @@ class EvoEngine extends AudioWorkletProcessor {
         let r0 = th0 - C.tdc; if (r0 < 0) r0 += 720; let r1 = r0 + d; if (r1 >= 720) r1 -= 720;
         if (this.hit(r0, r1, 6)) {   // combustion (or only compression on the starter)
           C.fired = live && rpm > 180 ? 1 : 0;
-          C.a = 0.84 + 0.32 * this.r();
-          if (idle && this.r() < 0.07) C.a *= 0.5;   // a lazy firing now and then: the lope
+          C.a = (0.84 + 0.32 * this.r()) * (c ? 0.86 : 1);   // the rear fires a little softer than the front: po-ta-to
+          if (idle && this.r() < 0.09) C.a *= 0.5;   // a lazy firing now and then: the lope
           if (C.fired) this.blk = Math.max(this.blk, (0.4 + 0.6 * this.load) * C.a);
         }
         if (this.hit(r0, r1, 138)) {   // the exhaust valve opens: blowdown into the pipe
