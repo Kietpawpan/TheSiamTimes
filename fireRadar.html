@@ -337,6 +337,16 @@
             .pm25-table th, .pm25-table td { padding: 5px 6px; }
         }
 
+        /* ---------- อัตราการระบายอากาศ ---------- */
+        .vent-badge { min-width: 46px; padding: 1px 6px; border-radius: 6px; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+            font-size: 12px; font-weight: 800; line-height: 16px; text-align: center; white-space: nowrap; transform: translate(-50%, -50%); display: inline-block; }
+        .vent-charts-title { font-weight: bold; color: #4a148c; margin: 14px 0 6px; }
+        .vent-charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+        .vent-charts figure { margin: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px; text-align: center; }
+        .vent-charts figcaption { font-weight: bold; color: #4a148c; margin-bottom: 4px; font-size: 14px; }
+        .vent-charts img { width: 100%; height: auto; display: block; }
+        .vent-src { display: block; font-size: 11px; color: #64748b; }
+
         /* ---------- รายงาน PDF (สร้างเมื่อกดปุ่มส่งออก แสดงเฉพาะตอนพิมพ์/บันทึกเป็น PDF) ---------- */
         #pdfReport { display: none; }
         @media print {
@@ -481,6 +491,11 @@
                         <input type="radio" name="windOffset" value="12" class="wind-offset-radio" style="width: 16px; height: 16px; accent-color: #4a148c; margin: 0;"> ล่วงหน้า 12 ชม.
                     </label>
                 </div>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 16px; flex-wrap: wrap; margin-top: 10px;">
+                    <input type="checkbox" id="ventToggle" style="width: 18px; height: 18px; accent-color: #4a148c; margin: 0;">
+                    <b>🌬️ แสดงอัตราการระบายอากาศและสภาพอากาศรายจังหวัด</b>
+                    <span style="font-size: 14px; color: #64748b;">(เพดานการระบายอากาศ × ความเร็วลม · กรมอุตุนิยมวิทยา / Open-Meteo)</span>
+                </label>
             </div>
 
             <!-- ส่วนปักหมุดจุดเกิดเหตุด่วนและจำลองกรวยควันตามทิศลม -->
@@ -561,6 +576,46 @@
             <div class="pm25-note">
                 ที่มา: สถานีตรวจวัดคุณภาพอากาศ กรมควบคุมมลพิษ (Air4Thai) · เกณฑ์สีตามดัชนีคุณภาพอากาศของ คพ. ·
                 มาตรฐาน PM2.5 เฉลี่ย 24 ชม. ไม่เกิน 37.5 มคก./ลบ.ม. · คลิกแถวเพื่อซูมไปที่จังหวัด
+            </div>
+        </div>
+
+        <!-- อัตราการระบายอากาศและสภาพอากาศรายจังหวัด (แสดงเมื่อเปิดตัวเลือก) -->
+        <div id="ventPanel" class="pm25-panel" style="display: none;">
+            <div class="pm25-panel-header">
+                <div>
+                    <div class="pm25-panel-title">🌬️ อัตราการระบายอากาศและสภาพอากาศรายจังหวัด <span id="ventScope" style="font-weight: normal; color: #475569;"></span></div>
+                    <div class="pm25-meta" id="ventMeta">-</div>
+                </div>
+                <div class="pm25-tools">
+                    <button type="button" id="ventRefreshBtn">🔄 รีเฟรช</button>
+                </div>
+            </div>
+            <div class="pm25-scale" id="ventScale"></div>
+            <div class="pm25-summary" id="ventSummary"></div>
+            <div class="pm25-table-wrap">
+                <table class="pm25-table">
+                    <thead>
+                        <tr>
+                            <th>จังหวัด</th>
+                            <th class="num">อัตราการระบายอากาศ<span class="pm25-sub" style="color:#e9d5ff;">ตร.ม./วินาที (ตอนนี้)</span></th>
+                            <th>ระดับ</th>
+                            <th class="num">เพดานการระบายอากาศ<span class="pm25-sub" style="color:#e9d5ff;">PBLH (ม.)</span></th>
+                            <th>ลม</th>
+                            <th class="num">อุณหภูมิ</th>
+                            <th class="num">ความชื้น</th>
+                            <th class="num">โอกาสฝน</th>
+                            <th>สภาพอากาศ</th>
+                            <th>24 ชม. ข้างหน้า<span class="pm25-sub" style="color:#e9d5ff;">VR ต่ำสุด → สูงสุด</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="ventTableBody"></tbody>
+                </table>
+            </div>
+            <div id="ventCharts"></div>
+            <div class="pm25-note">
+                อัตราการระบายอากาศ (Ventilation Rate) = เพดานการระบายอากาศ (ม.) × ความเร็วลมที่ระดับ 10 ม. (ม./วินาที) ค่ายิ่งต่ำ ฝุ่นและควันยิ่งสะสมตัว ·
+                เพดานการระบายอากาศและพยากรณ์รายชั่วโมง: Open-Meteo · สภาพอากาศและลม: กรมอุตุนิยมวิทยา (TMD API) เมื่อเลือกพื้นที่ สคพ. ส่วนโหมดทั้งประเทศใช้ Open-Meteo ·
+                คลิกแถวเพื่อซูมไปที่จังหวัด
             </div>
         </div>
     </div>
@@ -846,6 +901,10 @@
         map.getPane('windPane').style.pointerEvents = 'none';
         const WIND_LAYER_NAME = "💨 เส้นลม (Open-Meteo)";
         const windLayer = L.layerGroup();
+
+        // ชั้นข้อมูลอัตราการระบายอากาศรายจังหวัด (หมุดที่จุดกลางจังหวัด สีตามระดับการระบายอากาศ)
+        const VENT_LAYER_NAME = "🌬️ อัตราการระบายอากาศ";
+        const ventLayer = L.layerGroup();
         
         // กำหนดเลเยอร์จัดกลุ่มจุดความร้อน
         const hotspotLayer = L.markerClusterGroup({
@@ -862,7 +921,8 @@
             "จุดเกิดเหตุด่วน (🚨)": incidentLayer,
             "🗑️ สถานที่กำจัดขยะ": landfillLayer,
             [PM25_LAYER_NAME]: pm25Layer,
-            [WIND_LAYER_NAME]: windLayer
+            [WIND_LAYER_NAME]: windLayer,
+            [VENT_LAYER_NAME]: ventLayer
         };
 
         L.control.layers(baseMaps, overlayMaps).addTo(map);
@@ -899,6 +959,19 @@
         let pm25LoadError = null;     // ข้อความผิดพลาดล่าสุด
         let pm25LegendSummary = null; // สรุปสำหรับคำอธิบายสัญลักษณ์บนแผนที่
         let pm25LastDetailed = null;  // หมุดสถานีแสดงแบบตัวเลข (true) หรือจุดสี (false)
+
+        // อัตราการระบายอากาศ (ตร.ม./วินาที): เกณฑ์เดียวกับ PM2570.html
+        const VENT_LEVELS = [
+            { max: 2000,     color: '#F04646', text: '#ffffff', range: '≤ 2,000',      label: 'แย่ (ฝุ่น/ควันสะสมตัว)' },
+            { max: 4000,     color: '#FFA200', text: '#0f172a', range: '2,001–4,000',  label: 'ปานกลาง' },
+            { max: 6000,     color: '#92D050', text: '#0f172a', range: '4,001–6,000',  label: 'ดี' },
+            { max: Infinity, color: '#3BCCFF', text: '#0f172a', range: '> 6,000',      label: 'ดีมาก (ฝุ่น/ควันกระจายตัวดี)' }
+        ];
+        let ventData = null;          // { key, rows, loadedAt, ... } ของพื้นที่ที่โหลดล่าสุด
+        let ventLoadPromise = null;   // กันการโหลดซ้อน
+        let ventLoadingKey = null;    // พื้นที่ที่กำลังโหลด
+        let ventLoadError = null;
+        let ventLastDetailed = null;  // หมุดแสดงตัวเลข (true) หรือจุดสี (false)
 
         // สถานะข้อมูลเส้นลม (โหลดเมื่อเปิดตัวเลือกเส้นลม)
         let windVelocityLayer = null; // ชั้นอนิเมชันอนุภาคลม (สร้างครั้งแรกเมื่อได้ข้อมูล)
@@ -1424,6 +1497,7 @@ if (primarySource && primarySource.features) {
             await updateRegionUIAndBoundaries(currentEpoId, true);
             processRegionalData();
             refreshWind(false); // ตารางลมของพื้นที่ใหม่ (ถ้าเปิดเส้นลมอยู่)
+            refreshVent(false); // อัตราการระบายอากาศของจังหวัดในพื้นที่ใหม่ (ถ้าเปิดอยู่)
             showToast(`สลับพื้นที่ไปยัง ${regionFullName()} เรียบร้อยแล้ว`, "info");
         }
 
@@ -1524,6 +1598,23 @@ if (primarySource && primarySource.features) {
                     html += '<div style="font-size:13px; margin-top:4px; color:#b91c1c;">โหลดข้อมูลลมไม่สำเร็จ</div>';
                 } else {
                     html += '<div style="font-size:13px; margin-top:4px; color:#64748b;">กำลังโหลดข้อมูลลม...</div>';
+                }
+            }
+
+            if (activeLayers.has(VENT_LAYER_NAME)) {
+                html += `<div class="legend-title">🌬️ อัตราการระบายอากาศ (${regionLabel()})</div>`;
+                html += '<div style="font-size:12px; color:#475569; margin-bottom:2px;">ตร.ม./วินาที · ค่าต่ำ = ฝุ่นและควันสะสมตัว</div>';
+                VENT_LEVELS.forEach(lv => {
+                    html += `<div><span class="pm-swatch" style="background:${lv.color}; border-radius:50%; transform:none;"></span>${lv.range} ${lv.label}</div>`;
+                });
+                const vd = ventCurrentData();
+                if (vd) {
+                    const poor = vd.rows.filter(r => r.vr !== null && r.vr <= VENT_LEVELS[0].max).length;
+                    html += `<div style="margin-top:4px; font-size:13px;">ระบายอากาศแย่ <b style="color:#b91c1c;">${poor}</b> จาก ${vd.rows.length} จังหวัด</div>`;
+                } else if (ventLoadError) {
+                    html += '<div style="margin-top:4px; font-size:13px; color:#b91c1c;">โหลดข้อมูลการระบายอากาศไม่สำเร็จ</div>';
+                } else {
+                    html += '<div style="margin-top:4px; font-size:13px; color:#64748b;">กำลังโหลดข้อมูล...</div>';
                 }
             }
 
@@ -3017,6 +3108,378 @@ if (primarySource && primarySource.features) {
         // เปิดหน้าพร้อมเส้นลมได้ด้วย ?wind=1
         if (urlParams.get('wind') === '1') map.addLayer(windLayer);
 
+        // ============================================================================
+        // อัตราการระบายอากาศ (Ventilation Rate) และสภาพอากาศรายจังหวัด
+        // VR = เพดานการระบายอากาศ (PBLH, ม.) × ความเร็วลมที่ระดับ 10 ม. (ม./วินาที) → ตร.ม./วินาที (สูตรเดียวกับ PM2570.html)
+        // - PBLH ลม อุณหภูมิ ความชื้น โอกาสฝน รายชั่วโมง: Open-Meteo คำขอเดียวสำหรับทุกจังหวัดในพื้นที่
+        // - เมื่อเลือกพื้นที่ สคพ.: สภาพอากาศและลมจากกรมอุตุนิยมวิทยา (TMD API ผ่าน Apps Script ตัวเดียวกับ PM2570.html)
+        //   และใช้ลมของ TMD คำนวณ VR ตอนนี้ (โหมดทั้งประเทศใช้ Open-Meteo อย่างเดียว เพื่อไม่ต้องเรียก TMD 77 ครั้ง)
+        // ============================================================================
+        const TMD_WEATHER_PROXY = 'https://script.google.com/macros/s/AKfycbxwoNT9sKWRIz2jGIqN44-71pjnMVyeV_ofNx0jDodMfMITcbCyw81Vsxw9rAURiRtDuw/exec';
+        const VENT_CACHE_MINUTES = 30;
+        const VENT_LABEL_ZOOM = 8;
+        // กราฟพยากรณ์ VR รายวันของกรมอุตุนิยมวิทยา ...VR_daily/daily_VR_<รหัสสถานี>.png
+        // ใส่เฉพาะจังหวัดที่ทราบรหัสสถานีแน่นอน (จาก PM2570.html) เพิ่มจังหวัดอื่นได้ที่นี่
+        const TMD_VR_CHART_URL = 'https://ozone.tmd.go.th/PM2.5/weather/Metgram/output/VR_daily/daily_VR_';
+        const TMD_VR_CHART_STATIONS = { 'นครราชสีมา': '431201', 'ชัยภูมิ': '403201', 'บุรีรัมย์': '436201', 'สุรินทร์': '432201' };
+        // พิกัดตัวเมืองตาม PM2570.html (ให้ค่าตรงกัน) จังหวัดอื่นใช้จุดกลางพื้นที่จังหวัด
+        const VENT_POINT_OVERRIDES = {
+            'นครราชสีมา': [14.9799, 102.0978], 'ชัยภูมิ': [15.8063, 102.0315],
+            'บุรีรัมย์': [14.9951, 103.1116], 'สุรินทร์': [14.8818, 103.4936]
+        };
+        const TMD_COND_TH = {
+            1: 'ท้องฟ้าแจ่มใส', 2: 'มีเมฆบางส่วน', 3: 'เมฆเป็นส่วนมาก', 4: 'มีเมฆมาก', 5: 'ฝนตกเล็กน้อย', 6: 'ฝนปานกลาง',
+            7: 'ฝนตกหนัก', 8: 'ฝนฟ้าคะนอง', 9: 'อากาศหนาวจัด', 10: 'อากาศหนาว', 11: 'อากาศเย็น', 12: 'อากาศร้อนจัด'
+        };
+
+        // รหัสสภาพอากาศ WMO ของ Open-Meteo
+        function omWeatherText(code) {
+            if (code === null || code === undefined) return '-';
+            if (code === 0) return 'ท้องฟ้าแจ่มใส';
+            if (code === 1) return 'ส่วนใหญ่แจ่มใส';
+            if (code === 2) return 'มีเมฆบางส่วน';
+            if (code === 3) return 'มีเมฆมาก';
+            if (code === 45 || code === 48) return 'มีหมอก';
+            if (code >= 51 && code <= 57) return 'ฝนละออง';
+            if (code === 61 || code === 80) return 'ฝนตกเล็กน้อย';
+            if (code === 63 || code === 81) return 'ฝนปานกลาง';
+            if (code === 65 || code === 82 || code === 66 || code === 67) return 'ฝนตกหนัก';
+            if (code >= 95) return 'ฝนฟ้าคะนอง';
+            return '-';
+        }
+
+        function ventNum(v) {
+            if (v === null || v === undefined || v === '') return null;
+            const n = Number(v);
+            return isFinite(n) ? n : null;
+        }
+
+        function ventLevel(v) {
+            if (v === null || v === undefined || isNaN(v)) return null;
+            return VENT_LEVELS.find(lv => v <= lv.max);
+        }
+
+        function fmtInt(v) {
+            return v === null || v === undefined || isNaN(v) ? '-' : Math.round(v).toLocaleString('th-TH');
+        }
+
+        // เวลาไทยรูปแบบเดียวกับ Open-Meteo (timezone=Asia/Bangkok) เช่น 2026-11-21T14:00
+        function thaiHourKey(date) {
+            const th = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+            const p2 = n => String(n).padStart(2, '0');
+            return `${th.getUTCFullYear()}-${p2(th.getUTCMonth() + 1)}-${p2(th.getUTCDate())}T${p2(th.getUTCHours())}:00`;
+        }
+
+        function fmtOmTime(t) {
+            return t ? formatAir4ThaiTime(...String(t).split('T')) : '-';
+        }
+
+        // แบบสั้นสำหรับตาราง เช่น 21 พ.ย. 14:00 น.
+        function fmtOmShort(t) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2})/.exec(String(t || ''));
+            if (!m) return '-';
+            const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            return `${parseInt(m[3], 10)} ${months[parseInt(m[2], 10) - 1]} ${m[4]} น.`;
+        }
+
+        function ventRegionKey() {
+            return isNational() ? NATIONAL_ID : currentEpoId;
+        }
+
+        function ventCurrentData() {
+            return ventData && ventData.key === ventRegionKey() ? ventData : null;
+        }
+
+        // จุดตัวแทนจังหวัดในพื้นที่: พิกัดตัวเมืองตาม PM2570.html หรือจุดกลางพื้นที่จังหวัด (ต้องอยู่ในเขตจังหวัด)
+        async function ventProvincePoints() {
+            const data = await ensureThailandBoundaries();
+            if (!data) throw new Error('โหลดขอบเขตจังหวัดไม่สำเร็จ');
+            const national = isNational();
+            const pts = [];
+            data.features.forEach(f => {
+                const en = String((f.properties || {}).name || '').trim();
+                const prov = EN_TO_TH_PROVINCE[en] || en;
+                const epo = PROVINCE_TO_EPO[prov] || null;
+                if (!national && epo !== currentEpoId) return;
+                let lat, lon;
+                if (VENT_POINT_OVERRIDES[prov]) {
+                    [lat, lon] = VENT_POINT_OVERRIDES[prov];
+                } else {
+                    let c = turf.centroid(f);
+                    if (!turf.booleanPointInPolygon(c, f)) c = turf.pointOnFeature(f);
+                    [lon, lat] = c.geometry.coordinates;
+                }
+                pts.push({ prov, epo, lat: Math.round(lat * 10000) / 10000, lon: Math.round(lon * 10000) / 10000 });
+            });
+            return pts.sort((a, b) => a.prov.localeCompare(b.prov, 'th'));
+        }
+
+        async function fetchTmdWeather(p) {
+            try {
+                const data = await fetchJsonWithTimeout(`${TMD_WEATHER_PROXY}?lat=${p.lat}&lon=${p.lon}`, 20000);
+                const wf = data && Array.isArray(data.WeatherForecasts) ? data.WeatherForecasts[0] : null;
+                const fc = wf && Array.isArray(wf.forecasts) ? wf.forecasts[0] : null;
+                return fc && fc.data ? Object.assign({ time: fc.time }, fc.data) : null;
+            } catch (e) {
+                console.warn('ดึงข้อมูลสภาพอากาศ TMD ไม่สำเร็จ:', p.prov, e);
+                return null;
+            }
+        }
+
+        async function fetchOpenMeteoVent(pts) {
+            const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + pts.map(p => p.lat).join(',') +
+                '&longitude=' + pts.map(p => p.lon).join(',') +
+                '&hourly=boundary_layer_height,wind_speed_10m,wind_direction_10m,temperature_2m,relative_humidity_2m,precipitation_probability,weather_code' +
+                '&wind_speed_unit=ms&timezone=Asia%2FBangkok&forecast_days=2';
+            const res = await fetch(url);
+            if (res.status === 429) throw new Error('บริการ Open-Meteo จำกัดจำนวนครั้งต่อวัน กรุณาลองใหม่ภายหลัง');
+            if (!res.ok) throw new Error('Open-Meteo HTTP ' + res.status);
+            const json = await res.json();
+            const list = Array.isArray(json) ? json : [json]; // หลายพิกัด = ได้ผลเป็นรายการตามลำดับที่ขอ
+            if (list.length !== pts.length) throw new Error('ได้ข้อมูล Open-Meteo ไม่ครบทุกจังหวัด');
+            return list;
+        }
+
+        function buildVentRow(p, om) {
+            const hr = (om && om.hourly) || {};
+            const times = Array.isArray(hr.time) ? hr.time : [];
+            const at = (k, j) => ventNum((hr[k] || [])[j]);
+            const nowKey = thaiHourKey(new Date());
+            let idx = times.indexOf(nowKey);
+            if (idx < 0) idx = times.findIndex(t => t >= nowKey);
+            const row = Object.assign({}, p, { time: null, pblh: null, omWs: null, omWd: null, temp: null, rh: null, pop: null, code: null, min: null, max: null, tmd: null });
+            if (idx < 0) return row;
+            Object.assign(row, {
+                time: times[idx], pblh: at('boundary_layer_height', idx), omWs: at('wind_speed_10m', idx), omWd: at('wind_direction_10m', idx),
+                temp: at('temperature_2m', idx), rh: at('relative_humidity_2m', idx), pop: at('precipitation_probability', idx), code: at('weather_code', idx)
+            });
+            // ช่วง 24 ชม. ข้างหน้า: ชั่วโมงที่ระบายอากาศแย่ที่สุด/ดีที่สุด
+            for (let j = idx; j < Math.min(times.length, idx + 24); j++) {
+                const b = at('boundary_layer_height', j), w = at('wind_speed_10m', j);
+                if (b === null || w === null) continue;
+                const v = b * w;
+                if (!row.min || v < row.min.v) row.min = { v: v, t: times[j] };
+                if (!row.max || v > row.max.v) row.max = { v: v, t: times[j] };
+            }
+            return row;
+        }
+
+        // รวมค่าที่ใช้แสดง: ใช้ข้อมูลกรมอุตุนิยมวิทยาเมื่อมี ไม่เช่นนั้นใช้ Open-Meteo
+        function finishVentRow(r) {
+            const t = r.tmd || {};
+            const tWs = ventNum(t.ws10m), tWd = ventNum(t.wd10m);
+            r.windMs = tWs !== null ? tWs : r.omWs;
+            r.windDir = tWs !== null && tWd !== null ? tWd : r.omWd;
+            r.windSrc = tWs !== null ? 'TMD' : 'Open-Meteo';
+            r.tempC = ventNum(t.tc) !== null ? ventNum(t.tc) : r.temp;
+            r.rhPct = ventNum(t.rh) !== null ? ventNum(t.rh) : r.rh;
+            r.cond = ventNum(t.cond) !== null ? (TMD_COND_TH[ventNum(t.cond)] || '-') : omWeatherText(r.code);
+            r.rainMm = ventNum(t.rain);
+            r.vr = r.pblh !== null && r.windMs !== null ? Math.round(r.pblh * r.windMs) : null;
+            return r;
+        }
+
+        function loadVentData(force = false) {
+            const key = ventRegionKey();
+            if (ventLoadPromise && ventLoadingKey === key) return ventLoadPromise;
+            const cur = ventCurrentData();
+            if (!force && cur && Date.now() - cur.loadedAt < VENT_CACHE_MINUTES * 60000) return Promise.resolve(cur);
+
+            const national = isNational();
+            const promise = (async () => {
+                const pts = await ventProvincePoints();
+                if (!pts.length) throw new Error('ไม่พบจังหวัดในพื้นที่');
+                const [omRes, tmdList] = await Promise.all([
+                    fetchOpenMeteoVent(pts).then(list => ({ list }), err => ({ err })),
+                    national ? Promise.resolve(pts.map(() => null)) : Promise.all(pts.map(fetchTmdWeather))
+                ]);
+                const tmdCount = tmdList.filter(Boolean).length;
+                if (omRes.err && !tmdCount) throw omRes.err;
+                const rows = pts.map((p, i) => {
+                    const r = buildVentRow(p, omRes.list ? omRes.list[i] : null);
+                    r.tmd = tmdList[i];
+                    return finishVentRow(r);
+                });
+                const result = { key, national, rows, loadedAt: Date.now(), tmdCount, omError: omRes.err ? (omRes.err.message || String(omRes.err)) : null };
+                if (key === ventRegionKey()) {
+                    ventData = result;
+                    ventLoadError = null;
+                }
+                return result;
+            })().catch(err => {
+                if (key === ventRegionKey()) ventLoadError = err.message || String(err);
+                throw err;
+            }).finally(() => {
+                if (ventLoadPromise === promise) { ventLoadPromise = null; ventLoadingKey = null; }
+            });
+            ventLoadPromise = promise;
+            ventLoadingKey = key;
+            return promise;
+        }
+
+        function ventWindText(r) {
+            if (r.windMs === null) return '-';
+            return `${(r.windMs * 3.6).toFixed(1)} กม./ชม.` + (r.windDir !== null ? ` จากทิศ${thaiCompass(r.windDir)} (${Math.round(r.windDir)}°)` : '');
+        }
+
+        function ventPopupHtml(r) {
+            const lv = ventLevel(r.vr);
+            const row = (k, v) => `<tr><td style="color:#475569; padding:2px 8px 2px 0; white-space:nowrap;">${k}</td><td style="padding:2px 0;">${v}</td></tr>`;
+            return `<div style="font-size:14px; min-width:230px;">
+                <div style="background:${lv ? lv.color : '#94a3b8'}; color:${lv ? lv.text : '#fff'}; padding:5px 8px; border-radius:4px; margin-bottom:6px; font-weight:bold; text-align:center;">
+                    🌬️ จ.${r.prov}: ${fmtInt(r.vr)} ตร.ม./วินาที${lv ? ' · ' + lv.label : ''}</div>
+                <table style="border-collapse:collapse;">` +
+                row('เพดานการระบายอากาศ', r.pblh !== null ? `${fmtInt(r.pblh)} ม.` : '-') +
+                row('ลม', ventWindText(r) + `<span class="vent-src">${r.windSrc === 'TMD' ? 'กรมอุตุนิยมวิทยา' : 'Open-Meteo'}</span>`) +
+                row('สภาพอากาศ', r.cond) +
+                row('อุณหภูมิ', r.tempC !== null ? `${r.tempC.toFixed(1)} °C` : '-') +
+                row('ความชื้น', r.rhPct !== null ? `${Math.round(r.rhPct)} %` : '-') +
+                row('โอกาสเกิดฝน', r.pop !== null ? `${Math.round(r.pop)} %` : '-') +
+                (r.min && r.max ? row('24 ชม. ข้างหน้า', `ต่ำสุด ${fmtInt(r.min.v)} (${fmtOmShort(r.min.t)})<br>สูงสุด ${fmtInt(r.max.v)} (${fmtOmShort(r.max.t)})`) : '') +
+                row('ข้อมูล ณ', fmtOmTime(r.time)) +
+                `</table></div>`;
+        }
+
+        function renderVent() {
+            const tbody = document.getElementById('ventTableBody');
+            const meta = document.getElementById('ventMeta');
+            const summaryEl = document.getElementById('ventSummary');
+            const chartsEl = document.getElementById('ventCharts');
+            document.getElementById('ventScope').innerText = isNational() ? '(ทั่วประเทศ)' : `(${EPO_REGIONS[currentEpoId].name})`;
+            ventLayer.clearLayers();
+            updateDynamicLegend();
+
+            const vd = ventCurrentData();
+            if (!vd) {
+                meta.innerHTML = ventLoadError && !ventLoadPromise
+                    ? `<span style="color:#b91c1c;">${pdfEsc(ventLoadError)}</span>`
+                    : 'กำลังโหลดข้อมูลการระบายอากาศและสภาพอากาศ...';
+                tbody.innerHTML = '';
+                summaryEl.innerHTML = '';
+                chartsEl.innerHTML = '';
+                return;
+            }
+
+            const rows = vd.rows.slice().sort((a, b) => (a.vr === null ? Infinity : a.vr) - (b.vr === null ? Infinity : b.vr));
+            const refTime = (rows.find(r => r.time) || {}).time;
+            const srcText = vd.national
+                ? 'สภาพอากาศและลม: Open-Meteo'
+                : `สภาพอากาศและลม: กรมอุตุนิยมวิทยา ${vd.tmdCount}/${rows.length} จังหวัด` + (vd.tmdCount < rows.length ? ' (ที่เหลือใช้ Open-Meteo)' : '');
+            meta.innerHTML = `ข้อมูล ณ ${pdfEsc(fmtOmTime(refTime))} · ${srcText} · โหลดเมื่อ ${pdfEsc(formatThaiDateTime(new Date(vd.loadedAt)))}` +
+                (vd.omError ? ` · <span style="color:#b91c1c;">ดึงเพดานการระบายอากาศไม่สำเร็จ (${pdfEsc(vd.omError)})</span>` : '');
+
+            const counts = VENT_LEVELS.map(lv => rows.filter(r => ventLevel(r.vr) === lv).length);
+            summaryEl.innerHTML = VENT_LEVELS.map((lv, i) =>
+                `<span class="pm25-chip" style="background:${lv.color}; color:${lv.text};">${lv.label.split(' ')[0]} ${counts[i]} จังหวัด</span>`).join(' ');
+
+            tbody.innerHTML = rows.map((r, i) => {
+                const lv = ventLevel(r.vr);
+                const badge = lv ? `<span class="pm25-badge" style="background:${lv.color}; color:${lv.text};">${fmtInt(r.vr)}</span>` : '-';
+                return `<tr data-i="${i}" style="cursor:pointer;" title="คลิกเพื่อซูมไปที่จังหวัด">
+                    <td><b>${pdfEsc(r.prov)}</b></td>
+                    <td class="num">${badge}</td>
+                    <td>${lv ? lv.label : 'ไม่มีข้อมูล'}</td>
+                    <td class="num">${r.pblh !== null ? fmtInt(r.pblh) : '-'}</td>
+                    <td>${ventWindText(r)}<span class="vent-src">${r.windSrc === 'TMD' ? 'กรมอุตุนิยมวิทยา' : 'Open-Meteo'}</span></td>
+                    <td class="num">${r.tempC !== null ? r.tempC.toFixed(1) + ' °C' : '-'}</td>
+                    <td class="num">${r.rhPct !== null ? Math.round(r.rhPct) + ' %' : '-'}</td>
+                    <td class="num">${r.pop !== null ? Math.round(r.pop) + ' %' : '-'}</td>
+                    <td>${pdfEsc(r.cond)}</td>
+                    <td style="white-space:nowrap;">${r.min && r.max
+                        ? `▼ ${fmtInt(r.min.v)} <span style="color:#64748b; font-size:12px;">${fmtOmShort(r.min.t)}</span><br>▲ ${fmtInt(r.max.v)} <span style="color:#64748b; font-size:12px;">${fmtOmShort(r.max.t)}</span>`
+                        : '-'}</td>
+                </tr>`;
+            }).join('');
+
+            const detailed = map.getZoom() >= VENT_LABEL_ZOOM;
+            ventLastDetailed = detailed;
+            rows.forEach(r => {
+                const lv = ventLevel(r.vr);
+                const color = lv ? lv.color : '#94a3b8';
+                const m = detailed
+                    ? L.marker([r.lat, r.lon], { icon: L.divIcon({ className: '', iconSize: [0, 0],
+                        html: `<span class="vent-badge" style="background:${color}; color:${lv ? lv.text : '#fff'};">🌬️ ${fmtInt(r.vr)}</span>` }) })
+                    : L.circleMarker([r.lat, r.lon], { radius: 8, color: '#fff', weight: 2, fillColor: color, fillOpacity: 0.95 });
+                m.bindPopup(ventPopupHtml(r));
+                m.bindTooltip(`จ.${r.prov}: ${fmtInt(r.vr)} ตร.ม./วินาที`, { direction: 'top' });
+                m.addTo(ventLayer);
+                r.marker = m;
+            });
+            tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => {
+                const r = rows[+tr.dataset.i];
+                map.setView([r.lat, r.lon], Math.max(map.getZoom(), 9));
+                setTimeout(() => { if (r.marker && map.hasLayer(ventLayer)) r.marker.openPopup(); }, 400);
+                document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }));
+
+            // กราฟพยากรณ์รายวันของกรมอุตุนิยมวิทยา (เฉพาะจังหวัดที่ทราบรหัสสถานี)
+            const chartRows = vd.rows.filter(r => TMD_VR_CHART_STATIONS[r.prov]);
+            const day = thaiHourKey(new Date()).slice(0, 10);
+            chartsEl.innerHTML = chartRows.length
+                ? '<div class="vent-charts-title">📈 กราฟพยากรณ์อัตราการระบายอากาศรายวัน (กรมอุตุนิยมวิทยา)</div><div class="vent-charts">' +
+                  chartRows.map(r => `<figure><figcaption>จ.${pdfEsc(r.prov)}</figcaption>` +
+                      `<img loading="lazy" src="${TMD_VR_CHART_URL}${TMD_VR_CHART_STATIONS[r.prov]}.png?d=${day}" alt="กราฟอัตราการระบายอากาศ จ.${pdfEsc(r.prov)}" ` +
+                      `onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'pm25-note', textContent: 'โหลดกราฟจากกรมอุตุนิยมวิทยาไม่สำเร็จ'}))"></figure>`).join('') +
+                  '</div>'
+                : '';
+        }
+
+        async function refreshVent(force) {
+            if (!map.hasLayer(ventLayer)) return;
+            const btn = document.getElementById('ventRefreshBtn');
+            btn.disabled = true;
+            btn.innerText = '⏳ กำลังโหลด...';
+            renderVent(); // แสดงสถานะกำลังโหลด (ถ้ายังไม่มีข้อมูลของพื้นที่นี้)
+            try {
+                await loadVentData(force);
+                if (force) showToast('อัปเดตข้อมูลการระบายอากาศเรียบร้อยแล้ว', 'success');
+            } catch (err) {
+                showToast(ventLoadError || 'ดึงข้อมูลการระบายอากาศไม่สำเร็จ', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '🔄 รีเฟรช';
+                if (map.hasLayer(ventLayer)) renderVent();
+            }
+        }
+
+        document.getElementById('ventScale').innerHTML = VENT_LEVELS.map(lv =>
+            `<span class="pm25-chip" style="background:${lv.color}; color:${lv.text};">${lv.range} ${lv.label}</span>`).join('');
+
+        // เปิด/ปิดได้ทั้งจากช่องติ๊กและเมนูชั้นข้อมูลบนแผนที่ (ซิงก์กันผ่าน overlayadd/overlayremove)
+        document.getElementById('ventToggle').addEventListener('change', function () {
+            if (this.checked) map.addLayer(ventLayer);
+            else map.removeLayer(ventLayer);
+        });
+        map.on('overlayadd', function (e) {
+            if (e.layer !== ventLayer) return;
+            document.getElementById('ventToggle').checked = true;
+            document.getElementById('ventPanel').style.display = 'block';
+            setUrlParam('vent', '1');
+            refreshVent(false);
+        });
+        map.on('overlayremove', function (e) {
+            if (e.layer !== ventLayer) return;
+            document.getElementById('ventToggle').checked = false;
+            document.getElementById('ventPanel').style.display = 'none';
+            setUrlParam('vent', null);
+        });
+        document.getElementById('ventRefreshBtn').addEventListener('click', () => refreshVent(true));
+
+        // สลับหมุด (จุดสี ↔ ตัวเลข) เมื่อซูมข้ามระดับ VENT_LABEL_ZOOM
+        map.on('zoomend', function () {
+            if (!map.hasLayer(ventLayer) || !ventCurrentData()) return;
+            if ((map.getZoom() >= VENT_LABEL_ZOOM) !== ventLastDetailed) renderVent();
+        });
+
+        // รีเฟรชอัตโนมัติขณะเปิดตัวเลือก (ข้อมูลรายชั่วโมง)
+        setInterval(() => {
+            const vd = ventCurrentData();
+            if (map.hasLayer(ventLayer) && vd && Date.now() - vd.loadedAt > VENT_CACHE_MINUTES * 60000) refreshVent(false);
+        }, 60000);
+
+        // เปิดหน้าพร้อมตัวเลือกนี้ได้ด้วย ?vent=1
+        if (urlParams.get('vent') === '1') map.addLayer(ventLayer);
+
         // มาตราส่วนแผนที่ (Scale Control)
         const scaleControl = L.control.scale({
             position: 'bottomright',
@@ -3244,8 +3707,11 @@ if (primarySource && primarySource.features) {
                     '</div>';
             }
 
-            // 1. บ่อขยะที่พบจุดความร้อนในรัศมีเฝ้าระวัง
-            h += `<h2>1. บ่อขยะที่พบจุดความร้อนในรัศมี ${RISK_RADIUS_KM} กม. (${pdfNum(risks.length)} แห่ง)</h2>`;
+            let secNo = 0;
+            const H2 = title => `<h2>${++secNo}. ${title}</h2>`;
+
+            // บ่อขยะที่พบจุดความร้อนในรัศมีเฝ้าระวัง
+            h += H2(`บ่อขยะที่พบจุดความร้อนในรัศมี ${RISK_RADIUS_KM} กม. (${pdfNum(risks.length)} แห่ง)`);
             if (risks.length) {
                 h += pdfTable(['#', 'สถานที่', 'จังหวัด', 'ที่ตั้ง', 'สถานะ', 'จุดความร้อน', 'พิกัด', ''],
                     risks.map((r, i) => [
@@ -3257,7 +3723,7 @@ if (primarySource && primarySource.features) {
                 h += '<p>ไม่พบจุดความร้อนในรัศมีเฝ้าระวังของบ่อขยะในช่วงเวลานี้</p>';
             }
 
-            // 2. จุดความร้อนรายจังหวัด
+            // จุดความร้อนรายจังหวัด
             const byProv = new Map();
             hotspots.forEach(f => {
                 const p = f.properties.prov_name || 'ไม่ระบุจังหวัด';
@@ -3267,7 +3733,7 @@ if (primarySource && primarySource.features) {
                 r[pdfConfKey(f.properties.confidence)]++;
             });
             const provRows = [...byProv.values()].sort((a, b) => b.total - a.total || a.prov.localeCompare(b.prov, 'th'));
-            h += `<h2>2. จุดความร้อนรายจังหวัด</h2>`;
+            h += H2('จุดความร้อนรายจังหวัด');
             if (provRows.length) {
                 h += pdfTable(['อันดับ', 'จังหวัด', 'สคพ.', 'รวม', 'สูง', 'ปกติ', 'ต่ำ'],
                     provRows.map((r, i) => [i + 1, pdfEsc(r.prov), pdfEsc(PROVINCE_TO_EPO[r.prov] || '-'), pdfNum(r.total), pdfNum(r.h), pdfNum(r.n), pdfNum(r.l)]),
@@ -3276,8 +3742,8 @@ if (primarySource && primarySource.features) {
                 h += '<p>ไม่พบจุดความร้อนในพื้นที่และช่วงเวลาที่เลือก</p>';
             }
 
-            // 3. PM2.5 รายจังหวัด (เฉพาะเมื่อโหลดข้อมูลไว้แล้ว)
-            h += '<h2>3. ค่า PM2.5 รายจังหวัด</h2>';
+            // PM2.5 รายจังหวัด (เฉพาะเมื่อโหลดข้อมูลไว้แล้ว)
+            h += H2('ค่า PM2.5 รายจังหวัด');
             if (pm25Stations && pm25Stations.length) {
                 const mode = document.getElementById('pm25AggSelect').value;
                 const pmRows = aggregatePm25ByProvince(pm25ActiveStations(), mode)
@@ -3295,10 +3761,32 @@ if (primarySource && primarySource.features) {
                 h += '<p class="pdf-note">ยังไม่ได้โหลดข้อมูล PM2.5 หากต้องการรวมในรายงาน ให้ติ๊ก "แสดงค่า PM2.5 รายจังหวัด" รอให้ตารางขึ้น แล้วกดส่งออกอีกครั้ง</p>';
             }
 
-            // 4. จุดเกิดเหตุด่วน
+            // อัตราการระบายอากาศและสภาพอากาศ (เฉพาะเมื่อโหลดข้อมูลของพื้นที่นี้ไว้แล้ว)
+            h += H2('อัตราการระบายอากาศและสภาพอากาศรายจังหวัด');
+            const vd = ventCurrentData();
+            if (vd) {
+                const vrows = vd.rows.slice().sort((a, b) => (a.vr === null ? Infinity : a.vr) - (b.vr === null ? Infinity : b.vr));
+                const refTime = (vrows.find(r => r.time) || {}).time;
+                h += `<div class="pdf-note">ข้อมูล ณ ${pdfEsc(fmtOmTime(refTime))} · อัตราการระบายอากาศ (VR, ตร.ม./วินาที) = เพดานการระบายอากาศ × ความเร็วลมที่ 10 ม. ค่ายิ่งต่ำ ฝุ่นและควันยิ่งสะสมตัว · ` +
+                    (vd.national ? 'สภาพอากาศและลม: Open-Meteo' : `สภาพอากาศและลม: กรมอุตุนิยมวิทยา ${vd.tmdCount}/${vrows.length} จังหวัด`) + ' · เพดานการระบายอากาศ: Open-Meteo</div>';
+                h += pdfTable(['จังหวัด', 'VR', 'ระดับ', 'เพดาน (ม.)', 'ลม', 'สภาพอากาศ', '24 ชม. ข้างหน้า'],
+                    vrows.map(r => {
+                        const lv = ventLevel(r.vr);
+                        const wx = [r.cond !== '-' ? pdfEsc(r.cond) : '', r.tempC !== null ? r.tempC.toFixed(1) + ' °C' : '',
+                            r.rhPct !== null ? 'ชื้น ' + Math.round(r.rhPct) + '%' : '', r.pop !== null ? 'ฝน ' + Math.round(r.pop) + '%' : ''].filter(Boolean).join(' · ');
+                        return [pdfEsc(r.prov),
+                            lv ? `<span class="pdf-badge" style="background:${lv.color};color:${lv.text}">${fmtInt(r.vr)}</span>` : '-',
+                            pdfEsc(lv ? lv.label : 'ไม่มีข้อมูล'), r.pblh !== null ? fmtInt(r.pblh) : '-', pdfEsc(ventWindText(r)), wx || '-',
+                            r.min && r.max ? `<span style="white-space:nowrap">▼ ${fmtInt(r.min.v)} · ${fmtOmShort(r.min.t)}</span><br><span style="white-space:nowrap">▲ ${fmtInt(r.max.v)} · ${fmtOmShort(r.max.t)}</span>` : '-'];
+                    }), [1, 3]);
+            } else {
+                h += '<p class="pdf-note">ยังไม่ได้โหลดข้อมูลการระบายอากาศของพื้นที่นี้ หากต้องการรวมในรายงาน ให้ติ๊ก "แสดงอัตราการระบายอากาศและสภาพอากาศรายจังหวัด" รอให้ตารางขึ้น แล้วกดส่งออกอีกครั้ง</p>';
+            }
+
+            // จุดเกิดเหตุด่วน
             if (currentIncidentData) {
                 const wd = currentIncidentData.windDir;
-                h += '<h2>4. จุดเกิดเหตุด่วน</h2>';
+                h += H2('จุดเกิดเหตุด่วน');
                 h += '<table class="pdf-table meta"><tbody>' +
                     `<tr><td>เหตุการณ์</td><td>${pdfEsc(currentIncidentData.name)}</td></tr>` +
                     `<tr><td>พิกัด</td><td>${Number(currentIncidentData.lat).toFixed(5)}, ${Number(currentIncidentData.lon).toFixed(5)} · ${pdfNavLink(currentIncidentData.lat, currentIncidentData.lon)}</td></tr>` +
@@ -3306,9 +3794,8 @@ if (primarySource && primarySource.features) {
                     '</tbody></table>';
             }
 
-            // 5. บ่อขยะเฝ้าระวังปริมาณขยะหนาแน่น
-            const sec = currentIncidentData ? 5 : 4;
-            h += `<h2>${sec}. บ่อขยะเฝ้าระวัง: ปริมาณขยะมากกว่า 1 ตัน/ไร่/วัน (${pdfNum(watch.length)} แห่ง)</h2>`;
+            // บ่อขยะเฝ้าระวังปริมาณขยะหนาแน่น
+            h += H2(`บ่อขยะเฝ้าระวัง: ปริมาณขยะมากกว่า 1 ตัน/ไร่/วัน (${pdfNum(watch.length)} แห่ง)`);
             if (watch.length) {
                 h += pdfTable(['#', 'สถานที่', 'จังหวัด', 'รูปแบบการกำจัด', 'ตัน/วัน', 'ไร่', 'ตัน/ไร่/วัน'],
                     watch.slice(0, PDF_MAX_WATCH_ROWS).map((s, i) => [i + 1, pdfEsc(s.name), pdfEsc(s.province), pdfEsc(s.type),
@@ -3318,11 +3805,11 @@ if (primarySource && primarySource.features) {
                 h += '<p>ไม่มี</p>';
             }
 
-            // 6. รายการจุดความร้อน
+            // รายการจุดความร้อน
             const list = hotspots.slice().sort((a, b) =>
                 String(a.properties.prov_name).localeCompare(String(b.properties.prov_name), 'th') ||
                 b.properties.parsed_datetime - a.properties.parsed_datetime);
-            h += `<h2>${sec + 1}. รายการจุดความร้อน (${pdfNum(list.length)} จุด)</h2>`;
+            h += H2(`รายการจุดความร้อน (${pdfNum(list.length)} จุด)`);
             if (list.length) {
                 h += pdfTable(['#', 'จังหวัด', 'ตรวจพบเมื่อ', 'ความเชื่อมั่น', 'ละติจูด', 'ลองจิจูด', ''],
                     list.slice(0, PDF_MAX_HOTSPOT_ROWS).map((f, i) => {
@@ -3338,7 +3825,7 @@ if (primarySource && primarySource.features) {
             }
 
             h += '<div class="pdf-footer">ที่มา: จุดความร้อนจากดาวเทียม NASA FIRMS (VIIRS) ผ่านระบบส่วนกลาง · สถานที่กำจัดขยะมูลฝอย สคพ. 1–16 · ' +
-                'PM2.5 จากสถานีตรวจวัดคุณภาพอากาศ กรมควบคุมมลพิษ (Air4Thai) · เวลาในรายงานเป็นเวลาประเทศไทย · ' +
+                'PM2.5 จากสถานีตรวจวัดคุณภาพอากาศ กรมควบคุมมลพิษ (Air4Thai) · สภาพอากาศจากกรมอุตุนิยมวิทยาและ Open-Meteo · เวลาในรายงานเป็นเวลาประเทศไทย · ' +
                 'จุดความร้อนคือตำแหน่งที่ดาวเทียมตรวจพบความร้อนผิดปกติ ควรตรวจสอบในพื้นที่ก่อนสั่งการ</div>';
             return h;
         }
