@@ -641,10 +641,12 @@ async function fetchWeatherData() {
                         const ws_ms = weatherData.ws10m;
                         const vrValue = Math.round(currentBlhVal * ws_ms);
                         
+                        // เกณฑ์ตามกราฟพยากรณ์อัตราการระบายอากาศของกรมอุตุนิยมวิทยา (ozone.tmd.go.th) เหมือน fireRadar.html
+                        // Poor < 2,000 · Fair 2,000–3,999 · Good 4,000–7,999 · Very Good ≥ 8,000 ตร.ม./วินาที
                         let vrStatus = "";
-                        if (vrValue <= 2000) vrStatus = "แย่ (ฝุ่นสะสมตัว)";
-                        else if (vrValue <= 4000) vrStatus = "ปานกลาง";
-                        else if (vrValue <= 6000) vrStatus = "ดี";
+                        if (vrValue < 2000) vrStatus = "แย่ (ฝุ่นสะสมตัว)";
+                        else if (vrValue < 4000) vrStatus = "ปานกลาง";
+                        else if (vrValue < 8000) vrStatus = "ดี";
                         else vrStatus = "ดีมาก (ฝุ่นกระจายตัวดี)";
 
                         vrDisplay = `${vrValue} ตร.ม./วินาที (${vrStatus})`;
