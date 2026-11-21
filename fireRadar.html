@@ -336,6 +336,49 @@
             .pm25-table { font-size: 12px; }
             .pm25-table th, .pm25-table td { padding: 5px 6px; }
         }
+
+        /* ---------- รายงาน PDF (สร้างเมื่อกดปุ่มส่งออก แสดงเฉพาะตอนพิมพ์/บันทึกเป็น PDF) ---------- */
+        #pdfReport { display: none; }
+        @media print {
+            @page { size: A4 portrait; margin: 12mm 11mm 14mm; }
+            html.pdf-exporting, html.pdf-exporting body {
+                background: #fff !important; color: #111827 !important; margin: 0 !important; padding: 0 !important;
+                min-height: 0 !important; height: auto !important; overflow: visible !important;
+            }
+            html.pdf-exporting body > :not(#pdfReport) { display: none !important; }
+            html.pdf-exporting #pdfReport { display: block !important; }
+        }
+        #pdfReport {
+            font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", "Sarabun", "Leelawadee UI", Tahoma, sans-serif;
+            font-size: 10.5pt; line-height: 1.5; color: #111827; background: #fff; text-align: left;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+        }
+        #pdfReport * { box-sizing: border-box; }
+        #pdfReport .pdf-kicker { font-size: 8.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; font-weight: 700; }
+        #pdfReport h1 { font-size: 18pt; line-height: 1.25; margin: 2px 0 4px; color: #111827; text-align: left; }
+        #pdfReport h2 { font-size: 12.5pt; line-height: 1.3; margin: 16px 0 6px; color: #111827; text-align: left; break-after: avoid; page-break-after: avoid; }
+        #pdfReport .pdf-sub { color: #4b5563; margin-bottom: 8px; }
+        #pdfReport .pdf-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0 8px; }
+        #pdfReport .pdf-tile { border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 9px; break-inside: avoid; }
+        #pdfReport .pdf-tile .k { font-size: 8.5pt; color: #4b5563; line-height: 1.3; }
+        #pdfReport .pdf-tile .v { font-size: 16pt; font-weight: 700; line-height: 1.3; }
+        #pdfReport .pdf-tile .n { font-size: 8pt; color: #6b7280; line-height: 1.3; }
+        #pdfReport table.pdf-table { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 4px 0 8px; }
+        #pdfReport .pdf-table th { text-align: left; font-weight: 700; color: #374151; border-bottom: 1.5px solid #374151; padding: 4px 5px; background: none; vertical-align: bottom; }
+        #pdfReport .pdf-table td { border-bottom: 1px solid #e5e7eb; padding: 3px 5px; vertical-align: top; }
+        #pdfReport .pdf-table tr { break-inside: avoid; page-break-inside: avoid; }
+        #pdfReport .pdf-table thead { display: table-header-group; }
+        #pdfReport .pdf-table.meta td { border: none; padding: 1px 5px 1px 0; }
+        #pdfReport .pdf-table.meta td:first-child { color: #4b5563; white-space: nowrap; width: 1%; padding-right: 14px; }
+        #pdfReport .pdf-table .num, #pdfReport .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        #pdfReport .pdf-note { font-size: 8.5pt; color: #6b7280; margin: 2px 0 8px; }
+        #pdfReport .pdf-alert { border-left: 3px solid #b91c1c; background: #fef2f2; padding: 6px 10px; margin: 6px 0 8px; border-radius: 0 6px 6px 0; }
+        #pdfReport .pdf-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px; font-size: 8.5pt; color: #4b5563; margin: 2px 0 6px; }
+        #pdfReport .pdf-sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 4px; }
+        #pdfReport .pdf-badge { display: inline-block; padding: 0 6px; border-radius: 4px; font-weight: 700; }
+        #pdfReport a { color: #1d4ed8; text-decoration: none; }
+        #pdfReport svg { display: block; max-width: 100%; height: auto; margin: 4px auto; }
+        #pdfReport .pdf-footer { margin-top: 14px; padding-top: 6px; border-top: 1px solid #e5e7eb; font-size: 8pt; color: #6b7280; }
     </style>
 </head>
 <body>
@@ -382,9 +425,14 @@
                         </div>
                     </div>
 
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
                     <button id="forceSyncBtn" style="padding: 10px 15px; background-color: #d97706; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background 0.2s;">
                         🔄 อัปเดตดาวเทียมเดี๋ยวนี้
                     </button>
+                    <button id="exportPdfBtn" type="button" title="สร้างรายงานจากข้อมูลที่แสดงอยู่ (พื้นที่และช่วงเวลาที่เลือก) แล้วเลือก &quot;บันทึกเป็น PDF&quot; ในหน้าต่างพิมพ์" style="padding: 10px 15px; background-color: #4a148c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        📄 ส่งออก PDF
+                    </button>
+                    </div>
                 </div>
             </div>
           
@@ -829,6 +877,7 @@
         let currentFilteredHotspots = [];
         let landfillMarkers = [];
         let currentRiskCount = 0;
+        let currentRisks = [];       // บ่อขยะที่พบจุดความร้อนในรัศมีเฝ้าระวัง (ใช้ในรายงาน PDF)
         let landfillCounts = { size1: 0, size2: 0, size3: 0, size4: 0, size5: 0, risk: 0, closed: 0 };
 
         let currentTimeframe = 12;   // ค่าเริ่มต้น: 12 ชม. ล่าสุด (ทุกช่วงเวลา)
@@ -1176,7 +1225,15 @@ if (primarySource && primarySource.features) {
                             marker: marker,
                             address: address,
                             name: siteName,
-                            province: prov
+                            province: prov,
+                            lat: lat,
+                            lon: lon,
+                            type: type,
+                            status: siteStatus,
+                            area: areaNum,
+                            waste: wasteNum,
+                            isAtRisk: isAtRisk,
+                            riskReason: riskReason
                         });
 
                         if (siteStatus && siteStatus.trim() !== "เปิดดำเนินงาน") {
@@ -1757,6 +1814,7 @@ if (primarySource && primarySource.features) {
 
             if (!landfillMarkers || landfillMarkers.length === 0 || !currentFilteredHotspots || currentFilteredHotspots.length === 0) {
                 currentRiskCount = 0;
+                currentRisks = [];
                 updateDynamicLegend();
                 return;
             }
@@ -1800,12 +1858,14 @@ if (primarySource && primarySource.features) {
                         address: site.address,
                         province: site.province,
                         latlng: ll,
-                        count: nearHotspots
+                        count: nearHotspots,
+                        site: site
                     });
                 }
             });
 
             currentRiskCount = risksFound.length;
+            currentRisks = risksFound;
             updateDynamicLegend();
             displayFireRiskAlerts(risksFound);
         }
@@ -2977,6 +3037,346 @@ if (primarySource && primarySource.features) {
         map.on('zoomend', function() {
             if (scaleContainer.classList.contains('scale-hidden')) {
                 scaleContainer.classList.remove('scale-hidden');
+            }
+        });
+
+        // ============================================================================
+        // ส่งออกรายงาน PDF
+        // สร้างหน้ารายงานจากข้อมูลที่แสดงอยู่ (พื้นที่ ช่วงเวลา จุดความร้อน บ่อขยะเสี่ยง PM2.5 จุดเกิดเหตุ)
+        // แล้วเปิดหน้าต่างพิมพ์ของเบราว์เซอร์ให้เลือก "บันทึกเป็น PDF"
+        // ใช้ระบบพิมพ์ของเบราว์เซอร์แทนไลบรารีสร้าง PDF เพราะวางสระ/วรรณยุกต์ไทยได้ถูกต้อง และข้อความใน PDF ค้นหา/คัดลอกได้
+        // ============================================================================
+        const PDF_MAX_HOTSPOT_ROWS = 1000; // โหมดทั้งประเทศอาจมีหลายพันจุด จำกัดความยาวรายการ
+        const PDF_MAX_WATCH_ROWS = 100;
+        const PDF_CONF = {
+            h: { label: 'สูง', color: '#dc3545' },
+            n: { label: 'ปกติ', color: '#fd7e14' },
+            l: { label: 'ต่ำ', color: '#ffc107' }
+        };
+        const PDF_THAI_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+        function pdfEsc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function pdfNum(v, digits = 0) {
+            const n = Number(v);
+            if (v === null || v === undefined || v === '' || !isFinite(n)) return '-';
+            return n.toLocaleString('th-TH', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+        }
+
+        // ระดับความเชื่อมั่นแบบเดียวกับสีหมุดบนแผนที่ (h = สูง, n = ปกติ, อื่น ๆ = ต่ำ)
+        function pdfConfKey(c) {
+            const s = String(c == null ? '' : c).trim().toLowerCase();
+            if (s === 'h' || s === 'high') return 'h';
+            if (s === 'n' || s === 'nominal') return 'n';
+            const v = parseFloat(s);
+            if (!isNaN(v)) return v >= 80 ? 'h' : v >= 30 ? 'n' : 'l';
+            return 'l';
+        }
+
+        function pdfThaiParts(date) {
+            const th = new Date(date.getTime() + 7 * 60 * 60 * 1000); // เวลาไทย UTC+7
+            return {
+                y: th.getUTCFullYear(), m: th.getUTCMonth(), d: th.getUTCDate(),
+                hh: String(th.getUTCHours()).padStart(2, '0'), mm: String(th.getUTCMinutes()).padStart(2, '0')
+            };
+        }
+
+        function pdfShortTime(date) {
+            if (!date || isNaN(date.getTime())) return '-';
+            const p = pdfThaiParts(date);
+            return `${p.d} ${PDF_THAI_MONTHS[p.m]} ${p.hh}:${p.mm} น.`;
+        }
+
+        function pdfTimeWindowText() {
+            if (currentTimeframe === 12 && currentTimeOfDay === 'morning') return '12 ชม. ล่าสุด เฉพาะรอบเช้า (00:00–11:59 น.)';
+            if (currentTimeframe === 12 && currentTimeOfDay === 'afternoon') return '12 ชม. ล่าสุด เฉพาะรอบบ่าย (12:00–23:59 น.)';
+            return `${currentTimeframe} ชม. ล่าสุด`;
+        }
+
+        // ช่วงเวลาจริงที่ใช้กรอง (นับย้อนจากจุดล่าสุดในชุดข้อมูล เหมือน applyTimeFilter)
+        function pdfTimeRangeText() {
+            let newest = 0;
+            globalCoreFeatures.forEach(f => {
+                const t = f.properties.parsed_datetime ? f.properties.parsed_datetime.getTime() : 0;
+                if (t > newest) newest = t;
+            });
+            if (!newest) return '';
+            return `${pdfShortTime(new Date(newest - currentTimeframe * 60 * 60 * 1000))} ถึง ${pdfShortTime(new Date(newest))}`;
+        }
+
+        function pdfGeomRings(geom) {
+            if (!geom) return [];
+            if (geom.type === 'Polygon') return geom.coordinates;
+            if (geom.type === 'MultiPolygon') return [].concat(...geom.coordinates);
+            return [];
+        }
+
+        // แผนที่ย่อแบบเวกเตอร์ (SVG): เส้นขอบจังหวัด สถานที่กำจัดขยะ จุดความร้อน บ่อขยะเสี่ยง และจุดเกิดเหตุ
+        function pdfMapSvg(hotspots, risks) {
+            const feats = (boundaryGeoJSON && Array.isArray(boundaryGeoJSON.features)) ? boundaryGeoJSON.features : [];
+            const rings = [];
+            feats.forEach(f => pdfGeomRings(f.geometry).forEach(r => rings.push(r)));
+
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            const grow = (x, y) => {
+                if (!isFinite(x) || !isFinite(y)) return;
+                if (x < minX) minX = x; if (x > maxX) maxX = x;
+                if (y < minY) minY = y; if (y > maxY) maxY = y;
+            };
+            if (rings.length) {
+                rings.forEach(r => r.forEach(c => grow(c[0], c[1])));
+            } else {
+                hotspots.forEach(f => grow(f.geometry.coordinates[0], f.geometry.coordinates[1]));
+                landfillMarkers.forEach(s => grow(s.lon, s.lat));
+            }
+            if (!isFinite(minX)) return '';
+
+            const span = Math.max(maxX - minX, maxY - minY, 0.1);
+            minX -= span * 0.02; maxX += span * 0.02; minY -= span * 0.02; maxY += span * 0.02;
+            const kx = Math.cos(((minY + maxY) / 2) * Math.PI / 180);
+            const scale = Math.min(680 / ((maxX - minX) * kx), 540 / (maxY - minY));
+            const W = Math.round((maxX - minX) * kx * scale), H = Math.round((maxY - minY) * scale);
+            const P = (lon, lat) => [(lon - minX) * kx * scale, (maxY - lat) * scale];
+            const f1 = v => v.toFixed(1);
+
+            let d = '';
+            rings.forEach(r => {
+                let seg = '', n = 0, last = null;
+                r.forEach(c => {
+                    const [x, y] = P(c[0], c[1]);
+                    if (last && Math.abs(x - last[0]) + Math.abs(y - last[1]) < 0.8) return; // ตัดจุดที่ซ้อนกันเกินความละเอียดของภาพ
+                    seg += (n ? 'L' : 'M') + f1(x) + ',' + f1(y);
+                    last = [x, y];
+                    n++;
+                });
+                if (n >= 3) d += seg + 'Z';
+            });
+
+            let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="แผนที่จุดความร้อนและสถานที่กำจัดขยะ">`;
+            if (d) s += `<path d="${d}" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.7" stroke-linejoin="round" fill-rule="evenodd"/>`;
+            landfillMarkers.forEach(site => {
+                const [x, y] = P(site.lon, site.lat);
+                const open = String(site.status || '').trim() === 'เปิดดำเนินงาน';
+                s += `<circle cx="${f1(x)}" cy="${f1(y)}" r="${open ? 1.6 : 1.2}" fill="${open ? '#bcaaa4' : '#e2e8f0'}"/>`;
+            });
+            ['l', 'n', 'h'].forEach(k => {
+                hotspots.forEach(f => {
+                    if (pdfConfKey(f.properties.confidence) !== k) return;
+                    const [x, y] = P(f.geometry.coordinates[0], f.geometry.coordinates[1]);
+                    s += `<circle cx="${f1(x)}" cy="${f1(y)}" r="2.6" fill="${PDF_CONF[k].color}" stroke="#fff" stroke-width="0.6"/>`;
+                });
+            });
+            risks.forEach(r => {
+                const [x, y] = P(r.latlng.lng, r.latlng.lat);
+                s += `<circle cx="${f1(x)}" cy="${f1(y)}" r="6.5" fill="none" stroke="#b91c1c" stroke-width="1.8"/>`;
+            });
+            if (currentIncidentData) {
+                const [x, y] = P(currentIncidentData.lon, currentIncidentData.lat);
+                s += `<path d="M${f1(x)},${f1(y - 8)} L${f1(x + 7)},${f1(y + 5)} L${f1(x - 7)},${f1(y + 5)} Z" fill="#be123c" stroke="#fff" stroke-width="1"/>`;
+            }
+            return s + '</svg>';
+        }
+
+        function pdfTable(headers, rows, numCols = []) {
+            const th = headers.map((h, i) => `<th class="${numCols.includes(i) ? 'num' : ''}">${h}</th>`).join('');
+            const tb = rows.map(r => '<tr>' + r.map((c, i) => `<td class="${numCols.includes(i) ? 'num' : ''}">${c}</td>`).join('') + '</tr>').join('');
+            return `<table class="pdf-table"><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table>`;
+        }
+
+        function pdfNavLink(lat, lon) {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${Number(lat).toFixed(6)},${Number(lon).toFixed(6)}`;
+            return `<a href="${url}">นำทาง</a>`;
+        }
+
+        function buildFireRadarReport() {
+            const now = new Date();
+            const hotspots = currentFilteredHotspots || [];
+            const risks = (currentRisks || []).slice().sort((a, b) => b.count - a.count);
+            const sites = landfillMarkers || [];
+            const isOpen = site => String(site.status || '').trim() === 'เปิดดำเนินงาน';
+            const openSites = sites.filter(isOpen);
+            const watch = openSites.filter(s => s.isAtRisk && s.area > 0)
+                .map(s => Object.assign({ density: s.waste / s.area }, s))
+                .sort((a, b) => b.density - a.density);
+            const confCount = { h: 0, n: 0, l: 0 };
+            hotspots.forEach(f => { confCount[pdfConfKey(f.properties.confidence)]++; });
+
+            const syncDate = lastSyncIso ? new Date(lastSyncIso) : null;
+            const syncText = syncDate && !isNaN(syncDate.getTime()) ? formatThaiDateTime(syncDate) : 'ไม่มีข้อมูลเวลาอัปเดต';
+            const range = pdfTimeRangeText();
+            const title = document.getElementById('appTitle').innerText;
+
+            let h = `<div class="pdf-kicker">The Siam Times · ${pdfEsc(title)}</div>`;
+            h += `<h1>รายงานจุดความร้อนและความเสี่ยงไฟไหม้บ่อขยะ</h1>`;
+            h += `<div class="pdf-sub">${pdfEsc(regionFullName())} · ${pdfEsc(pdfTimeWindowText())}</div>`;
+            h += '<table class="pdf-table meta"><tbody>' +
+                `<tr><td>พื้นที่</td><td>${pdfEsc(isNational() ? 'ทั่วประเทศไทย (77 จังหวัด)' : EPO_REGIONS[currentEpoId].name + ' · ' + EPO_REGIONS[currentEpoId].provincesTH.join(' '))}</td></tr>` +
+                `<tr><td>ช่วงเวลาที่วิเคราะห์</td><td>${pdfEsc(pdfTimeWindowText())}${range ? ' · ' + pdfEsc(range) : ''}</td></tr>` +
+                `<tr><td>ข้อมูลดาวเทียมอัปเดตล่าสุด</td><td>${pdfEsc(syncText)}</td></tr>` +
+                `<tr><td>ส่งออกรายงานเมื่อ</td><td>${pdfEsc(formatThaiDateTime(now))}</td></tr>` +
+                `<tr><td>หน้าเว็บ</td><td><a href="${pdfEsc(location.href)}">${pdfEsc(location.href)}</a></td></tr>` +
+                '</tbody></table>';
+
+            if (!rawHotspotPoints.length) {
+                h += '<div class="pdf-alert">ยังไม่ได้รับข้อมูลจุดความร้อนจากระบบส่วนกลาง (อาจกำลังโหลดหรือเชื่อมต่อไม่สำเร็จ) ตัวเลขจุดความร้อนในรายงานนี้จึงเป็น 0</div>';
+            }
+
+            h += '<div class="pdf-tiles">' +
+                `<div class="pdf-tile"><div class="k">จุดความร้อน</div><div class="v">${pdfNum(hotspots.length)}</div><div class="n">สูง ${pdfNum(confCount.h)} · ปกติ ${pdfNum(confCount.n)} · ต่ำ ${pdfNum(confCount.l)}</div></div>` +
+                `<div class="pdf-tile"><div class="k">บ่อขยะพบจุดความร้อนในรัศมี ${RISK_RADIUS_KM} กม.</div><div class="v" style="color:${risks.length ? '#b91c1c' : '#111827'}">${pdfNum(risks.length)}</div><div class="n">แห่ง</div></div>` +
+                `<div class="pdf-tile"><div class="k">สถานที่กำจัดขยะในพื้นที่</div><div class="v">${pdfNum(sites.length)}</div><div class="n">เปิด ${pdfNum(openSites.length)} · ปิด/หยุด/ไม่ระบุ ${pdfNum(sites.length - openSites.length)}</div></div>` +
+                `<div class="pdf-tile"><div class="k">บ่อขยะเฝ้าระวัง (ขยะ &gt; 1 ตัน/ไร่/วัน)</div><div class="v">${pdfNum(watch.length)}</div><div class="n">เฉพาะที่เปิดดำเนินงาน</div></div>` +
+                '</div>';
+
+            const svg = pdfMapSvg(hotspots, risks);
+            if (svg) {
+                h += svg;
+                h += '<div class="pdf-legend">' +
+                    `<span><i class="pdf-sw" style="background:${PDF_CONF.h.color}"></i>จุดความร้อน ความเชื่อมั่นสูง</span>` +
+                    `<span><i class="pdf-sw" style="background:${PDF_CONF.n.color}"></i>ปกติ</span>` +
+                    `<span><i class="pdf-sw" style="background:${PDF_CONF.l.color}"></i>ต่ำ</span>` +
+                    '<span><i class="pdf-sw" style="background:#bcaaa4"></i>สถานที่กำจัดขยะ (เปิด)</span>' +
+                    '<span><i class="pdf-sw" style="background:#e2e8f0"></i>ปิด/หยุดดำเนินงาน</span>' +
+                    '<span><i class="pdf-sw" style="background:#fff;border:2px solid #b91c1c"></i>บ่อขยะเสี่ยง</span>' +
+                    (currentIncidentData ? '<span><i class="pdf-sw" style="background:#be123c;border-radius:2px"></i>จุดเกิดเหตุ</span>' : '') +
+                    '</div>';
+            }
+
+            // 1. บ่อขยะที่พบจุดความร้อนในรัศมีเฝ้าระวัง
+            h += `<h2>1. บ่อขยะที่พบจุดความร้อนในรัศมี ${RISK_RADIUS_KM} กม. (${pdfNum(risks.length)} แห่ง)</h2>`;
+            if (risks.length) {
+                h += pdfTable(['#', 'สถานที่', 'จังหวัด', 'ที่ตั้ง', 'สถานะ', 'จุดความร้อน', 'พิกัด', ''],
+                    risks.map((r, i) => [
+                        i + 1, pdfEsc(r.siteName), pdfEsc(r.province), pdfEsc(r.address),
+                        `<span style="white-space:nowrap">${pdfEsc(r.site ? r.site.status : '-')}</span>`, pdfNum(r.count),
+                        `${r.latlng.lat.toFixed(5)}, ${r.latlng.lng.toFixed(5)}`, pdfNavLink(r.latlng.lat, r.latlng.lng)
+                    ]), [0, 5, 6]);
+            } else {
+                h += '<p>ไม่พบจุดความร้อนในรัศมีเฝ้าระวังของบ่อขยะในช่วงเวลานี้</p>';
+            }
+
+            // 2. จุดความร้อนรายจังหวัด
+            const byProv = new Map();
+            hotspots.forEach(f => {
+                const p = f.properties.prov_name || 'ไม่ระบุจังหวัด';
+                if (!byProv.has(p)) byProv.set(p, { prov: p, total: 0, h: 0, n: 0, l: 0 });
+                const r = byProv.get(p);
+                r.total++;
+                r[pdfConfKey(f.properties.confidence)]++;
+            });
+            const provRows = [...byProv.values()].sort((a, b) => b.total - a.total || a.prov.localeCompare(b.prov, 'th'));
+            h += `<h2>2. จุดความร้อนรายจังหวัด</h2>`;
+            if (provRows.length) {
+                h += pdfTable(['อันดับ', 'จังหวัด', 'สคพ.', 'รวม', 'สูง', 'ปกติ', 'ต่ำ'],
+                    provRows.map((r, i) => [i + 1, pdfEsc(r.prov), pdfEsc(PROVINCE_TO_EPO[r.prov] || '-'), pdfNum(r.total), pdfNum(r.h), pdfNum(r.n), pdfNum(r.l)]),
+                    [0, 2, 3, 4, 5, 6]);
+            } else {
+                h += '<p>ไม่พบจุดความร้อนในพื้นที่และช่วงเวลาที่เลือก</p>';
+            }
+
+            // 3. PM2.5 รายจังหวัด (เฉพาะเมื่อโหลดข้อมูลไว้แล้ว)
+            h += '<h2>3. ค่า PM2.5 รายจังหวัด</h2>';
+            if (pm25Stations && pm25Stations.length) {
+                const mode = document.getElementById('pm25AggSelect').value;
+                const pmRows = aggregatePm25ByProvince(pm25ActiveStations(), mode)
+                    .filter(r => pm25InScope(r.prov))
+                    .sort((a, b) => (b.value === null ? -1 : b.value) - (a.value === null ? -1 : a.value));
+                h += `<div class="pdf-note">ค่าจังหวัดจาก${mode === 'mean' ? 'ค่าเฉลี่ยทุกสถานี' : 'สถานีที่ค่าสูงสุด'} (มคก./ลบ.ม. เฉลี่ย 24 ชม.) · โหลดข้อมูลเมื่อ ${pdfEsc(formatThaiDateTime(new Date(pm25LoadedAt)))} · มาตรฐานไม่เกิน ${PM25_STANDARD}</div>`;
+                h += pdfTable(['อันดับ', 'จังหวัด', 'PM2.5', 'ระดับคุณภาพอากาศ', 'สถานีที่มีข้อมูล', 'จุดความร้อน'],
+                    pmRows.map((r, i) => {
+                        const lv = getPm25Level(r.value);
+                        const badge = lv ? `<span class="pdf-badge" style="background:${lv.color};color:${lv.text}">${pdfEsc(fmtPm(r.value))}</span>` : '-';
+                        return [i + 1, pdfEsc(r.prov), badge, pdfEsc(lv ? lv.label : 'ไม่มีข้อมูล'), `${pdfNum(r.validCount)}/${pdfNum(r.stations.length)}`,
+                            pdfNum(byProv.has(r.prov) ? byProv.get(r.prov).total : 0)];
+                    }), [0, 2, 4, 5]);
+            } else {
+                h += '<p class="pdf-note">ยังไม่ได้โหลดข้อมูล PM2.5 หากต้องการรวมในรายงาน ให้ติ๊ก "แสดงค่า PM2.5 รายจังหวัด" รอให้ตารางขึ้น แล้วกดส่งออกอีกครั้ง</p>';
+            }
+
+            // 4. จุดเกิดเหตุด่วน
+            if (currentIncidentData) {
+                const wd = currentIncidentData.windDir;
+                h += '<h2>4. จุดเกิดเหตุด่วน</h2>';
+                h += '<table class="pdf-table meta"><tbody>' +
+                    `<tr><td>เหตุการณ์</td><td>${pdfEsc(currentIncidentData.name)}</td></tr>` +
+                    `<tr><td>พิกัด</td><td>${Number(currentIncidentData.lat).toFixed(5)}, ${Number(currentIncidentData.lon).toFixed(5)} · ${pdfNavLink(currentIncidentData.lat, currentIncidentData.lon)}</td></tr>` +
+                    (wd !== undefined && wd !== null && wd !== '' ? `<tr><td>ลม</td><td>ทิศ ${pdfEsc(wd)}°${currentWindSpeed ? ` · ความเร็ว ${pdfNum(currentWindSpeed, 1)} กม./ชม.` : ''}</td></tr>` : '') +
+                    '</tbody></table>';
+            }
+
+            // 5. บ่อขยะเฝ้าระวังปริมาณขยะหนาแน่น
+            const sec = currentIncidentData ? 5 : 4;
+            h += `<h2>${sec}. บ่อขยะเฝ้าระวัง: ปริมาณขยะมากกว่า 1 ตัน/ไร่/วัน (${pdfNum(watch.length)} แห่ง)</h2>`;
+            if (watch.length) {
+                h += pdfTable(['#', 'สถานที่', 'จังหวัด', 'รูปแบบการกำจัด', 'ตัน/วัน', 'ไร่', 'ตัน/ไร่/วัน'],
+                    watch.slice(0, PDF_MAX_WATCH_ROWS).map((s, i) => [i + 1, pdfEsc(s.name), pdfEsc(s.province), pdfEsc(s.type),
+                        pdfNum(s.waste, 1), pdfNum(s.area, 1), pdfNum(s.density, 2)]), [0, 4, 5, 6]);
+                if (watch.length > PDF_MAX_WATCH_ROWS) h += `<div class="pdf-note">แสดง ${PDF_MAX_WATCH_ROWS} แห่งแรกที่หนาแน่นที่สุด จากทั้งหมด ${pdfNum(watch.length)} แห่ง</div>`;
+            } else {
+                h += '<p>ไม่มี</p>';
+            }
+
+            // 6. รายการจุดความร้อน
+            const list = hotspots.slice().sort((a, b) =>
+                String(a.properties.prov_name).localeCompare(String(b.properties.prov_name), 'th') ||
+                b.properties.parsed_datetime - a.properties.parsed_datetime);
+            h += `<h2>${sec + 1}. รายการจุดความร้อน (${pdfNum(list.length)} จุด)</h2>`;
+            if (list.length) {
+                h += pdfTable(['#', 'จังหวัด', 'ตรวจพบเมื่อ', 'ความเชื่อมั่น', 'ละติจูด', 'ลองจิจูด', ''],
+                    list.slice(0, PDF_MAX_HOTSPOT_ROWS).map((f, i) => {
+                        const [lon, lat] = f.geometry.coordinates;
+                        const k = pdfConfKey(f.properties.confidence);
+                        return [i + 1, pdfEsc(f.properties.prov_name), pdfShortTime(f.properties.parsed_datetime),
+                            `<i class="pdf-sw" style="background:${PDF_CONF[k].color}"></i>${PDF_CONF[k].label}`,
+                            lat.toFixed(5), lon.toFixed(5), pdfNavLink(lat, lon)];
+                    }), [0, 4, 5]);
+                if (list.length > PDF_MAX_HOTSPOT_ROWS) h += `<div class="pdf-note">แสดง ${pdfNum(PDF_MAX_HOTSPOT_ROWS)} จุดแรก จากทั้งหมด ${pdfNum(list.length)} จุด (เลือกพื้นที่ สคพ. เพื่อดูรายการครบ)</div>`;
+            } else {
+                h += '<p>ไม่พบจุดความร้อนในพื้นที่และช่วงเวลาที่เลือก</p>';
+            }
+
+            h += '<div class="pdf-footer">ที่มา: จุดความร้อนจากดาวเทียม NASA FIRMS (VIIRS) ผ่านระบบส่วนกลาง · สถานที่กำจัดขยะมูลฝอย สคพ. 1–16 · ' +
+                'PM2.5 จากสถานีตรวจวัดคุณภาพอากาศ กรมควบคุมมลพิษ (Air4Thai) · เวลาในรายงานเป็นเวลาประเทศไทย · ' +
+                'จุดความร้อนคือตำแหน่งที่ดาวเทียมตรวจพบความร้อนผิดปกติ ควรตรวจสอบในพื้นที่ก่อนสั่งการ</div>';
+            return h;
+        }
+
+        function pdfFileStamp(date) {
+            const p = pdfThaiParts(date);
+            return `${p.y}-${String(p.m + 1).padStart(2, '0')}-${String(p.d).padStart(2, '0')}_${p.hh}${p.mm}`;
+        }
+
+        // ใส่รายงานลงหน้า แล้วสั่งพิมพ์ (CSS @media print ซ่อนหน้าแอปและแสดงเฉพาะรายงาน)
+        function printPdfReport(html, fileTitle) {
+            let el = document.getElementById('pdfReport');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'pdfReport';
+                document.body.appendChild(el);
+            }
+            el.innerHTML = html;
+            const root = document.documentElement;
+            const oldTitle = document.title;
+            root.classList.add('pdf-exporting');
+            document.title = fileTitle; // เบราว์เซอร์ใช้ชื่อหน้าเป็นชื่อไฟล์ PDF ที่แนะนำ
+            const restore = () => {
+                window.removeEventListener('afterprint', restore);
+                root.classList.remove('pdf-exporting');
+                if (document.title === fileTitle) document.title = oldTitle;
+            };
+            window.addEventListener('afterprint', restore);
+            window.print();
+        }
+
+        document.getElementById('exportPdfBtn').addEventListener('click', () => {
+            try {
+                const region = isNational() ? 'ทั่วประเทศ' : `สคพ${currentEpoId}`;
+                printPdfReport(buildFireRadarReport(), `FireRadar_${region}_${pdfFileStamp(new Date())}`);
+            } catch (err) {
+                console.error('สร้างรายงาน PDF ไม่สำเร็จ', err);
+                showToast('สร้างรายงาน PDF ไม่สำเร็จ', 'error');
             }
         });
     </script>
