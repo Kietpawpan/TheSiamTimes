@@ -3118,10 +3118,32 @@ if (primarySource && primarySource.features) {
         const TMD_WEATHER_PROXY = 'https://script.google.com/macros/s/AKfycbxwoNT9sKWRIz2jGIqN44-71pjnMVyeV_ofNx0jDodMfMITcbCyw81Vsxw9rAURiRtDuw/exec';
         const VENT_CACHE_MINUTES = 30;
         const VENT_LABEL_ZOOM = 8;
-        // กราฟพยากรณ์ VR รายวันของกรมอุตุนิยมวิทยา ...VR_daily/daily_VR_<รหัสสถานี>.png
-        // ใส่เฉพาะจังหวัดที่ทราบรหัสสถานีแน่นอน (จาก PM2570.html) เพิ่มจังหวัดอื่นได้ที่นี่
+        // กราฟพยากรณ์อัตราการระบายอากาศ 10 วันของกรมอุตุนิยมวิทยา ...VR_daily/daily_VR_<รหัสสถานี>.png
+        // รหัสสถานีครบ 77 จังหวัด จากหน้า https://ozone.tmd.go.th/wi_daily.html (77 Daily Ventilation)
         const TMD_VR_CHART_URL = 'https://ozone.tmd.go.th/PM2.5/weather/Metgram/output/VR_daily/daily_VR_';
-        const TMD_VR_CHART_STATIONS = { 'นครราชสีมา': '431201', 'ชัยภูมิ': '403201', 'บุรีรัมย์': '436201', 'สุรินทร์': '432201' };
+        const TMD_VR_CHART_MAX_NATIONAL = 6; // โหมดทั้งประเทศแสดงกราฟเฉพาะจังหวัดที่ระบายอากาศแย่ที่สุดตอนนี้
+        const TMD_VR_CHART_STATIONS = {
+            'กรุงเทพมหานคร': '455301', 'นนทบุรี': '411000', 'ปทุมธานี': '419301', 'สมุทรปราการ': '429301',
+            'นครปฐม': '451301', 'สมุทรสาคร': '474000', 'เชียงใหม่': '327501', 'เชียงราย': '303201',
+            'แม่ฮ่องสอน': '300201', 'พะเยา': '310201', 'น่าน': '331201', 'ลำพูน': '329201',
+            'ลำปาง': '328201', 'แพร่': '330201', 'ตาก': '376201', 'อุตรดิตถ์': '351201',
+            'สุโขทัย': '373201', 'พิษณุโลก': '378201', 'กำแพงเพชร': '380201', 'พิจิตร': '386301',
+            'เพชรบูรณ์': '379201', 'บึงกาฬ': '363201', 'หนองคาย': '352201', 'เลย': '353201',
+            'นครพนม': '357201', 'อุดรธานี': '354201', 'หนองบัวลำภู': '360201', 'สกลนคร': '356201',
+            'มุกดาหาร': '383201', 'กาฬสินธุ์': '388401', 'มหาสารคาม': '387401', 'ร้อยเอ็ด': '405201',
+            'อำนาจเจริญ': '391201', 'ชัยภูมิ': '403201', 'ยโสธร': '406201', 'บุรีรัมย์': '436201',
+            'ศรีสะเกษ': '409301', 'นครราชสีมา': '431201', 'สุรินทร์': '432201', 'อุบลราชธานี': '407501',
+            'ขอนแก่น': '381201', 'นครสวรรค์': '400201', 'อุทัยธานี': '410201', 'ชัยนาท': '402301',
+            'อ่างทอง': '414000', 'พระนครศรีอยุธยา': '415301', 'สิงห์บุรี': '416000', 'นครนายก': '417201',
+            'สระบุรี': '418000', 'ราชบุรี': '424301', 'สุพรรณบุรี': '425201', 'ลพบุรี': '426201',
+            'สมุทรสงคราม': '438201', 'กาญจนบุรี': '450201', 'ฉะเชิงเทรา': '423301', 'ชลบุรี': '459201',
+            'ระยอง': '478201', 'ปราจีนบุรี': '430201', 'สระแก้ว': '440401', 'จันทบุรี': '480201',
+            'ตราด': '501201', 'สงขลา': '568501', 'ภูเก็ต': '564201', 'เพชรบุรี': '465201',
+            'ประจวบคีรีขันธ์': '500201', 'ชุมพร': '517201', 'ระนอง': '532201', 'สุราษฎร์ธานี': '551201',
+            'พังงา': '561201', 'นครศรีธรรมราช': '552201', 'กระบี่': '566202', 'พัทลุง': '560301',
+            'ตรัง': '567201', 'ปัตตานี': '580201', 'สตูล': '570201', 'ยะลา': '581301',
+            'นราธิวาส': '583201'
+        };
         // พิกัดตัวเมืองตาม PM2570.html (ให้ค่าตรงกัน) จังหวัดอื่นใช้จุดกลางพื้นที่จังหวัด
         const VENT_POINT_OVERRIDES = {
             'นครราชสีมา': [14.9799, 102.0978], 'ชัยภูมิ': [15.8063, 102.0315],
@@ -3412,14 +3434,20 @@ if (primarySource && primarySource.features) {
                 document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
             }));
 
-            // กราฟพยากรณ์รายวันของกรมอุตุนิยมวิทยา (เฉพาะจังหวัดที่ทราบรหัสสถานี)
-            const chartRows = vd.rows.filter(r => TMD_VR_CHART_STATIONS[r.prov]);
-            const day = thaiHourKey(new Date()).slice(0, 10);
+            // กราฟพยากรณ์ 10 วันของกรมอุตุนิยมวิทยา: ราย สคพ. แสดงทุกจังหวัด ทั้งประเทศแสดงเฉพาะจังหวัดที่ระบายอากาศแย่ที่สุดตอนนี้
+            const withChart = rows.filter(r => TMD_VR_CHART_STATIONS[r.prov]); // rows เรียงจาก VR ต่ำไปสูงแล้ว
+            const chartRows = vd.national ? withChart.slice(0, TMD_VR_CHART_MAX_NATIONAL) : withChart;
+            const ver = thaiHourKey(new Date()); // เปลี่ยนทุกชั่วโมง ให้ได้กราฟรอบล่าสุดโดยไม่โหลดซ้ำทุกครั้ง
             chartsEl.innerHTML = chartRows.length
-                ? '<div class="vent-charts-title">📈 กราฟพยากรณ์อัตราการระบายอากาศรายวัน (กรมอุตุนิยมวิทยา)</div><div class="vent-charts">' +
-                  chartRows.map(r => `<figure><figcaption>จ.${pdfEsc(r.prov)}</figcaption>` +
-                      `<img loading="lazy" src="${TMD_VR_CHART_URL}${TMD_VR_CHART_STATIONS[r.prov]}.png?d=${day}" alt="กราฟอัตราการระบายอากาศ จ.${pdfEsc(r.prov)}" ` +
-                      `onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'pm25-note', textContent: 'โหลดกราฟจากกรมอุตุนิยมวิทยาไม่สำเร็จ'}))"></figure>`).join('') +
+                ? '<div class="vent-charts-title">📈 กราฟพยากรณ์อัตราการระบายอากาศ 10 วัน (กรมอุตุนิยมวิทยา)' +
+                  (vd.national ? ` · ${chartRows.length} จังหวัดที่ระบายอากาศแย่ที่สุดตอนนี้ (เลือกพื้นที่ สคพ. เพื่อดูจังหวัดอื่น)` : '') +
+                  ' · คลิกกราฟเพื่อเปิดขนาดเต็ม</div><div class="vent-charts">' +
+                  chartRows.map(r => {
+                      const url = `${TMD_VR_CHART_URL}${TMD_VR_CHART_STATIONS[r.prov]}.png?v=${encodeURIComponent(ver)}`;
+                      return `<figure><figcaption>จ.${pdfEsc(r.prov)}</figcaption><a href="${url}" target="_blank" rel="noopener">` +
+                          `<img loading="lazy" src="${url}" alt="กราฟพยากรณ์อัตราการระบายอากาศ 10 วัน จ.${pdfEsc(r.prov)}" ` +
+                          `onerror="this.parentNode.replaceWith(Object.assign(document.createElement('div'), {className: 'pm25-note', textContent: 'โหลดกราฟจากกรมอุตุนิยมวิทยาไม่สำเร็จ'}))"></a></figure>`;
+                  }).join('') +
                   '</div>'
                 : '';
         }
@@ -3768,8 +3796,8 @@ if (primarySource && primarySource.features) {
                 const vrows = vd.rows.slice().sort((a, b) => (a.vr === null ? Infinity : a.vr) - (b.vr === null ? Infinity : b.vr));
                 const refTime = (vrows.find(r => r.time) || {}).time;
                 h += `<div class="pdf-note">ข้อมูล ณ ${pdfEsc(fmtOmTime(refTime))} · อัตราการระบายอากาศ (VR, ตร.ม./วินาที) = เพดานการระบายอากาศ × ความเร็วลมที่ 10 ม. ค่ายิ่งต่ำ ฝุ่นและควันยิ่งสะสมตัว · ` +
-                    (vd.national ? 'สภาพอากาศและลม: Open-Meteo' : `สภาพอากาศและลม: กรมอุตุนิยมวิทยา ${vd.tmdCount}/${vrows.length} จังหวัด`) + ' · เพดานการระบายอากาศ: Open-Meteo</div>';
-                h += pdfTable(['จังหวัด', 'VR', 'ระดับ', 'เพดาน (ม.)', 'ลม', 'สภาพอากาศ', '24 ชม. ข้างหน้า'],
+                    (vd.national ? 'สภาพอากาศและลม: Open-Meteo' : `สภาพอากาศและลม: กรมอุตุนิยมวิทยา ${vd.tmdCount}/${vrows.length} จังหวัด`) + ' · เพดานการระบายอากาศ: Open-Meteo · "กราฟ 10 วัน" คือกราฟพยากรณ์ของกรมอุตุนิยมวิทยา</div>';
+                h += pdfTable(['จังหวัด', 'VR', 'ระดับ', 'เพดาน (ม.)', 'ลม', 'สภาพอากาศ', '24 ชม. ข้างหน้า', ''],
                     vrows.map(r => {
                         const lv = ventLevel(r.vr);
                         const wx = [r.cond !== '-' ? pdfEsc(r.cond) : '', r.tempC !== null ? r.tempC.toFixed(1) + ' °C' : '',
@@ -3777,7 +3805,8 @@ if (primarySource && primarySource.features) {
                         return [pdfEsc(r.prov),
                             lv ? `<span class="pdf-badge" style="background:${lv.color};color:${lv.text}">${fmtInt(r.vr)}</span>` : '-',
                             pdfEsc(lv ? lv.label : 'ไม่มีข้อมูล'), r.pblh !== null ? fmtInt(r.pblh) : '-', pdfEsc(ventWindText(r)), wx || '-',
-                            r.min && r.max ? `<span style="white-space:nowrap">▼ ${fmtInt(r.min.v)} · ${fmtOmShort(r.min.t)}</span><br><span style="white-space:nowrap">▲ ${fmtInt(r.max.v)} · ${fmtOmShort(r.max.t)}</span>` : '-'];
+                            r.min && r.max ? `<span style="white-space:nowrap">▼ ${fmtInt(r.min.v)} · ${fmtOmShort(r.min.t)}</span><br><span style="white-space:nowrap">▲ ${fmtInt(r.max.v)} · ${fmtOmShort(r.max.t)}</span>` : '-',
+                            TMD_VR_CHART_STATIONS[r.prov] ? `<a href="${TMD_VR_CHART_URL}${TMD_VR_CHART_STATIONS[r.prov]}.png">กราฟ 10 วัน</a>` : ''];
                     }), [1, 3]);
             } else {
                 h += '<p class="pdf-note">ยังไม่ได้โหลดข้อมูลการระบายอากาศของพื้นที่นี้ หากต้องการรวมในรายงาน ให้ติ๊ก "แสดงอัตราการระบายอากาศและสภาพอากาศรายจังหวัด" รอให้ตารางขึ้น แล้วกดส่งออกอีกครั้ง</p>';
