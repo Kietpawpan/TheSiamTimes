@@ -338,8 +338,14 @@
         }
 
         /* ---------- อัตราการระบายอากาศ ---------- */
+        /* หมุดยกขึ้นเหนือจุดจังหวัด มีก้านชี้ลงที่ตำแหน่ง ไม่ทับป้าย/จุด PM2.5 ที่อยู่ตรงตำแหน่งเดียวกัน */
+        .vent-pin { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; }
+        .vent-pin .stem { width: 2px; height: 16px; background: #334155; }
+        .vent-pin.small .stem { height: 10px; }
         .vent-badge { min-width: 46px; padding: 1px 6px; border-radius: 6px; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.35);
-            font-size: 12px; font-weight: 800; line-height: 16px; text-align: center; white-space: nowrap; transform: translate(-50%, -50%); display: inline-block; }
+            font-size: 12px; font-weight: 800; line-height: 16px; text-align: center; white-space: nowrap; }
+        /* สี่เหลี่ยมมุมมนขอบเข้ม: แยกจากจุดความร้อน (วงกลม) และสถานี PM2.5 (ข้าวหลามตัด) ที่ใช้โทนสีคล้ายกัน */
+        .vent-dot { width: 14px; height: 14px; border-radius: 3px; border: 2px solid #1f2937; box-shadow: 0 0 0 1.5px #fff; box-sizing: border-box; }
         .vent-charts-title { font-weight: bold; color: #4a148c; margin: 14px 0 6px; }
         .vent-charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
         .vent-charts figure { margin: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px; text-align: center; }
@@ -1604,9 +1610,9 @@ if (primarySource && primarySource.features) {
 
             if (activeLayers.has(VENT_LAYER_NAME)) {
                 html += `<div class="legend-title">🌬️ อัตราการระบายอากาศ (${regionLabel()})</div>`;
-                html += '<div style="font-size:12px; color:#475569; margin-bottom:2px;">ตร.ม./วินาที · ค่าต่ำ = ฝุ่นและควันสะสมตัว</div>';
+                html += '<div style="font-size:12px; color:#475569; margin-bottom:2px;">■ หมุดเหนือตัวจังหวัด · ตร.ม./วินาที · ค่าต่ำ = ฝุ่นและควันสะสมตัว</div>';
                 VENT_LEVELS.forEach(lv => {
-                    html += `<div><span class="pm-swatch" style="background:${lv.color}; border-radius:50%; transform:none;"></span>${lv.range} ${lv.label}</div>`;
+                    html += `<div><span class="pm-swatch" style="background:${lv.color}; border-radius:2px; transform:none; border-color:#1f2937;"></span>${lv.range} ${lv.label}</div>`;
                 });
                 const vd = ventCurrentData();
                 if (vd) {
@@ -3428,10 +3434,17 @@ if (primarySource && primarySource.features) {
             rows.forEach(r => {
                 const lv = ventLevel(r.vr);
                 const color = lv ? lv.color : '#94a3b8';
-                const m = detailed
-                    ? L.marker([r.lat, r.lon], { icon: L.divIcon({ className: '', iconSize: [0, 0],
-                        html: `<span class="vent-badge" style="background:${color}; color:${lv ? lv.text : '#fff'};">🌬️ ${fmtInt(r.vr)}</span>` }) })
-                    : L.circleMarker([r.lat, r.lon], { radius: 8, color: '#fff', weight: 2, fillColor: color, fillOpacity: 0.95 });
+                // ยกหมุดขึ้นเหนือตำแหน่ง (ก้านชี้ลงที่จุด) เพราะป้าย/จุด PM2.5 มักอยู่ตรงตัวเมืองตำแหน่งเดียวกัน
+                // และวางไว้ใต้หมุดอื่น (zIndexOffset ติดลบ) ก้านส่วนล่างจึงถูกป้าย PM2.5 บังแทนที่จะขีดทับตัวเลข
+                const height = detailed ? 38 : 24; // ความสูงหมุดรวมก้าน (ใช้วางป้ายข้อมูลไว้เหนือหมุด)
+                const html = detailed
+                    ? `<div class="vent-pin"><span class="vent-badge" style="background:${color}; color:${lv ? lv.text : '#fff'};">🌬️ ${fmtInt(r.vr)}</span><span class="stem"></span></div>`
+                    : `<div class="vent-pin small"><span class="vent-dot" style="background:${color};"></span><span class="stem"></span></div>`;
+                const m = L.marker([r.lat, r.lon], {
+                    icon: L.divIcon({ className: '', iconSize: [0, 0], iconAnchor: [0, 0], popupAnchor: [0, -height], tooltipAnchor: [0, -height], html: html }),
+                    zIndexOffset: -1000,
+                    keyboard: false
+                });
                 m.bindPopup(ventPopupHtml(r));
                 m.bindTooltip(`จ.${r.prov}: ${fmtInt(r.vr)} ตร.ม./วินาที`, { direction: 'top' });
                 m.addTo(ventLayer);
