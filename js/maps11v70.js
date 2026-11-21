@@ -606,7 +606,8 @@ async function fetchWeatherData() {
 
                     let rainChanceDisplay = '0 %';
                     if (weatherData.pop !== undefined) rainChanceDisplay = `${weatherData.pop} %`;
-                    else if (weatherData.rain !== undefined) rainChanceDisplay = `ปริมาณ ${weatherData.rain} มม.`;
+                    // ปริมาณฝนพยากรณ์จากกรมอุตุนิยมวิทยา (ช่อง rain ต้องอยู่ใน fields ของ Apps Script) ต่อท้ายโอกาสเกิดฝนด้านล่าง
+                    const tmdRain = (weatherData.rain !== undefined && weatherData.rain !== null && weatherData.rain !== '') ? weatherData.rain : null;
 
                     let windSpeedDisplay = '-';
                     if (weatherData.ws10m !== undefined) {
@@ -636,6 +637,8 @@ async function fetchWeatherData() {
                             }
                         } catch(e) {}
                     }
+
+                    if (tmdRain !== null) rainChanceDisplay += ` · ปริมาณฝน ${tmdRain} มม.`;
 
                     if (weatherData.ws10m !== undefined && currentBlhVal > 0) {
                         const ws_ms = weatherData.ws10m;

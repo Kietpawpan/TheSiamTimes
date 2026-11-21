@@ -3346,6 +3346,14 @@ if (primarySource && primarySource.features) {
             return `${(r.windMs * 3.6).toFixed(1)} กม./ชม.` + (r.windDir !== null ? ` จากทิศ${thaiCompass(r.windDir)} (${Math.round(r.windDir)}°)` : '');
         }
 
+        // โอกาสเกิดฝน (Open-Meteo) และปริมาณฝนพยากรณ์จากกรมอุตุนิยมวิทยา (เมื่อ Apps Script ส่งช่อง rain มา)
+        function ventRainText(r) {
+            const parts = [];
+            if (r.pop !== null) parts.push(`${Math.round(r.pop)} %`);
+            if (r.rainMm !== null) parts.push(`ปริมาณฝน ${r.rainMm.toFixed(1)} มม.`);
+            return parts.length ? parts.join(' · ') : '-';
+        }
+
         function ventPopupHtml(r) {
             const lv = ventLevel(r.vr);
             const row = (k, v) => `<tr><td style="color:#475569; padding:2px 8px 2px 0; white-space:nowrap;">${k}</td><td style="padding:2px 0;">${v}</td></tr>`;
@@ -3358,7 +3366,7 @@ if (primarySource && primarySource.features) {
                 row('สภาพอากาศ', r.cond) +
                 row('อุณหภูมิ', r.tempC !== null ? `${r.tempC.toFixed(1)} °C` : '-') +
                 row('ความชื้น', r.rhPct !== null ? `${Math.round(r.rhPct)} %` : '-') +
-                row('โอกาสเกิดฝน', r.pop !== null ? `${Math.round(r.pop)} %` : '-') +
+                row('โอกาสเกิดฝน', ventRainText(r)) +
                 (r.min && r.max ? row('24 ชม. ข้างหน้า', `ต่ำสุด ${fmtInt(r.min.v)} (${fmtOmShort(r.min.t)})<br>สูงสุด ${fmtInt(r.max.v)} (${fmtOmShort(r.max.t)})`) : '') +
                 row('ข้อมูล ณ', fmtOmTime(r.time)) +
                 `</table></div>`;
@@ -3407,7 +3415,7 @@ if (primarySource && primarySource.features) {
                     <td>${ventWindText(r)}<span class="vent-src">${r.windSrc === 'TMD' ? 'กรมอุตุนิยมวิทยา' : 'Open-Meteo'}</span></td>
                     <td class="num">${r.tempC !== null ? r.tempC.toFixed(1) + ' °C' : '-'}</td>
                     <td class="num">${r.rhPct !== null ? Math.round(r.rhPct) + ' %' : '-'}</td>
-                    <td class="num">${r.pop !== null ? Math.round(r.pop) + ' %' : '-'}</td>
+                    <td class="num">${r.pop !== null ? Math.round(r.pop) + ' %' : '-'}${r.rainMm !== null ? `<span class="vent-src">ปริมาณฝน ${r.rainMm.toFixed(1)} มม.</span>` : ''}</td>
                     <td>${pdfEsc(r.cond)}</td>
                     <td style="white-space:nowrap;">${r.min && r.max
                         ? `▼ ${fmtInt(r.min.v)} <span style="color:#64748b; font-size:12px;">${fmtOmShort(r.min.t)}</span><br>▲ ${fmtInt(r.max.v)} <span style="color:#64748b; font-size:12px;">${fmtOmShort(r.max.t)}</span>`
@@ -3803,7 +3811,8 @@ if (primarySource && primarySource.features) {
                     vrows.map(r => {
                         const lv = ventLevel(r.vr);
                         const wx = [r.cond !== '-' ? pdfEsc(r.cond) : '', r.tempC !== null ? r.tempC.toFixed(1) + ' °C' : '',
-                            r.rhPct !== null ? 'ชื้น ' + Math.round(r.rhPct) + '%' : '', r.pop !== null ? 'ฝน ' + Math.round(r.pop) + '%' : ''].filter(Boolean).join(' · ');
+                            r.rhPct !== null ? 'ชื้น ' + Math.round(r.rhPct) + '%' : '', r.pop !== null ? 'ฝน ' + Math.round(r.pop) + '%' : '',
+                            r.rainMm !== null ? 'ปริมาณฝน ' + r.rainMm.toFixed(1) + ' มม.' : ''].filter(Boolean).join(' · ');
                         return [pdfEsc(r.prov),
                             lv ? `<span class="pdf-badge" style="background:${lv.color};color:${lv.text}">${fmtInt(r.vr)}</span>` : '-',
                             pdfEsc(lv ? lv.label : 'ไม่มีข้อมูล'), r.pblh !== null ? fmtInt(r.pblh) : '-', pdfEsc(ventWindText(r)), wx || '-',
