@@ -400,7 +400,7 @@
 <body>
     <div id="toast-container"></div>
     <div class="container">
-        <h2 id="appTitle">MAPS 11 Pro 3.0</h2>
+        <h2 id="appTitle">MAPS 11: Fire Radar</h2>
         <div class="subtitle" id="appSubtitle">ระบบเฝ้าระวังไฟไหม้บ่อขยะและจำลองทิศทางควันจุดเกิดเหตุด่วน สคพ. 11 (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์)</div>
         <!-- ลิงก์ไปเรดาร์พกพา ตรวจหาจุดความร้อนรอบตำแหน่งผู้ใช้ (ใช้ข้อมูลชุดเดียวกัน) -->
         <div style="text-align: center; margin: -8px 0 16px;">
@@ -1100,7 +1100,7 @@
 
             const provListText = region.provincesTH.join(" ");
             document.title = `MAPS ${epoId} - ระบบเฝ้าระวังไฟไหม้บ่อขยะ (${region.name})`;
-            document.getElementById('appTitle').innerText = `MAPS ${epoId} Pro 3.0`;
+            document.getElementById('appTitle').innerText = `MAPS ${epoId}: Fire Radar`;
             document.getElementById('appSubtitle').innerText = `ระบบเฝ้าระวังไฟไหม้บ่อขยะและจำลองทิศทางควันจุดเกิดเหตุด่วน สคพ. ${epoId} (${provListText})`;
             document.getElementById('overlayLogoText').innerText = `MAPS ${epoId}`;
             document.getElementById('overlaySubText').innerText = `Management of Air Pollution Sector ${epoId}`;
