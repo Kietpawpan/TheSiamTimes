@@ -353,6 +353,47 @@
         @media (prefers-reduced-motion: reduce) {
             .crown, .btn { transition: none; }
         }
+
+        /* ---------- รายงาน PDF (สร้างเมื่อกดปุ่มส่งออก แสดงเฉพาะตอนพิมพ์/บันทึกเป็น PDF) ---------- */
+        #pdfReport { display: none; }
+        @media print {
+            @page { size: A4 portrait; margin: 12mm 11mm 14mm; }
+            html.pdf-exporting, html.pdf-exporting body {
+                background: #fff !important; color: #111827 !important; margin: 0 !important; padding: 0 !important;
+                min-height: 0 !important; height: auto !important; overflow: visible !important;
+            }
+            html.pdf-exporting body > :not(#pdfReport) { display: none !important; }
+            html.pdf-exporting #pdfReport { display: block !important; }
+        }
+        #pdfReport {
+            font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", "Sarabun", "Leelawadee UI", Tahoma, sans-serif;
+            font-size: 10.5pt; line-height: 1.5; color: #111827; background: #fff; text-align: left;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+        }
+        #pdfReport .pdf-kicker { font-size: 8.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; font-weight: 700; }
+        #pdfReport h1 { font-size: 18pt; line-height: 1.25; margin: 2px 0 4px; color: #111827; text-shadow: none; letter-spacing: 0; text-align: left; }
+        #pdfReport h2 { font-size: 12.5pt; line-height: 1.3; margin: 16px 0 6px; color: #111827; text-align: left; break-after: avoid; page-break-after: avoid; }
+        #pdfReport .pdf-sub { color: #4b5563; margin-bottom: 8px; }
+        #pdfReport .pdf-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0 8px; }
+        #pdfReport .pdf-tile { border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 9px; break-inside: avoid; }
+        #pdfReport .pdf-tile .k { font-size: 8.5pt; color: #4b5563; line-height: 1.3; }
+        #pdfReport .pdf-tile .v { font-size: 16pt; font-weight: 700; line-height: 1.3; }
+        #pdfReport .pdf-tile .n { font-size: 8pt; color: #6b7280; line-height: 1.3; }
+        #pdfReport table.pdf-table { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 4px 0 8px; }
+        #pdfReport .pdf-table th { text-align: left; font-weight: 700; color: #374151; border-bottom: 1.5px solid #374151; padding: 4px 5px; vertical-align: bottom; }
+        #pdfReport .pdf-table td { border-bottom: 1px solid #e5e7eb; padding: 3px 5px; vertical-align: top; }
+        #pdfReport .pdf-table tr { break-inside: avoid; page-break-inside: avoid; }
+        #pdfReport .pdf-table thead { display: table-header-group; }
+        #pdfReport .pdf-table.meta td { border: none; padding: 1px 5px 1px 0; }
+        #pdfReport .pdf-table.meta td:first-child { color: #4b5563; white-space: nowrap; width: 1%; padding-right: 14px; }
+        #pdfReport .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        #pdfReport .pdf-note { font-size: 8.5pt; color: #6b7280; margin: 2px 0 8px; }
+        #pdfReport .pdf-alert { border-left: 3px solid #b45309; background: #fffbeb; padding: 6px 10px; margin: 6px 0 8px; border-radius: 0 6px 6px 0; }
+        #pdfReport .pdf-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px; font-size: 8.5pt; color: #4b5563; margin: 2px 0 6px; }
+        #pdfReport .pdf-sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 4px; }
+        #pdfReport a { color: #1d4ed8; text-decoration: none; }
+        #pdfReport svg { display: block; max-width: 100%; height: auto; margin: 4px auto; }
+        #pdfReport .pdf-footer { margin-top: 14px; padding-top: 6px; border-top: 1px solid #e5e7eb; font-size: 8pt; color: #6b7280; }
     </style>
 </head>
 <body>
@@ -393,6 +434,7 @@
                 <option value="24">🕒 ย้อนหลัง 24 ชม.</option>
             </select>
             <button class="btn" id="reloadBtn" type="button">⟳ โหลดข้อมูล</button>
+            <button class="btn" id="pdfBtn" type="button" title="สร้างรายงานจุดความร้อนรอบตำแหน่งของคุณ แล้วเลือก &quot;บันทึกเป็น PDF&quot; ในหน้าต่างพิมพ์">📄 ส่งออก PDF</button>
         </div>
 
         <div class="notice" id="compassNotice" role="status"></div>
@@ -428,7 +470,7 @@
         <footer>
             ยิ่งเข้าใกล้จุดความร้อน ไฟสามเหลี่ยมจะกะพริบและเสียงสัญญาณจะถี่ขึ้น<br>
             ข้อมูลจุดความร้อน: NASA FIRMS (VIIRS) ผ่านระบบ <a href="fireRadar.html">Fire Radar</a> (เฉพาะในประเทศไทย)
-            · ตำแหน่ง GPS ใช้ในเครื่องของคุณเท่านั้น ไม่มีการส่งออก
+            · ตำแหน่ง GPS ใช้ในเครื่องของคุณเท่านั้น ไม่ส่งไปยังเซิร์ฟเวอร์ (ไฟล์ PDF ที่คุณส่งออกเองจะมีพิกัดของคุณ)
         </footer>
     </div>
 
@@ -1504,6 +1546,174 @@
             recompute();
         });
         $('reloadBtn').addEventListener('click', loadHotspots);
+
+        // ===================== ส่งออกรายงาน PDF =====================
+        // สร้างหน้ารายงานจากสถานะเรดาร์ตอนกดปุ่ม แล้วเปิดหน้าต่างพิมพ์ให้เลือก "บันทึกเป็น PDF"
+        // (ใช้ระบบพิมพ์ของเบราว์เซอร์ เพราะวางสระ/วรรณยุกต์ไทยได้ถูกต้อง และข้อความใน PDF ค้นหา/คัดลอกได้)
+        const PDF_MAX_ROWS = 500;
+
+        function fmtNum(v, digits) {
+            return Number(v).toLocaleString('th-TH', { minimumFractionDigits: digits || 0, maximumFractionDigits: digits || 0 });
+        }
+        function fmtThaiFull(date) {
+            const th = new Date(date.getTime() + 7 * 3600 * 1000);
+            return th.getUTCDate() + ' ' + THAI_MONTHS[th.getUTCMonth()] + ' ' + (th.getUTCFullYear() + 543) + ' ' + fmtThai(date, false);
+        }
+        function fileStamp(date) {
+            const th = new Date(date.getTime() + 7 * 3600 * 1000);
+            const p2 = n => String(n).padStart(2, '0');
+            return th.getUTCFullYear() + '-' + p2(th.getUTCMonth() + 1) + '-' + p2(th.getUTCDate()) + '_' + p2(th.getUTCHours()) + p2(th.getUTCMinutes());
+        }
+        function navUrl(lat, lon) {
+            return 'https://www.google.com/maps/dir/?api=1&destination=' + lat.toFixed(6) + ',' + lon.toFixed(6);
+        }
+
+        // ภาพเรดาร์แบบนิ่ง (ทิศเหนืออยู่ด้านบน) วางจุดความร้อนในรัศมีตามระยะทางและทิศ
+        function radarSvg() {
+            const R = 165, pad = 24, c = R + pad, size = 2 * c, range = rangeKm();
+            const f1 = v => v.toFixed(1);
+            let s = '<svg viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ภาพเรดาร์จุดความร้อนรอบตำแหน่ง">';
+            s += '<circle cx="' + c + '" cy="' + c + '" r="' + R + '" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2"/>';
+            for (let i = 1; i < GRID_CELLS_PER_RADIUS; i++) {
+                s += '<circle cx="' + c + '" cy="' + c + '" r="' + f1(R * i / GRID_CELLS_PER_RADIUS) + '" fill="none" stroke="#bbf7d0" stroke-width="1"/>';
+            }
+            s += '<path d="M' + c + ',' + pad + 'V' + (size - pad) + 'M' + pad + ',' + c + 'H' + (size - pad) + '" stroke="#bbf7d0" stroke-width="1"/>';
+            for (let i = 1; i <= GRID_CELLS_PER_RADIUS; i++) {
+                const y = c - R * i / GRID_CELLS_PER_RADIUS;
+                s += '<text x="' + (c + 4) + '" y="' + f1(y + 11) + '" font-size="9" fill="#4b5563">' + esc(fmtRange(range * i / GRID_CELLS_PER_RADIUS)) + '</text>';
+            }
+            [['N', c, pad - 7], ['E', size - pad + 9, c + 4], ['S', c, size - pad + 16], ['W', pad - 9, c + 4]].forEach(t => {
+                s += '<text x="' + t[1] + '" y="' + t[2] + '" font-size="11" font-weight="700" fill="#374151" text-anchor="middle">' + t[0] + '</text>';
+            });
+            // วาดจุดไกลก่อน จุดใกล้ทับด้านบน
+            state.hits.slice().reverse().forEach(h => {
+                const r = R * Math.min(1, h.d / range), a = h.brg * toRad;
+                const x = c + r * Math.sin(a), y = c - r * Math.cos(a);
+                s += '<circle cx="' + f1(x) + '" cy="' + f1(y) + '" r="4.5" fill="' + CONF_COLOR[h.pt.conf] + '" stroke="#fff" stroke-width="1"/>';
+                if (h === state.nearest) s += '<circle cx="' + f1(x) + '" cy="' + f1(y) + '" r="8.5" fill="none" stroke="#b91c1c" stroke-width="1.5"/>';
+            });
+            s += '<circle cx="' + c + '" cy="' + c + '" r="5.5" fill="#2563eb" stroke="#fff" stroke-width="1.5"/>';
+            return s + '</svg>';
+        }
+
+        function buildRadarReport() {
+            const now = new Date();
+            const pos = state.pos;
+            const range = rangeKm();
+            const dataOk = state.dataStatus === 'ok';
+            const hits = state.hits;
+            const near = state.nearest || state.nearestAny;
+            const row = (k, v) => '<tr><td>' + k + '</td><td>' + v + '</td></tr>';
+
+            let h = '<div class="pdf-kicker">The Siam Times · Hotspot Radar</div>';
+            h += '<h1>รายงานจุดความร้อนรอบตำแหน่ง</h1>';
+            h += '<div class="pdf-sub">รัศมีสแกน ' + esc(fmtRange(range)) + ' · ย้อนหลัง ' + state.timeWindowH + ' ชม.</div>';
+            h += '<table class="pdf-table meta"><tbody>' +
+                row('ตำแหน่ง', pos
+                    ? esc(pos.lat.toFixed(5) + ', ' + pos.lon.toFixed(5)) + (pos.acc ? ' (±' + Math.round(pos.acc) + ' ม.)' : '') +
+                      (state.demo ? ' · <b>ตำแหน่งจำลอง (โหมดทดลอง)</b>' : '')
+                    : 'ยังไม่มีตำแหน่ง') +
+                row('รัศมีสแกน', esc(fmtRange(range)) + ' (ช่องละ ' + esc(fmtRange(range / GRID_CELLS_PER_RADIUS)) + ')') +
+                row('ช่วงเวลา', 'ย้อนหลัง ' + state.timeWindowH + ' ชม. นับจากจุดล่าสุดในชุดข้อมูล') +
+                row('ข้อมูลดาวเทียม', dataOk
+                    ? fmtNum(state.points.length) + ' จุดทั่วประเทศในช่วงเวลานี้' + (state.updated ? ' · อัปเดต ' + esc(fmtThaiFull(state.updated)) : '')
+                    : (state.dataStatus === 'loading' ? 'กำลังโหลด' : 'โหลดไม่สำเร็จ (' + esc(state.dataError) + ')')) +
+                row('ส่งออกรายงานเมื่อ', esc(fmtThaiFull(now))) +
+                '</tbody></table>';
+
+            if (!pos) h += '<div class="pdf-alert">ยังไม่มีตำแหน่งของคุณ จึงคำนวณระยะทางไม่ได้ กด "เริ่มสแกน" และอนุญาตให้ใช้ตำแหน่ง แล้วส่งออกอีกครั้ง รายงานนี้มีเฉพาะสรุปรายจังหวัด</div>';
+            else if (!dataOk) h += '<div class="pdf-alert">ยังไม่มีข้อมูลจุดความร้อน กด "โหลดข้อมูล" แล้วส่งออกอีกครั้ง</div>';
+
+            if (pos && dataOk) {
+                const highIn = hits.filter(x => x.pt.conf === 'h').length;
+                h += '<div class="pdf-tiles">' +
+                    '<div class="pdf-tile"><div class="k">จุดความร้อนในรัศมี</div><div class="v" style="color:' + (hits.length ? '#b91c1c' : '#15803d') + '">' + fmtNum(hits.length) + '</div><div class="n">ภายใน ' + esc(fmtRange(range)) + '</div></div>' +
+                    '<div class="pdf-tile"><div class="k">ใกล้ที่สุด</div><div class="v">' + (near ? esc(fmtDist(near.d)) : '-') + '</div><div class="n">' + (near ? 'ทิศ' + esc(dirName(near.brg)) + ' (' + Math.round(near.brg) + '°)' + (state.nearest ? '' : ' · นอกรัศมี') : '') + '</div></div>' +
+                    '<div class="pdf-tile"><div class="k">ความเชื่อมั่นสูง (ในรัศมี)</div><div class="v">' + fmtNum(highIn) + '</div><div class="n">จุด</div></div>' +
+                    '<div class="pdf-tile"><div class="k">จุดความร้อนทั่วประเทศ</div><div class="v">' + fmtNum(state.points.length) + '</div><div class="n">ย้อนหลัง ' + state.timeWindowH + ' ชม.</div></div>' +
+                    '</div>';
+                h += radarSvg();
+                h += '<div class="pdf-legend">' +
+                    '<span><i class="pdf-sw" style="background:#2563eb"></i>ตำแหน่งของคุณ</span>' +
+                    ['h', 'n', 'l'].map(k => '<span><i class="pdf-sw" style="background:' + CONF_COLOR[k] + '"></i>' + CONF_LABEL[k] + '</span>').join('') +
+                    '<span><i class="pdf-sw" style="background:#fff;border:2px solid #b91c1c"></i>จุดใกล้ที่สุด</span>' +
+                    '</div><div class="pdf-note" style="text-align:center">ทิศเหนืออยู่ด้านบน · วงละ ' + esc(fmtRange(range / GRID_CELLS_PER_RADIUS)) + '</div>';
+
+                h += '<h2>จุดความร้อนในรัศมี ' + esc(fmtRange(range)) + ' (เรียงตามระยะทาง)</h2>';
+                if (hits.length) {
+                    h += '<table class="pdf-table"><thead><tr><th class="num">#</th><th class="num">ระยะทาง</th><th>ทิศ</th><th>จังหวัด</th><th>ตรวจพบเมื่อ</th><th>ความเชื่อมั่น</th><th class="num">พิกัด</th><th></th></tr></thead><tbody>' +
+                        hits.slice(0, PDF_MAX_ROWS).map((x, i) => {
+                            const p = x.pt;
+                            return '<tr><td class="num">' + (i + 1) + '</td><td class="num">' + esc(fmtDist(x.d)) + '</td>' +
+                                '<td>' + esc(dirName(x.brg)) + ' (' + Math.round(x.brg) + '°)</td>' +
+                                '<td>' + esc(p.prov || '-') + '</td><td>' + (p.time ? esc(fmtThai(p.time)) : '-') + '</td>' +
+                                '<td><i class="pdf-sw" style="background:' + CONF_COLOR[p.conf] + '"></i>' + esc(CONF_LABEL[p.conf]) + '</td>' +
+                                '<td class="num">' + p.lat.toFixed(5) + ', ' + p.lon.toFixed(5) + '</td>' +
+                                '<td><a href="' + esc(navUrl(p.lat, p.lon)) + '">นำทาง</a></td></tr>';
+                        }).join('') + '</tbody></table>';
+                    if (hits.length > PDF_MAX_ROWS) h += '<div class="pdf-note">แสดง ' + PDF_MAX_ROWS + ' จุดที่ใกล้ที่สุด จากทั้งหมด ' + fmtNum(hits.length) + ' จุด</div>';
+                } else {
+                    h += '<p>ไม่พบจุดความร้อนในรัศมีนี้' + (state.nearestAny ? ' · จุดใกล้ที่สุดอยู่ห่าง ' + esc(fmtDist(state.nearestAny.d)) + ' ทิศ' + esc(dirName(state.nearestAny.brg)) +
+                        (state.nearestAny.pt.prov ? ' (จ.' + esc(state.nearestAny.pt.prov) + ')' : '') : '') + '</p>';
+                }
+            }
+
+            if (dataOk) {
+                const byProv = new Map();
+                state.points.forEach(p => {
+                    const k = p.prov || 'ไม่ระบุจังหวัด';
+                    if (!byProv.has(k)) byProv.set(k, { prov: k, total: 0, h: 0, n: 0, l: 0 });
+                    const r = byProv.get(k);
+                    r.total++;
+                    r[p.conf]++;
+                });
+                const rows = Array.from(byProv.values()).sort((a, b) => b.total - a.total || a.prov.localeCompare(b.prov, 'th'));
+                h += '<h2>สรุปจุดความร้อนรายจังหวัด (ทั่วประเทศ ย้อนหลัง ' + state.timeWindowH + ' ชม.)</h2>';
+                h += rows.length
+                    ? '<table class="pdf-table"><thead><tr><th class="num">อันดับ</th><th>จังหวัด</th><th class="num">รวม</th><th class="num">สูง</th><th class="num">ปกติ</th><th class="num">ต่ำ</th></tr></thead><tbody>' +
+                      rows.map((r, i) => '<tr><td class="num">' + (i + 1) + '</td><td>' + esc(r.prov) + '</td><td class="num">' + fmtNum(r.total) +
+                          '</td><td class="num">' + fmtNum(r.h) + '</td><td class="num">' + fmtNum(r.n) + '</td><td class="num">' + fmtNum(r.l) + '</td></tr>').join('') +
+                      '</tbody></table>'
+                    : '<p>ไม่พบจุดความร้อนในช่วงเวลานี้</p>';
+            }
+
+            h += '<div class="pdf-footer">ที่มา: จุดความร้อนจากดาวเทียม NASA FIRMS (VIIRS) ผ่านระบบ Fire Radar (เฉพาะในประเทศไทย) · ' +
+                'ระยะทางและทิศคำนวณจากตำแหน่งในรายงานนี้ · เวลาในรายงานเป็นเวลาประเทศไทย · ' +
+                'จุดความร้อนคือตำแหน่งที่ดาวเทียมตรวจพบความร้อนผิดปกติ ไม่ใช่ไฟที่ยืนยันแล้วเสมอไป' +
+                (pos ? ' · รายงานนี้มีพิกัดตำแหน่งของคุณ โปรดระวังเมื่อแชร์ไฟล์' : '') + '</div>';
+            return h;
+        }
+
+        // ใส่รายงานลงหน้า แล้วสั่งพิมพ์ (CSS @media print ซ่อนหน้าแอปและแสดงเฉพาะรายงาน)
+        function printPdfReport(html, fileTitle) {
+            let el = $('pdfReport');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'pdfReport';
+                document.body.appendChild(el);
+            }
+            el.innerHTML = html;
+            const root = document.documentElement;
+            const oldTitle = document.title;
+            root.classList.add('pdf-exporting');
+            document.title = fileTitle; // เบราว์เซอร์ใช้ชื่อหน้าเป็นชื่อไฟล์ PDF ที่แนะนำ
+            const restore = () => {
+                window.removeEventListener('afterprint', restore);
+                root.classList.remove('pdf-exporting');
+                if (document.title === fileTitle) document.title = oldTitle;
+            };
+            window.addEventListener('afterprint', restore);
+            window.print();
+        }
+
+        $('pdfBtn').addEventListener('click', () => {
+            try {
+                printPdfReport(buildRadarReport(), 'HotspotRadar_' + fileStamp(new Date()));
+            } catch (err) {
+                console.error('สร้างรายงาน PDF ไม่สำเร็จ', err);
+                alert('สร้างรายงาน PDF ไม่สำเร็จ');
+            }
+        });
 
         // ===================== เริ่มทำงาน =====================
         if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas);
