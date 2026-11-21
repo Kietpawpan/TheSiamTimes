@@ -1424,6 +1424,60 @@ if (primarySource && primarySource.features) {
         }
 
         // ฟังก์ชันสำหรับวาดหมุดจุดความร้อนลงบนแผนที่
+        // ชื่อตำบล/อำเภอของจุดความร้อน: ค้นจาก Longdo Map ตอนเปิดป้ายรายละเอียด (ทีละจุด ไม่ค้นทุกจุดล่วงหน้า) และจำผลไว้
+        const hotspotAddressCache = new Map(); // "lat,lon" → Promise<{ sub, dist } | null>
+
+        function splitThaiAdminName(text, prefixes) {
+            const s = String(text || '').trim();
+            if (!s) return null;
+            const m = s.match(new RegExp('^(' + prefixes.join('|') + ')\\s*(.+)$'));
+            return m ? { label: m[1], name: m[2].trim() } : { label: null, name: s };
+        }
+
+        function lookupHotspotAddress(lat, lon) {
+            const key = Number(lat).toFixed(4) + ',' + Number(lon).toFixed(4);
+            if (!hotspotAddressCache.has(key)) {
+                const p = fetch(`https://api.longdo.com/map/services/address?lon=${lon}&lat=${lat}&key=${longdoApiKey}`)
+                    .then(res => {
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        return res.json();
+                    })
+                    .then(data => {
+                        const sub = splitThaiAdminName(data && data.subdistrict, ['ตำบล', 'แขวง']);
+                        const dist = splitThaiAdminName(data && data.district, ['กิ่งอำเภอ', 'อำเภอ', 'เขต']);
+                        return sub || dist ? { sub, dist } : null;
+                    });
+                p.catch(() => hotspotAddressCache.delete(key)); // เครือข่ายขัดข้อง: เปิดป้ายอีกครั้งจะค้นใหม่
+                hotspotAddressCache.set(key, p);
+            }
+            return hotspotAddressCache.get(key);
+        }
+
+        function fillHotspotAddress(popupEl, lat, lon) {
+            const box = popupEl && popupEl.querySelector('.hs-addr');
+            if (!box) return;
+            const set = (sel, text, muted) => {
+                const n = box.querySelector(sel);
+                if (!n) return;
+                n.textContent = text;
+                n.style.color = muted ? '#64748b' : '';
+            };
+            lookupHotspotAddress(lat, lon).then(a => {
+                if (!a) {
+                    set('.hs-sub', 'ไม่พบข้อมูล', true);
+                    set('.hs-dist', 'ไม่พบข้อมูล', true);
+                    return;
+                }
+                set('.hs-sub-label', (a.sub && a.sub.label) || 'ตำบล');
+                set('.hs-sub', a.sub ? a.sub.name : '-');
+                set('.hs-dist-label', (a.dist && a.dist.label) || 'อำเภอ');
+                set('.hs-dist', a.dist ? a.dist.name : '-');
+            }).catch(() => {
+                set('.hs-sub', 'ค้นหาไม่สำเร็จ (ลองเปิดใหม่อีกครั้ง)', true);
+                set('.hs-dist', '-', true);
+            });
+        }
+
         function renderHotspots(features) {
             hotspotLayer.clearLayers();
             
@@ -1469,6 +1523,10 @@ if (primarySource && primarySource.features) {
                     let popupContent = `<div style='font-size: 14px;'>
                         <div style='background-color:#4a148c; color:white; padding:5px; border-radius:4px; margin-bottom:8px; text-align:center;'><b>รายละเอียดจุดความร้อน (NASA)</b></div>
                         <b>พิกัด:</b> ${lat}  ${lon}<br>
+                        <span class='hs-addr'>
+                            <b class='hs-sub-label'>ตำบล</b><b>:</b> <span class='hs-sub' style='color:#64748b;'>กำลังค้นหา...</span><br>
+                            <b class='hs-dist-label'>อำเภอ</b><b>:</b> <span class='hs-dist' style='color:#64748b;'>กำลังค้นหา...</span><br>
+                        </span>
                         <b>จังหวัด:</b> <span style='color:#0284c7; font-weight:bold;'>${prov}</span><br>
                         <b>พื้นที่รับผิดชอบ:</b> ${epoDisplay}<br>
                         <b>วันที่:</b> ${dateDisplay}<br>
@@ -1478,6 +1536,7 @@ if (primarySource && primarySource.features) {
                         </div>`;
                     
                     layer.bindPopup(popupContent);
+                    layer.on('popupopen', e => fillHotspotAddress(e.popup.getElement(), props.latitude, props.longitude));
                 }
             };
             
