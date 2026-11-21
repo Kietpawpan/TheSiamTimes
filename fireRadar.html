@@ -613,7 +613,7 @@
             </div>
             <div id="ventCharts"></div>
             <div class="pm25-note">
-                อัตราการระบายอากาศ (Ventilation Rate) = เพดานการระบายอากาศ (ม.) × ความเร็วลมที่ระดับ 10 ม. (ม./วินาที) ค่ายิ่งต่ำ ฝุ่นและควันยิ่งสะสมตัว ·
+                อัตราการระบายอากาศ (Ventilation Rate) = เพดานการระบายอากาศ (ม.) × ความเร็วลมที่ระดับ 10 ม. (ม./วินาที) ค่ายิ่งต่ำ ฝุ่นและควันยิ่งสะสมตัว · แบ่งระดับตามเกณฑ์กรมอุตุนิยมวิทยา ·
                 เพดานการระบายอากาศและพยากรณ์รายชั่วโมง: Open-Meteo · สภาพอากาศและลม: กรมอุตุนิยมวิทยา (TMD API) เมื่อเลือกพื้นที่ สคพ. ส่วนโหมดทั้งประเทศใช้ Open-Meteo ·
                 คลิกแถวเพื่อซูมไปที่จังหวัด
             </div>
@@ -960,12 +960,13 @@
         let pm25LegendSummary = null; // สรุปสำหรับคำอธิบายสัญลักษณ์บนแผนที่
         let pm25LastDetailed = null;  // หมุดสถานีแสดงแบบตัวเลข (true) หรือจุดสี (false)
 
-        // อัตราการระบายอากาศ (ตร.ม./วินาที): เกณฑ์เดียวกับ PM2570.html
+        // อัตราการระบายอากาศ (ตร.ม./วินาที): เกณฑ์ตามกราฟพยากรณ์ของกรมอุตุนิยมวิทยา (ozone.tmd.go.th)
+        // Poor < 2,000 · Fair 2,000–3,999 · Good 4,000–7,999 · Very Good ≥ 8,000 (max = ขอบบนแบบไม่รวมค่านั้น)
         const VENT_LEVELS = [
-            { max: 2000,     color: '#F04646', text: '#ffffff', range: '≤ 2,000',      label: 'แย่ (ฝุ่น/ควันสะสมตัว)' },
-            { max: 4000,     color: '#FFA200', text: '#0f172a', range: '2,001–4,000',  label: 'ปานกลาง' },
-            { max: 6000,     color: '#92D050', text: '#0f172a', range: '4,001–6,000',  label: 'ดี' },
-            { max: Infinity, color: '#3BCCFF', text: '#0f172a', range: '> 6,000',      label: 'ดีมาก (ฝุ่น/ควันกระจายตัวดี)' }
+            { max: 2000,     color: '#F04646', text: '#ffffff', range: '< 2,000',      label: 'แย่ (ฝุ่น/ควันสะสมตัว)' },
+            { max: 4000,     color: '#FFA200', text: '#0f172a', range: '2,000–3,999',  label: 'ปานกลาง' },
+            { max: 8000,     color: '#92D050', text: '#0f172a', range: '4,000–7,999',  label: 'ดี' },
+            { max: Infinity, color: '#3BCCFF', text: '#0f172a', range: '≥ 8,000',      label: 'ดีมาก (ฝุ่น/ควันกระจายตัวดี)' }
         ];
         let ventData = null;          // { key, rows, loadedAt, ... } ของพื้นที่ที่โหลดล่าสุด
         let ventLoadPromise = null;   // กันการโหลดซ้อน
@@ -1609,7 +1610,7 @@ if (primarySource && primarySource.features) {
                 });
                 const vd = ventCurrentData();
                 if (vd) {
-                    const poor = vd.rows.filter(r => r.vr !== null && r.vr <= VENT_LEVELS[0].max).length;
+                    const poor = vd.rows.filter(r => r.vr !== null && r.vr < VENT_LEVELS[0].max).length;
                     html += `<div style="margin-top:4px; font-size:13px;">ระบายอากาศแย่ <b style="color:#b91c1c;">${poor}</b> จาก ${vd.rows.length} จังหวัด</div>`;
                 } else if (ventLoadError) {
                     html += '<div style="margin-top:4px; font-size:13px; color:#b91c1c;">โหลดข้อมูลการระบายอากาศไม่สำเร็จ</div>';
@@ -3111,6 +3112,7 @@ if (primarySource && primarySource.features) {
         // ============================================================================
         // อัตราการระบายอากาศ (Ventilation Rate) และสภาพอากาศรายจังหวัด
         // VR = เพดานการระบายอากาศ (PBLH, ม.) × ความเร็วลมที่ระดับ 10 ม. (ม./วินาที) → ตร.ม./วินาที (สูตรเดียวกับ PM2570.html)
+        // แบ่งระดับตามเกณฑ์ของกรมอุตุนิยมวิทยา (ดู VENT_LEVELS)
         // - PBLH ลม อุณหภูมิ ความชื้น โอกาสฝน รายชั่วโมง: Open-Meteo คำขอเดียวสำหรับทุกจังหวัดในพื้นที่
         // - เมื่อเลือกพื้นที่ สคพ.: สภาพอากาศและลมจากกรมอุตุนิยมวิทยา (TMD API ผ่าน Apps Script ตัวเดียวกับ PM2570.html)
         //   และใช้ลมของ TMD คำนวณ VR ตอนนี้ (โหมดทั้งประเทศใช้ Open-Meteo อย่างเดียว เพื่อไม่ต้องเรียก TMD 77 ครั้ง)
@@ -3178,7 +3180,7 @@ if (primarySource && primarySource.features) {
 
         function ventLevel(v) {
             if (v === null || v === undefined || isNaN(v)) return null;
-            return VENT_LEVELS.find(lv => v <= lv.max);
+            return VENT_LEVELS.find(lv => v < lv.max);
         }
 
         function fmtInt(v) {
@@ -3795,7 +3797,7 @@ if (primarySource && primarySource.features) {
             if (vd) {
                 const vrows = vd.rows.slice().sort((a, b) => (a.vr === null ? Infinity : a.vr) - (b.vr === null ? Infinity : b.vr));
                 const refTime = (vrows.find(r => r.time) || {}).time;
-                h += `<div class="pdf-note">ข้อมูล ณ ${pdfEsc(fmtOmTime(refTime))} · อัตราการระบายอากาศ (VR, ตร.ม./วินาที) = เพดานการระบายอากาศ × ความเร็วลมที่ 10 ม. ค่ายิ่งต่ำ ฝุ่นและควันยิ่งสะสมตัว · ` +
+                h += `<div class="pdf-note">ข้อมูล ณ ${pdfEsc(fmtOmTime(refTime))} · อัตราการระบายอากาศ (VR, ตร.ม./วินาที) = เพดานการระบายอากาศ × ความเร็วลมที่ 10 ม. ค่ายิ่งต่ำ ฝุ่นและควันยิ่งสะสมตัว (แบ่งระดับตามเกณฑ์กรมอุตุนิยมวิทยา) · ` +
                     (vd.national ? 'สภาพอากาศและลม: Open-Meteo' : `สภาพอากาศและลม: กรมอุตุนิยมวิทยา ${vd.tmdCount}/${vrows.length} จังหวัด`) + ' · เพดานการระบายอากาศ: Open-Meteo · "กราฟ 10 วัน" คือกราฟพยากรณ์ของกรมอุตุนิยมวิทยา</div>';
                 h += pdfTable(['จังหวัด', 'VR', 'ระดับ', 'เพดาน (ม.)', 'ลม', 'สภาพอากาศ', '24 ชม. ข้างหน้า', ''],
                     vrows.map(r => {
