@@ -337,10 +337,10 @@
             .pm25-table th, .pm25-table td { padding: 5px 6px; }
         }
 
-        /* ---------- พื้นที่เผาไหม้ซ้ำซาก ----------
-           พื้นที่ว่างของ SVG ใน overlayPane ไม่รับคลิก ให้ทะลุไปถึงแปลงเผาไหม้ (canvas ใน burnPane ด้านล่าง)
-           เส้น/วงที่คลิกได้ (.leaflet-interactive) ยังรับคลิกตามปกติจากกฎของ Leaflet */
-        .leaflet-overlay-pane > svg { pointer-events: none; }
+        /* ---------- จุดความร้อน: จุด 12 px บนพื้นที่กด 24 px ---------- */
+        .hs-dot { background: transparent; border: none; }
+        .hs-dot span { position: absolute; left: 6px; top: 6px; width: 12px; height: 12px; border-radius: 50%;
+            border: 1px solid #fff; box-sizing: border-box; opacity: 0.95; box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.25); }
 
         /* ---------- อัตราการระบายอากาศ ---------- */
         /* หมุดยกขึ้นเหนือจุดจังหวัด มีก้านชี้ลงที่ตำแหน่ง ไม่ทับป้าย/จุด PM2.5 ที่อยู่ตรงตำแหน่งเดียวกัน */
@@ -958,9 +958,11 @@
         const ventLayer = L.layerGroup();
 
         // ชั้นข้อมูลพื้นที่เผาไหม้ซ้ำซาก (GISTDA รายเดือน): แปลงจำนวนมาก จึงวาดด้วย canvas ให้ลื่นบนมือถือ
-        // อยู่ใน pane ของตัวเอง ใต้จุดความร้อน/วงบ่อขยะ (overlayPane) เพื่อไม่ให้แผ่น canvas บังการคลิกหมุดเหล่านั้น
+        // อยู่ใน pane ของตัวเอง ใต้จุดความร้อน/วงบ่อขยะ และไม่รับคลิกเลย (แผ่น canvas จะไม่บังหมุดใด ๆ บนทุกเบราว์เซอร์)
+        // การกดแปลงตรวจเองใน map click (openBurnPlotAt) แทน
         map.createPane('burnPane');
         map.getPane('burnPane').style.zIndex = 360;
+        map.getPane('burnPane').style.pointerEvents = 'none';
         const BURN_LAYER_NAME = "🔥 พื้นที่เผาไหม้ซ้ำซาก (GISTDA)";
         const burnLayer = L.layerGroup();
         const burnRenderer = L.canvas({ padding: 0.5, pane: 'burnPane' });
@@ -1551,13 +1553,17 @@ if (primarySource && primarySource.features) {
                     if (conf === 'h' || conf === 'high') markerColor = "#dc3545"; 
                     else if (conf === 'n' || conf === 'nominal') markerColor = "#fd7e14"; 
 
-                    return L.circleMarker(latlng, {
-                        radius: 6,
-                        fillColor: markerColor,
-                        color: "#fff",
-                        weight: 1,
-                        opacity: 1,
-                        fillOpacity: 0.9
+                    // หมุด (marker) แทนวงกลม SVG: อยู่ชั้นหมุดเหนือวงแจ้งเตือนบ่อขยะ/วงกลมอื่น จึงกดได้เสมอ
+                    // จุดที่เห็นขนาดเท่าเดิม (12 px) แต่พื้นที่กด 24 px ให้กดด้วยนิ้วบนมือถือ/แท็บเล็ตได้ง่าย
+                    return L.marker(latlng, {
+                        icon: L.divIcon({
+                            className: 'hs-dot',
+                            html: `<span style="background:${markerColor};"></span>`,
+                            iconSize: [24, 24],
+                            iconAnchor: [12, 12],
+                            popupAnchor: [0, -6]
+                        }),
+                        keyboard: false
                     });
                 },
                 onEachFeature: function (feature, layer) {
@@ -2420,6 +2426,7 @@ if (primarySource && primarySource.features) {
 
         // คลิกบนแผนที่เพื่อดึงพิกัดลงช่องจุดเกิดเหตุด่วน
         map.on('click', function(e) {
+            if (openBurnPlotAt(e.latlng)) return; // กดในแปลงเผาไหม้: แสดงข้อมูลแปลง ไม่ปักพิกัดจุดเกิดเหตุ
             let clickLat = e.latlng.lat.toFixed(5);
             let clickLon = e.latlng.lng.toFixed(5);
             let popupContent = `<div style='text-align:center; font-size:14px;'>
@@ -3773,10 +3780,9 @@ if (primarySource && primarySource.features) {
                     pane: 'burnPane',
                     renderer: burnRenderer,
                     style: () => BURN_STYLE,
-                    bubblingMouseEvents: false, // คลิกแปลงไม่ส่งต่อไปเป็นการคลิกแผนที่ (ปักพิกัดจุดเกิดเหตุ)
+                    interactive: false, // ไม่รับคลิกโดยตรง: openBurnPlotAt() ตรวจจากตำแหน่งที่กดแผนที่แทน
                     onEachFeature: (f, layer) => {
                         layer.bindPopup(() => burnPopupHtml(f.properties, f.properties._area, m.label));
-                        layer.bindTooltip(`พื้นที่เผาไหม้: ${stripPrefix(f.properties.TB_TN, 'ต\\.') || '-'} (${fmtInt(f.properties._area)} ไร่)`, { sticky: true });
                     }
                 });
                 const result = { id: m.id, label: m.label, geo: geo, rows: rows };
@@ -3795,6 +3801,21 @@ if (primarySource && primarySource.features) {
             burnLoadPromise = promise;
             burnLoadingId = id;
             return promise;
+        }
+
+        // กดแผนที่แล้วตรงกับแปลงเผาไหม้: เปิดป้ายข้อมูลแปลง (แปลงเล็กสุดที่ครอบจุดนั้น) คืนค่า true ถ้าเปิด
+        function openBurnPlotAt(latlng) {
+            if (!burnData || !map.hasLayer(burnLayer) || !burnLayer.hasLayer(burnData.geo)) return false;
+            const pt = turf.point([latlng.lng, latlng.lat]);
+            let hit = null;
+            burnData.geo.eachLayer(l => {
+                if (!l.getBounds().contains(latlng)) return;
+                if (!turf.booleanPointInPolygon(pt, l.feature)) return;
+                if (!hit || l.feature.properties._area < hit.feature.properties._area) hit = l;
+            });
+            if (!hit) return false;
+            hit.openPopup(latlng);
+            return true;
         }
 
         function burnInScope(prov) {
@@ -3883,6 +3904,9 @@ if (primarySource && primarySource.features) {
             document.getElementById('burnMonthGroup').style.display = 'none';
             document.getElementById('burnPanel').style.display = 'none';
             setUrlParam('burn', null);
+            // ถอดแผ่น canvas ออกจากแผนที่ด้วย (Leaflet ไม่ถอดเองเมื่อปิดชั้น) จะได้ไม่มีอะไรค้างทับหมุดอื่นหลังปิด
+            // เปิดชั้นอีกครั้ง Leaflet จะสร้าง canvas ใหม่ให้เอง
+            if (map.hasLayer(burnRenderer)) map.removeLayer(burnRenderer);
         });
         burnMonthSelect.addEventListener('change', refreshBurn);
 
