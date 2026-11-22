@@ -1487,8 +1487,54 @@ if (primarySource && primarySource.features) {
         }
 
         // ฟังก์ชันสำหรับวาดหมุดจุดความร้อนลงบนแผนที่
-        // ชื่อตำบล/อำเภอของจุดความร้อน: ค้นจาก Longdo Map ตอนเปิดป้ายรายละเอียด (ทีละจุด ไม่ค้นทุกจุดล่วงหน้า) และจำผลไว้
-        const hotspotAddressCache = new Map(); // "lat,lon" → Promise<{ sub, dist } | null>
+        // ชื่อตำบล/อำเภอของจุดความร้อน: ค้นจาก Longdo Map ตอนเปิดป้ายรายละเอียด (ทีละจุด ไม่ค้นทุกจุดล่วงหน้า)
+        // ถามครั้งเดียวต่อพิกัด แล้วจำผลไว้ในเครื่อง (localStorage ใช้ร่วมกับ hotspotRadar.html เก็บ 500 พิกัดล่าสุด)
+        // เปิดดูจุดเดิมซ้ำหรือเปิดแอพใหม่จึงไม่เปลืองโควต้า ค้นไม่สำเร็จ (เครือข่ายขัดข้อง/ถูกปฏิเสธ เช่น โควต้าเต็ม) จะเว้น 5 นาทีก่อนถามพิกัดนั้นอีก
+        const HS_ADDR_STORE = 'hotspotAddress.v1';
+        const HS_ADDR_MAX = 500;
+        const HS_ADDR_RETRY_MS = 5 * 60 * 1000;
+        const hsAddrPending = new Map();  // "lat,lon" → Promise<[ตำบล, อำเภอ] | null> ที่กำลังค้น/ค้นแล้วในรอบนี้
+        const hsAddrFailedAt = new Map(); // "lat,lon" → เวลาที่ค้นไม่สำเร็จล่าสุด
+        let hsAddrMem = null;             // สำเนาในหน่วยความจำ { "lat,lon": [ตำบล, อำเภอ] }
+
+        function hsAddrKey(lat, lon) { return Number(lat).toFixed(4) + ',' + Number(lon).toFixed(4); }
+        function hsAddrRead() {
+            try {
+                const o = JSON.parse(localStorage.getItem(HS_ADDR_STORE));
+                return o && typeof o === 'object' && !Array.isArray(o) ? o : {};
+            } catch (e) { return {}; }
+        }
+        function hsAddrAll() { return hsAddrMem || (hsAddrMem = hsAddrRead()); }
+        function hsAddrSave(key, rec) {
+            const all = Object.assign(hsAddrRead(), hsAddrAll()); // รวมกับที่อีกแท็บ/อีกแอพเพิ่งบันทึก
+            delete all[key];
+            all[key] = rec; // ใหม่สุดอยู่ท้าย
+            const keys = Object.keys(all);
+            for (let i = 0; i < keys.length - HS_ADDR_MAX; i++) delete all[keys[i]];
+            hsAddrMem = all;
+            try { localStorage.setItem(HS_ADDR_STORE, JSON.stringify(all)); } catch (e) { /* บันทึกไม่ได้: จำไว้แค่ในหน้านี้ */ }
+        }
+        function hsAddrLookup(lat, lon) {
+            const key = hsAddrKey(lat, lon);
+            const known = hsAddrAll()[key];
+            if (Array.isArray(known)) return Promise.resolve(known);
+            if (hsAddrPending.has(key)) return hsAddrPending.get(key);
+            if (Date.now() - (hsAddrFailedAt.get(key) || 0) < HS_ADDR_RETRY_MS) return Promise.reject(new Error('ค้นไม่สำเร็จเมื่อครู่ รอก่อนค้นใหม่'));
+            const p = fetch(`https://api.longdo.com/map/services/address?lon=${lon}&lat=${lat}&key=${longdoApiKey}`)
+                .then(res => {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(d => {
+                    const rec = [String((d && d.subdistrict) || '').trim(), String((d && d.district) || '').trim()];
+                    if (!rec[0] && !rec[1]) return null; // ไม่มีชื่อพื้นที่: ไม่บันทึกลงเครื่อง และไม่ถามซ้ำจนกว่าจะเปิดหน้าใหม่
+                    hsAddrSave(key, rec);
+                    return rec;
+                });
+            p.catch(() => { hsAddrPending.delete(key); hsAddrFailedAt.set(key, Date.now()); });
+            hsAddrPending.set(key, p);
+            return p;
+        }
 
         function splitThaiAdminName(text, prefixes) {
             const s = String(text || '').trim();
@@ -1498,22 +1544,12 @@ if (primarySource && primarySource.features) {
         }
 
         function lookupHotspotAddress(lat, lon) {
-            const key = Number(lat).toFixed(4) + ',' + Number(lon).toFixed(4);
-            if (!hotspotAddressCache.has(key)) {
-                const p = fetch(`https://api.longdo.com/map/services/address?lon=${lon}&lat=${lat}&key=${longdoApiKey}`)
-                    .then(res => {
-                        if (!res.ok) throw new Error('HTTP ' + res.status);
-                        return res.json();
-                    })
-                    .then(data => {
-                        const sub = splitThaiAdminName(data && data.subdistrict, ['ตำบล', 'แขวง']);
-                        const dist = splitThaiAdminName(data && data.district, ['กิ่งอำเภอ', 'อำเภอ', 'เขต']);
-                        return sub || dist ? { sub, dist } : null;
-                    });
-                p.catch(() => hotspotAddressCache.delete(key)); // เครือข่ายขัดข้อง: เปิดป้ายอีกครั้งจะค้นใหม่
-                hotspotAddressCache.set(key, p);
-            }
-            return hotspotAddressCache.get(key);
+            return hsAddrLookup(lat, lon).then(rec => {
+                if (!rec) return null;
+                const sub = splitThaiAdminName(rec[0], ['ตำบล', 'แขวง']);
+                const dist = splitThaiAdminName(rec[1], ['กิ่งอำเภอ', 'อำเภอ', 'เขต']);
+                return sub || dist ? { sub, dist } : null;
+            });
         }
 
         function fillHotspotAddress(popupEl, lat, lon) {
@@ -1536,7 +1572,7 @@ if (primarySource && primarySource.features) {
                 set('.hs-dist-label', (a.dist && a.dist.label) || 'อำเภอ');
                 set('.hs-dist', a.dist ? a.dist.name : '-');
             }).catch(() => {
-                set('.hs-sub', 'ค้นหาไม่สำเร็จ (ลองเปิดใหม่อีกครั้ง)', true);
+                set('.hs-sub', 'ค้นหาไม่สำเร็จ (ลองใหม่ภายหลัง)', true);
                 set('.hs-dist', '-', true);
             });
         }
