@@ -417,6 +417,9 @@
         .visor-reticle .arrow { transform-origin: 100px 100px; transition: transform 0.4s ease-out; opacity: 0; }
         .visor-lens.locked .visor-reticle .arrow { opacity: 1; }
         .visor-reticle .arrow path { fill: #ffef6b; filter: drop-shadow(0 0 4px rgba(255, 239, 107, 0.9)); }
+        /* หลังล็อกเป้า: หัวลูกศรกะพริบพร้อมเสียงปี๊บ (สว่างตอนปี๊บ หรี่ระหว่างปี๊บ) */
+        .visor-reticle .arrow.beating path { opacity: 0.3; }
+        .visor-reticle .arrow.beating.ping path { opacity: 1; fill: #fffbe0; filter: drop-shadow(0 0 9px rgba(255, 239, 107, 1)); }
         .visor-reticle .dot { fill: #c8ffbf; }
         .visor-hud { position: absolute; inset: 7% 42% 8% 8%; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
         .visor-top {
@@ -1868,6 +1871,7 @@
             visor.timers = [];
             clearInterval(visor.loop); visor.loop = null;
             clearInterval(visor.beat); visor.beat = null;
+            $('visorArrow').classList.remove('beating', 'ping');
         }
         function reducedMotion() {
             return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -1896,11 +1900,19 @@
         // เสียงข้อมูลวิ่ง: บี๊ปสั้นมาก ความถี่สุ่ม
         function visorChatter() { tone(1800 + Math.random() * 1600, 0.018, 0.025, 'square'); }
         // หลังล็อกเป้า: บี๊ปสั้นต่อเนื่อง (ราว 4 ครั้งต่อวินาที) จนกว่าจะปิดแว่นหรือสแกนใหม่
+        // หัวลูกศรกะพริบพร้อมเสียง (กะพริบแม้ปิดเสียง, ไม่กะพริบถ้าตั้งค่าลดการเคลื่อนไหว)
         const VISOR_LOCK_BEEP_MS = 250;
+        const VISOR_ARROW_FLASH_MS = 110;
         function visorStartLockBeeps() {
             clearInterval(visor.beat);
+            const arrow = $('visorArrow');
+            const blink = !reducedMotion();
             visor.beat = setInterval(() => {
-                if (visor.open && visor.locked) tone(2200, 0.05, 0.06, 'square');
+                if (!visor.open || !visor.locked) return;
+                tone(2200, 0.05, 0.06, 'square');
+                if (!blink) return;
+                arrow.classList.add('beating', 'ping');
+                setTimeout(() => arrow.classList.remove('ping'), VISOR_ARROW_FLASH_MS);
             }, VISOR_LOCK_BEEP_MS);
         }
 
