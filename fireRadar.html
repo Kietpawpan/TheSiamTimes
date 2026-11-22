@@ -337,6 +337,11 @@
             .pm25-table th, .pm25-table td { padding: 5px 6px; }
         }
 
+        /* ---------- พื้นที่เผาไหม้ซ้ำซาก ----------
+           พื้นที่ว่างของ SVG ใน overlayPane ไม่รับคลิก ให้ทะลุไปถึงแปลงเผาไหม้ (canvas ใน burnPane ด้านล่าง)
+           เส้น/วงที่คลิกได้ (.leaflet-interactive) ยังรับคลิกตามปกติจากกฎของ Leaflet */
+        .leaflet-overlay-pane > svg { pointer-events: none; }
+
         /* ---------- อัตราการระบายอากาศ ---------- */
         /* หมุดยกขึ้นเหนือจุดจังหวัด มีก้านชี้ลงที่ตำแหน่ง ไม่ทับป้าย/จุด PM2.5 ที่อยู่ตรงตำแหน่งเดียวกัน */
         .vent-pin { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; }
@@ -502,6 +507,15 @@
                     <b>🌬️ แสดงอัตราการระบายอากาศและสภาพอากาศรายจังหวัด</b>
                     <span style="font-size: 14px; color: #64748b;">(เพดานการระบายอากาศ × ความเร็วลม · กรมอุตุนิยมวิทยา / Open-Meteo)</span>
                 </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 16px; flex-wrap: wrap; margin-top: 10px;">
+                    <input type="checkbox" id="burnToggle" style="width: 18px; height: 18px; accent-color: #4a148c; margin: 0;">
+                    <b>🔥 แสดงพื้นที่เผาไหม้ซ้ำซาก รายเดือน</b>
+                    <span style="font-size: 14px; color: #64748b;">(GISTDA · มีข้อมูลเฉพาะ สคพ. 11)</span>
+                </label>
+                <div id="burnMonthGroup" style="display: none; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 0 0 26px; font-size: 15px;">
+                    <label for="burnMonthSelect" style="color: #475569;">เดือน:</label>
+                    <select id="burnMonthSelect" style="padding: 6px 10px; border: 1px solid #fca5a5; border-radius: 6px; font-size: 15px; color: #991b1b; background: #fff; cursor: pointer;"></select>
+                </div>
             </div>
 
             <!-- ส่วนปักหมุดจุดเกิดเหตุด่วนและจำลองกรวยควันตามทิศลม -->
@@ -624,6 +638,35 @@
                 "ตอนนี้" คือค่าของชั่วโมงปัจจุบัน "เฉลี่ยทั้งวันนี้" คือค่าเฉลี่ย 00:00–23:00 น. ของวันนี้ ·
                 เพดานการระบายอากาศและพยากรณ์รายชั่วโมง: Open-Meteo · สภาพอากาศและลม: กรมอุตุนิยมวิทยา (TMD API) เมื่อเลือกพื้นที่ สคพ. ส่วนโหมดทั้งประเทศใช้ Open-Meteo ·
                 คลิกแถวเพื่อซูมไปที่จังหวัด
+            </div>
+        </div>
+
+        <!-- พื้นที่เผาไหม้ซ้ำซาก รายเดือน (GISTDA) แสดงเมื่อเปิดตัวเลือก -->
+        <div id="burnPanel" class="pm25-panel" style="display: none;">
+            <div class="pm25-panel-header">
+                <div>
+                    <div class="pm25-panel-title">🔥 พื้นที่เผาไหม้ซ้ำซาก <span id="burnScope" style="font-weight: normal; color: #475569;"></span></div>
+                    <div class="pm25-meta" id="burnMeta">-</div>
+                </div>
+            </div>
+            <div class="pm25-summary" id="burnSummary"></div>
+            <div class="pm25-table-wrap">
+                <table class="pm25-table">
+                    <thead>
+                        <tr>
+                            <th class="rank">อันดับ</th>
+                            <th>อำเภอ</th>
+                            <th>จังหวัด</th>
+                            <th class="num">พื้นที่เผาไหม้<span class="pm25-sub" style="color:#e9d5ff;">ไร่</span></th>
+                            <th class="num">จำนวนแปลง</th>
+                        </tr>
+                    </thead>
+                    <tbody id="burnTableBody"></tbody>
+                </table>
+            </div>
+            <div class="pm25-note">
+                ที่มา: พื้นที่เผาไหม้จากภาพถ่ายดาวเทียม GISTDA รายเดือน (ฐานข้อมูลในรีโป hotspot) · มีข้อมูลเฉพาะ สคพ. 11 (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์) ·
+                ขนาดพื้นที่ใช้ค่าจาก GISTDA ถ้าไม่มีจะคำนวณจากรูปแปลง · แปลงที่ไม่มีรูปร่างในไฟล์ไม่นำมาแสดงและไม่นับ · คลิกแปลงบนแผนที่เพื่อดูรายละเอียด
             </div>
         </div>
     </div>
@@ -913,6 +956,14 @@
         // ชั้นข้อมูลอัตราการระบายอากาศรายจังหวัด (หมุดที่จุดกลางจังหวัด สีตามระดับการระบายอากาศ)
         const VENT_LAYER_NAME = "🌬️ อัตราการระบายอากาศ";
         const ventLayer = L.layerGroup();
+
+        // ชั้นข้อมูลพื้นที่เผาไหม้ซ้ำซาก (GISTDA รายเดือน): แปลงจำนวนมาก จึงวาดด้วย canvas ให้ลื่นบนมือถือ
+        // อยู่ใน pane ของตัวเอง ใต้จุดความร้อน/วงบ่อขยะ (overlayPane) เพื่อไม่ให้แผ่น canvas บังการคลิกหมุดเหล่านั้น
+        map.createPane('burnPane');
+        map.getPane('burnPane').style.zIndex = 360;
+        const BURN_LAYER_NAME = "🔥 พื้นที่เผาไหม้ซ้ำซาก (GISTDA)";
+        const burnLayer = L.layerGroup();
+        const burnRenderer = L.canvas({ padding: 0.5, pane: 'burnPane' });
         
         // กำหนดเลเยอร์จัดกลุ่มจุดความร้อน
         const hotspotLayer = L.markerClusterGroup({
@@ -930,7 +981,8 @@
             "🗑️ สถานที่กำจัดขยะ": landfillLayer,
             [PM25_LAYER_NAME]: pm25Layer,
             [WIND_LAYER_NAME]: windLayer,
-            [VENT_LAYER_NAME]: ventLayer
+            [VENT_LAYER_NAME]: ventLayer,
+            [BURN_LAYER_NAME]: burnLayer
         };
 
         L.control.layers(baseMaps, overlayMaps).addTo(map);
@@ -981,6 +1033,12 @@
         let ventLoadingKey = null;    // พื้นที่ที่กำลังโหลด
         let ventLoadError = null;
         let ventLastDetailed = null;  // หมุดแสดงตัวเลข (true) หรือจุดสี (false)
+
+        // พื้นที่เผาไหม้ซ้ำซาก: โหลดทีละเดือน (ไฟล์ใหญ่) และเก็บไว้เฉพาะเดือนที่แสดงอยู่
+        let burnData = null;          // { id, label, geo: L.GeoJSON, rows: [{ prov, amphoe, tambon, area }] }
+        let burnLoadPromise = null;
+        let burnLoadingId = null;
+        let burnLoadError = null;
 
         // สถานะข้อมูลเส้นลม (โหลดเมื่อเปิดตัวเลือกเส้นลม)
         let windVelocityLayer = null; // ชั้นอนิเมชันอนุภาคลม (สร้างครั้งแรกเมื่อได้ข้อมูล)
@@ -1172,6 +1230,7 @@ if (primarySource && primarySource.features) {
             };
 
             const geoLayer = L.geoJSON(boundaryGeoJSON, {
+                interactive: false, // เส้นขอบไม่มีป้ายข้อมูลของตัวเอง ไม่ต้องรับคลิก (ไม่บังแปลงเผาไหม้ด้านล่าง คลิกแผนที่ยังทำงานเหมือนเดิม)
                 style: {
                     color: "#4a148c",
                     weight: 5,
@@ -1566,6 +1625,7 @@ if (primarySource && primarySource.features) {
             processRegionalData();
             refreshWind(false); // ตารางลมของพื้นที่ใหม่ (ถ้าเปิดเส้นลมอยู่)
             refreshVent(false); // อัตราการระบายอากาศของจังหวัดในพื้นที่ใหม่ (ถ้าเปิดอยู่)
+            if (map.hasLayer(burnLayer)) renderBurn(); // จัดอันดับพื้นที่เผาไหม้ตามพื้นที่ใหม่ (ข้อมูลเดือนเดิม)
             showToast(`สลับพื้นที่ไปยัง ${regionFullName()} เรียบร้อยแล้ว`, "info");
         }
 
@@ -1666,6 +1726,19 @@ if (primarySource && primarySource.features) {
                     html += '<div style="font-size:13px; margin-top:4px; color:#b91c1c;">โหลดข้อมูลลมไม่สำเร็จ</div>';
                 } else {
                     html += '<div style="font-size:13px; margin-top:4px; color:#64748b;">กำลังโหลดข้อมูลลม...</div>';
+                }
+            }
+
+            if (activeLayers.has(BURN_LAYER_NAME)) {
+                html += `<div class="legend-title">🔥 พื้นที่เผาไหม้ซ้ำซาก (GISTDA)</div>`;
+                html += '<div><span style="display:inline-block; width:14px; height:14px; background:rgba(239,68,68,0.35); border:1.5px solid #dc2626; margin-right:6px; vertical-align:-2px;"></span>แปลงที่เผาไหม้ในเดือนที่เลือก</div>';
+                if (burnData) {
+                    const total = burnData.rows.reduce((a, r) => a + r.area, 0);
+                    html += `<div style="margin-top:4px; font-size:13px;">${burnData.label}: <b>${fmtInt(burnData.rows.length)}</b> แปลง · <b>${fmtInt(total)}</b> ไร่ (สคพ. 11)</div>`;
+                } else if (burnLoadError) {
+                    html += '<div style="margin-top:4px; font-size:13px; color:#b91c1c;">โหลดข้อมูลพื้นที่เผาไหม้ไม่สำเร็จ</div>';
+                } else {
+                    html += '<div style="margin-top:4px; font-size:13px; color:#64748b;">กำลังโหลดข้อมูล (ไฟล์ใหญ่ อาจใช้เวลาสักครู่)...</div>';
                 }
             }
 
@@ -3630,6 +3703,192 @@ if (primarySource && primarySource.features) {
         // เปิดหน้าพร้อมตัวเลือกนี้ได้ด้วย ?vent=1
         if (urlParams.get('vent') === '1') map.addLayer(ventLayer);
 
+        // ============================================================================
+        // พื้นที่เผาไหม้ซ้ำซาก (GISTDA) รายเดือน: ไฟล์ GeoJSON ในรีโป hotspot (githubBaseUrl) ชุดเดียวกับ burnScar6869.html
+        // โหลดเมื่อเปิดตัวเลือกเท่านั้น และทีละเดือน (บางเดือนรวมหลายสิบ MB) เก็บไว้เฉพาะเดือนที่แสดงอยู่
+        // เพิ่มเดือนใหม่: ใส่รายการบนสุดของ BURN_MONTHS (ใหม่ → เก่า) เดือนที่แยกไฟล์รายจังหวัดใส่ได้หลายไฟล์
+        // ============================================================================
+        const BURN_MONTHS = [
+            { id: '6905', label: 'พ.ค. 2569', files: ['burn_scar_reo11_small6905.geojson'] },
+            { id: '6904', label: 'เม.ย. 2569', files: ['burn_scar_reo11_small6904.geojson', 'burn_scar_reo11_small6904Chaiyaphum.geojson',
+                'burn_scar_reo11_small6904Buriram.geojson', 'burn_scar_reo11_small6904Surin.geojson'] },
+            { id: '6903', label: 'มี.ค. 2569', files: ['burn_scar_reo11_small6903.geojson'] },
+            { id: '6902', label: 'ก.พ. 2569', files: ['burn_scar_reo11_small6902.geojson'] },
+            { id: '6901', label: 'ม.ค. 2569', files: ['burn_scar_reo11_small6901.geojson'] },
+            { id: '6812', label: 'ธ.ค. 2568', files: ['burn_scar_reo11_small6812.geojson'] },
+            { id: '6811', label: 'พ.ย. 2568', files: ['burn_scar_reo11_small6811.geojson'] }
+        ];
+        const BURN_STYLE = { color: '#dc2626', weight: 1, fillColor: '#ef4444', fillOpacity: 0.35 };
+
+        const burnMonthSelect = document.getElementById('burnMonthSelect');
+        burnMonthSelect.innerHTML = BURN_MONTHS.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
+        const paramBurn = String(urlParams.get('burn') || '');
+        if (BURN_MONTHS.some(m => m.id === paramBurn)) burnMonthSelect.value = paramBurn;
+
+        function burnMonth(id) {
+            return BURN_MONTHS.find(m => m.id === id) || BURN_MONTHS[0];
+        }
+
+        function stripPrefix(text, prefix) {
+            return String(text || '').trim().replace(new RegExp('^' + prefix + '\\s*'), '').trim();
+        }
+
+        function burnPopupHtml(p, area, label) {
+            const row = (k, v) => `<tr><td style="color:#475569; padding:2px 8px 2px 0; white-space:nowrap; vertical-align:top;">${k}</td><td style="padding:2px 0; vertical-align:top;">${pdfEsc(v || '-')}</td></tr>`;
+            return `<div style="font-size:14px; min-width:220px;">
+                <div style="background:#dc2626; color:#fff; padding:5px 8px; border-radius:4px; margin-bottom:6px; font-weight:bold; text-align:center;">🔥 พื้นที่เผาไหม้ซ้ำซาก (${pdfEsc(label)})</div>
+                <table style="border-collapse:collapse;">` +
+                row('ตำบล', stripPrefix(p.TB_TN, 'ต\\.')) +
+                row('อำเภอ', stripPrefix(p.AP_TN, 'อ\\.')) +
+                row('จังหวัด', stripPrefix(p.PV_TN, 'จ\\.')) +
+                row('เขตพื้นที่', p.RP_NAME) +
+                row('การใช้ที่ดิน', p.LU_Name) +
+                row('ขนาดพื้นที่', area > 0 ? `${area.toLocaleString('th-TH', { maximumFractionDigits: 2 })} ไร่` : '-') +
+                row('ที่มา', 'GISTDA') +
+                `</table></div>`;
+        }
+
+        function loadBurnMonth(id) {
+            if (burnData && burnData.id === id) return Promise.resolve(burnData);
+            if (burnLoadPromise && burnLoadingId === id) return burnLoadPromise;
+            const m = burnMonth(id);
+            const promise = Promise.all(m.files.map(f =>
+                fetch(githubBaseUrl + f).then(res => {
+                    if (!res.ok) throw new Error(`โหลด ${f} ไม่สำเร็จ (HTTP ${res.status})`);
+                    return res.json();
+                })
+            )).then(parts => {
+                const rows = [];
+                const features = [];
+                parts.forEach(data => (data && data.features || []).forEach(f => {
+                    if (!f || !f.geometry) return; // แปลงที่ไม่มีรูปร่าง: วาดไม่ได้ (เหมือน burnScar6869.html)
+                    const p = f.properties || {};
+                    let area = parseFloat(p.Area_rai);
+                    if (!(area > 0)) area = turf.area(f) / 1600; // บางเดือน (เม.ย., พ.ค.) ไม่มีค่าไร่ในไฟล์
+                    f.properties = Object.assign({}, p, { _area: area });
+                    features.push(f);
+                    rows.push({ prov: stripPrefix(p.PV_TN, 'จ\\.'), amphoe: stripPrefix(p.AP_TN, 'อ\\.'), area: area });
+                }));
+                const geo = L.geoJSON({ type: 'FeatureCollection', features: features }, {
+                    pane: 'burnPane',
+                    renderer: burnRenderer,
+                    style: () => BURN_STYLE,
+                    bubblingMouseEvents: false, // คลิกแปลงไม่ส่งต่อไปเป็นการคลิกแผนที่ (ปักพิกัดจุดเกิดเหตุ)
+                    onEachFeature: (f, layer) => {
+                        layer.bindPopup(() => burnPopupHtml(f.properties, f.properties._area, m.label));
+                        layer.bindTooltip(`พื้นที่เผาไหม้: ${stripPrefix(f.properties.TB_TN, 'ต\\.') || '-'} (${fmtInt(f.properties._area)} ไร่)`, { sticky: true });
+                    }
+                });
+                const result = { id: m.id, label: m.label, geo: geo, rows: rows };
+                if (burnMonthSelect.value === m.id) {
+                    if (burnData) burnLayer.removeLayer(burnData.geo); // เก็บไว้แค่เดือนที่แสดง ประหยัดหน่วยความจำ
+                    burnData = result;
+                    burnLoadError = null;
+                }
+                return result;
+            }).catch(err => {
+                if (burnMonthSelect.value === m.id) burnLoadError = err.message || String(err);
+                throw err;
+            }).finally(() => {
+                if (burnLoadPromise === promise) { burnLoadPromise = null; burnLoadingId = null; }
+            });
+            burnLoadPromise = promise;
+            burnLoadingId = id;
+            return promise;
+        }
+
+        function burnInScope(prov) {
+            return isNational() || PROVINCE_TO_EPO[prov] === currentEpoId;
+        }
+
+        function renderBurn() {
+            const meta = document.getElementById('burnMeta');
+            const summaryEl = document.getElementById('burnSummary');
+            const tbody = document.getElementById('burnTableBody');
+            document.getElementById('burnScope').innerText = isNational() ? '(ทั่วประเทศ)' : `(${EPO_REGIONS[currentEpoId].name})`;
+            updateDynamicLegend();
+
+            const want = burnMonth(burnMonthSelect.value);
+            if (!burnData || burnData.id !== want.id) {
+                if (burnData && map.hasLayer(burnData.geo)) burnLayer.removeLayer(burnData.geo);
+                meta.innerHTML = burnLoadError && !burnLoadPromise
+                    ? `<span style="color:#b91c1c;">${pdfEsc(burnLoadError)}</span>`
+                    : `กำลังโหลดข้อมูลเดือน ${pdfEsc(want.label)} จากรีโป hotspot (ไฟล์ใหญ่ อาจใช้เวลาสักครู่)...`;
+                summaryEl.innerHTML = '';
+                tbody.innerHTML = '';
+                return;
+            }
+            if (!burnLayer.hasLayer(burnData.geo)) burnLayer.addLayer(burnData.geo);
+
+            const inScope = burnData.rows.filter(r => burnInScope(r.prov));
+            const total = inScope.reduce((a, r) => a + r.area, 0);
+            const byAmphoe = new Map();
+            inScope.forEach(r => {
+                const key = r.amphoe + '|' + r.prov;
+                if (!byAmphoe.has(key)) byAmphoe.set(key, { amphoe: r.amphoe, prov: r.prov, area: 0, count: 0 });
+                const a = byAmphoe.get(key);
+                a.area += r.area;
+                a.count++;
+            });
+            const ranked = [...byAmphoe.values()].sort((a, b) => b.area - a.area);
+            burnData.ranked = ranked;
+
+            meta.innerHTML = `เดือน ${pdfEsc(burnData.label)} · ทั้งหมดในข้อมูล ${fmtInt(burnData.rows.length)} แปลง` +
+                (inScope.length !== burnData.rows.length ? ` · ในพื้นที่ที่เลือก ${fmtInt(inScope.length)} แปลง` : '');
+            if (!inScope.length) {
+                summaryEl.innerHTML = '<span style="color:#b45309;">ไม่มีข้อมูลพื้นที่เผาไหม้ในพื้นที่ที่เลือก ข้อมูลมีเฉพาะ สคพ. 11 (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์) เลือก สคพ. 11 หรือทั้งประเทศเพื่อดู</span>';
+                tbody.innerHTML = '';
+                return;
+            }
+            summaryEl.innerHTML = `<span class="pm25-chip" style="background:#fee2e2; color:#991b1b;">รวม ${fmtInt(total)} ไร่</span> ` +
+                `<span class="pm25-chip" style="background:#fee2e2; color:#991b1b;">${fmtInt(inScope.length)} แปลง</span> ` +
+                `<span class="pm25-chip" style="background:#fee2e2; color:#991b1b;">${fmtInt(ranked.length)} อำเภอ</span>`;
+            tbody.innerHTML = ranked.map((a, i) => `<tr>
+                    <td class="rank">${i + 1}</td>
+                    <td><b>${pdfEsc(a.amphoe || '-')}</b></td>
+                    <td>${pdfEsc(a.prov || '-')}</td>
+                    <td class="num">${a.area.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="num">${fmtInt(a.count)}</td>
+                </tr>`).join('');
+        }
+
+        async function refreshBurn() {
+            if (!map.hasLayer(burnLayer)) return;
+            const id = burnMonthSelect.value;
+            setUrlParam('burn', id);
+            renderBurn(); // แสดง "กำลังโหลด" ถ้ายังไม่มีข้อมูลเดือนนี้
+            try {
+                await loadBurnMonth(id);
+            } catch (err) {
+                if (burnMonthSelect.value === id) showToast('โหลดข้อมูลพื้นที่เผาไหม้ไม่สำเร็จ', 'error');
+            } finally {
+                if (map.hasLayer(burnLayer) && burnMonthSelect.value === id) renderBurn();
+            }
+        }
+
+        document.getElementById('burnToggle').addEventListener('change', function () {
+            if (this.checked) map.addLayer(burnLayer);
+            else map.removeLayer(burnLayer);
+        });
+        map.on('overlayadd', function (e) {
+            if (e.layer !== burnLayer) return;
+            document.getElementById('burnToggle').checked = true;
+            document.getElementById('burnMonthGroup').style.display = 'flex';
+            document.getElementById('burnPanel').style.display = 'block';
+            refreshBurn();
+        });
+        map.on('overlayremove', function (e) {
+            if (e.layer !== burnLayer) return;
+            document.getElementById('burnToggle').checked = false;
+            document.getElementById('burnMonthGroup').style.display = 'none';
+            document.getElementById('burnPanel').style.display = 'none';
+            setUrlParam('burn', null);
+        });
+        burnMonthSelect.addEventListener('change', refreshBurn);
+
+        // เปิดหน้าพร้อมชั้นข้อมูลนี้ได้ด้วย ?burn=<เดือน> เช่น ?burn=6905
+        if (paramBurn) map.addLayer(burnLayer);
+
         // มาตราส่วนแผนที่ (Scale Control)
         const scaleControl = L.control.scale({
             position: 'bottomright',
@@ -3933,6 +4192,26 @@ if (primarySource && primarySource.features) {
                     }), [1, 3, 4]);
             } else {
                 h += '<p class="pdf-note">ยังไม่ได้โหลดข้อมูลการระบายอากาศของพื้นที่นี้ หากต้องการรวมในรายงาน ให้ติ๊ก "แสดงอัตราการระบายอากาศและสภาพอากาศรายจังหวัด" รอให้ตารางขึ้น แล้วกดส่งออกอีกครั้ง</p>';
+            }
+
+            // พื้นที่เผาไหม้ซ้ำซาก (GISTDA) ของเดือนที่โหลดไว้ — ข้อมูลมีเฉพาะ สคพ. 11
+            if (burnData && burnData.ranked) {
+                const rk = burnData.ranked;
+                h += H2(`พื้นที่เผาไหม้ซ้ำซาก เดือน ${pdfEsc(burnData.label)} (GISTDA)`);
+                if (!rk.length) {
+                    h += '<p class="pdf-note">ไม่มีข้อมูลพื้นที่เผาไหม้ในพื้นที่ที่เลือก ข้อมูลมีเฉพาะ สคพ. 11 (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์)</p>';
+                } else {
+                    const total = rk.reduce((a, r) => a + r.area, 0), plots = rk.reduce((a, r) => a + r.count, 0);
+                    h += `<div class="pdf-note">รวม ${pdfNum(total)} ไร่ · ${pdfNum(plots)} แปลง · ${pdfNum(rk.length)} อำเภอ · ` +
+                        'ขนาดพื้นที่ใช้ค่าจาก GISTDA ถ้าไม่มีจะคำนวณจากรูปแปลง</div>';
+                    h += pdfTable(['อันดับ', 'อำเภอ', 'จังหวัด', 'พื้นที่ (ไร่)', 'จำนวนแปลง'],
+                        rk.slice(0, 20).map((a, i) => [i + 1, pdfEsc(a.amphoe || '-'), pdfEsc(a.prov || '-'), pdfNum(a.area, 2), pdfNum(a.count)]),
+                        [0, 3, 4]);
+                    if (rk.length > 20) h += `<div class="pdf-note">แสดง 20 อำเภอแรกที่มีพื้นที่เผาไหม้มากที่สุด จากทั้งหมด ${pdfNum(rk.length)} อำเภอ</div>`;
+                }
+            } else if (isNational() || currentEpoId === '11') {
+                h += H2('พื้นที่เผาไหม้ซ้ำซาก (GISTDA)');
+                h += '<p class="pdf-note">ยังไม่ได้โหลดข้อมูล หากต้องการรวมในรายงาน ให้ติ๊ก "แสดงพื้นที่เผาไหม้ซ้ำซาก รายเดือน" เลือกเดือน รอให้ตารางขึ้น แล้วกดส่งออกอีกครั้ง</p>';
             }
 
             // จุดเกิดเหตุด่วน
