@@ -3453,7 +3453,8 @@ if (primarySource && primarySource.features) {
 
         function ventPopupHtml(r) {
             const lv = ventLevel(r.vr);
-            const row = (k, v) => `<tr><td style="color:#475569; padding:2px 8px 2px 0; white-space:nowrap;">${k}</td><td style="padding:2px 0;">${v}</td></tr>`;
+            // หัวข้อชิดบน: ตรงกับบรรทัดแรกของค่าที่ยาวหลายบรรทัด (เช่น ลม, 24 ชม. ข้างหน้า)
+            const row = (k, v) => `<tr><td style="color:#475569; padding:2px 8px 2px 0; white-space:nowrap; vertical-align:top;">${k}</td><td style="padding:2px 0; vertical-align:top;">${v}</td></tr>`;
             return `<div style="font-size:14px; min-width:230px;">
                 <div style="background:${lv ? lv.color : '#94a3b8'}; color:${lv ? lv.text : '#fff'}; padding:5px 8px; border-radius:4px; margin-bottom:6px; font-weight:bold; text-align:center;">
                     🌬️ จ.${r.prov}: ${fmtInt(r.vr)} ตร.ม./วินาที${lv ? ' · ' + lv.label : ''}</div>
@@ -3465,7 +3466,7 @@ if (primarySource && primarySource.features) {
                 row('อุณหภูมิ', r.tempC !== null ? `${r.tempC.toFixed(1)} °C` : '-') +
                 row('ความชื้น', r.rhPct !== null ? `${Math.round(r.rhPct)} %` : '-') +
                 row('โอกาสเกิดฝน', ventRainText(r)) +
-                (r.min && r.max ? row('24 ชม. ข้างหน้า', `ต่ำสุด ${fmtInt(r.min.v)} (${fmtOmShort(r.min.t)})<br>สูงสุด ${fmtInt(r.max.v)} (${fmtOmShort(r.max.t)})`) : '') +
+                (r.min && r.max ? row('24 ชม. ข้างหน้า', `ต่ำสุด ${fmtInt(r.min.v)} <span style="white-space:nowrap;">(${fmtOmShort(r.min.t)})</span><br>สูงสุด ${fmtInt(r.max.v)} <span style="white-space:nowrap;">(${fmtOmShort(r.max.t)})</span>`) : '') +
                 row('ข้อมูล ณ', fmtOmTime(r.time)) +
                 `</table></div>`;
         }
