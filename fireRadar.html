@@ -2722,10 +2722,22 @@ if (primarySource && primarySource.features) {
             });
 
             // --- แผนที่: สีพื้นจังหวัดตามค่า PM2.5 ---
+            // ใช้รูปร่างจังหวัดชุดเดียวกับเส้นขอบพื้นที่ที่แสดงอยู่ (ราย สคพ. เป็นไฟล์ความละเอียดสูง) สีพื้นจึงไม่ล้นหรือขาดจากเส้นขอบ
+            // จังหวัดที่ยังไม่มีในชุดเส้นขอบ (เช่น ไฟล์ยังโหลดไม่เสร็จ) ใช้รูปร่างจาก thailand.json แทน
+            const boundaryGeoms = new Map();
+            ((boundaryGeoJSON && boundaryGeoJSON.features) || []).forEach(f => {
+                const th = f.properties && f.properties.matched_prov_th;
+                if (!th || !f.geometry) return;
+                if (!boundaryGeoms.has(th)) boundaryGeoms.set(th, []);
+                boundaryGeoms.get(th).push(f.geometry);
+            });
             const provFeatures = [];
             getPm25ProvinceIndex().forEach(pi => {
                 const row = ranked.find(r => r.prov === pi.th);
-                if (row) provFeatures.push({ type: 'Feature', properties: { color: getPm25Level(row.value).color }, geometry: pi.feature.geometry });
+                if (!row) return;
+                const color = getPm25Level(row.value).color;
+                (boundaryGeoms.get(pi.th) || [pi.feature.geometry]).forEach(g =>
+                    provFeatures.push({ type: 'Feature', properties: { color: color }, geometry: g }));
             });
             L.geoJSON({ type: 'FeatureCollection', features: provFeatures }, {
                 pane: 'pm25Pane',
