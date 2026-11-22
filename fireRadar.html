@@ -605,6 +605,7 @@
                             <th>จังหวัด</th>
                             <th class="num">อัตราการระบายอากาศ<span class="pm25-sub" style="color:#e9d5ff;">ตร.ม./วินาที (ตอนนี้)</span></th>
                             <th>ระดับ</th>
+                            <th class="num">เฉลี่ยทั้งวันนี้<span class="pm25-sub" style="color:#e9d5ff;">เทียบกับกราฟกรมอุตุฯ</span></th>
                             <th class="num">เพดานการระบายอากาศ<span class="pm25-sub" style="color:#e9d5ff;">PBLH (ม.)</span></th>
                             <th>ลม</th>
                             <th class="num">อุณหภูมิ</th>
@@ -620,6 +621,7 @@
             <div id="ventCharts"></div>
             <div class="pm25-note">
                 อัตราการระบายอากาศ (Ventilation Rate) = เพดานการระบายอากาศ (ม.) × ความเร็วลมที่ระดับ 10 ม. (ม./วินาที) ค่ายิ่งต่ำ ฝุ่นและควันยิ่งสะสมตัว · แบ่งระดับตามเกณฑ์กรมอุตุนิยมวิทยา ·
+                "ตอนนี้" คือค่าของชั่วโมงปัจจุบัน "เฉลี่ยทั้งวันนี้" คือค่าเฉลี่ย 00:00–23:00 น. ของวันนี้ ·
                 เพดานการระบายอากาศและพยากรณ์รายชั่วโมง: Open-Meteo · สภาพอากาศและลม: กรมอุตุนิยมวิทยา (TMD API) เมื่อเลือกพื้นที่ สคพ. ส่วนโหมดทั้งประเทศใช้ Open-Meteo ·
                 คลิกแถวเพื่อซูมไปที่จังหวัด
             </div>
@@ -3336,7 +3338,17 @@ if (primarySource && primarySource.features) {
             const nowKey = thaiHourKey(new Date());
             let idx = times.indexOf(nowKey);
             if (idx < 0) idx = times.findIndex(t => t >= nowKey);
-            const row = Object.assign({}, p, { time: null, pblh: null, omWs: null, omWd: null, temp: null, rh: null, pop: null, code: null, min: null, max: null, tmd: null });
+            const row = Object.assign({}, p, { time: null, pblh: null, omWs: null, omWd: null, temp: null, rh: null, pop: null, code: null, min: null, max: null, dayMean: null, tmd: null });
+            // ค่าเฉลี่ยทั้งวันนี้ (00:00–23:00 น. เวลาไทย) สูตรเดียวกัน: เทียบกับกราฟรายวันของกรมอุตุฯ ได้ใกล้กว่าค่าตอนนี้
+            // เพราะค่าแต่ละชั่วโมงต่างกันมากระหว่างกลางวันกับกลางคืน (ต้องมีข้อมูลอย่างน้อย 18 ชั่วโมงจึงคำนวณ)
+            const today = nowKey.slice(0, 10);
+            const dayVals = [];
+            times.forEach((t, j) => {
+                if (!String(t).startsWith(today)) return;
+                const b = at('boundary_layer_height', j), w = at('wind_speed_10m', j);
+                if (b !== null && w !== null) dayVals.push(b * w);
+            });
+            if (dayVals.length >= 18) row.dayMean = dayVals.reduce((a, v) => a + v, 0) / dayVals.length;
             if (idx < 0) return row;
             Object.assign(row, {
                 time: times[idx], pblh: at('boundary_layer_height', idx), omWs: at('wind_speed_10m', idx), omWd: at('wind_direction_10m', idx),
@@ -3411,6 +3423,14 @@ if (primarySource && primarySource.features) {
             return `${(r.windMs * 3.6).toFixed(1)} กม./ชม.` + (r.windDir !== null ? ` จากทิศ${thaiCompass(r.windDir)} (${Math.round(r.windDir)}°)` : '');
         }
 
+        // ค่าเฉลี่ยทั้งวันนี้: ป้ายสีตามระดับ + ชื่อระดับตัวเล็ก (badgeClass: pm25-badge บนหน้าเว็บ, pdf-badge ในรายงาน)
+        function ventMeanHtml(r, badgeClass) {
+            if (r.dayMean === null) return '-';
+            const lv = ventLevel(r.dayMean);
+            return `<span class="${badgeClass}" style="background:${lv.color}; color:${lv.text};">${fmtInt(r.dayMean)}</span>` +
+                `<span class="vent-src">${lv.label.split(' ')[0]}</span>`;
+        }
+
         // โอกาสเกิดฝน (Open-Meteo) และปริมาณฝนพยากรณ์จากกรมอุตุนิยมวิทยา (เมื่อ Apps Script ส่งช่อง rain มา)
         function ventRainText(r) {
             const parts = [];
@@ -3426,6 +3446,7 @@ if (primarySource && primarySource.features) {
                 <div style="background:${lv ? lv.color : '#94a3b8'}; color:${lv ? lv.text : '#fff'}; padding:5px 8px; border-radius:4px; margin-bottom:6px; font-weight:bold; text-align:center;">
                     🌬️ จ.${r.prov}: ${fmtInt(r.vr)} ตร.ม./วินาที${lv ? ' · ' + lv.label : ''}</div>
                 <table style="border-collapse:collapse;">` +
+                row('เฉลี่ยทั้งวันนี้', r.dayMean !== null ? `${fmtInt(r.dayMean)} ตร.ม./วินาที (${ventLevel(r.dayMean).label.split(' ')[0]})` : '-') +
                 row('เพดานการระบายอากาศ', r.pblh !== null ? `${fmtInt(r.pblh)} ม.` : '-') +
                 row('ลม', ventWindText(r) + `<span class="vent-src">${r.windSrc === 'TMD' ? 'กรมอุตุนิยมวิทยา' : 'Open-Meteo'}</span>`) +
                 row('สภาพอากาศ', r.cond) +
@@ -3475,9 +3496,10 @@ if (primarySource && primarySource.features) {
                 return `<tr data-i="${i}" style="cursor:pointer;" title="คลิกเพื่อซูมไปที่จังหวัด">
                     <td><b>${pdfEsc(r.prov)}</b></td>
                     <td class="num">${badge}</td>
-                    <td>${lv ? lv.label : 'ไม่มีข้อมูล'}</td>
+                    <td style="white-space:nowrap;">${lv ? lv.label.split(' ')[0] : 'ไม่มีข้อมูล'}</td>
+                    <td class="num">${ventMeanHtml(r, 'pm25-badge')}</td>
                     <td class="num">${r.pblh !== null ? fmtInt(r.pblh) : '-'}</td>
-                    <td>${ventWindText(r)}<span class="vent-src">${r.windSrc === 'TMD' ? 'กรมอุตุนิยมวิทยา' : 'Open-Meteo'}</span></td>
+                    <td style="min-width:190px;">${ventWindText(r)}<span class="vent-src">${r.windSrc === 'TMD' ? 'กรมอุตุนิยมวิทยา' : 'Open-Meteo'}</span></td>
                     <td class="num">${r.tempC !== null ? r.tempC.toFixed(1) + ' °C' : '-'}</td>
                     <td class="num">${r.rhPct !== null ? Math.round(r.rhPct) + ' %' : '-'}</td>
                     <td class="num">${r.pop !== null ? Math.round(r.pop) + ' %' : '-'}${r.rainMm !== null ? `<span class="vent-src">ปริมาณฝน ${r.rainMm.toFixed(1)} มม.</span>` : ''}</td>
@@ -3523,7 +3545,12 @@ if (primarySource && primarySource.features) {
             chartsEl.innerHTML = chartRows.length
                 ? '<div class="vent-charts-title">📈 กราฟพยากรณ์อัตราการระบายอากาศ 10 วัน (กรมอุตุนิยมวิทยา)' +
                   (vd.national ? ` · ${chartRows.length} จังหวัดที่ระบายอากาศแย่ที่สุดตอนนี้ (เลือกพื้นที่ สคพ. เพื่อดูจังหวัดอื่น)` : '') +
-                  ' · คลิกกราฟเพื่อเปิดขนาดเต็ม</div><div class="vent-charts">' +
+                  ' · คลิกกราฟเพื่อเปิดขนาดเต็ม</div>' +
+                  '<div class="pm25-note" style="margin:0 0 8px;">ตัวเลขในกราฟไม่เท่ากับในตาราง เพราะวัดคนละแบบ: กราฟเป็น<b>ค่ารายวัน</b>จากแบบจำลอง GFS ของกรมอุตุฯ ' +
+                  '(กรมอุตุฯ ระบุว่าคำนวณจากเพดานการระบายอากาศ × ลมเฉลี่ยในชั้นผสมอากาศ เฉลี่ยข้อมูลทุก 6 ชั่วโมง) ' +
+                  'ส่วนตารางคำนวณจากเพดานการระบายอากาศ (Open-Meteo) × ลมที่ 10 ม. แสดง<b>ค่าตอนนี้</b>ซึ่งต่ำมากตอนกลางคืนและสูงตอนบ่าย ' +
+                  'ให้เทียบกราฟกับคอลัมน์ <b>เฉลี่ยทั้งวันนี้</b> ซึ่งใกล้เคียงกว่า และใช้ดูแนวโน้มประกอบกัน</div>' +
+                  '<div class="vent-charts">' +
                   chartRows.map(r => {
                       const url = `${TMD_VR_CHART_URL}${TMD_VR_CHART_STATIONS[r.prov]}.png?v=${encodeURIComponent(ver)}`;
                       return `<figure><figcaption>จ.${pdfEsc(r.prov)}</figcaption><a href="${url}" target="_blank" rel="noopener">` +
@@ -3878,8 +3905,8 @@ if (primarySource && primarySource.features) {
                 const vrows = vd.rows.slice().sort((a, b) => (a.vr === null ? Infinity : a.vr) - (b.vr === null ? Infinity : b.vr));
                 const refTime = (vrows.find(r => r.time) || {}).time;
                 h += `<div class="pdf-note">ข้อมูล ณ ${pdfEsc(fmtOmTime(refTime))} · อัตราการระบายอากาศ (VR, ตร.ม./วินาที) = เพดานการระบายอากาศ × ความเร็วลมที่ 10 ม. ค่ายิ่งต่ำ ฝุ่นและควันยิ่งสะสมตัว (แบ่งระดับตามเกณฑ์กรมอุตุนิยมวิทยา) · ` +
-                    (vd.national ? 'สภาพอากาศและลม: Open-Meteo' : `สภาพอากาศและลม: กรมอุตุนิยมวิทยา ${vd.tmdCount}/${vrows.length} จังหวัด`) + ' · เพดานการระบายอากาศ: Open-Meteo · "กราฟ 10 วัน" คือกราฟพยากรณ์ของกรมอุตุนิยมวิทยา</div>';
-                h += pdfTable(['จังหวัด', 'VR', 'ระดับ', 'เพดาน (ม.)', 'ลม', 'สภาพอากาศ', '24 ชม. ข้างหน้า', ''],
+                    (vd.national ? 'สภาพอากาศและลม: Open-Meteo' : `สภาพอากาศและลม: กรมอุตุนิยมวิทยา ${vd.tmdCount}/${vrows.length} จังหวัด`) + ' · เพดานการระบายอากาศ: Open-Meteo · "กราฟ 10 วัน" คือกราฟพยากรณ์ของกรมอุตุนิยมวิทยา ซึ่งเป็นค่ารายวันจากแบบจำลอง GFS ใช้ลมเฉลี่ยในชั้นผสมอากาศ จึงเทียบได้ใกล้กับ "เฉลี่ยวันนี้" มากกว่า "VR ตอนนี้" แต่ตัวเลขไม่เท่ากัน</div>';
+                h += pdfTable(['จังหวัด', 'VR ตอนนี้', 'ระดับ', 'เฉลี่ยวันนี้', 'เพดาน (ม.)', 'ลม', 'สภาพอากาศ', '24 ชม. ข้างหน้า', ''],
                     vrows.map(r => {
                         const lv = ventLevel(r.vr);
                         const wx = [r.cond !== '-' ? pdfEsc(r.cond) : '', r.tempC !== null ? r.tempC.toFixed(1) + ' °C' : '',
@@ -3887,10 +3914,10 @@ if (primarySource && primarySource.features) {
                             r.rainMm !== null ? 'ปริมาณฝน ' + r.rainMm.toFixed(1) + ' มม.' : ''].filter(Boolean).join(' · ');
                         return [pdfEsc(r.prov),
                             lv ? `<span class="pdf-badge" style="background:${lv.color};color:${lv.text}">${fmtInt(r.vr)}</span>` : '-',
-                            pdfEsc(lv ? lv.label : 'ไม่มีข้อมูล'), r.pblh !== null ? fmtInt(r.pblh) : '-', pdfEsc(ventWindText(r)), wx || '-',
+                            pdfEsc(lv ? lv.label.split(' ')[0] : 'ไม่มีข้อมูล'), ventMeanHtml(r, 'pdf-badge'), r.pblh !== null ? fmtInt(r.pblh) : '-', pdfEsc(ventWindText(r)), wx || '-',
                             r.min && r.max ? `<span style="white-space:nowrap">▼ ${fmtInt(r.min.v)} · ${fmtOmShort(r.min.t)}</span><br><span style="white-space:nowrap">▲ ${fmtInt(r.max.v)} · ${fmtOmShort(r.max.t)}</span>` : '-',
                             TMD_VR_CHART_STATIONS[r.prov] ? `<a href="${TMD_VR_CHART_URL}${TMD_VR_CHART_STATIONS[r.prov]}.png">กราฟ 10 วัน</a>` : ''];
-                    }), [1, 3]);
+                    }), [1, 3, 4]);
             } else {
                 h += '<p class="pdf-note">ยังไม่ได้โหลดข้อมูลการระบายอากาศของพื้นที่นี้ หากต้องการรวมในรายงาน ให้ติ๊ก "แสดงอัตราการระบายอากาศและสภาพอากาศรายจังหวัด" รอให้ตารางขึ้น แล้วกดส่งออกอีกครั้ง</p>';
             }
