@@ -354,6 +354,13 @@
             .crown, .btn { transition: none; }
         }
 
+        /* ---------- ข้อมูลใต้เรดาร์: ซ่อนจนกว่าจะใช้แว่นสแกน ---------- */
+        .panel[hidden] { display: none !important; }
+        .data-hint { text-align: center; }
+        .data-hint .t { font-size: 15px; font-weight: 700; color: var(--accent); }
+        .data-hint .s { font-size: 13px; color: var(--muted); margin: 4px 0 10px; }
+        .data-hint .btn { width: 100%; min-height: 46px; font-size: 15px; }
+
         /* ---------- แว่นสแกน (HUD ล็อกเป้าจุดความร้อนที่ใกล้ที่สุด) ---------- */
         .visor-overlay {
             position: fixed; inset: 0; z-index: 60;
@@ -548,7 +555,14 @@
             <button class="btn" id="demoBtn" type="button">▶ ทดลองด้วยตำแหน่งจำลอง</button>
         </div>
 
-        <div class="panel" aria-live="polite">
+        <!-- ข้อมูลใต้เรดาร์ซ่อนไว้จนกว่าจะสแกนด้วยแว่นจนล็อกเป้าแล้วปิดแว่น -->
+        <div class="panel data-hint" id="dataHint">
+            <div class="t">🥽 ข้อมูลจุดความร้อนจะแสดงหลังสแกนด้วยแว่น</div>
+            <div class="s">กด "แว่นสแกน" รอให้ล็อกเป้า แล้วปิดแว่น</div>
+            <button class="btn primary" id="dataHintBtn" type="button">🥽 เปิดแว่นสแกน</button>
+        </div>
+
+        <div class="panel" id="statPanel" aria-live="polite" hidden>
             <div class="stat-row"><span class="k">สถานะ</span><span class="v" id="statStatus">รอเริ่มใช้งาน</span></div>
             <div class="stat-row"><span class="k">ตำแหน่งของคุณ</span><span class="v" id="statPos">-</span></div>
             <div class="stat-row"><span class="k">จุดความร้อนในรัศมี</span><span class="v" id="statCount">-</span></div>
@@ -556,7 +570,7 @@
             <div class="stat-row"><span class="k">ข้อมูลดาวเทียม</span><span class="v" id="statData">กำลังโหลด…</span></div>
         </div>
 
-        <div class="panel">
+        <div class="panel" id="listPanel" hidden>
             <h2>จุดความร้อนใกล้คุณ (เรียงตามระยะทาง)</h2>
             <ul class="hs-list" id="hsList"><li class="empty">ยังไม่มีข้อมูล</li></ul>
         </div>
@@ -1846,14 +1860,14 @@
         // ===================== แว่นสแกน =====================
         // หน้าจอ HUD: สแกน ~5 วินาที (SCANNING → ANALYZING → DECODING) ระหว่างนั้นแถวข้อมูลเป็นอักษรต่างดาวสลับเร็ว
         // แล้วถอดรหัสทีละแถวจนหยุดนิ่งเป็นข้อมูลจริง จากนั้นล็อกเป้าจุดความร้อนที่ใกล้ที่สุด และอัปเดตตามตำแหน่งขณะเปิดแว่น
-        // เสียงโทนจริงจัง: เสียงทุ้มพื้นหลัง + ping แบบโซนาร์ + คลิกข้อมูลเบา ๆ + คอร์ดยืนยันตอนล็อก (เสียงเรดาร์หยุดระหว่างเปิดแว่น)
+        // เสียงอิเล็กทรอนิกส์แบบเครื่องวัด (เสียงเรดาร์หยุดระหว่างเปิดแว่น) ข้อมูลใต้เรดาร์แสดงหลังสแกนจนล็อกแล้วปิดแว่น
         const LONGDO_KEY = 'bce812933744d2530d26f0fabb0017cf'; // คีย์เดียวกับ fireRadar.html ใช้หาชื่อตำบล/อำเภอของจุดความร้อน
         const VISOR_SCAN_MS = 5000;
         // อักษร "ต่างดาว" สำหรับเอฟเฟกต์ถอดรหัส: สัญลักษณ์ Unicode ทั่วไป (พยางค์แคนาดา + สัญลักษณ์เทคนิค)
         const ALIEN_GLYPHS = Array.from('ᐊᐁᐃᐅᑌᑎᑐᑕᑭᑯᒉᒋᒍᒐᓀᓂᓄᓇᓭᓯᓱᓴᔐᔑᔕᖃᖄᖅᗜᗝᗞᗟ⌬⏃⏚⎅⟒⎎⊑⟟⌰⋔⋏⍜⌿⍀⌇⏁⎍⍙⊬⋉');
         const THAI_MARK = /[ัิ-ฺ็-๎]/; // สระ/วรรณยุกต์ที่ไม่กินที่ ไม่ต้องมีอักษรแทน
-        const visor = { open: false, locked: false, session: 0, timers: [], loop: null, clock: null, lastFocus: null,
-            drone: null, glyphs: [], decodeFrom: 0, decodeTo: 0, startedAt: 0 };
+        const visor = { open: false, locked: false, lockedOnce: false, session: 0, timers: [], loop: null, clock: null, lastFocus: null,
+            whine: null, glyphs: [], startedAt: 0 };
         const visorAddrCache = new Map(); // "lat,lon" ของจุดความร้อน → Promise<string|null>
         const visorAddrText = new Map();  // "lat,lon" → ชื่อตำบล/อำเภอที่ค้นได้แล้ว
 
@@ -1870,105 +1884,64 @@
             return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
         }
 
-        // ---------- เสียง (Web Audio ทั้งหมดสังเคราะห์ ไม่มีไฟล์เสียง) ----------
-        let noiseBuf = null;
-        function audioReady() {
-            if (!audioCtx || state.muted) return false;
+        // ---------- เสียง (Web Audio สังเคราะห์ทั้งหมด ไม่มีไฟล์เสียง) ----------
+        // โทนอิเล็กทรอนิกส์แบบเครื่องวัด (ต่อยอดจากเสียงชุดแรก): เสียงกวาดเปิดเครื่อง, บี๊ปดิจิทัลถี่และแหลมขึ้นเรื่อย ๆ,
+        // เสียงหวีดไต่ระดับตอนวิเคราะห์, เสียงข้อมูลวิ่งรัวตอนถอดรหัส และเสียงล็อกสองจังหวะ
+        function sweepTone(f1, f2, durS, gain, type) {
+            if (!audioCtx || state.muted) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            return true;
-        }
-        // ออสซิลเลเตอร์ที่มี envelope: ขึ้นเร็ว แล้วจางแบบเอ็กซ์โพเนนเชียล
-        function envTone(type, freq, at, attack, dur, gain, freqTo) {
+            const t = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, at);
-            if (freqTo) osc.frequency.exponentialRampToValueAtTime(freqTo, at + dur);
-            g.gain.setValueAtTime(0.0001, at);
-            g.gain.exponentialRampToValueAtTime(gain, at + attack);
-            g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+            osc.type = type || 'sawtooth';
+            osc.frequency.setValueAtTime(f1, t);
+            osc.frequency.exponentialRampToValueAtTime(f2, t + durS);
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(gain, t + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + durS);
             osc.connect(g);
             g.connect(audioCtx.destination);
-            osc.start(at);
-            osc.stop(at + dur + 0.05);
+            osc.start(t);
+            osc.stop(t + durS + 0.02);
         }
-        // ping แบบโซนาร์: ไซน์ใส ๆ จางยาว + เสียงทุ้มเบา ๆ ให้มีน้ำหนัก
-        function visorPing(freq) {
-            if (!audioReady()) return;
+        // เสียงหวีดไต่ระดับ (คลื่นสี่เหลี่ยม + สั่นเร็ว) คืนฟังก์ชันหยุดก่อนเวลา
+        function visorWhine(f1, f2, durS, gain) {
+            if (!audioCtx || state.muted) return null;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             const t = audioCtx.currentTime;
-            envTone('sine', freq, t, 0.006, 0.75, 0.05);
-            envTone('sine', freq / 2, t, 0.01, 0.5, 0.02);
-        }
-        // คลิกข้อมูลสั้นมาก (สัญญาณรบกวนกรองความถี่) ใช้ตอนข้อมูลวิ่ง/ถอดรหัส
-        function visorTick(gain) {
-            if (!audioReady()) return;
-            if (!noiseBuf) {
-                noiseBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.03), audioCtx.sampleRate);
-                const d = noiseBuf.getChannelData(0);
-                for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-            }
-            const t = audioCtx.currentTime;
-            const src = audioCtx.createBufferSource();
-            const bp = audioCtx.createBiquadFilter();
-            const g = audioCtx.createGain();
-            src.buffer = noiseBuf;
-            bp.type = 'bandpass';
-            bp.frequency.value = 2200;
-            bp.Q.value = 1.2;
-            g.gain.setValueAtTime(gain || 0.02, t);
-            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
-            src.connect(bp); bp.connect(g); g.connect(audioCtx.destination);
-            src.start(t);
-            src.stop(t + 0.03);
-        }
-        // เสียงทุ้มต่อเนื่องระหว่างสแกน (ไซน์ 55 Hz + สามเหลี่ยม 110 Hz ผ่านฟิลเตอร์ low-pass) คืนฟังก์ชันหยุดแบบค่อย ๆ จาง
-        function visorDroneStart(durS) {
-            if (!audioReady()) return null;
-            const t = audioCtx.currentTime;
-            const lp = audioCtx.createBiquadFilter();
-            const g = audioCtx.createGain();
-            lp.type = 'lowpass';
-            lp.frequency.setValueAtTime(260, t);
-            lp.frequency.linearRampToValueAtTime(700, t + durS); // ค่อย ๆ สว่างขึ้นตามการประมวลผล
+            const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+            const lfo = audioCtx.createOscillator(), depth = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(f1, t);
+            osc.frequency.exponentialRampToValueAtTime(f2, t + durS);
+            lfo.type = 'sine';
+            lfo.frequency.value = 24;
+            depth.gain.value = f1 * 0.05;
+            lfo.connect(depth);
+            depth.connect(osc.frequency);
             g.gain.setValueAtTime(0.0001, t);
-            g.gain.exponentialRampToValueAtTime(0.05, t + 0.9);
-            lp.connect(g); g.connect(audioCtx.destination);
-            const oscs = [['sine', 55], ['triangle', 110], ['sine', 164.8]].map(([type, f]) => {
-                const o = audioCtx.createOscillator();
-                o.type = type;
-                o.frequency.setValueAtTime(f, t);
-                o.connect(lp);
-                o.start(t);
-                return o;
-            });
-            return function stop(fadeS) {
-                const now = audioCtx.currentTime;
-                g.gain.cancelScheduledValues(now);
-                g.gain.setValueAtTime(Math.max(g.gain.value, 0.0001), now);
-                g.gain.exponentialRampToValueAtTime(0.0001, now + fadeS);
-                oscs.forEach(o => o.stop(now + fadeS + 0.05));
+            g.gain.exponentialRampToValueAtTime(gain, t + 0.08);
+            g.gain.setValueAtTime(gain, t + Math.max(0.1, durS - 0.06));
+            g.gain.exponentialRampToValueAtTime(0.0001, t + durS);
+            osc.connect(g);
+            g.connect(audioCtx.destination);
+            osc.start(t); lfo.start(t);
+            osc.stop(t + durS + 0.02); lfo.stop(t + durS + 0.02);
+            return () => {
+                try {
+                    const n = audioCtx.currentTime;
+                    g.gain.cancelScheduledValues(n);
+                    g.gain.setValueAtTime(0.0001, n);
+                    osc.stop(n + 0.02); lfo.stop(n + 0.02);
+                } catch (e) { /* หยุดไปแล้ว */ }
             };
         }
-        function visorStopDrone(fadeS) {
-            if (visor.drone) { try { visor.drone(fadeS); } catch (e) { /* หยุดไปแล้ว */ } }
-            visor.drone = null;
+        function visorStopWhine() {
+            if (visor.whine) visor.whine();
+            visor.whine = null;
         }
-        // ล็อกเป้า: เสียงทุ้มสั้น ๆ แล้วตามด้วยคอร์ดคู่ห้า (C5 + G5) จางยาว
-        function visorLockSound() {
-            if (!audioReady()) return;
-            const t = audioCtx.currentTime;
-            envTone('sine', 150, t, 0.005, 0.22, 0.08, 80);
-            envTone('sine', 523.25, t + 0.09, 0.012, 1.3, 0.05);
-            envTone('sine', 783.99, t + 0.09, 0.012, 1.3, 0.04);
-            envTone('triangle', 261.63, t + 0.09, 0.02, 1.0, 0.025);
-        }
-        // ไม่พบเป้า/ไม่มีข้อมูล: สองโน้ตต่ำลง
-        function visorNoTargetSound() {
-            if (!audioReady()) return;
-            const t = audioCtx.currentTime;
-            envTone('sine', 392, t, 0.01, 0.35, 0.05);
-            envTone('sine', 261.63, t + 0.3, 0.01, 0.6, 0.05);
-        }
+        // เสียงข้อมูลวิ่ง: บี๊ปสั้นมาก ความถี่สุ่ม
+        function visorChatter() { tone(1800 + Math.random() * 1600, 0.018, 0.025, 'square'); }
 
         // ---------- ข้อมูลเป้า ----------
         function visorTarget() { return state.nearest || state.nearestAny || null; }
@@ -2107,7 +2080,8 @@
         function lockVisor() {
             clearInterval(visor.loop); visor.loop = null;
             visor.locked = true;
-            visorStopDrone(0.6);
+            visorStopWhine();
+            visor.lockedOnce = true;
             const lens = $('visorLens');
             lens.classList.add('locked');
             lens.classList.remove('flash');
@@ -2116,10 +2090,11 @@
             $('visorMode').classList.remove('blink');
             const tg = state.pos && state.dataStatus === 'ok' ? visorTarget() : null;
             if (tg) {
-                visorLockSound();
-                if (navigator.vibrate) navigator.vibrate([60, 60, 60]);
+                tone(1760, 0.08, 0.09, 'square');
+                visorLater(() => tone(2640, 0.18, 0.09, 'square'), 110);
+                if (navigator.vibrate) navigator.vibrate([40, 50, 40]);
             } else {
-                visorNoTargetSound();
+                sweepTone(520, 180, 0.4, 0.06, 'sawtooth');
             }
             $('visorData').textContent = 'SRC  NASA FIRMS VIIRS\n' + 'RNG  ' + fmtRange(rangeKm()) + ' · ' + state.timeWindowH + 'H\n' +
                 'PTS  ' + (state.dataStatus === 'ok' ? state.points.length : '-');
@@ -2129,7 +2104,7 @@
         function startVisorScan() {
             visor.session++;
             visorStopTimers();
-            visorStopDrone(0.15);
+            visorStopWhine();
             visor.locked = false;
             const lens = $('visorLens');
             lens.classList.remove('locked', 'flash');
@@ -2148,13 +2123,12 @@
             glyphLoad(visorContent().html);
             visor.startedAt = performance.now();
             const meterCells = () => document.querySelectorAll('#visorMain .visor-meter i');
-            let lastTick = 0;
             const frame = () => {
                 const el = performance.now() - visor.startedAt;
                 if (!fast) {
                     const done = glyphPaint(el);
-                    if (done) visorTick(0.03); // แถวที่ถอดรหัสเสร็จ: คลิกชัด
-                    else if (el < decodeFrom && el - lastTick > 260) { lastTick = el; visorTick(0.012); } // ข้อมูลวิ่ง: คลิกเบา ๆ
+                    if (done) tone(2600, 0.03, 0.06, 'square'); // แถวที่ถอดรหัสเสร็จ
+                    else if (el >= decodeFrom && el < decodeTo && Math.random() < 0.6) visorChatter(); // ข้อมูลวิ่งรัว
                 }
                 const cells = meterCells(), on = Math.round(Math.min(1, el / T) * cells.length);
                 cells.forEach((c, i) => { c.className = i < on ? 'on' : ''; });
@@ -2167,11 +2141,17 @@
             frame();
             visor.loop = setInterval(frame, fast ? 300 : 50);
 
-            // ลำดับขั้น + เสียง
-            visor.drone = visorDroneStart(T / 1000);
+            // ลำดับขั้น + เสียง: เปิดเครื่อง → บี๊ปถี่และแหลมขึ้นจนเริ่มถอดรหัส → หวีดไต่ระดับช่วงวิเคราะห์
+            sweepTone(220, 1400, 0.28, 0.05, 'sawtooth');
+            for (let t = 320, gap = 260; t < decodeFrom; t += gap, gap = Math.max(48, gap * 0.9)) {
+                const f = 1100 + (t / decodeFrom) * 1700;
+                visorLater(() => tone(f, 0.04, 0.05, 'square'), t);
+            }
             visorLater(() => { mode.textContent = 'SCANNING'; }, Math.min(500, T * 0.1));
-            for (let t = 450; t < decodeFrom; t += 800) visorLater(() => visorPing(1046.5), t);
-            visorLater(() => { mode.textContent = 'ANALYZING'; visorPing(880); }, T * 0.45);
+            visorLater(() => {
+                mode.textContent = 'ANALYZING';
+                visor.whine = visorWhine(700, 2900, (decodeFrom - T * 0.45) / 1000, 0.022);
+            }, T * 0.45);
             visorLater(() => {
                 mode.textContent = 'DECODING';
                 if (fast) return;
@@ -2181,9 +2161,17 @@
             visorLater(lockVisor, T);
         }
 
+        // ข้อมูลใต้เรดาร์ (สถานะ + รายการจุดความร้อน) แสดงหลังสแกนจนล็อกแล้วปิดแว่นครั้งแรก และแสดงต่อจนปิดหน้า
+        function revealDataPanels() {
+            $('statPanel').hidden = false;
+            $('listPanel').hidden = false;
+            $('dataHint').hidden = true;
+        }
+
         function openVisor() {
             initAudio(); // อยู่ในการกดปุ่ม: ปลดล็อกเสียงบน iOS
             visor.open = true;
+            visor.lockedOnce = false;
             visor.lastFocus = document.activeElement;
             $('visorOverlay').hidden = false;
             const tick = () => { $('visorClock').textContent = new Date().toLocaleTimeString('th-TH', { hour12: false }); };
@@ -2200,14 +2188,16 @@
             visor.locked = false;
             visor.session++;
             visorStopTimers();
-            visorStopDrone(0.15);
+            visorStopWhine();
             clearInterval(visor.clock); visor.clock = null;
             $('visorOverlay').hidden = true;
+            if (visor.lockedOnce) revealDataPanels(); // สแกนจนล็อกแล้ว: แสดงข้อมูลใต้เรดาร์
             state.nextBeat = 0; // เสียงเรดาร์กลับมาทันที
             if (visor.lastFocus && visor.lastFocus.focus) visor.lastFocus.focus();
         }
 
         $('visorBtn').addEventListener('click', openVisor);
+        $('dataHintBtn').addEventListener('click', openVisor);
         $('visorClose').addEventListener('click', closeVisor);
         $('visorRescan').addEventListener('click', () => { initAudio(); startVisorScan(); });
         document.addEventListener('keydown', e => { if (visor.open && e.key === 'Escape') closeVisor(); });
