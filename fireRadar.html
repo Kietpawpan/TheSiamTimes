@@ -3904,6 +3904,9 @@ if (primarySource && primarySource.features) {
             document.getElementById('burnMonthGroup').style.display = 'none';
             document.getElementById('burnPanel').style.display = 'none';
             setUrlParam('burn', null);
+            // ถอดแผ่น canvas ออกจากแผนที่ด้วย (Leaflet ไม่ถอดเองเมื่อปิดชั้น) จะได้ไม่มีอะไรค้างทับหมุดอื่นหลังปิด
+            // เปิดชั้นอีกครั้ง Leaflet จะสร้าง canvas ใหม่ให้เอง
+            if (map.hasLayer(burnRenderer)) map.removeLayer(burnRenderer);
         });
         burnMonthSelect.addEventListener('change', refreshBurn);
 
