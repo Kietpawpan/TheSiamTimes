@@ -356,10 +356,6 @@
 
         /* ---------- ข้อมูลใต้เรดาร์: ซ่อนจนกว่าจะใช้แว่นสแกน ---------- */
         .panel[hidden] { display: none !important; }
-        .data-hint { text-align: center; }
-        .data-hint .t { font-size: 15px; font-weight: 700; color: var(--accent); }
-        .data-hint .s { font-size: 13px; color: var(--muted); margin: 4px 0 10px; }
-        .data-hint .btn { width: 100%; min-height: 46px; font-size: 15px; }
 
         /* ---------- แว่นสแกน (HUD ล็อกเป้าจุดความร้อนที่ใกล้ที่สุด) ---------- */
         .visor-overlay {
@@ -556,12 +552,6 @@
         </div>
 
         <!-- ข้อมูลใต้เรดาร์ซ่อนไว้จนกว่าจะสแกนด้วยแว่นจนล็อกเป้าแล้วปิดแว่น -->
-        <div class="panel data-hint" id="dataHint">
-            <div class="t">🥽 ข้อมูลจุดความร้อนจะแสดงหลังสแกนด้วยแว่น</div>
-            <div class="s">กด "แว่นสแกน" รอให้ล็อกเป้า แล้วปิดแว่น</div>
-            <button class="btn primary" id="dataHintBtn" type="button">🥽 เปิดแว่นสแกน</button>
-        </div>
-
         <div class="panel" id="statPanel" aria-live="polite" hidden>
             <div class="stat-row"><span class="k">สถานะ</span><span class="v" id="statStatus">รอเริ่มใช้งาน</span></div>
             <div class="stat-row"><span class="k">ตำแหน่งของคุณ</span><span class="v" id="statPos">-</span></div>
@@ -1868,8 +1858,6 @@
         const THAI_MARK = /[ัิ-ฺ็-๎]/; // สระ/วรรณยุกต์ที่ไม่กินที่ ไม่ต้องมีอักษรแทน
         const visor = { open: false, locked: false, lockedOnce: false, session: 0, timers: [], loop: null, clock: null, lastFocus: null,
             whine: null, glyphs: [], startedAt: 0 };
-        const visorAddrCache = new Map(); // "lat,lon" ของจุดความร้อน → Promise<string|null>
-        const visorAddrText = new Map();  // "lat,lon" → ชื่อตำบล/อำเภอที่ค้นได้แล้ว
 
         function visorLater(fn, ms) {
             const id = visor.session;
@@ -1945,30 +1933,71 @@
 
         // ---------- ข้อมูลเป้า ----------
         function visorTarget() { return state.nearest || state.nearestAny || null; }
-        function visorAddrKey(p) { return p.lat.toFixed(4) + ',' + p.lon.toFixed(4); }
+        // ---------- ชื่อตำบล/อำเภอของจุดความร้อน (Longdo Map) ----------
+        // ถามครั้งเดียวต่อพิกัด แล้วจำผลไว้ในเครื่อง (localStorage ใช้ร่วมกับ fireRadar.html เก็บ 500 พิกัดล่าสุด)
+        // เปิดดูจุดเดิมซ้ำหรือเปิดแอพใหม่จึงไม่เปลืองโควต้า ส่งเฉพาะพิกัดของจุดความร้อน ไม่ใช่ตำแหน่งของผู้ใช้
+        // ค้นไม่สำเร็จ (เครือข่ายขัดข้อง/ถูกปฏิเสธ เช่น โควต้าเต็ม) จะเว้น 5 นาทีก่อนถามพิกัดนั้นอีก
+        const HS_ADDR_STORE = 'hotspotAddress.v1';
+        const HS_ADDR_MAX = 500;
+        const HS_ADDR_RETRY_MS = 5 * 60 * 1000;
+        const hsAddrPending = new Map();  // "lat,lon" → Promise<[ตำบล, อำเภอ] | null> ที่กำลังค้น/ค้นแล้วในรอบนี้
+        const hsAddrFailedAt = new Map(); // "lat,lon" → เวลาที่ค้นไม่สำเร็จล่าสุด
+        let hsAddrMem = null;             // สำเนาในหน่วยความจำ { "lat,lon": [ตำบล, อำเภอ] }
 
-        // ชื่อตำบล/อำเภอจาก Longdo Map (ส่งเฉพาะพิกัดของจุดความร้อน ไม่ใช่ตำแหน่งของผู้ใช้) จำผลไว้ ค้นไม่สำเร็จไม่จำ
-        function visorAddress(p) {
-            const key = visorAddrKey(p);
-            if (!visorAddrCache.has(key)) {
-                const short = (s, map) => {
-                    const t = String(s || '').trim();
-                    for (const [long, abbr] of map) if (t.startsWith(long)) return abbr + t.slice(long.length).trim();
-                    return t;
-                };
-                const pr = fetch('https://api.longdo.com/map/services/address?lon=' + p.lon + '&lat=' + p.lat + '&key=' + LONGDO_KEY)
-                    .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-                    .then(d => {
-                        const parts = [short(d && d.subdistrict, [['ตำบล', 'ต.'], ['แขวง', 'แขวง']]), short(d && d.district, [['อำเภอ', 'อ.'], ['เขต', 'เขต']])].filter(Boolean);
-                        const text = parts.length ? parts.join(' ') : null;
-                        if (text) visorAddrText.set(key, text);
-                        return text;
-                    });
-                pr.catch(() => visorAddrCache.delete(key));
-                visorAddrCache.set(key, pr);
-            }
-            return visorAddrCache.get(key);
+        function hsAddrKey(lat, lon) { return Number(lat).toFixed(4) + ',' + Number(lon).toFixed(4); }
+        function hsAddrRead() {
+            try {
+                const o = JSON.parse(localStorage.getItem(HS_ADDR_STORE));
+                return o && typeof o === 'object' && !Array.isArray(o) ? o : {};
+            } catch (e) { return {}; }
         }
+        function hsAddrAll() { return hsAddrMem || (hsAddrMem = hsAddrRead()); }
+        function hsAddrSave(key, rec) {
+            const all = Object.assign(hsAddrRead(), hsAddrAll()); // รวมกับที่อีกแท็บ/อีกแอพเพิ่งบันทึก
+            delete all[key];
+            all[key] = rec; // ใหม่สุดอยู่ท้าย
+            const keys = Object.keys(all);
+            for (let i = 0; i < keys.length - HS_ADDR_MAX; i++) delete all[keys[i]];
+            hsAddrMem = all;
+            try { localStorage.setItem(HS_ADDR_STORE, JSON.stringify(all)); } catch (e) { /* บันทึกไม่ได้: จำไว้แค่ในหน้านี้ */ }
+        }
+        // ผลที่ค้นได้แล้ว ใช้ได้ทันทีไม่ต้องรอ: [ตำบล, อำเภอ] หรือ undefined
+        function hsAddrCached(lat, lon) {
+            const rec = hsAddrAll()[hsAddrKey(lat, lon)];
+            return Array.isArray(rec) ? rec : undefined;
+        }
+        function hsAddrLookup(lat, lon) {
+            const key = hsAddrKey(lat, lon);
+            const known = hsAddrCached(lat, lon);
+            if (known) return Promise.resolve(known);
+            if (hsAddrPending.has(key)) return hsAddrPending.get(key);
+            if (Date.now() - (hsAddrFailedAt.get(key) || 0) < HS_ADDR_RETRY_MS) return Promise.reject(new Error('ค้นไม่สำเร็จเมื่อครู่ รอก่อนค้นใหม่'));
+            const p = fetch('https://api.longdo.com/map/services/address?lon=' + lon + '&lat=' + lat + '&key=' + LONGDO_KEY)
+                .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+                .then(d => {
+                    const rec = [String((d && d.subdistrict) || '').trim(), String((d && d.district) || '').trim()];
+                    if (!rec[0] && !rec[1]) return null; // ไม่มีชื่อพื้นที่: ไม่บันทึกลงเครื่อง และไม่ถามซ้ำจนกว่าจะเปิดหน้าใหม่
+                    hsAddrSave(key, rec);
+                    return rec;
+                });
+            p.catch(() => { hsAddrPending.delete(key); hsAddrFailedAt.set(key, Date.now()); });
+            hsAddrPending.set(key, p);
+            return p;
+        }
+
+        // แสดงแบบย่อ "ต.xxx อ.yyy"
+        function visorAddrFormat(rec) {
+            if (!rec) return null;
+            const short = (s, map) => {
+                const t = String(s || '').trim();
+                for (const [long, abbr] of map) if (t.startsWith(long)) return abbr + t.slice(long.length).trim();
+                return t;
+            };
+            const parts = [short(rec[0], [['ตำบล', 'ต.'], ['แขวง', 'แขวง']]), short(rec[1], [['อำเภอ', 'อ.'], ['เขต', 'เขต']])].filter(Boolean);
+            return parts.length ? parts.join(' ') : null;
+        }
+        function visorAddrNow(p) { return visorAddrFormat(hsAddrCached(p.lat, p.lon)); }
+        function visorAddress(p) { return hsAddrLookup(p.lat, p.lon).then(visorAddrFormat); }
 
         function visorDataLines() {
             const hex = n => Array.from({ length: n }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
@@ -1998,7 +2027,7 @@
                 return { mode: 'CLEAR', target: null, html: '<span class="lbl">ผลการสแกน</span><span class="big">0</span>ไม่พบจุดความร้อนในประเทศไทย<br>ช่วง ' + state.timeWindowH + ' ชม. ล่าสุด' };
             }
             const p = tg.pt, inRange = !!state.nearest;
-            const addr = visorAddrText.get(visorAddrKey(p));
+            const addr = visorAddrNow(p);
             return {
                 mode: inRange ? 'LOCKED' : 'LOCKED · OUT OF RANGE',
                 target: tg,
@@ -2021,7 +2050,7 @@
             $('visorMain').innerHTML = c.html;
             if (c.target) {
                 const p = c.target.pt;
-                if (!visorAddrText.has(visorAddrKey(p))) {
+                if (!visorAddrNow(p)) {
                     visorAddress(p).then(a => {
                         const el = $('visorAddr');
                         if (a && el && visorTarget() && visorTarget().pt === p) el.textContent = a + ' ';
@@ -2165,7 +2194,6 @@
         function revealDataPanels() {
             $('statPanel').hidden = false;
             $('listPanel').hidden = false;
-            $('dataHint').hidden = true;
         }
 
         function openVisor() {
@@ -2197,7 +2225,6 @@
         }
 
         $('visorBtn').addEventListener('click', openVisor);
-        $('dataHintBtn').addEventListener('click', openVisor);
         $('visorClose').addEventListener('click', closeVisor);
         $('visorRescan').addEventListener('click', () => { initAudio(); startVisorScan(); });
         document.addEventListener('keydown', e => { if (visor.open && e.key === 'Escape') closeVisor(); });
