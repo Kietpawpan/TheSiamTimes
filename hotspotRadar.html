@@ -1857,7 +1857,7 @@
         const ALIEN_GLYPHS = Array.from('ᐊᐁᐃᐅᑌᑎᑐᑕᑭᑯᒉᒋᒍᒐᓀᓂᓄᓇᓭᓯᓱᓴᔐᔑᔕᖃᖄᖅᗜᗝᗞᗟ⌬⏃⏚⎅⟒⎎⊑⟟⌰⋔⋏⍜⌿⍀⌇⏁⎍⍙⊬⋉');
         const THAI_MARK = /[ัิ-ฺ็-๎]/; // สระ/วรรณยุกต์ที่ไม่กินที่ ไม่ต้องมีอักษรแทน
         const visor = { open: false, locked: false, lockedOnce: false, session: 0, timers: [], loop: null, clock: null, lastFocus: null,
-            whine: null, glyphs: [], startedAt: 0 };
+            beat: null, glyphs: [], startedAt: 0 };
 
         function visorLater(fn, ms) {
             const id = visor.session;
@@ -1867,14 +1867,15 @@
             visor.timers.forEach(clearTimeout);
             visor.timers = [];
             clearInterval(visor.loop); visor.loop = null;
+            clearInterval(visor.beat); visor.beat = null;
         }
         function reducedMotion() {
             return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
         }
 
         // ---------- เสียง (Web Audio สังเคราะห์ทั้งหมด ไม่มีไฟล์เสียง) ----------
-        // โทนอิเล็กทรอนิกส์แบบเครื่องวัด (ต่อยอดจากเสียงชุดแรก): เสียงกวาดเปิดเครื่อง, บี๊ปดิจิทัลถี่และแหลมขึ้นเรื่อย ๆ,
-        // เสียงหวีดไต่ระดับตอนวิเคราะห์, เสียงข้อมูลวิ่งรัวตอนถอดรหัส และเสียงล็อกสองจังหวะ
+        // โทนอิเล็กทรอนิกส์แบบเครื่องวัด: เสียงกวาดสั้น ๆ ตอนเปิดเครื่อง, บี๊ปดิจิทัลถี่และแหลมขึ้นเรื่อย ๆ,
+        // เสียงข้อมูลวิ่งรัวตอนถอดรหัส, เสียงล็อกสองจังหวะ แล้วบี๊ปต่อเนื่องตลอดที่ล็อกเป้าอยู่
         function sweepTone(f1, f2, durS, gain, type) {
             if (!audioCtx || state.muted) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1892,44 +1893,16 @@
             osc.start(t);
             osc.stop(t + durS + 0.02);
         }
-        // เสียงหวีดไต่ระดับ (คลื่นสี่เหลี่ยม + สั่นเร็ว) คืนฟังก์ชันหยุดก่อนเวลา
-        function visorWhine(f1, f2, durS, gain) {
-            if (!audioCtx || state.muted) return null;
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const t = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
-            const lfo = audioCtx.createOscillator(), depth = audioCtx.createGain();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(f1, t);
-            osc.frequency.exponentialRampToValueAtTime(f2, t + durS);
-            lfo.type = 'sine';
-            lfo.frequency.value = 24;
-            depth.gain.value = f1 * 0.05;
-            lfo.connect(depth);
-            depth.connect(osc.frequency);
-            g.gain.setValueAtTime(0.0001, t);
-            g.gain.exponentialRampToValueAtTime(gain, t + 0.08);
-            g.gain.setValueAtTime(gain, t + Math.max(0.1, durS - 0.06));
-            g.gain.exponentialRampToValueAtTime(0.0001, t + durS);
-            osc.connect(g);
-            g.connect(audioCtx.destination);
-            osc.start(t); lfo.start(t);
-            osc.stop(t + durS + 0.02); lfo.stop(t + durS + 0.02);
-            return () => {
-                try {
-                    const n = audioCtx.currentTime;
-                    g.gain.cancelScheduledValues(n);
-                    g.gain.setValueAtTime(0.0001, n);
-                    osc.stop(n + 0.02); lfo.stop(n + 0.02);
-                } catch (e) { /* หยุดไปแล้ว */ }
-            };
-        }
-        function visorStopWhine() {
-            if (visor.whine) visor.whine();
-            visor.whine = null;
-        }
         // เสียงข้อมูลวิ่ง: บี๊ปสั้นมาก ความถี่สุ่ม
         function visorChatter() { tone(1800 + Math.random() * 1600, 0.018, 0.025, 'square'); }
+        // หลังล็อกเป้า: บี๊ปสั้นต่อเนื่อง (ราว 4 ครั้งต่อวินาที) จนกว่าจะปิดแว่นหรือสแกนใหม่
+        const VISOR_LOCK_BEEP_MS = 250;
+        function visorStartLockBeeps() {
+            clearInterval(visor.beat);
+            visor.beat = setInterval(() => {
+                if (visor.open && visor.locked) tone(2200, 0.05, 0.06, 'square');
+            }, VISOR_LOCK_BEEP_MS);
+        }
 
         // ---------- ข้อมูลเป้า ----------
         function visorTarget() { return state.nearest || state.nearestAny || null; }
@@ -2109,7 +2082,6 @@
         function lockVisor() {
             clearInterval(visor.loop); visor.loop = null;
             visor.locked = true;
-            visorStopWhine();
             visor.lockedOnce = true;
             const lens = $('visorLens');
             lens.classList.add('locked');
@@ -2121,6 +2093,7 @@
             if (tg) {
                 tone(1760, 0.08, 0.09, 'square');
                 visorLater(() => tone(2640, 0.18, 0.09, 'square'), 110);
+                visorLater(visorStartLockBeeps, 300); // ต่อด้วยบี๊ปต่อเนื่อง
                 if (navigator.vibrate) navigator.vibrate([40, 50, 40]);
             } else {
                 sweepTone(520, 180, 0.4, 0.06, 'sawtooth');
@@ -2133,7 +2106,6 @@
         function startVisorScan() {
             visor.session++;
             visorStopTimers();
-            visorStopWhine();
             visor.locked = false;
             const lens = $('visorLens');
             lens.classList.remove('locked', 'flash');
@@ -2170,17 +2142,14 @@
             frame();
             visor.loop = setInterval(frame, fast ? 300 : 50);
 
-            // ลำดับขั้น + เสียง: เปิดเครื่อง → บี๊ปถี่และแหลมขึ้นจนเริ่มถอดรหัส → หวีดไต่ระดับช่วงวิเคราะห์
+            // ลำดับขั้น + เสียง: เปิดเครื่อง → บี๊ปถี่และแหลมขึ้นจนเริ่มถอดรหัส (ไม่มีเสียงหวีดยาว)
             sweepTone(220, 1400, 0.28, 0.05, 'sawtooth');
             for (let t = 320, gap = 260; t < decodeFrom; t += gap, gap = Math.max(48, gap * 0.9)) {
                 const f = 1100 + (t / decodeFrom) * 1700;
                 visorLater(() => tone(f, 0.04, 0.05, 'square'), t);
             }
             visorLater(() => { mode.textContent = 'SCANNING'; }, Math.min(500, T * 0.1));
-            visorLater(() => {
-                mode.textContent = 'ANALYZING';
-                visor.whine = visorWhine(700, 2900, (decodeFrom - T * 0.45) / 1000, 0.022);
-            }, T * 0.45);
+            visorLater(() => { mode.textContent = 'ANALYZING'; }, T * 0.45);
             visorLater(() => {
                 mode.textContent = 'DECODING';
                 if (fast) return;
@@ -2216,7 +2185,6 @@
             visor.locked = false;
             visor.session++;
             visorStopTimers();
-            visorStopWhine();
             clearInterval(visor.clock); visor.clock = null;
             $('visorOverlay').hidden = true;
             if (visor.lockedOnce) revealDataPanels(); // สแกนจนล็อกแล้ว: แสดงข้อมูลใต้เรดาร์
