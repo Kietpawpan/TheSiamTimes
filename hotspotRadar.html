@@ -354,6 +354,104 @@
             .crown, .btn { transition: none; }
         }
 
+        /* ---------- แว่นสแกน (HUD ล็อกเป้าจุดความร้อนที่ใกล้ที่สุด) ---------- */
+        .visor-overlay {
+            position: fixed; inset: 0; z-index: 60;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+            padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+            background:
+                repeating-linear-gradient(0deg, rgba(126, 227, 107, 0.05) 0 1px, transparent 1px 4px),
+                radial-gradient(circle at 50% 40%, #10280f, #020603 70%);
+            background-color: #020603;
+            animation: visor-in 0.25s ease-out;
+        }
+        .visor-overlay[hidden] { display: none; }
+        @keyframes visor-in { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
+        .visor { position: relative; width: min(94vw, 560px); }
+        /* ก้านแว่นด้านซ้าย */
+        .visor-arm {
+            position: absolute; left: -2%; top: 46%; width: 16%; height: 12%;
+            background: linear-gradient(180deg, #3b4248, #1c2024); border-radius: 10px 4px 4px 10px;
+            box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.15), 0 6px 14px rgba(0, 0, 0, 0.6);
+        }
+        .visor-arm span {
+            position: absolute; left: -22%; top: 50%; width: 44%; aspect-ratio: 1; transform: translateY(-50%);
+            border-radius: 50%; background: radial-gradient(circle at 35% 35%, #cfd5da, #59626a 60%, #2a3035);
+        }
+        /* เลนส์โปร่งแสงสีเขียว */
+        .visor-lens {
+            position: relative; margin-left: 10%; aspect-ratio: 5 / 3.4; overflow: hidden;
+            border-radius: 18% 46% 40% 22% / 26% 44% 48% 30%;
+            border: 5px solid #2b3136;
+            background:
+                radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.16), transparent 40%),
+                linear-gradient(155deg, rgba(110, 255, 140, 0.26), rgba(20, 170, 80, 0.16) 60%, rgba(10, 90, 40, 0.24));
+            box-shadow: 0 0 28px rgba(110, 255, 140, 0.25), inset 0 0 34px rgba(110, 255, 140, 0.3), 0 14px 40px rgba(0, 0, 0, 0.7);
+            color: #c8ffbf; text-shadow: 0 0 6px rgba(120, 255, 130, 0.75);
+        }
+        .visor-lens.flash { animation: visor-flash 0.18s steps(1) 4; }
+        @keyframes visor-flash { 50% { background-color: rgba(190, 255, 190, 0.35); box-shadow: 0 0 60px rgba(160, 255, 170, 0.7), inset 0 0 60px rgba(160, 255, 170, 0.6); } }
+        .visor-grid {
+            position: absolute; inset: 0; opacity: 0.35;
+            background-image: linear-gradient(rgba(150, 255, 160, 0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(150, 255, 160, 0.18) 1px, transparent 1px);
+            background-size: 22px 22px;
+        }
+        .visor-sweep {
+            position: absolute; left: 0; right: 0; height: 22%; top: -22%;
+            background: linear-gradient(180deg, transparent, rgba(170, 255, 170, 0.32), transparent);
+            animation: visor-sweep 1.6s linear infinite;
+        }
+        .visor-lens.locked .visor-sweep { animation-duration: 3.2s; opacity: 0.45; }
+        @keyframes visor-sweep { to { top: 100%; } }
+        .visor-reticle { position: absolute; right: 4%; top: 50%; width: 38%; transform: translateY(-50%); overflow: visible; }
+        .visor-reticle .ring { fill: none; stroke: rgba(170, 255, 170, 0.75); stroke-width: 1.5; }
+        .visor-reticle .ring.faint { stroke-dasharray: 4 6; stroke-opacity: 0.6; }
+        .visor-reticle .ticks { stroke: rgba(170, 255, 170, 0.7); stroke-width: 2; }
+        .visor-reticle .brackets path { fill: none; stroke: #c8ffbf; stroke-width: 3; }
+        .visor-reticle .brackets { transform-origin: 100px 100px; animation: visor-spin 1.2s linear infinite; }
+        .visor-lens.locked .visor-reticle .brackets { animation: none; }
+        @keyframes visor-spin { to { transform: rotate(360deg); } }
+        .visor-reticle .arrow { transform-origin: 100px 100px; transition: transform 0.4s ease-out; opacity: 0; }
+        .visor-lens.locked .visor-reticle .arrow { opacity: 1; }
+        .visor-reticle .arrow path { fill: #ffef6b; filter: drop-shadow(0 0 4px rgba(255, 239, 107, 0.9)); }
+        .visor-reticle .dot { fill: #c8ffbf; }
+        .visor-hud { position: absolute; inset: 7% 42% 8% 8%; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .visor-top {
+            display: flex; justify-content: space-between; gap: 8px;
+            font: 700 clamp(10px, 2.6vw, 13px) ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 0.12em;
+        }
+        #visorMode.blink { animation: visor-blink 0.32s steps(1) infinite; }
+        @keyframes visor-blink { 50% { opacity: 0.15; } }
+        .visor-main { font-size: clamp(11px, 2.9vw, 14px); line-height: 1.35; min-height: 0; overflow: hidden; }
+        .visor-main .big {
+            display: block; font: 800 clamp(26px, 8vw, 44px) ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+            letter-spacing: 0.02em; line-height: 1.05; color: #f2ffd8;
+        }
+        .visor-main .lbl { opacity: 0.75; }
+        .visor-main .warn { color: #ffef6b; }
+        .visor-main a { color: #ffef6b; font-weight: 700; }
+        .visor-meter { display: flex; gap: 3px; margin: 3px 0 2px; }
+        .visor-meter i { flex: 1; height: 7px; border: 1px solid rgba(200, 255, 190, 0.6); }
+        .visor-meter i.on { background: #c8ffbf; box-shadow: 0 0 6px rgba(160, 255, 160, 0.9); }
+        .visor-meter i.on.hot { background: #ff8a6b; border-color: #ff8a6b; box-shadow: 0 0 6px rgba(255, 120, 90, 0.9); }
+        .visor-data {
+            margin-top: auto; font: 600 clamp(9px, 2.3vw, 11px) ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+            opacity: 0.7; white-space: pre; overflow: hidden;
+        }
+        .visor-actions { display: flex; gap: 10px; width: min(94vw, 560px); }
+        @media (max-width: 600px) {
+            .visor-lens { aspect-ratio: 1 / 1.02; border-radius: 16% 34% 30% 18% / 16% 26% 30% 22%; }
+            .visor-reticle { width: 26%; right: 8%; top: 12%; transform: none; }
+            .visor-hud { inset: 6% 7% 7% 9%; }
+            .visor-top { padding-right: 16%; } /* นาฬิกาพ้นขอบโค้งมุมขวาบน */
+            .visor-head { padding-right: 31%; min-height: 28vw; } /* รายละเอียดถัดไปเริ่มใต้วงเล็ง */
+            .visor-main { font-size: clamp(11px, 3.4vw, 14px); }
+        }
+        .visor-actions .btn { flex: 1; min-height: 46px; font-size: 15px; }
+        @media (prefers-reduced-motion: reduce) {
+            .visor-overlay, .visor-sweep, .visor-reticle .brackets, #visorMode.blink, .visor-lens.flash { animation: none !important; }
+        }
+
         /* ---------- รายงาน PDF (สร้างเมื่อกดปุ่มส่งออก แสดงเฉพาะตอนพิมพ์/บันทึกเป็น PDF) ---------- */
         #pdfReport { display: none; }
         @media print {
@@ -435,6 +533,7 @@
             </select>
             <button class="btn" id="reloadBtn" type="button">⟳ โหลดข้อมูล</button>
             <button class="btn" id="pdfBtn" type="button" title="สร้างรายงานจุดความร้อนรอบตำแหน่งของคุณ แล้วเลือก &quot;บันทึกเป็น PDF&quot; ในหน้าต่างพิมพ์">📄 ส่งออก PDF</button>
+            <button class="btn" id="visorBtn" type="button" title="เปิดแว่นสแกน: วิเคราะห์และล็อกเป้าจุดความร้อนที่ใกล้ที่สุด">🥽 แว่นสแกน</button>
         </div>
 
         <div class="notice" id="compassNotice" role="status"></div>
@@ -472,6 +571,34 @@
             ข้อมูลจุดความร้อน: NASA FIRMS (VIIRS) ผ่านระบบ <a href="fireRadar.html">Fire Radar</a> (เฉพาะในประเทศไทย)
             · ตำแหน่ง GPS ใช้ในเครื่องของคุณเท่านั้น ไม่ส่งไปยังเซิร์ฟเวอร์ (ไฟล์ PDF ที่คุณส่งออกเองจะมีพิกัดของคุณ)
         </footer>
+    </div>
+
+    <!-- แว่นสแกน: หน้าจอ HUD ล็อกเป้าจุดความร้อนที่ใกล้ที่สุด -->
+    <div class="visor-overlay" id="visorOverlay" hidden role="dialog" aria-modal="true" aria-label="แว่นสแกนจุดความร้อน">
+        <div class="visor">
+            <div class="visor-arm" aria-hidden="true"><span></span></div>
+            <div class="visor-lens" id="visorLens">
+                <div class="visor-grid" aria-hidden="true"></div>
+                <div class="visor-sweep" aria-hidden="true"></div>
+                <svg class="visor-reticle" viewBox="0 0 200 200" aria-hidden="true">
+                    <circle cx="100" cy="100" r="78" class="ring"/>
+                    <circle cx="100" cy="100" r="52" class="ring faint"/>
+                    <g class="brackets"><path d="M40 70V40h30M160 70V40h-30M40 130v30h30M160 130v30h-30"/></g>
+                    <path d="M100 8v22M100 170v22M8 100h22M170 100h22" class="ticks"/>
+                    <g id="visorArrow" class="arrow"><path d="M100 34l11 26h-22z"/></g>
+                    <circle cx="100" cy="100" r="3" class="dot"/>
+                </svg>
+                <div class="visor-hud">
+                    <div class="visor-top"><span id="visorMode">BOOT</span><span id="visorClock">--:--:--</span></div>
+                    <div class="visor-main" id="visorMain" aria-live="polite"></div>
+                    <div class="visor-data" id="visorData" aria-hidden="true"></div>
+                </div>
+            </div>
+        </div>
+        <div class="visor-actions">
+            <button class="btn" id="visorRescan" type="button">🔄 สแกนใหม่</button>
+            <button class="btn" id="visorClose" type="button">✕ ปิดแว่น</button>
+        </div>
     </div>
 
     <div class="start-overlay" id="startOverlay">
@@ -1391,7 +1518,7 @@
 
             if (now >= state.nextBeat) {
                 state.lastBeat = now;
-                if (state.started || state.demo) beep();
+                if ((state.started || state.demo) && !visor.open) beep(); // หยุดเสียงเรดาร์ระหว่างเปิดแว่นสแกน
                 state.nextBeat = now + state.interval;
             }
             draw(now);
@@ -1442,6 +1569,7 @@
                 (state.nearest ? 'พบ ' + state.hits.length + ' จุด ใกล้สุด ' + fmtDist(state.nearest.d) + ' ทิศ' + dirName(state.nearest.brg) : 'ไม่พบจุดความร้อนในรัศมี'));
 
             renderList();
+            if (visor.open && visor.locked) renderVisor(); // แว่นสแกน: อัปเดตระยะ/ทิศ/เป้าตามตำแหน่งล่าสุด
         }
 
         function renderList() {
@@ -1714,6 +1842,220 @@
                 alert('สร้างรายงาน PDF ไม่สำเร็จ');
             }
         });
+
+        // ===================== แว่นสแกน =====================
+        // หน้าจอ HUD: สแกน (เสียงบี๊ปเร่งจังหวะ + ข้อความกะพริบ) ~2.5 วินาที แล้วล็อกเป้าจุดความร้อนที่ใกล้ที่สุด
+        // แสดงระยะ ทิศ ความเชื่อมั่น เวลา พื้นที่ และอัปเดตต่อเนื่องตามตำแหน่งขณะเปิดแว่น (เสียงเรดาร์หยุดระหว่างนี้)
+        const LONGDO_KEY = 'bce812933744d2530d26f0fabb0017cf'; // คีย์เดียวกับ fireRadar.html ใช้หาชื่อตำบล/อำเภอของจุดความร้อน
+        const visor = { open: false, locked: false, session: 0, timers: [], flicker: null, roll: null, clock: null, lastFocus: null };
+        const visorAddrCache = new Map(); // "lat,lon" ของจุดความร้อน → Promise<string|null>
+
+        function visorLater(fn, ms) {
+            const id = visor.session;
+            visor.timers.push(setTimeout(() => { if (visor.open && visor.session === id) fn(); }, ms));
+        }
+        function visorStopTimers() {
+            visor.timers.forEach(clearTimeout);
+            visor.timers = [];
+            clearInterval(visor.flicker); visor.flicker = null;
+            clearInterval(visor.roll); visor.roll = null;
+        }
+        function reducedMotion() {
+            return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        }
+
+        // เสียงกวาดความถี่ (ใช้ตอนเปิดเครื่อง/ไม่พบเป้า)
+        function sweepTone(f1, f2, durS, gain, type) {
+            if (!audioCtx || state.muted) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = type || 'sawtooth';
+            osc.frequency.setValueAtTime(f1, t);
+            osc.frequency.exponentialRampToValueAtTime(f2, t + durS);
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(gain, t + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + durS);
+            osc.connect(g);
+            g.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + durS + 0.02);
+        }
+
+        function visorTarget() { return state.nearest || state.nearestAny || null; }
+
+        // ชื่อตำบล/อำเภอจาก Longdo Map (ส่งเฉพาะพิกัดของจุดความร้อน ไม่ใช่ตำแหน่งของผู้ใช้) จำผลไว้ ค้นไม่สำเร็จไม่จำ
+        function visorAddress(p) {
+            const key = p.lat.toFixed(4) + ',' + p.lon.toFixed(4);
+            if (!visorAddrCache.has(key)) {
+                const short = (s, map) => {
+                    const t = String(s || '').trim();
+                    for (const [long, abbr] of map) if (t.startsWith(long)) return abbr + t.slice(long.length).trim();
+                    return t;
+                };
+                const pr = fetch('https://api.longdo.com/map/services/address?lon=' + p.lon + '&lat=' + p.lat + '&key=' + LONGDO_KEY)
+                    .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+                    .then(d => {
+                        const parts = [short(d && d.subdistrict, [['ตำบล', 'ต.'], ['แขวง', 'แขวง']]), short(d && d.district, [['อำเภอ', 'อ.'], ['เขต', 'เขต']])].filter(Boolean);
+                        return parts.length ? parts.join(' ') : null;
+                    });
+                pr.catch(() => visorAddrCache.delete(key));
+                visorAddrCache.set(key, pr);
+            }
+            return visorAddrCache.get(key);
+        }
+
+        function visorDataLines() {
+            const hex = n => Array.from({ length: n }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
+            const pos = state.pos;
+            return 'SCAN ' + hex(4) + '-' + hex(4) + '-' + hex(2) + '\n' +
+                'GPS  ' + (pos ? pos.lat.toFixed(4) + ' ' + pos.lon.toFixed(4) : '--.---- ---.----') + '\n' +
+                'DATA ' + (state.dataStatus === 'ok' ? state.points.length + ' PTS · ' + state.timeWindowH + 'H' : '----');
+        }
+
+        function visorMeter(k, hot) {
+            const n = 10, on = Math.round(Math.max(0, Math.min(1, k)) * n);
+            let h = '<div class="visor-meter" aria-hidden="true">';
+            for (let i = 0; i < n; i++) h += '<i class="' + (i < on ? 'on' + (hot ? ' hot' : '') : '') + '"></i>';
+            return h + '</div>';
+        }
+
+        function renderVisor() {
+            if (!visor.open || !visor.locked) return;
+            const main = $('visorMain');
+            const tg = visorTarget();
+            const mode = $('visorMode');
+            if (!state.pos) {
+                mode.textContent = 'NO SIGNAL';
+                main.innerHTML = '<span class="warn">ไม่มีตำแหน่งของคุณ</span><br>กด "เริ่มสแกน" และอนุญาตให้ใช้ตำแหน่ง แล้วสแกนใหม่';
+            } else if (state.dataStatus !== 'ok') {
+                mode.textContent = 'NO DATA';
+                main.innerHTML = '<span class="warn">ยังไม่มีข้อมูลจุดความร้อน</span><br>' + (state.dataStatus === 'loading' ? 'กำลังโหลดข้อมูลดาวเทียม…' : 'กด "โหลดข้อมูล" แล้วสแกนใหม่');
+            } else if (!tg) {
+                mode.textContent = 'CLEAR';
+                main.innerHTML = '<span class="lbl">ผลการสแกน</span><span class="big">0</span>ไม่พบจุดความร้อนในประเทศไทย<br>ช่วง ' + state.timeWindowH + ' ชม. ล่าสุด';
+            } else {
+                const p = tg.pt, inRange = !!state.nearest;
+                mode.textContent = inRange ? 'LOCKED' : 'LOCKED · OUT OF RANGE';
+                main.innerHTML =
+                    '<div class="visor-head"><span class="lbl">🎯 จุดความร้อนใกล้ที่สุด' + (inRange ? '' : ' (นอกรัศมีสแกน)') + '</span>' +
+                    '<span class="big">' + esc(fmtDist(tg.d)) + '</span>' +
+                    'ทิศ' + esc(dirName(tg.brg)) + ' ' + Math.round(tg.brg) + '°' +
+                    visorMeter(inRange ? proximity() : 0, inRange) + '</div>' +
+                    '<span class="lbl">ความเชื่อมั่น</span> ' + esc(CONF_LABEL[p.conf].replace('ความเชื่อมั่น', '')) +
+                    ' · <span class="lbl">พบ</span> ' + (p.time ? esc(fmtThai(p.time)) + ' (' + esc(fmtAgo(p.time)) + ')' : '-') + '<br>' +
+                    '<span class="lbl">พื้นที่</span> <span id="visorAddr"></span>' + (p.prov ? 'จ.' + esc(p.prov) : '') + '<br>' +
+                    p.lat.toFixed(4) + ', ' + p.lon.toFixed(4) + ' · <a href="' + esc(navUrl(p.lat, p.lon)) + '" target="_blank" rel="noopener">นำทาง ›</a><br>' +
+                    '<span class="lbl">ในรัศมี ' + esc(fmtRange(rangeKm())) + ':</span> ' + state.hits.length + ' จุด';
+                visorAddress(p).then(a => {
+                    const el = $('visorAddr');
+                    if (a && el && visorTarget() && visorTarget().pt === p) el.textContent = a + ' ';
+                }).catch(() => { /* ไม่มีชื่อตำบล/อำเภอ ก็แสดงแค่จังหวัด */ });
+            }
+            // ลูกศรชี้ไปยังเป้า: เทียบกับทิศที่จอหันไปถ้าเปิดโหมดหมุนตามทิศ ไม่เช่นนั้นทิศเหนืออยู่ด้านบน
+            const arrow = $('visorArrow');
+            const rel = tg ? tg.brg - (state.headingUp && state.compass != null ? state.compass : 0) : 0;
+            arrow.style.transform = 'rotate(' + rel + 'deg)';
+            arrow.style.display = tg && state.pos ? '' : 'none';
+        }
+
+        function lockVisor() {
+            clearInterval(visor.flicker); visor.flicker = null;
+            clearInterval(visor.roll); visor.roll = null;
+            visor.locked = true;
+            const lens = $('visorLens');
+            lens.classList.add('locked');
+            lens.classList.remove('flash');
+            void lens.offsetWidth; // เริ่มแอนิเมชันกะพริบใหม่
+            lens.classList.add('flash');
+            $('visorMode').classList.remove('blink');
+            const tg = state.pos && state.dataStatus === 'ok' ? visorTarget() : null;
+            if (tg) {
+                tone(1760, 0.08, 0.09, 'square');
+                visorLater(() => tone(2640, 0.18, 0.09, 'square'), 110);
+                if (navigator.vibrate) navigator.vibrate([40, 50, 40]);
+            } else {
+                sweepTone(520, 180, 0.4, 0.06, 'sawtooth');
+            }
+            $('visorData').textContent = 'SRC  NASA FIRMS VIIRS\n' + 'RNG  ' + fmtRange(rangeKm()) + ' · ' + state.timeWindowH + 'H\n' +
+                'PTS  ' + (state.dataStatus === 'ok' ? state.points.length : '-');
+            renderVisor();
+        }
+
+        function startVisorScan() {
+            visor.session++;
+            visorStopTimers();
+            visor.locked = false;
+            const lens = $('visorLens');
+            lens.classList.remove('locked', 'flash');
+            const mode = $('visorMode');
+            mode.textContent = 'SCANNING';
+            mode.classList.add('blink');
+            $('visorArrow').style.display = 'none';
+            $('visorMain').innerHTML = '<div class="visor-head"><span class="lbl">กำลังสแกนหาความร้อนรอบตัว…</span><span class="big" id="visorRoll">----</span>' + visorMeter(0) + '</div>';
+            const fast = reducedMotion();
+            const T = fast ? 900 : 2500;
+            visor.flicker = setInterval(() => { $('visorData').textContent = visorDataLines(); }, fast ? 300 : 70);
+            $('visorData').textContent = visorDataLines();
+
+            // เสียง: เปิดเครื่อง แล้วบี๊ปถี่และสูงขึ้นเรื่อย ๆ จนล็อกเป้า
+            sweepTone(220, 1400, 0.28, 0.05, 'sawtooth');
+            let t = 320, gap = 230;
+            while (t < T - 300) {
+                const f = 1100 + (t / T) * 1500;
+                visorLater(() => tone(f, 0.04, 0.05, 'square'), t);
+                t += gap;
+                gap = Math.max(55, gap * 0.82);
+            }
+            // แถบความคืบหน้า + ช่วงวิเคราะห์ + ตัวเลขหมุน
+            const steps = 10;
+            for (let i = 1; i <= steps; i++) {
+                visorLater(() => { const m = document.querySelector('#visorMain .visor-meter'); if (m) m.outerHTML = visorMeter(i / steps); }, (T - 150) * i / steps);
+            }
+            visorLater(() => {
+                $('visorMode').textContent = 'ANALYZING';
+                const lbl = document.querySelector('#visorMain .lbl');
+                if (lbl) lbl.textContent = 'กำลังวิเคราะห์ข้อมูลดาวเทียม…';
+                visor.roll = setInterval(() => {
+                    const el = $('visorRoll');
+                    if (el) el.textContent = (Math.random() * 99).toFixed(1) + ' กม.';
+                }, 60);
+            }, T * 0.55);
+            const tg = visorTarget();
+            if (tg) visorAddress(tg.pt).catch(() => { /* ค้นไม่ได้ก็ข้าม */ }); // ค้นชื่อพื้นที่ล่วงหน้าระหว่างสแกน
+            visorLater(lockVisor, T);
+        }
+
+        function openVisor() {
+            initAudio(); // อยู่ในการกดปุ่ม: ปลดล็อกเสียงบน iOS
+            visor.open = true;
+            visor.lastFocus = document.activeElement;
+            $('visorOverlay').hidden = false;
+            const tick = () => { $('visorClock').textContent = new Date().toLocaleTimeString('th-TH', { hour12: false }); };
+            tick();
+            clearInterval(visor.clock);
+            visor.clock = setInterval(tick, 1000);
+            $('visorClose').focus();
+            startVisorScan();
+        }
+
+        function closeVisor() {
+            if (!visor.open) return;
+            visor.open = false;
+            visor.locked = false;
+            visor.session++;
+            visorStopTimers();
+            clearInterval(visor.clock); visor.clock = null;
+            $('visorOverlay').hidden = true;
+            state.nextBeat = 0; // เสียงเรดาร์กลับมาทันที
+            if (visor.lastFocus && visor.lastFocus.focus) visor.lastFocus.focus();
+        }
+
+        $('visorBtn').addEventListener('click', openVisor);
+        $('visorClose').addEventListener('click', closeVisor);
+        $('visorRescan').addEventListener('click', () => { initAudio(); startVisorScan(); });
+        document.addEventListener('keydown', e => { if (visor.open && e.key === 'Escape') closeVisor(); });
 
         // ===================== เริ่มทำงาน =====================
         if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas);
