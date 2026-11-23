@@ -342,6 +342,16 @@
         .hs-dot span { position: absolute; left: 6px; top: 6px; width: 12px; height: 12px; border-radius: 50%;
             border: 1px solid #fff; box-sizing: border-box; opacity: 0.95; box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.25); }
 
+        /* ---------- จุดเก็บตัวอย่างน้ำ: หยดน้ำ (ปลายแหลมชี้ขึ้น) บนพื้นที่กด 24 px ---------- */
+        /* รูปหยดน้ำแยกจากจุดความร้อน (วงกลม) สถานี PM2.5 (ข้าวหลามตัด) และการระบายอากาศ (สี่เหลี่ยม) */
+        .water-dot { background: transparent; border: none; }
+        .water-dot span { position: absolute; left: 5px; top: 6px; width: 14px; height: 14px; box-sizing: border-box;
+            border-radius: 50% 0 50% 50%; transform: rotate(-45deg); border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.45); }
+        .leaflet-tooltip.water-label { display: none; padding: 1px 5px; font-size: 11px; font-weight: 700; color: #075985;
+            background: rgba(255, 255, 255, 0.9); border: 1px solid #7dd3fc; box-shadow: none; }
+        .leaflet-tooltip.water-label::before { display: none; }
+        .water-labels-on .leaflet-tooltip.water-label { display: block; }
+
         /* ---------- อัตราการระบายอากาศ ---------- */
         /* หมุดยกขึ้นเหนือจุดจังหวัด มีก้านชี้ลงที่ตำแหน่ง ไม่ทับป้าย/จุด PM2.5 ที่อยู่ตรงตำแหน่งเดียวกัน */
         .vent-pin { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; }
@@ -516,6 +526,11 @@
                     <label for="burnMonthSelect" style="color: #475569;">เดือน:</label>
                     <select id="burnMonthSelect" style="padding: 6px 10px; border: 1px solid #fca5a5; border-radius: 6px; font-size: 15px; color: #991b1b; background: #fff; cursor: pointer;"></select>
                 </div>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 16px; flex-wrap: wrap; margin-top: 10px;">
+                    <input type="checkbox" id="waterToggle" style="width: 18px; height: 18px; accent-color: #4a148c; margin: 0;">
+                    <b>💧 แสดงจุดเก็บตัวอย่างน้ำผิวดิน</b>
+                    <span style="font-size: 14px; color: #64748b;">(จุดตรวจวัดคุณภาพน้ำตามประกาศกรมควบคุมมลพิษ · 13 แหล่งน้ำที่ระบุพิกัด)</span>
+                </label>
             </div>
 
             <!-- ส่วนปักหมุดจุดเกิดเหตุด่วนและจำลองกรวยควันตามทิศลม -->
@@ -966,6 +981,10 @@
         const BURN_LAYER_NAME = "🔥 พื้นที่เผาไหม้ซ้ำซาก (GISTDA)";
         const burnLayer = L.layerGroup();
         const burnRenderer = L.canvas({ padding: 0.5, pane: 'burnPane' });
+
+        // ชั้นข้อมูลจุดเก็บตัวอย่างน้ำผิวดิน (จุดตรวจวัดคุณภาพน้ำ คพ.)
+        const WATER_LAYER_NAME = "💧 จุดเก็บตัวอย่างน้ำผิวดิน (คพ.)";
+        const waterLayer = L.layerGroup();
         
         // กำหนดเลเยอร์จัดกลุ่มจุดความร้อน
         const hotspotLayer = L.markerClusterGroup({
@@ -984,7 +1003,8 @@
             [PM25_LAYER_NAME]: pm25Layer,
             [WIND_LAYER_NAME]: windLayer,
             [VENT_LAYER_NAME]: ventLayer,
-            [BURN_LAYER_NAME]: burnLayer
+            [BURN_LAYER_NAME]: burnLayer,
+            [WATER_LAYER_NAME]: waterLayer
         };
 
         L.control.layers(baseMaps, overlayMaps).addTo(map);
@@ -1668,6 +1688,7 @@ if (primarySource && primarySource.features) {
             refreshWind(false); // ตารางลมของพื้นที่ใหม่ (ถ้าเปิดเส้นลมอยู่)
             refreshVent(false); // อัตราการระบายอากาศของจังหวัดในพื้นที่ใหม่ (ถ้าเปิดอยู่)
             if (map.hasLayer(burnLayer)) renderBurn(); // จัดอันดับพื้นที่เผาไหม้ตามพื้นที่ใหม่ (ข้อมูลเดือนเดิม)
+            if (map.hasLayer(waterLayer) && waterData) renderWater(); // จุดเก็บตัวอย่างน้ำในพื้นที่ใหม่
             showToast(`สลับพื้นที่ไปยัง ${regionFullName()} เรียบร้อยแล้ว`, "info");
         }
 
@@ -1781,6 +1802,23 @@ if (primarySource && primarySource.features) {
                     html += '<div style="margin-top:4px; font-size:13px; color:#b91c1c;">โหลดข้อมูลพื้นที่เผาไหม้ไม่สำเร็จ</div>';
                 } else {
                     html += '<div style="margin-top:4px; font-size:13px; color:#64748b;">กำลังโหลดข้อมูล (ไฟล์ใหญ่ อาจใช้เวลาสักครู่)...</div>';
+                }
+            }
+
+            if (activeLayers.has(WATER_LAYER_NAME)) {
+                html += `<div class="legend-title">💧 จุดเก็บตัวอย่างน้ำผิวดิน (${regionLabel()})</div>`;
+                Object.values(WATER_TYPES).forEach(t => {
+                    html += `<div><span style="display:inline-block; width:11px; height:11px; background:${t.color}; border:1.5px solid #fff; box-shadow:0 0 0 1px rgba(15,23,42,0.45); border-radius:50% 0 50% 50%; transform:rotate(-45deg); margin:0 8px 0 2px; vertical-align:-1px;"></span>${t.label}</div>`;
+                });
+                if (waterData) {
+                    const bodies = new Set(waterShown.map(s => s.waterBody)).size;
+                    html += waterShown.length
+                        ? `<div style="margin-top:4px; font-size:13px;">ในพื้นที่: <b>${waterShown.length}</b> จุด · ${bodies} แหล่งน้ำ · ซูมเข้าเพื่อดูรหัสจุด</div>`
+                        : '<div style="margin-top:4px; font-size:13px; color:#64748b;">ไม่มีจุดที่ระบุพิกัดในพื้นที่นี้ (เลือก "ทั่วประเทศ" เพื่อดูทั้งหมด)</div>';
+                } else if (waterLoadError) {
+                    html += '<div style="margin-top:4px; font-size:13px; color:#b91c1c;">โหลดข้อมูลจุดเก็บตัวอย่างน้ำไม่สำเร็จ</div>';
+                } else {
+                    html += '<div style="margin-top:4px; font-size:13px; color:#64748b;">กำลังโหลดข้อมูล...</div>';
                 }
             }
 
@@ -3949,6 +3987,139 @@ if (primarySource && primarySource.features) {
         // เปิดหน้าพร้อมชั้นข้อมูลนี้ได้ด้วย ?burn=<เดือน> เช่น ?burn=6905
         if (paramBurn) map.addLayer(burnLayer);
 
+        // ============================================================================
+        // จุดเก็บตัวอย่างน้ำผิวดิน (จุดตรวจวัดคุณภาพน้ำตามประกาศกรมควบคุมมลพิษ)
+        // ไฟล์ surface_water_stations.json วางไว้ในโฟลเดอร์เดียวกับหน้านี้ โหลดเมื่อเปิดชั้นข้อมูลครั้งแรก
+        // แสดงตามพื้นที่ สคพ. ที่เลือก (ดูจากจังหวัดของจุด) · ป้ายรหัสจุดขึ้นเมื่อซูมเข้า
+        // ============================================================================
+        const WATER_FILE = 'surface_water_stations.json';
+        const WATER_LABEL_ZOOM = 11;
+        const WATER_TYPES = {
+            'แหล่งน้ำไหล': { color: '#0284c7', label: 'แหล่งน้ำไหล (แม่น้ำ/ลำน้ำ)' },
+            'แหล่งน้ำนิ่ง': { color: '#0d9488', label: 'แหล่งน้ำนิ่ง (กว๊าน/ทะเลสาบ)' }
+        };
+        let waterData = null;      // { title, source, stations: [...] }
+        let waterLoadError = false;
+        let waterLoading = null;   // Promise ระหว่างโหลด
+        let waterShown = [];       // จุดที่แสดงในพื้นที่ปัจจุบัน
+
+        function waterTypeStyle(type) { return WATER_TYPES[type] || WATER_TYPES['แหล่งน้ำไหล']; }
+        function waterInScope(st) {
+            return isNational() || EPO_REGIONS[currentEpoId].provincesTH.includes(st.province);
+        }
+
+        // จุดความร้อนที่ใกล้จุดเก็บตัวอย่างที่สุด (ในพื้นที่และช่วงเวลาที่เลือกอยู่) คืน { km, prov } หรือ null
+        function waterNearestHotspot(st) {
+            const here = L.latLng(st.lat, st.lon);
+            let best = null;
+            (currentFilteredHotspots || []).forEach(f => {
+                const c = f.geometry && f.geometry.coordinates;
+                if (!c) return;
+                const m = map.distance(here, L.latLng(c[1], c[0]));
+                if (!best || m < best.m) best = { m, prov: f.properties && f.properties.prov_name };
+            });
+            return best ? { km: best.m / 1000, prov: best.prov } : null;
+        }
+        function waterNearestText(st) {
+            const n = waterNearestHotspot(st);
+            if (!n) return `<span style="color:#64748b;">ไม่พบจุดความร้อนในพื้นที่และช่วงเวลาที่เลือก</span>`;
+            const km = n.km < 10 ? n.km.toFixed(1) : fmtInt(n.km);
+            return `<b style="color:${n.km <= 5 ? '#b91c1c' : '#0f172a'};">${km} กม.</b> <span style="color:#64748b;">(รอบ ${currentTimeframe} ชม.)</span>`;
+        }
+
+        function waterPopupHtml(st) {
+            const ts = waterTypeStyle(st.type);
+            const epo = PROVINCE_TO_EPO[st.province];
+            return `<div style="font-size:14px; min-width:230px;">
+                <div style="background:${ts.color}; color:#fff; padding:5px; border-radius:4px; margin-bottom:8px; text-align:center;"><b>💧 จุดเก็บตัวอย่างน้ำผิวดิน ${escHtml(st.code)}</b></div>
+                <b>แหล่งน้ำ:</b> ${escHtml(st.waterBody)} <span style="color:#64748b;">(${escHtml(st.type)})</span><br>
+                <b>บริเวณ:</b> ${escHtml(st.location)}<br>
+                <b>จังหวัด:</b> <span style="color:#0284c7; font-weight:bold;">${escHtml(st.province)}</span>${epo ? ` (สคพ. ${epo})` : ''}<br>
+                <b>พิกัด:</b> ${st.lat.toFixed(6)}, ${st.lon.toFixed(6)}<br>
+                <b>จุดความร้อนใกล้สุด:</b> <span class="water-near">${waterNearestText(st)}</span><br>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${st.lat},${st.lon}" target="_blank" style="display:block; text-align:center; background-color:#16a34a; color:white; padding:8px 0; border-radius:6px; text-decoration:none; font-weight:bold; margin-top:8px;">📍 เปิดนำทางด้วย Google Maps</a>
+            </div>`;
+        }
+
+        async function loadWaterData() {
+            if (waterData) return waterData;
+            if (!waterLoading) {
+                waterLoading = fetch(WATER_FILE, { cache: 'no-cache' })
+                    .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+                    .then(d => {
+                        const stations = (d && Array.isArray(d.stations) ? d.stations : [])
+                            .map(s => ({ ...s, lat: Number(s.lat), lon: Number(s.lon) }))
+                            .filter(s => isFinite(s.lat) && isFinite(s.lon));
+                        waterData = { title: d.title || '', source: d.source || '', stations };
+                        waterLoadError = false;
+                        return waterData;
+                    })
+                    .catch(e => {
+                        console.warn('โหลดข้อมูลจุดเก็บตัวอย่างน้ำไม่สำเร็จ', e);
+                        waterLoadError = true;
+                        waterLoading = null; // เปิดชั้นข้อมูลอีกครั้งจะลองโหลดใหม่
+                        return null;
+                    });
+            }
+            return waterLoading;
+        }
+
+        function renderWater() {
+            waterLayer.clearLayers();
+            waterShown = waterData ? waterData.stations.filter(waterInScope) : [];
+            waterShown.forEach(st => {
+                const ts = waterTypeStyle(st.type);
+                L.marker([st.lat, st.lon], {
+                    icon: L.divIcon({
+                        className: 'water-dot',
+                        html: `<span style="background:${ts.color};"></span>`,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12],
+                        popupAnchor: [0, -10]
+                    }),
+                    keyboard: false
+                })
+                    .bindPopup(() => waterPopupHtml(st))
+                    .bindTooltip(escHtml(st.code), { permanent: true, direction: 'right', offset: [8, 0], className: 'water-label' })
+                    .addTo(waterLayer);
+            });
+            updateWaterLabels();
+            updateDynamicLegend();
+        }
+
+        // ป้ายรหัสจุดแสดงเฉพาะเมื่อซูมเข้า (ซูมออกป้ายจะซ้อนกันอ่านไม่ออก)
+        function updateWaterLabels() {
+            map.getContainer().classList.toggle('water-labels-on', map.getZoom() >= WATER_LABEL_ZOOM);
+        }
+        map.on('zoomend', updateWaterLabels);
+
+        async function refreshWater() {
+            updateDynamicLegend(); // แสดง "กำลังโหลด" ระหว่างรอ
+            await loadWaterData();
+            if (!map.hasLayer(waterLayer)) return;
+            if (!waterData) showToast('โหลดข้อมูลจุดเก็บตัวอย่างน้ำไม่สำเร็จ', 'error');
+            renderWater();
+        }
+
+        document.getElementById('waterToggle').addEventListener('change', function () {
+            if (this.checked) map.addLayer(waterLayer);
+            else map.removeLayer(waterLayer);
+        });
+        map.on('overlayadd', function (e) {
+            if (e.layer !== waterLayer) return;
+            document.getElementById('waterToggle').checked = true;
+            setUrlParam('water', '1');
+            refreshWater();
+        });
+        map.on('overlayremove', function (e) {
+            if (e.layer !== waterLayer) return;
+            document.getElementById('waterToggle').checked = false;
+            setUrlParam('water', null);
+        });
+
+        // เปิดหน้าพร้อมชั้นข้อมูลนี้ได้ด้วย ?water=1
+        if (urlParams.get('water') === '1') map.addLayer(waterLayer);
+
         // มาตราส่วนแผนที่ (Scale Control)
         const scaleControl = L.control.scale({
             position: 'bottomright',
@@ -4104,6 +4275,12 @@ if (primarySource && primarySource.features) {
                 const [x, y] = P(r.latlng.lng, r.latlng.lat);
                 s += `<circle cx="${f1(x)}" cy="${f1(y)}" r="6.5" fill="none" stroke="#b91c1c" stroke-width="1.8"/>`;
             });
+            if (map.hasLayer(waterLayer)) {
+                waterShown.forEach(st => {
+                    const [x, y] = P(st.lon, st.lat);
+                    s += `<rect x="${f1(x - 3)}" y="${f1(y - 3)}" width="6" height="6" rx="1" fill="${waterTypeStyle(st.type).color}" stroke="#fff" stroke-width="0.8" transform="rotate(45 ${f1(x)} ${f1(y)})"/>`;
+                });
+            }
             if (currentIncidentData) {
                 const [x, y] = P(currentIncidentData.lon, currentIncidentData.lat);
                 s += `<path d="M${f1(x)},${f1(y - 8)} L${f1(x + 7)},${f1(y + 5)} L${f1(x - 7)},${f1(y + 5)} Z" fill="#be123c" stroke="#fff" stroke-width="1"/>`;
@@ -4172,6 +4349,7 @@ if (primarySource && primarySource.features) {
                     '<span><i class="pdf-sw" style="background:#bcaaa4"></i>สถานที่กำจัดขยะ (เปิด)</span>' +
                     '<span><i class="pdf-sw" style="background:#e2e8f0"></i>ปิด/หยุดดำเนินงาน</span>' +
                     '<span><i class="pdf-sw" style="background:#fff;border:2px solid #b91c1c"></i>บ่อขยะเสี่ยง</span>' +
+                    (map.hasLayer(waterLayer) && waterShown.length ? '<span><i class="pdf-sw" style="background:#0284c7;border-radius:1px;transform:rotate(45deg)"></i>จุดเก็บตัวอย่างน้ำ</span>' : '') +
                     (currentIncidentData ? '<span><i class="pdf-sw" style="background:#be123c;border-radius:2px"></i>จุดเกิดเหตุ</span>' : '') +
                     '</div>';
             }
@@ -4272,6 +4450,27 @@ if (primarySource && primarySource.features) {
             } else if (isNational() || currentEpoId === '11') {
                 h += H2('พื้นที่เผาไหม้ซ้ำซาก (GISTDA)');
                 h += '<p class="pdf-note">ยังไม่ได้โหลดข้อมูล หากต้องการรวมในรายงาน ให้ติ๊ก "แสดงพื้นที่เผาไหม้ซ้ำซาก รายเดือน" เลือกเดือน รอให้ตารางขึ้น แล้วกดส่งออกอีกครั้ง</p>';
+            }
+
+            // จุดเก็บตัวอย่างน้ำผิวดิน (เฉพาะเมื่อเปิดชั้นข้อมูลนี้อยู่) เรียงตามระยะจากจุดความร้อนที่ใกล้ที่สุด
+            if (map.hasLayer(waterLayer)) {
+                h += H2(`จุดเก็บตัวอย่างน้ำผิวดิน (${pdfNum(waterShown.length)} จุด)`);
+                if (!waterData) {
+                    h += `<p class="pdf-note">${waterLoadError ? 'โหลดข้อมูลจุดเก็บตัวอย่างน้ำไม่สำเร็จ' : 'กำลังโหลดข้อมูล รอสักครู่แล้วกดส่งออกอีกครั้ง'}</p>`;
+                } else if (!waterShown.length) {
+                    h += '<p class="pdf-note">ไม่มีจุดเก็บตัวอย่างน้ำที่ระบุพิกัดในพื้นที่นี้</p>';
+                } else {
+                    const wrows = waterShown.map(st => ({ st, near: waterNearestHotspot(st) }))
+                        .sort((a, b) => (a.near ? a.near.km : Infinity) - (b.near ? b.near.km : Infinity) || a.st.code.localeCompare(b.st.code));
+                    h += `<div class="pdf-note">ที่มา: ${pdfEsc(waterData.source)} · เรียงตามระยะห่างจากจุดความร้อนที่ใกล้ที่สุดในพื้นที่ (รอบ ${currentTimeframe} ชม.)</div>`;
+                    h += pdfTable(['#', 'รหัส', 'แหล่งน้ำ', 'บริเวณ', 'จังหวัด', 'จุดความร้อนใกล้สุด (กม.)', 'พิกัด', ''],
+                        wrows.map((r, i) => [i + 1, pdfEsc(r.st.code),
+                            `${pdfEsc(r.st.waterBody)}<br><span style="color:#64748b">${pdfEsc(r.st.type)}</span>`,
+                            pdfEsc(r.st.location), pdfEsc(r.st.province),
+                            r.near ? `<span style="${r.near.km <= 5 ? 'color:#b91c1c;font-weight:700' : ''}">${pdfNum(r.near.km, 1)}</span>` : '-',
+                            `${r.st.lat.toFixed(5)}, ${r.st.lon.toFixed(5)}`, pdfNavLink(r.st.lat, r.st.lon)]),
+                        [0, 5, 6]);
+                }
             }
 
             // จุดเกิดเหตุด่วน
