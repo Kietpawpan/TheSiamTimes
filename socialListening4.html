@@ -9,7 +9,7 @@
     <!-- Google Fonts: Sarabun & Prompt -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@1.78.0/dist/umd/lucide.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -85,10 +85,10 @@
 <body class="text-slate-800 min-h-screen flex flex-col">
 
     <!-- Toast Notification Container -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none no-print"></div>
+    <div id="toastContainer" aria-live="polite" class="fixed bottom-5 right-4 left-4 sm:left-auto sm:right-5 z-[60] flex flex-col gap-2 sm:max-w-sm sm:w-full pointer-events-none no-print"></div>
 
     <!-- Top Navigation / Header -->
-    <header class="bg-gradient-to-r from-emerald-900 via-teal-800 to-emerald-900 text-white shadow-lg sticky top-0 z-40 no-print">
+    <header class="bg-gradient-to-r from-emerald-900 via-teal-800 to-emerald-900 text-white shadow-lg md:sticky md:top-0 z-40 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div class="flex items-center gap-3">
@@ -119,7 +119,7 @@
                     </button>
                     <button onclick="toggleApiKeyModal()" class="px-3 py-2 rounded-xl bg-emerald-950/60 hover:bg-emerald-950 text-emerald-200 border border-emerald-700 text-xs sm:text-sm font-medium flex items-center gap-1.5 transition" title="ตั้งค่า Gemini API Key">
                         <i data-lucide="key-round" class="w-4 h-4 text-emerald-400"></i>
-                        <span id="apiKeyStatusText">AI พร้อมใช้งาน</span>
+                        <span id="apiKeyStatusText">ตั้งค่า Gemini AI</span>
                     </button>
                 </div>
             </div>
@@ -279,12 +279,12 @@
                         <!-- Custom Keywords & Query Capacity Mode -->
                         <div class="mt-3 grid grid-cols-1 sm:grid-cols-12 gap-2.5">
                             <div class="relative sm:col-span-7">
-                                <input type="text" id="customKeywords" oninput="updateQueryPreview()" placeholder="พิมพ์คำค้นเพิ่มเติม (คั่นด้วยจุลภาค เช่น ลำตะคอง, โรงงานน้ำตาล)..." 
+                                <input type="text" id="customKeywords" oninput="updateQueryPreview()" aria-label="คำค้นเพิ่มเติม" placeholder="พิมพ์คำค้นเพิ่มเติม (คั่นด้วยจุลภาค เช่น ลำตะคอง, โรงงานน้ำตาล)..." 
                                     class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-xs sm:text-sm bg-slate-50/70">
                                 <i data-lucide="search-code" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
                             </div>
                             <div class="sm:col-span-5">
-                                <select id="queryCapacityModeSelect" onchange="changeQueryCapacityMode(this.value)" class="w-full px-3 py-2 rounded-xl border border-emerald-300 bg-emerald-50/70 text-emerald-950 font-semibold text-xs sm:text-sm outline-none focus:ring-2 focus:ring-emerald-500" title="เลือกรูปแบบความจุคำค้นสำหรับปุ่ม Google News">
+                                <select id="queryCapacityModeSelect" aria-label="รูปแบบความจุคำค้น" onchange="changeQueryCapacityMode(this.value)" class="w-full px-3 py-2 rounded-xl border border-emerald-300 bg-emerald-50/70 text-emerald-950 font-semibold text-xs sm:text-sm outline-none focus:ring-2 focus:ring-emerald-500" title="เลือกรูปแบบความจุคำค้นสำหรับปุ่ม Google News">
                                     <option value="max32">⚡ เต็มเพดาน Google (32 คำค้นสูงสุด ไม่ถูกตัดคำ)</option>
                                     <option value="all">🚀 จัดเต็มทุกคำค้นในคลัง (สูงสุด 165 คำค้นครบ 100%)</option>
                                 </select>
@@ -300,10 +300,10 @@
                             <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-mono">QUERY PREVIEW</span>
                             <span id="queryCapacityBadge" class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[11px] font-semibold">ความจุคำค้น: 32/32 คำ (เต็มพิกัด)</span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button type="button" onclick="openGoogleNewsAllTopicBatches()" class="px-3 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 text-xs font-semibold flex items-center gap-1 border border-emerald-500/40 transition" title="เปิด Google News แยกตามหมวดเพื่อให้ค้นครบทุกคำค้น 160 คำโดยไม่ติดเพดาน 32 คำของ Google">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" onclick="openGoogleNewsAllTopicBatches()" class="px-3 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 text-xs font-semibold flex items-center gap-1 border border-emerald-500/40 transition" title="แสดงลิงก์ Google News แยกตามหมวด เพื่อให้ค้นครบทุกคำค้น 160 คำโดยไม่ติดเพดาน 32 คำของ Google">
                                 <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-                                <span>เปิดแยกหมวดครบ 160 คำค้น</span>
+                                <span>ลิงก์แยกหมวดครบ 160 คำค้น</span>
                             </button>
                             <button type="button" onclick="copyQueryText()" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 border border-slate-700 transition">
                                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
@@ -314,6 +314,7 @@
                     <div class="max-h-20 overflow-y-auto custom-scrollbar bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
                         <code id="queryPreviewText" class="text-xs text-emerald-200 font-mono break-all leading-relaxed block"></code>
                     </div>
+                    <div id="topicBatchLinks" class="hidden"></div>
                 </div>
             </div>
         </section>
@@ -449,7 +450,7 @@
                                 <p class="text-[11px] text-emerald-800">ก๊อปปี้ข้อความจากหน้า Google News (Ctrl+A Ctrl+C หรือลากคลุมข่าว) แล้วกดปุ่มสีเขียวด้านขวา หรือกด Ctrl+V ในช่องด้านล่างได้ทันที</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex flex-wrap items-center gap-2">
                             <button type="button" onclick="pasteFromClipboardAndAnalyze(false)" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
                                 <i data-lucide="clipboard-check" class="w-4 h-4"></i>
                                 <span>คลิกเดียววางจากคลิปบอร์ด & จัดประเภท (รวมข่าวเดิม)</span>
@@ -467,8 +468,8 @@
                                 <input type="checkbox" id="autoAnalyzeOnPaste" checked class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4">
                                 <span>⚡ จัดประเภทและนับจำนวนอัตโนมัติทันทีที่กดวาง (Ctrl+V) ลงในกล่องข้อความ</span>
                             </label>
-                            <div class="flex items-center gap-2">
-                                <span class="text-slate-500">บังคับระบุจังหวัด (กรณีข่าวไม่เขียนชื่อจังหวัด):</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <label for="manualDefaultProvince" class="text-slate-500">บังคับระบุจังหวัด (กรณีข่าวไม่เขียนชื่อจังหวัด):</label>
                                 <select id="manualDefaultProvince" class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500">
                                     <option value="AUTO">ตรวจจับจังหวัดอัตโนมัติจากเนื้อหา</option>
                                     <option value="นครราชสีมา">บังคับเป็น: นครราชสีมา (โคราช)</option>
@@ -479,7 +480,7 @@
                             </div>
                         </div>
 
-                        <textarea id="manualNewsInput" rows="4" placeholder="คลิกที่นี่แล้วกด Ctrl+V เพื่อวางข่าวที่คัดลอกมาจากหน้า Google News หรือ Google Search ระบบจะแยกพาดหัวข่าว สำนักข่าว เวลา และจัดเข้า 6 หมวดมลพิษให้อัตโนมัติทันที..." 
+                        <textarea id="manualNewsInput" rows="4" aria-label="ช่องวางข่าว" placeholder="คลิกที่นี่แล้วกด Ctrl+V เพื่อวางข่าวที่คัดลอกมาจากหน้า Google News หรือ Google Search ระบบจะแยกพาดหัวข่าว สำนักข่าว เวลา และจัดเข้า 6 หมวดมลพิษให้อัตโนมัติทันที..." 
                             class="w-full p-3.5 rounded-xl border border-emerald-300 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-xs sm:text-sm leading-relaxed"></textarea>
 
                         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -503,6 +504,12 @@
         <!-- STEP 3: Analytics, Counting, Categorization & Executive Summary Dashboard -->
         <section id="dashboardSection" class="space-y-6">
 
+            <!-- Demo data notice -->
+            <div id="demoDataNotice" class="hidden rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-xs sm:text-sm text-amber-900 flex flex-wrap items-center justify-between gap-2" role="status">
+                <span>⚠️ <strong>กำลังแสดงข่าวตัวอย่าง (ข้อมูลสมมติ)</strong> ไม่ใช่ข่าวจริง ห้ามใช้ในรายงาน เมื่อดึงหรือวางข่าวจริง ข่าวตัวอย่างจะถูกล้างออกอัตโนมัติ</span>
+                <button type="button" onclick="clearAllNews(true)" class="px-3 py-1 rounded-lg bg-white border border-amber-300 hover:bg-amber-100 font-semibold no-print">ล้างข่าวตัวอย่าง</button>
+            </div>
+
             <!-- Live PM2.5 from Air4Thai (social-listening-plus.js) -->
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -522,7 +529,7 @@
             <!-- 3.1 Top KPI Summary Cards -->
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
                 <!-- Total News Card -->
-                <div onclick="resetNewsListFilters()" class="cursor-pointer bg-gradient-to-br from-emerald-800 to-teal-900 text-white rounded-2xl p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                <div onclick="resetNewsListFilters()" role="button" tabindex="0" class="cursor-pointer bg-gradient-to-br from-emerald-800 to-teal-900 text-white rounded-2xl p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-medium text-emerald-200">จำนวนข่าวทั้งหมด</span>
                         <i data-lucide="layers" class="w-4 h-4 text-emerald-300"></i>
@@ -535,10 +542,10 @@
                 </div>
 
                 <!-- High Urgency Card -->
-                <div onclick="filterNewsByUrgency('เร่งด่วนมาก')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-rose-200 hover:border-rose-400 transition flex flex-col justify-between print-shadow-none">
+                <div onclick="filterNewsByUrgency('เร่งด่วนมาก')" role="button" tabindex="0" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-rose-200 hover:border-rose-400 transition flex flex-col justify-between print-shadow-none">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-rose-700">ประเด็นเร่งด่วนสูง</span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+                        <span id="kpiUrgentDot" class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
                     </div>
                     <div class="my-2">
                         <span id="kpiUrgent" class="text-3xl sm:text-4xl font-heading font-bold text-rose-600">0</span>
@@ -548,7 +555,7 @@
                 </div>
 
                 <!-- Nakhon Ratchasima Card -->
-                <div onclick="filterNewsByProvince('นครราชสีมา')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
+                <div onclick="filterNewsByProvince('นครราชสีมา')" role="button" tabindex="0" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-700">นครราชสีมา (โคราช)</span>
                         <span class="text-[11px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold" id="pctKorat">0%</span>
@@ -563,7 +570,7 @@
                 </div>
 
                 <!-- Chaiyaphum Card -->
-                <div onclick="filterNewsByProvince('ชัยภูมิ')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
+                <div onclick="filterNewsByProvince('ชัยภูมิ')" role="button" tabindex="0" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-700">ชัยภูมิ</span>
                         <span class="text-[11px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 font-semibold" id="pctChaiyaphum">0%</span>
@@ -578,7 +585,7 @@
                 </div>
 
                 <!-- Buriram Card -->
-                <div onclick="filterNewsByProvince('บุรีรัมย์')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
+                <div onclick="filterNewsByProvince('บุรีรัมย์')" role="button" tabindex="0" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-700">บุรีรัมย์</span>
                         <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-50 text-cyan-700 font-semibold" id="pctBuriram">0%</span>
@@ -593,7 +600,7 @@
                 </div>
 
                 <!-- Surin Card -->
-                <div onclick="filterNewsByProvince('สุรินทร์')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
+                <div onclick="filterNewsByProvince('สุรินทร์')" role="button" tabindex="0" class="cursor-pointer bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 hover:border-emerald-400 transition flex flex-col justify-between print-shadow-none">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-700">สุรินทร์</span>
                         <span class="text-[11px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold" id="pctSurin">0%</span>
@@ -657,7 +664,7 @@
 
                     <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                         <span>* นับตามจังหวัดหลักที่เกิดเหตุหรือปรากฏลำดับแรกในข่าว</span>
-                        <button type="button" onclick="openReportModal()" class="text-emerald-600 hover:text-emerald-800 font-semibold flex items-center gap-1 no-print">
+                        <button type="button" onclick="copyMatrixTable()" class="text-emerald-600 hover:text-emerald-800 font-semibold flex items-center gap-1 no-print" title="คัดลอกเป็นตาราง วางใน Excel / Google Sheets / Word ได้ทันที">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                             <span>คัดลอกตารางสรุป</span>
                         </button>
@@ -715,7 +722,7 @@
 
                     <!-- Filters & Search within results -->
                     <div class="flex flex-wrap items-center gap-2 no-print">
-                        <select id="filterProvinceSelect" onchange="applyNewsListFilters()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500">
+                        <select id="filterProvinceSelect" onchange="applyNewsListFilters()" aria-label="กรองตามจังหวัด" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500">
                             <option value="ALL">ทุกจังหวัด (4 จังหวัด)</option>
                             <option value="นครราชสีมา">นครราชสีมา (โคราช)</option>
                             <option value="ชัยภูมิ">ชัยภูมิ</option>
@@ -723,7 +730,7 @@
                             <option value="สุรินทร์">สุรินทร์</option>
                         </select>
 
-                        <select id="filterCategorySelect" onchange="applyNewsListFilters()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500">
+                        <select id="filterCategorySelect" onchange="applyNewsListFilters()" aria-label="กรองตามประเภทปัญหา" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500">
                             <option value="ALL">ทุกประเภทมลพิษ (6 หมวด)</option>
                             <option value="water">💧 มลพิษทางน้ำ</option>
                             <option value="air">💨 มลพิษทางอากาศ/กลิ่น/เสียง</option>
@@ -733,7 +740,7 @@
                             <option value="other">📌 อื่นๆ ที่เกี่ยวข้อง</option>
                         </select>
 
-                        <select id="filterUrgencySelect" onchange="applyNewsListFilters()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500">
+                        <select id="filterUrgencySelect" onchange="applyNewsListFilters()" aria-label="กรองตามความเร่งด่วน" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500">
                             <option value="ALL">ทุกระดับความเร่งด่วน</option>
                             <option value="เร่งด่วนมาก">🔴 เร่งด่วนมาก</option>
                             <option value="เฝ้าระวัง">🟡 เฝ้าระวัง</option>
@@ -747,7 +754,7 @@
                         </select>
 
                         <div class="relative">
-                            <input type="text" id="searchInNewsInput" oninput="applyNewsListFilters()" placeholder="ค้นหาในรายการข่าว..." class="pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500 w-40 sm:w-48">
+                            <input type="search" id="searchInNewsInput" oninput="applyNewsListFilters()" aria-label="ค้นหาในรายการข่าว" placeholder="ค้นหาในรายการข่าว..." class="pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500 w-40 sm:w-48">
                             <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2"></i>
                         </div>
 
@@ -782,14 +789,14 @@
     </footer>
 
     <!-- MODAL 1: LINE / Executive Report Generator -->
-    <div id="reportModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 no-print">
+    <div id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-emerald-900 text-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <i data-lucide="send" class="w-5 h-5 text-emerald-300"></i>
-                    <h3 class="font-bold text-base">สร้างรายงานสรุปสำหรับส่ง LINE / รายงานผู้บริหาร</h3>
+                    <h3 id="reportModalTitle" class="font-bold text-base">สร้างรายงานสรุปสำหรับส่ง LINE / รายงานผู้บริหาร</h3>
                 </div>
-                <button type="button" onclick="closeReportModal()" class="text-emerald-200 hover:text-white">
+                <button type="button" onclick="closeReportModal()" class="text-emerald-200 hover:text-white" aria-label="ปิด">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -814,14 +821,14 @@
     </div>
 
     <!-- MODAL 2: Gemini API Key Settings -->
-    <div id="apiKeyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 no-print">
+    <div id="apiKeyModal" role="dialog" aria-modal="true" aria-labelledby="apiKeyModalTitle" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 no-print">
         <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
             <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <i data-lucide="key-round" class="w-5 h-5 text-emerald-400"></i>
-                    <h3 class="font-bold text-base">ตั้งค่าระบบวิเคราะห์ Gemini AI</h3>
+                    <h3 id="apiKeyModalTitle" class="font-bold text-base">ตั้งค่าระบบวิเคราะห์ Gemini AI</h3>
                 </div>
-                <button type="button" onclick="toggleApiKeyModal()" class="text-slate-400 hover:text-white">
+                <button type="button" onclick="toggleApiKeyModal(false)" class="text-slate-400 hover:text-white" aria-label="ปิด">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -832,12 +839,13 @@
                     2. <strong>Gemini AI เชิงลึก:</strong> หากต้องการให้ AI ช่วยดึงข่าวเสริมหรือเขียนบทวิเคราะห์เชิงลึก สามารถใส่ Gemini API Key ด้านล่างได้ครับ
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Gemini API Key (เว้นว่างไว้ได้หากใช้ระบบจัดหมวดหมู่อัตโนมัติในตัว):</label>
-                    <input type="password" id="userApiKeyInput" placeholder="AIzaSy..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <label for="userApiKeyInput" class="block text-xs font-bold text-slate-700 mb-1.5">Gemini API Key (เว้นว่างไว้ได้หากใช้ระบบจัดหมวดหมู่อัตโนมัติในตัว):</label>
+                    <input type="password" id="userApiKeyInput" placeholder="AIzaSy..." autocomplete="off" onkeydown="if (event.key === 'Enter') saveUserApiKey()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <p class="mt-1.5 text-[11px] text-slate-500 leading-relaxed">ขอคีย์ได้ที่ <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" class="text-emerald-700 underline">Google AI Studio</a> • คีย์ถูกเก็บไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น ไม่ควรบันทึกบนเครื่องที่ใช้ร่วมกับผู้อื่น</p>
                 </div>
             </div>
             <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
-                <button type="button" onclick="toggleApiKeyModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-200">ปิด</button>
+                <button type="button" onclick="toggleApiKeyModal(false)" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-200">ปิด</button>
                 <button type="button" onclick="saveUserApiKey()" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white">บันทึกการตั้งค่า</button>
             </div>
         </div>
@@ -857,7 +865,7 @@
             '5d':  { label: 'รอบ 5 วันที่ผ่านมา',    tbs: 'qdr:d5',  rssWhen: 'when:7d', hours: 120 },
             '6d':  { label: 'รอบ 6 วันที่ผ่านมา',    tbs: 'qdr:d6',  rssWhen: 'when:7d', hours: 144 },
             '7d':  { label: 'รอบสัปดาห์ที่ผ่านมา (7 วัน)', tbs: 'qdr:w', rssWhen: 'when:7d', hours: 168 },
-            '30d': { label: 'รอบเดือนที่ผ่านมา (30 วัน)',  tbs: 'qdr:m', rssWhen: 'when:1m', hours: 720 },
+            '30d': { label: 'รอบเดือนที่ผ่านมา (30 วัน)',  tbs: 'qdr:m', rssWhen: 'when:30d', hours: 720 },
             '1y':  { label: 'รอบ 1 ปีที่ผ่านมา',      tbs: 'qdr:y',   rssWhen: 'when:1y', hours: 8760 },
             '3y':  { label: 'รอบ 3 ปีที่ผ่านมา',      tbs: 'qdr:y3',  rssWhen: '',        hours: 26280 },
             '5y':  { label: 'รอบ 5 ปีที่ผ่านมา',      tbs: 'qdr:y5',  rssWhen: '',        hours: 43800 },
@@ -1066,22 +1074,101 @@
             selectedTopics: ['water', 'air', 'waste', 'complaint', 'general'],
             queryCapacityMode: 'max32', // 'max32' (เต็มเพดาน Google 32 คำ) หรือ 'all' (รวมครบทุกคำ 160+ คำ)
             newsItems: [],
-            aiExecutiveSummaryHtml: null
+            dataTimeframe: null,        // ห้วงเวลาตอนที่ดึง/วางข่าวชุดปัจจุบัน (อาจต่างจากปุ่มที่เลือกอยู่ตอนนี้)
+            aiExecutiveSummaryHtml: null,
+            aiData: null
         };
 
         let apiKey = "";
+
+        // ==========================================
+        // 1.1 SAVED SESSION (ผลการค้นหาและการตั้งค่า อยู่ต่อแม้ปิด/รีเฟรชหน้า)
+        // ==========================================
+        const SESSION_KEY = 'sl4_session_v1';
+        const PREFS_KEY = 'sl4_prefs_v1';
+
+        function dataTimeframeLabel() {
+            const key = currentState.dataTimeframe || currentState.timeframe;
+            return (TIMEFRAMES[key] || TIMEFRAMES['1d']).label;
+        }
+
+        function saveSession() {
+            try {
+                const items = currentState.newsItems;
+                if (!items.length || items.every(i => i.isDemo)) {
+                    localStorage.removeItem(SESSION_KEY);
+                    return;
+                }
+                const session = {
+                    savedAt: Date.now(),
+                    dataTimeframe: currentState.dataTimeframe,
+                    aiData: currentState.aiExecutiveSummaryHtml ? currentState.aiData : null,
+                    newsItems: items
+                };
+                try {
+                    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+                } catch (quotaErr) {
+                    // พื้นที่ไม่พอ: เก็บแบบไม่รวมรายชื่อทุกสำนักข่าว
+                    session.newsItems = items.map(i => ({ ...i, outlets: undefined }));
+                    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+                }
+            } catch (e) { /* โหมดส่วนตัวหรือพื้นที่เต็ม: ใช้งานต่อได้ แค่ไม่บันทึก */ }
+        }
+
+        function restoreSession() {
+            try {
+                const session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+                if (!session || !Array.isArray(session.newsItems) || !session.newsItems.length) return null;
+                currentState.newsItems = session.newsItems.filter(i => i && i.title && i.id);
+                currentState.dataTimeframe = TIMEFRAMES[session.dataTimeframe] ? session.dataTimeframe : null;
+                if (session.aiData) {
+                    currentState.aiData = session.aiData;
+                    currentState.aiExecutiveSummaryHtml = buildAiSummaryHtml(session.aiData);
+                }
+                return session;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function savePrefs() {
+            try {
+                localStorage.setItem(PREFS_KEY, JSON.stringify({
+                    timeframe: currentState.timeframe,
+                    selectedProvinces: currentState.selectedProvinces,
+                    selectedTopics: currentState.selectedTopics,
+                    queryCapacityMode: currentState.queryCapacityMode,
+                    customKeywords: document.getElementById('customKeywords')?.value || ''
+                }));
+            } catch (e) { /* ignore */ }
+        }
+
+        function restorePrefs() {
+            try {
+                const p = JSON.parse(localStorage.getItem(PREFS_KEY) || 'null');
+                if (!p) return;
+                if (TIMEFRAMES[p.timeframe]) currentState.timeframe = p.timeframe;
+                const provs = (p.selectedProvinces || []).filter(x => PROVINCE_CONFIG[x]);
+                if (provs.length) currentState.selectedProvinces = provs;
+                const topics = (p.selectedTopics || []).filter(x => TOPIC_CONFIG[x]);
+                if (topics.length) currentState.selectedTopics = topics;
+                if (p.queryCapacityMode === 'all' || p.queryCapacityMode === 'max32') currentState.queryCapacityMode = p.queryCapacityMode;
+                if (typeof p.customKeywords === 'string') document.getElementById('customKeywords').value = p.customKeywords;
+            } catch (e) { /* ignore */ }
+        }
 
         // ==========================================
         // 2. INITIALIZATION & UI HELPERS
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            const savedKey = localStorage.getItem('env_gemini_api_key');
+            let savedKey = '';
+            try { savedKey = localStorage.getItem('env_gemini_api_key') || ''; } catch (e) { /* ignore */ }
             if (savedKey) {
                 apiKey = savedKey;
                 document.getElementById('userApiKeyInput').value = savedKey;
-                document.getElementById('apiKeyStatusText').textContent = 'ตั้งค่า API Key แล้ว';
             }
+            updateApiKeyStatus();
 
             const manualInput = document.getElementById('manualNewsInput');
             if (manualInput) {
@@ -1097,27 +1184,75 @@
                 });
             }
 
+            // Esc หรือคลิกพื้นหลังเพื่อปิดหน้าต่าง; Enter/Space ใช้กับการ์ดที่คลิกได้
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (!document.getElementById('reportModal').classList.contains('hidden')) closeReportModal();
+                    else if (!document.getElementById('apiKeyModal').classList.contains('hidden')) toggleApiKeyModal(false);
+                    return;
+                }
+                const el = e.target;
+                if ((e.key === 'Enter' || e.key === ' ') && el && el.getAttribute && el.getAttribute('role') === 'button' && el.tagName !== 'BUTTON') {
+                    e.preventDefault();
+                    el.click();
+                }
+            });
+            document.getElementById('reportModal').addEventListener('click', (e) => { if (e.target.id === 'reportModal') closeReportModal(); });
+            document.getElementById('apiKeyModal').addEventListener('click', (e) => { if (e.target.id === 'apiKeyModal') toggleApiKeyModal(false); });
+
+            restorePrefs();
+            document.getElementById('queryCapacityModeSelect').value = currentState.queryCapacityMode;
+            document.getElementById('currentTimeframeBadge').textContent = TIMEFRAMES[currentState.timeframe].label;
             updateControlStyles();
             updateQueryPreview();
-            loadDemoNews(true);
+            changeQueryCapacityMode(currentState.queryCapacityMode);
+
+            // เปิดหน้าใหม่: แสดงผลการค้นหาล่าสุด (ไม่โหลดข่าวตัวอย่างเอง เพื่อไม่ให้ข่าวสมมติปนในรายงานจริง)
+            const session = restoreSession();
+            renderDashboard();
+            if (session) {
+                const when = new Date(session.savedAt).toLocaleString('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                showToast(`แสดงผลการค้นหาล่าสุด ${currentState.newsItems.length} ข่าว (บันทึกเมื่อ ${when} น.)`, 'info');
+            }
         });
 
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            const bgClass = type === 'error' ? 'bg-rose-600 text-white' : (type === 'info' ? 'bg-slate-800 text-white' : 'bg-emerald-700 text-white');
+            const bgClass = {
+                error: 'bg-rose-600 text-white',
+                warning: 'bg-amber-500 text-slate-950',
+                info: 'bg-slate-800 text-white'
+            }[type] || 'bg-emerald-700 text-white';
             toast.className = `${bgClass} px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-medium flex items-center justify-between gap-3 pointer-events-auto transition-all duration-300`;
-            toast.innerHTML = `
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()" class="opacity-80 hover:opacity-100">✕</button>
-            `;
+            toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+            const text = document.createElement('span');
+            text.textContent = message;
+            const close = document.createElement('button');
+            close.type = 'button';
+            close.className = 'opacity-80 hover:opacity-100';
+            close.setAttribute('aria-label', 'ปิด');
+            close.textContent = '✕';
+            close.onclick = () => toast.remove();
+            toast.append(text, close);
             container.appendChild(toast);
+            while (container.children.length > 4) container.firstElementChild.remove();
+            // ข้อความยาว/ข้อผิดพลาดค้างไว้นานขึ้นให้อ่านทัน
+            const ms = Math.min(12000, 4500 + Math.max(0, message.length - 60) * 40) + (type === 'error' ? 3000 : 0);
             setTimeout(() => {
                 if (toast.parentElement) toast.remove();
-            }, 4500);
+            }, ms);
         }
 
-        function copyTextToClipboard(text, successMsg = 'คัดลอกข้อความเรียบร้อยแล้ว') {
+        async function copyTextToClipboard(text, successMsg = 'คัดลอกข้อความเรียบร้อยแล้ว') {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    showToast(successMsg, 'success');
+                    return true;
+                }
+            } catch (e) { /* ลองวิธีสำรอง */ }
+
             const textArea = document.createElement("textarea");
             textArea.value = text;
             textArea.style.position = "fixed";
@@ -1125,13 +1260,11 @@
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            try {
-                document.execCommand('copy');
-                showToast(successMsg, 'success');
-            } catch (err) {
-                showToast('ไม่สามารถคัดลอกได้ กรุณาคัดลอกด้วยตนเอง', 'error');
-            }
+            let ok = false;
+            try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
             document.body.removeChild(textArea);
+            showToast(ok ? successMsg : 'ไม่สามารถคัดลอกได้ กรุณาเลือกข้อความแล้วกด Ctrl+C ด้วยตนเอง', ok ? 'success' : 'error');
+            return ok;
         }
 
         // ==========================================
@@ -1214,7 +1347,7 @@
                 if (active) {
                     btn.className = 'prov-btn px-3.5 py-2.5 rounded-xl border-2 border-emerald-600 bg-emerald-50/90 text-emerald-950 text-left transition flex items-center justify-between shadow-sm';
                 } else {
-                    btn.className = 'prov-btn px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-slate-600 text-left transition flex items-center justify-between';
+                    btn.className = 'prov-btn px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-500 hover:text-slate-700 text-left transition flex items-center justify-between';
                 }
             });
 
@@ -1224,9 +1357,13 @@
                 if (active) {
                     btn.className = 'topic-btn px-3 py-2 rounded-xl border-2 border-emerald-600 bg-emerald-50 text-emerald-900 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 shadow-sm';
                 } else {
-                    btn.className = 'topic-btn px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-slate-600 text-xs sm:text-sm font-medium transition flex items-center gap-1.5';
+                    btn.className = 'topic-btn px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-500 hover:text-slate-700 text-xs sm:text-sm font-medium transition flex items-center gap-1.5';
                 }
             });
+
+            document.querySelectorAll('.tf-btn').forEach(b => b.setAttribute('aria-pressed', String(b.getAttribute('data-tf') === currentState.timeframe)));
+            document.querySelectorAll('.prov-btn').forEach(b => b.setAttribute('aria-pressed', String(currentState.selectedProvinces.includes(b.getAttribute('data-prov')))));
+            document.querySelectorAll('.topic-btn').forEach(b => b.setAttribute('aria-pressed', String(currentState.selectedTopics.includes(b.getAttribute('data-topic')))));
         }
 
         function formatSearchTerm(term) {
@@ -1357,6 +1494,9 @@
                     capBadge.textContent = `ความจุคำค้น: รวมครบทั้งหมด ${details.totalWords} คำ (จังหวัด ${details.provCount} + มลพิษ ${details.topicTermCount} คำ • 100% ของคลังคำค้น)`;
                 }
             }
+            // รายการลิงก์แยกหมวดที่เปิดไว้ อาจไม่ตรงกับการตั้งค่าใหม่แล้ว
+            document.getElementById('topicBatchLinks')?.classList.add('hidden');
+            savePrefs();
         }
 
         function copyQueryText() {
@@ -1397,28 +1537,58 @@
             showToast(`เปิดข่าว จ.${provName} ด้วยคำค้นอัดแน่น ${details.totalWords} คำค้นแล้ว`, 'info');
         }
 
-        // เปิด Google News แยกแท็บตามหมวดมลพิษ เพื่อให้ค้นครบทั้ง 160 คำค้นโดยไม่ติดเพดาน 32 คำของ Google
-        function openGoogleNewsAllTopicBatches() {
-            const tf = TIMEFRAMES[currentState.timeframe];
+        /**
+         * ชุดคำค้นแยกหมวดที่ครอบคลุมทุกคำในคลัง: แต่ละชุดไม่เกินเพดาน 32 คำของ Google
+         * (หมวดที่คำไม่พอใส่ในชุดเดียวจะถูกแบ่งเป็นหลายชุด)
+         */
+        function buildTopicBatches() {
             const provTerms = [];
             currentState.selectedProvinces.forEach(p => {
                 if (PROVINCE_CONFIG[p]) provTerms.push(...PROVINCE_CONFIG[p].searchTerms);
             });
-            const provQuery = `(${provTerms.join('|')})`;
-            const maxTopicSlots = Math.max(10, GOOGLE_MAX_WORD_LIMIT - provTerms.length);
+            const provQuery = `(${provTerms.map(formatSearchTerm).join('|')})`;
+            const provWords = provTerms.reduce((n, t) => n + countSearchWords(t), 0);
+            const budget = Math.max(5, GOOGLE_MAX_WORD_LIMIT - provWords);
 
-            let openedCount = 0;
+            const groups = [];
+            const custom = (document.getElementById('customKeywords')?.value || '').split(',').map(s => s.trim()).filter(Boolean);
+            if (custom.length) groups.push({ name: '🔎 คำค้นเพิ่มเติม', terms: custom });
             currentState.selectedTopics.forEach(tKey => {
-                const terms = (TOPIC_CONFIG[tKey]?.searchTerms || []).slice(0, maxTopicSlots).map(formatSearchTerm);
-                if (terms.length > 0) {
-                    const q = `${provQuery} (${terms.join('|')})`;
-                    const url = `https://www.google.com/search?q=${encodeURIComponent(q)}&tbm=nws&tbs=${tf.tbs}&hl=th&gl=th`;
-                    window.open(url, '_blank', 'noopener,noreferrer');
-                    openedCount++;
-                }
+                const t = TOPIC_CONFIG[tKey];
+                if (t && t.searchTerms.length) groups.push({ name: t.shortName, terms: t.searchTerms });
             });
 
-            showToast(`เปิดหน้าค้นหา Google News แยก ${openedCount} หมวด (อัดเต็มหมวดละ 32 คำค้น) เรียบร้อยแล้ว`, 'success');
+            const batches = [];
+            groups.forEach(g => {
+                const parts = [];
+                let cur = [], words = 0;
+                g.terms.map(formatSearchTerm).filter(Boolean).forEach(term => {
+                    const w = countSearchWords(term);
+                    if (cur.length && words + w > budget) { parts.push(cur); cur = []; words = 0; }
+                    cur.push(term); words += w;
+                });
+                if (cur.length) parts.push(cur);
+                parts.forEach((terms, i) => batches.push({
+                    label: parts.length > 1 ? `${g.name} (${i + 1}/${parts.length})` : g.name,
+                    termCount: terms.length,
+                    query: `${provQuery} (${terms.join('|')})`
+                }));
+            });
+            return batches;
+        }
+
+        // แสดงลิงก์ Google News แยกหมวด (เบราว์เซอร์บล็อกการเปิดหลายแท็บพร้อมกันจากการคลิกครั้งเดียว จึงให้คลิกทีละลิงก์)
+        function openGoogleNewsAllTopicBatches() {
+            const tf = TIMEFRAMES[currentState.timeframe];
+            const batches = buildTopicBatches();
+            const box = document.getElementById('topicBatchLinks');
+            const totalTerms = batches.reduce((n, b) => n + b.termCount, 0);
+            box.innerHTML = `
+                <div class="text-[11px] text-slate-400 mb-1.5">คลิกเปิดทีละชุด (${batches.length} ชุด รวม ${totalTerms} คำค้น • ${escapeHtml(tf.label)}) แล้วก๊อปปี้ผลมาวางในช่องวางข่าว:</div>
+                <div class="flex flex-wrap gap-1.5">
+                    ${batches.map(b => `<a href="https://www.google.com/search?q=${encodeURIComponent(b.query)}&tbm=nws&tbs=${tf.tbs}&hl=th&gl=th" target="_blank" rel="noopener noreferrer" onclick="this.classList.add('opacity-50')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-emerald-700 border border-slate-700 text-emerald-200 text-xs transition">${escapeHtml(b.label)} <span class="text-slate-400">• ${b.termCount} คำ</span></a>`).join('')}
+                </div>`;
+            box.classList.remove('hidden');
         }
 
         // ดึงข้อมูล RSS ผ่าน Google Apps Script (เสถียรและเร็วที่สุด)
@@ -1670,6 +1840,7 @@
                     const classified = strictFilteredArticles.map((art, index) => classifySingleNewsItem(art, index));
                     classified.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
                     currentState.newsItems = classified;
+                    currentState.dataTimeframe = currentState.timeframe;
                     currentState.aiExecutiveSummaryHtml = null;
                     renderDashboard();
                     showToast(`ดึงและกรองข่าวเฉพาะพื้นที่สำเร็จ ${classified.length} ข่าว!`, 'success');
@@ -1701,10 +1872,20 @@
             return minPos;
         }
 
-        function classifySingleNewsItem(rawItem, index = 0, forceProvince = 'AUTO') {
+        /**
+         * จังหวัดที่ข่าวพูดถึง เรียงจากที่ชัดที่สุด ใช้ตัวจับคู่ของ social-listening-plus.js ถ้ามี
+         * (รู้จักอำเภอ/สถานที่ ไม่นับชื่ออำเภอที่เป็นคำทั่วไป เช่น "ปราสาท" และไม่นับชื่อคน เช่น "ดร.สุรินทร์")
+         */
+        function detectProvinces(rawItem) {
+            if (window.SocialListeningPlus && SocialListeningPlus.matchLocations) {
+                return SocialListeningPlus.matchLocations(rawItem).map(m => m.province);
+            }
+            return detectProvincesBasic(rawItem);
+        }
+
+        function detectProvincesBasic(rawItem) {
             const titleText = (rawItem.title || '').toLowerCase();
             const fullText = `${rawItem.title || ''} ${rawItem.description || ''}`.toLowerCase();
-
             let directMatches = [];
             for (const [provKey, provData] of Object.entries(PROVINCE_CONFIG)) {
                 const titlePos = findEarliestKeywordPosition(titleText, provData.directKeywords);
@@ -1715,30 +1896,66 @@
                 }
             }
 
-            let matchedProvinces = [];
             if (directMatches.length > 0) {
                 directMatches.sort((a, b) => a.pos - b.pos);
-                matchedProvinces = directMatches.map(m => m.prov);
-            } else {
-                let districtMatches = [];
-                for (const [provKey, provData] of Object.entries(PROVINCE_CONFIG)) {
-                    const pos = findEarliestKeywordPosition(fullText, provData.districtKeywords);
-                    if (pos !== Infinity) {
-                        districtMatches.push({ prov: provKey, pos: pos });
-                    }
-                }
-                if (districtMatches.length > 0) {
-                    districtMatches.sort((a, b) => a.pos - b.pos);
-                    matchedProvinces = districtMatches.map(m => m.prov);
+                return directMatches.map(m => m.prov);
+            }
+            let districtMatches = [];
+            for (const [provKey, provData] of Object.entries(PROVINCE_CONFIG)) {
+                const pos = findEarliestKeywordPosition(fullText, provData.districtKeywords);
+                if (pos !== Infinity) {
+                    districtMatches.push({ prov: provKey, pos: pos });
                 }
             }
+            districtMatches.sort((a, b) => a.pos - b.pos);
+            return districtMatches.map(m => m.prov);
+        }
+
+        // ระดับความเร่งด่วน
+        // เหตุการณ์ที่ควรตรวจสอบทันที
+        const URGENT_KEYWORDS = [
+            'ปลาตาย', 'ปลาน็อกน้ำ', 'ปลาลอยตาย', 'ลักลอบทิ้ง', 'สารเคมีรั่ว', 'ถังสารเคมี', 'รั่วไหล', 'ระเบิด',
+            'ไฟไหม้บ่อขยะ', 'ไฟไหม้โรงงาน', 'กากอุตสาหกรรม', 'กากของเสีย', 'วิกฤต', 'ชาวบ้านเดือดร้อน', 'ร้องเรียน',
+            'ชาวบ้านโวย', 'ชาวบ้านร้อง', 'ส่งกลิ่นเหม็นรุนแรง', 'น้ำเน่าเสีย', 'สั่งปิด', 'เกินมาตรฐาน', 'ทะลุ',
+            'มีพิษ', 'อันตรายต่อสุขภาพ', 'ด่วน!', 'ไฟป่าลุกลาม', 'ลุกลาม', 'บุกตรวจ'
+        ];
+        // คำที่บอกว่าเกิดเหตุจริง (ไม่ใช่แค่การรณรงค์/ป้องกัน)
+        const INCIDENT_KEYWORDS = [
+            'ปลาตาย', 'ปลาน็อกน้ำ', 'ปลาลอยตาย', 'ลักลอบทิ้ง', 'รั่วไหล', 'ระเบิด', 'ชาวบ้านเดือดร้อน', 'ร้องเรียน',
+            'ชาวบ้านโวย', 'ชาวบ้านร้อง', 'เกินมาตรฐาน', 'สั่งปิด', 'บุกตรวจ', 'ลุกลาม', 'ทะลุ', 'วิกฤต'
+        ];
+        // ข่าวกิจกรรม/โครงการ/ประชาสัมพันธ์
+        const CAMPAIGN_KEYWORDS = [
+            'รณรงค์', 'โครงการ', 'ส่งเสริม', 'อบรม', 'ประชุม', 'สัมมนา', 'มอบนโยบาย', 'เปิดกิจกรรม', 'ลงนาม',
+            'ประกวด', 'ปลูกป่า', 'ปลูกต้นไม้', 'จิตอาสา', 'ธนาคารขยะ'
+        ];
+        // การป้องกันล่วงหน้า: ไม่ใช่เหตุเร่งด่วน แต่ยังควรติดตาม
+        const PREVENTIVE_KEYWORDS = ['ป้องกัน', 'เตรียมความพร้อม', 'ซักซ้อม', 'เฝ้าระวัง'];
+        const WATCH_KEYWORDS = [
+            'เฝ้าระวัง', 'ตรวจสอบ', 'ลงพื้นที่', 'ค่าฝุ่น', 'pm2.5', 'เผาอ้อย', 'กลิ่นเหม็น',
+            'น้ำเสีย', 'ขยะล้น', 'แก้ไขปัญหา', 'จุดความร้อน', 'hotspot', 'ไฟป่า', 'บ่อขยะ'
+        ];
+
+        function assessUrgency(fullText, category) {
+            const has = list => list.some(kw => fullText.includes(kw.toLowerCase()));
+            const urgent = has(URGENT_KEYWORDS);
+            const incident = has(INCIDENT_KEYWORDS);
+            const campaign = has(CAMPAIGN_KEYWORDS);
+            const preventive = has(PREVENTIVE_KEYWORDS);
+            if (urgent && (incident || !(campaign || preventive))) return 'เร่งด่วนมาก';
+            if (campaign && !urgent && !incident) return 'ทั่วไป';
+            if (urgent || has(WATCH_KEYWORDS) || (category !== 'conservation' && category !== 'other')) return 'เฝ้าระวัง';
+            return 'ทั่วไป';
+        }
+
+        function classifySingleNewsItem(rawItem, index = 0, forceProvince = 'AUTO') {
+            const titleText = (rawItem.title || '').toLowerCase();
+            const fullText = `${rawItem.title || ''} ${rawItem.description || ''}`.toLowerCase();
+
+            let matchedProvinces = detectProvinces(rawItem);
 
             if (forceProvince && forceProvince !== 'AUTO' && PROVINCE_CONFIG[forceProvince]) {
-                if (!matchedProvinces.includes(forceProvince)) {
-                    matchedProvinces.unshift(forceProvince);
-                } else {
-                    matchedProvinces = [forceProvince, ...matchedProvinces.filter(p => p !== forceProvince)];
-                }
+                matchedProvinces = [forceProvince, ...matchedProvinces.filter(p => p !== forceProvince)];
             } else if (matchedProvinces.length === 0) {
                 if (rawItem.sourceProvince && PROVINCE_CONFIG[rawItem.sourceProvince]) {
                     matchedProvinces = [rawItem.sourceProvince];
@@ -1774,22 +1991,7 @@
                 }
             });
 
-            const urgentKeywords = [
-                'ปลาตาย', 'ปลาน็อกน้ำ', 'ลักลอบทิ้ง', 'สารเคมี', 'ไฟไหม้บ่อขยะ', 'กากอุตสาหกรรม', 'กากของเสีย', 'วิกฤต',
-                'ชาวบ้านเดือดร้อน', 'ร้องเรียน', 'ชาวบ้านโวย', 'ชาวบ้านร้อง', 'ส่งกลิ่นเหม็นรุนแรง', 'น้ำเน่าเสีย', 'สั่งปิด',
-                'ทะลุ', 'มีพิษ', 'อันตราย', 'ด่วน', 'ไฟป่าลุกลาม', 'บุกตรวจ'
-            ];
-            const watchKeywords = [
-                'เฝ้าระวัง', 'ตรวจสอบ', 'ลงพื้นที่', 'ค่าฝุ่น', 'pm2.5', 'เผาอ้อย', 'กลิ่นเหม็น',
-                'น้ำเสีย', 'ขยะล้น', 'แก้ไขปัญหา', 'จุดความร้อน', 'hotspot', 'ไฟป่า', 'บ่อขยะ'
-            ];
-
-            let urgency = 'ทั่วไป';
-            if (urgentKeywords.some(kw => fullText.includes(kw.toLowerCase()))) {
-                urgency = 'เร่งด่วนมาก';
-            } else if (watchKeywords.some(kw => fullText.includes(kw.toLowerCase())) || (bestCategory !== 'conservation' && bestCategory !== 'other')) {
-                urgency = 'เฝ้าระวัง';
-            }
+            const urgency = assessUrgency(fullText, bestCategory);
 
             return {
                 id: rawItem.id || `news_${Date.now()}_${index}_${Math.random().toString(36).substring(2, 6)}`,
@@ -1805,147 +2007,208 @@
             };
         }
 
-        function parseRelativeTimeString(str) {
-            const now = Date.now();
-            const mMin = str.match(/(\d+)\s*(นาที)/);
-            if (mMin) return new Date(now - parseInt(mMin[1], 10) * 60 * 1000).toISOString();
+        // อ่านเวลาเผยแพร่ที่ Google แสดง: "3 ชั่วโมงที่ผ่านมา", "เมื่อวานนี้", "12 พ.ย. 2568", "2 days ago", "Nov 12, 2025"
+        const THAI_MONTHS = {
+            'ม.ค.': 0, 'มกราคม': 0, 'ก.พ.': 1, 'กุมภาพันธ์': 1, 'มี.ค.': 2, 'มีนาคม': 2,
+            'เม.ย.': 3, 'เมษายน': 3, 'พ.ค.': 4, 'พฤษภาคม': 4, 'มิ.ย.': 5, 'มิถุนายน': 5,
+            'ก.ค.': 6, 'กรกฎาคม': 6, 'ส.ค.': 7, 'สิงหาคม': 7, 'ก.ย.': 8, 'กันยายน': 8,
+            'ต.ค.': 9, 'ตุลาคม': 9, 'พ.ย.': 10, 'พฤศจิกายน': 10, 'ธ.ค.': 11, 'ธันวาคม': 11
+        };
+        const EN_MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+        const THAI_MONTH_PATTERN = Object.keys(THAI_MONTHS).map(m => m.replace(/\./g, '\\.')).join('|');
+        const TIME_PATTERNS = [
+            { re: /^(\d+)\s*(นาที|ชั่วโมง|ชม\.?|วัน|สัปดาห์|อาทิตย์|เดือน|ปี)\s*(?:ที่แล้ว|ที่ผ่านมา|ก่อน)?/, kind: 'relTh' },
+            { re: /^(\d+)\s*(mins?|minutes?|hours?|hrs?|days?|weeks?|months?|years?)\s+ago/i, kind: 'relEn' },
+            { re: /^(เมื่อวานนี้|เมื่อวาน|yesterday)/i, kind: 'yesterday' },
+            { re: new RegExp(`^(\\d{1,2})\\s*(${THAI_MONTH_PATTERN})\\s*(\\d{2,4})?`), kind: 'absTh' },
+            { re: /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/i, kind: 'absEnMdy' },
+            { re: /^(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,?\s+(\d{4})/i, kind: 'absEnDmy' },
+            { re: /^(\d{4})-(\d{2})-(\d{2})/, kind: 'iso' }
+        ];
+        const UNIT_MS = { min: 60e3, hour: 3600e3, day: 86400e3, week: 7 * 86400e3, month: 30 * 86400e3, year: 365 * 86400e3 };
 
-            const mHour = str.match(/(\d+)\s*(ชั่วโมง|ชม\.)/);
-            if (mHour) return new Date(now - parseInt(mHour[1], 10) * 3600 * 1000).toISOString();
+        function unitOf(word) {
+            const w = word.toLowerCase();
+            if (w === 'นาที' || w.startsWith('min')) return 'min';
+            if (w === 'ชั่วโมง' || w.startsWith('ชม') || w.startsWith('hour') || w.startsWith('hr')) return 'hour';
+            if (w === 'วัน' || w.startsWith('day')) return 'day';
+            if (w === 'สัปดาห์' || w === 'อาทิตย์' || w.startsWith('week')) return 'week';
+            if (w === 'เดือน' || w.startsWith('month')) return 'month';
+            return 'year';
+        }
 
-            const mDay = str.match(/(\d+)\s*(วัน)/);
-            if (mDay) return new Date(now - parseInt(mDay[1], 10) * 86400 * 1000).toISOString();
+        function makeDate(year, month, day) {
+            let y = parseInt(year, 10);
+            if (isNaN(y)) {
+                y = new Date().getFullYear();
+            } else if (y < 100) {
+                y = 2500 + y - 543;            // "68" = พ.ศ. 2568
+            } else if (y > 2400) {
+                y -= 543;                      // พ.ศ. → ค.ศ.
+            }
+            const d = new Date(y, month, parseInt(day, 10), 12, 0, 0);
+            if (isNaN(year) && d.getTime() > Date.now() + 86400e3) d.setFullYear(y - 1); // ไม่มีปี และยังไม่ถึงวันนั้น = ปีที่แล้ว
+            return isNaN(d.getTime()) ? null : d.toISOString();
+        }
 
-            const mWeek = str.match(/(\d+)\s*(สัปดาห์)/);
-            if (mWeek) return new Date(now - parseInt(mWeek[1], 10) * 7 * 86400 * 1000).toISOString();
-
-            const mMonth = str.match(/(\d+)\s*(เดือน)/);
-            if (mMonth) return new Date(now - parseInt(mMonth[1], 10) * 30 * 86400 * 1000).toISOString();
-
-            if (str.includes('เมื่อวาน')) return new Date(now - 86400 * 1000).toISOString();
+        /** ถ้าบรรทัดขึ้นต้นด้วยเวลาเผยแพร่ ให้คืน { iso, rest } (rest = ข้อความหลังเครื่องหมาย — ถ้ามี) ไม่เช่นนั้นคืน null */
+        function splitTimePrefix(line) {
+            const text = line.replace(/^[·•\s]+/, '');
+            for (const { re, kind } of TIME_PATTERNS) {
+                const m = text.match(re);
+                if (!m) continue;
+                const after = text.slice(m[0].length);
+                const sep = after.match(/^\s*(?:[—–\-•·:|]\s*(.*))?$/);
+                if (!sep) continue;            // เช่น "3 วันอันตราย..." ไม่ใช่บรรทัดเวลา
+                const now = Date.now();
+                let iso = null;
+                if (kind === 'relTh' || kind === 'relEn') iso = new Date(now - parseInt(m[1], 10) * UNIT_MS[unitOf(m[2])]).toISOString();
+                else if (kind === 'yesterday') iso = new Date(now - UNIT_MS.day).toISOString();
+                else if (kind === 'absTh') iso = makeDate(m[3], THAI_MONTHS[m[2]], m[1]);
+                else if (kind === 'absEnMdy') iso = makeDate(m[3], EN_MONTHS.indexOf(m[1].toLowerCase().slice(0, 3)), m[2]);
+                else if (kind === 'absEnDmy') iso = makeDate(m[3], EN_MONTHS.indexOf(m[2].toLowerCase().slice(0, 3)), m[1]);
+                else if (kind === 'iso') iso = makeDate(m[1], parseInt(m[2], 10) - 1, m[3]);
+                if (!iso) continue;
+                return { iso, rest: (sep[1] || '').trim() };
+            }
             return null;
         }
 
+        // ใช้กับข้อมูลเก่าหรือโค้ดอื่นที่เรียกชื่อเดิม
+        function parseRelativeTimeString(str) {
+            const t = splitTimePrefix(String(str || ''));
+            return t ? t.iso : null;
+        }
+
+        const KNOWN_OUTLET_RE = /ออนไลน์|นิวส์|ข่าว|ทีวี|เดลินิวส์|มติชน|คมชัดลึก|ประชาชาติ|ผู้จัดการ|ไทยรัฐ|แนวหน้า|บ้านเมือง|สยามรัฐ|โพสต์ทูเดย์|ประชาสัมพันธ์|สคพ|ทสจ|pptv|ch7|ch3|thaipbs|ไทยพีบีเอส|workpoint|amarin|nation|springnews|the standard|the matter|bangkokbiznews|thairath|khaosod|matichon|dailynews|mgronline|posttoday|naewna|siamrath|banmuang|korat|online|news|tv/i;
+
+        /** คำมลพิษชัด ๆ ไม่มีในชื่อสำนักข่าว ใช้กันไม่ให้พาดหัวสั้น ๆ ถูกอ่านเป็นชื่อสำนักข่าว */
+        function hasPollutionWord(text) {
+            const t = text.toLowerCase();
+            return ['water', 'air', 'waste', 'complaint'].some(k => TOPIC_CONFIG[k].detectKeywords.some(w => t.includes(w.toLowerCase())));
+        }
+
+        function looksLikeSourceLine(line) {
+            if (line.length < 2 || line.length > 45) return false;
+            if (splitTimePrefix(line) || /^https?:\/\//i.test(line)) return false;
+            if (/^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+\/?$/i.test(line)) return true;          // thairath.co.th
+            if (hasPollutionWord(line)) return false;
+            if (KNOWN_OUTLET_RE.test(line) && line.length <= 40) return true;
+            if (/^[A-Za-z0-9&.'’ -]{2,30}$/.test(line) && line.split(' ').length <= 4) return true;   // Thai PBS, Bangkok Post
+            return !/\s/.test(line) && line.length <= 30;
+        }
+
+        /**
+         * แยกข่าวจากข้อความที่ก๊อปปี้มาจาก Google News / Google Search / LINE
+         * รูปแบบที่รองรับ (ต่อ 1 ข่าว):
+         *   แท็บข่าว Google:   สำนักข่าว / พาดหัว / ข้อความย่อ / เวลา
+         *   Google Search:      พาดหัว - สำนักข่าว / "2 วันที่ผ่านมา — ข้อความย่อ"
+         *   news.google.com:    สำนักข่าว / พาดหัว / เวลา
+         *   รายการพาดหัว (LINE): พาดหัวบรรทัดละข่าว (ตามด้วยลิงก์ได้)
+         */
         function smartParseGoogleNewsText(rawText) {
             const ignoreExact = new Set([
-                'ทั้งหมด', 'ข่าวสาร', 'รูปภาพ', 'วิดีโอ', 'แผนที่', 'ช้อปปิ้ง', 'หนังสือ', 'เครื่องมือ',
+                'ทั้งหมด', 'ข่าวสาร', 'ข่าว', 'รูปภาพ', 'วิดีโอ', 'แผนที่', 'ช้อปปิ้ง', 'หนังสือ', 'เครื่องมือ',
                 'ผลการค้นหา', 'ค้นหาด้วย google', 'ข้ามไปที่เนื้อหาหลัก', 'ความช่วยเหลือในการเข้าถึง',
                 'ความคิดเห็นเกี่ยวกับการช่วยสำหรับการเข้าถึง', 'google', 'เข้าสู่ระบบ', 'การตั้งค่า',
                 'ความเป็นส่วนตัว', 'ข้อกำหนด', 'ถัดไป >', 'ถัดไป', 'ก่อนหน้า', 'ดูข่าวสารทั้งหมด',
-                'เรื่องราวทั้งหมด', 'เพิ่มเติม', 'แชร์', 'บันทึก', 'ซ่อนแหล่งข้อมูลนี้'
+                'เรื่องราวทั้งหมด', 'เพิ่มเติม', 'แชร์', 'บันทึก', 'ซ่อนแหล่งข้อมูลนี้', 'ข่าวที่เกี่ยวข้อง',
+                'ดูเพิ่มเติม', 'เรื่องเด่น', 'สำหรับคุณ', 'ติดตาม', 'ข่าวเด่น', 'top stories', 'more', 'news',
+                'all', 'images', 'videos', 'maps', 'shopping', 'tools', 'next', 'sign in', 'settings'
             ]);
 
-            const rawLines = rawText
+            const lines = rawText
                 .split(/\r?\n/)
-                .map(l => l.replace(/\u00A0/g, ' ').trim())
+                .map(l => l.replace(/ /g, ' ').replace(/\s+/g, ' ').trim())
                 .filter(l => {
-                    if (!l) return false;
-                    const lower = l.toLowerCase();
-                    if (ignoreExact.has(lower)) return false;
-                    if (/^หน้า\s*\d+$/i.test(l)) return false;
-                    if (/^ผลการค้นหาประมาณ/i.test(l)) return false;
-                    if (/^ของการค้นหา/i.test(l)) return false;
-                    if (l.length <= 2) return false;
+                    if (!l || l.length <= 2) return false;
+                    if (ignoreExact.has(l.toLowerCase())) return false;
+                    if (/^หน้า\s*\d+$/i.test(l) || /^\d+$/.test(l)) return false;
+                    if (/^(ผลการค้นหาประมาณ|ของการค้นหา|about [\d,]+ results)/i.test(l)) return false;
                     return true;
                 });
 
-            const extractedArticles = [];
-            const timeRegex = /^(\d+\s*(นาที|ชั่วโมง|ชม\.|วัน|สัปดาห์|เดือน|ปี)(ที่แล้ว|ที่ผ่านมา)?|เมื่อวานนี้)(\s*[—\-•·]\s*(.*))?$/i;
-            const inlineTimeSplitRegex = /^(\d+\s*(นาที|ชั่วโมง|ชม\.|วัน|สัปดาห์|เดือน|ปี)(ที่แล้ว|ที่ผ่านมา)?|เมื่อวานนี้)\s*[—\-•·:]\s*(.+)$/i;
+            const articles = [];
+            let cur = null;   // { source, title, description, pubDate, link, fromSource, timed }
 
-            let i = 0;
-            while (i < rawLines.length) {
-                const line = rawLines[i];
-                const nextLine = rawLines[i + 1] || '';
-                const thirdLine = rawLines[i + 2] || '';
-
-                const isShortSourceLine = line.length >= 3 && line.length <= 42 && !line.includes(' ') || (line.length <= 35 && /ออนไลน์|นิวส์|ข่าว|ทีวี|รัฐ|เดลินิวส์|มติชน|คมชัดลึก|ประชาชาติ|ผู้จัดการ|สคพ|ทสจ|pptv|ch7|ch3|thaipbs|workpoint|amarintv|nation|spring|the standard|the matter|bangkokbiznews|thairath|khaosod|matichon|dailynews|mgronline|posttoday|naewna|siamrath|banmuang|korat/i.test(line));
-
-                if (isShortSourceLine && nextLine.length >= 18) {
-                    const source = line;
-                    const title = nextLine;
-                    let description = '';
-                    let pubDate = new Date().toISOString();
-
-                    if (thirdLine) {
-                        const inlineMatch = thirdLine.match(inlineTimeSplitRegex);
-                        if (inlineMatch) {
-                            pubDate = parseRelativeTimeString(inlineMatch[1]) || pubDate;
-                            description = inlineMatch[4] || '';
-                            i += 3;
-                        } else if (timeRegex.test(thirdLine)) {
-                            pubDate = parseRelativeTimeString(thirdLine) || pubDate;
-                            const fourthLine = rawLines[i + 3] || '';
-                            if (fourthLine && fourthLine.length >= 20 && !timeRegex.test(fourthLine)) {
-                                description = fourthLine;
-                                i += 4;
-                            } else {
-                                i += 3;
-                            }
-                        } else if (thirdLine.length >= 25 && !isShortSourceLine) {
-                            description = thirdLine;
-                            const fourthLine = rawLines[i + 3] || '';
-                            if (timeRegex.test(fourthLine)) {
-                                pubDate = parseRelativeTimeString(fourthLine) || pubDate;
-                                i += 4;
-                            } else {
-                                i += 3;
-                            }
-                        } else {
-                            i += 2;
-                        }
-                    } else {
-                        i += 2;
+            const flush = () => {
+                if (cur && cur.title && cur.title.length >= 12) {
+                    let title = cur.title;
+                    let source = cur.source || '';
+                    if (!source) {
+                        // "พาดหัว - สำนักข่าว" หรือ "พาดหัว | สำนักข่าว"
+                        const m = title.match(/^(.{12,}?)\s+[-–—|]\s+([^-–—|]{2,35})$/);
+                        if (m) { title = m[1].trim(); source = m[2].trim(); }
                     }
+                    articles.push({
+                        title: title.length > 220 ? title.slice(0, 220) + '…' : title,
+                        description: cur.description || '',
+                        source: source || 'Google News / ข้อมูลนำเข้า',
+                        pubDate: cur.pubDate || new Date().toISOString(),
+                        link: cur.link || ''
+                    });
+                }
+                cur = null;
+            };
 
-                    extractedArticles.push({ title, description, source, pubDate });
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const next = lines[i + 1] || '';
+
+                // ลิงก์ (เช่น ข่าวที่ส่งต่อใน LINE) แนบให้ข่าวก่อนหน้า
+                if (/^https?:\/\/\S+$/i.test(line)) {
+                    if (cur && cur.title && !cur.link) cur.link = line;
                     continue;
                 }
 
-                if (line.length >= 16) {
-                    const nextInlineMatch = nextLine.match(inlineTimeSplitRegex);
-                    if (nextInlineMatch) {
-                        const pubDate = parseRelativeTimeString(nextInlineMatch[1]) || new Date().toISOString();
-                        const description = nextInlineMatch[4] || '';
-                        extractedArticles.push({
-                            title: line,
-                            description: description,
-                            source: 'Google News Search',
-                            pubDate: pubDate
-                        });
-                        i += 2;
-                        continue;
+                // บรรทัดเวลา: ติดกับข่าวที่กำลังอ่าน (ส่วนท้าย "— ..." เป็นข้อความย่อ)
+                const t = splitTimePrefix(line);
+                if (t) {
+                    if (cur) {
+                        if (!cur.pubDate) cur.pubDate = t.iso;
+                        if (t.rest && !cur.description) cur.description = t.rest;
+                        if (cur.title) cur.timed = true;
                     }
+                    continue;
+                }
 
-                    if (timeRegex.test(nextLine)) {
-                        const pubDate = parseRelativeTimeString(nextLine) || new Date().toISOString();
-                        extractedArticles.push({
-                            title: line,
-                            description: '',
-                            source: 'Google News',
-                            pubDate: pubDate
-                        });
-                        i += 2;
+                // "ไทยรัฐ · 3 ชั่วโมงที่ผ่านมา" = สำนักข่าว + เวลา ขึ้นต้นข่าวใหม่
+                const srcTime = line.match(/^(.{2,40}?)\s*[·•|]\s*(.+)$/);
+                if (srcTime && !hasPollutionWord(srcTime[1])) {
+                    const st = splitTimePrefix(srcTime[2]);
+                    if (st && !st.rest) {
+                        flush();
+                        cur = { source: srcTime[1].trim(), pubDate: st.iso, fromSource: true };
                         continue;
-                    }
-
-                    if (!timeRegex.test(line)) {
-                        const parts = line.split(' - ');
-                        const possibleSource = parts.length > 1 && parts[parts.length - 1].length <= 35 ? parts.pop().trim() : 'Google News / ข้อมูลนำเข้า';
-                        const cleanTitle = parts.join(' - ').trim() || line;
-
-                        extractedArticles.push({
-                            title: cleanTitle.length > 180 ? cleanTitle.substring(0, 180) + '...' : cleanTitle,
-                            description: line,
-                            source: possibleSource,
-                            pubDate: new Date().toISOString()
-                        });
                     }
                 }
-                i++;
-            }
 
-            return extractedArticles;
+                // บรรทัดแรกหลังชื่อสำนักข่าวคือพาดหัวเสมอ
+                if (cur && cur.fromSource && !cur.title) {
+                    cur.title = line;
+                    continue;
+                }
+
+                // ชื่อสำนักข่าวสั้น ๆ ที่ตามด้วยพาดหัว = เริ่มข่าวใหม่
+                if (next.length >= 15 && !splitTimePrefix(next) && looksLikeSourceLine(line)) {
+                    flush();
+                    cur = { source: line, fromSource: true };
+                    continue;
+                }
+
+                // ข้อความย่อใต้พาดหัว (เฉพาะรูปแบบที่มีชื่อสำนักข่าวนำ และยังไม่ถึงบรรทัดเวลา)
+                if (cur && cur.title && cur.fromSource && !cur.description && !cur.timed) {
+                    cur.description = line;
+                    continue;
+                }
+
+                // นอกนั้นถือเป็นพาดหัวข่าวใหม่
+                flush();
+                cur = { title: line };
+            }
+            flush();
+
+            return articles;
         }
 
         async function pasteFromClipboardAndAnalyze(replaceExisting = false) {
@@ -1972,6 +2235,11 @@
             }
         }
 
+        function titleKey(title) {
+            if (window.SocialListeningPlus && SocialListeningPlus.normalizeTitle) return SocialListeningPlus.normalizeTitle(title);
+            return String(title || '').replace(/\s+/g, '').toLowerCase();
+        }
+
         function parseAndAddManualNews(replaceExisting = false) {
             const rawText = document.getElementById('manualNewsInput').value.trim();
             if (!rawText) {
@@ -1987,40 +2255,44 @@
                 return;
             }
 
-            // กรองคำเฉพาะชื่อจังหวัดสำหรับข่าวที่คัดลอกมาวาง
-            const strictFilteredManual = parsedArticles.filter(art => {
-                if (forceProv !== 'AUTO') return true;
-                
-                const fullText = `${art.title || ''} ${art.description || ''}`.toLowerCase();
-                return currentState.selectedProvinces.some(provKey => {
-                    const provData = PROVINCE_CONFIG[provKey];
-                    return provData.directKeywords.some(kw => fullText.includes(kw.toLowerCase()));
-                });
+            // เก็บเฉพาะข่าวที่ระบุจังหวัด/อำเภอ/สถานที่ในพื้นที่ที่เลือก (ยกเว้นเลือกบังคับจังหวัดไว้)
+            const selected = currentState.selectedProvinces;
+            const newItems = [];
+            parsedArticles.forEach((art, idx) => {
+                if (forceProv !== 'AUTO') {
+                    newItems.push(classifySingleNewsItem(art, idx, forceProv));
+                    return;
+                }
+                const inArea = detectProvinces(art).filter(p => selected.includes(p));
+                if (inArea.length) newItems.push(classifySingleNewsItem(art, idx, inArea[0]));
             });
+            const outOfArea = parsedArticles.length - newItems.length;
 
-            if (strictFilteredManual.length === 0) {
-                showToast('ข่าวที่นำมาวางไม่มีระบุชื่อจังหวัดที่ สคพ.11 รับผิดชอบ (หากแน่ใจว่าเป็นข่าวในพื้นที่ ให้เลือกบังคับระบุจังหวัดแทนการตั้งค่า AUTO)', 'error');
+            if (newItems.length === 0) {
+                showToast(`ข่าวที่วาง ${parsedArticles.length} เรื่องไม่ได้ระบุจังหวัด อำเภอ หรือสถานที่ในพื้นที่ที่เลือก (หากแน่ใจว่าเป็นข่าวในพื้นที่ ให้เลือก "บังคับเป็น" จังหวัดนั้นแทน AUTO)`, 'error');
                 return;
             }
 
-            const newItems = strictFilteredManual.map((art, idx) => classifySingleNewsItem(art, idx, forceProv));
+            // ข่าวจริงเข้ามาแล้ว ล้างข่าวตัวอย่างออก ไม่ให้ปนในรายงาน
+            const existing = replaceExisting ? [] : currentState.newsItems.filter(i => !i.isDemo);
+            const seenTitles = new Set(existing.map(i => titleKey(i.title)));
+            const uniqueNew = newItems.filter(item => {
+                const key = titleKey(item.title);
+                if (!key || seenTitles.has(key)) return false;
+                seenTitles.add(key);
+                return true;
+            });
+            const duplicates = newItems.length - uniqueNew.length;
 
-            if (replaceExisting) {
-                currentState.newsItems = newItems;
-            } else {
-                const existingTitles = new Set(currentState.newsItems.map(i => i.title.replace(/\s+/g, '').toLowerCase()));
-                const uniqueNew = newItems.filter(item => {
-                    const norm = item.title.replace(/\s+/g, '').toLowerCase();
-                    if (existingTitles.has(norm)) return false;
-                    existingTitles.add(norm);
-                    return true;
-                });
-                currentState.newsItems = [...uniqueNew, ...currentState.newsItems];
-            }
-
+            currentState.newsItems = [...uniqueNew, ...existing];
+            currentState.dataTimeframe = currentState.timeframe;
             currentState.aiExecutiveSummaryHtml = null;
             renderDashboard();
-            showToast(`คัดแยกข่าวจากที่วางสำเร็จ ${newItems.length} ข่าว! อัปเดตตารางและกราฟเรียบร้อย`, 'success');
+
+            const notes = [];
+            if (duplicates) notes.push(`ซ้ำ ${duplicates}`);
+            if (outOfArea) notes.push(`นอกพื้นที่ ${outOfArea}`);
+            showToast(`เพิ่มข่าวจากที่วาง ${uniqueNew.length} เรื่อง${notes.length ? ` (ข้าม: ${notes.join(', ')})` : ''} อัปเดตตารางและกราฟแล้ว`, uniqueNew.length ? 'success' : 'info');
             document.getElementById('dashboardSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -2103,13 +2375,17 @@
         function renderDashboard() {
             const items = currentState.newsItems;
             const stats = computeStatistics(items);
-            const tf = TIMEFRAMES[currentState.timeframe];
 
             document.getElementById('printTimestamp').textContent = new Date().toLocaleString('th-TH');
 
             document.getElementById('kpiTotal').textContent = stats.total;
-            document.getElementById('kpiTimeframeLabel').textContent = tf.label;
+            document.getElementById('kpiTimeframeLabel').textContent = items.length ? dataTimeframeLabel() : 'คลิกเพื่อดูทั้งหมด';
             document.getElementById('kpiUrgent').textContent = stats.urgentCount;
+            document.getElementById('kpiUrgentDot').classList.toggle('animate-ping', stats.urgentCount > 0);
+            document.getElementById('kpiUrgentDot').classList.toggle('opacity-30', stats.urgentCount === 0);
+
+            const demoCount = items.filter(i => i.isDemo).length;
+            document.getElementById('demoDataNotice').classList.toggle('hidden', demoCount === 0);
 
             const provUiMap = [
                 { key: 'นครราชสีมา', kpiId: 'kpiKorat', pctId: 'pctKorat', barId: 'barKorat' },
@@ -2135,6 +2411,8 @@
 
                 const row = document.createElement('div');
                 row.className = 'group cursor-pointer p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition';
+                row.setAttribute('role', 'button');
+                row.setAttribute('tabindex', '0');
                 row.onclick = () => filterNewsByCategory(cat.key);
                 row.innerHTML = `
                     <div class="flex items-center justify-between text-xs sm:text-sm mb-1.5">
@@ -2186,6 +2464,7 @@
 
             renderExecutiveSummary(stats);
             applyNewsListFilters();
+            saveSession();
         }
 
         function renderExecutiveSummary(stats) {
@@ -2260,7 +2539,7 @@
 
             container.innerHTML = `
                 <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 text-xs sm:text-sm text-slate-700 leading-relaxed">
-                    <strong>📊 สรุปภาพรวมสถานการณ์ (${TIMEFRAMES[currentState.timeframe].label}):</strong> 
+                    <strong>📊 สรุปภาพรวมสถานการณ์ (${dataTimeframeLabel()}):</strong> 
                     จากการกวาดข้อมูลข่าวสารด้านสิ่งแวดล้อมและมลพิษในเขตพื้นที่ 4 จังหวัด (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์) 
                     พบข่าวที่เกี่ยวข้องรวมทั้งสิ้น <strong>${stats.total} ข่าว</strong> แบ่งเป็นประเด็นเร่งด่วนสูง <strong>${stats.urgentCount} ข่าว</strong> 
                     ประเด็นเฝ้าระวัง <strong>${stats.watchCount} ข่าว</strong> และข่าวสารทั่วไป/รณรงค์ <strong>${stats.normalCount} ข่าว</strong> 
@@ -2305,21 +2584,28 @@
             }
         }
 
+        const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash'];
+
         async function callGeminiModelWithFallback(payload) {
-            const models = ['gemini-2.5-flash', 'gemini-2.0-flash'];
             let lastErr = null;
-            for (const modelName of models) {
+            for (const modelName of GEMINI_MODELS) {
                 try {
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
                     const response = await fetchWithBackoff(apiUrl, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        // ส่งคีย์ทาง header ไม่ใส่ใน URL (ไม่ติดไปกับประวัติ/ล็อก)
+                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
                         body: JSON.stringify(payload)
                     });
                     if (response.ok) {
                         return await response.json();
                     }
-                    lastErr = new Error(`Model ${modelName} returned status ${response.status}`);
+                    let detail = '';
+                    try { detail = (await response.json())?.error?.message || ''; } catch (e) { /* ignore */ }
+                    lastErr = new Error(detail || `HTTP ${response.status}`);
+                    lastErr.status = response.status;
+                    // คีย์ไม่ถูกต้อง/ไม่มีสิทธิ์: ลองรุ่นอื่นก็ไม่ช่วย
+                    if ([400, 401, 403].includes(response.status) && /api key|permission|unauthenticated/i.test(detail)) break;
                 } catch (e) {
                     lastErr = e;
                 }
@@ -2327,9 +2613,50 @@
             throw lastErr || new Error('ไม่สามารถเชื่อมต่อ Gemini API ได้');
         }
 
+        function parseGeminiJson(text) {
+            const clean = String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+            return JSON.parse(clean);
+        }
+
+        function buildAiSummaryHtml(aiData) {
+            const alertsHtml = (aiData.urgent_alerts || []).map(a => `<li class="text-xs sm:text-sm text-rose-900">• ${escapeHtml(a)}</li>`).join('');
+            const ps = aiData.province_summaries || {};
+            const provCard = (label, text, cls) => `
+                <div class="p-3.5 rounded-xl ${cls}">
+                    <div class="font-bold text-sm text-slate-900 mb-1">📍 ${label}</div>
+                    <p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(text || 'ไม่มีประเด็นผิดปกติ')}</p>
+                </div>`;
+            return `
+                <div class="p-4 rounded-xl bg-amber-50/70 border border-amber-200 text-xs sm:text-sm text-slate-800 leading-relaxed">
+                    <div class="font-bold text-amber-900 mb-1 flex items-center gap-1.5">
+                        <span>✨ บทวิเคราะห์สังเคราะห์โดย Gemini AI (${escapeHtml(aiData.timeframeLabel || dataTimeframeLabel())}):</span>
+                    </div>
+                    <p>${escapeHtml(aiData.executive_overview || '')}</p>
+                    <p class="mt-2 text-[11px] text-amber-800/80">สร้างโดย AI จากพาดหัวและข้อความย่อของข่าว ควรตรวจสอบกับต้นฉบับก่อนใช้อ้างอิง</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-rose-50 border border-rose-200">
+                    <div class="font-bold text-sm text-rose-900 mb-2">🚨 ประเด็นเฝ้าระวังพิเศษและข้อเสนอแนะเชิงรุก:</div>
+                    <ul class="space-y-1.5">${alertsHtml || '<li class="text-xs text-slate-600">ไม่มีประเด็นวิกฤตเร่งด่วน</li>'}</ul>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    ${provCard('นครราชสีมา (โคราช)', ps.korat, 'bg-emerald-50/50 border border-emerald-200')}
+                    ${provCard('ชัยภูมิ', ps.chaiyaphum, 'bg-teal-50/50 border border-teal-200')}
+                    ${provCard('บุรีรัมย์', ps.buriram, 'bg-cyan-50/50 border border-cyan-200')}
+                    ${provCard('สุรินทร์', ps.surin, 'bg-amber-50/50 border border-amber-200')}
+                </div>
+            `;
+        }
+
         async function runGeminiDeepAnalysis() {
             if (currentState.newsItems.length === 0) {
                 showToast('กรุณาดึงข่าวหรือวางเนื้อหาข่าวก่อนสั่งวิเคราะห์ด้วย AI', 'info');
+                return;
+            }
+            if (!apiKey) {
+                toggleApiKeyModal(true);
+                showToast('ต้องใส่ Gemini API Key ก่อนใช้การวิเคราะห์เชิงลึก (บทสรุปอัตโนมัติด้านล่างใช้ได้โดยไม่ต้องมีคีย์)', 'info');
                 return;
             }
 
@@ -2342,16 +2669,22 @@
             btn.disabled = true;
 
             try {
-                const newsListText = currentState.newsItems.slice(0, 40).map((item, i) => {
-                    return `${i + 1}. [จังหวัด${item.primaryProvince}] ${item.title} (${item.source}) - ${item.description}`;
+                // ส่งเรื่องเร่งด่วนก่อน เพื่อให้เรื่องสำคัญไม่หลุดเมื่อข่าวเกิน 60 เรื่อง
+                const rank = { 'เร่งด่วนมาก': 0, 'เฝ้าระวัง': 1 };
+                const forAi = currentState.newsItems.filter(i => !i.isDemo || currentState.newsItems.every(x => x.isDemo))
+                    .slice().sort((a, b) => (rank[a.urgency] ?? 2) - (rank[b.urgency] ?? 2))
+                    .slice(0, 60);
+                const newsListText = forAi.map((item, i) => {
+                    const outlets = item.outletCount > 1 ? ` [${item.outletCount} สำนักข่าว]` : '';
+                    return `${i + 1}. [จังหวัด${item.primaryProvince}] [${item.urgency}] ${item.title} (${item.source})${outlets} - ${(item.description || '').slice(0, 300)}`;
                 }).join('\n');
 
-                const systemInstruction = `คุณคือผู้เชี่ยวชาญด้านการวิเคราะห์ข่าวสิ่งแวดล้อมและมลพิษ (Environmental Social Listening Analyst) ของสำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 11 (สคพ.11 นครราชสีมา) รับผิดชอบพื้นที่ 4 จังหวัด: นครราชสีมา (โคราช) ชัยภูมิ บุรีรัมย์ และสุรินทร์ หน้าที่ของคุณคือจัดทำหมวดหมู่ ตรวจสอบระดับความเร่งด่วน และเขียนบทสรุปผู้บริหารจากรายการข่าวที่ได้รับ`;
+                const systemInstruction = `คุณคือผู้เชี่ยวชาญด้านการวิเคราะห์ข่าวสิ่งแวดล้อมและมลพิษ (Environmental Social Listening Analyst) ของสำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 11 (สคพ.11 นครราชสีมา) รับผิดชอบพื้นที่ 4 จังหวัด: นครราชสีมา (โคราช) ชัยภูมิ บุรีรัมย์ และสุรินทร์ หน้าที่ของคุณคือตรวจสอบระดับความเร่งด่วน และเขียนบทสรุปผู้บริหารจากรายการข่าวที่ได้รับ ตอบเป็นภาษาไทยที่กระชับ ใช้เฉพาะข้อเท็จจริงที่อยู่ในรายการข่าว ห้ามเพิ่มตัวเลขหรือเหตุการณ์ที่ไม่มีในข่าว`;
 
-                const userPrompt = `กรุณาวิเคราะห์รายการข่าวสิ่งแวดล้อมและมลพิษต่อไปนี้ (ห้วงเวลา: ${TIMEFRAMES[currentState.timeframe].label}):
+                const userPrompt = `กรุณาวิเคราะห์รายการข่าวสิ่งแวดล้อมและมลพิษต่อไปนี้ (ห้วงเวลา: ${dataTimeframeLabel()}, ทั้งหมด ${currentState.newsItems.length} เรื่อง แสดง ${forAi.length} เรื่อง):
 ${newsListText}
 
-ส่งผลลัพธ์เป็น JSON ตามโครงสร้างที่กำหนด เพื่ออัปเดตบทสรุปผู้บริหารและจัดหมวดหมู่ข่าวให้แม่นยำที่สุด`;
+ส่งผลลัพธ์เป็น JSON ตามโครงสร้างที่กำหนด`;
 
                 const payload = {
                     contents: [{ parts: [{ text: userPrompt }] }],
@@ -2384,49 +2717,22 @@ ${newsListText}
 
                 const result = await callGeminiModelWithFallback(payload);
                 const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) {
-                    const aiData = JSON.parse(text);
-                    const alertsHtml = (aiData.urgent_alerts || []).map(a => `<li class="text-xs sm:text-sm text-rose-900">• ${escapeHtml(a)}</li>`).join('');
-                    const ps = aiData.province_summaries || {};
-
-                    currentState.aiExecutiveSummaryHtml = `
-                        <div class="p-4 rounded-xl bg-amber-50/70 border border-amber-200 text-xs sm:text-sm text-slate-800 leading-relaxed">
-                            <div class="font-bold text-amber-900 mb-1 flex items-center gap-1.5">
-                                <span>✨ บทวิเคราะห์สังเคราะห์โดย Gemini AI (${TIMEFRAMES[currentState.timeframe].label}):</span>
-                            </div>
-                            <p>${escapeHtml(aiData.executive_overview || '')}</p>
-                        </div>
-
-                        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200">
-                            <div class="font-bold text-sm text-rose-900 mb-2">🚨 ประเด็นเฝ้าระวังพิเศษและข้อเสนอแนะเชิงรุก:</div>
-                            <ul class="space-y-1.5">${alertsHtml || '<li class="text-xs text-slate-600">ไม่มีประเด็นวิกฤตเร่งด่วน</li>'}</ul>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                            <div class="p-3.5 rounded-xl bg-emerald-50/50 border border-emerald-200">
-                                <div class="font-bold text-sm text-emerald-950 mb-1">📍 นครราชสีมา (โคราช)</div>
-                                <p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(ps.korat || 'ไม่มีประเด็นผิดปกติ')}</p>
-                            </div>
-                            <div class="p-3.5 rounded-xl bg-teal-50/50 border border-teal-200">
-                                <div class="font-bold text-sm text-teal-950 mb-1">📍 ชัยภูมิ</div>
-                                <p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(ps.chaiyaphum || 'ไม่มีประเด็นผิดปกติ')}</p>
-                            </div>
-                            <div class="p-3.5 rounded-xl bg-cyan-50/50 border border-cyan-200">
-                                <div class="font-bold text-sm text-cyan-950 mb-1">📍 บุรีรัมย์</div>
-                                <p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(ps.buriram || 'ไม่มีประเด็นผิดปกติ')}</p>
-                            </div>
-                            <div class="p-3.5 rounded-xl bg-amber-50/50 border border-amber-200">
-                                <div class="font-bold text-sm text-amber-950 mb-1">📍 สุรินทร์</div>
-                                <p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(ps.surin || 'ไม่มีประเด็นผิดปกติ')}</p>
-                            </div>
-                        </div>
-                    `;
-                    renderDashboard();
-                    showToast('วิเคราะห์เชิงลึกด้วย Gemini AI สำเร็จ!', 'success');
+                if (!text) {
+                    const reason = result?.promptFeedback?.blockReason || result?.candidates?.[0]?.finishReason || 'ไม่มีข้อความตอบกลับ';
+                    throw new Error(`Gemini ไม่ส่งผลวิเคราะห์ (${reason})`);
                 }
+                const aiData = parseGeminiJson(text);
+                aiData.timeframeLabel = dataTimeframeLabel();
+                currentState.aiData = aiData;
+                currentState.aiExecutiveSummaryHtml = buildAiSummaryHtml(aiData);
+                renderDashboard();
+                showToast('วิเคราะห์เชิงลึกด้วย Gemini AI สำเร็จ! (บทวิเคราะห์จะรวมอยู่ในรายงานส่ง LINE ด้วย)', 'success');
             } catch (err) {
-                console.warn('Fallback to Built-in Smart Summary:', err);
-                showToast('สรุปผลด้วยระบบวิเคราะห์ภาษาไทยอัตโนมัติเรียบร้อยแล้ว (หากต้องการใช้ Gemini AI กรุณาตั้งค่า API Key มุมขวาบน)', 'info');
+                console.warn('Gemini analysis failed:', err);
+                const msg = err && err.status && [400, 401, 403].includes(err.status)
+                    ? 'Gemini ปฏิเสธคำขอ: API Key อาจไม่ถูกต้องหรือไม่มีสิทธิ์ใช้งาน'
+                    : (err && err.status === 429 ? 'Gemini ใช้งานเกินโควตาชั่วคราว กรุณาลองใหม่ภายหลัง' : 'วิเคราะห์ด้วย Gemini ไม่สำเร็จ');
+                showToast(`${msg} (${(err && err.message) || 'ไม่ทราบสาเหตุ'}) • บทสรุปอัตโนมัติด้านล่างยังใช้ได้ตามปกติ`, 'error');
             } finally {
                 loadingEl.classList.add('hidden');
                 contentEl.classList.remove('opacity-40');
@@ -2504,6 +2810,7 @@ ${newsListText}
                 }
 
                 const dateFormatted = formatThaiDateTime(item.pubDate);
+                const link = safeUrl(item.link);
 
                 const card = document.createElement('div');
                 card.className = 'p-4 sm:p-5 hover:bg-slate-50/90 transition flex flex-col sm:flex-row sm:items-start justify-between gap-4';
@@ -2514,25 +2821,26 @@ ${newsListText}
                             ${extraProvincesHtml}
                             <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold border ${catObj.badgeClass}">${catObj.shortName}</span>
                             ${urgencyBadge}
+                            ${item.isDemo ? '<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-400 text-amber-950">ข่าวตัวอย่าง</span>' : ''}
                             ${item.isNew ? '<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-600 text-white">ใหม่</span>' : ''}
                             ${item.outletCount > 1 ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200" title="ข่าวเดียวกันจากหลายสำนักข่าว">📰 ${item.outletCount} สำนักข่าว</span>` : ''}
                             <span class="text-xs text-slate-400 ml-1">• ${escapeHtml(item.source)} • ${dateFormatted}</span>
                         </div>
                         <h4 class="text-sm sm:text-base font-bold text-slate-900 hover:text-emerald-700 leading-snug">
-                            <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="hover:underline">${escapeHtml(item.title)}</a>
+                            ${link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" class="hover:underline">${escapeHtml(item.title)}</a>` : escapeHtml(item.title)}
                         </h4>
                         ${item.description && item.description !== item.title ? `<p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">${escapeHtml(item.description)}</p>` : ''}
-                        ${(item.outlets || []).length > 1 ? `<details class="text-xs text-slate-600"><summary class="cursor-pointer text-indigo-700 font-semibold">ดูรายงานจาก ${item.outlets.length} แหล่งข่าว</summary><ul class="mt-1.5 space-y-1 pl-4 list-disc">${item.outlets.map(o => `<li><a href="${escapeHtml(o.link)}" target="_blank" rel="noopener noreferrer" class="hover:underline">${escapeHtml(o.source || 'ข่าว')}</a>: ${escapeHtml(o.title)}</li>`).join('')}</ul></details>` : ''}
+                        ${(item.outlets || []).length > 1 ? `<details class="text-xs text-slate-600"><summary class="cursor-pointer text-indigo-700 font-semibold">ดูรายงานจาก ${item.outlets.length} แหล่งข่าว</summary><ul class="mt-1.5 space-y-1 pl-4 list-disc">${item.outlets.map(o => `<li>${safeUrl(o.link) ? `<a href="${escapeHtml(safeUrl(o.link))}" target="_blank" rel="noopener noreferrer" class="hover:underline">${escapeHtml(o.source || 'ข่าว')}</a>` : escapeHtml(o.source || 'ข่าว')}: ${escapeHtml(o.title)}</li>`).join('')}</ul></details>` : ''}
                         
                         <div class="pt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500 no-print">
                             <span>ปรับหมวดหมู่ทันที:</span>
-                            <select onchange="updateSingleItemProvince('${item.id}', this.value)" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-700 font-medium outline-none focus:border-emerald-500">
+                            <select onchange="updateSingleItemProvince('${item.id}', this.value)" aria-label="จังหวัดของข่าวนี้" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-700 font-medium outline-none focus:border-emerald-500">
                                 <option value="นครราชสีมา" ${item.primaryProvince === 'นครราชสีมา' ? 'selected' : ''}>จ.นครราชสีมา</option>
                                 <option value="ชัยภูมิ" ${item.primaryProvince === 'ชัยภูมิ' ? 'selected' : ''}>จ.ชัยภูมิ</option>
                                 <option value="บุรีรัมย์" ${item.primaryProvince === 'บุรีรัมย์' ? 'selected' : ''}>จ.บุรีรัมย์</option>
                                 <option value="สุรินทร์" ${item.primaryProvince === 'สุรินทร์' ? 'selected' : ''}>จ.สุรินทร์</option>
                             </select>
-                            <select onchange="updateSingleItemCategory('${item.id}', this.value)" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-700 font-medium outline-none focus:border-emerald-500">
+                            <select onchange="updateSingleItemCategory('${item.id}', this.value)" aria-label="ประเภทปัญหาของข่าวนี้" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-700 font-medium outline-none focus:border-emerald-500">
                                 <option value="water" ${item.category === 'water' ? 'selected' : ''}>💧 มลพิษทางน้ำ</option>
                                 <option value="air" ${item.category === 'air' ? 'selected' : ''}>💨 อากาศ/PM2.5/กลิ่น/เสียง</option>
                                 <option value="waste" ${item.category === 'waste' ? 'selected' : ''}>☣️ ขยะ/สารเคมี/ของเสีย</option>
@@ -2544,11 +2852,11 @@ ${newsListText}
                     </div>
 
                     <div class="flex sm:flex-col items-center sm:items-end justify-end gap-2 shrink-0 no-print">
-                        <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold flex items-center gap-1 transition">
+                        ${link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold flex items-center gap-1 transition">
                             <span>อ่านข่าว</span>
                             <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                        </a>
-                        <button onclick="removeNewsItem('${item.id}')" class="text-[11px] text-slate-400 hover:text-rose-600 px-2 py-1" title="ลบข่าวนี้ออกจากการนับจำนวน">คัดออก</button>
+                        </a>` : ''}
+                        <button type="button" onclick="removeNewsItem('${item.id}')" class="text-[11px] text-slate-500 hover:text-rose-600 px-2 py-1" title="ลบข่าวนี้ออกจากการนับจำนวน">คัดออก</button>
                     </div>
                 `;
                 listContainer.appendChild(card);
@@ -2572,11 +2880,18 @@ ${newsListText}
             showToast('คัดข่าวออกและคำนวณจำนวนใหม่แล้ว', 'info');
         }
 
-        function clearAllNews() {
-            currentState.newsItems = [];
+        function clearAllNews(demoOnly = false) {
+            if (demoOnly) {
+                currentState.newsItems = currentState.newsItems.filter(i => !i.isDemo);
+            } else {
+                const realCount = currentState.newsItems.filter(i => !i.isDemo).length;
+                if (realCount && !confirm(`ล้างรายการข่าวทั้งหมด ${realCount} ข่าว? (ลบผลการค้นหาที่บันทึกไว้ด้วย)`)) return;
+                currentState.newsItems = [];
+            }
             currentState.aiExecutiveSummaryHtml = null;
+            currentState.aiData = null;
             renderDashboard();
-            showToast('ล้างรายการข่าวทั้งหมดแล้ว', 'info');
+            showToast(demoOnly ? 'ล้างข่าวตัวอย่างแล้ว' : 'ล้างรายการข่าวทั้งหมดแล้ว', 'info');
         }
 
         function formatThaiDateTime(isoStr) {
@@ -2589,8 +2904,14 @@ ${newsListText}
             }
         }
 
+        /** ใช้เฉพาะลิงก์ http/https (กันลิงก์ javascript: จากข้อมูลภายนอก) */
+        function safeUrl(url) {
+            const u = String(url || '').trim();
+            return /^https?:\/\//i.test(u) ? u : '';
+        }
+
         function escapeHtml(str) {
-            if (!str) return '';
+            if (str === null || str === undefined) return '';
             return String(str)
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
@@ -2604,14 +2925,16 @@ ${newsListText}
         // ==========================================
         function generateLineTextReport() {
             const stats = computeStatistics(currentState.newsItems);
-            const tf = TIMEFRAMES[currentState.timeframe];
             const dateStr = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
 
             let lines = [];
+            if (currentState.newsItems.some(i => i.isDemo)) {
+                lines.push(`⚠️ [ข้อมูลตัวอย่าง ไม่ใช่ข่าวจริง ห้ามส่งต่อ]`);
+            }
             lines.push(`🌿 สรุปสถานการณ์ข่าวสิ่งแวดล้อมและมลพิษ (สคพ.11)`);
             lines.push(`📍 พื้นที่: นครราชสีมา • ชัยภูมิ • บุรีรัมย์ • สุรินทร์`);
             lines.push(`🗓️ ประจำวันที่: ${dateStr}`);
-            lines.push(`⏱️ ห้วงเวลาที่กวาดข้อมูล: ${tf.label}`);
+            lines.push(`⏱️ ห้วงเวลาที่กวาดข้อมูล: ${dataTimeframeLabel()}`);
             lines.push(`━━━━━━━━━━━━━━━━━━`);
             lines.push(`📊 จำนวนข่าวที่พบทั้งหมด: ${stats.total} ข่าว`);
             lines.push(`🔴 ประเด็นเร่งด่วนมาก: ${stats.urgentCount} ข่าว`);
@@ -2631,8 +2954,12 @@ ${newsListText}
             lines.push(`━━━━━━━━━━━━━━━━━━`);
             lines.push(`📌 สรุปรายการข่าวสำคัญแยกรายจังหวัด:`);
 
+            // เรื่องเร่งด่วนขึ้นก่อน แล้วจึงเรียงตามเวลา
+            const urgencyRank = { 'เร่งด่วนมาก': 0, 'เฝ้าระวัง': 1, 'ทั่วไป': 2 };
             ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'].forEach(prov => {
-                const provItems = currentState.newsItems.filter(i => i.primaryProvince === prov);
+                const provItems = currentState.newsItems
+                    .filter(i => i.primaryProvince === prov)
+                    .sort((a, b) => (urgencyRank[a.urgency] ?? 3) - (urgencyRank[b.urgency] ?? 3) || new Date(b.pubDate) - new Date(a.pubDate));
                 lines.push(`\n▶️ จ.${prov} (${provItems.length} ข่าว):`);
                 if (provItems.length === 0) {
                     lines.push(`  - ไม่พบรายงานข่าวปัญหาสิ่งแวดล้อมในห้วงเวลานี้`);
@@ -2641,28 +2968,46 @@ ${newsListText}
                         const catObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === item.category);
                         lines.push(`  ${idx + 1}) [${item.urgency}] ${item.title} (${catObj ? catObj.shortName : ''})`);
                     });
+                    if (provItems.length > 8) lines.push(`  ... และอีก ${provItems.length - 8} ข่าว`);
                 }
             });
+
+            const ai = currentState.aiExecutiveSummaryHtml ? currentState.aiData : null;
+            if (ai) {
+                lines.push(`━━━━━━━━━━━━━━━━━━`);
+                lines.push(`🤖 บทวิเคราะห์โดย Gemini AI:`);
+                if (ai.executive_overview) lines.push(ai.executive_overview);
+                (ai.urgent_alerts || []).forEach(a => lines.push(`• ${a}`));
+            }
 
             return lines.join('\n');
         }
 
         function openReportModal() {
             document.getElementById('lineReportTextarea').value = generateLineTextReport();
-            const modal = document.getElementById('reportModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            setModalOpen('reportModal', true);
         }
 
         function closeReportModal() {
-            const modal = document.getElementById('reportModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            setModalOpen('reportModal', false);
         }
 
         function copyLineReport() {
             const text = document.getElementById('lineReportTextarea').value;
             copyTextToClipboard(text, 'คัดลอกรายงานสำหรับส่ง LINE เรียบร้อยแล้ว!');
+        }
+
+        function copyMatrixTable() {
+            const stats = computeStatistics(currentState.newsItems);
+            const provs = ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'];
+            const rows = [['ประเภทปัญหา / มลพิษ', ...provs, 'รวม']];
+            CATEGORY_DISPLAY_ORDER.forEach(cat => {
+                const m = stats.matrix[cat.key];
+                rows.push([cat.name, ...provs.map(p => m[p]), m.total]);
+            });
+            rows.push(['รวมทั้งหมด', ...provs.map(p => stats.byProvince[p]), stats.total]);
+            const text = `ตารางสรุปจำนวนข่าว (${dataTimeframeLabel()})\n` + rows.map(r => r.join('\t')).join('\n');
+            copyTextToClipboard(text, 'คัดลอกตารางสรุปแล้ว วางใน Excel / Google Sheets ได้ทันที');
         }
 
         function copyExecutiveSummary() {
@@ -2675,23 +3020,33 @@ ${newsListText}
                 showToast('ไม่มีข้อมูลข่าวสำหรับส่งออก CSV', 'info');
                 return;
             }
-            const headers = ['ลำดับ', 'จังหวัดหลัก', 'จังหวัดที่เกี่ยวข้องทั้งหมด', 'ประเภทปัญหา', 'ระดับความเร่งด่วน', 'หัวข้อข่าว', 'แหล่งข่าว', 'วันที่เผยแพร่', 'ลิงก์ข่าว'];
+            // ทุกช่องอยู่ในเครื่องหมายคำพูด และกันข้อความที่ขึ้นต้นด้วย = + - @ ไม่ให้ Excel ตีความเป็นสูตร
+            const cell = value => {
+                let v = String(value ?? '');
+                if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;
+                return `"${v.replace(/"/g, '""')}"`;
+            };
+            const headers = ['ลำดับ', 'จังหวัดหลัก', 'จังหวัดที่เกี่ยวข้องทั้งหมด', 'ประเภทปัญหา', 'ระดับความเร่งด่วน', 'หัวข้อข่าว', 'รายละเอียดย่อ', 'แหล่งข่าว', 'จำนวนสำนักข่าว', 'วันที่เผยแพร่', 'ลิงก์ข่าว', 'ลิงก์จากสำนักข่าวอื่น'];
             const rows = currentState.newsItems.map((item, idx) => {
                 const catObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === item.category) || CATEGORY_DISPLAY_ORDER[5];
+                const otherLinks = (item.outlets || []).map(o => safeUrl(o.link)).filter(l => l && l !== item.link);
                 return [
                     idx + 1,
                     item.primaryProvince,
-                    `"${(item.provinces || [item.primaryProvince]).join(' / ')}"`,
+                    (item.provinces || [item.primaryProvince]).join(' / '),
                     catObj.name,
                     item.urgency,
-                    `"${(item.title || '').replace(/"/g, '""')}"`,
-                    `"${(item.source || '').replace(/"/g, '""')}"`,
+                    item.title,
+                    item.description && item.description !== item.title ? item.description : '',
+                    item.source,
+                    item.outletCount || 1,
                     formatThaiDateTime(item.pubDate),
-                    `"${item.link || ''}"`
-                ].join(',');
+                    safeUrl(item.link),
+                    otherLinks.join(' ')
+                ].map(cell).join(',');
             });
 
-            const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+            const csvContent = '\uFEFF' + [headers.map(cell).join(','), ...rows].join('\r\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2700,30 +3055,45 @@ ${newsListText}
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            showToast('ดาวน์โหลดไฟล์ CSV (รองรับภาษาไทยใน Excel) สำเร็จ', 'success');
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            showToast(`ดาวน์โหลดไฟล์ CSV ${currentState.newsItems.length} ข่าว (รองรับภาษาไทยใน Excel) สำเร็จ`, 'success');
         }
 
         // ==========================================
         // 10. API KEY MODAL & DEMO DATA
         // ==========================================
-        function toggleApiKeyModal() {
-            const modal = document.getElementById('apiKeyModal');
-            modal.classList.toggle('hidden');
-            modal.classList.toggle('flex');
+        function setModalOpen(id, open) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden', !open);
+            modal.classList.toggle('flex', open);
+            if (open) {
+                modal._returnFocus = document.activeElement;
+                const first = modal.querySelector('textarea, input, button');
+                if (first) setTimeout(() => first.focus(), 30);
+            } else if (modal._returnFocus && modal._returnFocus.focus) {
+                modal._returnFocus.focus();
+            }
+        }
+
+        function toggleApiKeyModal(forceOpen) {
+            const isOpen = !document.getElementById('apiKeyModal').classList.contains('hidden');
+            setModalOpen('apiKeyModal', typeof forceOpen === 'boolean' ? forceOpen : !isOpen);
+        }
+
+        function updateApiKeyStatus() {
+            document.getElementById('apiKeyStatusText').textContent = apiKey ? 'Gemini AI พร้อมใช้งาน' : 'ตั้งค่า Gemini AI';
         }
 
         function saveUserApiKey() {
             const val = document.getElementById('userApiKeyInput').value.trim();
             apiKey = val;
-            if (val) {
-                localStorage.setItem('env_gemini_api_key', val);
-                document.getElementById('apiKeyStatusText').textContent = 'ตั้งค่า API Key แล้ว';
-            } else {
-                localStorage.removeItem('env_gemini_api_key');
-                document.getElementById('apiKeyStatusText').textContent = 'AI พร้อมใช้งาน';
-            }
-            toggleApiKeyModal();
-            showToast('บันทึกการตั้งค่า AI เรียบร้อยแล้ว', 'success');
+            try {
+                if (val) localStorage.setItem('env_gemini_api_key', val);
+                else localStorage.removeItem('env_gemini_api_key');
+            } catch (e) { /* ใช้ได้เฉพาะรอบนี้ */ }
+            updateApiKeyStatus();
+            toggleApiKeyModal(false);
+            showToast(val ? 'บันทึก Gemini API Key แล้ว (เก็บไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น)' : 'ลบ Gemini API Key แล้ว', 'success');
         }
 
         function loadDemoNews(silent = false) {
@@ -2791,8 +3161,18 @@ ${newsListText}
                 }
             ];
 
-            currentState.newsItems = sampleRaw.map((item, idx) => classifySingleNewsItem(item, idx));
+            const realCount = currentState.newsItems.filter(i => !i.isDemo).length;
+            if (realCount && !confirm(`ข่าวตัวอย่างจะแทนที่ข่าวจริง ${realCount} ข่าวที่แสดงอยู่ ต้องการดำเนินการต่อหรือไม่?`)) return;
+
+            currentState.newsItems = sampleRaw.map((item, idx) => {
+                const classified = classifySingleNewsItem(item, idx);
+                classified.isDemo = true;
+                classified.link = '';
+                return classified;
+            });
+            currentState.dataTimeframe = '1d';
             currentState.aiExecutiveSummaryHtml = null;
+            currentState.aiData = null;
             renderDashboard();
             if (!silent) {
                 showToast('โหลดข้อมูลข่าวตัวอย่างทั้ง 4 จังหวัดพร้อมแยกประเภทเรียบร้อยแล้ว', 'success');
