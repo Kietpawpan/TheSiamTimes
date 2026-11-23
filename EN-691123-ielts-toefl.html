@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>The Siam Times</title>
+            <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Lora&family=Playfair+Display:wght@400;900&family=Pridi:wght@700&family=Sarabun:wght@400;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+            <style>
+                
+        body { 
+            font-family: Lora; 
+            background: #e9ecef; 
+            padding: 20px; 
+            margin: 0;
+            color: #212529;
+        }
+        h2 { 
+            text-align: center; 
+            color: #343a40; 
+            font-family: 'Playfair Display';
+        }
+        
+        /* Loader Styles */
+        .loader-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+        .spinner {
+            border: 6px solid #e9ecef;
+            border-top: 6px solid #6f42c1;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        .loader-text { 
+            margin-top: 20px; 
+            font-weight: bold; 
+            font-family: 'Sarabun', sans-serif; 
+            color: #495057;
+            font-size: 18px;
+        }
+
+        .container { 
+            display: flex; 
+            gap: 20px; 
+            margin-bottom: 20px; 
+        }
+        .box { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        textarea { 
+            width: 100%; 
+            height: 250px; 
+            padding: 12px; 
+            font-size: 16px; 
+            border: 1px solid #ced4da; 
+            border-radius: 8px; 
+            resize: vertical; 
+            box-sizing: border-box;
+            line-height: 1.6;
+            font-family: Lora;
+        }
+        
+        .ai-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .ai-controls select, .ai-controls input[type="file"], .ai-controls input[type="text"] {
+            padding: 8px 10px;
+            font-size: 15px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            font-family: Lora;
+            background: #f8f9fa;
+        }
+        
+        .btn-ai {
+            background: #6f42c1;
+            padding: 10px 20px;
+            align-self: flex-end;
+            margin-top: 15px; 
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .btn-ai:hover {
+            background: #59339d;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        button { 
+            padding: 12px 25px; 
+            font-size: 16px; 
+            font-weight: bold;
+            cursor: pointer; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .btn-proofread { background: #0d6efd; }
+        .btn-proofread:hover { background: #0b5ed7; }
+        .btn-nyt { background: #212529; font-family: 'Playfair Display'; }
+        .btn-nyt:hover { background: #f8f9fa; color: #212529; border: 1px solid #212529; }
+        .btn-thai { background: #b91d1d; font-family: 'Sarabun'; }
+        .btn-thai:hover { background: #f8f9fa; color: #b91d1d; border: 1px solid #b91d1d; }
+        
+        .result-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px #0000000d; 
+            min-height: 200px; 
+            font-size: 18px; 
+            line-height: 2; 
+            white-space: pre-wrap;
+            display: block; 
+        }
+        del { text-decoration: line-through; color: #dc3545; background: #f8d7da; padding: 2px 4px; border-radius: 4px; }
+        ins { text-decoration: none; color: #198754; background: #d1e7dd; padding: 2px 4px; border-bottom: 2px dashed #198754; font-weight: bold; }
+        
+        .newspaper-container {
+            background: #fdfbf7; 
+            padding: 40px 60px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 10px 30px #0000001a;
+            display: none; 
+            max-width: 1000px;
+            margin: 0 auto;
+            color: #212529;
+            position: relative;
+        }
+
+        .nyt-top-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        @font-face {
+            font-family: 'Chomsky';
+            src: url('Chomsky.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .nyt-slogan-box {
+            position: absolute;
+            left: 0;
+            border: 1px solid #212529;
+            padding: 16px 18px;
+            font-family: Lora, 'Chomsky';
+            font-size: 11px;
+            text-align: center;
+            font-style: normal;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .nyt-header { text-align: center; font-family: 'Chomsky'; font-size: 70px; color: #212529; line-height: 1; }
+        .nyt-date-line { font-family: Lora; font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; border-top: 1px solid #212529; border-bottom: 2px solid #212529; padding: 8px 0; margin-bottom: 35px; font-weight: bold; letter-spacing: 1px; }
+        .nyt-title { font-family: 'Newsreader'; font-size: 52px; font-weight: 900; line-height: 1.1; text-align: left; margin-top: 0; margin-bottom: 20px; }
+        
+        .nyt-image-container {
+            margin: 5px 0 15px 0;
+            text-align: center;
+            break-inside: avoid;
+            width: 100%;
+        }
+
+        .nyt-image {
+            max-width: 100%;
+            height: auto;
+            box-sizing: border-box;
+        }
+        
+        .nyt-image-caption {
+            text-align: left;
+            font-size: 13px;
+            margin-top: 8px;
+            color: #495057;
+            font-family: inherit;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .nyt-content { font-family: Newsreader; font-size: 16px; line-height: 1.7; column-count: 3; column-gap: 25px; column-rule: 3px solid #6c757d; text-align: justify; }
+        .nyt-content p { margin-top: 0; margin-bottom: 1.2em; text-indent: 2em; }
+        
+        .nyt-inline-subheading {
+            font-family: 'Newsreader';
+            font-size: 20px;
+            text-align: center;
+            padding: 10px 0;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            break-inside: avoid;
+            position: relative;
+        }
+        
+        .nyt-inline-subheading::before,
+        .nyt-inline-subheading::after {
+            content: '';
+            position: absolute;
+            left: 25%;
+            width: 50%;
+            height: 1px;
+            background-color: #6c757d;
+        }
+        
+        .nyt-inline-subheading::before { top: 0; }
+        .nyt-inline-subheading::after { bottom: 0; }
+
+        .nyt-footer {
+            text-align: left;
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 30px;
+            padding-top: 10px;
+            font-style: italic;
+        }
+        
+        .lang-th .nyt-header { font-family: 'Chonburi'; font-size: 55px; }
+        .lang-th .nyt-date-line { font-family: 'Sarabun'; font-size: 14px; }
+        .lang-th .nyt-title { font-family: 'Pridi'; font-size: 44px;}
+        .lang-th .nyt-content { font-family: 'Sarabun'; font-size: 18px; }
+        .lang-th .nyt-image-caption { font-size: 16px; font-family: 'Sarabun'; }
+        .lang-th .nyt-inline-subheading { font-family: 'Pridi'; font-size: 22px; font-weight: 700; }
+        .lang-th .nyt-slogan-box { display: none; }
+        .lang-th .nyt-footer { font-family: 'Sarabun'; }
+        .lang-en .nyt-footer { font-family: Lora; }
+
+        @media screen and (max-width: 768px) {
+            .container { flex-direction: column; }
+            .ai-controls { align-items: stretch; padding: 20px; }
+            .control-group { width: 100%; margin-bottom: 5px;}
+            .btn-ai { width: 100%; margin-top: 10px; }
+            .btn-group { flex-direction: column; width: 100%; }
+            .btn-group button { width: 100%; }
+            
+            .newspaper-container { padding: 20px; }
+            .nyt-content { column-count: 1; text-align: left; }
+            .nyt-content p { text-indent: 1.5em; }
+            .nyt-slogan-box { display: none; }
+            .nyt-header { font-size: 45px; }
+            .lang-th .nyt-header { font-size: 40px; }
+            .nyt-title { font-size: 36px; text-align: center; }
+            .lang-th .nyt-title { font-size: 32px; }
+            .nyt-date-line { font-size: 10px; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+        }
+
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .box-header label {
+            margin-bottom: 0;
+        }
+        .btn-action-group {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-copy {
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #198754;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px #0000001a;
+        }
+        .btn-copy:hover {
+            background: #157347;
+        }
+        .btn-fetch {
+            background: #0d6efd;
+        }
+        .btn-fetch:hover {
+            background: #0b5ed7;
+        }
+        .btn-clear {
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px #0000001a;
+        }
+        .btn-clear:hover {
+            background: #bb2d3b;
+        }
+
+        /* Styles for Popup (Dialog) & Info Button */
+        .info-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 6px;
+            color: #6c757d; 
+            vertical-align: middle;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.3s;
+            box-shadow: none;
+        }
+        .info-button:hover { 
+            color: #212529; 
+            background: transparent;
+        }
+        .info-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        dialog.credit-popup {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #212529;
+            text-align: left;
+        }
+        
+        dialog.credit-popup::backdrop { background: rgba(0, 0, 0, 0.6); }
+        .close-button {
+            margin-top: 15px;
+            padding: 8px 12px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .close-button:hover { background: #555; }
+
+        /* Authentication Overlay Styles */
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px #0000001a;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            font-family: Lora;
+        }
+        .auth-box h2 {
+            margin-top: 0;
+            color: #343a40;
+            font-family: 'Playfair Display';
+        }
+        .auth-box p {
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            font-family: Lora;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        .auth-box button {
+            width: 100%;
+            background: #6f42c1;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px #0000001a;
+            transition: all 0.3s;
+        }
+        .auth-box button:hover {
+            background: #59339d;
+        }
+        #auth-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 15px;
+            display: none;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+        #main-app {
+            display: none;
+        }
+    
+                body { background: #e9ecef; margin: 0; padding: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="newspaper-container lang-en" id="result-newspaper" style="display: block; margin: 40px auto;">
+            <div class="nyt-top-row">
+                <div class="nyt-slogan-box">
+                    "All the News<br>That's Nice to Post"
+                </div>
+                <div class="nyt-header">The Siam Times</div>
+            </div>
+            <div class="nyt-date-line"><span>VOL. I</span><span>BANGKOK, MONDAY, NOVEMBER 23, 2026</span><span>NO. 15</span></div>
+            
+            <div class="nyt-title" id="nyt-title-display">IELTS or TOEFL? What Test-Takers Need to Know in 2026</div>
+
+            <div class="nyt-content" id="nyt-body"><div class="nyt-inline-subheading">The TOEFL has been rebuilt, with a new 1-to-6 score scale and a shorter, adaptive format. IELTS has kept its familiar shape. Here is how the two compare, and how to prepare for either.</div><p>For Thai students applying to universities abroad, and for professionals chasing scholarships or overseas jobs, one question comes early: IELTS or TOEFL? This year the answer deserves fresh thought. In January 2026, the TOEFL iBT, run by the American nonprofit ETS, was overhauled. IELTS, owned jointly by the British Council, IDP and Cambridge University Press &amp; Assessment, has kept the format its test-takers know.</p><p>Here is what each test looks like now, and how to get ready for it.</p><p><strong>The new TOEFL</strong></p><p>Since 21 January 2026, the TOEFL iBT has had four sections: Reading, Listening, Writing and Speaking. ETS puts their length at about 30, 29, 23 and 8 minutes respectively, or roughly an hour and a half in all, and advises allowing about two hours for the whole session.</p><p>Reading and Listening are now multistage adaptive. Partway through each section, the test adjusts the difficulty of the questions that follow according to how well you are doing. As a result, the number of questions and the time taken can vary from one test-taker to the next.</p><p>The task types are new, too. Reading opens with “Complete the Words,” in which you restore the missing letters of words in a short passage, followed by “Read in Daily Life,” built on everyday texts such as notices and messages, and “Read an Academic Passage.” Listening adds short conversations, announcements and quick replies to the familiar academic talk.</p><p>Writing begins with “Build a Sentence,” in which you arrange words into a correct sentence, then moves on to “Write an Email” and “Write for an Academic Discussion.” Speaking now has just two task types: “Listen and Repeat” and “Take an Interview.”</p><p>Scores have changed as well. Each section, and the overall score, is reported on a scale of 1 to 6 in half-point steps, aligned with the Common European Framework of Reference for Languages (CEFR). The overall score is the average of the four sections, rounded to the nearest half point. For a two-year transition period, ETS also reports a comparable overall score on the old 0-to-120 scale that universities have used for years.</p><p><strong>IELTS: the familiar route</strong></p><p>IELTS comes in two versions. Academic is for university study and professional registration; General Training is mainly for migration and work. Both have four parts: Listening (about 30 minutes), Reading (60 minutes), Writing (60 minutes) and Speaking (11 to 14 minutes), for a total of about two hours and 45 minutes. Listening and Speaking are the same in both versions; Reading and Writing differ.</p><p>Scores run from 0 to 9 in half-band steps. Universities set their own requirements, and they vary widely by country, institution and course, though undergraduate entry commonly falls between 6.0 and 7.0 overall, often with a minimum for each section.</p><p>The Speaking test is a conversation with a trained examiner rather than answers recorded into a microphone, which many test-takers find more natural. In Thailand, IELTS is offered through the British Council and IDP in Bangkok and several provincial cities.</p><p><strong>Which one should you take?</strong></p><p>Start with the institution, not the test. Check exactly which tests and scores your target university, scholarship or employer accepts, and whether it has published requirements on the new TOEFL scale. Most universities in the United States, Britain, Australia and Canada accept both tests. Visa rules are stricter: some immigration routes accept only specific tests, so always confirm on the official government website before you book.</p><p>Then consider the format. The new TOEFL is shorter and rewards quick processing and accurate grammar under time pressure. IELTS allows more time per task and a face-to-face speaking test. Try the free official practice materials for both, and see which suits you.</p><p><strong>How to prepare</strong></p><p>Learn the format first. Many test-takers lose marks not because their English is weak but because they meet a task type for the first time on test day. Official materials from ETS, the British Council and IDP are the best place to start, especially for the new TOEFL, whose task types older preparation books do not cover.</p><p>Then build real skills rather than tricks.</p><p><b>Reading.</b> Practise skimming for the main idea and scanning for details, but also read widely every day: news, science and opinion. Speed comes from reading volume.</p><p><b>Listening.</b> Listen to podcasts, lectures and news at natural speed. Test yourself on details such as numbers, dates and names, which are often where marks are lost.</p><p><b>Writing.</b> Learn the structure each task expects, then write under timed conditions. Ask a teacher, or a reliable AI tool, to assess your work against the official band descriptors, which IELTS publishes. For TOEFL’s “Build a Sentence,” accuracy with word order, question forms and helping verbs matters most.</p><p><b>Speaking.</b> Record yourself answering practice questions and listen back. Examiners are trained to spot memorised answers, so practise speaking naturally rather than learning scripts. A clear, relevant answer with a few small errors beats a recited speech.</p><p><strong>On test day</strong></p><p>Sleep well, arrive early and bring the exact identity document you registered with, which for most test-takers is a passport. Manage your time: if you are stuck on a question, make your best guess and move on. Neither test deducts marks for wrong answers, so never leave a question blank.</p><p>Above all, give yourself time. Raising a score by half a band usually takes weeks or months of steady practice, not days. Book a test date that leaves room for at least one retake before your application deadline.</p></div>
+
+            <div class="nyt-footer" id="nyt-footer-display">© 2026 The Siam Times. All rights reserved. Images and referenced information remain the copyright of their respective sources as credited within the content.</div>
+        </div>
+        </body>
+        </html>
