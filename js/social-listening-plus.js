@@ -1,5 +1,5 @@
 /* social-listening-plus.js: finds more news, filters it better, and adds listening tools
- * to SocialListening3.html (EPO 11 / สคพ.11 environmental news monitor).
+ * to socialListening4.html (EPO 11 / สคพ.11 environmental news monitor).
  *
  * What it changes:
  *  - Searches every keyword in the selected topics (the page searched only the first 14 of
@@ -12,8 +12,9 @@
  *  - Groups the same story from several outlets, marks news that is new since the last scan,
  *    and shows live PM2.5 from the Pollution Control Department's Air4Thai stations.
  *
- * The pure logic lives in SocialListeningPlus (tested in test/social-listening.test.js);
- * the part at the bottom connects it to the page.
+ * The pure logic lives in SocialListeningPlus (tested in test/social-listening.test.js,
+ * run with `node --test test/social-listening.test.js`); the part at the bottom connects it to the page and is
+ * also used by the page for matching provinces in pasted news.
  */
 (function (global) {
   "use strict";
@@ -177,13 +178,19 @@
    *  (the Director-General of the Pollution Control Department is ดร.สุรินทร์ วรกิจธำรง). */
   var PERSON_TITLE = /(?:ดร\.|นาย|นาง|นางสาว|น\.ส\.|คุณ|ผศ\.|รศ\.|ศ\.|พล\.[ก-ฮ]\.|พ\.[ก-ฮ]\.[ก-ฮ]\.|ร\.[ก-ฮ]\.[ก-ฮ]\.|ส\.ส\.|ส\.ว\.|อธิบดี|ผู้ว่าฯ?)\s*$/;
 
+  /** Surnames of people often in the news whose given name is also a province name, so
+   *  "อธิบดีกรมควบคุมมลพิษ สุรินทร์ วรกิจธำรง" isn't read as Surin even without a title. */
+  var PERSON_SURNAME = /^\s*(?:วรกิจธำรง)/;
+
   /** Position of a place name, skipping places where it's someone's name. */
   function placeIndex(text, name) {
     var from = 0;
     while (true) {
       var i = text.indexOf(name, from);
       if (i < 0) return -1;
-      if (!PERSON_TITLE.test(text.slice(Math.max(0, i - 12), i))) return i;
+      var isPerson = PERSON_TITLE.test(text.slice(Math.max(0, i - 12), i)) ||
+                     PERSON_SURNAME.test(text.slice(i + name.length, i + name.length + 20));
+      if (!isPerson) return i;
       from = i + name.length;
     }
   }
@@ -517,6 +524,7 @@
     var btn = document.getElementById("btnAutoFetch");
 
     if (!currentState.selectedProvinces.length) { showToast("กรุณาเลือกจังหวัดอย่างน้อย 1 จังหวัด", "warning"); return; }
+    if (btn.disabled) return;   // a scan is already running
 
     var tf = TIMEFRAMES[currentState.timeframe];
     var mode = currentState.scanMode || "quick";
@@ -531,8 +539,11 @@
     var settings = { vocab: SLP.buildVocabulary(TOPIC_CONFIG, custom), cutoff: Date.now() - tf.hours * 3600 * 1000 };
     var seen = loadSeen();
     var raw = [], rawLinks = Object.create(null);
-    var total = queue.length, done = 0, failed = 0, splits = 0;
+    var total = queue.length, done = 0, failed = 0, splits = 0, aborted = false;
     var lastRender = 0, renderTimer = null;
+    // If the fetch service is down, keep what was on screen rather than replacing it with nothing.
+    var previous = { items: currentState.newsItems, ai: currentState.aiExecutiveSummaryHtml,
+                     aiData: currentState.aiData, timeframe: currentState.dataTimeframe };
 
     banner.classList.remove("hidden");
     btn.disabled = true;
@@ -544,22 +555,30 @@
       lastRender = Date.now();
       var items = buildItems(raw, settings, seen);
       currentState.newsItems = items;
+      currentState.dataTimeframe = currentState.timeframe;
       currentState.aiExecutiveSummaryHtml = null;
+      currentState.aiData = null;
       renderDashboard();
       return items;
     }
     function scheduleRender() {
-      if (renderTimer) return;
+      if (renderTimer || !raw.length) return;
       var wait = Math.max(0, 1500 - (Date.now() - lastRender));
       renderTimer = setTimeout(function () { renderTimer = null; render(false); }, wait);
     }
+    async function fetchOnce(url) {
+      try { return await fetchRssXmlWithFallback(url); } catch (e) { return null; }
+    }
 
     async function worker() {
-      while (queue.length) {
+      while (queue.length && !aborted) {
         var search = queue.shift();
         var url = "https://news.google.com/rss/search?q=" + encodeURIComponent(search.query) + "&hl=th&gl=TH&ceid=TH:th";
-        var result = null;
-        try { result = await fetchRssXmlWithFallback(url); } catch (e) { result = null; }
+        var result = await fetchOnce(url);
+        if (!result && !aborted) {
+          await new Promise(function (r) { setTimeout(r, 800); });
+          result = await fetchOnce(url);   // one retry: the service sometimes drops a request
+        }
         if (!result) {
           failed++;
         } else {
@@ -575,7 +594,9 @@
           });
         }
         done++;
-        progBadge.textContent = "ค้นแล้ว " + done + "/" + total + " ชุดคำค้น";
+        progBadge.textContent = "ค้นแล้ว " + done + "/" + total + " ชุดคำค้น" + (failed ? " (ไม่สำเร็จ " + failed + ")" : "");
+        // Nothing is getting through: stop instead of waiting for every search to time out.
+        if (done >= 2 * PARALLEL_SEARCHES && failed === done) aborted = true;
         scheduleRender();
       }
     }
@@ -585,6 +606,16 @@
       for (var i = 0; i < PARALLEL_SEARCHES; i++) workers.push(worker());
       await Promise.all(workers);
       if (renderTimer) { clearTimeout(renderTimer); renderTimer = null; }
+      if (failed === done) {
+        currentState.newsItems = previous.items;
+        currentState.aiExecutiveSummaryHtml = previous.ai;
+        currentState.aiData = previous.aiData;
+        currentState.dataTimeframe = previous.timeframe;
+        renderDashboard();
+        showToast("เชื่อมต่อบริการดึงข่าวไม่สำเร็จ (" + failed + " ชุดคำค้น) ยังแสดงข่าวชุดเดิมอยู่ " +
+                  "กรุณาลองใหม่ภายหลัง หรือเปิด Google News แล้วก๊อปปี้มาวางแทน", "error");
+        return;
+      }
       var items = render(true);
       var newCount = items.filter(function (x) { return x.isNew; }).length;
       var reports = items.reduce(function (n, x) { return n + (x.outlets ? x.outlets.length : 1); }, 0);
@@ -594,8 +625,8 @@
                   (failed ? " • ค้นไม่สำเร็จ " + failed + " ชุด" : ""), "success");
         document.getElementById("dashboardSection").scrollIntoView({ behavior: "smooth", block: "start" });
       } else {
-        showToast(failed === done ? "เชื่อมต่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" :
-                  "ไม่พบข่าวสิ่งแวดล้อมในพื้นที่ช่วงนี้ ลองขยายห้วงเวลาหรือใช้การค้นหาแบบละเอียด", "warning");
+        showToast("ไม่พบข่าวสิ่งแวดล้อมในพื้นที่ช่วงนี้ ลองขยายห้วงเวลาหรือใช้การค้นหาแบบละเอียด" +
+                  (failed ? " (ค้นไม่สำเร็จ " + failed + " ชุด)" : ""), "warning");
       }
     } catch (err) {
       console.error(err);
