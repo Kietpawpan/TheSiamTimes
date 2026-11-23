@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>The Siam Times</title>
+            <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Lora&family=Playfair+Display:wght@400;900&family=Pridi:wght@700&family=Sarabun:wght@400;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+            <style>
+                
+        body { 
+            font-family: Lora; 
+            background: #e9ecef; 
+            padding: 20px; 
+            margin: 0;
+            color: #212529;
+        }
+        h2 { 
+            text-align: center; 
+            color: #343a40; 
+            font-family: 'Playfair Display';
+        }
+        
+        /* Loader Styles */
+        .loader-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+        .spinner {
+            border: 6px solid #e9ecef;
+            border-top: 6px solid #6f42c1;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        .loader-text { 
+            margin-top: 20px; 
+            font-weight: bold; 
+            font-family: 'Sarabun', sans-serif; 
+            color: #495057;
+            font-size: 18px;
+        }
+
+        .container { 
+            display: flex; 
+            gap: 20px; 
+            margin-bottom: 20px; 
+        }
+        .box { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        textarea { 
+            width: 100%; 
+            height: 250px; 
+            padding: 12px; 
+            font-size: 16px; 
+            border: 1px solid #ced4da; 
+            border-radius: 8px; 
+            resize: vertical; 
+            box-sizing: border-box;
+            line-height: 1.6;
+            font-family: Lora;
+        }
+        
+        .ai-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .ai-controls select, .ai-controls input[type="file"], .ai-controls input[type="text"] {
+            padding: 8px 10px;
+            font-size: 15px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            font-family: Lora;
+            background: #f8f9fa;
+        }
+        
+        .btn-ai {
+            background: #6f42c1;
+            padding: 10px 20px;
+            align-self: flex-end;
+            margin-top: 15px; 
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .btn-ai:hover {
+            background: #59339d;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        button { 
+            padding: 12px 25px; 
+            font-size: 16px; 
+            font-weight: bold;
+            cursor: pointer; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .btn-proofread { background: #0d6efd; }
+        .btn-proofread:hover { background: #0b5ed7; }
+        .btn-nyt { background: #212529; font-family: 'Playfair Display'; }
+        .btn-nyt:hover { background: #f8f9fa; color: #212529; border: 1px solid #212529; }
+        .btn-thai { background: #b91d1d; font-family: 'Sarabun'; }
+        .btn-thai:hover { background: #f8f9fa; color: #b91d1d; border: 1px solid #b91d1d; }
+        
+        .result-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px #0000000d; 
+            min-height: 200px; 
+            font-size: 18px; 
+            line-height: 2; 
+            white-space: pre-wrap;
+            display: block; 
+        }
+        del { text-decoration: line-through; color: #dc3545; background: #f8d7da; padding: 2px 4px; border-radius: 4px; }
+        ins { text-decoration: none; color: #198754; background: #d1e7dd; padding: 2px 4px; border-bottom: 2px dashed #198754; font-weight: bold; }
+        
+        .newspaper-container {
+            background: #fdfbf7; 
+            padding: 40px 60px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 10px 30px #0000001a;
+            display: none; 
+            max-width: 1000px;
+            margin: 0 auto;
+            color: #212529;
+            position: relative;
+        }
+
+        .nyt-top-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        @font-face {
+            font-family: 'Chomsky';
+            src: url('Chomsky.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .nyt-slogan-box {
+            position: absolute;
+            left: 0;
+            border: 1px solid #212529;
+            padding: 16px 18px;
+            font-family: Lora, 'Chomsky';
+            font-size: 11px;
+            text-align: center;
+            font-style: normal;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .nyt-header { text-align: center; font-family: 'Chomsky'; font-size: 70px; color: #212529; line-height: 1; }
+        .nyt-date-line { font-family: Lora; font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; border-top: 1px solid #212529; border-bottom: 2px solid #212529; padding: 8px 0; margin-bottom: 35px; font-weight: bold; letter-spacing: 1px; }
+        .nyt-title { font-family: 'Newsreader'; font-size: 52px; font-weight: 900; line-height: 1.1; text-align: left; margin-top: 0; margin-bottom: 20px; }
+        
+        .nyt-image-container {
+            margin: 5px 0 15px 0;
+            text-align: center;
+            break-inside: avoid;
+            width: 100%;
+        }
+
+        .nyt-image {
+            max-width: 100%;
+            height: auto;
+            box-sizing: border-box;
+        }
+        
+        .nyt-image-caption {
+            text-align: left;
+            font-size: 13px;
+            margin-top: 8px;
+            color: #495057;
+            font-family: inherit;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .nyt-content { font-family: Newsreader; font-size: 16px; line-height: 1.7; column-count: 3; column-gap: 25px; column-rule: 3px solid #6c757d; text-align: justify; }
+        .nyt-content p { margin-top: 0; margin-bottom: 1.2em; text-indent: 2em; }
+        
+        .nyt-inline-subheading {
+            font-family: 'Newsreader';
+            font-size: 20px;
+            text-align: center;
+            padding: 10px 0;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            break-inside: avoid;
+            position: relative;
+        }
+        
+        .nyt-inline-subheading::before,
+        .nyt-inline-subheading::after {
+            content: '';
+            position: absolute;
+            left: 25%;
+            width: 50%;
+            height: 1px;
+            background-color: #6c757d;
+        }
+        
+        .nyt-inline-subheading::before { top: 0; }
+        .nyt-inline-subheading::after { bottom: 0; }
+
+        .nyt-footer {
+            text-align: left;
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 30px;
+            padding-top: 10px;
+            font-style: italic;
+        }
+        
+        .lang-th .nyt-header { font-family: 'Chonburi'; font-size: 55px; }
+        .lang-th .nyt-date-line { font-family: 'Sarabun'; font-size: 14px; }
+        .lang-th .nyt-title { font-family: 'Pridi'; font-size: 44px;}
+        .lang-th .nyt-content { font-family: 'Sarabun'; font-size: 18px; }
+        .lang-th .nyt-image-caption { font-size: 16px; font-family: 'Sarabun'; }
+        .lang-th .nyt-inline-subheading { font-family: 'Pridi'; font-size: 22px; font-weight: 700; }
+        .lang-th .nyt-slogan-box { display: none; }
+        .lang-th .nyt-footer { font-family: 'Sarabun'; }
+        .lang-en .nyt-footer { font-family: Lora; }
+
+        @media screen and (max-width: 768px) {
+            .container { flex-direction: column; }
+            .ai-controls { align-items: stretch; padding: 20px; }
+            .control-group { width: 100%; margin-bottom: 5px;}
+            .btn-ai { width: 100%; margin-top: 10px; }
+            .btn-group { flex-direction: column; width: 100%; }
+            .btn-group button { width: 100%; }
+            
+            .newspaper-container { padding: 20px; }
+            .nyt-content { column-count: 1; text-align: left; }
+            .nyt-content p { text-indent: 1.5em; }
+            .nyt-slogan-box { display: none; }
+            .nyt-header { font-size: 45px; }
+            .lang-th .nyt-header { font-size: 40px; }
+            .nyt-title { font-size: 36px; text-align: center; }
+            .lang-th .nyt-title { font-size: 32px; }
+            .nyt-date-line { font-size: 10px; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+        }
+
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .box-header label {
+            margin-bottom: 0;
+        }
+        .btn-action-group {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-copy {
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #198754;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px #0000001a;
+        }
+        .btn-copy:hover {
+            background: #157347;
+        }
+        .btn-fetch {
+            background: #0d6efd;
+        }
+        .btn-fetch:hover {
+            background: #0b5ed7;
+        }
+        .btn-clear {
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px #0000001a;
+        }
+        .btn-clear:hover {
+            background: #bb2d3b;
+        }
+
+        /* Styles for Popup (Dialog) & Info Button */
+        .info-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 6px;
+            color: #6c757d; 
+            vertical-align: middle;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.3s;
+            box-shadow: none;
+        }
+        .info-button:hover { 
+            color: #212529; 
+            background: transparent;
+        }
+        .info-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        dialog.credit-popup {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #212529;
+            text-align: left;
+        }
+        
+        dialog.credit-popup::backdrop { background: rgba(0, 0, 0, 0.6); }
+        .close-button {
+            margin-top: 15px;
+            padding: 8px 12px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .close-button:hover { background: #555; }
+
+        /* Authentication Overlay Styles */
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px #0000001a;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            font-family: Lora;
+        }
+        .auth-box h2 {
+            margin-top: 0;
+            color: #343a40;
+            font-family: 'Playfair Display';
+        }
+        .auth-box p {
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            font-family: Lora;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        .auth-box button {
+            width: 100%;
+            background: #6f42c1;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px #0000001a;
+            transition: all 0.3s;
+        }
+        .auth-box button:hover {
+            background: #59339d;
+        }
+        #auth-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 15px;
+            display: none;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+        #main-app {
+            display: none;
+        }
+    
+                body { background: #e9ecef; margin: 0; padding: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="newspaper-container lang-en" id="result-newspaper" style="display: block; margin: 40px auto;">
+            <div class="nyt-top-row">
+                <div class="nyt-slogan-box">
+                    "All the News<br>That's Nice to Post"
+                </div>
+                <div class="nyt-header">The Siam Times</div>
+            </div>
+            <div class="nyt-date-line"><span>VOL. I</span><span>BANGKOK, MONDAY, NOVEMBER 23, 2026</span><span>NO. 11</span></div>
+            
+            <div class="nyt-title" id="nyt-title-display">Words You Know, Words You Use: How to Build a Vocabulary That Works</div>
+
+            <div class="nyt-content" id="nyt-body"><div class="nyt-inline-subheading">Learning more words matters less than learning how they behave. Collocations, word families and a little spaced repetition go further than any word list.</div><p>How many English words do you need? Research offers a surprisingly precise answer. In 2006, the New Zealand linguist Paul Nation estimated that to read a novel or a newspaper comfortably, without constant trips to the dictionary, a reader needs to know about 98 percent of the words on the page. Reaching that level takes a vocabulary of roughly 8,000 to 9,000 word families. Following spoken English takes about 6,000 to 7,000.</p><p>A word family is a base word and its relatives: <i>decide</i>, <i>decision</i>, <i>decisive</i>, <i>decisively</i>, <i>undecided</i>. Learn one member properly, and you have a head start on the rest.</p><p>Those numbers sound daunting, but the effort pays off quickly. The most frequent 2,000 word families make up roughly four of every five words in ordinary written English. For students, the Academic Word List, compiled by the New Zealand researcher Averil Coxhead in 2000, adds 570 word families, such as <i>analyse</i>, <i>significant</i> and <i>context</i>, that account for about one word in ten in academic texts. Learn the common words first and the academic ones next, and most reading becomes manageable.</p><p><strong>Learn words in pairs and phrases</strong></p><p>Native speakers do not choose words one at a time. They reach for ready-made combinations called collocations. We <i>make</i> a decision but <i>do</i> our homework; we <i>take</i> a photo, <i>catch</i> a cold and <i>pay</i> attention.</p><p>Direct translation from Thai produces some typical collocation errors. กินยา becomes “eat medicine” when English says <i>take medicine</i>. เปิดไฟ becomes “open the light” when English says <i>turn on</i> or <i>switch on</i> the light. ปิดทีวี becomes “close the TV” when English says <i>turn off</i> the TV.</p><p>When you look up a word, note what it travels with. Good learner’s dictionaries, including the free online versions from Oxford, Cambridge, Longman and Collins, list collocations and example sentences. Write down the whole phrase, not just the word.</p><p><strong>Beware of Thinglish</strong></p><p>Thai has borrowed hundreds of English words, and many changed meaning along the way. These false friends are easy to use and easy to misunderstand.</p><p><b>Mansion.</b> In Thai, แมนชั่น is a modest apartment building. In English, a mansion is a very large and expensive house.</p><p><b>Sale.</b> In Thai, เซลล์ is a salesperson. In English, a sale is an event or a transaction. The person is a <i>salesperson</i> or a <i>sales representative</i>.</p><p><b>Fitness.</b> In Thai, ฟิตเนส is a gym. In English, fitness is the state of being fit. You go to the gym to improve your fitness.</p><p><b>Over.</b> In Thai, โอเวอร์ means exaggerated. In English, “over” on its own means finished: “The meeting is over.” For the Thai meaning, say <i>over the top</i> or <i>exaggerated</i>.</p><p><b>Service mind.</b> Widely understood in Thailand, the phrase is unknown elsewhere. Try <i>customer-focused</i> or <i>eager to help</i>.</p><p>These words are not wrong in Thai conversation. The trouble starts when they slip into English written for an international reader.</p><p><strong>Use spaced repetition</strong></p><p>In 1885, the German psychologist Hermann Ebbinghaus described the forgetting curve: we forget new information quickly unless we review it, and each review slows the forgetting. Spaced repetition puts this to work. You review a word just before you are likely to forget it, at growing intervals: after a day, three days, a week, a month.</p><p>The simplest version needs only paper. The Leitner system, devised by the German science writer Sebastian Leitner in the 1970s, uses flashcards sorted into numbered boxes. A card you get right moves up a box and is reviewed less often; a card you miss goes back to the first box. Flashcard apps such as Anki handle the scheduling automatically.</p><p>Put a whole sentence on each card, not just a translation. “หนัก = heavy” teaches less than “We had heavy rain last night.”</p><p><strong>Read for pleasure, and read a lot</strong></p><p>Flashcards fix words in memory; reading is where you meet them. Researchers call the approach extensive reading: reading large amounts of easy, enjoyable material rather than small amounts of difficult text. Choose books and articles in which you know nearly every word, so that the few new ones can be guessed from context. Graded readers, written for learners at each level, are ideal.</p><p>A new word usually needs many encounters before it sticks, and only wide reading supplies them. Ten pages a day of a book you enjoy will do more for your vocabulary than an hour with a list you dread.</p><p><strong>From knowing to using</strong></p><p>There is a gap between the words you recognise and the words you use. To close it, put new words to work. Use each one in a sentence of your own on the day you learn it, then again in your next email, essay or conversation.</p><p>Notice register, too. <i>Commence</i> and <i>begin</i> mean the same thing, but one belongs in a legal notice and the other almost everywhere else. A dictionary will usually mark words as formal, informal or old-fashioned.</p><p>Finally, prefer precise words to impressive ones. A good vocabulary is not a collection of rare words. It is the ability to find the exact word, and that word is often a short one.</p></div>
+
+            <div class="nyt-footer" id="nyt-footer-display">© 2026 The Siam Times. All rights reserved. Images and referenced information remain the copyright of their respective sources as credited within the content.</div>
+        </div>
+        </body>
+        </html>

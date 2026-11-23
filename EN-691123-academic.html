@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>The Siam Times</title>
+            <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Lora&family=Playfair+Display:wght@400;900&family=Pridi:wght@700&family=Sarabun:wght@400;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+            <style>
+                
+        body { 
+            font-family: Lora; 
+            background: #e9ecef; 
+            padding: 20px; 
+            margin: 0;
+            color: #212529;
+        }
+        h2 { 
+            text-align: center; 
+            color: #343a40; 
+            font-family: 'Playfair Display';
+        }
+        
+        /* Loader Styles */
+        .loader-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+        .spinner {
+            border: 6px solid #e9ecef;
+            border-top: 6px solid #6f42c1;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        .loader-text { 
+            margin-top: 20px; 
+            font-weight: bold; 
+            font-family: 'Sarabun', sans-serif; 
+            color: #495057;
+            font-size: 18px;
+        }
+
+        .container { 
+            display: flex; 
+            gap: 20px; 
+            margin-bottom: 20px; 
+        }
+        .box { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        textarea { 
+            width: 100%; 
+            height: 250px; 
+            padding: 12px; 
+            font-size: 16px; 
+            border: 1px solid #ced4da; 
+            border-radius: 8px; 
+            resize: vertical; 
+            box-sizing: border-box;
+            line-height: 1.6;
+            font-family: Lora;
+        }
+        
+        .ai-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .ai-controls select, .ai-controls input[type="file"], .ai-controls input[type="text"] {
+            padding: 8px 10px;
+            font-size: 15px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            font-family: Lora;
+            background: #f8f9fa;
+        }
+        
+        .btn-ai {
+            background: #6f42c1;
+            padding: 10px 20px;
+            align-self: flex-end;
+            margin-top: 15px; 
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .btn-ai:hover {
+            background: #59339d;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        button { 
+            padding: 12px 25px; 
+            font-size: 16px; 
+            font-weight: bold;
+            cursor: pointer; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 6px #0000001a;
+        }
+        .btn-proofread { background: #0d6efd; }
+        .btn-proofread:hover { background: #0b5ed7; }
+        .btn-nyt { background: #212529; font-family: 'Playfair Display'; }
+        .btn-nyt:hover { background: #f8f9fa; color: #212529; border: 1px solid #212529; }
+        .btn-thai { background: #b91d1d; font-family: 'Sarabun'; }
+        .btn-thai:hover { background: #f8f9fa; color: #b91d1d; border: 1px solid #b91d1d; }
+        
+        .result-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px #0000000d; 
+            min-height: 200px; 
+            font-size: 18px; 
+            line-height: 2; 
+            white-space: pre-wrap;
+            display: block; 
+        }
+        del { text-decoration: line-through; color: #dc3545; background: #f8d7da; padding: 2px 4px; border-radius: 4px; }
+        ins { text-decoration: none; color: #198754; background: #d1e7dd; padding: 2px 4px; border-bottom: 2px dashed #198754; font-weight: bold; }
+        
+        .newspaper-container {
+            background: #fdfbf7; 
+            padding: 40px 60px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 10px 30px #0000001a;
+            display: none; 
+            max-width: 1000px;
+            margin: 0 auto;
+            color: #212529;
+            position: relative;
+        }
+
+        .nyt-top-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        @font-face {
+            font-family: 'Chomsky';
+            src: url('Chomsky.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .nyt-slogan-box {
+            position: absolute;
+            left: 0;
+            border: 1px solid #212529;
+            padding: 16px 18px;
+            font-family: Lora, 'Chomsky';
+            font-size: 11px;
+            text-align: center;
+            font-style: normal;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .nyt-header { text-align: center; font-family: 'Chomsky'; font-size: 70px; color: #212529; line-height: 1; }
+        .nyt-date-line { font-family: Lora; font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; border-top: 1px solid #212529; border-bottom: 2px solid #212529; padding: 8px 0; margin-bottom: 35px; font-weight: bold; letter-spacing: 1px; }
+        .nyt-title { font-family: 'Newsreader'; font-size: 52px; font-weight: 900; line-height: 1.1; text-align: left; margin-top: 0; margin-bottom: 20px; }
+        
+        .nyt-image-container {
+            margin: 5px 0 15px 0;
+            text-align: center;
+            break-inside: avoid;
+            width: 100%;
+        }
+
+        .nyt-image {
+            max-width: 100%;
+            height: auto;
+            box-sizing: border-box;
+        }
+        
+        .nyt-image-caption {
+            text-align: left;
+            font-size: 13px;
+            margin-top: 8px;
+            color: #495057;
+            font-family: inherit;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .nyt-content { font-family: Newsreader; font-size: 16px; line-height: 1.7; column-count: 3; column-gap: 25px; column-rule: 3px solid #6c757d; text-align: justify; }
+        .nyt-content p { margin-top: 0; margin-bottom: 1.2em; text-indent: 2em; }
+        
+        .nyt-inline-subheading {
+            font-family: 'Newsreader';
+            font-size: 20px;
+            text-align: center;
+            padding: 10px 0;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            break-inside: avoid;
+            position: relative;
+        }
+        
+        .nyt-inline-subheading::before,
+        .nyt-inline-subheading::after {
+            content: '';
+            position: absolute;
+            left: 25%;
+            width: 50%;
+            height: 1px;
+            background-color: #6c757d;
+        }
+        
+        .nyt-inline-subheading::before { top: 0; }
+        .nyt-inline-subheading::after { bottom: 0; }
+
+        .nyt-footer {
+            text-align: left;
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 30px;
+            padding-top: 10px;
+            font-style: italic;
+        }
+        
+        .lang-th .nyt-header { font-family: 'Chonburi'; font-size: 55px; }
+        .lang-th .nyt-date-line { font-family: 'Sarabun'; font-size: 14px; }
+        .lang-th .nyt-title { font-family: 'Pridi'; font-size: 44px;}
+        .lang-th .nyt-content { font-family: 'Sarabun'; font-size: 18px; }
+        .lang-th .nyt-image-caption { font-size: 16px; font-family: 'Sarabun'; }
+        .lang-th .nyt-inline-subheading { font-family: 'Pridi'; font-size: 22px; font-weight: 700; }
+        .lang-th .nyt-slogan-box { display: none; }
+        .lang-th .nyt-footer { font-family: 'Sarabun'; }
+        .lang-en .nyt-footer { font-family: Lora; }
+
+        @media screen and (max-width: 768px) {
+            .container { flex-direction: column; }
+            .ai-controls { align-items: stretch; padding: 20px; }
+            .control-group { width: 100%; margin-bottom: 5px;}
+            .btn-ai { width: 100%; margin-top: 10px; }
+            .btn-group { flex-direction: column; width: 100%; }
+            .btn-group button { width: 100%; }
+            
+            .newspaper-container { padding: 20px; }
+            .nyt-content { column-count: 1; text-align: left; }
+            .nyt-content p { text-indent: 1.5em; }
+            .nyt-slogan-box { display: none; }
+            .nyt-header { font-size: 45px; }
+            .lang-th .nyt-header { font-size: 40px; }
+            .nyt-title { font-size: 36px; text-align: center; }
+            .lang-th .nyt-title { font-size: 32px; }
+            .nyt-date-line { font-size: 10px; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+        }
+
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .box-header label {
+            margin-bottom: 0;
+        }
+        .btn-action-group {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-copy {
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #198754;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px #0000001a;
+        }
+        .btn-copy:hover {
+            background: #157347;
+        }
+        .btn-fetch {
+            background: #0d6efd;
+        }
+        .btn-fetch:hover {
+            background: #0b5ed7;
+        }
+        .btn-clear {
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px #0000001a;
+        }
+        .btn-clear:hover {
+            background: #bb2d3b;
+        }
+
+        /* Styles for Popup (Dialog) & Info Button */
+        .info-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 6px;
+            color: #6c757d; 
+            vertical-align: middle;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.3s;
+            box-shadow: none;
+        }
+        .info-button:hover { 
+            color: #212529; 
+            background: transparent;
+        }
+        .info-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        dialog.credit-popup {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #212529;
+            text-align: left;
+        }
+        
+        dialog.credit-popup::backdrop { background: rgba(0, 0, 0, 0.6); }
+        .close-button {
+            margin-top: 15px;
+            padding: 8px 12px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .close-button:hover { background: #555; }
+
+        /* Authentication Overlay Styles */
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #e9ecef;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px #0000001a;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            font-family: Lora;
+        }
+        .auth-box h2 {
+            margin-top: 0;
+            color: #343a40;
+            font-family: 'Playfair Display';
+        }
+        .auth-box p {
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            font-family: Lora;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        .auth-box button {
+            width: 100%;
+            background: #6f42c1;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px #0000001a;
+            transition: all 0.3s;
+        }
+        .auth-box button:hover {
+            background: #59339d;
+        }
+        #auth-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 15px;
+            display: none;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+        #main-app {
+            display: none;
+        }
+    
+                body { background: #e9ecef; margin: 0; padding: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="newspaper-container lang-en" id="result-newspaper" style="display: block; margin: 40px auto;">
+            <div class="nyt-top-row">
+                <div class="nyt-slogan-box">
+                    "All the News<br>That's Nice to Post"
+                </div>
+                <div class="nyt-header">The Siam Times</div>
+            </div>
+            <div class="nyt-date-line"><span>VOL. I</span><span>BANGKOK, MONDAY, NOVEMBER 23, 2026</span><span>NO. 16</span></div>
+            
+            <div class="nyt-title" id="nyt-title-display">Writing for the Academy: How to Turn Research Into Papers That Get Read</div>
+
+            <div class="nyt-content" id="nyt-body"><div class="nyt-inline-subheading">Academic English has its own rules, from careful hedging to strict citation. Mastering them can be the difference between a rejected manuscript and a published one.</div><p>Every year, thousands of Thai graduate students face the same hurdle. Their research is finished and their data are sound, but a degree or a promotion depends on publishing the work, whether in a journal indexed by the Thai-Journal Citation Index (TCI) Centre or in an international one. The science is done. The writing is not.</p><p>Academic writing is a genre with its own conventions. Reviewers expect a particular structure, a cautious tone and meticulous attribution. Learn the conventions, and your ideas get a fair hearing.</p><p><strong>Follow the structure</strong></p><p>Most research papers in the sciences and social sciences follow a pattern known as IMRaD: Introduction, Methods, Results and Discussion. Each section answers one question.</p><p><b>Introduction:</b> Why does this matter, and what gap does the study fill? Move from the general to the specific, ending with your research question or aim.</p><p><b>Methods:</b> What did you do? Give enough detail for another researcher to repeat the study.</p><p><b>Results:</b> What did you find? Report the findings without interpreting them.</p><p><b>Discussion:</b> What does it mean? Interpret the results, compare them with earlier studies, acknowledge the limitations and suggest what should come next.</p><p>The abstract, written last, summarises all four sections, usually in 150 to 250 words. Many readers will read nothing else, so make every sentence count.</p><p><strong>Hedge your claims</strong></p><p>Academic writers rarely say that something is proven. They say the evidence suggests, indicates or appears to show it. This is called hedging, and it reflects honesty about what a single study can establish.</p><p><i>Overclaiming: This proves that the new filter removes all microplastics.</i></p><p><i>Hedged: These results suggest that the new filter can remove most microplastics under laboratory conditions.</i></p><p>Useful hedging words include <i>may</i>, <i>might</i>, <i>could</i>, <i>likely</i>, <i>appears</i>, <i>suggests</i>, <i>tends to</i> and <i>to some extent</i>. But hedge only as much as the evidence requires. A paper in which every sentence is qualified sounds as though its author believes nothing.</p><p><strong>Cite everything you borrow</strong></p><p>Every idea, finding or phrase that is not your own needs a citation. The style depends on the field and the journal. APA, now in its seventh edition, is common in the social sciences and education; IEEE is widely used in engineering; and Vancouver is standard in much of medicine. Check the journal’s author guidelines before you begin, and use a reference manager such as Zotero or Mendeley to keep citations consistent.</p><p><strong>Paraphrase properly</strong></p><p>Plagiarism is not only copying whole paragraphs. Swapping a few words in someone else’s sentence, a habit known as patchwriting, is also a problem. Thai universities routinely screen theses with tools such as Turnitin and Akarawisut (อักขราวิสุทธิ์), the plagiarism checker developed at Chulalongkorn University.</p><p>To paraphrase well, read the source, close it and write the idea from memory, in your own words and your own sentence structure. Then compare your version with the original to check its accuracy, and cite the source. If the original wording is essential, quote it exactly, in quotation marks.</p><p><strong>Write with precision</strong></p><p>Academic English values precision over decoration. Define key terms when you first use them, then use the same term for the same thing throughout. Switching between “participants,” “respondents” and “subjects” for variety will confuse readers, who may wonder whether you mean three different groups.</p><p>Report numbers exactly and with units, and make sure the figures in your text match those in your tables.</p><p>Conventions on the passive voice have shifted. Methods sections still use it widely (“Samples were collected from 12 sites”), but many journals now welcome the active voice with “we” elsewhere. “We found that…” is clearer than “It was found that…”</p><p>And a small question that comes up often: is <i>data</i> singular or plural? Traditionally it is plural (“the data are”), and many scientific journals still prefer that. In everyday and some technical writing, the singular (“the data is”) is now widely accepted. Follow the journal’s style.</p><p><strong>Use AI responsibly</strong></p><p>AI tools can polish grammar, suggest clearer phrasing and check consistency. Most publishers allow this kind of help but expect authors to disclose substantial use, and none accept an AI as an author. Never let an AI produce your citations without checking each one: these tools can invent references that look plausible but do not exist. Your name on the paper means you are responsible for every word in it.</p><p><strong>Revise in rounds</strong></p><p>Revise in layers. First check the argument: does each section answer its question? Then check the paragraphs: does each begin with a clear topic sentence? Only then turn to the sentences, including grammar, word choice and punctuation.</p><p>Finally, ask a colleague from outside your field to read the introduction. If they cannot explain your research question back to you, the reviewers may struggle, too.</p></div>
+
+            <div class="nyt-footer" id="nyt-footer-display">© 2026 The Siam Times. All rights reserved. Images and referenced information remain the copyright of their respective sources as credited within the content.</div>
+        </div>
+        </body>
+        </html>
