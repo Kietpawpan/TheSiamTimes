@@ -292,6 +292,7 @@
         .hs-item .main { min-width: 0; }
         .hs-item .dist { font-weight: 700; font-variant-numeric: tabular-nums; }
         .hs-item .sub { font-size: 12px; color: var(--muted); }
+        .hs-item .nw, .empty .nw { white-space: nowrap; }
         .hs-item a {
             color: #0b1f08;
             background: var(--accent);
@@ -383,7 +384,7 @@
         }
         /* เลนส์โปร่งแสงสีเขียว */
         .visor-lens {
-            position: relative; margin-left: 10%; aspect-ratio: 5 / 3.4; overflow: hidden;
+            position: relative; margin-left: 10%; aspect-ratio: 5 / 3.8; overflow: hidden;
             border-radius: 18% 46% 40% 22% / 26% 44% 48% 30%;
             border: 5px solid #2b3136;
             background:
@@ -436,6 +437,9 @@
         .visor-main .lbl { opacity: 0.75; }
         .visor-main .warn { color: #ffef6b; }
         .visor-main a { color: #ffef6b; font-weight: 700; }
+        .visor-main .wind { color: #c4f1ff; text-shadow: 0 0 6px rgba(140, 220, 255, 0.75); }
+        .visor-main .wind-arrow { display: inline-block; font-weight: 800; transition: transform 0.4s ease-out; }
+        .visor-main .nw { white-space: nowrap; }
         .visor-meter { display: flex; gap: 3px; margin: 3px 0 2px; }
         .visor-meter i { flex: 1; height: 7px; border: 1px solid rgba(200, 255, 190, 0.6); }
         .visor-meter i.on { background: #c8ffbf; box-shadow: 0 0 6px rgba(160, 255, 160, 0.9); }
@@ -446,7 +450,7 @@
         }
         .visor-actions { display: flex; gap: 10px; width: min(94vw, 560px); }
         @media (max-width: 600px) {
-            .visor-lens { aspect-ratio: 1 / 1.02; border-radius: 16% 34% 30% 18% / 16% 26% 30% 22%; }
+            .visor-lens { aspect-ratio: 1 / 1.1; border-radius: 16% 34% 30% 18% / 16% 26% 30% 22%; }
             .visor-reticle { width: 26%; right: 8%; top: 12%; transform: none; }
             .visor-hud { inset: 6% 7% 7% 9%; }
             .visor-top { padding-right: 16%; } /* นาฬิกาพ้นขอบโค้งมุมขวาบน */
@@ -484,13 +488,14 @@
         #pdfReport .pdf-tile .v { font-size: 16pt; font-weight: 700; line-height: 1.3; }
         #pdfReport .pdf-tile .n { font-size: 8pt; color: #6b7280; line-height: 1.3; }
         #pdfReport table.pdf-table { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 4px 0 8px; }
-        #pdfReport .pdf-table th { text-align: left; font-weight: 700; color: #374151; border-bottom: 1.5px solid #374151; padding: 4px 5px; vertical-align: bottom; }
-        #pdfReport .pdf-table td { border-bottom: 1px solid #e5e7eb; padding: 3px 5px; vertical-align: top; }
+        #pdfReport .pdf-table th { text-align: left; font-weight: 700; color: #374151; border-bottom: 1.5px solid #374151; padding: 4px 4px; vertical-align: bottom; }
+        #pdfReport .pdf-table td { border-bottom: 1px solid #e5e7eb; padding: 3px 4px; vertical-align: top; }
         #pdfReport .pdf-table tr { break-inside: avoid; page-break-inside: avoid; }
         #pdfReport .pdf-table thead { display: table-header-group; }
         #pdfReport .pdf-table.meta td { border: none; padding: 1px 5px 1px 0; }
         #pdfReport .pdf-table.meta td:first-child { color: #4b5563; white-space: nowrap; width: 1%; padding-right: 14px; }
         #pdfReport .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        #pdfReport .nw { white-space: nowrap; }
         #pdfReport .pdf-note { font-size: 8.5pt; color: #6b7280; margin: 2px 0 8px; }
         #pdfReport .pdf-alert { border-left: 3px solid #b45309; background: #fffbeb; padding: 6px 10px; margin: 6px 0 8px; border-radius: 0 6px 6px 0; }
         #pdfReport .pdf-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px; font-size: 8.5pt; color: #4b5563; margin: 2px 0 6px; }
@@ -575,7 +580,9 @@
 
         <footer>
             ยิ่งเข้าใกล้จุดความร้อน ไฟสามเหลี่ยมจะกะพริบและเสียงสัญญาณจะถี่ขึ้น<br>
+            ลูกศรสีน้ำเงินที่จุดใกล้สุดชี้ไปทางที่ลมพัดไป (ทางที่ควันลอยไป) ส่วนชื่อลมเรียกตามทิศที่ลมพัดมา<br>
             ข้อมูลจุดความร้อน: NASA FIRMS (VIIRS) ผ่านระบบ <a href="fireRadar.html">Fire Radar</a> (เฉพาะในประเทศไทย)
+            · ลมผิวพื้น (10 ม.) บริเวณจุดความร้อนใกล้สุด: Open-Meteo (ส่งเฉพาะพิกัดของจุดความร้อน)
             · ตำแหน่ง GPS ใช้ในเครื่องของคุณเท่านั้น ไม่ส่งไปยังเซิร์ฟเวอร์ (ไฟล์ PDF ที่คุณส่งออกเองจะมีพิกัดของคุณ)
         </footer>
     </div>
@@ -637,6 +644,13 @@
         const BEAT_FAST_MS = 110;    // อยู่ติดจุดความร้อน (≤ BEAT_NEAR_KM)
         const BEAT_NEAR_KM = 0.2;
         const BEAT_FAR_KM = 30;
+
+        // ลมบริเวณจุดความร้อนที่ใกล้ที่สุด (ลมผิวพื้นระดับ 10 ม. จาก Open-Meteo แหล่งเดียวกับ fireRadar.html)
+        const WIND_TTL_MS = 30 * 60 * 1000;        // ใช้ค่าเดิม 30 นาทีแล้วถามใหม่ (Open-Meteo อัปเดตค่าปัจจุบันทุก 15 นาที)
+        const WIND_SHOW_MAX_MS = 3 * 3600 * 1000;  // ค่าที่เก่ากว่านี้ไม่แสดง
+        const WIND_RETRY_MS = 2 * 60 * 1000;       // โหลดไม่สำเร็จ: เว้นก่อนลองพิกัดเดิมอีกครั้ง
+        const WIND_CALM_KMH = 1;                   // ต่ำกว่านี้ถือว่าลมสงบ ไม่วาดลูกศร
+        const WIND_COLOR = 'rgba(16, 58, 150, 0.95)';
 
         const STORE_KEY = 'hotspotRadar.v1';
 
@@ -759,6 +773,13 @@
         const CONF_COLOR = { h: '#e3171b', n: '#ff7a00', l: '#ffd21f' };
         const CONF_LABEL = { h: 'ความเชื่อมั่นสูง', n: 'ความเชื่อมั่นปกติ', l: 'ความเชื่อมั่นต่ำ' };
 
+        // ดาวเทียมที่ตรวจพบ: ค่า satellite จาก NASA FIRMS (ตารางเดียวกับ fireRadar.html) ทุกดวงใช้เครื่องวัด VIIRS
+        const SATELLITE_NAMES = { N20: 'NOAA-20', J1: 'NOAA-20', N21: 'NOAA-21', J2: 'NOAA-21', N: 'Suomi NPP', NPP: 'Suomi NPP', SNPP: 'Suomi NPP' };
+        function satelliteName(code) {
+            const k = String(code || '').trim().toUpperCase();
+            return k ? (SATELLITE_NAMES[k] || k) : null;
+        }
+
         // ===================== ข้อมูลจุดความร้อน =====================
         function parsePoint(pt) {
             const lat = parseFloat(pt.lat), lon = parseFloat(pt.lon);
@@ -770,7 +791,7 @@
                 time = new Date(Date.UTC(+dp[0], +dp[1] - 1, +dp[2], parseInt(ts.slice(0, 2), 10) || 0, parseInt(ts.slice(2, 4), 10) || 0));
                 if (isNaN(time.getTime())) time = null;
             }
-            return { lat, lon, time, conf: confLevel(pt.confidence), prov: String(pt.prov || '').trim() };
+            return { lat, lon, time, conf: confLevel(pt.confidence), prov: String(pt.prov || '').trim(), sat: satelliteName(pt.satellite) };
         }
 
         function applyTimeWindow() {
@@ -839,6 +860,7 @@
             }
             dotsDirty = true;
             updateBeatInterval();
+            ensureWind();
             renderInfo();
         }
 
@@ -857,6 +879,54 @@
             state.interval = computeInterval();
             const due = state.lastBeat + state.interval;
             if (due < state.nextBeat) state.nextBeat = due; // เข้าใกล้ขึ้น → ตอบสนองทันที ไม่ต้องรอจังหวะเดิม
+        }
+
+        // ===================== ลมบริเวณจุดความร้อนที่ใกล้ที่สุด =====================
+        // ถาม Open-Meteo ด้วยพิกัดของจุดความร้อน (ปัดเป็นทศนิยม 2 ตำแหน่ง ≈ 1 กม.) ไม่ใช่ตำแหน่งของผู้ใช้
+        // จำผลไว้ต่อพิกัด จุดใกล้สุดเปลี่ยนไปแล้วกลับมาที่เดิมจึงไม่ต้องถามซ้ำ
+        const windCache = new Map(); // "lat,lon" → { data: { speed (กม./ชม.), dir (องศาที่ลมพัดมา) }, at, loading, failedAt }
+        function windKey(pt) { return pt.lat.toFixed(2) + ',' + pt.lon.toFixed(2); }
+        function ensureWind() {
+            const tg = state.nearest || state.nearestAny;
+            if (!tg) return;
+            const key = windKey(tg.pt), now = Date.now();
+            let rec = windCache.get(key);
+            if (rec && (rec.loading || now - rec.at < WIND_TTL_MS || now - rec.failedAt < WIND_RETRY_MS)) return;
+            if (!rec) {
+                rec = { data: null, at: 0, loading: false, failedAt: 0 };
+                windCache.set(key, rec);
+                if (windCache.size > 100) windCache.delete(windCache.keys().next().value);
+            }
+            rec.loading = true;
+            const [lat, lon] = key.split(',');
+            fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon +
+                '&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh')
+                .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+                .then(d => {
+                    const cur = d && d.current;
+                    const speed = cur && cur.wind_speed_10m, dir = cur && cur.wind_direction_10m;
+                    if (!Number.isFinite(speed) || !Number.isFinite(dir)) throw new Error('ไม่มีค่าลมในผลลัพธ์');
+                    rec.data = { speed, dir: (dir % 360 + 360) % 360 };
+                    rec.at = Date.now();
+                    rec.failedAt = 0;
+                })
+                .catch(err => { console.warn('โหลดข้อมูลลมไม่สำเร็จ', err); rec.failedAt = Date.now(); })
+                .finally(() => { rec.loading = false; renderInfo(); });
+        }
+        // สิ่งที่จะแสดงของจุด tg: { data } | { status: 'loading' | 'error' } | null (ยังไม่เคยถาม)
+        function windView(tg) {
+            const rec = tg ? windCache.get(windKey(tg.pt)) : null;
+            if (!rec) return null;
+            if (rec.data && Date.now() - rec.at < WIND_SHOW_MAX_MS) return { data: rec.data };
+            return { status: rec.loading ? 'loading' : 'error' };
+        }
+        // เรียกชื่อลมตามทิศที่พัดมา แบบพยากรณ์อากาศไทย เช่น "ลมตะวันออกเฉียงเหนือ 12 กม./ชม."
+        function windText(w) {
+            if (w.speed < WIND_CALM_KMH) return 'ลมสงบ';
+            return 'ลม' + dirName(w.dir) + ' ' + Math.round(w.speed) + ' กม./ชม.';
+        }
+        function windLine(wv) {
+            return wv.data ? windText(wv.data) : wv.status === 'loading' ? 'กำลังโหลดข้อมูลลม…' : 'โหลดข้อมูลลมไม่สำเร็จ';
         }
 
         // ===================== เสียง =====================
@@ -1330,12 +1400,70 @@
             });
         }
 
-        function drawText(text, x, y, sizePx, color, align, weight) {
+        function drawText(text, x, y, sizePx, color, align, weight, halo) {
             ctx.font = (weight || 700) + ' ' + sizePx + 'px system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", Tahoma, sans-serif';
             ctx.textAlign = align || 'center';
             ctx.textBaseline = 'middle';
+            if (halo) { // ขอบสีอ่อนรอบตัวอักษร ให้อ่านออกแม้ทับเส้นตารางหรือจุดความร้อน
+                ctx.save();
+                ctx.lineJoin = 'round';
+                ctx.lineWidth = sizePx * 0.2;
+                ctx.strokeStyle = halo;
+                ctx.strokeText(text, x, y);
+                ctx.restore();
+            }
             ctx.fillStyle = color;
             ctx.fillText(text, x, y);
+        }
+
+        // ลูกศรจาก (x1, y1) ไป (x2, y2) มีแสงเรืองสีอ่อนรอบ ๆ ให้เห็นชัดบนพื้นจอเขียว
+        function drawArrow(x1, y1, x2, y2, head, width, color, glow) {
+            const a = Math.atan2(y2 - y1, x2 - x1);
+            ctx.save();
+            ctx.shadowColor = 'rgba(230, 255, 220, 0.95)';
+            ctx.shadowBlur = glow;
+            ctx.strokeStyle = ctx.fillStyle = color;
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2 - Math.cos(a) * head * 0.7, y2 - Math.sin(a) * head * 0.7);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - head * Math.cos(a - 0.5), y2 - head * Math.sin(a - 0.5));
+            ctx.lineTo(x2 - head * Math.cos(a + 0.5), y2 - head * Math.sin(a + 0.5));
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // ทิศทางและความเร็วลมบริเวณจุดความร้อนที่ใกล้ที่สุด: ใต้ระยะทาง/ข้อความสถานะกลางจอ
+        // ไม่มีพื้นหลังทึบ เพื่อไม่บังจุดความร้อนที่อยู่ด้านหลัง
+        function drawWindInfo(c, msgY, u, R, wv) {
+            const w = wv.data;
+            const text = windLine(wv);
+            const withArrow = !!(w && w.speed >= WIND_CALM_KMH);
+            const halo = 'rgba(214, 246, 196, 0.7)';
+            const y1 = msgY + 24 * u, y2 = msgY + 41 * u;
+            drawText('ลมบริเวณจุดความร้อนใกล้สุด', c, y1, 10.5 * u, 'rgba(10, 44, 10, 0.9)', 'center', 600);
+
+            // ย่ออักษรลงถ้ายาวเกินความกว้างของจอวงกลมที่ระดับนั้น
+            const fontOf = px => '700 ' + px + 'px system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", Tahoma, sans-serif';
+            const base = 13 * u, iconBase = withArrow ? base * 1.6 : 0;
+            const edge = y2 + 8 * u - c;
+            const room = 2 * Math.sqrt(Math.max(0, (R - 12 * u) ** 2 - edge * edge));
+            ctx.font = fontOf(base);
+            const k = Math.min(1, room / (iconBase + ctx.measureText(text).width));
+            const fs = base * k, iw = iconBase * k;
+            ctx.font = fontOf(fs);
+            const x0 = c - (iw + ctx.measureText(text).width) / 2;
+            if (withArrow) { // ลูกศรชี้ไปทางที่ลมพัดไป หมุนตามจอเหมือนลูกศรที่จุดความร้อน
+                const a = (w.dir + 180 - state.rot) * toRad, r = fs * 0.5;
+                const ix = x0 + iw * 0.45, dx = Math.sin(a) * r, dy = -Math.cos(a) * r;
+                drawArrow(ix - dx, y2 - dy, ix + dx, y2 + dy, fs * 0.5, Math.max(1.2, fs * 0.14), WIND_COLOR, 3 * u);
+            }
+            drawText(text, x0 + iw, y2, fs, WIND_COLOR, 'left', 700, halo);
         }
 
         function draw(now) {
@@ -1404,6 +1532,18 @@
                 ctx.stroke();
             }
             ctx.globalAlpha = 1;
+
+            // ลมที่จุดใกล้สุด: ลูกศรสีน้ำเงินจากจุด ชี้ไปทางที่ลมพัดไป (ทางที่ควันลอยไป) ยาวขึ้นตามความเร็วลม
+            const wv = windView(state.nearest || state.nearestAny);
+            const wind = wv && wv.data;
+            if (state.nearest && wind && wind.speed >= WIND_CALM_KMH) {
+                const h = state.nearest;
+                const [x, y] = screenXY(c, (h.d / range) * Rp, h.brg);
+                const a = (wind.dir + 180 - state.rot) * toRad, sx = Math.sin(a), sy = -Math.cos(a);
+                const r0 = Math.max(3, 6.2 * u) * 1.25 + 3 * u;
+                const r1 = r0 + (14 + 20 * Math.min(1, wind.speed / 30)) * u;
+                drawArrow(x + sx * r0, y + sy * r0, x + sx * r1, y + sy * r1, 7 * u, Math.max(1.5, 2.2 * u), WIND_COLOR, 4 * u);
+            }
 
             // ถ้าไม่พบในรัศมี: ลูกศรที่ขอบจอชี้ไปยังจุดใกล้สุดนอกรัศมี
             if (state.pos && !state.nearest && state.nearestAny) {
@@ -1500,6 +1640,7 @@
             } else if (state.nearest) {
                 drawText(fmtDist(state.nearest.d), c, msgY, 15 * u, 'rgba(110, 10, 10, 0.95)');
             }
+            if (wv) drawWindInfo(c, msgY, u, R, wv);
 
             ctx.restore();
         }
@@ -1572,8 +1713,10 @@
                 sd.className = 'v ' + (stale || state.dataError ? 'warn' : '');
             }
 
+            const wv = windView(state.nearest || state.nearestAny);
             canvas.setAttribute('aria-label', 'หน้าจอเรดาร์ รัศมี ' + fmtRange(rangeKm()) + '. ' +
-                (state.nearest ? 'พบ ' + state.hits.length + ' จุด ใกล้สุด ' + fmtDist(state.nearest.d) + ' ทิศ' + dirName(state.nearest.brg) : 'ไม่พบจุดความร้อนในรัศมี'));
+                (state.nearest ? 'พบ ' + state.hits.length + ' จุด ใกล้สุด ' + fmtDist(state.nearest.d) + ' ทิศ' + dirName(state.nearest.brg) : 'ไม่พบจุดความร้อนในรัศมี') +
+                (wv && wv.data ? '. บริเวณจุดความร้อนใกล้สุด ' + windText(wv.data) : ''));
 
             renderList();
             if (visor.open && visor.locked) renderVisor(); // แว่นสแกน: อัปเดตระยะ/ทิศ/เป้าตามตำแหน่งล่าสุด
@@ -1587,18 +1730,21 @@
             if (!items.length) {
                 const na = state.nearestAny;
                 ul.innerHTML = '<li class="empty">ไม่พบจุดความร้อนในรัศมี ' + esc(fmtRange(rangeKm())) +
-                    (na ? ' · จุดใกล้สุดอยู่ห่าง ' + esc(fmtDist(na.d)) + ' ทิศ' + esc(dirName(na.brg)) : '') + '</li>';
+                    (na ? ' · จุดใกล้สุดอยู่ห่าง ' + esc(fmtDist(na.d)) + ' ทิศ' + esc(dirName(na.brg)) +
+                        (na.pt.sat ? ' ตรวจพบโดย<span class="nw">ดาวเทียม ' + esc(na.pt.sat) + '</span>' : '') : '') + '</li>';
                 return;
             }
             ul.innerHTML = items.map(h => {
                 const p = h.pt;
                 const nav = 'https://www.google.com/maps/dir/?api=1&destination=' + p.lat.toFixed(6) + ',' + p.lon.toFixed(6);
                 const when = p.time ? 'พบเมื่อ ' + fmtThai(p.time) : '';
-                const sub = [p.prov ? 'จ.' + p.prov : '', when, CONF_LABEL[p.conf]].filter(Boolean).join(' · ');
+                // แต่ละส่วนไม่ตัดกลางข้อความ (เช่น "ดาวเทียม NOAA-20") ขึ้นบรรทัดใหม่ได้เฉพาะที่ " · "
+                const sub = [p.prov ? 'จ.' + p.prov : '', when, p.sat ? 'ดาวเทียม ' + p.sat : '', CONF_LABEL[p.conf]]
+                    .filter(Boolean).map(t => '<span class="nw">' + esc(t) + '</span>').join(' · ');
                 return '<li class="hs-item">' +
                     '<span class="dot" style="background:' + CONF_COLOR[p.conf] + ';color:' + CONF_COLOR[p.conf] + '"></span>' +
                     '<div class="main"><div class="dist">' + esc(fmtDist(h.d)) + ' · ทิศ' + esc(dirName(h.brg)) + '</div>' +
-                    '<div class="sub">' + esc(sub) + '</div></div>' +
+                    '<div class="sub">' + sub + '</div></div>' +
                     '<a href="' + esc(nav) + '" target="_blank" rel="noopener">นำทาง</a>' +
                     '</li>';
             }).join('') + (state.hits.length > items.length ? '<li class="empty">และอีก ' + (state.hits.length - items.length) + ' จุด</li>' : '');
@@ -1739,6 +1885,12 @@
             const hits = state.hits;
             const near = state.nearest || state.nearestAny;
             const row = (k, v) => '<tr><td>' + k + '</td><td>' + v + '</td></tr>';
+            // จำนวนจุดแยกตามดาวเทียม เช่น "NOAA-20: 170 · NOAA-21: 91" (ไม่มีชื่อดาวเทียมเลยก็ไม่แสดง)
+            const satCounts = new Map();
+            state.points.forEach(p => { const k = p.sat || 'ไม่ระบุ'; satCounts.set(k, (satCounts.get(k) || 0) + 1); });
+            const satText = state.points.some(p => p.sat)
+                ? Array.from(satCounts).sort((a, b) => b[1] - a[1]).map(([n, c]) => esc(n) + ': ' + fmtNum(c)).join(' · ')
+                : '';
 
             let h = '<div class="pdf-kicker">The Siam Times · Hotspot Radar</div>';
             h += '<h1>รายงานจุดความร้อนรอบตำแหน่ง</h1>';
@@ -1751,7 +1903,8 @@
                 row('รัศมีสแกน', esc(fmtRange(range)) + ' (ช่องละ ' + esc(fmtRange(range / GRID_CELLS_PER_RADIUS)) + ')') +
                 row('ช่วงเวลา', 'ย้อนหลัง ' + state.timeWindowH + ' ชม. นับจากจุดล่าสุดในชุดข้อมูล') +
                 row('ข้อมูลดาวเทียม', dataOk
-                    ? fmtNum(state.points.length) + ' จุดทั่วประเทศในช่วงเวลานี้' + (state.updated ? ' · อัปเดต ' + esc(fmtThaiFull(state.updated)) : '')
+                    ? fmtNum(state.points.length) + ' จุดทั่วประเทศในช่วงเวลานี้' + (satText ? ' (' + satText + ')' : '') +
+                      (state.updated ? ' · อัปเดต ' + esc(fmtThaiFull(state.updated)) : '')
                     : (state.dataStatus === 'loading' ? 'กำลังโหลด' : 'โหลดไม่สำเร็จ (' + esc(state.dataError) + ')')) +
                 row('ส่งออกรายงานเมื่อ', esc(fmtThaiFull(now))) +
                 '</tbody></table>';
@@ -1776,20 +1929,23 @@
 
                 h += '<h2>จุดความร้อนในรัศมี ' + esc(fmtRange(range)) + ' (เรียงตามระยะทาง)</h2>';
                 if (hits.length) {
-                    h += '<table class="pdf-table"><thead><tr><th class="num">#</th><th class="num">ระยะทาง</th><th>ทิศ</th><th>จังหวัด</th><th>ตรวจพบเมื่อ</th><th>ความเชื่อมั่น</th><th class="num">พิกัด</th><th></th></tr></thead><tbody>' +
+                    h += '<table class="pdf-table"><thead><tr><th class="num">#</th><th class="num">ระยะทาง</th><th>ทิศ</th><th>จังหวัด</th><th>ตรวจพบเมื่อ</th><th>ดาวเทียม</th><th>ความเชื่อมั่น</th><th class="num">พิกัด</th><th></th></tr></thead><tbody>' +
                         hits.slice(0, PDF_MAX_ROWS).map((x, i) => {
                             const p = x.pt;
                             return '<tr><td class="num">' + (i + 1) + '</td><td class="num">' + esc(fmtDist(x.d)) + '</td>' +
                                 '<td>' + esc(dirName(x.brg)) + ' (' + Math.round(x.brg) + '°)</td>' +
-                                '<td>' + esc(p.prov || '-') + '</td><td>' + (p.time ? esc(fmtThai(p.time)) : '-') + '</td>' +
-                                '<td><i class="pdf-sw" style="background:' + CONF_COLOR[p.conf] + '"></i>' + esc(CONF_LABEL[p.conf]) + '</td>' +
+                                '<td>' + esc(p.prov || '-') + '</td><td class="nw">' + (p.time ? esc(fmtThai(p.time)) : '-') + '</td>' +
+                                '<td class="nw">' + esc(p.sat || '-') + '</td>' +
+                                // หัวคอลัมน์บอกว่าเป็นความเชื่อมั่นแล้ว แสดงแค่ระดับ (สูง/ปกติ/ต่ำ) ให้มีที่สำหรับคอลัมน์ดาวเทียม
+                                '<td class="nw"><i class="pdf-sw" style="background:' + CONF_COLOR[p.conf] + '"></i>' + esc(CONF_LABEL[p.conf].replace('ความเชื่อมั่น', '')) + '</td>' +
                                 '<td class="num">' + p.lat.toFixed(5) + ', ' + p.lon.toFixed(5) + '</td>' +
                                 '<td><a href="' + esc(navUrl(p.lat, p.lon)) + '">นำทาง</a></td></tr>';
                         }).join('') + '</tbody></table>';
                     if (hits.length > PDF_MAX_ROWS) h += '<div class="pdf-note">แสดง ' + PDF_MAX_ROWS + ' จุดที่ใกล้ที่สุด จากทั้งหมด ' + fmtNum(hits.length) + ' จุด</div>';
                 } else {
                     h += '<p>ไม่พบจุดความร้อนในรัศมีนี้' + (state.nearestAny ? ' · จุดใกล้ที่สุดอยู่ห่าง ' + esc(fmtDist(state.nearestAny.d)) + ' ทิศ' + esc(dirName(state.nearestAny.brg)) +
-                        (state.nearestAny.pt.prov ? ' (จ.' + esc(state.nearestAny.pt.prov) + ')' : '') : '') + '</p>';
+                        (state.nearestAny.pt.prov ? ' (จ.' + esc(state.nearestAny.pt.prov) + ')' : '') +
+                        (state.nearestAny.pt.sat ? ' · ตรวจพบโดยดาวเทียม ' + esc(state.nearestAny.pt.sat) : '') : '') + '</p>';
                 }
             }
 
@@ -2013,6 +2169,13 @@
             }
             const p = tg.pt, inRange = !!state.nearest;
             const addr = visorAddrNow(p);
+            // ลมบริเวณจุดนี้: ลูกศรชี้ไปทางที่ลมพัดไป (ทางที่ควันลอยไป) อ้างอิงทิศเดียวกับลูกศรชี้เป้า
+            const wv = windView(tg), w = wv && wv.data;
+            const up = state.headingUp && state.compass != null ? state.compass : 0;
+            const windHtml = wv ? '<span class="wind">💨 ' +
+                (w && w.speed >= WIND_CALM_KMH ? '<span class="wind-arrow" aria-hidden="true" style="transform:rotate(' +
+                    Math.round(w.dir + 180 - up) + 'deg)">↑</span> ' : '') +
+                esc(windLine(wv)).replace(/\d+ กม\.\/ชม\.$/, '<span class="nw">$&</span>') + '</span><br>' : ''; // ไม่ตัดบรรทัดกลาง "12 กม./ชม."
             return {
                 mode: inRange ? 'LOCKED' : 'LOCKED · OUT OF RANGE',
                 target: tg,
@@ -2021,8 +2184,10 @@
                     'ทิศ' + esc(dirName(tg.brg)) + ' ' + Math.round(tg.brg) + '°' +
                     visorMeter(inRange ? proximity() : 0, inRange) + '</div>' +
                     '<span class="lbl">ความเชื่อมั่น</span> ' + esc(CONF_LABEL[p.conf].replace('ความเชื่อมั่น', '')) +
-                    ' · <span class="lbl">พบ</span> ' + (p.time ? esc(fmtThai(p.time)) + ' (' + esc(fmtAgo(p.time)) + ')' : '-') + '<br>' +
+                    ' · <span class="lbl">พบ</span> ' + (p.time ? esc(fmtThai(p.time)) + ' (' + esc(fmtAgo(p.time)) + ')' : '-') +
+                    (p.sat ? ' · <span class="lbl">ดาวเทียม</span> <span class="nw">' + esc(p.sat) + '</span>' : '') + '<br>' +
                     '<span class="lbl">พื้นที่</span> <span id="visorAddr">' + (addr ? esc(addr) + ' ' : '') + '</span>' + (p.prov ? 'จ.' + esc(p.prov) : '') + '<br>' +
+                    windHtml +
                     p.lat.toFixed(4) + ', ' + p.lon.toFixed(4) + ' · <a href="' + esc(navUrl(p.lat, p.lon)) + '" target="_blank" rel="noopener">นำทาง ›</a><br>' +
                     '<span class="lbl">ในรัศมี ' + esc(fmtRange(rangeKm())) + ':</span> ' + state.hits.length + ' จุด'
             };
@@ -2131,6 +2296,7 @@
             const decodeFrom = T * 0.7, decodeTo = T * 0.96;
             const tg = visorTarget();
             if (tg) visorAddress(tg.pt).catch(() => { /* ค้นไม่ได้ก็ข้าม */ }); // ค้นชื่อพื้นที่ระหว่างสแกน
+            ensureWind(); // ข้อมูลลมของเป้า (ใช้ค่าที่จำไว้ถ้ายังใหม่)
 
             // แถวข้อมูลเริ่มเป็นอักษรต่างดาวทั้งหมด (รูปทรงเดียวกับผลจริง)
             glyphLoad(visorContent().html);
