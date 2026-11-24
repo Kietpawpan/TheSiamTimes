@@ -38,12 +38,16 @@
 	<!-- November 2026: search ignores how สระอำ was typed, dates with extra spaces sort correctly,
 	     entries without a document link show no link, and a missing "updated" field no longer
 	     stops the list from loading. -->
+	<!-- November 2026: the header also shows when this visit checked the list against the
+	     Pollution Control Department, so an old "updated" date doesn't look like a stalled list. -->
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
             <h1 class="text-3xl md:text-4xl font-bold text-violet-800">ฐานข้อมูล</h1>
             <p class="mt-2 text-lg text-gray-600">มาตรฐานควบคุมมลพิษ (พ.ศ. <span id="yearRange">2534 - 2569</span>)</p>
             <p class="mt-1 text-gray-500">&copy; 2025 Monte Kietpawpan · <span id="updatedText">กำลังโหลด...</span></p>
+            <!-- Filled in by loadLatest() once the PCD check succeeds; stays hidden if it fails. -->
+            <p id="checkedText" class="hidden mt-1 text-sm text-balance"></p>
         </header>
 
         <main>
@@ -302,6 +306,7 @@
         const latestList = document.getElementById('latestList');
         const latestStatus = document.getElementById('latestStatus');
         const draftAllButton = document.getElementById('draftAll');
+        const checkedText = document.getElementById('checkedText');
 
         // ---- "ร่างรายการ": your browser can reach pcd.go.th, GitHub's servers can't. So the browser
         // collects the details and opens a pre-filled GitHub issue; when you submit it, the
@@ -395,8 +400,15 @@
                 const missing = latest.filter(isMissing).length;
                 draftAllButton.classList.toggle('hidden', missing < 2);
                 draftAllButton.textContent = `ร่างทั้งหมด ${missing} ฉบับ`;
-                latestStatus.textContent = `ตรวจสอบเมื่อ ${new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.` +
+                const checkedAt = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                latestStatus.textContent = `ตรวจสอบเมื่อ ${checkedAt} น.` +
                     (missing ? ` · ${missing} ฉบับยังไม่อยู่ในฐานข้อมูล` : ' · ประกาศล่าสุดอยู่ในฐานข้อมูลครบแล้ว');
+                // Header: the "updated" date only changes when the list itself changes, so say when it was last checked.
+                checkedText.textContent = missing
+                    ? `ตรวจกับกรมควบคุมมลพิษ วันนี้ ${checkedAt} น. · พบ ${missing} ฉบับที่ยังไม่อยู่ในฐานข้อมูล`
+                    : `✓ ตรวจกับกรมควบคุมมลพิษแล้ว วันนี้ ${checkedAt} น. · ประกาศล่าสุดอยู่ในฐานข้อมูลครบ`;
+                checkedText.classList.remove('hidden', 'text-green-700', 'text-orange-700');
+                checkedText.classList.add(missing ? 'text-orange-700' : 'text-green-700');
                 renderLatest();
             } catch (error) {
                 latestStatus.textContent = 'เชื่อมต่อเว็บไซต์กรมควบคุมมลพิษไม่ได้ในขณะนี้';
