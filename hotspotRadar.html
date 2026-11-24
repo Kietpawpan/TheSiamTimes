@@ -771,6 +771,13 @@
         const CONF_COLOR = { h: '#e3171b', n: '#ff7a00', l: '#ffd21f' };
         const CONF_LABEL = { h: 'ความเชื่อมั่นสูง', n: 'ความเชื่อมั่นปกติ', l: 'ความเชื่อมั่นต่ำ' };
 
+        // ดาวเทียมที่ตรวจพบ: ค่า satellite จาก NASA FIRMS (ตารางเดียวกับ fireRadar.html) ทุกดวงใช้เครื่องวัด VIIRS
+        const SATELLITE_NAMES = { N20: 'NOAA-20', J1: 'NOAA-20', N21: 'NOAA-21', J2: 'NOAA-21', N: 'Suomi NPP', NPP: 'Suomi NPP', SNPP: 'Suomi NPP' };
+        function satelliteName(code) {
+            const k = String(code || '').trim().toUpperCase();
+            return k ? (SATELLITE_NAMES[k] || k) : null;
+        }
+
         // ===================== ข้อมูลจุดความร้อน =====================
         function parsePoint(pt) {
             const lat = parseFloat(pt.lat), lon = parseFloat(pt.lon);
@@ -782,7 +789,7 @@
                 time = new Date(Date.UTC(+dp[0], +dp[1] - 1, +dp[2], parseInt(ts.slice(0, 2), 10) || 0, parseInt(ts.slice(2, 4), 10) || 0));
                 if (isNaN(time.getTime())) time = null;
             }
-            return { lat, lon, time, conf: confLevel(pt.confidence), prov: String(pt.prov || '').trim() };
+            return { lat, lon, time, conf: confLevel(pt.confidence), prov: String(pt.prov || '').trim(), sat: satelliteName(pt.satellite) };
         }
 
         function applyTimeWindow() {
@@ -2162,7 +2169,8 @@
                     'ทิศ' + esc(dirName(tg.brg)) + ' ' + Math.round(tg.brg) + '°' +
                     visorMeter(inRange ? proximity() : 0, inRange) + '</div>' +
                     '<span class="lbl">ความเชื่อมั่น</span> ' + esc(CONF_LABEL[p.conf].replace('ความเชื่อมั่น', '')) +
-                    ' · <span class="lbl">พบ</span> ' + (p.time ? esc(fmtThai(p.time)) + ' (' + esc(fmtAgo(p.time)) + ')' : '-') + '<br>' +
+                    ' · <span class="lbl">พบ</span> ' + (p.time ? esc(fmtThai(p.time)) + ' (' + esc(fmtAgo(p.time)) + ')' : '-') +
+                    (p.sat ? ' · <span class="lbl">ดาวเทียม</span> <span class="nw">' + esc(p.sat) + '</span>' : '') + '<br>' +
                     '<span class="lbl">พื้นที่</span> <span id="visorAddr">' + (addr ? esc(addr) + ' ' : '') + '</span>' + (p.prov ? 'จ.' + esc(p.prov) : '') + '<br>' +
                     windHtml +
                     p.lat.toFixed(4) + ', ' + p.lon.toFixed(4) + ' · <a href="' + esc(navUrl(p.lat, p.lon)) + '" target="_blank" rel="noopener">นำทาง ›</a><br>' +
