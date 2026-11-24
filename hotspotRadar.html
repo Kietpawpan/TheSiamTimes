@@ -292,6 +292,7 @@
         .hs-item .main { min-width: 0; }
         .hs-item .dist { font-weight: 700; font-variant-numeric: tabular-nums; }
         .hs-item .sub { font-size: 12px; color: var(--muted); }
+        .hs-item .nw, .empty .nw { white-space: nowrap; }
         .hs-item a {
             color: #0b1f08;
             background: var(--accent);
@@ -1729,18 +1730,21 @@
             if (!items.length) {
                 const na = state.nearestAny;
                 ul.innerHTML = '<li class="empty">ไม่พบจุดความร้อนในรัศมี ' + esc(fmtRange(rangeKm())) +
-                    (na ? ' · จุดใกล้สุดอยู่ห่าง ' + esc(fmtDist(na.d)) + ' ทิศ' + esc(dirName(na.brg)) : '') + '</li>';
+                    (na ? ' · จุดใกล้สุดอยู่ห่าง ' + esc(fmtDist(na.d)) + ' ทิศ' + esc(dirName(na.brg)) +
+                        (na.pt.sat ? ' ตรวจพบโดย<span class="nw">ดาวเทียม ' + esc(na.pt.sat) + '</span>' : '') : '') + '</li>';
                 return;
             }
             ul.innerHTML = items.map(h => {
                 const p = h.pt;
                 const nav = 'https://www.google.com/maps/dir/?api=1&destination=' + p.lat.toFixed(6) + ',' + p.lon.toFixed(6);
                 const when = p.time ? 'พบเมื่อ ' + fmtThai(p.time) : '';
-                const sub = [p.prov ? 'จ.' + p.prov : '', when, CONF_LABEL[p.conf]].filter(Boolean).join(' · ');
+                // แต่ละส่วนไม่ตัดกลางข้อความ (เช่น "ดาวเทียม NOAA-20") ขึ้นบรรทัดใหม่ได้เฉพาะที่ " · "
+                const sub = [p.prov ? 'จ.' + p.prov : '', when, p.sat ? 'ดาวเทียม ' + p.sat : '', CONF_LABEL[p.conf]]
+                    .filter(Boolean).map(t => '<span class="nw">' + esc(t) + '</span>').join(' · ');
                 return '<li class="hs-item">' +
                     '<span class="dot" style="background:' + CONF_COLOR[p.conf] + ';color:' + CONF_COLOR[p.conf] + '"></span>' +
                     '<div class="main"><div class="dist">' + esc(fmtDist(h.d)) + ' · ทิศ' + esc(dirName(h.brg)) + '</div>' +
-                    '<div class="sub">' + esc(sub) + '</div></div>' +
+                    '<div class="sub">' + sub + '</div></div>' +
                     '<a href="' + esc(nav) + '" target="_blank" rel="noopener">นำทาง</a>' +
                     '</li>';
             }).join('') + (state.hits.length > items.length ? '<li class="empty">และอีก ' + (state.hits.length - items.length) + ' จุด</li>' : '');
