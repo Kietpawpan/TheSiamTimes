@@ -6,24 +6,24 @@
     <title>The Siam Times HTML Editor</title>
     
     <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/vendor/tailwindcss-3.4.17.js"></script>
     
     <!-- CodeMirror Core and Theme -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css" integrity="sha384-zaeBlB/vwYsDRSlFajnDd7OydJ0cWk+c2OWybl3eSUf6hW2EbhlCsQPqKr3gkznT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css" integrity="sha384-ccdJwIIg/K0Ab6aXF4MPACh7ckk61tvQFTrfkhXZEALgAETURNZIAuQLcS/aPbrM" crossorigin="anonymous">
     
     <!-- CodeMirror Modes -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js" integrity="sha384-uTzi9PU3axyLeKbgCPqQdNFT5Q23BRgFbmtrolYC7ROlbWVv7IggV+3r0ALSQd/s" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js" integrity="sha384-xPpkMo5nDgD98fIcuRVYhxkZV6/9Y4L8s3p0J5c4MxgJkyKJ8BJr+xfRkq7kn6Tw" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js" integrity="sha384-g0o+WW9mdIxA7LaaCKTkRm0M5TVT+Bb4s9eocxPsI2G0Xm0POG9iD6G6qP1IIsfS" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js" integrity="sha384-fpeIC2FZuPmw7mIsTvgB5BNc8QVxQC/nWg2W+CgPYOAiBiYVuHe2E8HiTWHBMIJQ" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js" integrity="sha384-xYIbc5F55vPi7pb/lUnFj3wu24HlpAMZdtBHkNrb2YhPzJV3pX7+eqXT2PXSNMrw" crossorigin="anonymous"></script>
 
     <!-- CodeMirror Search Addons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css" integrity="sha384-MomRjC6IKuGHk2XIFKXAwFx0gytd6+ZsF9pnFM3JWZV5izBqPgoLapxRqG1h5IKm" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js" integrity="sha384-3COleknUtlGKoEOR9Wm7WKVRyS6ljwYU2x1ebD8nd6ujaLMqwY+q3F8+yDcefbXr" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js" integrity="sha384-ILkploZWukdp1VMmzMnE+32H0mgy2e+w29evc4grALGOqIRGBgbBGrwkX7a6zK7y" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js" integrity="sha384-v64L7YTJ/ullw5v36qIJcvWAxuEnRGu9E326vUV3Ro7sx4HCZHIDTphKO53htazT" crossorigin="anonymous"></script>
 
     <!-- Google Fonts: Roboto Mono for Editor -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -183,7 +183,7 @@
                     </button>
                 </div>
                 <div class="flex-1 relative bg-white w-full h-full rounded-b-xl overflow-hidden" id="iframe-container">
-                    <iframe id="output-iframe" class="w-full h-full border-0 absolute inset-0 bg-white" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
+                    <iframe id="output-iframe" class="w-full h-full border-0 absolute inset-0 bg-white" sandbox="allow-scripts allow-modals"></iframe>
                 </div>
             </section>
         </main>
@@ -254,13 +254,14 @@
         function runCode() {
             const code = editor.getValue();
             const iframe = document.getElementById('output-iframe');
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
             
             // Get external links
             const extCss = localStorage.getItem('siamTimesExtCss') || "";
             const extJs = localStorage.getItem('siamTimesExtJs') || "";
             
-            let injectHtml = "";
+            // The preview has an opaque origin (no allow-same-origin), where touching localStorage throws.
+            // A throwaway in-memory copy keeps storage code running without exposing this site's data.
+            let injectHtml = '<script>(function(){function m(){var d=Object.create(null);return{get length(){return Object.keys(d).length},key:function(i){var k=Object.keys(d);return i<k.length?k[i]:null},getItem:function(k){k=String(k);return k in d?d[k]:null},setItem:function(k,v){d[String(k)]=String(v)},removeItem:function(k){delete d[String(k)]},clear:function(){d=Object.create(null)}}}["localStorage","sessionStorage"].forEach(function(n){try{window[n].length}catch(e){try{Object.defineProperty(window,n,{value:m(),configurable:true})}catch(_){}}})})();<\/script>\n';
             
             if (extCss.trim()) {
                 extCss.split('\n').forEach(url => {
@@ -273,19 +274,15 @@
                 });
             }
 
-            // Inject into code if there are external links
+            // Inject the shim and any external links at the top of <head>, or after <!DOCTYPE> so the page keeps standards mode
             let finalCode = code;
-            if (injectHtml) {
-                if (finalCode.includes('<head>')) {
-                    finalCode = finalCode.replace('<head>', '<head>\n' + injectHtml);
-                } else {
-                    finalCode = injectHtml + finalCode;
-                }
-            }
-            
-            iframeDoc.open();
-            iframeDoc.write(finalCode);
-            iframeDoc.close();
+            const headTag = /<head(\s[^>]*)?>/i.exec(finalCode);
+            const doctype = /<!doctype[^>]*>/i.exec(finalCode);
+            const at = headTag ? headTag.index + headTag[0].length : doctype ? doctype.index + doctype[0].length : 0;
+            finalCode = finalCode.slice(0, at) + '\n' + injectHtml + finalCode.slice(at);
+
+            // srcdoc instead of document.write: the parent can't reach into an opaque-origin frame
+            iframe.srcdoc = finalCode;
         }
 
         // Event Listeners for Run buttons

@@ -13,9 +13,9 @@
     <link rel="manifest" href="manifest2.json">
     <meta name="theme-color" content="#4a148c">
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js" integrity="sha384-82q0nm29xZzIo5BMtDYnh2/NxeO6FoaK1S/0nF84w3cEsqbBfun3JdMyDVYWfVY5" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
     
     <style>
         body { font-family: sans-serif; background-color: #f3f4f6; padding: 20px; }
@@ -246,7 +246,7 @@
 
     </div> 
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
     
     <script>
         const longdoApiKey = 'bce812933744d2530d26f0fabb0017cf';
@@ -257,6 +257,13 @@
         
         // ตัวแปรเก็บค่าตั้งต้นของรัศมี เพื่อให้ปักหมุดทำงานได้ทันทีแม้ยังไม่แสดงตาราง
         let currentDistances = { d05: 0.5, d10: 1.0, d15: 1.5, d20: 2.0 };
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+        function unescapeHtml(s) {
+            return String(s).replace(/&(amp|lt|gt|quot|#39);/g, (m, e) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" }[e]));
+        }
 
         // ฟังก์ชันตรวจสอบว่าค่าที่ตรวจวัดเกินค่ามาตรฐานหรือไม่
         function isExceedingStandard(val, stdStr) {
@@ -308,7 +315,8 @@
             if (type === 'success') icon = '✅';
             if (type === 'error') icon = '❌';
             if (type === 'warning') icon = '⚠️';
-            toast.innerHTML = `<span style="margin-right:8px; font-size:16px;">${icon}</span> ${message}`;
+            toast.innerHTML = `<span style="margin-right:8px; font-size:16px;">${icon}</span> `;
+            toast.append(message);
             container.appendChild(toast);
             setTimeout(() => {
                 toast.style.animation = 'fadeOut 0.3s forwards';
@@ -454,7 +462,7 @@
                         html += `<td style="${style10}">${data.d10 || '-'}</td>`;
                         html += `<td style="${style15}">${data.d15 || '-'}</td>`;
                         html += `<td style="${style20}">${data.d20 || '-'}</td>`;
-                        html += `<td style="color:#64748b;">${data.unit}</td>`;
+                        html += `<td style="color:#64748b;">${escapeHtml(data.unit)}</td>`;
                         html += '</tr>';
                     }
                 });
@@ -684,7 +692,7 @@
                 <div id="closeDashboardBtn" class="close-dashboard-btn"></div>
                 <div style='font-size: 14px; min-width: 220px;'>
                     <div style='background-color:#e11d48; color:white; padding:6px; border-radius:4px; margin-bottom:8px; text-align:center; line-height:1.4;'>
-                        <b>🚨 รายงานจุดเกิดเหตุ<br>(${name})</b>
+                        <b>🚨 รายงานจุดเกิดเหตุ<br>(${escapeHtml(name)})</b>
                     </div>
                     <b>พื้นที่:</b> <span id="inc-location" style="color:#0284c7; font-weight:bold;">กำลังค้นหา...</span><br>
                     <b>พิกัด:</b> ${lat.toFixed(5)}  ${lon.toFixed(5)}<br>
@@ -755,7 +763,7 @@
             .then(data => {
                 if(data && data.current) {
                     currentWindSpeed = data.current.wind_speed_10m;
-                    const apiWindDir = data.current.wind_direction_10m;
+                    const apiWindDir = parseFloat(data.current.wind_direction_10m);
                     
                     const dirEls = document.querySelectorAll('#inc-wind-dir');
                     const speedEls = document.querySelectorAll('#inc-wind-speed');
@@ -793,16 +801,13 @@
             "Cl<sub>2</sub>": { unit: "ppm", std: "-" }
         };
 
-        function addCustomHazard() {
-            const input = document.getElementById('customHazardName');
-            let name = input.value.trim();
-            
-            if (!name) return;
+        // Hazard names are rendered as HTML (PM<sub>2.5</sub>): escape everything, then re-allow only these exact tags.
+        // Unescaping first makes it safe to run again on a name this page already sanitized (a saved file).
+        function sanitizeHazardName(name) {
+            let safeName = escapeHtml(unescapeHtml(name));
 
-            let safeName = name.replace(/</g, "<").replace(/>/g, ">");
-            
-            safeName = safeName.replace(/<sub>/gi, "<sub>").replace(/<\/sub>/gi, "</sub>");
-            safeName = safeName.replace(/<sup>/gi, "<sup>").replace(/<\/sup>/gi, "</sup>");
+            safeName = safeName.replace(/&lt;sub&gt;/gi, "<sub>").replace(/&lt;\/sub&gt;/gi, "</sub>");
+            safeName = safeName.replace(/&lt;sup&gt;/gi, "<sup>").replace(/&lt;\/sup&gt;/gi, "</sup>");
 
             safeName = safeName.replace(/^[์็่้๊๋ิีึืุูั]+/g, '');
             safeName = safeName.replace(/([A-Za-z0-9])[์็่้๊๋ิีึืุูั]+/g, '$1');
@@ -810,6 +815,16 @@
             const subOpenCount = (safeName.match(/<sub>/gi) || []).length;
             const subCloseCount = (safeName.match(/<\/sub>/gi) || []).length;
             if (subOpenCount > subCloseCount) safeName += "</sub>";
+            return safeName;
+        }
+
+        function addCustomHazard() {
+            const input = document.getElementById('customHazardName');
+            let name = input.value.trim();
+
+            if (!name) return;
+
+            const safeName = sanitizeHazardName(name);
 
             if (!customHazardsList.includes(safeName)) {
                 customHazardsList.push(safeName);
@@ -822,6 +837,11 @@
             customHazardsList = customHazardsList.filter(h => h !== name);
             updateMeasurementTable();
         }
+
+        document.getElementById('measurementBody').addEventListener('click', function(e) {
+            const btn = e.target.closest('[data-remove-hazard]');
+            if (btn) removeCustomHazard(btn.getAttribute('data-remove-hazard'));
+        });
 
         // ฟังก์ชันอัปเดตเฉพาะหน้าต่าง Popup บนแผนที่ และกล่องสรุปจุดเกิดเหตุ
         window.updateMapPopupOnly = function() {
@@ -845,7 +865,7 @@
             currentSelectedHazards.forEach(hazard => {
                 const data = measurementData[hazard];
                 if (data && data.std && data.std !== '-') {
-                    stdMapHtml += `<div style="border-bottom: 1px dotted #cbd5e1; padding: 6px 0;"><b>${hazard}</b>: ${data.std} <span style="color:#94a3b8;">${data.unit}</span></div>`;
+                    stdMapHtml += `<div style="border-bottom: 1px dotted #cbd5e1; padding: 6px 0;"><b>${hazard}</b>: ${escapeHtml(data.std)} <span style="color:#94a3b8;">${escapeHtml(data.unit)}</span></div>`;
                     hasMapStandard = true;
                 }
             });
@@ -912,20 +932,21 @@
                 const style20 = isExceedingStandard(data.d20, data.std) ? 'color:#dc2626; font-weight:bold; border-color:#ef4444; background-color:#fef2f2;' : 'border: 1px solid #ccc;';
 
                 const tr = document.createElement('tr');
-                let tdStdHtml = showStd ? `<td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="text" class="meas-input" data-hazard="${hazard}" data-dist="std" value="${data.std}" style="width: 60px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 11px; padding: 4px 2px;"></td>` : '';
+                const hazardAttr = escapeHtml(hazard);
+                let tdStdHtml = showStd ? `<td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="text" class="meas-input" data-hazard="${hazardAttr}" data-dist="std" value="${escapeHtml(data.std)}" style="width: 60px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 11px; padding: 4px 2px;"></td>` : '';
                 
                 tr.innerHTML = `
                     <td style="padding: 4px; border: 1px solid #cbd5e1; text-align: left; font-weight: bold; color: #be123c;">${hazard}</td>
                     ${tdStdHtml}
-                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazard}" data-dist="d05" value="${data.d05}" style="width: 45px; text-align: center; border-radius: 4px; ${style05}"></td>
-                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazard}" data-dist="d10" value="${data.d10}" style="width: 45px; text-align: center; border-radius: 4px; ${style10}"></td>
-                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazard}" data-dist="d15" value="${data.d15}" style="width: 45px; text-align: center; border-radius: 4px; ${style15}"></td>
-                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazard}" data-dist="d20" value="${data.d20}" style="width: 45px; text-align: center; border-radius: 4px; ${style20}"></td>
+                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazardAttr}" data-dist="d05" value="${data.d05}" style="width: 45px; text-align: center; border-radius: 4px; ${style05}"></td>
+                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazardAttr}" data-dist="d10" value="${data.d10}" style="width: 45px; text-align: center; border-radius: 4px; ${style10}"></td>
+                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazardAttr}" data-dist="d15" value="${data.d15}" style="width: 45px; text-align: center; border-radius: 4px; ${style15}"></td>
+                    <td style="padding: 2px; border: 1px solid #cbd5e1;"><input type="number" step="any" class="meas-input" data-hazard="${hazardAttr}" data-dist="d20" value="${data.d20}" style="width: 45px; text-align: center; border-radius: 4px; ${style20}"></td>
                     <td style="padding: 2px; border: 1px solid #cbd5e1;">
-                        <input type="text" class="meas-input" data-hazard="${hazard}" data-dist="unit" value="${data.unit}" list="unit-options" style="width: 60px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;">
+                        <input type="text" class="meas-input" data-hazard="${hazardAttr}" data-dist="unit" value="${escapeHtml(data.unit)}" list="unit-options" style="width: 60px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;">
                     </td>
                     <td style="padding: 2px; border: 1px solid #cbd5e1;">
-                        ${isCustom ? `<button onclick="removeCustomHazard('${hazard}')" style="background:#ef4444; color:white; border:none; border-radius:4px; cursor:pointer; font-size:10px; padding:4px;">❌</button>` : '-'}
+                        ${isCustom ? `<button type="button" data-remove-hazard="${hazardAttr}" style="background:#ef4444; color:white; border:none; border-radius:4px; cursor:pointer; font-size:10px; padding:4px;">❌</button>` : '-'}
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1022,12 +1043,20 @@
                     document.getElementById('toggleStdBtn').checked = loaded.toggleStd !== undefined ? loaded.toggleStd : true;
                     document.getElementById('toggleMapStdBtn').checked = loaded.toggleMapStd !== undefined ? loaded.toggleMapStd : true;
 
+                    // A file can come from anyone: keep only numbers ('' when empty or not a number, which the
+                    // number inputs show as blank) and run hazard names through the same sanitizer as typed ones.
+                    const numOrEmpty = v => { const n = parseFloat(v); return isNaN(n) ? '' : String(n); };
                     if (loaded.currentDistances) {
-                        currentDistances = loaded.currentDistances;
+                        const ld = loaded.currentDistances;
+                        currentDistances = { d05: numOrEmpty(ld.d05), d10: numOrEmpty(ld.d10), d15: numOrEmpty(ld.d15), d20: numOrEmpty(ld.d20) };
                     }
                     
-                    customHazardsList = Array.isArray(loaded.customHazardsList) ? loaded.customHazardsList : [];
-                    measurementData = loaded.measurementData || {};
+                    customHazardsList = Array.isArray(loaded.customHazardsList) ? loaded.customHazardsList.map(sanitizeHazardName) : [];
+                    measurementData = {};
+                    Object.entries(loaded.measurementData || {}).forEach(([h, m]) => {
+                        m = m || {};
+                        measurementData[sanitizeHazardName(h)] = { d05: numOrEmpty(m.d05), d10: numOrEmpty(m.d10), d15: numOrEmpty(m.d15), d20: numOrEmpty(m.d20), unit: m.unit, std: m.std };
+                    });
 
                     document.querySelectorAll('input[name="hazard"]').forEach(cb => {
                         cb.checked = Array.isArray(loaded.checkedBaseHazards) && loaded.checkedBaseHazards.includes(cb.value);
@@ -1114,7 +1143,7 @@
                             if (!riskAreas.includes(`${t} ${a}`)) riskAreas.push(`${t} ${a}`);
                         }
                     });
-                    downwindEls.forEach(el => el.innerHTML = riskAreas.length > 0 ? riskAreas.join(' และ ') : "ไม่พบข้อมูลชุมชน");
+                    downwindEls.forEach(el => el.textContent = riskAreas.length > 0 ? riskAreas.join(' และ ') : "ไม่พบข้อมูลชุมชน");
                 } catch(e) {
                     downwindEls.forEach(el => el.innerHTML = "การวิเคราะห์พิกัดขัดข้อง");
                 }
@@ -1179,7 +1208,7 @@
                 return p1.split('').map(c => supMap[c] || c).join('');
             });
             
-            return formatted;
+            return unescapeHtml(formatted);
         }
 
         window.copyIncidentReport = function() {
@@ -1369,8 +1398,9 @@
                 let pm25Value = '-';
                 let meteoText = 'ไม่พบข้อมูล Open-Meteo';
 
-                if (meteoData && meteoData.current && meteoData.current.pm2_5 !== undefined) {
-                    pm25Value = meteoData.current.pm2_5;
+                // parseFloat, not Number: a missing reading (null) must not show up as 0
+                if (meteoData && meteoData.current && !isNaN(parseFloat(meteoData.current.pm2_5))) {
+                    pm25Value = parseFloat(meteoData.current.pm2_5);
                     meteoText = `ค่าฝุ่น ณ เวลาปัจจุบัน (อ้างอิงพิกัดเกิดเหตุจาก Open-Meteo) = <b>${pm25Value} μg/m³</b>`;
                     
                     const hazardName = "PM<sub>2.5</sub>";
@@ -1397,14 +1427,14 @@
                     provName = provName.replace(/^จ\./g, '').trim();
                     
                     if (air4ThaiData && air4ThaiData[provName]) {
-                        if (air4ThaiData[provName] !== 'Error') {
-                            const a4tValue = air4ThaiData[provName];
-                            air4ThaiText = `ค่าเฉลี่ย 24 ชม. (สถานีตรวจวัด Air4Thai จ.${provName}) = <b>${a4tValue} μg/m³</b>`;
+                        const a4tValue = parseFloat(air4ThaiData[provName]);
+                        if (!isNaN(a4tValue)) {
+                            air4ThaiText = `ค่าเฉลี่ย 24 ชม. (สถานีตรวจวัด Air4Thai จ.${escapeHtml(provName)}) = <b>${a4tValue} μg/m³</b>`;
                         } else {
-                            air4ThaiText = `พบสถานี Air4Thai จ.${provName} แต่เครื่องมือขัดข้องหรือเซิร์ฟเวอร์ยังไม่ส่งข้อมูล`;
+                            air4ThaiText = `พบสถานี Air4Thai จ.${escapeHtml(provName)} แต่เครื่องมือขัดข้องหรือเซิร์ฟเวอร์ยังไม่ส่งข้อมูล`;
                         }
                     } else {
-                        air4ThaiText = `พิกัดอยู่นอกพื้นที่ สคพ.11 (จ.${provName}) จึงไม่ได้อ้างอิงข้อมูลสถานี Air4Thai`;
+                        air4ThaiText = `พิกัดอยู่นอกพื้นที่ สคพ.11 (จ.${escapeHtml(provName)}) จึงไม่ได้อ้างอิงข้อมูลสถานี Air4Thai`;
                     }
                 }
 
