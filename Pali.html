@@ -195,13 +195,17 @@ textarea:focus-visible, button:focus-visible, a:focus-visible, input:focus-visib
   var EXAMPLES = ["ความไม่ประมาทเป็นหนทางสู่อมตะ", "ตนแลเป็นที่พึ่งแห่งตน", "ความอดทนเป็นตบะอย่างยิ่ง", "นิพพานเป็นสุขอย่างยิ่ง", "ขอให้ท่านจงมีความสุข"];
   var HISTORY_KEY = "thai-pali-history";
   var CREDIT_KEY = "thai-pali-credit";
-  var KEY_SAVE = "thai-pali-secret"; // สำหรับจำรหัสผ่านไว้ในเครื่อง
+  var KEY_SAVE = "thai-pali-secret"; // จำรหัสผ่านไว้ใน sessionStorage จนกว่าจะปิดแท็บ
   var $ = function (id) { return document.getElementById(id); };
   var src = $("src"), go = $("go"), stop = $("stop"), status = $("status");
   var current = null, requestId = 0, shareFile = null, abortController = null;
 
-  // โหลดรหัสผ่านที่เคยพิมพ์ไว้
-  try { var savedKey = localStorage.getItem(KEY_SAVE); if(savedKey) $("secretKey").value = savedKey; } catch(e){}
+  // โหลดรหัสผ่านที่เคยพิมพ์ไว้ในแท็บนี้ และย้ายสำเนาเก่าที่เคยเก็บใน localStorage ออกมา (แล้วลบทิ้ง)
+  try {
+    var savedKey = sessionStorage.getItem(KEY_SAVE) || localStorage.getItem(KEY_SAVE);
+    localStorage.removeItem(KEY_SAVE);
+    if (savedKey) { sessionStorage.setItem(KEY_SAVE, savedKey); $("secretKey").value = savedKey; }
+  } catch(e){}
 
   EXAMPLES.forEach(function (t) {
     var b = document.createElement("button");
@@ -242,8 +246,8 @@ textarea:focus-visible, button:focus-visible, a:focus-visible, input:focus-visib
     var thai = src.value.trim();
     if (!thai) { setStatus(ERRORS.EMPTY, true); src.focus(); return; }
     
-    // บันทึกรหัสผ่านไว้ใช้ครั้งต่อไป
-    try { localStorage.setItem(KEY_SAVE, secret); } catch(e){}
+    // บันทึกรหัสผ่านไว้ใช้ต่อในแท็บนี้ (ลบเองเมื่อปิดแท็บ)
+    try { sessionStorage.setItem(KEY_SAVE, secret); } catch(e){}
 
     var id = ++requestId;
     go.disabled = true; stop.hidden = false;

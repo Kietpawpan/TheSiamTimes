@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LexiCraft Editorial — English Style Editor & Proofreader</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/vendor/tailwindcss-3.4.17.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@1.79.0/dist/umd/lucide.min.js" integrity="sha384-BqRrWtT4teonPDtZKRNshL/rppOoqxeAHLfUcL1tSbU0Slok4OE/xVxwdLb9R2ls" crossorigin="anonymous"></script>
 
   <script>
     tailwind.config = {
@@ -773,13 +773,19 @@ ${metaCharset}
       document.getElementById('userInput').addEventListener('input', updateTextCounters);
       loadSample('environment');
       
-      const savedKey = localStorage.getItem('lexicraft_secret_key');
-      if (savedKey) {
-        document.getElementById('secretKeyInput').value = savedKey;
-      }
-      
+      // The key lives in sessionStorage, so it is gone when the tab closes. Move any copy
+      // an older version of this page left in localStorage, then delete that copy.
+      try {
+        const savedKey = sessionStorage.getItem('lexicraft_secret_key') || localStorage.getItem('lexicraft_secret_key');
+        localStorage.removeItem('lexicraft_secret_key');
+        if (savedKey) {
+          sessionStorage.setItem('lexicraft_secret_key', savedKey);
+          document.getElementById('secretKeyInput').value = savedKey;
+        }
+      } catch (e) { /* storage blocked: type the key each time */ }
+
       document.getElementById('secretKeyInput').addEventListener('input', function(e) {
-        localStorage.setItem('lexicraft_secret_key', e.target.value);
+        try { sessionStorage.setItem('lexicraft_secret_key', e.target.value); } catch (err) { /* ignore */ }
       });
     };
   </script>
