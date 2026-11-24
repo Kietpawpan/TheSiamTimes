@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตรวจสอบโครงการเข้าข่าย EIA</title>
+<meta name="description" content="ตรวจสอบเบื้องต้นว่าโครงการต้องจัดทำรายงาน EIA หรือ IEE หรือไม่ ตามประกาศกระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม พ.ศ. 2566 และ (ฉบับที่ 2) พ.ศ. 2568">
+<link rel="icon" type="image/png" href="/Fav48.png?v=1">
+<link rel="apple-touch-icon" href="/Fav48.png?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  EIA screening tool (November 2026).
+  Source: ประกาศกระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม เรื่อง กำหนดโครงการ กิจการ หรือการดำเนินการ
+  ซึ่งต้องจัดทำรายงานการประเมินผลกระทบสิ่งแวดล้อม และหลักเกณฑ์ วิธีการ และเงื่อนไขในการจัดทำรายงาน
+  การประเมินผลกระทบสิ่งแวดล้อม พ.ศ. 2566 (ราชกิจจานุเบกษา เล่ม 141 ตอนพิเศษ 4 ง, 5 ม.ค. 2567)
+  and its amendment (ฉบับที่ 2) พ.ศ. 2568 (ราชกิจจานุเบกษา เล่ม 142 ตอนพิเศษ 260 ง, 31 ก.ค. 2568),
+  which replaced items 20 and 27 of Annex 4 and deleted two retail definitions.
+  Annex 3 = IEE (รายงานผลกระทบสิ่งแวดล้อมเบื้องต้น), Annex 4 = EIA.
+  Everything runs in the browser; nothing is sent anywhere.
+-->
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#ffffff; --surface-2:#f0eee8; --ink:#1c2220; --ink-2:#3f4845; --muted:#68716d;
+  --line:#e0ddd4; --line-2:#cfcbc0; --accent:#1d6a4e; --accent-hover:#175a41; --accent-ink:#ffffff; --accent-soft:#e2f0e9;
+  --eia:#b42318; --eia-soft:#fdeceb; --iee:#a8520a; --iee-soft:#fdf1e1; --none:#0b7044; --none-soft:#e4f3ea;
+  --check:#6440bf; --check-soft:#efeafb; --inc:#5b6763; --inc-soft:#ebefed;
+  --shadow:0 1px 2px rgba(20,30,25,.06),0 4px 16px rgba(20,30,25,.05);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111513; --surface:#191e1c; --surface-2:#212725; --ink:#e7ebe9; --ink-2:#c4ccc8; --muted:#97a19c;
+    --line:#2c3431; --line-2:#3a4440; --accent:#5ec29b; --accent-hover:#79d0ad; --accent-ink:#0a1510; --accent-soft:#183129;
+    --eia:#ff8f80; --eia-soft:#3a1c19; --iee:#f3b360; --iee-soft:#372914; --none:#6bd5a2; --none-soft:#13301f;
+    --check:#b9a0f6; --check-soft:#2a2240; --inc:#aab4b0; --inc-soft:#242a28;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111513; --surface:#191e1c; --surface-2:#212725; --ink:#e7ebe9; --ink-2:#c4ccc8; --muted:#97a19c;
+  --line:#2c3431; --line-2:#3a4440; --accent:#5ec29b; --accent-hover:#79d0ad; --accent-ink:#0a1510; --accent-soft:#183129;
+  --eia:#ff8f80; --eia-soft:#3a1c19; --iee:#f3b360; --iee-soft:#372914; --none:#6bd5a2; --none-soft:#13301f;
+  --check:#b9a0f6; --check-soft:#2a2240; --inc:#aab4b0; --inc-soft:#242a28;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Sarabun',system-ui,sans-serif;font-size:16px;line-height:1.6}
+a{color:var(--accent)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* header */
+header.top{padding:28px 0 8px}
+.home{font-size:14px;color:var(--muted);text-decoration:none}
+.home:hover{color:var(--accent)}
+h1{font-size:clamp(26px,4.2vw,36px);line-height:1.25;margin:6px 0 6px;font-weight:700;letter-spacing:-.01em}
+.lede{margin:0;color:var(--ink-2);max-width:78ch}
+.src{margin:8px 0 0;font-size:14px;color:var(--muted)}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap;vertical-align:1px}
+
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:20px 0 22px;overflow-x:auto}
+nav.tabs button{background:none;border:0;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs button:hover{color:var(--ink)}
+
+/* layout */
+.grid{display:grid;gap:20px;align-items:start}
+@media (min-width:1000px){.grid{grid-template-columns:minmax(0,1fr) 400px}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.card + .card{margin-top:16px}
+.step{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:19px;font-weight:700}
+.step .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:15px}
+.hint{font-size:14px;color:var(--muted);margin:-6px 0 14px}
+.q{margin:0 0 18px}
+.q:last-child{margin-bottom:0}
+.ql{font-weight:600;margin:0 0 8px;display:block}
+
+/* radio/check rows */
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--surface);transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--line-2)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opt input{margin:4px 0 0;flex:none;accent-color:var(--accent);width:17px;height:17px}
+.opt span{flex:1;min-width:0}
+.opt small{display:block;color:var(--muted);font-size:13.5px;line-height:1.5}
+.code{font-size:12px;font-weight:600;color:var(--muted);background:var(--surface-2);border-radius:6px;padding:0 6px;margin-left:6px;white-space:nowrap;vertical-align:1px}
+.sub{margin:8px 0 0 28px;display:grid;gap:8px}
+
+/* type picker */
+.search{position:relative;margin-bottom:14px}
+.search input{width:100%;padding:11px 14px 11px 40px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface)}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.grp{margin:0 0 12px}
+.grp h3{font-size:13px;font-weight:700;color:var(--muted);margin:0 0 8px;letter-spacing:.02em}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line-2);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:14.5px;cursor:pointer;line-height:1.35;text-align:left}
+.chip:hover{border-color:var(--accent)}
+.chip .no{color:var(--muted);font-size:12px;font-weight:600;margin-right:4px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip[aria-pressed="true"] .no{color:inherit;opacity:.8}
+.empty-pick{color:var(--muted);font-size:14px;margin:4px 0 0}
+
+/* panels */
+#panels:empty::before{content:"ยังไม่ได้เลือกประเภทโครงการ — เลือกจากขั้นที่ 2 แล้วกรอกขนาดที่นี่";display:block;color:var(--muted);font-size:15px;padding:18px;border:1px dashed var(--line-2);border-radius:12px;text-align:center}
+.panel{border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.panel:last-child{margin-bottom:0}
+.ph{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.ph .t{flex:1;min-width:0}
+.ph .t b{display:block;font-size:15.5px;line-height:1.45}
+.ph .t .sz{font-size:13.5px;color:var(--muted);line-height:1.5;margin-top:2px}
+.ph .x{flex:none;border:0;background:none;color:var(--muted);cursor:pointer;font-size:22px;line-height:1;padding:0 4px}
+.ph .x:hover{color:var(--ink)}
+.pb{padding:14px}
+.f{margin:0 0 14px}
+.f:last-child{margin-bottom:0}
+.f[hidden]{display:none}
+.f > label.l, .f > .l{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
+.inp{display:flex;align-items:stretch;max-width:360px;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;background:var(--surface)}
+.inp:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.inp input{flex:1;min-width:0;border:0;padding:9px 12px;background:transparent;outline:none;font-variant-numeric:tabular-nums}
+.inp .u{display:flex;align-items:center;padding:0 12px;background:var(--surface-2);color:var(--muted);font-size:14px;white-space:nowrap;border-left:1px solid var(--line)}
+select{width:100%;max-width:520px;padding:9px 12px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface)}
+.help{font-size:13.5px;color:var(--muted);margin:6px 0 0;line-height:1.55}
+.echo{font-size:14px;padding:8px 12px;border-radius:10px;background:var(--surface-2);color:var(--ink-2)}
+.echo b{color:var(--ink)}
+.mini{display:flex;gap:8px;align-items:center;padding:10px 14px;border-top:1px solid var(--line);font-size:14px;color:var(--ink-2)}
+
+/* pills / verdicts */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap;flex:none}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.p-eia{background:var(--eia-soft);color:var(--eia)}
+.p-iee{background:var(--iee-soft);color:var(--iee)}
+.p-none{background:var(--none-soft);color:var(--none)}
+.p-check{background:var(--check-soft);color:var(--check)}
+.p-inc{background:var(--inc-soft);color:var(--inc)}
+
+aside#result{position:relative}
+@media (min-width:1000px){aside#result{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}}
+.verdict{border-radius:12px;padding:16px;margin:-4px -4px 16px;border:1px solid transparent}
+.verdict .k{font-size:13px;font-weight:600;opacity:.85}
+.verdict .v{font-size:23px;font-weight:700;line-height:1.3;margin:2px 0 4px}
+.verdict p{margin:0;font-size:14.5px;line-height:1.55;color:var(--ink-2)}
+.v-eia{background:var(--eia-soft);color:var(--eia);border-color:color-mix(in srgb,var(--eia) 25%,transparent)}
+.v-iee{background:var(--iee-soft);color:var(--iee);border-color:color-mix(in srgb,var(--iee) 25%,transparent)}
+.v-none{background:var(--none-soft);color:var(--none);border-color:color-mix(in srgb,var(--none) 25%,transparent)}
+.v-check{background:var(--check-soft);color:var(--check);border-color:color-mix(in srgb,var(--check) 25%,transparent)}
+.v-inc,.v-idle{background:var(--inc-soft);color:var(--inc)}
+.rlist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.ri{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.ri .hd{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.ri .hd b{font-size:15px;line-height:1.45}
+.ri .ref{font-size:13px;color:var(--muted);margin-top:2px}
+.ri ul{margin:8px 0 0;padding-left:18px;font-size:14px;color:var(--ink-2)}
+.ri li{margin:2px 0}
+.ri .stage{margin-top:8px;font-size:14px;padding:8px 10px;border-radius:8px;background:var(--surface-2)}
+.ri .stage b{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+.ri .nt{margin:8px 0 0;font-size:13.5px;color:var(--ink-2);padding-left:10px;border-left:3px solid var(--line-2)}
+details.box{border:1px solid var(--line);border-radius:12px;margin-top:12px}
+details.box summary{cursor:pointer;padding:10px 14px;font-weight:600;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px}
+details.box summary::-webkit-details-marker{display:none}
+details.box summary::after{content:"+";font-size:20px;color:var(--muted);line-height:1}
+details.box[open] summary::after{content:"−"}
+details.box .in{padding:0 14px 12px;font-size:14px;color:var(--ink-2)}
+details.box ol,details.box ul{margin:0;padding-left:20px}
+details.box li{margin:3px 0}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{border:1px solid var(--line-2);background:var(--surface);border-radius:10px;padding:8px 14px;font-weight:600;font-size:14.5px;cursor:pointer}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{background:var(--accent-hover);color:var(--accent-ink)}
+.disc{font-size:13px;color:var(--muted);margin:14px 0 0;line-height:1.55}
+
+/* reference table */
+.reftools{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.reftools .search{flex:1;min-width:240px;margin:0}
+.annex{margin:0 0 28px}
+.annex h2{font-size:20px;margin:0 0 4px}
+.annex > p{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+table.ref{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14.5px}
+table.ref th,table.ref td{border-bottom:1px solid var(--line);padding:10px 12px;vertical-align:top;text-align:left}
+table.ref th{background:var(--surface-2);font-size:13.5px;color:var(--ink-2)}
+table.ref td.no{width:56px;font-weight:700;text-align:center}
+table.ref td.sz{width:24%}
+table.ref td.st{width:22%;color:var(--ink-2)}
+table.ref .hd{font-weight:700}
+table.ref .s1{padding-left:14px}
+table.ref .s2{padding-left:30px}
+table.ref .s0{margin-top:2px}
+table.ref .amd{margin-top:6px}
+@media (max-width:760px){
+  table.ref,table.ref tbody,table.ref tr,table.ref td{display:block;width:auto!important}
+  table.ref thead{display:none}
+  table.ref tr{border-bottom:1px solid var(--line);padding:6px 0}
+  table.ref td{border:0;padding:4px 14px}
+  table.ref td.no{text-align:left}
+  table.ref td.no::before{content:"ลำดับที่ "}
+  table.ref td.sz::before{content:"ขนาด: ";font-weight:600;color:var(--muted)}
+  table.ref td.st::before{content:"ขั้นตอน: ";font-weight:600;color:var(--muted)}
+}
+.defs{display:grid;gap:12px}
+.def{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.def b{display:block;margin-bottom:2px}
+.def p{margin:0;color:var(--ink-2);font-size:14.5px}
+.cols{display:grid;gap:16px}
+@media (min-width:760px){.cols{grid-template-columns:1fr 1fr}}
+.cols ol{margin:0;padding-left:22px;columns:2;column-gap:20px;font-size:14.5px}
+.cols li{break-inside:avoid}
+h2.sec{font-size:20px;margin:28px 0 12px}
+h2.sec:first-child{margin-top:0}
+
+/* mobile result bar */
+.mbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px;box-shadow:0 -4px 16px rgba(0,0,0,.06);transform:translateY(0);transition:transform .2s}
+.mbar.off{transform:translateY(110%)}
+.mbar .lb{flex:1;min-width:0;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mbar a{flex:none;font-weight:700;text-decoration:none;padding:7px 14px;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-size:14px}
+@media (min-width:1000px){.mbar{display:none}}
+@media (max-width:999px){body{padding-bottom:72px}}
+
+footer{margin:40px 0 0;padding:20px 0 32px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+footer p{margin:4px 0}
+
+@media print{
+  nav.tabs,.search,#pick,.acts,.mbar,.ph .x,header .home{display:none!important}
+  body{background:#fff;padding:0}
+  .card{box-shadow:none}
+  .grid{grid-template-columns:1fr}
+  aside#result{position:static;max-height:none;overflow:visible}
+  details.box{display:block}
+  details.box .in{display:block}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="home" href="index.html">← The Siam Times</a>
+    <h1>ตรวจสอบโครงการเข้าข่าย EIA</h1>
+    <p class="lede">ตรวจสอบเบื้องต้นว่าโครงการ กิจการ หรือการดำเนินการ ต้องจัดทำรายงานการประเมินผลกระทบสิ่งแวดล้อม (EIA) หรือรายงานผลกระทบสิ่งแวดล้อมเบื้องต้น (IEE) หรือไม่ พร้อมขั้นตอนการเสนอรายงานและเอกสารที่ต้องใช้</p>
+    <p class="src">ตามประกาศกระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม พ.ศ. 2566 (มีผล 6 ม.ค. 2567) และที่แก้ไขเพิ่มเติม (ฉบับที่ 2) พ.ศ. 2568 (มีผล 1 ส.ค. 2568) <span class="tag">ปรับปรุงถึงฉบับที่ 2</span></p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="ส่วนของหน้า">
+    <button role="tab" id="tab-check" aria-controls="view-check" aria-selected="true">ตรวจสอบโครงการ</button>
+    <button role="tab" id="tab-ref" aria-controls="view-ref" aria-selected="false">ตารางประเภทและขนาด</button>
+    <button role="tab" id="tab-def" aria-controls="view-def" aria-selected="false">คำนิยามและรายชื่อแม่น้ำ</button>
+  </nav>
+
+  <!-- ===================== CHECK ===================== -->
+  <section id="view-check" role="tabpanel" aria-labelledby="tab-check">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2 class="step"><span class="n">1</span>ข้อมูลโครงการ</h2>
+          <div class="q">
+            <span class="ql">ผู้ดำเนินโครงการ</span>
+            <div class="opts" id="g-prop">
+              <label class="opt"><input type="radio" name="prop" value="private" checked><span>เอกชน<small>เสนอรายงานตามขั้นตอนที่กำหนดในตารางท้ายประกาศ (ข้อ 10 (3))</small></span></label>
+              <label class="opt"><input type="radio" name="prop" value="gov_cab"><span>หน่วยงานของรัฐ หรือรัฐร่วมกับเอกชน ที่ต้องเสนอขอรับความเห็นชอบจากคณะรัฐมนตรี<small>เสนอรายงานในขั้นก่อนขอรับความเห็นชอบจากคณะรัฐมนตรี (ข้อ 10 (1))</small></span></label>
+              <label class="opt"><input type="radio" name="prop" value="gov"><span>หน่วยงานของรัฐที่ไม่ต้องเสนอคณะรัฐมนตรีหรือไม่ต้องได้รับอนุญาตตามกฎหมาย<small>เสนอรายงานในขั้นขออนุมัติโครงการหรือขออนุมัติงบประมาณต่อหัวหน้าหน่วยงานของรัฐ (ข้อ 10 (2))</small></span></label>
+            </div>
+          </div>
+          <div class="q">
+            <span class="ql">ลักษณะโครงการ</span>
+            <div class="opts" id="g-status">
+              <label class="opt"><input type="radio" name="status" value="new" checked><span>โครงการใหม่</span></label>
+              <label class="opt"><input type="radio" name="status" value="expand"><span>ขยายโครงการเดิมที่ยังไม่เคยจัดทำรายงาน<small>ให้กรอกขนาดรวมหลังการขยาย (ข้อ 4 วรรคหนึ่ง)</small></span></label>
+              <label class="opt"><input type="radio" name="status" value="change"><span>มีรายงานที่ได้รับความเห็นชอบแล้ว และจะเปลี่ยนแปลงรายละเอียดหรือขยายขนาด<small>ข้อ 4 วรรคสอง</small></span></label>
+            </div>
+          </div>
+          <div class="q">
+            <span class="ql">ที่ตั้งโครงการ <span style="font-weight:400;color:var(--muted)">(เลือกทุกข้อที่ตรง)</span></span>
+            <div class="opts">
+              <label class="opt"><input type="checkbox" id="g-ws1"><span>อยู่หรือตัดผ่านพื้นที่ลุ่มน้ำชั้นที่ 1 ตามมติคณะรัฐมนตรี<small>ทุกโครงการในพื้นที่นี้ต้องจัดทำ EIA ทุกขนาด (ลำดับที่ 33) เว้นแต่เข้าข้อยกเว้น</small></span></label>
+              <div class="sub" id="g-ws1-ex" hidden>
+                <label class="opt"><input type="checkbox" id="g-x331"><span>เป็นโครงการการพัฒนาชุมชนและการจัดที่ดินที่ได้รับความเห็นชอบจากคณะรัฐมนตรี<span class="code">33.1</span></span></label>
+                <label class="opt"><input type="checkbox" id="g-x332"><span>อยู่ในเขตป่าชุมชนตามกฎหมายว่าด้วยป่าชุมชน<span class="code">33.2</span></span></label>
+                <label class="opt"><input type="checkbox" id="g-x333"><span>เป็นโครงการของหน่วยงานของรัฐที่เข้าใช้ประโยชน์ก่อนวันที่ 17 มกราคม 2563 ดำเนินการตามวัตถุประสงค์เดิม และไม่ขยายพื้นที่<span class="code">33.3</span></span></label>
+              </div>
+              <label class="opt"><input type="checkbox" id="g-ws2"><span>อยู่หรือตัดผ่านพื้นที่ลุ่มน้ำชั้นที่ 2 ตามมติคณะรัฐมนตรี<small>ใช้กับทางหลวงหรือถนน (20.3) และโรงไฟฟ้าขยะ (18.1)</small></span></label>
+              <label class="opt"><input type="checkbox" id="g-env45"><span>อยู่ในเขตพื้นที่คุ้มครองสิ่งแวดล้อมตามประกาศกระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม (มาตรา 45)<small>ใช้กับโรงไฟฟ้าขยะ (18.2) และดูข้อ 13</small></span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="pick">
+          <h2 class="step"><span class="n">2</span>ประเภทโครงการ</h2>
+          <p class="hint">เลือกได้มากกว่า 1 ประเภท หากโครงการมีหลายองค์ประกอบ เช่น อาคารที่มีทั้งโรงแรม ห้องชุด และศูนย์การค้า</p>
+          <div class="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <label class="sr" for="q">ค้นหาประเภทโครงการ</label>
+            <input id="q" type="search" placeholder="ค้นหา เช่น คอนโด โรงแรม ท่าเรือ โรงไฟฟ้า เหมือง" autocomplete="off">
+          </div>
+          <div id="chips"></div>
+          <p class="empty-pick" id="nohit" hidden>ไม่พบประเภทที่ตรงกับคำค้น — ลองคำอื่น หรือเลือก “ประเภทอื่นที่ไม่อยู่ในรายการ”</p>
+        </div>
+
+        <div class="card">
+          <h2 class="step"><span class="n">3</span>ขนาดและลักษณะ</h2>
+          <div id="panels"></div>
+        </div>
+      </div>
+
+      <aside id="result" class="card" aria-live="polite" aria-label="ผลการตรวจสอบ">
+        <div id="res"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===================== REFERENCE ===================== -->
+  <section id="view-ref" role="tabpanel" aria-labelledby="tab-ref" hidden>
+    <div class="reftools">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <label class="sr" for="rq">ค้นหาในตาราง</label>
+        <input id="rq" type="search" placeholder="ค้นหาในตารางท้ายประกาศ" autocomplete="off">
+      </div>
+    </div>
+    <div id="reftables"></div>
+  </section>
+
+  <!-- ===================== DEFINITIONS ===================== -->
+  <section id="view-def" role="tabpanel" aria-labelledby="tab-def" hidden>
+    <h2 class="sec">คำนิยามที่เกี่ยวข้อง (ข้อ 2)</h2>
+    <div class="defs" id="defs"></div>
+    <h2 class="sec">รายชื่อลุ่มน้ำหลักและแม่น้ำสายหลัก</h2>
+    <div class="cols">
+      <div class="card"><h3 style="margin:0 0 10px;font-size:16px">เอกสารท้ายประกาศ 1 · ลุ่มน้ำหลัก 22 ลุ่มน้ำ</h3><ol id="basins"></ol></div>
+      <div class="card"><h3 style="margin:0 0 10px;font-size:16px">เอกสารท้ายประกาศ 2 · แม่น้ำสายหลัก 23 สาย</h3><ol id="rivers"></ol></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>ที่มา: ประกาศกระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม เรื่อง กำหนดโครงการ กิจการ หรือการดำเนินการ ซึ่งต้องจัดทำรายงานการประเมินผลกระทบสิ่งแวดล้อม และหลักเกณฑ์ วิธีการ และเงื่อนไขในการจัดทำรายงานการประเมินผลกระทบสิ่งแวดล้อม พ.ศ. 2566 (ราชกิจจานุเบกษา เล่ม 141 ตอนพิเศษ 4 ง วันที่ 5 มกราคม 2567) และ (ฉบับที่ 2) พ.ศ. 2568 (ราชกิจจานุเบกษา เล่ม 142 ตอนพิเศษ 260 ง วันที่ 31 กรกฎาคม 2568)</p>
+    <p>เครื่องมือนี้ใช้ช่วยคัดกรองเบื้องต้นเท่านั้น ข้อมูลที่กรอกไม่ถูกส่งออกจากเบราว์เซอร์ · © 2026 The Siam Times</p>
+  </footer>
+</div>
+
+<div class="mbar" id="mbar"><span class="lb" id="mbar-l">เลือกประเภทโครงการเพื่อดูผล</span><a href="#result">ดูผล</a></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ------------------------------------------------------------------ */
+/* Stages of submission (column 4 of the annex tables)                 */
+/* ------------------------------------------------------------------ */
+const ST = {
+  mine:    'ในขั้นขอประทานบัตร',
+  petro:   'ในขั้นขอรับความเห็นชอบจากหน่วยงานผู้รับผิดชอบหรือหน่วยงานผู้อนุญาต',
+  pipe:    'ในขั้นขอใบอนุญาต หรือในขั้นขอรับความเห็นชอบจากหน่วยงานผู้รับผิดชอบ แล้วแต่กรณี',
+  approve: 'ในขั้นขออนุมัติ หรือในขั้นขออนุญาตโครงการ แล้วแต่กรณี',
+  factory: 'ในขั้นขออนุญาตก่อสร้างเพื่อประกอบกิจการ หรือในขั้นขออนุญาตประกอบกิจการ แล้วแต่กรณี',
+  building:'ในขั้นขออนุญาตก่อสร้าง หรือหากใช้วิธีการแจ้งต่อเจ้าพนักงานท้องถิ่นตามกฎหมายว่าด้วยการควบคุมอาคาร โดยไม่ยื่นขอรับใบอนุญาต ให้เสนอในขั้นการแจ้งต่อเจ้าพนักงานท้องถิ่น แล้วแต่กรณี',
+  allot:   'ในขั้นขออนุญาตจัดสรรที่ดินตามกฎหมายว่าด้วยการจัดสรรที่ดิน'
+};
+
+const BASINS = ['สาละวิน','โขงเหนือ','โขงตะวันออกเฉียงเหนือ','ชี','มูล','ปิง','วัง','ยม','น่าน','เจ้าพระยา','สะแกกรัง','ป่าสัก','ท่าจีน','แม่กลอง','บางปะกง','โตนเลสาบ','ชายฝั่งทะเลตะวันออก','เพชรบุรี – ประจวบคีรีขันธ์','ภาคใต้ฝั่งตะวันออกตอนบน','ทะเลสาบสงขลา','ภาคใต้ฝั่งตะวันออกตอนล่าง','ภาคใต้ฝั่งตะวันตก'];
+const RIVERS = ['ยวม','สงคราม','กก','ชี','มูล','ปิง','วัง','ยม','น่าน','เจ้าพระยา','สะแกกรัง','ป่าสัก','ท่าจีน','แม่กลอง','ปราจีนบุรี','บางปะกง','จันทบุรี','เพชรบุรี','ปราณบุรี','สายบุรี','ตาปี','ปัตตานี','ตรัง'];
+
+/* ------------------------------------------------------------------ */
+/* The annex tables, as published (Annex 4 items 20 and 27 as amended) */
+/* subs: [depth, text]; depth 0 = continuation of the heading          */
+/* ------------------------------------------------------------------ */
+const REF = {
+ 3: [
+  {no:'1', head:'การทำเหมืองแร่อื่นๆ นอกเหนือจากประเภทที่กำหนดให้ต้องจัดทำรายงานการประเมินผลกระทบสิ่งแวดล้อมตามเอกสารท้ายประกาศ 4 แต่ไม่รวมถึงการทำเหมืองแร่ ดังต่อไปนี้',
+   subs:[[1,'(1) เหมืองแร่ทรายแก้วหรือทรายซิลิกา'],[1,'(2) เหมืองแร่ดินอุตสาหกรรมชนิดดินซีเมนต์'],[1,'(3) เหมืองแร่ดินเหนียวสี'],[1,'(4) เหมืองแร่ดินมาร์ล'],[1,'(5) เหมืองแร่ดินบอลเคลย์'],[1,'(6) เหมืองแร่ดินทนไฟ'],[1,'(7) เหมืองแร่ดินเบา'],[1,'(8) เหมืองแร่ดินขาว']],
+   size:'ทุกขนาด', stage:ST.mine},
+  {no:'2', head:'สนามบินหรือที่ขึ้นลงชั่วคราวของอากาศยานบนพื้นน้ำ ตามกฎหมายว่าด้วยการเดินอากาศ', subs:[], size:'ทุกขนาด', stage:ST.approve}
+ ],
+ 4: [
+  {no:'1', head:'การทำเหมืองแร่ตามกฎหมายว่าด้วยแร่',
+   subs:[[1,'1.1 เหมืองแร่ ดังต่อไปนี้'],[2,'1.1.1 เหมืองแร่ถ่านหิน'],[2,'1.1.2 เหมืองแร่โพแทช'],[2,'1.1.3 เหมืองแร่เกลือหิน'],[2,'1.1.4 เหมืองแร่หินปูนเพื่ออุตสาหกรรมปูนซีเมนต์'],[2,'1.1.5 เหมืองแร่โลหะทุกชนิด'],[1,'1.2 เหมืองแร่ใต้ดิน'],[1,'1.3 เหมืองแร่ที่มีการใช้วัตถุระเบิด'],[1,'1.4 เหมืองแร่ทุกชนิดที่ตั้งอยู่ในพื้นที่ดังต่อไปนี้'],[2,'1.4.1 พื้นที่ชั้นคุณภาพลุ่มน้ำชั้น 1 ตามมติคณะรัฐมนตรี'],[2,'1.4.2 ป่าอนุรักษ์เพิ่มเติมตามมติคณะรัฐมนตรี'],[2,'1.4.3 พื้นที่ชุ่มน้ำที่มีความสำคัญระหว่างประเทศ'],[2,'1.4.4 พื้นที่ที่อยู่ใกล้โบราณสถาน แหล่งโบราณคดี แหล่งประวัติศาสตร์หรืออุทยานประวัติศาสตร์ ตามกฎหมายว่าด้วยโบราณสถาน โบราณวัตถุ ศิลปวัตถุ และพิพิธภัณฑสถานแห่งชาติ แหล่งมรดกโลกที่ขึ้นบัญชีแหล่งมรดกโลก ตามอนุสัญญาระหว่างประเทศ ในระยะทาง 2 กิโลเมตร']],
+   size:'ทุกขนาด', stage:ST.mine},
+  {no:'2', head:'การพัฒนาปิโตรเลียม ตามกฎหมายว่าด้วยปิโตรเลียม',
+   subs:[[1,'2.1 การสำรวจปิโตรเลียมโดยวิธีการเจาะสำรวจ'],[1,'2.2 การผลิตปิโตรเลียม ยกเว้น การผลิตปิโตรเลียมในแปลงสำรวจและผลิตปิโตรเลียมบนบก ที่มีการผลิตอย่างต่อเนื่องตามที่กำหนดไว้ในรายงานการประเมินผลกระทบสิ่งแวดล้อม และสิทธิการผลิตเดิมสิ้นสุดอายุลงในขณะที่ปิโตรเลียมยังเหลืออยู่ โดยที่ไม่มีการเปลี่ยนแปลงการผลิตให้แตกต่างไปจากเดิม']],
+   size:'ทุกขนาด', stage:ST.petro},
+  {no:'3', head:'โครงการระบบขนส่งปิโตรเลียมและน้ำมันเชื้อเพลิงทางท่อ ยกเว้น',
+   subs:[[1,'(1) โครงการระบบขนส่งก๊าซธรรมชาติทางท่อบนบกที่โครงการทั้งหมดมีความดันใช้งานสูงสุดน้อยกว่าหรือเท่ากับยี่สิบบาร์และมีขนาดเส้นผ่านศูนย์กลางของท่อน้อยกว่าหรือเท่ากับสิบหกนิ้วในทุกพื้นที่ แต่ไม่รวมถึงพื้นที่ที่มีมติคณะรัฐมนตรีหรือกฎหมายกำหนดไว้เป็นอย่างอื่น'],[1,'(2) โครงการระบบขนส่งก๊าซธรรมชาติทางท่อบนบกที่มีความดันใช้งานสูงสุดมากกว่ายี่สิบบาร์ขึ้นไป หรือมีขนาดเส้นผ่านศูนย์กลางของท่อมากกว่าสิบหกนิ้วขึ้นไป ที่โครงการทั้งหมดอยู่ในเขตนิคมอุตสาหกรรมตามกฎหมายว่าด้วยการนิคมอุตสาหกรรมแห่งประเทศไทย']],
+   size:'ทุกขนาด', stage:ST.pipe},
+  {no:'4', head:'นิคมอุตสาหกรรม เขตประกอบการอุตสาหกรรม หรือการจัดสรรที่ดินเพื่อการอุตสาหกรรม ที่มีลักษณะ ดังนี้',
+   subs:[[1,'4.1 นิคมอุตสาหกรรม ตามกฎหมายว่าด้วยการนิคมอุตสาหกรรม'],[1,'4.2 เขตประกอบการอุตสาหกรรม ตามกฎหมายว่าด้วยโรงงาน'],[1,'4.3 การจัดสรรที่ดินเพื่อการอุตสาหกรรม ตามกฎหมายว่าด้วยการจัดสรรที่ดิน']],
+   size:'ทุกขนาด', stage:ST.approve},
+  {no:'5', head:'อุตสาหกรรมปิโตรเคมีที่มีกระบวนการผลิตทางเคมี', subs:[], size:'ที่มีกำลังการผลิต ตั้งแต่ 100 ตันต่อวันขึ้นไป', stage:ST.factory},
+  {no:'6', head:'อุตสาหกรรมกลั่นน้ำมันปิโตรเลียม', subs:[], size:'ทุกขนาด', stage:ST.factory},
+  {no:'7', head:'อุตสาหกรรมแยกหรือแปรสภาพก๊าซธรรมชาติ ดังนี้',
+   subs:[[1,'7.1 การแยกก๊าซธรรมชาติ'],[1,'7.2 การแปรสภาพก๊าซธรรมชาติโดยการปรับเปลี่ยนโครงสร้างหรือโดยการเปลี่ยนสถานะจากก๊าซเป็นของเหลว'],[1,'7.3 การแปรสภาพก๊าซธรรมชาติโดยการเปลี่ยนสถานะจากของเหลวกลับเป็นก๊าซ ที่ใช้น้ำทะเลหรือน้ำจากแหล่งน้ำธรรมชาติในการให้ความร้อนเพื่อแปรสภาพ']],
+   size:'ทุกขนาด', stage:ST.factory},
+  {no:'8', head:'อุตสาหกรรมคลอร์-แอลคาไล (Chlor – alkali industry) และอุตสาหกรรมที่ใช้คลอรีน (Cl₂) หรือไฮโดรเจนคลอไรด์ (HCl) ดังนี้',
+   subs:[[1,'8.1 อุตสาหกรรมคลอร์-แอลคาไล (Chlor – alkali industry) ที่ใช้โซเดียมคลอไรด์ (NaCl) เป็นวัตถุดิบในการผลิตผลิตภัณฑ์คลอรีน (Cl₂) โซเดียมไฮดรอกไซด์ (NaOH) โซเดียมไฮโพคลอไรต์ (NaOCl) กรดไฮโดรคลอริก (HCl) โซเดียมคาร์บอเนต (Na₂CO₃) และผงปูนคลอรีน (Bleaching Powder)'],[1,'8.2 อุตสาหกรรมที่ใช้คลอรีน (Cl₂) หรือไฮโดรเจนคลอไรด์ (HCl) เป็นวัตถุดิบในการผลิตผลิตภัณฑ์โซเดียมไฮโพคลอไรต์ (NaOCl) กรดไฮโดรคลอริก (HCl) โซเดียมคาร์บอเนต (Na₂CO₃) และผงปูนคลอรีน (Bleaching Powder)']],
+   size:'ที่มีกำลังการผลิตแต่ละชนิดหรือหลายชนิดรวมกันตั้งแต่ 100 ตันต่อวันขึ้นไป', stage:ST.factory},
+  {no:'9', head:'อุตสาหกรรมผลิตปูนซีเมนต์', subs:[], size:'ทุกขนาด', stage:ST.factory},
+  {no:'10', head:'อุตสาหกรรมผลิตเยื่อกระดาษ', subs:[], size:'ที่มีกำลังการผลิตตั้งแต่ 50 ตันต่อวันขึ้นไป', stage:ST.factory},
+  {no:'11', head:'อุตสาหกรรมที่ผลิตสารออกฤทธิ์หรือสารที่ใช้ป้องกันหรือกำจัดศัตรูพืชหรือสัตว์โดยใช้กระบวนการทางเคมี', subs:[], size:'ทุกขนาด', stage:ST.factory},
+  {no:'12', head:'อุตสาหกรรมผลิตปุ๋ยเคมีโดยกระบวนการทางเคมี', subs:[], size:'ทุกขนาด', stage:ST.factory},
+  {no:'13', head:'อุตสาหกรรมประกอบกิจการเกี่ยวกับน้ำตาล ดังต่อไปนี้',
+   subs:[[1,'13.1 การทำน้ำตาลทรายดิบ น้ำตาลทรายขาว น้ำตาลทรายบริสุทธิ์ — ทุกขนาด'],[1,'13.2 การทำกลูโคส เดกซ์โทรส ฟรักโทส หรือผลิตภัณฑ์อื่นที่คล้ายคลึงกัน — ที่มีกำลังผลิตตั้งแต่ 20 ตันต่อวันขึ้นไป']],
+   size:'13.1 ทุกขนาด · 13.2 ที่มีกำลังผลิตตั้งแต่ 20 ตันต่อวันขึ้นไป', stage:ST.factory},
+  {no:'14', head:'อุตสาหกรรมเหล็กหรือเหล็กกล้า ดังนี้',
+   subs:[[1,'14.1 เหล็กขั้นต้นหรือเหล็กขั้นกลางที่มีการถลุง การหลอม หรือการหล่อ'],[1,'14.2 เหล็กขั้นปลาย ได้แก่ โครงการ กิจการ หรือการดำเนินการ ที่มี'],[2,'(1) การรีดเหล็ก (Rolling) ทั้งการรีดร้อนและรีดเย็น ยกเว้นการรีดขึ้นรูปเย็น (Cold Roll Forming) และการรีดปรับสภาพผิว (Skin-pass หรือ Temper Rolling)'],[2,'(2) การทุบขึ้นรูปร้อน (Hot Forging)'],[2,'(3) การเคลือบผิวของอุตสาหกรรมเหล็กหรือเหล็กกล้า (ทั้งกรรมวิธีจุ่มด้วยโลหะหลอมเหลว กรรมวิธีทางไฟฟ้า กรรมวิธีทางเคมี กรรมวิธีทางไฟฟ้าเคมี)'],[2,'(4) การหล่อเหล็กรูปพรรณ (Ferrous Metal Foundries)']],
+   size:'ที่มีกำลังการผลิตแต่ละชนิดหรือหลายชนิดรวมกันตั้งแต่ 100 ตันต่อวันขึ้นไป', stage:ST.factory},
+  {no:'15', head:'อุตสาหกรรมถลุงหรือแต่งแร่โลหะ หรือหลอมโลหะ ซึ่งมิใช่เหล็กหรือเหล็กกล้าตามลำดับที่ 14', subs:[], size:'ที่มีกำลังการผลิตตั้งแต่ 50 ตันต่อวันขึ้นไป หรือที่มีกำลังการผลิตรวมกันตั้งแต่ 50 ตันต่อวันขึ้นไป', stage:ST.factory},
+  {no:'16', head:'อุตสาหกรรมผลิตสุรา แอลกอฮอล์รวมทั้งผลิตเบียร์และไวน์',
+   subs:[[1,'16.1 อุตสาหกรรมผลิตสุรา แอลกอฮอล์ — ที่มีกำลังการผลิตตั้งแต่ 40,000 ลิตรต่อเดือนขึ้นไป (คิดเทียบที่ 28 ดีกรี)'],[1,'16.2 อุตสาหกรรมผลิตไวน์ — ที่มีกำลังการผลิตตั้งแต่ 600,000 ลิตรต่อเดือนขึ้นไป'],[1,'16.3 อุตสาหกรรมผลิตเบียร์ — ที่มีกำลังการผลิตตั้งแต่ 600,000 ลิตรต่อเดือนขึ้นไป']],
+   size:'ตามข้อย่อย', stage:ST.factory},
+  {no:'17', head:'โรงงานปรับคุณภาพของเสียรวมและโรงงานประกอบกิจการที่เกี่ยวกับการฝังกลบสิ่งปฏิกูลหรือวัสดุที่ไม่ใช้แล้ว ดังนี้',
+   subs:[[1,'17.1 โรงงานปรับคุณภาพของเสียรวมเฉพาะสิ่งปฏิกูลหรือวัสดุที่ไม่ใช้แล้วตามกฎหมายว่าด้วยโรงงาน'],[1,'17.2 โรงงานประกอบกิจการที่เกี่ยวกับการฝังกลบสิ่งปฏิกูลหรือวัสดุที่ไม่ใช้แล้วที่ไม่เป็นของเสียอันตรายตามกฎหมายว่าด้วยโรงงาน']],
+   size:'ทุกขนาด', stage:ST.factory},
+  {no:'18', head:'โรงไฟฟ้าพลังความร้อนทุกประเภท ยกเว้น โรงไฟฟ้าพลังความร้อนที่ใช้ขยะมูลฝอยเป็นเชื้อเพลิง',
+   subs:[[0,'โรงไฟฟ้าพลังความร้อนที่ใช้ขยะมูลฝอยเป็นเชื้อเพลิงที่ได้รับยกเว้นต้องไม่เป็นโรงไฟฟ้าที่ตั้งอยู่พื้นที่ ดังต่อไปนี้'],[1,'18.1 พื้นที่ซึ่งคณะรัฐมนตรีมีมติเห็นชอบกำหนดให้เป็นพื้นที่ชั้นคุณภาพลุ่มน้ำชั้น 1 และชั้น 2'],[1,'18.2 พื้นที่คุ้มครองสิ่งแวดล้อมตามประกาศกระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม'],[1,'18.3 พื้นที่ป่าอนุรักษ์เพิ่มเติมตามมติของคณะรัฐมนตรี'],[1,'18.4 พื้นที่ชุ่มน้ำที่มีความสำคัญระหว่างประเทศ'],[1,'18.5 พื้นที่ซึ่งมีระดับสารมลพิษทางอากาศสูงเกินกว่าร้อยละ 80 ของค่ามาตรฐานคุณภาพอากาศในบรรยากาศโดยทั่วไป']],
+   size:'ที่มีกำลังการผลิตติดตั้งตั้งแต่ 10 เมกะวัตต์ขึ้นไป', stage:ST.factory},
+  {no:'19', head:'ระบบทางพิเศษตามกฎหมายว่าด้วยการทางพิเศษ หรือโครงการที่มีลักษณะเช่นเดียวกับทางพิเศษ', subs:[], size:'ทุกขนาด', stage:ST.approve},
+  {no:'20', amended:true, head:'ทางหลวงหรือถนน ซึ่งมีความหมายตามกฎหมายว่าด้วยทางหลวง ที่ตัดผ่านพื้นที่ดังต่อไปนี้',
+   subs:[[1,'20.1 พื้นที่เขตรักษาพันธุ์สัตว์ป่าและเขตห้ามล่าสัตว์ป่าตามกฎหมายว่าด้วยการสงวนและคุ้มครองสัตว์ป่า'],[1,'20.2 พื้นที่เขตอุทยานแห่งชาติตามกฎหมายว่าด้วยอุทยานแห่งชาติ'],[1,'20.3 พื้นที่ที่คณะรัฐมนตรีมีมติเห็นชอบกำหนดให้เป็นพื้นที่ชั้นคุณภาพลุ่มน้ำชั้นที่ 2'],[1,'20.4 พื้นที่ป่าชายเลนในเขตป่าสงวนแห่งชาติ'],[1,'20.5 พื้นที่ชายฝั่งทะเลในระยะ 50 เมตร ห่างจากระดับน้ำทะเลขึ้นสูงสุดตามปกติทางธรรมชาติ'],[1,'20.6 พื้นที่ที่อยู่ในหรือใกล้พื้นที่ชุ่มน้ำที่มีความสำคัญระหว่างประเทศหรือแหล่งมรดกโลกที่ขึ้นบัญชีแหล่งมรดกโลกตามอนุสัญญาระหว่างประเทศในระยะ 2 กิโลเมตร'],[1,'20.7 พื้นที่ที่ตั้งอยู่ใกล้โบราณสถาน แหล่งโบราณคดี แหล่งประวัติศาสตร์ หรืออุทยานประวัติศาสตร์ ตามกฎหมายว่าด้วยโบราณสถาน โบราณวัตถุ ศิลปวัตถุและพิพิธภัณฑสถานแห่งชาติในระยะ 500 เมตร ยกเว้นถนนผังเมือง ตามที่กำหนดไว้ในกฎหมายว่าด้วยการผังเมือง']],
+   size:'ทุกขนาด', stage:ST.approve, amdNote:'ฉบับที่ 2 แก้ระยะใน 20.7 จาก 1 กิโลเมตร เป็น 500 เมตร'},
+  {no:'21', head:'ระบบการขนส่งทางราง', subs:[], size:'ทุกขนาด', stage:ST.approve},
+  {no:'22', head:'ท่าเทียบเรือ', subs:[[0,'ยกเว้นโครงการ กิจการ หรือการดำเนินการเพื่อความมั่นคงแห่งชาติตามกฎหมายว่าด้วยสภาความมั่นคงแห่งชาติที่ได้รับความเห็นชอบจากคณะรัฐมนตรี']],
+   size:'ที่รองรับเรือขนาดตั้งแต่ 500 ตันกรอสขึ้นไป หรือมีความยาวหน้าท่าตั้งแต่ 100 เมตร แต่ไม่ถึง 300 เมตร หรือมีพื้นที่ท่าเทียบเรือรวมตั้งแต่ 1,000 ตารางเมตร แต่ไม่ถึง 10,000 ตารางเมตร', stage:ST.approve},
+  {no:'23', head:'ท่าเทียบเรือสำราญและกีฬา', subs:[], size:'ที่รองรับเรือได้ตั้งแต่ 50 ลำขึ้นไป หรือมีพื้นที่ท่าเทียบเรือรวมตั้งแต่ 1,000 ตารางเมตรขึ้นไป', stage:ST.approve},
+  {no:'24', head:'การถมที่ดินในทะเล หรือทะเลสาบสงขลา นอกแนวเขตชายฝั่งเดิม ยกเว้นการถมทะเลที่เป็นการฟื้นฟูสภาพชายหาด', subs:[], size:'ที่มีขนาดไม่ถึง 300 ไร่', stage:ST.approve},
+  {no:'25', head:'การก่อสร้างหรือขยายสิ่งก่อสร้างบริเวณหรือในทะเล',
+   subs:[[1,'25.1 รอดักทราย เขื่อนกันทรายและคลื่น รอบังคับกระแสน้ำ'],[1,'25.2 แนวเขื่อนกันคลื่นนอกฝั่งทะเล'],[1,'25.3 กำแพงติดแนวชายฝั่งทะเล']],
+   size:'ทุกขนาด', stage:ST.approve},
+  {no:'26', head:'ระบบขนส่งทางอากาศ', subs:[[0,'เฉพาะการก่อสร้างหรือขยายสนามบิน หรือที่ขึ้นลงชั่วคราวของอากาศยานตามกฎหมายว่าด้วยการเดินอากาศ']],
+   size:'ที่มีความยาวของทางวิ่งตั้งแต่ 1,100 เมตรขึ้นไป แต่ไม่ถึง 3,000 เมตร', stage:ST.approve},
+  {no:'27', amended:true, head:'อาคารสูงหรืออาคารขนาดใหญ่พิเศษตามกฎหมายว่าด้วยการควบคุมอาคาร ซึ่งมีลักษณะที่ตั้งหรือการใช้ประโยชน์ในอาคารอย่างหนึ่งอย่างใดทั้งอาคารหรือที่มีพื้นที่รวมกันตั้งแต่ 10,000 ตารางเมตรขึ้นไป ดังนี้',
+   subs:[[1,'27.1 อาคารที่ตั้งอยู่ติดแม่น้ำตามเอกสารท้ายประกาศ 2 ฝั่งทะเล ทะเลสาบสงขลา หรือชายหาด หรือที่ตั้งอยู่ติดหรืออยู่ในอุทยานแห่งชาติหรืออุทยานประวัติศาสตร์'],[1,'27.2 อาคารพาณิชย์ ที่ใช้ประโยชน์ในการประกอบธุรกิจอย่างหนึ่งอย่างใดเพื่อ'],[2,'(1) ค้าปลีกหรือค้าส่งซึ่งสินค้าอุปโภคบริโภคที่ใช้ในชีวิตประจำวัน หรือเสื้อผ้าเครื่องนุ่งห่ม แต่ไม่หมายความรวมถึงตลาดตามกฎหมายว่าด้วยการสาธารณสุข'],[2,'(2) ค้าวัสดุหรืออุปกรณ์ที่ใช้ในการก่อสร้าง เครื่องใช้ไฟฟ้า หรือเครื่องเรือน'],[2,'(3) ห้างสรรพสินค้า หรือศูนย์การค้า'],[1,'27.3 อาคารที่ใช้เป็นสำนักงานหรือที่ทำการของเอกชน'],[1,'27.4 อาคารที่ใช้เพื่อประโยชน์ในกิจการหลายประเภทในอาคารหลังเดียวกัน โดยมีลักษณะการใช้ประโยชน์ในอาคารตามที่กำหนดไว้ในลำดับที่ 27.2 และ 27.3']],
+   size:'ที่มีความสูงตั้งแต่ 23 เมตรขึ้นไป หรือมีพื้นที่รวมกันทุกชั้นหรือชั้นหนึ่งชั้นใดในหลังเดียวกัน ตั้งแต่ 10,000 ตารางเมตรขึ้นไป', stage:ST.building,
+   amdNote:'ฉบับที่ 2 แทนที่ 27.2 เดิม (อาคารประกอบธุรกิจค้าปลีกหรือค้าส่ง) ด้วยอาคารพาณิชย์ 3 ลักษณะ และเพิ่ม 27.4'},
+  {no:'28', head:'การจัดสรรที่ดินเพื่อเป็นที่อยู่อาศัยหรือเพื่อประกอบการพาณิชย์ตามกฎหมายว่าด้วยการจัดสรรที่ดิน', subs:[], size:'ที่มีจำนวนที่ดินแปลงย่อยตั้งแต่ 500 แปลงขึ้นไป หรือมีเนื้อที่เกินกว่า 100 ไร่', stage:ST.allot},
+  {no:'29', head:'โรงพยาบาลหรือสถานพยาบาล ตามกฎหมายว่าด้วยสถานพยาบาล',
+   subs:[[1,'29.1 กรณีตั้งอยู่ใกล้แม่น้ำตามเอกสารท้ายประกาศ 2 ฝั่งทะเล ทะเลสาบสงขลา หรือชายหาด ในระยะ 50 เมตร — ที่มีเตียงสำหรับผู้ป่วยไว้ค้างคืน ตั้งแต่ 30 เตียงขึ้นไป'],[1,'29.2 กรณีโครงการที่ไม่อยู่ในข้อ 29.1 — ที่มีเตียงสำหรับผู้ป่วยไว้ค้างคืนตั้งแต่ 60 เตียงขึ้นไป']],
+   size:'ตามข้อย่อย', stage:ST.building},
+  {no:'30', head:'โรงแรมหรือสถานที่พักตากอากาศตามกฎหมายว่าด้วยโรงแรม', subs:[], size:'ที่มีจำนวนห้องพักตั้งแต่ 80 ห้องขึ้นไป หรือมีพื้นที่ใช้สอยตั้งแต่ 4,000 ตารางเมตรขึ้นไป', stage:ST.building},
+  {no:'31', head:'อาคารอยู่อาศัยรวมตามกฎหมายว่าด้วยการควบคุมอาคาร', subs:[], size:'ที่มีจำนวนห้องชุดหรือห้องพักตั้งแต่ 80 ห้องขึ้นไป หรือมีพื้นที่ใช้สอยตั้งแต่ 4,000 ตารางเมตรขึ้นไป', stage:ST.building},
+  {no:'32', head:'การชลประทาน', subs:[], size:'ที่มีพื้นที่การชลประทานตั้งแต่ 80,000 ไร่ขึ้นไป', stage:ST.approve},
+  {no:'33', head:'โครงการ กิจการ หรือการดำเนินการทุกประเภทที่อยู่ในพื้นที่ที่คณะรัฐมนตรีได้มีมติเห็นชอบกำหนดให้เป็นพื้นที่ลุ่มน้ำชั้นที่ 1 ยกเว้น',
+   subs:[[1,'33.1 โครงการ กิจการ หรือการดำเนินการ การพัฒนาชุมชนและการจัดที่ดิน ที่ได้รับความเห็นชอบจากคณะรัฐมนตรี'],[1,'33.2 โครงการ กิจการ หรือการดำเนินการ ในเขตป่าชุมชนตามกฎหมายว่าด้วยป่าชุมชน'],[1,'33.3 โครงการ กิจการ หรือการดำเนินการของหน่วยงานของรัฐที่ได้เข้าใช้ประโยชน์ก่อนวันที่ 17 มกราคม 2563 ซึ่งได้ดำเนินการตามวัตถุประสงค์เดิม และไม่มีการขยายพื้นที่ให้แตกต่างไปจากเดิม']],
+   size:'ทุกขนาด', stage:ST.approve},
+  {no:'34', head:'การผันน้ำข้ามลุ่มน้ำ ดังต่อไปนี้',
+   subs:[[1,'34.1 การผันน้ำข้ามลุ่มน้ำหลัก ยกเว้นกรณีภัยพิบัติ หรือมีผลกระทบต่อความมั่นคงของประเทศ ที่เป็นการดำเนินการชั่วคราว'],[1,'34.2 การผันน้ำระหว่างประเทศ ยกเว้นกรณีภัยพิบัติ หรือมีผลกระทบต่อความมั่นคงของประเทศที่เป็นการดำเนินการชั่วคราว']],
+   size:'ทุกขนาด', stage:ST.approve},
+  {no:'35', head:'ประตูระบายน้ำในแม่น้ำสายหลัก', subs:[], size:'ทุกขนาด', stage:ST.approve}
+ ]
+};
+const refRow = (a, no) => REF[a].find(r => r.no === no);
+
+/* ------------------------------------------------------------------ */
+/* State                                                               */
+/* ------------------------------------------------------------------ */
+const G = {prop:'private', status:'new', ws1:false, ws2:false, env45:false, x331:false, x332:false, x333:false};
+const V = {};            // per-item answers
+const picked = new Set();
+
+/* ------------------------------------------------------------------ */
+/* Helpers                                                             */
+/* ------------------------------------------------------------------ */
+const $ = (s, r = document) => r.querySelector(s);
+const num = (v, k) => {
+  const s = v[k];
+  if (s == null || s === '') return null;
+  const x = parseFloat(String(s).replace(/[,\s]/g, ''));
+  return Number.isFinite(x) ? x : null;
+};
+const fmt = x => x.toLocaleString('th-TH', {maximumFractionDigits: 2});
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const A = (annex, no) => ({annex, no});
+const out = (v, ref, why = [], extra = {}) => Object.assign({v, ref, why, notes: [], need: []}, extra);
+const EIA  = (ref, why, extra) => out('eia', ref, why, extra);
+const IEE  = (ref, why, extra) => out('iee', ref, why, extra);
+const NONE = (ref, why, extra) => out('none', ref, why, extra);
+const CHK  = (ref, why, extra) => out('check', ref, why, extra);
+const INC  = (ref, need) => out('inc', ref, [], {need});
+const yes = b => b ? '<b>ใช่</b>' : '<b>ไม่ใช่</b>';
+const echo = (txt, on) => `<div class="echo">${txt} — ${yes(on)} <span style="color:var(--muted)">(จากขั้นที่ 1)</span></div>`;
+const EHIA_NOTE = 'ขนาดเกินช่วงที่ประกาศฉบับนี้กำหนด ซึ่งบ่งว่าโครงการอาจอยู่ในประกาศกำหนดโครงการที่อาจก่อให้เกิดผลกระทบต่อชุมชนอย่างรุนแรง (EHIA) — หากเข้าข่าย ให้จัดทำรายงาน EHIA ตามประกาศนั้นเพียงอย่างเดียว (ข้อ 5)';
+
+/* ------------------------------------------------------------------ */
+/* Project types: fields + evaluation                                  */
+/* field types: num, chk, radio, select, info                          */
+/* ------------------------------------------------------------------ */
+const GROUPS = [
+  ['mine','เหมืองแร่ ปิโตรเลียม และท่อขนส่ง'],
+  ['ind','อุตสาหกรรม'],
+  ['power','พลังงานไฟฟ้า'],
+  ['trans','คมนาคมขนส่ง'],
+  ['sea','ชายฝั่งและทะเล'],
+  ['bld','อาคาร ที่อยู่อาศัย และบริการ'],
+  ['water','ทรัพยากรน้ำ'],
+  ['other','อื่น ๆ']
+];
+
+const MINERALS = [
+  {g:'แร่ที่ระบุในลำดับ 1.1', o:[['coal','ถ่านหิน'],['potash','โพแทช'],['rocksalt','เกลือหิน'],['limecem','หินปูนเพื่ออุตสาหกรรมปูนซีเมนต์'],['metal','แร่โลหะ (ทุกชนิด)']]},
+  {g:'ดินและทรายอุตสาหกรรม', o:[['silica','ทรายแก้วหรือทรายซิลิกา'],['cementclay','ดินอุตสาหกรรมชนิดดินซีเมนต์'],['colorclay','ดินเหนียวสี'],['marl','ดินมาร์ล'],['ballclay','ดินบอลเคลย์'],['fireclay','ดินทนไฟ'],['diatomite','ดินเบา'],['kaolin','ดินขาว']]},
+  {g:'อื่น ๆ', o:[['other','แร่ชนิดอื่นนอกจากที่ระบุข้างต้น']]}
+];
+const L11 = {coal:'1.1.1 เหมืองแร่ถ่านหิน', potash:'1.1.2 เหมืองแร่โพแทช', rocksalt:'1.1.3 เหมืองแร่เกลือหิน', limecem:'1.1.4 เหมืองแร่หินปูนเพื่ออุตสาหกรรมปูนซีเมนต์', metal:'1.1.5 เหมืองแร่โลหะ'};
+const X8 = {silica:['(1)','ทรายแก้วหรือทรายซิลิกา'], cementclay:['(2)','ดินอุตสาหกรรมชนิดดินซีเมนต์'], colorclay:['(3)','ดินเหนียวสี'], marl:['(4)','ดินมาร์ล'], ballclay:['(5)','ดินบอลเคลย์'], fireclay:['(6)','ดินทนไฟ'], diatomite:['(7)','ดินเบา'], kaolin:['(8)','ดินขาว']};
+
+const yesNo = [['yes','ใช่'],['no','ไม่ใช่']];
+
+const ITEMS = [
+ {id:'1', grp:'mine', chip:'เหมืองแร่', kw:'เหมือง แร่ ประทานบัตร ถ่านหิน โพแทช เกลือหิน หินปูน ทองคำ ทราย ดินขาว ระเบิด IEE',
+  fields:[
+   {k:'mineral', t:'select', label:'ชนิดแร่', opts:MINERALS},
+   {k:'under', t:'chk', label:'เป็นเหมืองแร่ใต้ดิน', code:'1.2'},
+   {k:'blast', t:'chk', label:'มีการใช้วัตถุระเบิด', code:'1.3'},
+   {t:'info', html:() => echo('1.4.1 อยู่ในพื้นที่ชั้นคุณภาพลุ่มน้ำชั้น 1', G.ws1)},
+   {k:'forest', t:'chk', label:'อยู่ในป่าอนุรักษ์เพิ่มเติมตามมติคณะรัฐมนตรี', code:'1.4.2'},
+   {k:'ramsar', t:'chk', label:'อยู่ในพื้นที่ชุ่มน้ำที่มีความสำคัญระหว่างประเทศ', code:'1.4.3'},
+   {k:'heritage', t:'chk', label:'อยู่ใกล้โบราณสถาน แหล่งโบราณคดี แหล่งประวัติศาสตร์ อุทยานประวัติศาสตร์ หรือแหล่งมรดกโลก ในระยะ 2 กิโลเมตร', code:'1.4.4'}
+  ],
+  ev(v){
+   const ref = A(4,'1'), why = [];
+   if (L11[v.mineral]) why.push(L11[v.mineral]);
+   if (v.under) why.push('1.2 เหมืองแร่ใต้ดิน');
+   if (v.blast) why.push('1.3 เหมืองแร่ที่มีการใช้วัตถุระเบิด');
+   if (G.ws1) why.push('1.4.1 อยู่ในพื้นที่ชั้นคุณภาพลุ่มน้ำชั้น 1');
+   if (v.forest) why.push('1.4.2 อยู่ในป่าอนุรักษ์เพิ่มเติมตามมติคณะรัฐมนตรี');
+   if (v.ramsar) why.push('1.4.3 อยู่ในพื้นที่ชุ่มน้ำที่มีความสำคัญระหว่างประเทศ');
+   if (v.heritage) why.push('1.4.4 อยู่ใกล้โบราณสถานหรือแหล่งมรดกโลกในระยะ 2 กิโลเมตร');
+   if (why.length) return EIA(ref, why);
+   if (!v.mineral) return INC(ref, ['ชนิดแร่']);
+   if (X8[v.mineral]) return NONE(A(3,'1'), [`เหมืองแร่${X8[v.mineral][1]} ไม่ใช้เทคนิคใต้ดิน ไม่ใช้วัตถุระเบิด และไม่อยู่ในพื้นที่ตาม 1.4 จึงไม่เข้าเอกสารท้ายประกาศ 4 และได้รับการยกเว้นจากเอกสารท้ายประกาศ 3 ลำดับที่ 1 ${X8[v.mineral][0]}`]);
+   return IEE(A(3,'1'), ['การทำเหมืองแร่อื่น ๆ ที่ไม่เข้าข่ายเอกสารท้ายประกาศ 4 — ทุกขนาด']);
+  }},
+
+ {id:'2', grp:'mine', chip:'สำรวจ/ผลิตปิโตรเลียม', kw:'ปิโตรเลียม หลุมเจาะ เจาะสำรวจ ผลิต น้ำมันดิบ ก๊าซ แท่น',
+  fields:[
+   {k:'act', t:'radio', label:'กิจกรรม', opts:[['drill','การสำรวจปิโตรเลียมโดยวิธีการเจาะสำรวจ'],['prod','การผลิตปิโตรเลียม'],['other','การสำรวจด้วยวิธีอื่นที่ไม่ใช่การเจาะ เช่น การสำรวจคลื่นไหวสะเทือน']]},
+   {k:'prodEx', t:'chk', show:v => v.act === 'prod', label:'เป็นการผลิตในแปลงสำรวจและผลิตปิโตรเลียมบนบก ที่ผลิตต่อเนื่องตามที่กำหนดไว้ในรายงาน EIA เดิม และสิทธิการผลิตเดิมสิ้นอายุขณะที่ปิโตรเลียมยังเหลืออยู่ โดยไม่เปลี่ยนแปลงการผลิตให้แตกต่างไปจากเดิม', code:'ข้อยกเว้น 2.2'}
+  ],
+  ev(v){
+   const ref = A(4,'2');
+   if (!v.act) return INC(ref, ['กิจกรรม']);
+   if (v.act === 'drill') return EIA(ref, ['2.1 การสำรวจปิโตรเลียมโดยวิธีการเจาะสำรวจ — ทุกขนาด']);
+   if (v.act === 'prod') return v.prodEx ? NONE(ref, ['การผลิตต่อเนื่องในแปลงบนบกหลังสิทธิเดิมสิ้นอายุ โดยไม่เปลี่ยนแปลงการผลิต — เข้าข้อยกเว้นของ 2.2']) : EIA(ref, ['2.2 การผลิตปิโตรเลียม — ทุกขนาด']);
+   return NONE(ref, ['ลำดับที่ 2 ครอบคลุมเฉพาะการเจาะสำรวจ (2.1) และการผลิต (2.2)']);
+  }},
+
+ {id:'3', grp:'mine', chip:'ท่อขนส่งปิโตรเลียม/ก๊าซ/น้ำมัน', kw:'ท่อ ท่อก๊าซ ท่อน้ำมัน pipeline ขนส่งทางท่อ ก๊าซธรรมชาติ',
+  fields:[
+   {k:'prod', t:'radio', label:'สิ่งที่ขนส่ง', opts:[['gas','ก๊าซธรรมชาติ'],['oil','น้ำมันดิบ ปิโตรเลียมอื่น หรือน้ำมันเชื้อเพลิง']]},
+   {k:'where', t:'radio', show:v => v.prod === 'gas', label:'ตำแหน่งของท่อ', opts:[['on','บนบก (รวมที่วางบนพื้นดิน ใต้ดิน ในน้ำ หรือบนสิ่งปลูกสร้าง)'],['off','นอกชายฝั่งทะเลจนถึงสถานีแรกบนฝั่ง']]},
+   {k:'p', t:'num', show:v => v.prod === 'gas' && v.where === 'on', label:'ความดันใช้งานสูงสุด', unit:'บาร์'},
+   {k:'d', t:'num', show:v => v.prod === 'gas' && v.where === 'on', label:'ขนาดเส้นผ่านศูนย์กลางของท่อ (ท่อที่ใหญ่ที่สุด)', unit:'นิ้ว'},
+   {k:'estate', t:'chk', show:v => v.prod === 'gas' && v.where === 'on', label:'โครงการทั้งหมดอยู่ในเขตนิคมอุตสาหกรรมตามกฎหมายว่าด้วยการนิคมอุตสาหกรรมแห่งประเทศไทย', code:'ข้อยกเว้น (2)'},
+   {k:'special', t:'chk', show:v => v.prod === 'gas' && v.where === 'on', label:'ผ่านพื้นที่ที่มีมติคณะรัฐมนตรีหรือกฎหมายกำหนดไว้เป็นอย่างอื่น', code:'ข้อยกเว้น (1)'}
+  ],
+  ev(v){
+   const ref = A(4,'3');
+   if (!v.prod) return INC(ref, ['สิ่งที่ขนส่ง']);
+   if (v.prod === 'oil') return EIA(ref, ['ระบบขนส่งปิโตรเลียมหรือน้ำมันเชื้อเพลิงทางท่อ — ทุกขนาด (ข้อยกเว้นใช้เฉพาะระบบขนส่งก๊าซธรรมชาติทางท่อบนบก)']);
+   if (!v.where) return INC(ref, ['ตำแหน่งของท่อ']);
+   if (v.where === 'off') return EIA(ref, ['ระบบขนส่งก๊าซธรรมชาติทางท่อนอกชายฝั่ง — ข้อยกเว้น (1) และ (2) ใช้เฉพาะระบบบนบก']);
+   const p = num(v,'p'), d = num(v,'d'), need = [];
+   if (p == null) need.push('ความดันใช้งานสูงสุด');
+   if (d == null) need.push('ขนาดเส้นผ่านศูนย์กลางของท่อ');
+   if (need.length) return INC(ref, need);
+   const small = p <= 20 && d <= 16;
+   if (small && !v.special) return NONE(ref, [`ความดันใช้งานสูงสุด ${fmt(p)} บาร์ (≤ 20) และเส้นผ่านศูนย์กลาง ${fmt(d)} นิ้ว (≤ 16) — เข้าข้อยกเว้น (1)`]);
+   if (!small && v.estate) return NONE(ref, [`ความดัน ${fmt(p)} บาร์ / เส้นผ่านศูนย์กลาง ${fmt(d)} นิ้ว และโครงการทั้งหมดอยู่ในเขตนิคมอุตสาหกรรม — เข้าข้อยกเว้น (2)`]);
+   return EIA(ref, [small
+     ? `ขนาดอยู่ในเกณฑ์ข้อยกเว้น (1) แต่ผ่านพื้นที่ที่มีมติคณะรัฐมนตรีหรือกฎหมายกำหนดไว้เป็นอย่างอื่น จึงไม่ได้รับยกเว้น`
+     : `ความดัน ${fmt(p)} บาร์ หรือเส้นผ่านศูนย์กลาง ${fmt(d)} นิ้ว เกินเกณฑ์ข้อยกเว้น (1) และไม่ได้อยู่ในเขตนิคมอุตสาหกรรมทั้งโครงการ`]);
+  }},
+
+ {id:'4', grp:'ind', chip:'นิคม/เขตประกอบการอุตสาหกรรม', kw:'นิคมอุตสาหกรรม เขตประกอบการ จัดสรรที่ดินอุตสาหกรรม สวนอุตสาหกรรม',
+  fields:[{k:'sub', t:'radio', label:'ลักษณะ', opts:[['4.1','นิคมอุตสาหกรรม ตามกฎหมายว่าด้วยการนิคมอุตสาหกรรม'],['4.2','เขตประกอบการอุตสาหกรรม ตามกฎหมายว่าด้วยโรงงาน'],['4.3','การจัดสรรที่ดินเพื่อการอุตสาหกรรม ตามกฎหมายว่าด้วยการจัดสรรที่ดิน']]}],
+  ev(v){ const ref = A(4,'4'); return v.sub ? EIA(ref, [`${v.sub} — ทุกขนาด`]) : INC(ref, ['ลักษณะ']); }},
+
+ {id:'5', grp:'ind', chip:'ปิโตรเคมี', kw:'ปิโตรเคมี เคมีภัณฑ์ โพลิเมอร์ เม็ดพลาสติก',
+  fields:[
+   {k:'chem', t:'radio', label:'มีกระบวนการผลิตทางเคมี', opts:yesNo},
+   {k:'cap', t:'num', label:'กำลังการผลิต', unit:'ตัน/วัน'}
+  ],
+  ev(v){
+   const ref = A(4,'5');
+   if (v.chem === 'no') return NONE(ref, ['ลำดับที่ 5 ใช้กับอุตสาหกรรมปิโตรเคมีที่มีกระบวนการผลิตทางเคมี']);
+   const c = num(v,'cap'), need = [];
+   if (!v.chem) need.push('มีกระบวนการผลิตทางเคมีหรือไม่');
+   if (c == null) need.push('กำลังการผลิต');
+   if (c != null && c < 100) return NONE(ref, [`กำลังการผลิต ${fmt(c)} ตัน/วัน (< 100)`]);
+   if (need.length) return INC(ref, need);
+   return EIA(ref, [`กำลังการผลิต ${fmt(c)} ตัน/วัน (≥ 100)`]);
+  }},
+
+ {id:'6', grp:'ind', chip:'โรงกลั่นน้ำมัน', kw:'กลั่นน้ำมัน โรงกลั่น refinery', fields:[],
+  ev(){ return EIA(A(4,'6'), ['อุตสาหกรรมกลั่นน้ำมันปิโตรเลียม — ทุกขนาด']); }},
+
+ {id:'7', grp:'ind', chip:'แยก/แปรสภาพก๊าซธรรมชาติ', kw:'แยกก๊าซ โรงแยกก๊าซ LNG ก๊าซธรรมชาติเหลว regasification แปรสภาพก๊าซ',
+  fields:[{k:'sub', t:'radio', label:'ลักษณะ', opts:[
+    ['7.1','การแยกก๊าซธรรมชาติ'],
+    ['7.2','การแปรสภาพโดยปรับเปลี่ยนโครงสร้าง หรือเปลี่ยนสถานะจากก๊าซเป็นของเหลว'],
+    ['7.3','การเปลี่ยนสถานะจากของเหลวกลับเป็นก๊าซ โดยใช้น้ำทะเลหรือน้ำจากแหล่งน้ำธรรมชาติให้ความร้อน'],
+    ['7.3x','การเปลี่ยนสถานะจากของเหลวกลับเป็นก๊าซ โดยไม่ใช้น้ำทะเลหรือน้ำจากแหล่งน้ำธรรมชาติ']]}],
+  ev(v){
+   const ref = A(4,'7');
+   if (!v.sub) return INC(ref, ['ลักษณะ']);
+   if (v.sub === '7.3x') return NONE(ref, ['7.3 ครอบคลุมเฉพาะการแปรสภาพที่ใช้น้ำทะเลหรือน้ำจากแหล่งน้ำธรรมชาติในการให้ความร้อน']);
+   return EIA(ref, [`${v.sub} — ทุกขนาด`]);
+  }},
+
+ {id:'8', grp:'ind', chip:'คลอร์-แอลคาไล / ใช้ Cl₂ หรือ HCl', kw:'คลอร์แอลคาไล คลอรีน โซดาไฟ กรดเกลือ ไฮโพคลอไรต์ ผงปูนคลอรีน chlor alkali',
+  fields:[
+   {k:'sub', t:'radio', label:'ลักษณะ', opts:[['8.1','คลอร์-แอลคาไล ที่ใช้โซเดียมคลอไรด์ (NaCl) เป็นวัตถุดิบ'],['8.2','ใช้คลอรีน (Cl₂) หรือไฮโดรเจนคลอไรด์ (HCl) เป็นวัตถุดิบ ผลิต NaOCl, HCl, Na₂CO₃ หรือผงปูนคลอรีน']]},
+   {k:'cap', t:'num', label:'กำลังการผลิตรวมทุกชนิดผลิตภัณฑ์', unit:'ตัน/วัน', help:'เกณฑ์ใช้กำลังการผลิตแต่ละชนิดหรือหลายชนิดรวมกัน'}
+  ],
+  ev(v){
+   const ref = A(4,'8'), c = num(v,'cap'), need = [];
+   if (!v.sub) need.push('ลักษณะ');
+   if (c == null) need.push('กำลังการผลิต');
+   if (c != null && c < 100) return NONE(ref, [`กำลังการผลิตรวม ${fmt(c)} ตัน/วัน (< 100)`]);
+   if (need.length) return INC(ref, need);
+   return EIA(ref, [`${v.sub} กำลังการผลิตรวม ${fmt(c)} ตัน/วัน (≥ 100)`]);
+  }},
+
+ {id:'9', grp:'ind', chip:'ปูนซีเมนต์', kw:'ปูนซีเมนต์ โรงปูน cement', fields:[],
+  ev(){ return EIA(A(4,'9'), ['อุตสาหกรรมผลิตปูนซีเมนต์ — ทุกขนาด']); }},
+
+ {id:'10', grp:'ind', chip:'เยื่อกระดาษ', kw:'เยื่อกระดาษ กระดาษ pulp',
+  fields:[{k:'cap', t:'num', label:'กำลังการผลิตเยื่อกระดาษ', unit:'ตัน/วัน'}],
+  ev(v){ const ref = A(4,'10'), c = num(v,'cap');
+   if (c == null) return INC(ref, ['กำลังการผลิต']);
+   return c >= 50 ? EIA(ref, [`กำลังการผลิต ${fmt(c)} ตัน/วัน (≥ 50)`]) : NONE(ref, [`กำลังการผลิต ${fmt(c)} ตัน/วัน (< 50)`]); }},
+
+ {id:'11', grp:'ind', chip:'สารกำจัดศัตรูพืช/สัตว์', kw:'สารออกฤทธิ์ ยาฆ่าแมลง กำจัดศัตรูพืช วัตถุอันตราย pesticide',
+  fields:[{k:'chem', t:'radio', label:'ผลิตโดยใช้กระบวนการทางเคมี', opts:yesNo}],
+  ev(v){ const ref = A(4,'11');
+   if (!v.chem) return INC(ref, ['ใช้กระบวนการทางเคมีหรือไม่']);
+   return v.chem === 'yes' ? EIA(ref, ['ผลิตสารออกฤทธิ์หรือสารป้องกันหรือกำจัดศัตรูพืชหรือสัตว์โดยใช้กระบวนการทางเคมี — ทุกขนาด']) : NONE(ref, ['ลำดับที่ 11 ใช้กับการผลิตโดยกระบวนการทางเคมี']); }},
+
+ {id:'12', grp:'ind', chip:'ปุ๋ยเคมี', kw:'ปุ๋ยเคมี ปุ๋ย fertilizer',
+  fields:[{k:'chem', t:'radio', label:'ผลิตโดยกระบวนการทางเคมี', opts:yesNo}],
+  ev(v){ const ref = A(4,'12');
+   if (!v.chem) return INC(ref, ['ใช้กระบวนการทางเคมีหรือไม่']);
+   return v.chem === 'yes' ? EIA(ref, ['ผลิตปุ๋ยเคมีโดยกระบวนการทางเคมี — ทุกขนาด']) : NONE(ref, ['ลำดับที่ 12 ใช้กับการผลิตปุ๋ยเคมีโดยกระบวนการทางเคมี']); }},
+
+ {id:'13', grp:'ind', chip:'น้ำตาล/กลูโคส', kw:'โรงงานน้ำตาล น้ำตาลทราย กลูโคส เดกซ์โทรส ฟรักโทส',
+  fields:[
+   {k:'sub', t:'radio', label:'ผลิตภัณฑ์', opts:[['13.1','น้ำตาลทรายดิบ น้ำตาลทรายขาว น้ำตาลทรายบริสุทธิ์'],['13.2','กลูโคส เดกซ์โทรส ฟรักโทส หรือผลิตภัณฑ์อื่นที่คล้ายคลึงกัน']]},
+   {k:'cap', t:'num', show:v => v.sub === '13.2', label:'กำลังผลิต', unit:'ตัน/วัน'}
+  ],
+  ev(v){ const ref = A(4,'13');
+   if (!v.sub) return INC(ref, ['ผลิตภัณฑ์']);
+   if (v.sub === '13.1') return EIA(ref, ['13.1 การทำน้ำตาลทราย — ทุกขนาด']);
+   const c = num(v,'cap'); if (c == null) return INC(ref, ['กำลังผลิต']);
+   return c >= 20 ? EIA(ref, [`13.2 กำลังผลิต ${fmt(c)} ตัน/วัน (≥ 20)`]) : NONE(ref, [`13.2 กำลังผลิต ${fmt(c)} ตัน/วัน (< 20)`]); }},
+
+ {id:'14', grp:'ind', chip:'เหล็กและเหล็กกล้า', kw:'เหล็ก เหล็กกล้า หลอมเหล็ก รีดเหล็ก หล่อเหล็ก ชุบสังกะสี เคลือบผิว forging',
+  fields:[
+   {t:'label', text:'กระบวนการผลิต (เลือกทุกข้อที่มี)'},
+   {k:'p141', t:'chk', label:'เหล็กขั้นต้นหรือเหล็กขั้นกลางที่มีการถลุง การหลอม หรือการหล่อ', code:'14.1'},
+   {k:'p1', t:'chk', label:'การรีดเหล็ก (Rolling) ทั้งรีดร้อนและรีดเย็น ไม่รวมการรีดขึ้นรูปเย็น (Cold Roll Forming) และการรีดปรับสภาพผิว (Skin-pass/Temper Rolling)', code:'14.2 (1)'},
+   {k:'p2', t:'chk', label:'การทุบขึ้นรูปร้อน (Hot Forging)', code:'14.2 (2)'},
+   {k:'p3', t:'chk', label:'การเคลือบผิวเหล็กหรือเหล็กกล้า (จุ่มโลหะหลอมเหลว ทางไฟฟ้า ทางเคมี หรือทางไฟฟ้าเคมี)', code:'14.2 (3)'},
+   {k:'p4', t:'chk', label:'การหล่อเหล็กรูปพรรณ (Ferrous Metal Foundries)', code:'14.2 (4)'},
+   {k:'pno', t:'chk', label:'ไม่มีกระบวนการข้างต้น (เช่น มีเฉพาะการรีดขึ้นรูปเย็นหรือรีดปรับสภาพผิว)'},
+   {k:'cap', t:'num', show:v => !v.pno, label:'กำลังการผลิตรวม', unit:'ตัน/วัน', help:'เกณฑ์ใช้กำลังการผลิตแต่ละชนิดหรือหลายชนิดรวมกัน'}
+  ],
+  ev(v){
+   const ref = A(4,'14');
+   const ps = [['p141','14.1'],['p1','14.2 (1)'],['p2','14.2 (2)'],['p3','14.2 (3)'],['p4','14.2 (4)']].filter(([k]) => v[k]).map(([, c]) => c);
+   if (!ps.length) return v.pno ? NONE(ref, ['ไม่มีกระบวนการตามลำดับที่ 14']) : INC(ref, ['กระบวนการผลิต']);
+   const c = num(v,'cap'); if (c == null) return INC(ref, ['กำลังการผลิต']);
+   return c >= 100 ? EIA(ref, [`${ps.join(', ')} กำลังการผลิตรวม ${fmt(c)} ตัน/วัน (≥ 100)`]) : NONE(ref, [`${ps.join(', ')} กำลังการผลิตรวม ${fmt(c)} ตัน/วัน (< 100)`]);
+  }},
+
+ {id:'15', grp:'ind', chip:'ถลุง/แต่ง/หลอมโลหะนอกกลุ่มเหล็ก', kw:'ถลุงแร่ แต่งแร่ หลอมโลหะ อลูมิเนียม ทองแดง ตะกั่ว สังกะสี ดีบุก',
+  fields:[{k:'cap', t:'num', label:'กำลังการผลิต (รวมทุกชนิด)', unit:'ตัน/วัน'}],
+  ev(v){ const ref = A(4,'15'), c = num(v,'cap');
+   if (c == null) return INC(ref, ['กำลังการผลิต']);
+   return c >= 50 ? EIA(ref, [`กำลังการผลิต ${fmt(c)} ตัน/วัน (≥ 50)`]) : NONE(ref, [`กำลังการผลิต ${fmt(c)} ตัน/วัน (< 50)`]); }},
+
+ {id:'16', grp:'ind', chip:'สุรา แอลกอฮอล์ เบียร์ ไวน์', kw:'สุรา เหล้า แอลกอฮอล์ เอทานอล เบียร์ ไวน์ โรงกลั่นสุรา',
+  fields:[
+   {t:'label', text:'ผลิตภัณฑ์ (เลือกทุกข้อที่มี)'},
+   {k:'sp', t:'chk', label:'สุรา หรือแอลกอฮอล์', code:'16.1'},
+   {k:'spL', t:'num', show:v => v.sp, label:'กำลังการผลิตสุรา/แอลกอฮอล์', unit:'ลิตร/เดือน'},
+   {k:'spD', t:'num', show:v => v.sp, label:'ดีกรีของผลิตภัณฑ์', unit:'ดีกรี', help:'ระบบจะคิดเทียบที่ 28 ดีกรี (ปริมาณ × ดีกรี ÷ 28)'},
+   {k:'wi', t:'chk', label:'ไวน์', code:'16.2'},
+   {k:'wiL', t:'num', show:v => v.wi, label:'กำลังการผลิตไวน์', unit:'ลิตร/เดือน'},
+   {k:'be', t:'chk', label:'เบียร์', code:'16.3'},
+   {k:'beL', t:'num', show:v => v.be, label:'กำลังการผลิตเบียร์', unit:'ลิตร/เดือน'}
+  ],
+  ev(v){
+   const ref = A(4,'16'), hit = [], no = [], need = [];
+   if (!v.sp && !v.wi && !v.be) return INC(ref, ['ผลิตภัณฑ์']);
+   if (v.sp){
+     const L = num(v,'spL'), d = num(v,'spD');
+     if (L == null) need.push('กำลังการผลิตสุรา'); if (d == null) need.push('ดีกรี');
+     if (L != null && d != null){ const eq = L * d / 28; (eq >= 40000 ? hit : no).push(`16.1 สุรา/แอลกอฮอล์ ${fmt(L)} ลิตร/เดือน ที่ ${fmt(d)} ดีกรี เทียบเท่า ${fmt(Math.round(eq))} ลิตร/เดือนที่ 28 ดีกรี (${eq >= 40000 ? '≥' : '<'} 40,000)`); }
+   }
+   if (v.wi){ const L = num(v,'wiL'); if (L == null) need.push('กำลังการผลิตไวน์'); else (L >= 600000 ? hit : no).push(`16.2 ไวน์ ${fmt(L)} ลิตร/เดือน (${L >= 600000 ? '≥' : '<'} 600,000)`); }
+   if (v.be){ const L = num(v,'beL'); if (L == null) need.push('กำลังการผลิตเบียร์'); else (L >= 600000 ? hit : no).push(`16.3 เบียร์ ${fmt(L)} ลิตร/เดือน (${L >= 600000 ? '≥' : '<'} 600,000)`); }
+   if (hit.length) return EIA(ref, hit.concat(no));
+   if (need.length) return INC(ref, need);
+   return NONE(ref, no);
+  }},
+
+ {id:'17', grp:'ind', chip:'ปรับคุณภาพของเสียรวม/ฝังกลบ', kw:'ของเสีย กากอุตสาหกรรม ฝังกลบ บำบัดของเสีย โรงงาน 101 105 106 landfill',
+  fields:[{k:'sub', t:'radio', label:'ลักษณะ', opts:[
+    ['17.1','โรงงานปรับคุณภาพของเสียรวม เฉพาะสิ่งปฏิกูลหรือวัสดุที่ไม่ใช้แล้วตามกฎหมายว่าด้วยโรงงาน'],
+    ['17.2','โรงงานฝังกลบสิ่งปฏิกูลหรือวัสดุที่ไม่ใช้แล้ว ที่ไม่เป็นของเสียอันตราย'],
+    ['haz','โรงงานฝังกลบสิ่งปฏิกูลหรือวัสดุที่ไม่ใช้แล้ว ที่เป็นของเสียอันตราย']]}],
+  ev(v){ const ref = A(4,'17');
+   if (!v.sub) return INC(ref, ['ลักษณะ']);
+   if (v.sub === 'haz') return CHK(ref, ['ลำดับที่ 17.2 ครอบคลุมเฉพาะการฝังกลบที่ไม่เป็นของเสียอันตราย'], {notes:['การฝังกลบของเสียอันตรายไม่อยู่ในประกาศฉบับนี้ ควรตรวจสอบประกาศกำหนดโครงการที่อาจก่อให้เกิดผลกระทบต่อชุมชนอย่างรุนแรง (EHIA)']});
+   return EIA(ref, [`${v.sub} — ทุกขนาด`]); }},
+
+ {id:'18', grp:'power', chip:'โรงไฟฟ้า', kw:'โรงไฟฟ้า ไฟฟ้า ถ่านหิน ก๊าซ ชีวมวล ขยะ เผาขยะ เมกะวัตต์ MW พลังงาน',
+  fields:[
+   {k:'fuel', t:'radio', label:'ประเภทโรงไฟฟ้า', opts:[['other','พลังความร้อน — เชื้อเพลิงอื่นที่ไม่ใช่ขยะมูลฝอย เช่น ถ่านหิน ก๊าซธรรมชาติ น้ำมัน ชีวมวล'],['msw','พลังความร้อน — ใช้ขยะมูลฝอยเป็นเชื้อเพลิง'],['nonthermal','ไม่ใช่พลังความร้อน เช่น พลังงานแสงอาทิตย์ ลม หรือพลังน้ำ']]},
+   {k:'mw', t:'num', show:v => v.fuel && v.fuel !== 'nonthermal', label:'กำลังการผลิตติดตั้ง', unit:'เมกะวัตต์'},
+   {t:'label', show:v => v.fuel === 'msw', text:'ที่ตั้งโรงไฟฟ้าขยะ'},
+   {t:'info', show:v => v.fuel === 'msw', html:() => echo('18.1 อยู่ในพื้นที่ชั้นคุณภาพลุ่มน้ำชั้น 1 หรือชั้น 2', G.ws1 || G.ws2)},
+   {t:'info', show:v => v.fuel === 'msw', html:() => echo('18.2 อยู่ในพื้นที่คุ้มครองสิ่งแวดล้อม', G.env45)},
+   {k:'forest', t:'chk', show:v => v.fuel === 'msw', label:'อยู่ในพื้นที่ป่าอนุรักษ์เพิ่มเติมตามมติของคณะรัฐมนตรี', code:'18.3'},
+   {k:'ramsar', t:'chk', show:v => v.fuel === 'msw', label:'อยู่ในพื้นที่ชุ่มน้ำที่มีความสำคัญระหว่างประเทศ', code:'18.4'},
+   {k:'air80', t:'chk', show:v => v.fuel === 'msw', label:'อยู่ในพื้นที่ซึ่งมีระดับสารมลพิษทางอากาศสูงเกินกว่าร้อยละ 80 ของค่ามาตรฐานคุณภาพอากาศในบรรยากาศโดยทั่วไป', code:'18.5',
+    help:'ตามนิยาม: ผลตรวจวัดฝุ่นละอองรวม (ไม่เกิน 100 ไมครอน) ฝุ่นละอองไม่เกิน 10 ไมครอน SO₂ และ NO₂ ก่อนดำเนินโครงการ เกินร้อยละ 80 ของค่ามาตรฐาน อย่างน้อย 4 จุด ตรวจวัดต่อเนื่องอย่างน้อย 7 วัน ทั้งช่วงมีนาคม–กันยายน และตุลาคม–กุมภาพันธ์ ห่างกัน 5–7 เดือน'}
+  ],
+  ev(v){
+   const ref = A(4,'18');
+   if (!v.fuel) return INC(ref, ['ประเภทโรงไฟฟ้า']);
+   if (v.fuel === 'nonthermal') return NONE(ref, ['ลำดับที่ 18 ใช้กับโรงไฟฟ้าพลังความร้อนเท่านั้น']);
+   const mw = num(v,'mw'); if (mw == null) return INC(ref, ['กำลังการผลิตติดตั้ง']);
+   if (mw < 10) return NONE(ref, [`กำลังการผลิตติดตั้ง ${fmt(mw)} เมกะวัตต์ (< 10)`]);
+   const base = `กำลังการผลิตติดตั้ง ${fmt(mw)} เมกะวัตต์ (≥ 10)`;
+   if (v.fuel === 'other') return EIA(ref, [base]);
+   const area = [];
+   if (G.ws1 || G.ws2) area.push('18.1 พื้นที่ชั้นคุณภาพลุ่มน้ำชั้น 1 หรือชั้น 2');
+   if (G.env45) area.push('18.2 พื้นที่คุ้มครองสิ่งแวดล้อม');
+   if (v.forest) area.push('18.3 ป่าอนุรักษ์เพิ่มเติม');
+   if (v.ramsar) area.push('18.4 พื้นที่ชุ่มน้ำที่มีความสำคัญระหว่างประเทศ');
+   if (v.air80) area.push('18.5 พื้นที่ที่มีสารมลพิษทางอากาศเกินร้อยละ 80 ของค่ามาตรฐาน');
+   if (area.length) return EIA(ref, [base, 'ใช้ขยะมูลฝอยเป็นเชื้อเพลิง แต่ตั้งอยู่ใน ' + area.join(', ') + ' จึงไม่ได้รับยกเว้น']);
+   return NONE(ref, [base, 'ใช้ขยะมูลฝอยเป็นเชื้อเพลิง และไม่ได้ตั้งอยู่ในพื้นที่ 18.1–18.5 — ได้รับยกเว้น']);
+  }},
+
+ {id:'19', grp:'trans', chip:'ทางพิเศษ (ทางด่วน)', kw:'ทางพิเศษ ทางด่วน expressway', fields:[],
+  ev(){ return EIA(A(4,'19'), ['ระบบทางพิเศษ หรือโครงการที่มีลักษณะเช่นเดียวกับทางพิเศษ — ทุกขนาด']); }},
+
+ {id:'20', grp:'trans', chip:'ทางหลวง/ถนน', kw:'ถนน ทางหลวง ตัดถนน ขยายถนน มอเตอร์เวย์ road',
+  fields:[
+   {t:'label', text:'แนวเส้นทางตัดผ่านพื้นที่ (เลือกทุกข้อที่ตรง)'},
+   {k:'f1', t:'chk', label:'เขตรักษาพันธุ์สัตว์ป่า หรือเขตห้ามล่าสัตว์ป่า', code:'20.1'},
+   {k:'f2', t:'chk', label:'เขตอุทยานแห่งชาติ', code:'20.2'},
+   {t:'info', html:() => echo('20.3 พื้นที่ชั้นคุณภาพลุ่มน้ำชั้นที่ 2', G.ws2)},
+   {k:'f4', t:'chk', label:'ป่าชายเลนในเขตป่าสงวนแห่งชาติ', code:'20.4'},
+   {k:'f5', t:'chk', label:'พื้นที่ชายฝั่งทะเลในระยะ 50 เมตร จากระดับน้ำทะเลขึ้นสูงสุดตามปกติทางธรรมชาติ', code:'20.5'},
+   {k:'f6', t:'chk', label:'อยู่ในหรือใกล้พื้นที่ชุ่มน้ำที่มีความสำคัญระหว่างประเทศ หรือแหล่งมรดกโลก ในระยะ 2 กิโลเมตร', code:'20.6'},
+   {k:'f7', t:'chk', label:'ใกล้โบราณสถาน แหล่งโบราณคดี แหล่งประวัติศาสตร์ หรืออุทยานประวัติศาสตร์ ในระยะ 500 เมตร', code:'20.7'},
+   {k:'f7x', t:'chk', show:v => v.f7, label:'เป็นถนนผังเมืองตามที่กำหนดไว้ในกฎหมายว่าด้วยการผังเมือง', code:'ข้อยกเว้น 20.7'}
+  ],
+  ev(v){
+   const ref = A(4,'20'), why = [], notes = [];
+   if (v.f1) why.push('20.1 เขตรักษาพันธุ์สัตว์ป่า/เขตห้ามล่าสัตว์ป่า');
+   if (v.f2) why.push('20.2 เขตอุทยานแห่งชาติ');
+   if (G.ws2) why.push('20.3 พื้นที่ลุ่มน้ำชั้นที่ 2');
+   if (v.f4) why.push('20.4 ป่าชายเลนในเขตป่าสงวนแห่งชาติ');
+   if (v.f5) why.push('20.5 ชายฝั่งทะเลในระยะ 50 เมตร');
+   if (v.f6) why.push('20.6 ใกล้พื้นที่ชุ่มน้ำระหว่างประเทศหรือแหล่งมรดกโลกในระยะ 2 กิโลเมตร');
+   if (v.f7 && !v.f7x) why.push('20.7 ใกล้โบราณสถานหรือแหล่งประวัติศาสตร์ในระยะ 500 เมตร');
+   if (v.f7 && v.f7x) notes.push('ถนนผังเมืองได้รับยกเว้นเฉพาะกรณี 20.7');
+   notes.push('ลำดับที่ 20 แก้ไขโดยประกาศ (ฉบับที่ 2) พ.ศ. 2568 — ระยะใน 20.7 ลดจาก 1 กิโลเมตร เหลือ 500 เมตร มีผล 1 ส.ค. 2568 ไม่ใช้กับโครงการที่ยื่นคำขออนุญาตหรืออยู่ระหว่างเสนอ ครม. หรือขออนุมัติโครงการ/งบประมาณไว้ก่อนแล้ว (ข้อ 3 ของฉบับที่ 2)');
+   if (why.length) return EIA(ref, why.map(w => 'ตัดผ่าน ' + w), {notes});
+   return NONE(ref, ['ไม่ได้ตัดผ่านพื้นที่ตาม 20.1–20.7'], {notes});
+  }},
+
+ {id:'21', grp:'trans', chip:'ระบบขนส่งทางราง', kw:'รถไฟ รถไฟฟ้า ราง รถไฟความเร็วสูง โมโนเรล รถราง', fields:[],
+  ev(){ return EIA(A(4,'21'), ['ระบบการขนส่งทางราง — ทุกขนาด']); }},
+
+ {id:'22', grp:'trans', chip:'ท่าเทียบเรือ', kw:'ท่าเรือ ท่าเทียบเรือ port pier ตันกรอส',
+  fields:[
+   {k:'gt', t:'num', label:'ขนาดเรือใหญ่ที่สุดที่รองรับ', unit:'ตันกรอส'},
+   {k:'len', t:'num', label:'ความยาวหน้าท่า', unit:'เมตร'},
+   {k:'area', t:'num', label:'พื้นที่ท่าเทียบเรือรวม', unit:'ตร.ม.'},
+   {k:'sec', t:'chk', label:'เป็นโครงการเพื่อความมั่นคงแห่งชาติตามกฎหมายว่าด้วยสภาความมั่นคงแห่งชาติ ที่ได้รับความเห็นชอบจากคณะรัฐมนตรี', code:'ข้อยกเว้น'}
+  ],
+  ev(v){
+   const ref = A(4,'22');
+   if (v.sec) return NONE(ref, ['โครงการเพื่อความมั่นคงแห่งชาติที่ได้รับความเห็นชอบจากคณะรัฐมนตรี — ได้รับยกเว้น']);
+   const gt = num(v,'gt'), len = num(v,'len'), ar = num(v,'area'), why = [], over = [], need = [];
+   if (gt != null && gt >= 500) why.push(`รองรับเรือ ${fmt(gt)} ตันกรอส (≥ 500)`);
+   if (len != null && len >= 100 && len < 300) why.push(`ความยาวหน้าท่า ${fmt(len)} เมตร (100 – ไม่ถึง 300)`);
+   if (ar != null && ar >= 1000 && ar < 10000) why.push(`พื้นที่ท่าเทียบเรือรวม ${fmt(ar)} ตร.ม. (1,000 – ไม่ถึง 10,000)`);
+   if (len != null && len >= 300) over.push(`ความยาวหน้าท่า ${fmt(len)} เมตร (≥ 300)`);
+   if (ar != null && ar >= 10000) over.push(`พื้นที่ท่าเทียบเรือรวม ${fmt(ar)} ตร.ม. (≥ 10,000)`);
+   if (over.length) return CHK(ref, over.concat(why), {notes:[EHIA_NOTE]});
+   if (why.length) return EIA(ref, why);
+   if (gt == null) need.push('ขนาดเรือ'); if (len == null) need.push('ความยาวหน้าท่า'); if (ar == null) need.push('พื้นที่ท่าเทียบเรือ');
+   if (need.length) return INC(ref, need);
+   return NONE(ref, [`เรือ ${fmt(gt)} ตันกรอส, หน้าท่า ${fmt(len)} เมตร, พื้นที่ ${fmt(ar)} ตร.ม. — ต่ำกว่าเกณฑ์ทุกข้อ`]);
+  }},
+
+ {id:'23', grp:'trans', chip:'ท่าเรือสำราญและกีฬา (มารีน่า)', kw:'มารีน่า marina ท่าเรือยอชต์ ท่าเรือสำราญ เรือกีฬา',
+  fields:[
+   {k:'boats', t:'num', label:'จำนวนเรือที่รองรับได้', unit:'ลำ'},
+   {k:'area', t:'num', label:'พื้นที่ท่าเทียบเรือรวม', unit:'ตร.ม.'}
+  ],
+  ev(v){
+   const ref = A(4,'23'), b = num(v,'boats'), ar = num(v,'area'), why = [];
+   if (b != null && b >= 50) why.push(`รองรับเรือ ${fmt(b)} ลำ (≥ 50)`);
+   if (ar != null && ar >= 1000) why.push(`พื้นที่ท่าเทียบเรือรวม ${fmt(ar)} ตร.ม. (≥ 1,000)`);
+   if (why.length) return EIA(ref, why);
+   const need = []; if (b == null) need.push('จำนวนเรือ'); if (ar == null) need.push('พื้นที่ท่าเทียบเรือ');
+   if (need.length) return INC(ref, need);
+   return NONE(ref, [`รองรับเรือ ${fmt(b)} ลำ และพื้นที่ ${fmt(ar)} ตร.ม. — ต่ำกว่าเกณฑ์`]);
+  }},
+
+ {id:'26', grp:'trans', chip:'สนามบิน/ที่ขึ้นลงอากาศยาน', kw:'สนามบิน ท่าอากาศยาน ทางวิ่ง รันเวย์ เครื่องบินน้ำ ลานจอด airport IEE',
+  fields:[
+   {k:'surf', t:'radio', label:'ที่ตั้งของสนามบินหรือที่ขึ้นลงชั่วคราว', opts:[['land','บนพื้นดิน'],['water','บนพื้นน้ำ']]},
+   {k:'rw', t:'num', show:v => v.surf === 'land', label:'ความยาวของทางวิ่ง (หลังก่อสร้างหรือขยาย)', unit:'เมตร'}
+  ],
+  ev(v){
+   const ref = A(4,'26');
+   if (!v.surf) return INC(ref, ['ที่ตั้ง']);
+   if (v.surf === 'water') return IEE(A(3,'2'), ['สนามบินหรือที่ขึ้นลงชั่วคราวของอากาศยานบนพื้นน้ำ — ทุกขนาด']);
+   const L = num(v,'rw'); if (L == null) return INC(ref, ['ความยาวของทางวิ่ง']);
+   if (L >= 3000) return CHK(ref, [`ทางวิ่งยาว ${fmt(L)} เมตร (≥ 3,000)`], {notes:[EHIA_NOTE]});
+   if (L >= 1100) return EIA(ref, [`ทางวิ่งยาว ${fmt(L)} เมตร (1,100 – ไม่ถึง 3,000)`]);
+   return NONE(ref, [`ทางวิ่งยาว ${fmt(L)} เมตร (< 1,100)`]);
+  }},
+
+ {id:'24', grp:'sea', chip:'ถมทะเล', kw:'ถมทะเล ถมที่ดินในทะเล ทะเลสาบสงขลา reclamation',
+  fields:[
+   {k:'rai', t:'num', label:'พื้นที่ถม (นอกแนวเขตชายฝั่งเดิม)', unit:'ไร่'},
+   {k:'restore', t:'chk', label:'เป็นการถมทะเลเพื่อฟื้นฟูสภาพชายหาด', code:'ข้อยกเว้น'}
+  ],
+  ev(v){
+   const ref = A(4,'24');
+   if (v.restore) return NONE(ref, ['การถมทะเลที่เป็นการฟื้นฟูสภาพชายหาด — ได้รับยกเว้น']);
+   const r = num(v,'rai'); if (r == null) return INC(ref, ['พื้นที่ถม']);
+   if (r <= 0) return NONE(ref, ['ไม่มีการถมที่ดินในทะเล']);
+   if (r >= 300) return CHK(ref, [`พื้นที่ถม ${fmt(r)} ไร่ (≥ 300)`], {notes:[EHIA_NOTE]});
+   return EIA(ref, [`พื้นที่ถม ${fmt(r)} ไร่ (ไม่ถึง 300)`]);
+  }},
+
+ {id:'25', grp:'sea', chip:'สิ่งก่อสร้างในทะเล/ชายฝั่ง', kw:'รอดักทราย เขื่อนกันคลื่น กำแพงกันคลื่น ป้องกันชายฝั่ง กัดเซาะ',
+  fields:[
+   {t:'label', text:'สิ่งก่อสร้าง (เลือกทุกข้อที่มี)'},
+   {k:'s1', t:'chk', label:'รอดักทราย เขื่อนกันทรายและคลื่น รอบังคับกระแสน้ำ', code:'25.1'},
+   {k:'s2', t:'chk', label:'แนวเขื่อนกันคลื่นนอกฝั่งทะเล', code:'25.2'},
+   {k:'s3', t:'chk', label:'กำแพงติดแนวชายฝั่งทะเล (กำแพงป้องกันคลื่นริมชายหาด หรือเขื่อนป้องกันตลิ่งริมทะเล)', code:'25.3'},
+   {k:'ex16', t:'chk', show:v => v.s3, label:'กำแพงติดแนวชายฝั่งที่ได้รับจัดสรรงบประมาณปี 2567 โดยผ่านการกลั่นกรองและได้รับความเห็นชอบตามกฎหมายทะเลและชายฝั่ง และกรมทรัพยากรทางทะเลและชายฝั่งเสนอของบประมาณไว้ก่อนประกาศมีผล', code:'ข้อ 16'}
+  ],
+  ev(v){
+   const ref = A(4,'25'), why = [];
+   if (v.s1) why.push('25.1 รอดักทราย เขื่อนกันทรายและคลื่น รอบังคับกระแสน้ำ — ทุกขนาด');
+   if (v.s2) why.push('25.2 แนวเขื่อนกันคลื่นนอกฝั่งทะเล — ทุกขนาด');
+   if (v.s3 && !v.ex16) why.push('25.3 กำแพงติดแนวชายฝั่งทะเล — ทุกขนาด');
+   if (why.length) return EIA(ref, why);
+   if (v.s3 && v.ex16) return NONE(ref, ['กำแพงติดแนวชายฝั่งตามข้อ 16 — ประกาศนี้ไม่ใช้บังคับ']);
+   return INC(ref, ['ประเภทสิ่งก่อสร้าง']);
+  }},
+
+ {id:'27', grp:'bld', chip:'อาคารสูง/อาคารขนาดใหญ่พิเศษ', kw:'อาคารสูง อาคารขนาดใหญ่พิเศษ ห้าง ห้างสรรพสินค้า ศูนย์การค้า สำนักงาน ออฟฟิศ ค้าปลีก ค้าส่ง วัสดุก่อสร้าง เครื่องใช้ไฟฟ้า เฟอร์นิเจอร์ mixed use ริมแม่น้ำ',
+  fields:[
+   {k:'h', t:'num', label:'ความสูงของอาคาร', unit:'เมตร', help:'วัดตามกฎหมายว่าด้วยการควบคุมอาคาร'},
+   {k:'gfa', t:'num', label:'พื้นที่รวมกันทุกชั้น (หรือชั้นใดชั้นหนึ่ง) ในหลังเดียวกัน', unit:'ตร.ม.'},
+   {t:'label', text:'ลักษณะที่ตั้ง (27.1)'},
+   {k:'river', t:'chk', label:'ตั้งอยู่ติดแม่น้ำสายหลักตามเอกสารท้ายประกาศ 2', code:'27.1', help:'ดูรายชื่อ 23 สายในแท็บ “คำนิยามและรายชื่อแม่น้ำ”'},
+   {k:'coast', t:'chk', label:'ตั้งอยู่ติดฝั่งทะเล ทะเลสาบสงขลา หรือชายหาด', code:'27.1'},
+   {k:'park', t:'chk', label:'ตั้งอยู่ติดหรืออยู่ในอุทยานแห่งชาติหรืออุทยานประวัติศาสตร์', code:'27.1'},
+   {t:'label', text:'การใช้ประโยชน์ในอาคาร (27.2–27.4)'},
+   {k:'u1', t:'chk', label:'ค้าปลีกหรือค้าส่งสินค้าอุปโภคบริโภคที่ใช้ในชีวิตประจำวัน หรือเสื้อผ้าเครื่องนุ่งห่ม (ไม่รวมตลาดตามกฎหมายว่าด้วยการสาธารณสุข)', code:'27.2 (1)'},
+   {k:'u2', t:'chk', label:'ค้าวัสดุหรืออุปกรณ์ก่อสร้าง เครื่องใช้ไฟฟ้า หรือเครื่องเรือน', code:'27.2 (2)'},
+   {k:'u3', t:'chk', label:'ห้างสรรพสินค้า หรือศูนย์การค้า', code:'27.2 (3)'},
+   {k:'u4', t:'chk', label:'สำนักงานหรือที่ทำการของเอกชน', code:'27.3'},
+   {k:'whole', t:'chk', show:v => v.u1 || v.u2 || v.u3 || v.u4, label:'ใช้ประโยชน์ตามที่เลือกไว้ทั้งอาคาร'},
+   {k:'ua', t:'num', show:v => (v.u1 || v.u2 || v.u3 || v.u4) && !v.whole, label:'พื้นที่ที่ใช้ประโยชน์ตามที่เลือกไว้รวมกัน', unit:'ตร.ม.'}
+  ],
+  ev(v){
+   const ref = A(4,'27'), h = num(v,'h'), a = num(v,'gfa');
+   const notes = ['ลำดับที่ 27 แก้ไขโดยประกาศ (ฉบับที่ 2) พ.ศ. 2568 มีผล 1 ส.ค. 2568 ไม่ใช้กับโครงการที่ยื่นคำขออนุญาตหรืออยู่ระหว่างเสนอ ครม. หรือขออนุมัติโครงการ/งบประมาณไว้ก่อนแล้ว (ข้อ 3 ของฉบับที่ 2)'];
+   const bigH = h != null && h >= 23, bigA = a != null && a >= 10000;
+   if (!bigH && !bigA){
+     if (h == null || a == null) return INC(ref, [h == null ? 'ความสูงของอาคาร' : null, a == null ? 'พื้นที่รวมของอาคาร' : null].filter(Boolean));
+     return NONE(ref, [`สูง ${fmt(h)} เมตร (< 23) และพื้นที่รวม ${fmt(a)} ตร.ม. (< 10,000) — ไม่เป็นอาคารสูงหรืออาคารขนาดใหญ่พิเศษ`], {notes});
+   }
+   const size = [bigH ? `สูง ${fmt(h)} เมตร (≥ 23)` : null, bigA ? `พื้นที่รวม ${fmt(a)} ตร.ม. (≥ 10,000)` : null].filter(Boolean).join(' และ ');
+   const why = [], need = [];
+   const loc = [v.river && 'ติดแม่น้ำสายหลัก', v.coast && 'ติดฝั่งทะเล ทะเลสาบสงขลา หรือชายหาด', v.park && 'ติดหรืออยู่ในอุทยานแห่งชาติ/อุทยานประวัติศาสตร์'].filter(Boolean);
+   if (loc.length) why.push(`27.1 ${loc.join(', ')}`);
+   const com = [v.u1 && '(1)', v.u2 && '(2)', v.u3 && '(3)'].filter(Boolean);
+   if (com.length || v.u4){
+     const code = com.length && v.u4 ? '27.4 ใช้ประโยชน์หลายประเภทตาม 27.2 และ 27.3' : com.length ? `27.2 ${com.join(' ')} อาคารพาณิชย์` : '27.3 สำนักงานหรือที่ทำการของเอกชน';
+     const ua = num(v,'ua');
+     if (v.whole) why.push(`${code} — ใช้ทั้งอาคาร`);
+     else if (ua == null) need.push('พื้นที่ที่ใช้ประโยชน์ตาม 27.2–27.4');
+     else if (ua >= 10000) why.push(`${code} — พื้นที่รวม ${fmt(ua)} ตร.ม. (≥ 10,000)`);
+     else notes.unshift(`${code} ใช้พื้นที่รวม ${fmt(ua)} ตร.ม. (< 10,000) และไม่ได้ใช้ทั้งอาคาร จึงไม่เข้าเกณฑ์การใช้ประโยชน์`);
+   }
+   if (why.length) return EIA(ref, [size].concat(why), {notes});
+   if (need.length) return INC(ref, need);
+   return NONE(ref, [size, 'แต่ไม่มีลักษณะที่ตั้งหรือการใช้ประโยชน์ตาม 27.1–27.4'], {notes:['อาคารประเภทอื่น เช่น อาคารอยู่อาศัยรวม โรงแรม โรงพยาบาล ให้เลือกตรวจสอบลำดับที่ 29–31 เพิ่มเติม'].concat(notes)});
+  }},
+
+ {id:'28', grp:'bld', chip:'จัดสรรที่ดิน', kw:'จัดสรรที่ดิน หมู่บ้านจัดสรร บ้านจัดสรร แปลงย่อย ไร่',
+  fields:[
+   {k:'plots', t:'num', label:'จำนวนที่ดินแปลงย่อย', unit:'แปลง'},
+   {k:'rai', t:'num', label:'เนื้อที่โครงการ', unit:'ไร่'}
+  ],
+  ev(v){
+   const ref = A(4,'28'), p = num(v,'plots'), r = num(v,'rai'), why = [];
+   if (p != null && p >= 500) why.push(`ที่ดินแปลงย่อย ${fmt(p)} แปลง (≥ 500)`);
+   if (r != null && r > 100) why.push(`เนื้อที่ ${fmt(r)} ไร่ (เกินกว่า 100)`);
+   if (why.length) return EIA(ref, why);
+   const need = []; if (p == null) need.push('จำนวนแปลงย่อย'); if (r == null) need.push('เนื้อที่');
+   if (need.length) return INC(ref, need);
+   return NONE(ref, [`${fmt(p)} แปลง และ ${fmt(r)} ไร่ — ต่ำกว่าเกณฑ์ (ต้องตั้งแต่ 500 แปลง หรือเกินกว่า 100 ไร่)`]);
+  }},
+
+ {id:'29', grp:'bld', chip:'โรงพยาบาล/สถานพยาบาล', kw:'โรงพยาบาล สถานพยาบาล คลินิก เตียง hospital',
+  fields:[
+   {k:'beds', t:'num', label:'เตียงสำหรับผู้ป่วยไว้ค้างคืน', unit:'เตียง'},
+   {k:'near', t:'chk', label:'ตั้งอยู่ใกล้แม่น้ำสายหลักตามเอกสารท้ายประกาศ 2 ฝั่งทะเล ทะเลสาบสงขลา หรือชายหาด ในระยะ 50 เมตร', code:'29.1'}
+  ],
+  ev(v){
+   const ref = A(4,'29'), b = num(v,'beds'); if (b == null) return INC(ref, ['จำนวนเตียง']);
+   const t = v.near ? 30 : 60, c = v.near ? '29.1' : '29.2';
+   return b >= t ? EIA(ref, [`${c} เตียงผู้ป่วยค้างคืน ${fmt(b)} เตียง (≥ ${t})`]) : NONE(ref, [`${c} เตียงผู้ป่วยค้างคืน ${fmt(b)} เตียง (< ${t})`]);
+  }},
+
+ {id:'30', grp:'bld', chip:'โรงแรม/รีสอร์ต', kw:'โรงแรม รีสอร์ท รีสอร์ต ที่พักตากอากาศ hotel resort ห้องพัก',
+  fields:[
+   {k:'rooms', t:'num', label:'จำนวนห้องพัก', unit:'ห้อง'},
+   {k:'area', t:'num', label:'พื้นที่ใช้สอย', unit:'ตร.ม.'}
+  ],
+  ev(v){ return roomsOrArea(v, A(4,'30'), 'ห้องพัก'); }},
+
+ {id:'31', grp:'bld', chip:'อาคารอยู่อาศัยรวม (คอนโด/อพาร์ตเมนต์)', kw:'คอนโด คอนโดมิเนียม อาคารชุด อพาร์ตเมนต์ หอพัก ห้องชุด อาคารอยู่อาศัยรวม แฟลต',
+  fields:[
+   {k:'rooms', t:'num', label:'จำนวนห้องชุดหรือห้องพัก', unit:'ห้อง'},
+   {k:'area', t:'num', label:'พื้นที่ใช้สอย', unit:'ตร.ม.'}
+  ],
+  ev(v){ return roomsOrArea(v, A(4,'31'), 'ห้องชุด/ห้องพัก'); }},
+
+ {id:'32', grp:'water', chip:'ชลประทาน', kw:'ชลประทาน คลองส่งน้ำ ฝาย อ่างเก็บน้ำ irrigation',
+  fields:[{k:'rai', t:'num', label:'พื้นที่การชลประทาน', unit:'ไร่'}],
+  ev(v){ const ref = A(4,'32'), r = num(v,'rai');
+   if (r == null) return INC(ref, ['พื้นที่การชลประทาน']);
+   return r >= 80000 ? EIA(ref, [`พื้นที่ชลประทาน ${fmt(r)} ไร่ (≥ 80,000)`]) : NONE(ref, [`พื้นที่ชลประทาน ${fmt(r)} ไร่ (< 80,000)`]); }},
+
+ {id:'34', grp:'water', chip:'ผันน้ำข้ามลุ่มน้ำ', kw:'ผันน้ำ ข้ามลุ่มน้ำ ผันน้ำระหว่างประเทศ',
+  fields:[
+   {k:'from', t:'select', label:'ลุ่มน้ำหลักต้นทาง', opts:[{g:'ลุ่มน้ำหลัก 22 ลุ่มน้ำ', o:BASINS.map((b, i) => [String(i + 1), `${i + 1}. ลุ่มน้ำ${b}`])}, {g:'อื่น ๆ', o:[['abroad','นอกประเทศไทย']]}]},
+   {k:'to', t:'select', label:'ลุ่มน้ำหลักปลายทาง', opts:[{g:'ลุ่มน้ำหลัก 22 ลุ่มน้ำ', o:BASINS.map((b, i) => [String(i + 1), `${i + 1}. ลุ่มน้ำ${b}`])}, {g:'อื่น ๆ', o:[['abroad','นอกประเทศไทย']]}]},
+   {k:'temp', t:'chk', label:'เป็นการดำเนินการชั่วคราว กรณีภัยพิบัติ หรือมีผลกระทบต่อความมั่นคงของประเทศ', code:'ข้อยกเว้น'}
+  ],
+  ev(v){
+   const ref = A(4,'34');
+   if (!v.from || !v.to) return INC(ref, [!v.from ? 'ลุ่มน้ำต้นทาง' : null, !v.to ? 'ลุ่มน้ำปลายทาง' : null].filter(Boolean));
+   if (v.from === v.to) return NONE(ref, [v.from === 'abroad' ? 'ต้นทางและปลายทางอยู่นอกประเทศไทย' : 'ผันน้ำภายในลุ่มน้ำหลักเดียวกัน']);
+   const intl = v.from === 'abroad' || v.to === 'abroad', c = intl ? '34.2 การผันน้ำระหว่างประเทศ' : '34.1 การผันน้ำข้ามลุ่มน้ำหลัก';
+   if (v.temp) return NONE(ref, [`${c} แต่เป็นการดำเนินการชั่วคราวกรณีภัยพิบัติหรือความมั่นคง — ได้รับยกเว้น`]);
+   return EIA(ref, [`${c} — ทุกขนาด`]);
+  }},
+
+ {id:'35', grp:'water', chip:'ประตูระบายน้ำ', kw:'ประตูระบายน้ำ ปตร. เขื่อนทดน้ำ ฝาย แม่น้ำ',
+  fields:[{k:'river', t:'select', label:'แม่น้ำที่ตั้งประตูระบายน้ำ', opts:[{g:'แม่น้ำสายหลัก 23 สาย', o:RIVERS.map((r, i) => [String(i + 1), `${i + 1}. แม่น้ำ${r}`])}, {g:'อื่น ๆ', o:[['other','แม่น้ำหรือทางน้ำอื่น (ไม่อยู่ในรายชื่อ)']]}]}],
+  ev(v){ const ref = A(4,'35');
+   if (!v.river) return INC(ref, ['แม่น้ำ']);
+   if (v.river === 'other') return NONE(ref, ['ไม่ได้ตั้งอยู่ในแม่น้ำสายหลัก 23 สายตามเอกสารท้ายประกาศ 2']);
+   return EIA(ref, [`ประตูระบายน้ำในแม่น้ำ${RIVERS[+v.river - 1]} — ทุกขนาด`]); }},
+
+ {id:'other', grp:'other', chip:'ประเภทอื่นที่ไม่อยู่ในรายการ', kw:'อื่น ๆ ไม่พบ', fields:[],
+  ev(){ return NONE(null, ['ประเภทโครงการนี้ไม่อยู่ในบัญชีท้ายประกาศฉบับนี้'], {notes:['ยังต้องตรวจสอบพื้นที่ลุ่มน้ำชั้นที่ 1 (ลำดับที่ 33) ประกาศเขตพื้นที่คุ้มครองสิ่งแวดล้อมตามมาตรา 45 ประกาศ EHIA และกฎหมายเฉพาะเรื่องอื่น']}); }}
+];
+
+function roomsOrArea(v, ref, unitName){
+  const r = num(v,'rooms'), a = num(v,'area'), why = [];
+  if (r != null && r >= 80) why.push(`${unitName} ${fmt(r)} ห้อง (≥ 80)`);
+  if (a != null && a >= 4000) why.push(`พื้นที่ใช้สอย ${fmt(a)} ตร.ม. (≥ 4,000)`);
+  if (why.length) return EIA(ref, why);
+  const need = []; if (r == null) need.push('จำนวนห้อง'); if (a == null) need.push('พื้นที่ใช้สอย');
+  if (need.length) return INC(ref, need);
+  return NONE(ref, [`${fmt(r)} ห้อง และพื้นที่ใช้สอย ${fmt(a)} ตร.ม. — ต่ำกว่าเกณฑ์ (80 ห้อง หรือ 4,000 ตร.ม.)`]);
+}
+
+/* Item 33 applies to every project in a class-1 watershed */
+function evWs1(){
+  if (!G.ws1) return null;
+  const ref = A(4,'33');
+  const ex = [G.x331 && '33.1', G.x332 && '33.2', G.x333 && '33.3'].filter(Boolean);
+  if (ex.length) return Object.assign(NONE(ref, [`อยู่ในพื้นที่ลุ่มน้ำชั้นที่ 1 แต่เข้าข้อยกเว้น ${ex.join(', ')}`]), {id:'33', title:'พื้นที่ลุ่มน้ำชั้นที่ 1'});
+  return Object.assign(EIA(ref, ['อยู่ในพื้นที่ที่คณะรัฐมนตรีมีมติให้เป็นพื้นที่ลุ่มน้ำชั้นที่ 1 — ทุกประเภท ทุกขนาด']), {id:'33', title:'พื้นที่ลุ่มน้ำชั้นที่ 1'});
+}
+
+/* ------------------------------------------------------------------ */
+/* Verdict presentation                                                */
+/* ------------------------------------------------------------------ */
+const VERD = {
+  check:{rank:5, cls:'check', pill:'ตรวจสอบ EHIA', title:'อาจเข้าข่าย EHIA — ต้องตรวจสอบเพิ่มเติม',
+         desc:'ขนาดหรือลักษณะบางส่วนเกินขอบเขตของประกาศฉบับนี้ ให้ตรวจสอบประกาศกำหนดโครงการที่อาจก่อให้เกิดผลกระทบต่อชุมชนอย่างรุนแรง หากไม่เข้าข่าย ให้ถือตามผลของรายการอื่น'},
+  eia:  {rank:4, cls:'eia', pill:'EIA', title:'ต้องจัดทำรายงาน EIA',
+         desc:'รายงานการประเมินผลกระทบสิ่งแวดล้อม ตามเอกสารท้ายประกาศ 4 จัดทำโดยผู้ได้รับใบอนุญาตเป็นผู้จัดทำรายงาน'},
+  iee:  {rank:3, cls:'iee', pill:'IEE', title:'ต้องจัดทำรายงาน IEE',
+         desc:'รายงานผลกระทบสิ่งแวดล้อมเบื้องต้น ตามเอกสารท้ายประกาศ 3 จัดทำโดยผู้ได้รับใบอนุญาตเป็นผู้จัดทำรายงาน'},
+  inc:  {rank:1, cls:'inc', pill:'รอข้อมูล', title:'ข้อมูลยังไม่ครบ', desc:'กรอกขนาดหรือลักษณะที่ยังขาดเพื่อให้ได้ผลการตรวจสอบ'},
+  none: {rank:0, cls:'none', pill:'ไม่เข้าข่าย', title:'ไม่เข้าข่ายตามประกาศฉบับนี้',
+         desc:'ไม่ต้องจัดทำรายงาน EIA หรือ IEE ตามประกาศฉบับนี้ แต่ยังต้องปฏิบัติตามกฎหมายอื่นที่เกี่ยวข้อง'}
+};
+const refText = r => r ? `เอกสารท้ายประกาศ ${r.annex} · ลำดับที่ ${r.no}` : 'ไม่อยู่ในเอกสารท้ายประกาศ';
+
+function stageFor(res){
+  if (res.v !== 'eia' && res.v !== 'iee') return null;
+  const row = refRow(res.ref.annex, res.ref.no);
+  if (G.prop === 'gov_cab') return 'เสนอรายงานในขั้นก่อนขอรับความเห็นชอบจากคณะรัฐมนตรี (ข้อ 10 (1))';
+  if (G.prop === 'gov') return 'เสนอรายงานในขั้นขออนุมัติโครงการหรือขออนุมัติงบประมาณ ต่อหัวหน้าหน่วยงานของรัฐ (ข้อ 10 (2))';
+  return row.stage + ' (ข้อ 10 (3))';
+}
+
+/* ------------------------------------------------------------------ */
+/* Rendering: chips + panels                                            */
+/* ------------------------------------------------------------------ */
+const chipsEl = $('#chips'), panelsEl = $('#panels'), resEl = $('#res');
+const byId = Object.fromEntries(ITEMS.map(it => [it.id, it]));
+const headOf = it => it.id === 'other' ? 'ประเภทอื่นที่ไม่อยู่ในรายการท้ายประกาศ' : refRow(4, it.id).head;
+const sizeOf = it => it.id === 'other' ? '' : it.id === '1' ? 'EIA: ทุกขนาดตาม 1.1–1.4 · IEE: เหมืองแร่อื่น ๆ ทุกขนาด (เอกสารท้ายประกาศ 3)' : it.id === '26' ? refRow(4,'26').size + ' · บนพื้นน้ำ: IEE ทุกขนาด (เอกสารท้ายประกาศ 3)' : refRow(4, it.id).size;
+
+function buildChips(){
+  chipsEl.innerHTML = GROUPS.map(([g, label]) => {
+    const items = ITEMS.filter(it => it.grp === g);
+    return `<div class="grp" data-grp="${g}"><h3>${label}</h3><div class="chips">${items.map(it =>
+      `<button type="button" class="chip" data-id="${it.id}" aria-pressed="false">${it.id !== 'other' ? `<span class="no">${it.id}</span>` : ''}${it.chip}</button>`).join('')}</div></div>`;
+  }).join('');
+  chipsEl.addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    toggle(b.dataset.id);
+  });
+}
+
+function toggle(id){
+  if (picked.has(id)) picked.delete(id); else picked.add(id);
+  const b = chipsEl.querySelector(`.chip[data-id="${id}"]`);
+  b.setAttribute('aria-pressed', picked.has(id));
+  renderPanels();
+  update();
+  if (picked.has(id)){
+    const p = panelsEl.querySelector(`[data-panel="${id}"]`);
+    if (p && window.innerWidth < 1000) p.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+}
+
+function filterChips(q){
+  q = q.trim().toLowerCase();
+  let any = false;
+  chipsEl.querySelectorAll('.grp').forEach(g => {
+    let vis = 0;
+    g.querySelectorAll('.chip').forEach(c => {
+      const it = byId[c.dataset.id];
+      const hay = (it.chip + ' ' + it.kw + ' ' + headOf(it) + ' ลำดับ ' + it.id).toLowerCase();
+      const show = !q || q.split(/\s+/).every(t => hay.includes(t)) || picked.has(it.id);
+      c.hidden = !show; if (show) vis++;
+    });
+    g.hidden = !vis; if (vis) any = true;
+  });
+  $('#nohit').hidden = any;
+}
+
+function fieldHTML(it, f, i){
+  const name = `f-${it.id}-${f.k}`;
+  const v = V[it.id];
+  const code = f.code ? `<span class="code">${f.code}</span>` : '';
+  const help = f.help ? `<p class="help">${f.help}</p>` : '';
+  const attr = `class="f" data-i="${i}"`;
+  switch (f.t){
+    case 'label': return `<div ${attr}><span class="l">${f.text}</span></div>`;
+    case 'info':  return `<div ${attr} data-info></div>`;
+    case 'num':   return `<div ${attr}><label class="l" for="${name}">${f.label}</label><div class="inp"><input id="${name}" data-k="${f.k}" type="text" inputmode="decimal" autocomplete="off" value="${esc(v[f.k] ?? '')}"><span class="u">${f.unit}</span></div>${help}</div>`;
+    case 'chk':   return `<div ${attr}><label class="opt"><input type="checkbox" data-k="${f.k}" ${v[f.k] ? 'checked' : ''}><span>${f.label}${code}</span></label>${help}</div>`;
+    case 'radio': return `<div ${attr} role="radiogroup" aria-label="${f.label}"><span class="l">${f.label}</span><div class="opts">${f.opts.map(([val, lab]) =>
+                    `<label class="opt"><input type="radio" name="${name}" data-k="${f.k}" value="${val}" ${v[f.k] === val ? 'checked' : ''}><span>${lab}</span></label>`).join('')}</div>${help}</div>`;
+    case 'select': {
+      const opt = ([val, lab]) => `<option value="${val}" ${v[f.k] === val ? 'selected' : ''}>${lab}</option>`;
+      const body = f.opts.map(o => o.g ? `<optgroup label="${o.g}">${o.o.map(opt).join('')}</optgroup>` : opt(o)).join('');
+      return `<div ${attr}><label class="l" for="${name}">${f.label}</label><select id="${name}" data-k="${f.k}"><option value="">— เลือก —</option>${body}</select>${help}</div>`;
+    }
+  }
+  return '';
+}
+
+function renderPanels(){
+  const ids = ITEMS.map(it => it.id).filter(id => picked.has(id));
+  // keep existing panels (preserves focus/scroll), add missing, remove unpicked
+  panelsEl.querySelectorAll('[data-panel]').forEach(p => { if (!picked.has(p.dataset.panel)) p.remove(); });
+  let prev = null;
+  ids.forEach(id => {
+    let p = panelsEl.querySelector(`[data-panel="${id}"]`);
+    if (!p){
+      const it = byId[id];
+      V[id] = V[id] || {};
+      p = document.createElement('div');
+      p.className = 'panel'; p.dataset.panel = id;
+      const fields = it.fields.map((f, i) => fieldHTML(it, f, i)).join('');
+      const sz = sizeOf(it);
+      p.innerHTML = `<div class="ph"><div class="t"><b>${id !== 'other' ? `ลำดับที่ ${id} · ` : ''}${headOf(it)}</b>${sz ? `<div class="sz">ขนาดที่กำหนด: ${sz}</div>` : ''}</div><button type="button" class="x" aria-label="นำประเภทนี้ออก" title="นำออก">×</button></div>`
+        + (fields ? `<div class="pb">${fields}</div>` : '')
+        + `<div class="mini" aria-hidden="true"></div>`;
+      p.querySelector('.x').addEventListener('click', () => toggle(id));
+      p.addEventListener('input', e => onField(id, e));
+      p.addEventListener('change', e => onField(id, e));
+    }
+    if (prev ? prev.nextSibling !== p : panelsEl.firstChild !== p) panelsEl.insertBefore(p, prev ? prev.nextSibling : panelsEl.firstChild);
+    prev = p;
+  });
+}
+
+function onField(id, e){
+  const el = e.target; const k = el.dataset.k; if (!k) return;
+  if (el.type === 'checkbox') V[id][k] = el.checked;
+  else if (el.type === 'radio'){ if (el.checked) V[id][k] = el.value; }
+  else V[id][k] = el.value;
+  update();
+}
+
+/* ------------------------------------------------------------------ */
+/* Evaluate + render results                                            */
+/* ------------------------------------------------------------------ */
+function evaluate(){
+  const rows = [];
+  ITEMS.forEach(it => {
+    if (!picked.has(it.id)) return;
+    const r = it.ev(V[it.id] || {});
+    r.id = it.id; r.title = it.chip;
+    r.stage = stageFor(r);
+    rows.push(r);
+  });
+  const w = evWs1();
+  if (w){ w.stage = stageFor(w); rows.unshift(w); }
+  return rows;
+}
+
+function overallOf(rows){
+  if (!rows.length) return null;
+  return rows.reduce((a, r) => VERD[r.v].rank > VERD[a].rank ? r.v : a, 'none');
+}
+
+function update(){
+  // visibility + info fields in panels
+  panelsEl.querySelectorAll('[data-panel]').forEach(p => {
+    const it = byId[p.dataset.panel], v = V[it.id];
+    p.querySelectorAll('.f').forEach(div => {
+      const f = it.fields[+div.dataset.i];
+      div.hidden = !!(f.show && !f.show(v));
+      if (f.t === 'info' && !div.hidden) div.innerHTML = f.html(v);
+    });
+    const r = it.ev(v), m = VERD[r.v];
+    p.querySelector('.mini').innerHTML = `<span class="pill p-${m.cls}">${m.pill}</span><span>${r.v === 'inc' ? 'ต้องการ: ' + r.need.join(', ') : refText(r.ref)}</span>`;
+  });
+  $('#g-ws1-ex').hidden = !G.ws1;
+
+  const rows = evaluate(), ov = overallOf(rows);
+  renderResult(rows, ov);
+}
+
+function renderResult(rows, ov){
+  const mbar = $('#mbar-l');
+  if (!ov){
+    resEl.innerHTML = `<div class="verdict v-idle"><div class="k">ผลการตรวจสอบเบื้องต้น</div><div class="v">รอเลือกประเภทโครงการ</div><p>เลือกประเภทโครงการในขั้นที่ 2 แล้วกรอกขนาดในขั้นที่ 3 ผลจะแสดงทันที</p></div>`
+      + generalNotes(false);
+    mbar.textContent = 'เลือกประเภทโครงการเพื่อดูผล';
+    return;
+  }
+  const m = VERD[ov];
+  const incSome = ov !== 'inc' && rows.some(r => r.v === 'inc');
+  let h = `<div class="verdict v-${m.cls}"><div class="k">ผลการตรวจสอบเบื้องต้น</div><div class="v">${m.title}</div><p>${m.desc}${incSome ? ' · บางรายการยังกรอกข้อมูลไม่ครบ' : ''}</p></div>`;
+  h += `<ol class="rlist">` + rows.map(r => {
+    const vm = VERD[r.v];
+    return `<li class="ri"><div class="hd"><div><b>${r.id !== 'other' ? `ลำดับที่ ${r.id} · ` : ''}${esc(r.title)}</b><div class="ref">${refText(r.ref)}</div></div><span class="pill p-${vm.cls}">${vm.pill}</span></div>`
+      + (r.why.length ? `<ul>${r.why.map(w => `<li>${w}</li>`).join('')}</ul>` : '')
+      + (r.v === 'inc' ? `<ul><li>ต้องการข้อมูล: ${r.need.join(', ')}</li></ul>` : '')
+      + (r.stage ? `<div class="stage"><b>ขั้นตอนการเสนอรายงาน</b>${r.stage}</div>` : '')
+      + r.notes.map(n => `<p class="nt">${n}</p>`).join('')
+      + `</li>`;
+  }).join('') + `</ol>`;
+
+  const need = rows.map(r => r.v);
+  if (need.includes('eia') || need.includes('iee')) h += docsBox(need.includes('eia'), need.includes('iee'));
+  h += generalNotes(true);
+  h += `<div class="acts"><button type="button" class="btn pri" id="copy">คัดลอกผล</button><button type="button" class="btn" id="print">พิมพ์</button><button type="button" class="btn" id="reset">เริ่มใหม่</button></div>`;
+  h += `<p class="disc">ผลนี้เป็นการคัดกรองเบื้องต้นจากข้อมูลที่กรอก การวินิจฉัยขั้นสุดท้ายเป็นอำนาจของหน่วยงานผู้อนุญาตและสำนักงานนโยบายและแผนทรัพยากรธรรมชาติและสิ่งแวดล้อม (สผ.)</p>`;
+  resEl.innerHTML = h;
+  $('#copy').addEventListener('click', () => copySummary(rows, ov));
+  $('#print').addEventListener('click', () => window.print());
+  $('#reset').addEventListener('click', reset);
+  mbar.innerHTML = `<span class="pill p-${m.cls}">${m.pill}</span> ${m.title}`;
+}
+
+function docsBox(eia, iee){
+  const gov = G.prop !== 'private';
+  let h = `<details class="box"><summary>เอกสารที่ต้องจัดเตรียม</summary><div class="in">`;
+  if (eia) h += `<p style="margin:0 0 6px"><b>รายงาน EIA (ข้อ 8 (4))</b></p><ul>
+    <li>ต้นฉบับรายงานฉบับหลัก สำเนา และไฟล์อิเล็กทรอนิกส์</li>
+    ${gov ? '<li>ต้นฉบับรายงานฉบับย่อและไฟล์อิเล็กทรอนิกส์ (โครงการของรัฐหรือรัฐร่วมเอกชน ข้อ 8 (3))</li>' : ''}
+    <li>ปกหน้าและปกใน — แบบ สผ.5</li><li>หนังสือรับรองการจัดทำรายงาน — แบบ สผ.6</li>
+    <li>บัญชีรายชื่อผู้จัดทำรายงาน — แบบ สผ.7</li><li>แบบแสดงรายละเอียดการเสนอรายงาน — แบบ สผ.8</li>
+    <li>สำเนาใบอนุญาตเป็นผู้จัดทำรายงานการประเมินผลกระทบสิ่งแวดล้อม</li></ul>`;
+  if (iee) h += `<p style="margin:${eia ? '12px' : '0'} 0 6px"><b>รายงาน IEE (ข้อ 7 (7))</b></p><ul>
+    <li>ต้นฉบับรายงาน สำเนา และไฟล์อิเล็กทรอนิกส์</li>
+    <li>ปกหน้าและปกใน — แบบ สผ.1</li><li>หนังสือรับรองการจัดทำรายงาน — แบบ สผ.2</li>
+    <li>บัญชีรายชื่อผู้จัดทำรายงาน — แบบ สผ.3</li><li>แบบแสดงรายละเอียดการเสนอรายงาน — แบบ สผ.4</li>
+    <li>สำเนาใบอนุญาตเป็นผู้จัดทำรายงานการประเมินผลกระทบสิ่งแวดล้อม</li></ul>`;
+  h += `<p style="margin:12px 0 0">รายงานต้องจัดทำหรือรับรองโดยผู้ได้รับใบอนุญาตเป็นผู้จัดทำรายงาน (ข้อ 11) และส่งไปยัง สผ. หรือหน่วยงานที่ได้รับมอบหมาย พร้อมนำเข้าข้อมูลในระบบอิเล็กทรอนิกส์ (ข้อ 14)</p></div></details>`;
+  h += `<details class="box"><summary>สาระสำคัญของรายงาน</summary><div class="in">`;
+  if (eia) h += `<p style="margin:0 0 6px"><b>EIA (ข้อ 8)</b></p><ol>
+    <li>บทนำ — ที่มา วัตถุประสงค์ ขอบเขต วิธีการศึกษา และทางเลือกที่ตั้ง/วิธีการ</li>
+    <li>รายละเอียดโครงการ — แผนที่มาตราส่วน 1:50,000 และแผนผังการใช้ที่ดิน</li>
+    <li>สภาพสิ่งแวดล้อมปัจจุบัน — ข้อมูลปฐมภูมิเป็นหลัก และการมีส่วนร่วมของประชาชนตามแนวทางของ สผ.</li>
+    <li>การประเมินผลกระทบทุกด้าน ทั้งทางตรงและทางอ้อม รวมทั้งด้านสุขภาพตามแนวทางของ สผ.</li>
+    <li>มาตรการป้องกันและแก้ไข มาตรการติดตามตรวจสอบ และตารางสรุปมาตรการ</li>
+    <li>ส่วนประกอบท้ายรายงาน — เอกสารอ้างอิง ผลวิเคราะห์ตัวอย่าง ภาคผนวก</li></ol>`;
+  if (iee) h += `<p style="margin:${eia ? '12px' : '0'} 0 6px"><b>IEE (ข้อ 7)</b></p><ol>
+    <li>บทนำ</li><li>รายละเอียดโครงการ — แผนที่มาตราส่วน 1:50,000</li><li>สภาพสิ่งแวดล้อมปัจจุบัน</li>
+    <li>การประเมินผลกระทบสิ่งแวดล้อมที่มีนัยสำคัญ</li><li>มาตรการป้องกันและแก้ไข และมาตรการติดตามตรวจสอบ</li><li>ส่วนประกอบท้ายรายงาน</li></ol>`;
+  return h + `</div></details>`;
+}
+
+function generalNotes(withStatus){
+  const st = [];
+  if (withStatus && G.status === 'expand') st.push('<li><b>ขยายโครงการ:</b> โครงการที่มีขนาดไม่ถึงเกณฑ์ หากขยายในภายหลังจนถึงเกณฑ์ หรือโครงการที่ดำเนินการมาก่อนมีประกาศแล้วขยายภายหลังได้รับอนุญาต ต้องจัดทำรายงานตามประกาศนี้ — ใช้ขนาดรวมหลังขยายในการตรวจสอบ (ข้อ 4 วรรคหนึ่ง)</li>');
+  if (withStatus && G.status === 'change') st.push('<li><b>มีรายงานแล้ว:</b> หากเปลี่ยนแปลงรายละเอียดหรือขยายขนาดให้แตกต่างจากรายงาน ต้องจัดทำข้อมูลหรือรายงานการเปลี่ยนแปลงรายละเอียด หรือรายงานฉบับใหม่ ให้สอดคล้องกับเงื่อนไขในมาตรการด้านสิ่งแวดล้อม (ข้อ 4 วรรคสอง)</li>');
+  if (G.env45) st.push('<li><b>เขตพื้นที่คุ้มครองสิ่งแวดล้อม:</b> หากประกาศตามมาตรา 45 ของพื้นที่นั้นกำหนดโครงการที่ต้องจัดทำรายงานไว้เป็นการเฉพาะ ให้ตรวจสอบตามประกาศนั้นด้วย ประกาศฉบับนี้ใช้บังคับในเขตดังกล่าวเมื่อประกาศพื้นที่ไม่ได้กำหนดไว้ (ข้อ 13)</li>');
+  return `<details class="box"${st.length ? ' open' : ''}><summary>ข้อควรทราบ</summary><div class="in"><ul>${st.join('')}
+    <li>หากโครงการเข้าข่ายประกาศกำหนดโครงการที่อาจก่อให้เกิดผลกระทบต่อชุมชนอย่างรุนแรง (EHIA) ให้จัดทำรายงาน EHIA ตามประกาศนั้นเพียงอย่างเดียว (ข้อ 5)</li>
+    <li>“ขนาด” หมายความรวมถึง จำนวน กำลังการผลิต หรือระวางรับน้ำหนัก แล้วแต่กรณี</li>
+    <li>รายงานที่ยื่นไว้ก่อนประกาศ พ.ศ. 2566 มีผล (6 ม.ค. 2567) ให้พิจารณาต่อไปจนเสร็จ (ข้อ 15)</li>
+    <li>การแก้ไขลำดับที่ 20 และ 27 โดยฉบับที่ 2 (มีผล 1 ส.ค. 2568) ไม่ใช้กับโครงการที่ยื่นคำขออนุญาต หรืออยู่ระหว่างเสนอ ครม. หรือขออนุมัติโครงการ/งบประมาณไว้ก่อนแล้ว</li>
+    <li>เครื่องมือนี้ไม่ครอบคลุมประกาศ EHIA ประกาศเขตพื้นที่คุ้มครองสิ่งแวดล้อมรายพื้นที่ และกฎหมายเฉพาะเรื่องอื่น</li></ul></div></details>`;
+}
+
+function copySummary(rows, ov){
+  const P = {private:'เอกชน', gov_cab:'หน่วยงานของรัฐ/รัฐร่วมเอกชน ที่ต้องเสนอ ครม.', gov:'หน่วยงานของรัฐ ที่ไม่ต้องเสนอ ครม. หรือไม่ต้องได้รับอนุญาต'};
+  const S = {new:'โครงการใหม่', expand:'ขยายโครงการเดิม', change:'เปลี่ยนแปลงโครงการที่มีรายงานแล้ว'};
+  const strip = s => s.replace(/<[^>]+>/g, '');
+  const lines = [
+    'ผลการตรวจสอบเบื้องต้น: ' + VERD[ov].title,
+    `ผู้ดำเนินโครงการ: ${P[G.prop]} · ลักษณะ: ${S[G.status]}`,
+    ''
+  ];
+  rows.forEach(r => {
+    lines.push(`[${VERD[r.v].pill}] ${r.id !== 'other' ? 'ลำดับที่ ' + r.id + ' ' : ''}${r.title} (${refText(r.ref)})`);
+    r.why.forEach(w => lines.push('  - ' + strip(w)));
+    if (r.v === 'inc') lines.push('  - ต้องการข้อมูล: ' + r.need.join(', '));
+    if (r.stage) lines.push('  ขั้นตอนการเสนอรายงาน: ' + r.stage);
+  });
+  lines.push('', 'อ้างอิง: ประกาศกระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม เรื่อง กำหนดโครงการ กิจการ หรือการดำเนินการ ซึ่งต้องจัดทำรายงานการประเมินผลกระทบสิ่งแวดล้อม ฯ พ.ศ. 2566 และ (ฉบับที่ 2) พ.ศ. 2568');
+  lines.push('ตรวจสอบเมื่อ ' + new Date().toLocaleString('th-TH') + ' — ผลเบื้องต้น ไม่ใช่คำวินิจฉัยของหน่วยงาน');
+  const text = lines.join('\n');
+  const btn = $('#copy');
+  const done = ok => { btn.textContent = ok ? 'คัดลอกแล้ว' : 'คัดลอกไม่สำเร็จ'; setTimeout(() => { if (btn.isConnected) btn.textContent = 'คัดลอกผล'; }, 1800); };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(() => done(true), () => done(fallbackCopy(text)));
+  else done(fallbackCopy(text));
+}
+function fallbackCopy(text){
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove(); return ok;
+}
+
+function reset(){
+  picked.clear(); Object.keys(V).forEach(k => delete V[k]);
+  Object.assign(G, {prop:'private', status:'new', ws1:false, ws2:false, env45:false, x331:false, x332:false, x333:false});
+  document.querySelectorAll('#view-check input[type=checkbox]').forEach(c => c.checked = false);
+  document.querySelector('input[name=prop][value=private]').checked = true;
+  document.querySelector('input[name=status][value=new]').checked = true;
+  chipsEl.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
+  $('#q').value = ''; filterChips('');
+  panelsEl.innerHTML = '';
+  update();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ------------------------------------------------------------------ */
+/* Global inputs                                                        */
+/* ------------------------------------------------------------------ */
+document.querySelectorAll('input[name=prop]').forEach(r => r.addEventListener('change', () => { G.prop = r.value; update(); }));
+document.querySelectorAll('input[name=status]').forEach(r => r.addEventListener('change', () => { G.status = r.value; update(); }));
+[['g-ws1','ws1'],['g-ws2','ws2'],['g-env45','env45'],['g-x331','x331'],['g-x332','x332'],['g-x333','x333']].forEach(([id, k]) =>
+  $('#' + id).addEventListener('change', e => { G[k] = e.target.checked; update(); }));
+$('#q').addEventListener('input', e => filterChips(e.target.value));
+
+/* ------------------------------------------------------------------ */
+/* Tabs                                                                 */
+/* ------------------------------------------------------------------ */
+const tabs = [...document.querySelectorAll('nav.tabs button')];
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); $('#' + x.getAttribute('aria-controls')).hidden = !on; });
+  $('#mbar').classList.toggle('off', t.id !== 'tab-check');
+}));
+
+/* ------------------------------------------------------------------ */
+/* Reference tables + definitions                                       */
+/* ------------------------------------------------------------------ */
+function buildRef(){
+  const table = (annex, title, desc) => `<div class="annex" data-annex="${annex}"><h2>${title}</h2><p>${desc}</p>
+    <table class="ref"><thead><tr><th>ลำดับ</th><th>ประเภทโครงการ กิจการ หรือการดำเนินการ</th><th>ขนาด</th><th>ขั้นตอนในการเสนอรายงาน</th></tr></thead><tbody>
+    ${REF[annex].map(r => `<tr data-s="${esc((r.no + ' ' + r.head + ' ' + r.subs.map(s => s[1]).join(' ') + ' ' + r.size).toLowerCase())}">
+      <td class="no">${r.no}</td>
+      <td><div class="hd">${r.head}</div>${r.subs.map(([d, s]) => `<div class="s${d}">${s}</div>`).join('')}${r.amended ? `<div class="amd"><span class="tag">แก้ไขโดยฉบับที่ 2 พ.ศ. 2568</span> <span style="font-size:13px;color:var(--muted)">${r.amdNote}</span></div>` : ''}</td>
+      <td class="sz">${r.size}</td><td class="st">${r.stage}</td></tr>`).join('')}
+    </tbody></table></div>`;
+  $('#reftables').innerHTML =
+    table(4, 'เอกสารท้ายประกาศ 4 · ต้องจัดทำรายงาน EIA', 'ประเภทและขนาดของโครงการ กิจการ หรือการดำเนินการ ซึ่งต้องจัดทำรายงานการประเมินผลกระทบสิ่งแวดล้อม และขั้นตอนในการเสนอรายงาน — 35 ลำดับ') +
+    table(3, 'เอกสารท้ายประกาศ 3 · ต้องจัดทำรายงาน IEE', 'ประเภทและขนาดของโครงการ กิจการ หรือการดำเนินการ ซึ่งต้องจัดทำรายงานผลกระทบสิ่งแวดล้อมเบื้องต้น และขั้นตอนในการเสนอรายงาน — 2 ลำดับ');
+  $('#rq').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('#reftables tr[data-s]').forEach(tr => tr.hidden = !!q && !q.split(/\s+/).every(t => tr.dataset.s.includes(t)));
+  });
+}
+
+const DEFS = [
+  ['ขนาด','ให้หมายความรวมถึง จำนวน กำลังการผลิต หรือระวางรับน้ำหนัก แล้วแต่กรณีด้วย'],
+  ['อนุญาต','การที่เจ้าหน้าที่ของหน่วยงานของรัฐยินยอมให้บุคคลใดกระทำการใดที่มีกฎหมายกำหนดให้ต้องได้รับความยินยอมก่อนกระทำการนั้น และให้หมายความรวมถึงการออกใบอนุญาต การอนุมัติ การจดทะเบียน การขึ้นทะเบียน การรับแจ้ง การให้ประทานบัตร และการให้อาชญาบัตรด้วย'],
+  ['ขยะมูลฝอย','เศษกระดาษ เศษผ้า เศษอาหาร เศษสินค้า เศษวัตถุ ถุงพลาสติก ภาชนะที่ใส่อาหาร เถ้า มูลสัตว์ ซากสัตว์ หรือสิ่งอื่นใดที่เก็บกวาดจากถนน ตลาด ที่เลี้ยงสัตว์ หรือที่อื่น'],
+  ['พื้นที่ซึ่งมีสารมลพิษทางอากาศสูงเกินกว่าร้อยละ 80','พื้นที่ที่มีผลการตรวจวัดฝุ่นละอองรวมหรือฝุ่นละอองขนาดไม่เกิน 100 ไมครอน ฝุ่นละอองขนาดไม่เกิน 10 ไมครอน ก๊าซซัลเฟอร์ไดออกไซด์ และก๊าซไนโตรเจนไดออกไซด์ ก่อนดำเนินโครงการโรงไฟฟ้าพลังความร้อนที่ใช้ขยะมูลฝอยเป็นเชื้อเพลิงเกินกว่าร้อยละ 80 ของค่ามาตรฐาน ตามประกาศของคณะกรรมการสิ่งแวดล้อมแห่งชาติ ที่ออกตามความในมาตรา 32 แห่งพระราชบัญญัติส่งเสริมและรักษาคุณภาพสิ่งแวดล้อมแห่งชาติ พ.ศ. 2535 อย่างน้อย 4 จุด โดยต้องตรวจวัดติดต่อกันอย่างน้อย 7 วัน ในช่วงเดือนมีนาคมถึงเดือนกันยายน และช่วงเดือนตุลาคมถึงเดือนกุมภาพันธ์ โดยช่วงเวลาที่ตรวจวัดจะต้องห่างกัน 5 - 7 เดือน พร้อมกับบันทึกกิจกรรมในขณะที่ทำการตรวจวัดและแผนผังแสดงตำแหน่งที่ทำการตรวจวัด'],
+  ['ลุ่มน้ำหลัก','ลุ่มน้ำหลัก 22 ลุ่มน้ำ ตามเอกสารท้ายประกาศ 1'],
+  ['ประตูระบายน้ำในแม่น้ำสายหลัก','อาคารที่สร้างขึ้นในทางน้ำ เพื่อทดกักกั้น หรือระบายน้ำ โดยมีช่องปิดเปิดได้ ในแม่น้ำสายหลักตามเอกสารท้ายประกาศ 2'],
+  ['ค้าปลีก','การประกอบธุรกิจโดยการขายสินค้าในจำนวนน้อยให้แก่ผู้บริโภค'],
+  ['ค้าส่ง','การประกอบธุรกิจโดยการขายสินค้าในจำนวนมากให้แก่ผู้ซื้อเพื่อนำไปขายให้แก่ผู้บริโภค หรือนำไปให้บริการต่อ'],
+  ['ระบบขนส่งก๊าซธรรมชาติทางท่อบนบก','ระบบการขนส่งก๊าซธรรมชาติทางท่อตามกฎกระทรวงว่าด้วยระบบการขนส่งก๊าซธรรมชาติทางท่อ ทั้งที่วางบนพื้นดินใต้ดินในน้ำหรือวางอยู่บน สิ่งปลูกสร้างใด ๆ แต่ไม่รวมถึงระบบการขนส่งก๊าซธรรมชาติทางท่อที่อยู่ในพื้นที่นอกชายฝั่งทะเลจนถึงสถานีแรกบนฝั่ง'],
+  ['การพัฒนาชุมชนและการจัดที่ดิน','โครงการที่ให้ความสำคัญกับการพัฒนาชุมชนและการจัดที่ดินให้ราษฎรอยู่อาศัยร่วมกับป่าและใช้ประโยชน์อย่างสมดุลและเกื้อกูลธรรมชาติ'],
+  ['กำแพงติดแนวชายฝั่งทะเล','กำแพงป้องกันคลื่นริมชายหาด หรือเขื่อนป้องกันตลิ่งริมทะเล ซึ่งผ่านการพิจารณาตามขั้นตอนการกลั่นกรองโครงการ และได้รับความเห็นชอบตามกฎหมายว่าด้วยการส่งเสริมการบริหารจัดการทรัพยากรทางทะเลและชายฝั่ง'],
+  ['แนวชายฝั่งทะเล','แนวที่น้ำทะเลขึ้นสูงสุดตามปกติทางธรรมชาติ']
+];
+function buildDefs(){
+  $('#defs').innerHTML = DEFS.map(([t, d]) => `<div class="def"><b>“${t}”</b><p>${d}</p></div>`).join('')
+    + `<div class="def"><b>คำนิยามที่ถูกยกเลิก</b><p>ประกาศ (ฉบับที่ 2) พ.ศ. 2568 ข้อ 1 ยกเลิกบทนิยาม “อาคารประกอบธุรกิจค้าปลีกหรือค้าส่ง” และ “ธุรกิจค้าปลีกหรือค้าส่ง”</p></div>`;
+  $('#basins').innerHTML = BASINS.map(b => `<li>ลุ่มน้ำ${b}</li>`).join('');
+  $('#rivers').innerHTML = RIVERS.map(r => `<li>แม่น้ำ${r}</li>`).join('');
+}
+
+/* Hide the mobile bar while the result card is on screen */
+if ('IntersectionObserver' in window){
+  const mbar = $('#mbar');
+  new IntersectionObserver(es => es.forEach(e => mbar.classList.toggle('off', e.isIntersecting || $('#view-check').hidden)), {threshold:0.15}).observe($('#result'));
+}
+
+buildChips();
+buildRef();
+buildDefs();
+update();
+})();
+</script>
+</body>
+</html>
