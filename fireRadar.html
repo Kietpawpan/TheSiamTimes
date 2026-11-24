@@ -486,6 +486,19 @@
                         <input type="radio" name="timeFilter" value="12-afternoon" class="time-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> 12 ชม. รอบบ่าย (12:00 - 23:59 น.)
                     </label>
                 </div>
+                <!-- เลือกดาวเทียม: รวมทั้ง 2 ดวง หรือแยกทีละดวง (ตัวเลขในวงเล็บ = จำนวนจุดในพื้นที่และช่วงเวลาที่เลือก) -->
+                <div id="satFilterGroup" style="display: flex; gap: 15px; align-items: center; font-size: 15px; margin-top: 12px; flex-wrap: wrap;">
+                    <b style="color: #334155;">🛰️ ดาวเทียม:</b>
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="radio" name="satFilter" value="all" class="sat-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;" checked> รวมทั้ง 2 ดวง <span class="sat-count" data-sat="all" style="margin-left: 4px; color: #64748b; font-size: 14px;"></span>
+                    </label>
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="radio" name="satFilter" value="N20" class="sat-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> NOAA-20 <span class="sat-count" data-sat="N20" style="margin-left: 4px; color: #64748b; font-size: 14px;"></span>
+                    </label>
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="radio" name="satFilter" value="N21" class="sat-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> NOAA-21 <span class="sat-count" data-sat="N21" style="margin-left: 4px; color: #64748b; font-size: 14px;"></span>
+                    </label>
+                </div>
             </div>
 
             <!-- ตัวเลือกแสดงค่า PM2.5 รายจังหวัดจากสถานีกรมควบคุมมลพิษ -->
@@ -1024,6 +1037,8 @@
 
         let currentTimeframe = 12;   // ค่าเริ่มต้น: 12 ชม. ล่าสุด (ทุกช่วงเวลา)
         let currentTimeOfDay = 'all';
+        let currentSatellite = 'all';  // 'all' = รวมทุกดวง, 'N20' = NOAA-20, 'N21' = NOAA-21 (เปิดด้วย ?sat=N20 ได้)
+        let satelliteCounts = {};      // จำนวนจุดต่อดวงในพื้นที่และช่วงเวลาที่เลือก (ก่อนกรองดาวเทียม) เช่น { 'NOAA-21': 102 }
         const RISK_RADIUS_KM = 0.5;
 
         // เปิดใช้งานเลเยอร์จุดความร้อนเป็นค่าเริ่มต้นด้วย
@@ -1474,7 +1489,8 @@ if (primarySource && primarySource.features) {
                             acq_time: pt.time,
                             prov_name: strictProvName,
                             epo_id: epoId,
-                            confidence: pt.confidence || "n"
+                            confidence: pt.confidence || "n",
+                            satellite: pt.satellite || null
                         };
 
                         const dateParts = String(pt.date).split('-');
@@ -1554,6 +1570,19 @@ if (primarySource && primarySource.features) {
             p.catch(() => { hsAddrPending.delete(key); hsAddrFailedAt.set(key, Date.now()); });
             hsAddrPending.set(key, p);
             return p;
+        }
+
+        // ดาวเทียมที่ตรวจพบ: ค่า satellite จาก NASA FIRMS (N20 = NOAA-20, N21 = NOAA-21, N = Suomi NPP) ทุกดวงใช้เครื่องวัด VIIRS
+        const SATELLITE_NAMES = { N20: 'NOAA-20', J1: 'NOAA-20', N21: 'NOAA-21', J2: 'NOAA-21', N: 'Suomi NPP', NPP: 'Suomi NPP', SNPP: 'Suomi NPP' };
+        function satelliteName(code) {
+            const k = String(code || '').trim().toUpperCase();
+            return k ? (SATELLITE_NAMES[k] || k) : null;
+        }
+        function satelliteMatches(feature) {
+            return currentSatellite === 'all' || satelliteName(feature.properties.satellite) === satelliteName(currentSatellite);
+        }
+        function satelliteFilterText() {
+            return currentSatellite === 'all' ? 'รวมทั้ง 2 ดวง (NOAA-20 และ NOAA-21)' : 'เฉพาะ ' + satelliteName(currentSatellite);
         }
 
         function splitThaiAdminName(text, prefixes) {
@@ -1639,6 +1668,10 @@ if (primarySource && primarySource.features) {
                     let prov = props.prov_name || "-";
                     let conf = String(props.confidence || "-").trim().toLowerCase();
                     let confDisplay = conf === 'h' || conf === 'high' ? "สูง (High)" : (conf === 'n' || conf === 'nominal' ? "ปานกลาง (Nominal)" : "ต่ำ (Low)");
+                    const satName = satelliteName(props.satellite);
+                    const satDisplay = satName
+                        ? `<span style='font-weight:bold;'>${escHtml(satName)}</span> (VIIRS)`
+                        : `<span style='color:#64748b;'>ไม่ระบุ</span>`;
                     let epoDisplay = props.epo_id && EPO_REGIONS[props.epo_id]
                         ? EPO_REGIONS[props.epo_id].name
                         : (prov === "กรุงเทพมหานคร" ? "กรุงเทพมหานคร (นอกเขต สคพ. 1-16)" : "-");
@@ -1655,6 +1688,7 @@ if (primarySource && primarySource.features) {
                         <b>วันที่:</b> ${dateDisplay}<br>
                         <b>เวลา:</b> ${timeDisplay} (เวลาไทย)<br>
                         <b>ความเชื่อมั่น:</b> ${confDisplay}<br>
+                        <b>ดาวเทียม:</b> ${satDisplay}<br>
                         <br><a href='https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}' target='_blank' style='display:block; text-align:center; background-color:#16a34a; color:white; padding:8px 0; border-radius:6px; text-decoration:none; font-weight:bold;'>📍 เปิดนำทางด้วย Google Maps</a>
                         </div>`;
                     
@@ -1738,10 +1772,15 @@ if (primarySource && primarySource.features) {
             // เพิ่ม Legend สำหรับจุดความร้อน
             if (activeLayers.has("🔥 จุดความร้อน (NASA)")) {
                 html += `<div class="legend-title">🔥 สรุปจุดความร้อน (${regionLabel()})</div>`;
+                const satTxt = currentSatellite === 'all' ? '' : ` · ${satelliteName(currentSatellite)}`;
                 if (currentFilteredHotspots.length === 0) {
-                    html += '<div style="color:#d84315; font-weight:bold; margin-bottom:10px;">ไม่พบจุดความร้อนในช่วงเวลาที่กำหนด</div>';
+                    html += `<div style="color:#d84315; font-weight:bold; margin-bottom:10px;">ไม่พบจุดความร้อนในช่วงเวลาที่กำหนด${currentSatellite === 'all' ? '' : 'จากดาวเทียม ' + satelliteName(currentSatellite)}</div>`;
                 } else {
-                    html += `<div>รวมพบ: <b>${currentFilteredHotspots.length}</b> จุด (รอบ ${currentTimeframe} ชม.)</div>`;
+                    html += `<div>รวมพบ: <b>${currentFilteredHotspots.length}</b> จุด (รอบ ${currentTimeframe} ชม.${satTxt})</div>`;
+                    if (currentSatellite === 'all') {
+                        const parts = Object.entries(satelliteCounts).sort((a, b) => b[1] - a[1]).map(([n, c]) => `${escHtml(n)} <b>${c}</b>`);
+                        if (parts.length) html += `<div style="font-size:13px; color:#475569;">🛰️ ${parts.join(' · ')}</div>`;
+                    }
                     html += '<div style="margin-top:5px;"><b>ระดับความเชื่อมั่น:</b></div>';
                     html += '<div><span class="dot" style="background:#dc3545;"></span> สูง (High)</div>';
                     html += '<div><span class="dot" style="background:#fd7e14;"></span> ปานกลาง (Nominal)</div>';
@@ -2078,6 +2117,19 @@ if (primarySource && primarySource.features) {
                 }
             });
 
+            // นับจำนวนจุดต่อดวง (แสดงข้างตัวเลือก) แล้วกรองตามดาวเทียมที่เลือก
+            satelliteCounts = {};
+            filteredFeatures.forEach(f => {
+                const n = satelliteName(f.properties.satellite) || 'ไม่ระบุ';
+                satelliteCounts[n] = (satelliteCounts[n] || 0) + 1;
+            });
+            document.querySelectorAll('.sat-count').forEach(el => {
+                const k = el.dataset.sat;
+                const n = k === 'all' ? filteredFeatures.length : (satelliteCounts[satelliteName(k)] || 0);
+                el.textContent = globalCoreFeatures.length ? `(${n.toLocaleString('th-TH')})` : '';
+            });
+            filteredFeatures = filteredFeatures.filter(satelliteMatches);
+
             if (filteredFeatures.length === 0 && globalCoreFeatures.length === 0) {
                 document.getElementById('lastUpdateDisplay').innerText = isNational()
                     ? `ไม่พบจุดความร้อนทั่วประเทศไทย (รอบ ${currentTimeframe} ชม.)`
@@ -2088,6 +2140,7 @@ if (primarySource && primarySource.features) {
                     if (currentTimeOfDay === 'morning') displayTxt += " เฉพาะรอบเช้า";
                     else if (currentTimeOfDay === 'afternoon') displayTxt += " เฉพาะรอบบ่าย";
                 }
+                if (currentSatellite !== 'all') displayTxt += ` · ${satelliteName(currentSatellite)}`;
                 document.getElementById('lastUpdateDisplay').innerText = displayTxt + ")";
             }
 
@@ -2119,6 +2172,24 @@ if (primarySource && primarySource.features) {
         // บางเบราว์เซอร์ (เช่น Firefox) จำตัวเลือกที่ติ๊กไว้เมื่อรีเฟรชหน้า ให้ค่าที่ใช้กรองตรงกับที่แสดงบนจอเสมอ
         const initialTimeRadio = document.querySelector('.time-radio:checked');
         if (initialTimeRadio) readTimeRadio(initialTimeRadio);
+
+        // ตัวเลือกดาวเทียม: ค่าเริ่มต้นจาก ?sat=N20 / N21 (ถ้ามี) ไม่เช่นนั้นตามที่ติ๊กอยู่
+        document.querySelectorAll('.sat-radio').forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (!this.checked) return;
+                currentSatellite = this.value;
+                setUrlParam('sat', currentSatellite === 'all' ? null : currentSatellite);
+                applyTimeFilter();
+            });
+        });
+        (function initSatelliteFilter() {
+            const fromUrl = String(urlParams.get('sat') || '').toUpperCase();
+            const byUrl = document.querySelector(`.sat-radio[value="${fromUrl}"]`);
+            if (byUrl) byUrl.checked = true;
+            const checked = document.querySelector('.sat-radio:checked');
+            currentSatellite = checked ? checked.value : 'all';
+            setUrlParam('sat', currentSatellite === 'all' ? null : currentSatellite);
+        })();
 
         // ระบบเรดาร์คำนวณและแจ้งเตือนภัยไฟไหม้บ่อขยะอัตโนมัติ
         function calculateWasteFireRisk() {
@@ -4319,10 +4390,11 @@ if (primarySource && primarySource.features) {
 
             let h = `<div class="pdf-kicker">The Siam Times · ${pdfEsc(title)}</div>`;
             h += `<h1>รายงานจุดความร้อนและความเสี่ยงไฟไหม้บ่อขยะ</h1>`;
-            h += `<div class="pdf-sub">${pdfEsc(regionFullName())} · ${pdfEsc(pdfTimeWindowText())}</div>`;
+            h += `<div class="pdf-sub">${pdfEsc(regionFullName())} · ${pdfEsc(pdfTimeWindowText())}${currentSatellite === 'all' ? '' : ' · ' + pdfEsc(satelliteName(currentSatellite))}</div>`;
             h += '<table class="pdf-table meta"><tbody>' +
                 `<tr><td>พื้นที่</td><td>${pdfEsc(isNational() ? 'ทั่วประเทศไทย (77 จังหวัด)' : EPO_REGIONS[currentEpoId].name + ' · ' + EPO_REGIONS[currentEpoId].provincesTH.join(' '))}</td></tr>` +
                 `<tr><td>ช่วงเวลาที่วิเคราะห์</td><td>${pdfEsc(pdfTimeWindowText())}${range ? ' · ' + pdfEsc(range) : ''}</td></tr>` +
+                `<tr><td>ดาวเทียม</td><td>${pdfEsc(satelliteFilterText())}</td></tr>` +
                 `<tr><td>ข้อมูลดาวเทียมอัปเดตล่าสุด</td><td>${pdfEsc(syncText)}</td></tr>` +
                 `<tr><td>ส่งออกรายงานเมื่อ</td><td>${pdfEsc(formatThaiDateTime(now))}</td></tr>` +
                 `<tr><td>หน้าเว็บ</td><td><a href="${pdfEsc(location.href)}">${pdfEsc(location.href)}</a></td></tr>` +
@@ -4501,14 +4573,15 @@ if (primarySource && primarySource.features) {
                 b.properties.parsed_datetime - a.properties.parsed_datetime);
             h += H2(`รายการจุดความร้อน (${pdfNum(list.length)} จุด)`);
             if (list.length) {
-                h += pdfTable(['#', 'จังหวัด', 'ตรวจพบเมื่อ', 'ความเชื่อมั่น', 'ละติจูด', 'ลองจิจูด', ''],
+                h += pdfTable(['#', 'จังหวัด', 'ตรวจพบเมื่อ', 'ความเชื่อมั่น', 'ดาวเทียม', 'ละติจูด', 'ลองจิจูด', ''],
                     list.slice(0, PDF_MAX_HOTSPOT_ROWS).map((f, i) => {
                         const [lon, lat] = f.geometry.coordinates;
                         const k = pdfConfKey(f.properties.confidence);
                         return [i + 1, pdfEsc(f.properties.prov_name), pdfShortTime(f.properties.parsed_datetime),
                             `<i class="pdf-sw" style="background:${PDF_CONF[k].color}"></i>${PDF_CONF[k].label}`,
+                            `<span style="white-space:nowrap">${pdfEsc(satelliteName(f.properties.satellite) || '-')}</span>`,
                             lat.toFixed(5), lon.toFixed(5), pdfNavLink(lat, lon)];
-                    }), [0, 4, 5]);
+                    }), [0, 5, 6]);
                 if (list.length > PDF_MAX_HOTSPOT_ROWS) h += `<div class="pdf-note">แสดง ${pdfNum(PDF_MAX_HOTSPOT_ROWS)} จุดแรก จากทั้งหมด ${pdfNum(list.length)} จุด (เลือกพื้นที่ สคพ. เพื่อดูรายการครบ)</div>`;
             } else {
                 h += '<p>ไม่พบจุดความร้อนในพื้นที่และช่วงเวลาที่เลือก</p>';
