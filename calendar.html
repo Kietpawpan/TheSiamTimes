@@ -288,7 +288,8 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const errText = e => String((e && e.message) || e || 'Something went wrong.').replace(/^(Exception|Error):\s*/, '');
   const longDate = k => { const d = parseKey(k); return `${DAYS_LONG[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
-  const colorClass = e => 'c-' + ((e && e.color) || 'black');
+  const COLOR_OK = new Set(COLORS.map(c => c[0]));
+  const colorClass = e => 'c-' + (e && COLOR_OK.has(e.color) ? e.color : 'black');
   const nameOf = e => (e.emoji ? e.emoji + ' ' : '') + e.event;
   const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 
@@ -351,11 +352,16 @@
 
   /* ---------- Data ---------- */
 
+  // Dates and row numbers from the sheet end up in HTML attributes, so keep only well-formed ones
+  const isKey = k => /^\d{4}-\d{2}-\d{2}$/.test(k);
+
   function setEvents(res) {
-    state.events = (res && res.events) || [];
+    state.events = ((res && res.events) || []).filter(e => e && isKey(e.date));
     state.byDate = {};
     state.priv = {};
     for (const e of state.events) {
+      e.row = Number(e.row);
+      if (!isKey(e.endDate)) e.endDate = '';
       e.end = e.endDate && e.endDate > e.date ? e.endDate : e.date;
       e.multi = e.end !== e.date;
       const n = Math.min(diffDays(e.date, e.end), 400);
@@ -487,7 +493,7 @@
     for (const k of keys) {
       const d = parseKey(k);
       const items = groups[k].sort((a, b) => (b.multi - a.multi) || (a.time || '').localeCompare(b.time || ''));
-      html += `<div class="agenda-day" data-date="${k}" role="button" tabindex="0">
+      html += `<div class="agenda-day" data-date="${esc(k)}" role="button" tabindex="0">
         <div class="d">${d.getDate()}<small>${DAYS[d.getDay()]}</small></div>
         <div>${items.map(e => `<p class="${colorClass(e)}">${e.time && e.date === k ? `<time>${esc(e.time)}</time>` : ''}${esc(nameOf(e))}${e.multi ? `<span class="range">${esc(rangeLabel(e.date, e.end))}</span>` : ''}</p>`).join('')}</div>
       </div>`;

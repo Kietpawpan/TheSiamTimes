@@ -2160,7 +2160,17 @@ const SCENES = {
    State
    ===================================================================== */
 const STORE = 'stt-oldmoney-v1';
-function load() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } }
+// Stars (0–5) and scores (0–100) from a save are written into the page as markup, so they come back as whole numbers.
+const wholeIn = (v, hi) => Math.min(hi, Math.max(0, Math.round(v) || 0));
+const wholesIn = (o, hi) => Object.fromEntries(Object.entries(o && typeof o === 'object' ? o : {}).map(([k, v]) => [k, wholeIn(v, hi)]));
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE)) || {};
+    s.best = wholesIn(s.best, 5); s.bestScore = wholesIn(s.bestScore, 100);
+    if (Array.isArray(s.looks)) s.looks.forEach(e => { if (e && e.stars != null) e.stars = wholeIn(e.stars, 5); });
+    return s;
+  } catch (e) { return {}; }
+}
 function persist() { try { localStorage.setItem(STORE, JSON.stringify({ lookBy: state.lookBy, model: state.model, couple: state.couple, mode: state.mode, occ: state.occ, scene: state.scene, best: state.best, bestScore: state.bestScore, seal: state.seal, looks: state.looks, colorPref: state.colorPref })); } catch (e) { /* storage unavailable: play on */ } }
 
 function defaultLook(model = 'woman') {

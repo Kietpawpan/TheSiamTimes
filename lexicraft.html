@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LexiCraft Editorial — English Style Editor & Proofreader</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/vendor/tailwindcss-3.4.17.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Sarabun:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@1.79.0/dist/umd/lucide.min.js" integrity="sha384-BqRrWtT4teonPDtZKRNshL/rppOoqxeAHLfUcL1tSbU0Slok4OE/xVxwdLb9R2ls" crossorigin="anonymous"></script>
 
   <script>
     tailwind.config = {
@@ -564,12 +564,16 @@
       document.getElementById('correctionCountBadge').textContent = filtered.length + " จุด";
       
       listEl.innerHTML = filtered.map((item, idx) => `
-        <div onclick="renderTrackChangesView({corrected: '${item.corrected.replace(/'/g, "\\'")}'})" class="p-3 rounded-xl border border-stone-200 bg-[#FCFBF9] hover:border-amber-400 cursor-pointer">
+        <div data-idx="${idx}" class="p-3 rounded-xl border border-stone-200 bg-[#FCFBF9] hover:border-amber-400 cursor-pointer">
           <div class="mb-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-200">${escapeHtml(item.category)}</span></div>
           <div class="text-sm font-sans mb-1"><del class="diff-del">${escapeHtml(item.original)}</del> &rarr; <ins class="diff-ins">${escapeHtml(item.corrected)}</ins></div>
           <p class="text-xs text-stone-700 font-thai">${escapeHtml(item.explanationThai)}</p>
         </div>
       `).join('');
+      // Listeners, not inline onclick: AI text inside a handler attribute can break out of it.
+      listEl.querySelectorAll('[data-idx]').forEach(el => {
+        el.addEventListener('click', () => renderTrackChangesView({ corrected: filtered[+el.dataset.idx].corrected }));
+      });
     }
 
     function renderCritiqueSection(critique, lessons, vocab) {
@@ -579,12 +583,15 @@
       
       const sb = document.getElementById('scoreBarsContainer');
       const scores = critique.scores || { clarity: 0, grammar: 0, vocabulary: 0, tone: 0 };
-      sb.innerHTML = Object.entries(scores).map(([k, v]) => `
+      sb.innerHTML = Object.entries(scores).map(([k, v]) => {
+        const n = Math.max(0, Math.min(100, Number(v) || 0));
+        return `
         <div>
-          <div class="flex justify-between text-xs mb-1"><span class="capitalize">${k}</span><span>${v}/100</span></div>
-          <div class="w-full h-2 bg-stone-200 rounded-full"><div class="h-full bg-stone-800 rounded-full" style="width:${v}%"></div></div>
+          <div class="flex justify-between text-xs mb-1"><span class="capitalize">${escapeHtml(k)}</span><span>${n}/100</span></div>
+          <div class="w-full h-2 bg-stone-200 rounded-full"><div class="h-full bg-stone-800 rounded-full" style="width:${n}%"></div></div>
         </div>
-      `).join('');
+      `;
+      }).join('');
 
       document.getElementById('strengthsList').innerHTML = (critique.strengthsThai || []).map(s => `<li>✓ ${escapeHtml(s)}</li>`).join('');
       document.getElementById('weaknessesList').innerHTML = (critique.weaknessesThai || []).map(s => `<li>! ${escapeHtml(s)}</li>`).join('');
@@ -685,10 +692,10 @@
       exportContainer.querySelectorAll('button').forEach(btn => btn.remove());
       exportContainer.querySelectorAll('select').forEach(sel => sel.remove());
 
-      // ลบแอตทริบิวต์ id และ onclick ออกทั้งหมด
+      // ลบแอตทริบิวต์ id และ on* (onclick, onerror, ...) ออกทั้งหมด
       exportContainer.querySelectorAll('*').forEach(el => {
         el.removeAttribute('id');
-        el.removeAttribute('onclick');
+        [...el.attributes].forEach(a => { if (/^on/i.test(a.name)) el.removeAttribute(a.name); });
       });
 
       // จัดเตรียมชุดคำสั่งทรัพยากรหลัก
@@ -773,13 +780,19 @@ ${metaCharset}
       document.getElementById('userInput').addEventListener('input', updateTextCounters);
       loadSample('environment');
       
-      const savedKey = localStorage.getItem('lexicraft_secret_key');
-      if (savedKey) {
-        document.getElementById('secretKeyInput').value = savedKey;
-      }
-      
+      // The key lives in sessionStorage, so it is gone when the tab closes. Move any copy
+      // an older version of this page left in localStorage, then delete that copy.
+      try {
+        const savedKey = sessionStorage.getItem('lexicraft_secret_key') || localStorage.getItem('lexicraft_secret_key');
+        localStorage.removeItem('lexicraft_secret_key');
+        if (savedKey) {
+          sessionStorage.setItem('lexicraft_secret_key', savedKey);
+          document.getElementById('secretKeyInput').value = savedKey;
+        }
+      } catch (e) { /* storage blocked: type the key each time */ }
+
       document.getElementById('secretKeyInput').addEventListener('input', function(e) {
-        localStorage.setItem('lexicraft_secret_key', e.target.value);
+        try { sessionStorage.setItem('lexicraft_secret_key', e.target.value); } catch (err) { /* ignore */ }
       });
     };
   </script>
