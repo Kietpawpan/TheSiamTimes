@@ -272,7 +272,10 @@
                 const response = await fetch(WEB_APP_URL);
                 const data = await response.json();
                 if (data.status === 'success') {
-                    container.innerHTML = `+<span class="data-val">${data.temperature}°C</span>`;
+                    const val = document.createElement('span');
+                    val.className = 'data-val';
+                    val.textContent = `${data.temperature}°C`;
+                    container.replaceChildren('+', val);
                 } else {
                     container.innerHTML = `<p class="error">No Data</p>`;
                 }
