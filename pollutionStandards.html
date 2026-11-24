@@ -40,6 +40,8 @@
 	     stops the list from loading. -->
 	<!-- November 2026: the header also shows when this visit checked the list against the
 	     Pollution Control Department, so an old "updated" date doesn't look like a stalled list. -->
+	<!-- November 2026: an amendment ("ฉบับที่ ๒") issued the same year as the original is no longer
+	     taken for the original; a close title match must have the same numbers, apart from the year. -->
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
@@ -182,9 +184,16 @@
             for (const ch of l) if (i < s.length && ch === s[i]) i++;
             return i === s.length;
         };
+        // The numbers in a title other than its year, e.g. the edition in "(ฉบับที่ ๒)" or "๒.๕ ไมครอน".
+        // A close match must have the same ones; otherwise "… (ฉบับที่ ๒) พ.ศ. ๒๕๖๑" counts as the original
+        // "… พ.ศ. ๒๕๖๑", since it only adds a few characters.
+        const keyNumbers = key => (key.replace(/พศ\d{4}/g, '').match(/\d+/g) || []).join(',');
         let matchIndex = [];
         const buildMatchIndex = entries => {
-            matchIndex = entries.map(e => ({ key: matchKey(e.title), year: titleYear(e.title) ?? e.year, entry: e }));
+            matchIndex = entries.map(e => {
+                const key = matchKey(e.title);
+                return { key, numbers: keyNumbers(key), year: titleYear(e.title) ?? e.year, entry: e };
+            });
         };
         const findEntry = law => {
             const byId = database.entries.find(e => e.pcdId === law.id);
@@ -194,7 +203,8 @@
             if (exact) return exact.entry;
             const year = titleYear(law.title);
             if (!year) return null;
-            const close = matchIndex.find(m => m.year === year && (similarity(key, m.key) >= 0.97 || isInsertion(key, m.key)));
+            const numbers = keyNumbers(key);
+            const close = matchIndex.find(m => m.year === year && m.numbers === numbers && (similarity(key, m.key) >= 0.97 || isInsertion(key, m.key)));
             return close ? close.entry : null;
         };
         const NOT_STANDARD_TYPES = [101, 102, 103, 104, 118, 120, 130];
