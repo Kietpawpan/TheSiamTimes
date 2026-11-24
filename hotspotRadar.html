@@ -487,13 +487,14 @@
         #pdfReport .pdf-tile .v { font-size: 16pt; font-weight: 700; line-height: 1.3; }
         #pdfReport .pdf-tile .n { font-size: 8pt; color: #6b7280; line-height: 1.3; }
         #pdfReport table.pdf-table { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 4px 0 8px; }
-        #pdfReport .pdf-table th { text-align: left; font-weight: 700; color: #374151; border-bottom: 1.5px solid #374151; padding: 4px 5px; vertical-align: bottom; }
-        #pdfReport .pdf-table td { border-bottom: 1px solid #e5e7eb; padding: 3px 5px; vertical-align: top; }
+        #pdfReport .pdf-table th { text-align: left; font-weight: 700; color: #374151; border-bottom: 1.5px solid #374151; padding: 4px 4px; vertical-align: bottom; }
+        #pdfReport .pdf-table td { border-bottom: 1px solid #e5e7eb; padding: 3px 4px; vertical-align: top; }
         #pdfReport .pdf-table tr { break-inside: avoid; page-break-inside: avoid; }
         #pdfReport .pdf-table thead { display: table-header-group; }
         #pdfReport .pdf-table.meta td { border: none; padding: 1px 5px 1px 0; }
         #pdfReport .pdf-table.meta td:first-child { color: #4b5563; white-space: nowrap; width: 1%; padding-right: 14px; }
         #pdfReport .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        #pdfReport .nw { white-space: nowrap; }
         #pdfReport .pdf-note { font-size: 8.5pt; color: #6b7280; margin: 2px 0 8px; }
         #pdfReport .pdf-alert { border-left: 3px solid #b45309; background: #fffbeb; padding: 6px 10px; margin: 6px 0 8px; border-radius: 0 6px 6px 0; }
         #pdfReport .pdf-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px; font-size: 8.5pt; color: #4b5563; margin: 2px 0 6px; }
@@ -1880,6 +1881,12 @@
             const hits = state.hits;
             const near = state.nearest || state.nearestAny;
             const row = (k, v) => '<tr><td>' + k + '</td><td>' + v + '</td></tr>';
+            // จำนวนจุดแยกตามดาวเทียม เช่น "NOAA-20: 170 · NOAA-21: 91" (ไม่มีชื่อดาวเทียมเลยก็ไม่แสดง)
+            const satCounts = new Map();
+            state.points.forEach(p => { const k = p.sat || 'ไม่ระบุ'; satCounts.set(k, (satCounts.get(k) || 0) + 1); });
+            const satText = state.points.some(p => p.sat)
+                ? Array.from(satCounts).sort((a, b) => b[1] - a[1]).map(([n, c]) => esc(n) + ': ' + fmtNum(c)).join(' · ')
+                : '';
 
             let h = '<div class="pdf-kicker">The Siam Times · Hotspot Radar</div>';
             h += '<h1>รายงานจุดความร้อนรอบตำแหน่ง</h1>';
@@ -1892,7 +1899,8 @@
                 row('รัศมีสแกน', esc(fmtRange(range)) + ' (ช่องละ ' + esc(fmtRange(range / GRID_CELLS_PER_RADIUS)) + ')') +
                 row('ช่วงเวลา', 'ย้อนหลัง ' + state.timeWindowH + ' ชม. นับจากจุดล่าสุดในชุดข้อมูล') +
                 row('ข้อมูลดาวเทียม', dataOk
-                    ? fmtNum(state.points.length) + ' จุดทั่วประเทศในช่วงเวลานี้' + (state.updated ? ' · อัปเดต ' + esc(fmtThaiFull(state.updated)) : '')
+                    ? fmtNum(state.points.length) + ' จุดทั่วประเทศในช่วงเวลานี้' + (satText ? ' (' + satText + ')' : '') +
+                      (state.updated ? ' · อัปเดต ' + esc(fmtThaiFull(state.updated)) : '')
                     : (state.dataStatus === 'loading' ? 'กำลังโหลด' : 'โหลดไม่สำเร็จ (' + esc(state.dataError) + ')')) +
                 row('ส่งออกรายงานเมื่อ', esc(fmtThaiFull(now))) +
                 '</tbody></table>';
@@ -1917,20 +1925,23 @@
 
                 h += '<h2>จุดความร้อนในรัศมี ' + esc(fmtRange(range)) + ' (เรียงตามระยะทาง)</h2>';
                 if (hits.length) {
-                    h += '<table class="pdf-table"><thead><tr><th class="num">#</th><th class="num">ระยะทาง</th><th>ทิศ</th><th>จังหวัด</th><th>ตรวจพบเมื่อ</th><th>ความเชื่อมั่น</th><th class="num">พิกัด</th><th></th></tr></thead><tbody>' +
+                    h += '<table class="pdf-table"><thead><tr><th class="num">#</th><th class="num">ระยะทาง</th><th>ทิศ</th><th>จังหวัด</th><th>ตรวจพบเมื่อ</th><th>ดาวเทียม</th><th>ความเชื่อมั่น</th><th class="num">พิกัด</th><th></th></tr></thead><tbody>' +
                         hits.slice(0, PDF_MAX_ROWS).map((x, i) => {
                             const p = x.pt;
                             return '<tr><td class="num">' + (i + 1) + '</td><td class="num">' + esc(fmtDist(x.d)) + '</td>' +
                                 '<td>' + esc(dirName(x.brg)) + ' (' + Math.round(x.brg) + '°)</td>' +
-                                '<td>' + esc(p.prov || '-') + '</td><td>' + (p.time ? esc(fmtThai(p.time)) : '-') + '</td>' +
-                                '<td><i class="pdf-sw" style="background:' + CONF_COLOR[p.conf] + '"></i>' + esc(CONF_LABEL[p.conf]) + '</td>' +
+                                '<td>' + esc(p.prov || '-') + '</td><td class="nw">' + (p.time ? esc(fmtThai(p.time)) : '-') + '</td>' +
+                                '<td class="nw">' + esc(p.sat || '-') + '</td>' +
+                                // หัวคอลัมน์บอกว่าเป็นความเชื่อมั่นแล้ว แสดงแค่ระดับ (สูง/ปกติ/ต่ำ) ให้มีที่สำหรับคอลัมน์ดาวเทียม
+                                '<td class="nw"><i class="pdf-sw" style="background:' + CONF_COLOR[p.conf] + '"></i>' + esc(CONF_LABEL[p.conf].replace('ความเชื่อมั่น', '')) + '</td>' +
                                 '<td class="num">' + p.lat.toFixed(5) + ', ' + p.lon.toFixed(5) + '</td>' +
                                 '<td><a href="' + esc(navUrl(p.lat, p.lon)) + '">นำทาง</a></td></tr>';
                         }).join('') + '</tbody></table>';
                     if (hits.length > PDF_MAX_ROWS) h += '<div class="pdf-note">แสดง ' + PDF_MAX_ROWS + ' จุดที่ใกล้ที่สุด จากทั้งหมด ' + fmtNum(hits.length) + ' จุด</div>';
                 } else {
                     h += '<p>ไม่พบจุดความร้อนในรัศมีนี้' + (state.nearestAny ? ' · จุดใกล้ที่สุดอยู่ห่าง ' + esc(fmtDist(state.nearestAny.d)) + ' ทิศ' + esc(dirName(state.nearestAny.brg)) +
-                        (state.nearestAny.pt.prov ? ' (จ.' + esc(state.nearestAny.pt.prov) + ')' : '') : '') + '</p>';
+                        (state.nearestAny.pt.prov ? ' (จ.' + esc(state.nearestAny.pt.prov) + ')' : '') +
+                        (state.nearestAny.pt.sat ? ' · ตรวจพบโดยดาวเทียม ' + esc(state.nearestAny.pt.sat) : '') : '') + '</p>';
                 }
             }
 
