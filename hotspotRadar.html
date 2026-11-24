@@ -383,7 +383,7 @@
         }
         /* เลนส์โปร่งแสงสีเขียว */
         .visor-lens {
-            position: relative; margin-left: 10%; aspect-ratio: 5 / 3.4; overflow: hidden;
+            position: relative; margin-left: 10%; aspect-ratio: 5 / 3.8; overflow: hidden;
             border-radius: 18% 46% 40% 22% / 26% 44% 48% 30%;
             border: 5px solid #2b3136;
             background:
@@ -436,6 +436,9 @@
         .visor-main .lbl { opacity: 0.75; }
         .visor-main .warn { color: #ffef6b; }
         .visor-main a { color: #ffef6b; font-weight: 700; }
+        .visor-main .wind { color: #c4f1ff; text-shadow: 0 0 6px rgba(140, 220, 255, 0.75); }
+        .visor-main .wind-arrow { display: inline-block; font-weight: 800; transition: transform 0.4s ease-out; }
+        .visor-main .nw { white-space: nowrap; }
         .visor-meter { display: flex; gap: 3px; margin: 3px 0 2px; }
         .visor-meter i { flex: 1; height: 7px; border: 1px solid rgba(200, 255, 190, 0.6); }
         .visor-meter i.on { background: #c8ffbf; box-shadow: 0 0 6px rgba(160, 255, 160, 0.9); }
@@ -446,7 +449,7 @@
         }
         .visor-actions { display: flex; gap: 10px; width: min(94vw, 560px); }
         @media (max-width: 600px) {
-            .visor-lens { aspect-ratio: 1 / 1.02; border-radius: 16% 34% 30% 18% / 16% 26% 30% 22%; }
+            .visor-lens { aspect-ratio: 1 / 1.1; border-radius: 16% 34% 30% 18% / 16% 26% 30% 22%; }
             .visor-reticle { width: 26%; right: 8%; top: 12%; transform: none; }
             .visor-hud { inset: 6% 7% 7% 9%; }
             .visor-top { padding-right: 16%; } /* นาฬิกาพ้นขอบโค้งมุมขวาบน */
@@ -912,6 +915,9 @@
         function windText(w) {
             if (w.speed < WIND_CALM_KMH) return 'ลมสงบ';
             return 'ลม' + dirName(w.dir) + ' ' + Math.round(w.speed) + ' กม./ชม.';
+        }
+        function windLine(wv) {
+            return wv.data ? windText(wv.data) : wv.status === 'loading' ? 'กำลังโหลดข้อมูลลม…' : 'โหลดข้อมูลลมไม่สำเร็จ';
         }
 
         // ===================== เสียง =====================
@@ -1427,7 +1433,7 @@
         // ไม่มีพื้นหลังทึบ เพื่อไม่บังจุดความร้อนที่อยู่ด้านหลัง
         function drawWindInfo(c, msgY, u, R, wv) {
             const w = wv.data;
-            const text = w ? windText(w) : wv.status === 'loading' ? 'กำลังโหลดข้อมูลลม…' : 'โหลดข้อมูลลมไม่สำเร็จ';
+            const text = windLine(wv);
             const withArrow = !!(w && w.speed >= WIND_CALM_KMH);
             const halo = 'rgba(214, 246, 196, 0.7)';
             const y1 = msgY + 24 * u, y2 = msgY + 41 * u;
@@ -2141,6 +2147,13 @@
             }
             const p = tg.pt, inRange = !!state.nearest;
             const addr = visorAddrNow(p);
+            // ลมบริเวณจุดนี้: ลูกศรชี้ไปทางที่ลมพัดไป (ทางที่ควันลอยไป) อ้างอิงทิศเดียวกับลูกศรชี้เป้า
+            const wv = windView(tg), w = wv && wv.data;
+            const up = state.headingUp && state.compass != null ? state.compass : 0;
+            const windHtml = wv ? '<span class="wind">💨 ' +
+                (w && w.speed >= WIND_CALM_KMH ? '<span class="wind-arrow" aria-hidden="true" style="transform:rotate(' +
+                    Math.round(w.dir + 180 - up) + 'deg)">↑</span> ' : '') +
+                esc(windLine(wv)).replace(/\d+ กม\.\/ชม\.$/, '<span class="nw">$&</span>') + '</span><br>' : ''; // ไม่ตัดบรรทัดกลาง "12 กม./ชม."
             return {
                 mode: inRange ? 'LOCKED' : 'LOCKED · OUT OF RANGE',
                 target: tg,
@@ -2151,6 +2164,7 @@
                     '<span class="lbl">ความเชื่อมั่น</span> ' + esc(CONF_LABEL[p.conf].replace('ความเชื่อมั่น', '')) +
                     ' · <span class="lbl">พบ</span> ' + (p.time ? esc(fmtThai(p.time)) + ' (' + esc(fmtAgo(p.time)) + ')' : '-') + '<br>' +
                     '<span class="lbl">พื้นที่</span> <span id="visorAddr">' + (addr ? esc(addr) + ' ' : '') + '</span>' + (p.prov ? 'จ.' + esc(p.prov) : '') + '<br>' +
+                    windHtml +
                     p.lat.toFixed(4) + ', ' + p.lon.toFixed(4) + ' · <a href="' + esc(navUrl(p.lat, p.lon)) + '" target="_blank" rel="noopener">นำทาง ›</a><br>' +
                     '<span class="lbl">ในรัศมี ' + esc(fmtRange(rangeKm())) + ':</span> ' + state.hits.length + ' จุด'
             };
@@ -2259,6 +2273,7 @@
             const decodeFrom = T * 0.7, decodeTo = T * 0.96;
             const tg = visorTarget();
             if (tg) visorAddress(tg.pt).catch(() => { /* ค้นไม่ได้ก็ข้าม */ }); // ค้นชื่อพื้นที่ระหว่างสแกน
+            ensureWind(); // ข้อมูลลมของเป้า (ใช้ค่าที่จำไว้ถ้ายังใหม่)
 
             // แถวข้อมูลเริ่มเป็นอักษรต่างดาวทั้งหมด (รูปทรงเดียวกับผลจริง)
             glyphLoad(visorContent().html);
