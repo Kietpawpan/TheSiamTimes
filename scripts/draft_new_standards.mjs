@@ -60,6 +60,10 @@ const isInsertion = (a, b) => {
     for (const ch of l) if (i < s.length && ch === s[i]) i++;
     return i === s.length;
 };
+// The numbers in a title other than its year, e.g. the edition in "(ฉบับที่ ๒)" or "๒.๕ ไมครอน".
+// A close match must have the same ones; otherwise "… (ฉบับที่ ๒) พ.ศ. ๒๕๖๑" counts as the original
+// "… พ.ศ. ๒๕๖๑", since it only adds a few characters.
+const keyNumbers = key => (key.replace(/พศ\d{4}/g, '').match(/\d+/g) || []).join(',');
 const NOT_STANDARD_TYPES = [101, 102, 103, 104, 118, 120, 130];
 const NOT_STANDARD_WORDS = ['คำพิพากษา', 'พระราชบัญญัติ', 'นโยบาย', 'บัญชีรายชื่อ', 'แต่งตั้ง', 'ระเบียบ', 'แบ่งส่วนราชการ', 'ไซเบอร์', 'จริยธรรม', 'ข้อมูลส่วนบุคคล'];
 const isDraft = law => law.types.includes(121) || law.title.startsWith('(ร่าง)') || law.title.includes('รับฟังความคิดเห็น') || law.title.startsWith('ขอเชิญ');
@@ -118,7 +122,10 @@ if (formatDatabase(db) !== original) {
     console.warn('! standards.json is not in the one-entry-per-line layout; it will be rewritten in that layout.');
 }
 const ignored = new Set(db.ignoredPcdIds || []);
-const matchIndex = db.entries.map(e => ({ key: matchKey(e.title), year: titleYear(e.title) ?? e.year, entry: e }));
+const matchIndex = db.entries.map(e => {
+    const key = matchKey(e.title);
+    return { key, numbers: keyNumbers(key), year: titleYear(e.title) ?? e.year, entry: e };
+});
 const findEntry = law => {
     const byId = db.entries.find(e => e.pcdId === law.id);
     if (byId) return byId;
@@ -127,7 +134,8 @@ const findEntry = law => {
     if (exact) return exact.entry;
     const year = titleYear(law.title);
     if (!year) return null;
-    const close = matchIndex.find(m => m.year === year && (similarity(key, m.key) >= 0.97 || isInsertion(key, m.key)));
+    const numbers = keyNumbers(key);
+    const close = matchIndex.find(m => m.year === year && m.numbers === numbers && (similarity(key, m.key) >= 0.97 || isInsertion(key, m.key)));
     return close ? close.entry : null;
 };
 
