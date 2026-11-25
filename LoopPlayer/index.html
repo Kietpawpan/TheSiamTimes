@@ -93,8 +93,9 @@
   .pill[data-state="offline"]::before { background: var(--ab); }
 
   /* ---------- layout ---------- */
-  .layout { display: grid; gap: 16px; }
-  .side { display: grid; gap: 16px; align-content: start; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .side { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-content: start; }
+  .layout > *, .side > * { min-width: 0; }
   @media (min-width: 900px) {
     .layout { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
     .player { position: sticky; top: 16px; }
@@ -130,6 +131,7 @@
     background: rgba(0, 0, 0, .55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
     color: #fff; font-size: 13px; line-height: 1; padding: 7px 11px; border-radius: 999px;
     font-variant-numeric: tabular-nums;
+    max-width: calc(100% - 156px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .badge:empty { display: none; }
   .stage-acts { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 2; }
@@ -139,6 +141,12 @@
   }
   .stage-acts button[aria-pressed="true"] { background: #fff; color: #0d3833; }
   .stage:fullscreen { border-radius: 0; aspect-ratio: auto; }
+  .stage:-webkit-full-screen { border-radius: 0; aspect-ratio: auto; width: 100%; height: 100%; }
+  /* Full screen for phones whose browser cannot make an element full screen (iPhone). */
+  .stage.pseudo-fs { position: fixed; inset: 0; z-index: 40; border-radius: 0; aspect-ratio: auto; width: 100%; height: 100%; }
+  .stage.pseudo-fs .badge { top: calc(10px + env(safe-area-inset-top)); left: calc(10px + env(safe-area-inset-left)); }
+  .stage.pseudo-fs .stage-acts { top: calc(8px + env(safe-area-inset-top)); right: calc(8px + env(safe-area-inset-right)); }
+  body.noscroll { overflow: hidden; }
 
   /* ---------- now playing ---------- */
   .now { margin: 14px 2px 6px; min-height: 52px; }
@@ -179,7 +187,7 @@
     font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums;
   }
 
-  .controls { display: flex; justify-content: center; align-items: center; gap: 18px; margin: 10px 0 16px; }
+  .controls { display: flex; justify-content: center; align-items: center; gap: clamp(6px, 3.2vw, 18px); margin: 10px 0 16px; }
   .ctl {
     width: 48px; height: 48px; border-radius: 50%; border: 0; background: transparent;
     display: grid; place-items: center; color: var(--ink);
@@ -197,7 +205,7 @@
   .play .i { width: 30px; height: 30px; }
 
   .label { display: block; font-size: 13px; color: var(--muted); margin: 0 2px 6px; }
-  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface-2); }
+  .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface-2); }
   .seg button {
     border: 0; background: transparent; border-radius: 10px; padding: 8px 4px;
     display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 14px; color: var(--muted);
@@ -205,14 +213,15 @@
   .seg button[aria-pressed="true"] { background: var(--raised); color: var(--accent); font-weight: 600; box-shadow: 0 1px 3px rgba(0, 0, 0, .1); }
   .hint { margin: 6px 2px 0; font-size: 13px; color: var(--muted); }
 
-  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .opts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 14px; }
   .field select {
     width: 100%; min-height: 42px; padding: 8px 10px; border-radius: 10px;
     border: 1px solid var(--line); background: var(--surface); font-size: 15px;
   }
 
   .abrow { margin-top: 14px; }
-  .abbtns { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+  .abbtns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; }
+  .abbtns .btn { white-space: normal; flex-wrap: wrap; column-gap: 6px; row-gap: 0; padding: 6px 10px; }
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     min-height: 42px; padding: 8px 14px; border-radius: 10px;
@@ -225,7 +234,7 @@
   .btn .tag { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
 
   /* ---------- add ---------- */
-  .add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .add-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
   .add-btn {
     display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;
     padding: 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface);
@@ -324,10 +333,14 @@
   }
   body.dragging .drop { display: grid; }
 
-  @media (max-width: 380px) {
-    .controls { gap: 10px; }
+  @media (max-width: 400px) {
+    .ctl { width: 44px; height: 44px; }
+    .play { width: 62px; height: 62px; }
     .add-btn { padding: 12px; }
     .acts button { width: 34px; }
+  }
+  @media (max-width: 340px) {
+    .ctl.small { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .stage.playing .art .ring, .eq i, .bar.indet div { animation: none; }
@@ -354,6 +367,7 @@
   <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
   <symbol id="i-full" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="i-pip" viewBox="0 0 24 24"><path d="M21 9V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/><rect x="12" y="13" width="10" height="7" rx="2"/></symbol>
   <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></symbol>
   <symbol id="i-disk" viewBox="0 0 24 24"><path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><path d="M6 16h.01"/><path d="M10 16h.01"/></symbol>
   <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
@@ -373,7 +387,7 @@
   <main class="layout">
     <section class="card player" aria-label="เครื่องเล่น">
       <div class="stage" id="stage" data-kind="none">
-        <video id="video" playsinline preload="metadata"></video>
+        <video id="video" muted playsinline preload="auto" disableremoteplayback></video>
         <audio id="audio" preload="metadata"></audio>
         <div class="art" aria-hidden="true">
           <svg class="disc" viewBox="0 0 100 100">
@@ -390,7 +404,8 @@
         </div>
         <div class="badge" id="badge" aria-live="polite"></div>
         <div class="stage-acts">
-          <button id="audioOnlyBtn" type="button" aria-pressed="false" hidden title="ฟังอย่างเดียว (ปิดหน้าจอแล้วเสียงยังเล่นต่อ)" aria-label="ฟังอย่างเดียว"><svg class="i"><use href="#i-headphones"/></svg></button>
+          <button id="audioOnlyBtn" type="button" aria-pressed="false" hidden title="ปิดภาพ ฟังเฉพาะเสียง (ประหยัดแบต)" aria-label="ปิดภาพ ฟังเฉพาะเสียง"><svg class="i"><use href="#i-headphones"/></svg></button>
+          <button id="pipBtn" type="button" aria-pressed="false" hidden title="หน้าต่างลอย — ดูวิดีโอขณะใช้แอปอื่น" aria-label="หน้าต่างลอย (ภาพซ้อนภาพ)"><svg class="i"><use href="#i-pip"/></svg></button>
           <button id="fsBtn" type="button" hidden title="เต็มจอ" aria-label="เต็มจอ"><svg class="i"><use href="#i-full"/></svg></button>
         </div>
       </div>
@@ -516,8 +531,12 @@
           <li><b>iPhone / iPad (Safari):</b> แตะปุ่มแชร์ → “เพิ่มไปยังหน้าจอโฮม” · ไฟล์ที่เพิ่มใน Safari กับในแอปที่ติดตั้งแล้วเก็บแยกกัน ให้เพิ่มไฟล์ในแอปที่ติดตั้งแล้ว</li>
           <li>การติดตั้งช่วยให้เบราว์เซอร์เก็บไฟล์ไว้นานขึ้น ไม่ลบทิ้งเอง</li>
         </ul>
-        <h3>เล่นวิดีโอแบบปิดจอ</h3>
-        <p>กดปุ่มหูฟังมุมขวาบนของวิดีโอ เพื่อฟังเฉพาะเสียงของ MP4 แล้วล็อกหน้าจอได้ (ประหยัดแบตด้วย)</p>
+        <h3>ปิดจอหรือสลับแอป ก็ยังเล่นต่อ</h3>
+        <p>ทั้ง MP3 และ MP4 เสียงจะเล่นต่อ (และวนต่อ) เมื่อล็อกหน้าจอหรือสลับไปใช้แอปอื่น กลับมาที่แอปแล้วภาพวิดีโอจะเล่นต่อตรงจุดเดียวกับเสียง ควบคุมเล่น/หยุด/ข้ามไฟล์ได้จากหน้าจอล็อกหรือหูฟัง</p>
+        <ul>
+          <li><b>หน้าต่างลอย</b> <svg class="i" style="width:14px;height:14px;vertical-align:-2px"><use href="#i-pip"/></svg> ดูวิดีโอในกรอบเล็กขณะใช้แอปอื่น (ถ้าเบราว์เซอร์รองรับ)</li>
+          <li><b>ปิดภาพ</b> <svg class="i" style="width:14px;height:14px;vertical-align:-2px"><use href="#i-headphones"/></svg> ฟังเฉพาะเสียงของ MP4 ไม่ต้องถอดรหัสภาพ ประหยัดแบต</li>
+        </ul>
         <h3>โหลดจากลิงก์ไม่ได้?</h3>
         <p>ลิงก์ต้องชี้ไปที่ไฟล์ .mp3 หรือ .mp4 โดยตรง และเว็บต้นทางต้องยอมให้เว็บอื่นดึงไฟล์ได้ (CORS) ถ้าไม่ได้ ให้ดาวน์โหลดไฟล์ลงเครื่องด้วยเบราว์เซอร์ก่อน แล้วกด “เลือกไฟล์ในเครื่อง”</p>
         <h3>ความเป็นส่วนตัว</h3>
@@ -543,7 +562,7 @@
    * ======================================================================= */
   const $ = (id) => document.getElementById(id);
   const els = {};
-  for (const id of ['stage', 'video', 'audio', 'badge', 'audioOnlyBtn', 'fsBtn', 'title', 'sub', 'seek', 'fill', 'abZone',
+  for (const id of ['stage', 'video', 'audio', 'badge', 'audioOnlyBtn', 'pipBtn', 'fsBtn', 'title', 'sub', 'seek', 'fill', 'abZone',
     'tCur', 'tDur', 'prevBtn', 'backBtn', 'playBtn', 'fwdBtn', 'nextBtn', 'modeHint', 'limitSel', 'rateSel', 'aBtn', 'bBtn',
     'aTag', 'bTag', 'abClear', 'pickBtn', 'showUrl', 'fileInput', 'urlForm', 'urlInput', 'urlSubmit', 'job', 'jobText',
     'jobCancel', 'jobBar', 'jobBarWrap', 'list', 'libCount', 'libEmpty', 'statSaved', 'storageText', 'persistText',
@@ -676,7 +695,8 @@
   const S = {
     items: [],
     id: null,          // current item id
-    el: null,          // the <audio> or <video> currently in use
+    el: null,          // the <audio> element once a file is loaded: it always carries the sound
+    mirror: false,     // true while the muted <video> shows the picture of an MP4
     url: null,         // its blob: URL
     count: 0,          // completed passes in this run (of the file, the A–B part, or the whole list)
     done: false,       // stopped because the round limit was reached
@@ -942,12 +962,108 @@
   /* =========================================================================
    * Player
    * ======================================================================= */
+  /* How playback survives a locked screen:
+   * The sound of every file, MP4 included, plays through the <audio> element.
+   * Browsers keep audio running in the background but pause <video> when the
+   * screen locks or the app is left (YouTube's site works the same way). For an
+   * MP4, the <video> is only a muted picture that follows the audio's clock.
+   * When the page is hidden it is simply paused (saving battery) while the
+   * sound and the loop carry on; when the page comes back it jumps to where the
+   * audio is and keeps playing. */
   function unload() {
-    for (const el of [els.audio, els.video]) {
-      el.pause();
-      if (el.hasAttribute('src')) { el.removeAttribute('src'); el.load(); }
-    }
+    setMirror(false);
+    const a = els.audio;
+    a.pause();
+    if (a.hasAttribute('src')) { a.removeAttribute('src'); a.load(); }
     if (S.url) { URL.revokeObjectURL(S.url); S.url = null; }
+  }
+
+  const isPiP = () => document.pictureInPictureElement === els.video || els.video.webkitPresentationMode === 'picture-in-picture';
+  const pipSupported = () => (!!document.pictureInPictureEnabled && typeof els.video.requestPictureInPicture === 'function') ||
+    (typeof els.video.webkitSetPresentationMode === 'function' && typeof els.video.webkitSupportsPresentationMode === 'function' &&
+      els.video.webkitSupportsPresentationMode('picture-in-picture'));
+
+  function setMirror(on) {
+    const v = els.video;
+    on = !!on && !!S.url;
+    S.mirror = on;
+    if (on) {
+      v.muted = true;
+      v.loop = true; // never 'ends' on its own; syncMirror() keeps it on the audio's clock
+      if (v.getAttribute('src') !== S.url) v.src = S.url;
+    } else {
+      if (isPiP()) exitPiP();
+      v.pause();
+      if (v.hasAttribute('src')) { v.removeAttribute('src'); v.load(); }
+    }
+    els.stage.dataset.kind = !S.id ? 'none' : on ? 'video' : 'audio';
+    els.fsBtn.hidden = !on;
+    if (!on) exitPseudoFs();
+    updatePiPButton();
+    syncMirror(true);
+  }
+
+  // Keep the muted picture on the audio's clock. hard: jump straight to it.
+  function syncMirror(hard) {
+    const v = els.video, a = els.audio;
+    if (!S.mirror || v.readyState < 1) return;
+    const showing = document.visibilityState !== 'hidden' || isPiP();
+    if (!showing || a.paused) {
+      if (!v.paused) v.pause();
+      if (!showing) return;
+    }
+    if (v.seeking) return;
+    const rate = a.playbackRate || 1;
+    const drift = v.currentTime - a.currentTime;
+    if (Math.abs(drift) > 0.3 || (hard && Math.abs(drift) > 0.05)) {
+      v.currentTime = a.currentTime;
+      v.playbackRate = rate;
+    } else if (!a.paused && Math.abs(drift) > 0.03) {
+      v.playbackRate = rate * (1 - Math.max(-0.2, Math.min(0.2, drift)) * 0.5); // ease back into sync
+    } else if (v.playbackRate !== rate) {
+      v.playbackRate = rate;
+    }
+    if (!a.paused && v.paused) { const p = v.play(); if (p && p.catch) p.catch(() => {}); }
+  }
+
+  function updatePiPButton() {
+    els.pipBtn.hidden = !(S.mirror && pipSupported());
+    els.pipBtn.setAttribute('aria-pressed', String(isPiP()));
+  }
+  function enterPiP() {
+    const v = els.video;
+    if (!S.mirror || isPiP()) return;
+    if (document.pictureInPictureEnabled && v.requestPictureInPicture) {
+      v.requestPictureInPicture().catch(() => toast('เปิดหน้าต่างลอยไม่ได้ — ลองกดเล่นก่อน', 'error'));
+    } else if (v.webkitSetPresentationMode) {
+      v.webkitSetPresentationMode('picture-in-picture');
+    }
+  }
+  function exitPiP() {
+    const v = els.video;
+    if (document.pictureInPictureElement && document.exitPictureInPicture) document.exitPictureInPicture().catch(() => {});
+    else if (v.webkitPresentationMode === 'picture-in-picture' && v.webkitSetPresentationMode) v.webkitSetPresentationMode('inline');
+  }
+
+  function toggleFs() {
+    const st = els.stage;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      return;
+    }
+    if (st.classList.contains('pseudo-fs')) { exitPseudoFs(); return; }
+    const req = st.requestFullscreen || st.webkitRequestFullscreen;
+    const pseudo = () => { st.classList.add('pseudo-fs'); document.body.classList.add('noscroll'); els.fsBtn.setAttribute('aria-label', 'ออกจากเต็มจอ'); };
+    if (!req) { pseudo(); return; }
+    try {
+      const r = req.call(st);
+      if (r && r.catch) r.catch(pseudo);
+    } catch { pseudo(); }
+  }
+  function exitPseudoFs() {
+    els.stage.classList.remove('pseudo-fs');
+    document.body.classList.remove('noscroll');
+    els.fsBtn.setAttribute('aria-label', 'เต็มจอ');
   }
 
   function clearPlayer() {
@@ -961,7 +1077,7 @@
     els.seek.disabled = true; els.seek.value = 0; els.seek.max = 1;
     els.fill.style.width = '0';
     els.tCur.textContent = els.tDur.textContent = '0:00';
-    els.audioOnlyBtn.hidden = els.fsBtn.hidden = true;
+    els.audioOnlyBtn.hidden = els.fsBtn.hidden = els.pipBtn.hidden = true;
     settings.lastId = null; saveSettings();
     if ('mediaSession' in navigator) navigator.mediaSession.metadata = null;
     updatePlayButton(); updateAB(); updateBadge();
@@ -973,9 +1089,8 @@
     els.sub.textContent = bits.join(' · ');
   }
 
-  // keep: switching between video and listen-only for the same file; keeps count and A–B.
   // keepCount: moving on to the next file in "loop the whole list" mode.
-  async function select(id, { autoplay = false, startAt = 0, keep = false, keepCount = false } = {}) {
+  async function select(id, { autoplay = false, startAt = 0, keepCount = false } = {}) {
     const it = S.items.find((x) => x.id === id);
     if (!it) return;
     const token = ++S.selToken;
@@ -983,27 +1098,27 @@
     if (token !== S.selToken) return;
     if (!blob) { toast('ไม่พบข้อมูลไฟล์ในเครื่อง — อาจถูกเบราว์เซอร์ลบไปแล้ว', 'error'); return; }
 
-    unload();
+    const a = els.audio;
+    const oldUrl = S.url;
     S.id = id;
-    if (!keep) {
-      S.a = S.b = null;
-      if (!keepCount) { S.count = 0; S.done = false; }
-    }
-    const asVideo = it.kind === 'video' && !settings.audioOnly;
-    const el = asVideo ? els.video : els.audio;
-    S.el = el;
+    S.a = S.b = null;
+    if (!keepCount) { S.count = 0; S.done = false; }
+    S.el = a;
     S.url = URL.createObjectURL(blob);
     S.lastT = startAt;
-    el.defaultPlaybackRate = settings.rate;
-    el.src = S.url;
-    el.playbackRate = settings.rate;
+    a.defaultPlaybackRate = settings.rate;
+    // Point the same <audio> straight at the next file, with no empty gap in
+    // between, so moving through a list keeps going while the screen is off.
+    a.src = S.url;
+    a.playbackRate = settings.rate;
     applyLoop();
-    if (startAt > 0) el.addEventListener('loadedmetadata', () => { if (token === S.selToken) seekTo(startAt); }, { once: true });
+    setMirror(it.kind === 'video' && !settings.audioOnly);
+    if (oldUrl) URL.revokeObjectURL(oldUrl);
+    if (startAt > 0) a.addEventListener('loadedmetadata', () => { if (token === S.selToken) seekTo(startAt); }, { once: true });
 
-    els.stage.dataset.kind = asVideo ? 'video' : 'audio';
+    els.stage.classList.remove('playing');
     els.audioOnlyBtn.hidden = it.kind !== 'video';
     els.audioOnlyBtn.setAttribute('aria-pressed', String(!!settings.audioOnly));
-    els.fsBtn.hidden = !asVideo;
     els.seek.disabled = true;
     els.tCur.textContent = fmtTime(startAt);
     els.tDur.textContent = fmtTime(it.duration);
@@ -1035,6 +1150,7 @@
     el.currentTime = t;
     S.lastT = t;
     paintTime();
+    syncMirror(true);
   }
   const seekBy = (dt) => { if (S.el) seekTo(S.el.currentTime + dt); };
 
@@ -1154,6 +1270,7 @@
     S.raf = 0;
     if (!S.el || S.el.paused) return;
     checkAB();
+    syncMirror();
     paintTime();
     S.raf = requestAnimationFrame(frame);
   }
@@ -1169,6 +1286,7 @@
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
     if (playing && !S.raf) S.raf = requestAnimationFrame(frame);
     if (!playing) savePosition(true);
+    syncMirror(playing);
   }
 
   function onMeta(e) {
@@ -1308,6 +1426,7 @@
       seekbackward: (d) => seekBy(-((d && d.seekOffset) || 10)),
       seekforward: (d) => seekBy((d && d.seekOffset) || 10),
       seekto: (d) => d && d.seekTime != null && seekTo(d.seekTime),
+      enterpictureinpicture: () => enterPiP(),
     };
     for (const [action, fn] of Object.entries(handlers)) {
       try { navigator.mediaSession.setActionHandler(action, fn); } catch { /* not supported */ }
@@ -1383,14 +1502,34 @@
   /* =========================================================================
    * Wiring
    * ======================================================================= */
-  for (const el of [els.audio, els.video]) {
-    el.addEventListener('timeupdate', onTimeUpdate);
-    el.addEventListener('ended', onEnded);
-    el.addEventListener('play', onPlayState);
-    el.addEventListener('pause', onPlayState);
-    el.addEventListener('loadedmetadata', onMeta);
-    el.addEventListener('error', onMediaError);
-    el.addEventListener('seeked', (e) => { if (e.target === S.el) { S.lastT = S.el.currentTime; paintTime(); } });
+  {
+    const a = els.audio, v = els.video;
+    a.addEventListener('timeupdate', onTimeUpdate);
+    a.addEventListener('ended', onEnded);
+    a.addEventListener('play', onPlayState);
+    a.addEventListener('pause', onPlayState);
+    a.addEventListener('loadedmetadata', onMeta);
+    a.addEventListener('error', onMediaError);
+    a.addEventListener('seeked', () => { if (S.el) { S.lastT = a.currentTime; paintTime(); syncMirror(true); } });
+    a.addEventListener('ratechange', () => syncMirror());
+
+    // The muted picture of an MP4.
+    v.addEventListener('loadedmetadata', () => syncMirror(true));
+    v.addEventListener('error', () => {
+      if (!S.mirror || !v.getAttribute('src')) return;
+      setMirror(false);
+      toast('แสดงภาพของวิดีโอนี้ไม่ได้ — เล่นเฉพาะเสียงแทน', 'error');
+    });
+    // Play/pause pressed in the floating window drives the sound too.
+    v.addEventListener('pause', () => { if (S.mirror && isPiP() && !a.paused) a.pause(); });
+    v.addEventListener('play', () => { if (S.mirror && isPiP() && a.paused) play(); });
+    const onPiPChange = () => {
+      updatePiPButton();
+      syncMirror(true); // pauses the picture again if we left the floating window while hidden
+    };
+    v.addEventListener('enterpictureinpicture', onPiPChange);
+    v.addEventListener('leavepictureinpicture', onPiPChange);
+    v.addEventListener('webkitpresentationmodechanged', onPiPChange);
   }
   els.stage.addEventListener('click', (e) => { if (S.el && !e.target.closest('button')) togglePlay(); });
 
@@ -1425,18 +1564,15 @@
   els.audioOnlyBtn.addEventListener('click', () => {
     settings.audioOnly = !settings.audioOnly;
     saveSettings();
+    els.audioOnlyBtn.setAttribute('aria-pressed', String(settings.audioOnly));
     const it = current();
-    if (!it || !S.el) return;
-    const t = S.el.currentTime, wasPlaying = !S.el.paused;
-    select(it.id, { autoplay: wasPlaying, startAt: t, keep: true });
-    toast(settings.audioOnly ? 'ฟังเฉพาะเสียง — ล็อกหน้าจอได้ เสียงยังเล่นต่อ' : 'กลับมาแสดงวิดีโอ');
+    if (!it) return;
+    setMirror(it.kind === 'video' && !settings.audioOnly); // the sound carries on untouched
+    showNow(it);
+    toast(settings.audioOnly ? 'ปิดภาพแล้ว ฟังเฉพาะเสียง — ประหยัดแบต' : 'แสดงภาพวิดีโอ');
   });
-  els.fsBtn.addEventListener('click', () => {
-    const v = els.video;
-    if (document.fullscreenElement) document.exitFullscreen();
-    else if (els.stage.requestFullscreen) els.stage.requestFullscreen().catch(() => {});
-    else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
-  });
+  els.pipBtn.addEventListener('click', () => { if (isPiP()) exitPiP(); else enterPiP(); });
+  els.fsBtn.addEventListener('click', toggleFs);
 
   els.pickBtn.addEventListener('click', () => els.fileInput.click());
   $('emptyPick').addEventListener('click', () => els.fileInput.click());
@@ -1469,6 +1605,7 @@
   });
 
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && els.stage.classList.contains('pseudo-fs')) { exitPseudoFs(); return; }
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const tag = (e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'select' || tag === 'textarea' || e.target.isContentEditable) return;
@@ -1486,7 +1623,15 @@
   });
 
   window.addEventListener('pagehide', () => savePosition(true));
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') savePosition(true); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      savePosition(true);
+      syncMirror(); // rest the picture; the sound keeps playing and looping
+    } else {
+      syncMirror(true); // catch the picture up with the sound
+      if (S.el && !S.el.paused && !S.raf) S.raf = requestAnimationFrame(frame);
+    }
+  });
 
   /* =========================================================================
    * Start
