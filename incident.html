@@ -249,7 +249,9 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
     
     <script>
-        const longdoApiKey = 'bce812933744d2530d26f0fabb0017cf';
+        // Longdo place-name lookups go through our Apps Script relay (apps-script/longdo-proxy.gs),
+        // which holds the Longdo key, so the key is not in this page
+        const LONGDO_PROXY_URL = 'https://script.google.com/macros/s/REPLACE_WITH_DEPLOYMENT_ID/exec';
         const addressCache = {};
         const geojsonBoundariesUrl = 'https://raw.githubusercontent.com/Kietpawpan/hotspot/refs/heads/main/MAPS11_boundary_highres4K.json';
         const targetKeywords = ["Nakhon Ratchasima", "Chaiyaphum", "Buri Ram", "Surin"];
@@ -740,7 +742,7 @@
             L.marker([lat, lon], { icon: fireIcon }).addTo(incidentLayer);
             map.setView([lat, lon], 13);
 
-            fetch(`https://api.longdo.com/map/services/address?lon=${lon}&lat=${lat}&key=${longdoApiKey}`)
+            fetch(`${LONGDO_PROXY_URL}?action=address&lat=${lat}&lon=${lon}`)
             .then(res => res.json())
             .then(data => {
                 const locEls = document.querySelectorAll('#inc-location');
@@ -1131,8 +1133,8 @@
 
                 try {
                     const results = await Promise.all([
-                        fetch(`https://api.longdo.com/map/services/address?lon=${pt1[0]}&lat=${pt1[1]}&key=${longdoApiKey}`).then(r => r.json()),
-                        fetch(`https://api.longdo.com/map/services/address?lon=${pt2[0]}&lat=${pt2[1]}&key=${longdoApiKey}`).then(r => r.json())
+                        fetch(`${LONGDO_PROXY_URL}?action=address&lat=${pt1[1]}&lon=${pt1[0]}`).then(r => r.json()),
+                        fetch(`${LONGDO_PROXY_URL}?action=address&lat=${pt2[1]}&lon=${pt2[0]}`).then(r => r.json())
                     ]);
 
                     let riskAreas = [];
@@ -1337,7 +1339,7 @@
             showToast("กำลังค้นหาพิกัด...", "info");
 
             try {
-                const searchUrl = `https://search.longdo.com/mapsearch/json/search?keyword=${encodeURIComponent(keyword)}&limit=1&key=${longdoApiKey}`;
+                const searchUrl = `${LONGDO_PROXY_URL}?action=search&keyword=${encodeURIComponent(keyword)}`;
                 const response = await fetch(searchUrl);
                 const data = await response.json();
 
@@ -1391,7 +1393,7 @@
             try {
                 const openMeteoReq = fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm2_5`).then(r => r.json()).catch(() => null);
                 const air4ThaiReq = fetch(`${GAS_LIVE_PM25_PROXY}?action=live_pm25`).then(r => r.json()).catch(() => null);
-                const geoReq = fetch(`https://api.longdo.com/map/services/address?lon=${lon}&lat=${lat}&key=${longdoApiKey}`).then(r => r.json()).catch(() => null);
+                const geoReq = fetch(`${LONGDO_PROXY_URL}?action=address&lat=${lat}&lon=${lon}`).then(r => r.json()).catch(() => null);
 
                 const [meteoData, air4ThaiData, geoRes] = await Promise.all([openMeteoReq, air4ThaiReq, geoReq]);
 
