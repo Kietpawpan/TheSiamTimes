@@ -413,10 +413,32 @@ const digitsOnly = s => toArabic(s).replace(/\D/g, '');
 const beYear = (d = new Date()) => d.getFullYear() + 543;
 const pad = n => String(n).padStart(2, '0');
 const localDT = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-const fmtDT = iso => { if (!iso) return ''; const d = new Date(iso); return isNaN(d) ? iso : `${toThai(d.getDate())}/${toThai(d.getMonth() + 1)}/${toThai(beYear(d))} ${toThai(pad(d.getHours()))}:${toThai(pad(d.getMinutes()))}`; };
+const fmtDT = iso => { if (!iso) return ''; const d = new Date(iso); return isNaN(d) ? esc(iso) : `${toThai(d.getDate())}/${toThai(d.getMonth() + 1)}/${toThai(beYear(d))} ${toThai(pad(d.getHours()))}:${toThai(pad(d.getMinutes()))}`; };
 const fmtD = s => { if (!s) return ''; const [y, m, d] = s.split('-'); return `${toThai(+d)}/${toThai(+m)}/${toThai(+y + 543)}`; };
 const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.ceil(b / 1024) + ' KB';
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+// Backup files and saved data are untrusted: rebuild them from plain, typed values before use.
+const isDT = v => typeof v === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d(:\d\d(\.\d+)?)?(Z|[+-]\d\d:\d\d)?$/.test(v) && !isNaN(new Date(v));
+const num = v => Number.isFinite(+v) ? +v : 0;
+const REC_TEXT = ['channel', 'ref', 'docDate', 'from', 'subject', 'urgency', 'secret', 'kind', 'to', 'file', 'email', 'owner'];
+function cleanRec(r) {
+  if (!r || typeof r !== 'object') return null;
+  const c = { id: typeof r.id === 'string' && /^[\w-]+$/.test(r.id) ? r.id : uid(), no: num(r.no), year: num(r.year), at: isDT(r.at) ? r.at : '' };
+  REC_TEXT.forEach(k => { if (r[k] != null) c[k] = String(r[k]); });
+  // done holds true/false, or the ISO time a box was ticked (null once unticked)
+  c.done = r.done && typeof r.done === 'object' ? Object.fromEntries(Object.entries(r.done).map(([k, v]) => [k, v === null || isDT(v) ? v : !!v])) : {};
+  return c;
+}
+const cleanRecs = a => Array.isArray(a) ? a.map(cleanRec).filter(Boolean) : [];
+function cleanSettings(s) {
+  const c = {};
+  if (!s || typeof s !== 'object') return c;
+  if (s.unit != null) c.unit = String(s.unit);
+  if (s.code != null) c.code = digitsOnly(s.code);
+  if (s.maxMB != null) c.maxMB = Math.max(1, num(s.maxMB) || 25);
+  return c;
+}
 
 const store = {
   get(k, def) { try { const v = localStorage.getItem('pcdSaraban.' + k); return v == null ? def : JSON.parse(v); } catch { return def; } },
@@ -437,7 +459,7 @@ document.addEventListener('click', e => {
 });
 
 // ---------- Settings ----------
-const settings = Object.assign({ unit: 'สำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ ๑๑ นครราชสีมา', code: '', maxMB: 25 }, store.get('settings', {}));
+const settings = Object.assign({ unit: 'สำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ ๑๑ นครราชสีมา', code: '', maxMB: 25 }, cleanSettings(store.get('settings', {})));
 $('#stUnit').innerHTML = DIRECTORY.map(d => `<option>${esc(d.name)}</option>`).join('');
 $('#settingsBtn').onclick = () => {
   $('#stUnit').value = settings.unit; $('#stCode').value = settings.code; $('#stMax').value = settings.maxMB;
@@ -708,7 +730,7 @@ $('#dirList').innerHTML = DIRECTORY.map(d => `<option value="${esc(d.name)}">`).
 renderDir();
 
 // ---------- 5/6. Registers ----------
-const db = { inbox: store.get('inbox', []), outbox: store.get('outbox', []) };
+const db = { inbox: cleanRecs(store.get('inbox', [])), outbox: cleanRecs(store.get('outbox', [])) };
 const save = k => store.set(k, db[k]);
 const KIND_LABEL = { general: 'ทั่วไป', finance: 'สัญญา/การเงิน', evidence: 'หลักฐาน/ข้อมูลส่วนบุคคล', physical: 'รูปเล่ม/สื่อ' };
 const URG_CLS = { 'ปกติ': 'bg-gray-100 text-gray-700', 'ด่วน': 'bg-amber-100 text-amber-800', 'ด่วนมาก': 'bg-orange-100 text-orange-800', 'ด่วนที่สุด': 'bg-red-100 text-red-700' };
@@ -758,7 +780,7 @@ function renderInbox() {
       const tasks = inboxTasks(r);
       const overdue = tasks.some(([k]) => k === 'paper' && !r.done?.[k]) && new Date(r.at).toDateString() !== today;
       return `<tr class="${overdue ? 'bg-red-50' : ''}">
-        <td class="mono whitespace-nowrap">${toThai(r.no)}/${toThai(r.year)}</td>
+        <td class="mono whitespace-nowrap">${esc(toThai(r.no))}/${esc(toThai(r.year))}</td>
         <td class="whitespace-nowrap">${fmtDT(r.at)}<div class="ref">${esc(r.channel)}</div></td>
         <td>${esc(r.ref)}<div class="ref">${fmtD(r.docDate)}</div></td>
         <td>${esc(r.from)}</td>
@@ -767,8 +789,8 @@ function renderInbox() {
           ${r.secret !== 'ไม่มี' ? `<span class="badge bg-purple-100 text-purple-800">${esc(r.secret)}</span>` : ''}
           ${r.kind !== 'general' ? `<span class="badge bg-sky-100 text-sky-800">${KIND_LABEL[r.kind]}</span>` : ''}</div></td>
         <td>${esc(r.to)}</td>
-        <td class="whitespace-nowrap">${tasks.map(([k, l]) => `<label class="flex items-center gap-1"><input type="checkbox" class="accent-green-700" data-in="${r.id}" data-k="${k}" ${r.done?.[k] ? 'checked' : ''}><span class="${k === 'paper' ? 'text-red-700 font-medium' : ''}">${l}</span></label>`).join('')}</td>
-        <td class="no-print"><button class="btn btn-d text-xs px-2" data-del-in="${r.id}" title="ลบ">✕</button></td></tr>`;
+        <td class="whitespace-nowrap">${tasks.map(([k, l]) => `<label class="flex items-center gap-1"><input type="checkbox" class="accent-green-700" data-in="${esc(r.id)}" data-k="${k}" ${r.done?.[k] ? 'checked' : ''}><span class="${k === 'paper' ? 'text-red-700 font-medium' : ''}">${l}</span></label>`).join('')}</td>
+        <td class="no-print"><button class="btn btn-d text-xs px-2" data-del-in="${esc(r.id)}" title="ลบ">✕</button></td></tr>`;
     }).join('') : `<tr><td colspan="8" class="text-center text-gray-500 py-6">ยังไม่มีรายการ</td></tr>`) + '</tbody>';
 }
 $('#inTable').addEventListener('change', e => {
@@ -798,14 +820,14 @@ function renderOutbox() {
   $('#outTable').innerHTML = `<thead><tr><th>ลำดับ</th><th>เลขที่ / ลงวันที่</th><th>ถึง</th><th>เรื่อง</th><th>ชื่อไฟล์</th><th>สถานะ</th><th class="no-print"></th></tr></thead><tbody>` +
     (rows.length ? rows.map(r => {
       const steps = r.channel === 'อีเมลกลาง' ? OUT_STEPS : OUT_STEPS.slice(0, 1);
-      const mail = r.email && r.channel === 'อีเมลกลาง' ? `<a class="btn btn-s text-xs px-2" title="เปิดอีเมล" href="mailto:${r.email.split(/[,\s]+/).filter(Boolean).map(encodeURIComponent).join(',')}?subject=${encodeURIComponent(r.subject)}">✉️</a>` : '';
-      return `<tr><td class="mono">${toThai(r.no)}/${toThai(r.year)}</td>
+      const mail = r.email && r.channel === 'อีเมลกลาง' ? `<a class="btn btn-s text-xs px-2" title="เปิดอีเมล" href="mailto:${esc(r.email.split(/[,\s]+/).filter(Boolean).map(encodeURIComponent).join(','))}?subject=${esc(encodeURIComponent(r.subject))}">✉️</a>` : '';
+      return `<tr><td class="mono">${esc(toThai(r.no))}/${esc(toThai(r.year))}</td>
         <td>${esc(r.ref)}<div class="ref">${fmtD(r.docDate)}</div></td>
         <td>${esc(r.to)}<div class="ref mono">${esc(r.email)}</div></td>
         <td>${esc(r.subject)}${r.owner ? `<div class="ref">เจ้าของเรื่อง: ${esc(r.owner)}</div>` : ''}</td>
         <td class="mono text-xs break-all">${esc(r.file)}</td>
-        <td class="whitespace-nowrap"><div class="ref">${esc(r.channel)}</div>${steps.map(([k, l]) => `<label class="flex items-center gap-1"><input type="checkbox" class="accent-green-700" data-out="${r.id}" data-k="${k}" ${r.done?.[k] ? 'checked' : ''}>${l}</label>`).join('')}</td>
-        <td class="no-print whitespace-nowrap">${mail}<button class="btn btn-d text-xs px-2" data-del-out="${r.id}" title="ลบ">✕</button></td></tr>`;
+        <td class="whitespace-nowrap"><div class="ref">${esc(r.channel)}</div>${steps.map(([k, l]) => `<label class="flex items-center gap-1"><input type="checkbox" class="accent-green-700" data-out="${esc(r.id)}" data-k="${k}" ${r.done?.[k] ? 'checked' : ''}>${l}</label>`).join('')}</td>
+        <td class="no-print whitespace-nowrap">${mail}<button class="btn btn-d text-xs px-2" data-del-out="${esc(r.id)}" title="ลบ">✕</button></td></tr>`;
     }).join('') : `<tr><td colspan="7" class="text-center text-gray-500 py-6">ยังไม่มีรายการ</td></tr>`) + '</tbody>';
 }
 $('#outTable').addEventListener('change', e => {
@@ -818,8 +840,9 @@ $('#outTable').addEventListener('click', e => {
 });
 $('#outSearch').addEventListener('input', renderOutbox);
 
-// CSV export
-function toCSV(rows) { return '﻿' + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n'); }
+// CSV export: quote every cell, and prefix ' to text starting with = + - @ so spreadsheets don't run it as a formula
+const csvCell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; };
+function toCSV(rows) { return '﻿' + rows.map(r => r.map(csvCell).join(',')).join('\r\n'); }
 $$('[data-export]').forEach(b => b.onclick = () => {
   const k = b.dataset.export, ymd = new Date().toISOString().slice(0, 10);
   let rows;
@@ -840,9 +863,9 @@ $('#bkImport').onchange = async e => {
     const data = JSON.parse(await f.text());
     if (!Array.isArray(data.inbox) || !Array.isArray(data.outbox)) throw new Error('bad');
     if (!confirm('แทนที่ข้อมูลทะเบียนปัจจุบันด้วยไฟล์สำรองนี้?')) return;
-    db.inbox = data.inbox; db.outbox = data.outbox; save('inbox'); save('outbox');
-    if (data.settings) { Object.assign(settings, data.settings); store.set('settings', settings); }
-    if (Array.isArray(data.checkLog)) store.set('checkLog', data.checkLog);
+    db.inbox = cleanRecs(data.inbox); db.outbox = cleanRecs(data.outbox); save('inbox'); save('outbox');
+    if (data.settings) { Object.assign(settings, cleanSettings(data.settings)); store.set('settings', settings); }
+    if (Array.isArray(data.checkLog)) store.set('checkLog', data.checkLog.filter(l => isDT(l?.at)).map(l => ({ at: l.at, what: String(l.what ?? '') })));
     renderInbox(); renderOutbox(); renderLog(); toast('กู้คืนข้อมูลแล้ว');
   } catch { alert('ไฟล์ไม่ถูกต้อง'); }
   e.target.value = '';
