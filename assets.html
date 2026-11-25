@@ -1364,19 +1364,59 @@
             });
         }
 
+        // Saved state and backup files are untrusted: copy only the known keys and check every value,
+        // falling back to `base` (or a safe default) when something is missing or invalid.
+        const ID_RE = /^[\w-]+$/;
+        let idSeq = 0;
+        const isStr = (re, v) => typeof v === 'string' && re.test(v);
+        const safeId = (v, prefix) => isStr(ID_RE, v) ? v : `${prefix}-${Date.now()}-${++idSeq}`;
+        const safeNum = (v, def = 0) => Number.isFinite(parseFloat(v)) ? parseFloat(v) : def;
+        const safeList = (list, clean) => Array.isArray(list) ? list.filter(x => x && typeof x === 'object').map(clean) : null;
+
+        function sanitizeState(src, base) {
+            const jars = safeList(src.jars, j => ({
+                id: safeId(j.id, 'jar'),
+                name: String(j.name ?? ''),
+                desc: String(j.desc ?? ''),
+                pct: safeNum(j.pct),
+                locked: !!j.locked,
+                icon: isStr(/^fa-[a-z0-9-]+$/, j.icon) ? j.icon : 'fa-crown',
+                color: isStr(/^#[0-9a-f]{3,8}$/i, j.color) ? j.color : '#D4AF37'
+            }));
+            const expenses = safeList(src.expenses, e => ({
+                id: safeId(e.id, 'exp'),
+                jarId: isStr(ID_RE, e.jarId) ? e.jarId : '',
+                title: String(e.title ?? ''),
+                amount: safeNum(e.amount),
+                date: isStr(/^\d{4}-\d{2}-\d{2}$/, e.date) ? e.date : ''
+            }));
+            const assets = safeList(src.assets, a => ({
+                id: safeId(a.id, 'ast'),
+                group: a.group === 'Digital' ? 'Digital' : 'Physical',
+                category: String(a.category ?? ''),
+                name: String(a.name ?? ''),
+                notes: String(a.notes ?? ''),
+                cost: safeNum(a.cost),
+                value: safeNum(a.value),
+                liquid: !!a.liquid
+            }));
+            return {
+                monthlyIncome: safeNum(src.monthlyIncome, base.monthlyIncome),
+                goldSpotPrice: safeNum(src.goldSpotPrice, base.goldSpotPrice),
+                jars: jars && jars.length > 0 ? jars : base.jars,
+                expenses: expenses || base.expenses,
+                assets: assets || base.assets,
+                vaultFilter: ['ALL', 'Physical', 'Digital', 'Liquid'].includes(src.vaultFilter) ? src.vaultFilter : base.vaultFilter
+            };
+        }
+
         // Load & Save State
         function loadState() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
                     const parsed = JSON.parse(raw);
-                    appState = {
-                        ...appState,
-                        ...parsed,
-                        jars: Array.isArray(parsed.jars) && parsed.jars.length > 0 ? parsed.jars : getDefaultJars(),
-                        expenses: Array.isArray(parsed.expenses) ? parsed.expenses : [],
-                        assets: Array.isArray(parsed.assets) ? parsed.assets : getSampleAssets()
-                    };
+                    if (parsed && typeof parsed === 'object') appState = sanitizeState(parsed, { ...appState, expenses: [] });
                 }
             } catch (err) {
                 console.error('Failed to load state from localStorage:', err);
@@ -1656,7 +1696,7 @@
                             <div>
                                 <div class="flex items-center gap-1.5">
                                     <h4 class="font-serif text-lg font-bold text-rolex-ivory">${escapeHtml(jar.name)}</h4>
-                                    <button onclick="openAddJarModal('${jar.id}')" class="text-rolex-cream/40 hover:text-rolex-gold text-xs transition" title="Edit Jar">
+                                    <button data-jar-edit="${escapeHtml(jar.id)}" class="text-rolex-cream/40 hover:text-rolex-gold text-xs transition" title="Edit Jar">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
                                 </div>
@@ -1665,11 +1705,11 @@
                         </div>
 
                         <div class="flex items-center gap-1">
-                            <button onclick="toggleJarLock('${jar.id}')" class="px-2.5 py-1 rounded-lg border text-xs transition ${jar.locked ? 'bg-rolex-gold text-rolex-deep border-rolex-gold font-semibold' : 'bg-rolex-deep/70 text-rolex-cream/60 border-rolex-gold/25 hover:text-rolex-goldLight'}" title="${jar.locked ? 'Unlock Jar' : 'Lock Jar Percentage'}">
+                            <button data-jar-lock="${escapeHtml(jar.id)}" class="px-2.5 py-1 rounded-lg border text-xs transition ${jar.locked ? 'bg-rolex-gold text-rolex-deep border-rolex-gold font-semibold' : 'bg-rolex-deep/70 text-rolex-cream/60 border-rolex-gold/25 hover:text-rolex-goldLight'}" title="${jar.locked ? 'Unlock Jar' : 'Lock Jar Percentage'}">
                                 <i class="fa-solid ${jar.locked ? 'fa-lock' : 'fa-lock-open'}"></i>
                             </button>
                             ${appState.jars.length > 2 ? `
-                            <button onclick="deleteJar('${jar.id}')" class="px-2 py-1 rounded-lg bg-rolex-deep/70 hover:bg-red-950/70 border border-rolex-gold/20 text-rolex-cream/40 hover:text-red-300 text-xs transition" title="Delete Jar">
+                            <button data-jar-delete="${escapeHtml(jar.id)}" class="px-2 py-1 rounded-lg bg-rolex-deep/70 hover:bg-red-950/70 border border-rolex-gold/20 text-rolex-cream/40 hover:text-red-300 text-xs transition" title="Delete Jar">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                             ` : ''}
@@ -1690,7 +1730,7 @@
                                 step="0.5" 
                                 value="${jar.pct}"
                                 ${jar.locked ? 'disabled' : ''}
-                                onchange="handleJarPercentageChange('${jar.id}', this.value)"
+                                data-jar-pct="${escapeHtml(jar.id)}"
                                 class="w-14 bg-transparent text-right font-serif text-lg font-bold text-rolex-ivory focus:outline-none"
                             >
                             <span class="text-xs text-rolex-gold font-semibold">%</span>
@@ -1706,7 +1746,7 @@
                             step="0.5" 
                             value="${jar.pct}"
                             ${jar.locked ? 'disabled' : ''}
-                            oninput="handleJarPercentageChange('${jar.id}', this.value)"
+                            data-jar-pct="${escapeHtml(jar.id)}"
                             class="rolex-slider"
                         >
                     </div>
@@ -1728,10 +1768,17 @@
                 `;
             }).join('');
 
+            // Bind the card controls here instead of inline onclick="fn('id')", so an id is never parsed as code
+            container.querySelectorAll('[data-jar-edit]').forEach(btn => btn.addEventListener('click', () => openAddJarModal(btn.dataset.jarEdit)));
+            container.querySelectorAll('[data-jar-lock]').forEach(btn => btn.addEventListener('click', () => toggleJarLock(btn.dataset.jarLock)));
+            container.querySelectorAll('[data-jar-delete]').forEach(btn => btn.addEventListener('click', () => deleteJar(btn.dataset.jarDelete)));
+            container.querySelectorAll('input[type="number"][data-jar-pct]').forEach(inp => inp.addEventListener('change', () => handleJarPercentageChange(inp.dataset.jarPct, inp.value)));
+            container.querySelectorAll('input[type="range"][data-jar-pct]').forEach(inp => inp.addEventListener('input', () => handleJarPercentageChange(inp.dataset.jarPct, inp.value)));
+
             // Populate Expense Jar Select Dropdown
             const selectEl = document.getElementById('expenseJarSelect');
             const currentVal = selectEl.value;
-            selectEl.innerHTML = appState.jars.map(j => `<option value="${j.id}">${escapeHtml(j.name)} (${j.pct}%)</option>`).join('');
+            selectEl.innerHTML = appState.jars.map(j => `<option value="${escapeHtml(j.id)}">${escapeHtml(j.name)} (${j.pct}%)</option>`).join('');
             if (appState.jars.some(j => j.id === currentVal)) {
                 selectEl.value = currentVal;
             }
@@ -1792,17 +1839,18 @@
                 <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-rolex-deep/80 border border-rolex-gold/20 text-xs">
                     <div class="min-w-0 pr-2">
                         <p class="font-medium text-rolex-ivory truncate">${escapeHtml(exp.title)}</p>
-                        <p class="text-[10px] text-rolex-goldLight/75">${escapeHtml(jarName)} • ${exp.date || ''}</p>
+                        <p class="text-[10px] text-rolex-goldLight/75">${escapeHtml(jarName)} • ${escapeHtml(exp.date)}</p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
                         <span class="font-serif font-bold text-rolex-gold">${formatBaht(exp.amount)}</span>
-                        <button onclick="deleteExpense('${exp.id}')" class="text-rolex-cream/40 hover:text-red-400 transition">
+                        <button data-expense-delete="${escapeHtml(exp.id)}" class="text-rolex-cream/40 hover:text-red-400 transition">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
                 </div>
                 `;
             }).join('');
+            listEl.querySelectorAll('[data-expense-delete]').forEach(btn => btn.addEventListener('click', () => deleteExpense(btn.dataset.expenseDelete)));
         }
 
         // ==========================================
@@ -2024,7 +2072,7 @@
                     </td>
                     <td class="py-3.5 px-3">
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider ${asset.group === 'Digital' ? 'bg-indigo-950/80 text-indigo-300 border border-indigo-400/30' : 'bg-rolex-emerald/40 text-rolex-goldLight border border-rolex-gold/30'}">
-                            ${asset.group}
+                            ${escapeHtml(asset.group)}
                         </span>
                         <p class="text-xs text-rolex-cream/85 mt-0.5">${escapeHtml(asset.category)}</p>
                     </td>
@@ -2057,10 +2105,10 @@
                     </td>
                     <td class="py-3.5 px-3 text-center">
                         <div class="flex items-center justify-center gap-1.5">
-                            <button onclick="editAsset('${asset.id}')" class="p-1.5 rounded-lg bg-rolex-deep hover:bg-rolex-emerald text-rolex-goldLight border border-rolex-gold/25 transition" title="Edit Asset">
+                            <button data-asset-edit="${escapeHtml(asset.id)}" class="p-1.5 rounded-lg bg-rolex-deep hover:bg-rolex-emerald text-rolex-goldLight border border-rolex-gold/25 transition" title="Edit Asset">
                                 <i class="fa-solid fa-pen-to-square text-xs"></i>
                             </button>
-                            <button onclick="deleteAsset('${asset.id}')" class="p-1.5 rounded-lg bg-rolex-deep hover:bg-red-950 text-rolex-cream/60 hover:text-red-300 border border-rolex-gold/25 transition" title="Delete Asset">
+                            <button data-asset-delete="${escapeHtml(asset.id)}" class="p-1.5 rounded-lg bg-rolex-deep hover:bg-red-950 text-rolex-cream/60 hover:text-red-300 border border-rolex-gold/25 transition" title="Delete Asset">
                                 <i class="fa-solid fa-trash-can text-xs"></i>
                             </button>
                         </div>
@@ -2068,6 +2116,8 @@
                 </tr>
                 `;
             }).join('');
+            tbody.querySelectorAll('[data-asset-edit]').forEach(btn => btn.addEventListener('click', () => editAsset(btn.dataset.assetEdit)));
+            tbody.querySelectorAll('[data-asset-delete]').forEach(btn => btn.addEventListener('click', () => deleteAsset(btn.dataset.assetDelete)));
         }
 
         function updateGoldSpotPrice(val) {
@@ -2407,10 +2457,7 @@
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (imported && Array.isArray(imported.jars) && Array.isArray(imported.assets)) {
-                        appState = {
-                            ...appState,
-                            ...imported
-                        };
+                        appState = sanitizeState(imported, appState);
                         document.getElementById('monthlyIncomeInput').value = appState.monthlyIncome;
                         document.getElementById('goldSpotPriceInput').value = appState.goldSpotPrice || 43500;
                         saveState();
@@ -2490,7 +2537,7 @@
                 return `
                 <tr>
                     <td class="p-2 font-semibold">${escapeHtml(a.name)} <span class="text-gray-500 font-normal">(${escapeHtml(a.notes || '')})</span></td>
-                    <td class="p-2">${a.group} • ${escapeHtml(a.category)}</td>
+                    <td class="p-2">${escapeHtml(a.group)} • ${escapeHtml(a.category)}</td>
                     <td class="p-2 text-right font-serif">${formatBaht(a.cost)}</td>
                     <td class="p-2 text-right font-serif font-bold">${formatBaht(a.value)}</td>
                     <td class="p-2 text-right font-serif ${gain >= 0 ? 'text-emerald-700' : 'text-red-700'}">${gain >= 0 ? '+' : ''}${formatBaht(gain)}</td>
