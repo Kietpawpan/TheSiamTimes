@@ -881,7 +881,30 @@
         // Longdo place-name lookups go through our Apps Script relay (apps-script/longdo-proxy.gs),
         // which holds the Longdo key, so the key is not in this page
         const LONGDO_PROXY_URL = 'https://script.google.com/macros/s/AKfycbyvXn2nf0rcPYYVjdP5D6H8XiJoiiaKU5tkX6xi2pF43X38lqD1yeomDQW19Wgq4tZr/exec';
-        
+
+        // ชื่อตำบล/อำเภอ/จังหวัดจากพิกัด: ถามชั้นขอบเขตตำบลของ GISTDA (ข้อมูลกรมการปกครอง ทั้งประเทศ ไม่ต้องใช้คีย์ ไม่กินโควต้า Longdo)
+        // ถ้า GISTDA ขัดข้อง (เครือข่าย/เซิร์ฟเวอร์ผิดพลาด/ไม่ตอบใน 8 วินาที) จึงถาม Longdo ผ่าน relay เดิม
+        // พิกัดที่ไม่อยู่ในตำบลใด (ทะเล/ต่างประเทศ) ได้ชื่อว่างกลับมา ไม่ถาม Longdo ต่อ
+        // คืนค่ารูปแบบเดียวกับ Longdo: { subdistrict: 'ตำบล…', district: 'อำเภอ…', province: 'จังหวัด…' }
+        const GISTDA_TAMBON_URL = 'https://gistdaportal.gistda.or.th/arcgis/rest/services/' + encodeURIComponent('ข้อมูลเขตการปกครอง') + '/MapServer/4/query';
+        function fetchAdminArea(lat, lon) {
+            const params = new URLSearchParams({
+                geometry: lon + ',' + lat, geometryType: 'esriGeometryPoint', inSR: '4326',
+                spatialRel: 'esriSpatialRelIntersects', outFields: 'T_Name_T,A_Name_T,P_Name_T',
+                returnGeometry: 'false', f: 'json'
+            });
+            const signal = typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined;
+            return fetch(GISTDA_TAMBON_URL + '?' + params, { signal })
+                .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+                .then(d => {
+                    if (!d || !Array.isArray(d.features)) throw new Error((d && d.error && d.error.message) || 'GISTDA ตอบผิดรูปแบบ');
+                    const a = (d.features[0] && d.features[0].attributes) || {};
+                    return { subdistrict: a.T_Name_T || '', district: a.A_Name_T || '', province: a.P_Name_T || '' };
+                })
+                .catch(() => fetch(`${LONGDO_PROXY_URL}?action=address&lat=${lat}&lon=${lon}`)
+                    .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); }));
+        }
+
         // ใส่ลิงก์โฟลเดอร์หลักบน GitHub ที่เก็บไฟล์ EPO1 ถึง EPO16
         const githubBaseUrl = 'https://raw.githubusercontent.com/Kietpawpan/hotspot/refs/heads/main/';
         const thailandBoundariesUrl = 'https://raw.githubusercontent.com/apisit/thailand.json/master/thailand.json';
@@ -1531,9 +1554,9 @@ if (primarySource && primarySource.features) {
         }
 
         // ฟังก์ชันสำหรับวาดหมุดจุดความร้อนลงบนแผนที่
-        // ชื่อตำบล/อำเภอของจุดความร้อน: ค้นจาก Longdo Map ตอนเปิดป้ายรายละเอียด (ทีละจุด ไม่ค้นทุกจุดล่วงหน้า)
+        // ชื่อตำบล/อำเภอของจุดความร้อน: ค้นจาก GISTDA (สำรองด้วย Longdo) ตอนเปิดป้ายรายละเอียด (ทีละจุด ไม่ค้นทุกจุดล่วงหน้า)
         // ถามครั้งเดียวต่อพิกัด แล้วจำผลไว้ในเครื่อง (localStorage ใช้ร่วมกับ hotspotRadar.html เก็บ 500 พิกัดล่าสุด)
-        // เปิดดูจุดเดิมซ้ำหรือเปิดแอพใหม่จึงไม่เปลืองโควต้า ค้นไม่สำเร็จ (เครือข่ายขัดข้อง/ถูกปฏิเสธ เช่น โควต้าเต็ม) จะเว้น 5 นาทีก่อนถามพิกัดนั้นอีก
+        // เปิดดูจุดเดิมซ้ำหรือเปิดแอพใหม่จึงไม่ต้องถามซ้ำ ค้นไม่สำเร็จ (เครือข่ายขัดข้อง/ถูกปฏิเสธ) จะเว้น 5 นาทีก่อนถามพิกัดนั้นอีก
         const HS_ADDR_STORE = 'hotspotAddress.v1';
         const HS_ADDR_MAX = 500;
         const HS_ADDR_RETRY_MS = 5 * 60 * 1000;
@@ -1564,11 +1587,7 @@ if (primarySource && primarySource.features) {
             if (Array.isArray(known)) return Promise.resolve(known);
             if (hsAddrPending.has(key)) return hsAddrPending.get(key);
             if (Date.now() - (hsAddrFailedAt.get(key) || 0) < HS_ADDR_RETRY_MS) return Promise.reject(new Error('ค้นไม่สำเร็จเมื่อครู่ รอก่อนค้นใหม่'));
-            const p = fetch(`${LONGDO_PROXY_URL}?action=address&lat=${lat}&lon=${lon}`)
-                .then(res => {
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    return res.json();
-                })
+            const p = fetchAdminArea(lat, lon)
                 .then(d => {
                     const rec = [String((d && d.subdistrict) || '').trim(), String((d && d.district) || '').trim()];
                     if (!rec[0] && !rec[1]) return null; // ไม่มีชื่อพื้นที่: ไม่บันทึกลงเครื่อง และไม่ถามซ้ำจนกว่าจะเปิดหน้าใหม่
@@ -2476,8 +2495,7 @@ if (primarySource && primarySource.features) {
             marker.bindPopup(popupContent).openPopup();
             map.setView([lat, lon], 13);
 
-            fetch(`${LONGDO_PROXY_URL}?action=address&lat=${lat}&lon=${lon}`)
-                .then(res => res.json())
+            fetchAdminArea(lat, lon)
                 .then(data => {
                     const provEl = document.getElementById('inc-province');
                     if (provEl && data && data.province) {
@@ -2556,8 +2574,8 @@ if (primarySource && primarySource.features) {
 
                 try {
                     const results = await Promise.all([
-                        fetch(`${LONGDO_PROXY_URL}?action=address&lat=${pt1[1]}&lon=${pt1[0]}`).then(r => r.json()),
-                        fetch(`${LONGDO_PROXY_URL}?action=address&lat=${pt2[1]}&lon=${pt2[0]}`).then(r => r.json())
+                        fetchAdminArea(pt1[1], pt1[0]),
+                        fetchAdminArea(pt2[1], pt2[0])
                     ]);
 
                     let riskAreas = [];

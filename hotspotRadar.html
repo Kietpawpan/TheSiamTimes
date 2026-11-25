@@ -2013,6 +2013,30 @@
         // Longdo place-name lookups go through our Apps Script relay (apps-script/longdo-proxy.gs),
         // which holds the Longdo key, so the key is not in this page
         const LONGDO_PROXY_URL = 'https://script.google.com/macros/s/AKfycbyvXn2nf0rcPYYVjdP5D6H8XiJoiiaKU5tkX6xi2pF43X38lqD1yeomDQW19Wgq4tZr/exec';
+
+        // ชื่อตำบล/อำเภอ/จังหวัดจากพิกัด: ถามชั้นขอบเขตตำบลของ GISTDA (ข้อมูลกรมการปกครอง ทั้งประเทศ ไม่ต้องใช้คีย์ ไม่กินโควต้า Longdo)
+        // ถ้า GISTDA ขัดข้อง (เครือข่าย/เซิร์ฟเวอร์ผิดพลาด/ไม่ตอบใน 8 วินาที) จึงถาม Longdo ผ่าน relay เดิม
+        // พิกัดที่ไม่อยู่ในตำบลใด (ทะเล/ต่างประเทศ) ได้ชื่อว่างกลับมา ไม่ถาม Longdo ต่อ
+        // คืนค่ารูปแบบเดียวกับ Longdo: { subdistrict: 'ตำบล…', district: 'อำเภอ…', province: 'จังหวัด…' }
+        const GISTDA_TAMBON_URL = 'https://gistdaportal.gistda.or.th/arcgis/rest/services/' + encodeURIComponent('ข้อมูลเขตการปกครอง') + '/MapServer/4/query';
+        function fetchAdminArea(lat, lon) {
+            const params = new URLSearchParams({
+                geometry: lon + ',' + lat, geometryType: 'esriGeometryPoint', inSR: '4326',
+                spatialRel: 'esriSpatialRelIntersects', outFields: 'T_Name_T,A_Name_T,P_Name_T',
+                returnGeometry: 'false', f: 'json'
+            });
+            const signal = typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined;
+            return fetch(GISTDA_TAMBON_URL + '?' + params, { signal })
+                .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+                .then(d => {
+                    if (!d || !Array.isArray(d.features)) throw new Error((d && d.error && d.error.message) || 'GISTDA ตอบผิดรูปแบบ');
+                    const a = (d.features[0] && d.features[0].attributes) || {};
+                    return { subdistrict: a.T_Name_T || '', district: a.A_Name_T || '', province: a.P_Name_T || '' };
+                })
+                .catch(() => fetch(LONGDO_PROXY_URL + '?action=address&lat=' + lat + '&lon=' + lon)
+                    .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); }));
+        }
+
         const VISOR_SCAN_MS = 5000;
         // อักษร "ต่างดาว" สำหรับเอฟเฟกต์ถอดรหัส: สัญลักษณ์ Unicode ทั่วไป (พยางค์แคนาดา + สัญลักษณ์เทคนิค)
         const ALIEN_GLYPHS = Array.from('ᐊᐁᐃᐅᑌᑎᑐᑕᑭᑯᒉᒋᒍᒐᓀᓂᓄᓇᓭᓯᓱᓴᔐᔑᔕᖃᖄᖅᗜᗝᗞᗟ⌬⏃⏚⎅⟒⎎⊑⟟⌰⋔⋏⍜⌿⍀⌇⏁⎍⍙⊬⋉');
@@ -2076,10 +2100,10 @@
 
         // ---------- ข้อมูลเป้า ----------
         function visorTarget() { return state.nearest || state.nearestAny || null; }
-        // ---------- ชื่อตำบล/อำเภอของจุดความร้อน (Longdo Map) ----------
+        // ---------- ชื่อตำบล/อำเภอของจุดความร้อน (GISTDA สำรองด้วย Longdo Map) ----------
         // ถามครั้งเดียวต่อพิกัด แล้วจำผลไว้ในเครื่อง (localStorage ใช้ร่วมกับ fireRadar.html เก็บ 500 พิกัดล่าสุด)
-        // เปิดดูจุดเดิมซ้ำหรือเปิดแอพใหม่จึงไม่เปลืองโควต้า ส่งเฉพาะพิกัดของจุดความร้อน ไม่ใช่ตำแหน่งของผู้ใช้
-        // ค้นไม่สำเร็จ (เครือข่ายขัดข้อง/ถูกปฏิเสธ เช่น โควต้าเต็ม) จะเว้น 5 นาทีก่อนถามพิกัดนั้นอีก
+        // เปิดดูจุดเดิมซ้ำหรือเปิดแอพใหม่จึงไม่ต้องถามซ้ำ ส่งเฉพาะพิกัดของจุดความร้อน ไม่ใช่ตำแหน่งของผู้ใช้
+        // ค้นไม่สำเร็จ (เครือข่ายขัดข้อง/ถูกปฏิเสธ) จะเว้น 5 นาทีก่อนถามพิกัดนั้นอีก
         const HS_ADDR_STORE = 'hotspotAddress.v1';
         const HS_ADDR_MAX = 500;
         const HS_ADDR_RETRY_MS = 5 * 60 * 1000;
@@ -2115,8 +2139,7 @@
             if (known) return Promise.resolve(known);
             if (hsAddrPending.has(key)) return hsAddrPending.get(key);
             if (Date.now() - (hsAddrFailedAt.get(key) || 0) < HS_ADDR_RETRY_MS) return Promise.reject(new Error('ค้นไม่สำเร็จเมื่อครู่ รอก่อนค้นใหม่'));
-            const p = fetch(LONGDO_PROXY_URL + '?action=address&lat=' + lat + '&lon=' + lon)
-                .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+            const p = fetchAdminArea(lat, lon)
                 .then(d => {
                     const rec = [String((d && d.subdistrict) || '').trim(), String((d && d.district) || '').trim()];
                     if (!rec[0] && !rec[1]) return null; // ไม่มีชื่อพื้นที่: ไม่บันทึกลงเครื่อง และไม่ถามซ้ำจนกว่าจะเปิดหน้าใหม่
