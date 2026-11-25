@@ -1649,18 +1649,22 @@ if (primarySource && primarySource.features) {
             return currentSatellite === 'all' ? 'รวมทั้ง 2 ดวง (NOAA-20 และ NOAA-21)' : 'เฉพาะ ' + satelliteName(currentSatellite);
         }
 
+        // แยกคำนำหน้าออกจากชื่อ: "ต.ป่าอ้อดอนชัย" → { label: 'ตำบล', name: 'ป่าอ้อดอนชัย' }
+        // ชื่อที่ได้มาใช้คำย่อ ต./อ. (แบบ Longdo) ป้ายในหน้าจอจึงแปลงกลับเป็นคำเต็ม ไม่ให้ขึ้นซ้ำเป็น "ตำบล: ต.xxx"
+        const ADMIN_PREFIX_LABEL = { 'ต.': 'ตำบล', 'อ.': 'อำเภอ' };
         function splitThaiAdminName(text, prefixes) {
             const s = String(text || '').trim();
             if (!s) return null;
-            const m = s.match(new RegExp('^(' + prefixes.join('|') + ')\\s*(.+)$'));
-            return m ? { label: m[1], name: m[2].trim() } : { label: null, name: s };
+            const alt = prefixes.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+            const m = s.match(new RegExp('^(' + alt + ')\\s*(.+)$'));
+            return m ? { label: ADMIN_PREFIX_LABEL[m[1]] || m[1], name: m[2].trim() } : { label: null, name: s };
         }
 
         function lookupHotspotAddress(lat, lon) {
             return hsAddrLookup(lat, lon).then(rec => {
                 if (!rec) return null;
-                const sub = splitThaiAdminName(rec[0], ['ตำบล', 'แขวง']);
-                const dist = splitThaiAdminName(rec[1], ['กิ่งอำเภอ', 'อำเภอ', 'เขต']);
+                const sub = splitThaiAdminName(rec[0], ['ตำบล', 'แขวง', 'ต.']);
+                const dist = splitThaiAdminName(rec[1], ['กิ่งอำเภอ', 'อำเภอ', 'เขต', 'อ.']);
                 return sub || dist ? { sub, dist, near: formatNearby(rec[1], rec[2]) } : null;
             });
         }
