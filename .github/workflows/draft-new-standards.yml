@@ -37,7 +37,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       ISSUE_NUMBER: ${{ github.event.issue.number }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       # While a draft PR is open, leave it alone so edits made during review are not overwritten.
       - name: Check for a draft PR waiting for review
@@ -62,7 +62,7 @@ jobs:
       - name: Open pull request
         id: pr
         if: steps.pending.outputs.open == '0' && steps.draft.outputs.count != '0'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
         with:
           branch: ${{ env.PR_BRANCH }}
           delete-branch: true
