@@ -2391,23 +2391,29 @@ ${newsListText}
                 showToast('ไม่มีข้อมูลข่าวสำหรับส่งออก CSV', 'info');
                 return;
             }
+            // ทุกช่องอยู่ในเครื่องหมายคำพูด และกันข้อความที่ขึ้นต้นด้วย = + - @ ไม่ให้ Excel ตีความเป็นสูตร
+            const cell = value => {
+                let v = String(value ?? '');
+                if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;
+                return `"${v.replace(/"/g, '""')}"`;
+            };
             const headers = ['ลำดับ', 'จังหวัดหลัก', 'จังหวัดที่เกี่ยวข้องทั้งหมด', 'ประเภทปัญหา', 'ระดับความเร่งด่วน', 'หัวข้อข่าว', 'แหล่งข่าว', 'วันที่เผยแพร่', 'ลิงก์ข่าว'];
             const rows = currentState.newsItems.map((item, idx) => {
                 const catObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === item.category) || CATEGORY_DISPLAY_ORDER[5];
                 return [
                     idx + 1,
                     item.primaryProvince,
-                    `"${(item.provinces || [item.primaryProvince]).join(' / ')}"`,
+                    (item.provinces || [item.primaryProvince]).join(' / '),
                     catObj.name,
                     item.urgency,
-                    `"${(item.title || '').replace(/"/g, '""')}"`,
-                    `"${(item.source || '').replace(/"/g, '""')}"`,
+                    item.title,
+                    item.source,
                     formatThaiDateTime(item.pubDate),
-                    `"${item.link || ''}"`
-                ].join(',');
+                    item.link
+                ].map(cell).join(',');
             });
 
-            const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+            const csvContent = '\uFEFF' + [headers.map(cell).join(','), ...rows].join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');

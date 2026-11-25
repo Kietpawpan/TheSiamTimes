@@ -229,7 +229,17 @@
         });
 
         const entryById = id => database.entries.find(e => e.id === id);
-        const linkFor = e => /^https?:/.test(e.link) ? e.link : new URL(e.link, location.href).href;
+        // Relative links (PDFs in this repo) resolve against the page; anything that isn't http(s), such as
+        // javascript:, gives '' so the entry is shown without a link.
+        const linkFor = e => {
+            if (!e.link) return '';
+            try {
+                const url = new URL(e.link, location.href);
+                return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : '';
+            } catch (error) {
+                return '';
+            }
+        };
 
         const renderList = (data) => {
             if (data.length === 0) {
@@ -238,8 +248,10 @@
             }
             listContainer.innerHTML = data.map(item => {
                 const replacement = item.cancelledBy ? entryById(item.cancelledBy) : null;
+                const replacementHref = replacement ? linkFor(replacement) : '';
+                const itemHref = linkFor(item);
                 const cancelledNote = replacement
-                    ? `<p class="text-xs text-red-600 mt-2">ยกเลิกแล้ว · ใช้ ${replacement.link ? `<a class="underline" href="${escapeHtml(linkFor(replacement))}" target="_blank" rel="noopener">${escapeHtml(replacement.title)}</a>` : escapeHtml(replacement.title)} แทน</p>`
+                    ? `<p class="text-xs text-red-600 mt-2">ยกเลิกแล้ว · ใช้ ${replacementHref ? `<a class="underline" href="${escapeHtml(replacementHref)}" target="_blank" rel="noopener">${escapeHtml(replacement.title)}</a>` : escapeHtml(replacement.title)} แทน</p>`
                     : '';
                 return `
                 <div class="bg-white rounded-xl shadow-md p-5 border border-gray-200/80 hover:shadow-lg hover:border-violet-300 transition-all duration-300 transform hover:-translate-y-1 ${item.cancelledBy ? 'opacity-75' : ''}">
@@ -250,7 +262,7 @@
                         <p><span class="font-medium">อ้างอิง:</span> ${escapeHtml(item.ref)}</p>
                     </div>
                     ${cancelledNote}
-                    ${item.link ? `<a href="${escapeHtml(linkFor(item))}" target="_blank" rel="noopener" class="inline-block mt-4 text-sm font-semibold text-violet-600 hover:text-violet-800 transition">ดูรายละเอียด →</a>` : ''}
+                    ${itemHref ? `<a href="${escapeHtml(itemHref)}" target="_blank" rel="noopener" class="inline-block mt-4 text-sm font-semibold text-violet-600 hover:text-violet-800 transition">ดูรายละเอียด →</a>` : ''}
                 </div>`;
             }).join('');
         };
