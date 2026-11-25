@@ -256,7 +256,7 @@
         // ชื่อตำบล/อำเภอ/จังหวัดจากพิกัด: ถามชั้นขอบเขตตำบลของ GISTDA (ข้อมูลกรมการปกครอง ทั้งประเทศ ไม่ต้องใช้คีย์ ไม่กินโควต้า Longdo)
         // ถ้า GISTDA ขัดข้อง (เครือข่าย/เซิร์ฟเวอร์ผิดพลาด/ไม่ตอบใน 8 วินาที) จึงถาม Longdo ผ่าน relay เดิม
         // พิกัดที่ไม่อยู่ในตำบลใด (ทะเล/ต่างประเทศ) ได้ชื่อว่างกลับมา ไม่ถาม Longdo ต่อ
-        // คืนค่ารูปแบบเดียวกับ Longdo: { subdistrict: 'ตำบล…', district: 'อำเภอ…', province: 'จังหวัด…' }
+        // คืนค่ารูปแบบเดียวกับ Longdo: { subdistrict: 'ต.…' หรือ 'แขวง…', district: 'อ.…' หรือ 'เขต…', province: 'จ.…' หรือ 'กรุงเทพมหานคร' }
         // (การค้นสถานที่จากชื่อ action=search ยังใช้ Longdo เพราะชั้นขอบเขตตำบลค้นจากชื่อสถานที่ไม่ได้)
         const GISTDA_TAMBON_URL = 'https://gistdaportal.gistda.or.th/arcgis/rest/services/' + encodeURIComponent('ข้อมูลเขตการปกครอง') + '/MapServer/4/query';
         function fetchAdminArea(lat, lon) {
@@ -271,7 +271,10 @@
                 .then(d => {
                     if (!d || !Array.isArray(d.features)) throw new Error((d && d.error && d.error.message) || 'GISTDA ตอบผิดรูปแบบ');
                     const a = (d.features[0] && d.features[0].attributes) || {};
-                    return { subdistrict: a.T_Name_T || '', district: a.A_Name_T || '', province: a.P_Name_T || '' };
+                    // GISTDA ใช้คำเต็ม (ตำบล/อำเภอ/จังหวัด) ส่วน Longdo ใช้คำย่อ (ต./อ./จ.) จึงแปลงให้เหมือน Longdo
+                    // หน้าจอและผลที่จำไว้ในเครื่องจึงแสดงเหมือนเดิม (แขวง/เขต/กรุงเทพมหานคร เหมือนกันอยู่แล้ว)
+                    const shorten = (s, full, abbr) => String(s || '').trim().replace(new RegExp('^' + full), abbr);
+                    return { subdistrict: shorten(a.T_Name_T, 'ตำบล', 'ต.'), district: shorten(a.A_Name_T, 'อำเภอ', 'อ.'), province: shorten(a.P_Name_T, 'จังหวัด', 'จ.') };
                 })
                 .catch(() => fetch(`${LONGDO_PROXY_URL}?action=address&lat=${lat}&lon=${lon}`)
                     .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); }));
