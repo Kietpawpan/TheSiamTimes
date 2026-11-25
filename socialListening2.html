@@ -781,7 +781,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Gemini API Key (เว้นว่างไว้ได้หากใช้ระบบจัดหมวดหมู่อัตโนมัติในตัว):</label>
-                    <input type="password" id="userApiKeyInput" placeholder="AIzaSy..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="password" id="userApiKeyInput" autocomplete="off" placeholder="AIzaSy..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
             </div>
             <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
@@ -2021,10 +2021,11 @@
             let lastErr = null;
             for (const modelName of models) {
                 try {
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+                    // The key goes in a header, not the URL, so it doesn't end up in logs that record URLs
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
                     const response = await fetchWithBackoff(apiUrl, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
                         body: JSON.stringify(payload)
                     });
                     if (response.ok) {
