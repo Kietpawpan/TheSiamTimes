@@ -9,7 +9,7 @@ There is a Thai version and an English version, each a whole game in one HTML fi
 | Thai (ภาษาไทย) | `GA-cruiser-th.html` | https://thesiamtimes.com/Cruiser/GA-cruiser-th.html |
 | English | `GA-cruiser-en.html` | https://thesiamtimes.com/Cruiser/GA-cruiser-en.html |
 
-Unlike the 2D games on the site, this one needs a connection: it loads **three.js r160** from jsDelivr (`cdn.jsdelivr.net/npm/three@0.160.0`), and the Chonburi, Kanit, Sarabun and Newsreader fonts from Google Fonts. If three.js cannot be fetched, the loading screen says so after 20 seconds.
+It loads **three.js r160** from the site's own copy in `js/vendor/three@0.160.0/` (the files `build/three.module.js` and the few `examples/jsm/` add-ons the game imports, byte for byte as published on npm), so the site's `js/` folder has to be served beside this one; and it needs a connection for the Chonburi, Kanit, Sarabun and Newsreader fonts from Google Fonts. If three.js cannot be fetched, the loading screen says so after 20 seconds.
 
 ## Playing on an iPad
 

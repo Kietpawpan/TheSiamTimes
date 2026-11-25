@@ -97,7 +97,9 @@ async function fetchText(url) {
 }
 
 // Announcements sent from the page via an issue: [{id, date, title, link, pdf, types}, ...]
-const PCD_URL = /^https:\/\/(www\.)?pcd\.go\.th\//;
+// The whole value must be one pcd.go.th URL; a prefix check would let "https://www.pcd.go.th/x https://evil…" through.
+const PCD_URL = /^https:\/\/(www\.)?pcd\.go\.th\/[^\s"'<>]*$/i;
+const PCD_PDF = /^https:\/\/(www\.)?pcd\.go\.th\/[^\s"'<>]*\.pdf$/i;
 function postsFromIssue(text) {
     const block = String(text).match(/```json\s*([\s\S]*?)```/);
     if (!block) throw new Error('No ```json block in the issue.');
@@ -108,9 +110,9 @@ function postsFromIssue(text) {
         if (!/^\d{4}-\d{2}-\d{2}T/.test(p.date || '')) throw new Error(`Bad date for ${p.id}`);
         if (typeof p.title !== 'string' || !p.title.trim() || p.title.length > 600) throw new Error(`Bad title for ${p.id}`);
         if (!PCD_URL.test(p.link || '')) throw new Error(`Link for ${p.id} is not on pcd.go.th`);
-        if (p.pdf && !PCD_URL.test(p.pdf)) throw new Error(`PDF for ${p.id} is not on pcd.go.th`);
+        if (p.pdf && !PCD_PDF.test(p.pdf)) throw new Error(`PDF for ${p.id} is not a .pdf on pcd.go.th`);
         const types = Array.isArray(p.types) ? p.types.filter(Number.isInteger) : [];
-        return { id: p.id, title: { rendered: p.title }, date: p.date, lawstype: types, link: p.link, content: { rendered: p.pdf || '' } };
+        return { id: p.id, title: { rendered: p.title }, date: p.date, lawstype: types, link: p.link, pdf: p.pdf || null };
     });
 }
 const fromIssue = Boolean(process.env.ISSUE_BODY);
@@ -146,6 +148,7 @@ const posts = (fromIssue ? postsFromIssue(process.env.ISSUE_BODY) : JSON.parse(a
     types: x.lawstype || [],
     link: x.link,
     content: x.content?.rendered || '',
+    pdf: x.pdf || null,
 }));
 console.log(`${fromIssue ? `Issue #${issueNumber}` : 'PCD'}: ${posts.length} posts`);
 
@@ -156,7 +159,8 @@ console.log(`New announcements: ${missing.length}`);
 const nextNumber = {};
 const drafts = [];
 for (const law of missing) {
-    let pdf = findPdf(law.content);
+    // From an issue, the PDF link was already checked in postsFromIssue, so use it as it is.
+    let pdf = fromIssue ? law.pdf : findPdf(law.content);
     if (!pdf && !fromIssue) {
         try { pdf = findPdf(await fetchText(law.link)); } catch (error) { console.warn(`! ${law.link}: ${error.message}`); }
     }
@@ -185,19 +189,24 @@ if (drafts.length) {
     await writeFile(DB_PATH, formatDatabase(db));
 }
 
+// Titles and links come from the issue (or PCD), so the PR description shows them as inline code: markdown,
+// "<!--", @mentions and "fixes #N" in them stay plain text. Backticks would end the code span and a blank
+// line would end the paragraph, so both are removed.
+const code = value => '`' + String(value).replace(/`/g, '').replace(/\s+/g, ' ').trim() + '`';
+
 const body = [
     `ร่างรายการประกาศใหม่จากกรมควบคุมมลพิษ **${drafts.length} ฉบับ** ที่ยังไม่อยู่ใน \`standards.json\` ไว้ให้ตรวจ`,
     ...(issueNumber ? ['', `Closes #${issueNumber}`] : []),
     '',
     ...drafts.flatMap(({ entry, law, pdf, related }, i) => [
-        `### ${i + 1}. ${entry.title}`,
+        `### ${i + 1}. ${code(entry.title)}`,
         '',
         `- รหัส \`${entry.id}\` · ปี ${entry.year} · \`pcdId: ${law.id}\``,
-        `- โพสต์บนเว็บ คพ.: ${law.link}`,
-        pdf ? `- ไฟล์ PDF: ${pdf}` : '- ⚠️ ไม่พบไฟล์ PDF ในโพสต์ จึงใส่ลิงก์หน้าโพสต์ไว้แทน — เปิดโพสต์แล้วคัดลอกลิงก์ PDF มาใส่ใน `link`',
+        `- โพสต์บนเว็บ คพ.: ${code(law.link)}`,
+        pdf ? `- ไฟล์ PDF: ${code(pdf)}` : '- ⚠️ ไม่พบไฟล์ PDF ในโพสต์ จึงใส่ลิงก์หน้าโพสต์ไว้แทน — เปิดโพสต์แล้วคัดลอกลิงก์ PDF มาใส่ใน `link`',
         `- วันที่ในร่าง (\`${entry.date}\`) คือวันที่ คพ. โพสต์ ไม่ใช่วันที่ลงนามหรือวันที่ลงราชกิจจานุเบกษา`,
         related.length
-            ? `- อาจยกเลิกฉบับเดิม (เรื่องเดียวกัน): ${related.map(e => `\`${e.id}\` ${e.title}`).join(' · ')} — ถ้าใช่ ให้ใส่ \`"cancelledBy": "${entry.id}"\` ที่รายการนั้น`
+            ? `- อาจยกเลิกฉบับเดิม (เรื่องเดียวกัน): ${related.map(e => `${code(e.id)} ${code(e.title)}`).join(' · ')} — ถ้าใช่ ให้ใส่ \`"cancelledBy": "${entry.id}"\` ที่รายการนั้น`
             : '- ไม่พบฉบับเดิมที่เป็นเรื่องเดียวกันในฐานข้อมูล',
         '',
     ]),

@@ -379,36 +379,42 @@ textarea:focus-visible, button:focus-visible, a:focus-visible, input:focus-visib
   });
 
   // Copy HTML
+  // ข้อความจาก AI ต้อง escape ก่อนใส่ลงใน HTML ที่คัดลอกไป
+  function esc(v) {
+    return String(v).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
   $("copyHtml").addEventListener("click", function () {
     if (!current) return;
     var btn = $("copyHtml");
     
     // สร้างโครงสร้าง HTML ฉบับเต็มที่มี meta charset="utf-8" ป้องกันปัญหาภาษาต่างดาว
-    // และใส่ link ดึงฟอนต์ Chomsky เพื่อให้ The Siam Times แสดงผลได้ถูกต้อง
+    // และใส่ฟอนต์ Chomsky ของเว็บเอง (URL เต็ม เพราะ HTML นี้จะถูกนำไปวางที่อื่น) เพื่อให้ The Siam Times แสดงผลได้ถูกต้อง
     var htmlContent = '<!DOCTYPE html>\n' +
       '<html lang="th">\n' +
       '<head>\n' +
       '  <meta charset="utf-8">\n' +
-      '  <title>The Siam Times - ' + current.pali + '</title>\n' +
-      '  <link href="https://fonts.cdnfonts.com/css/chomsky" rel="stylesheet">\n' +
+      '  <title>The Siam Times - ' + esc(current.pali) + '</title>\n' +
+      '  <style>@font-face { font-family: \'Chomsky\'; src: url(\'https://thesiamtimes.com/Chomsky.woff2\') format(\'woff2\'), url(\'https://thesiamtimes.com/Chomsky.woff\') format(\'woff\'); font-weight: normal; font-style: normal; }</style>\n' +
       '</head>\n' +
       '<body style="background: #E7E5DF; padding: 20px; margin: 0; font-family: Tahoma, sans-serif;">\n' +
       '  <div style="max-width: 600px; margin: 0 auto; padding: 30px; background: #F6F5F1; color: #2A2522; border: 1px solid #CFCAC0; border-radius: 10px;">\n' +
       '    <div style="font-family: \'Chomsky\', serif; font-size: 3rem; text-align: center; border-bottom: 2px solid #2A2522; padding-bottom: 15px; margin-bottom: 25px;">The Siam Times</div>\n' +
       '    <div style="text-align: center;">\n' +
-      '      <h3 style="font-size: 2.2rem; margin: 0 0 10px; font-weight: normal; color: #6E1D1A;">' + current.pali + '</h3>\n' +
-      (current.roman ? '      <p style="font-style: italic; margin: 0 0 20px; opacity: 0.8;">' + current.roman + '</p>\n' : '') +
-      (current.nice ? '      <div style="border-top: 1px solid #CFCAC0; padding-top: 15px; margin: 15px auto; max-width: 80%; font-size: 1.1rem; line-height: 1.6;">' + current.nice + '</div>\n' : '') +
-      (current.english ? '      <p style="font-family: Georgia, serif; font-style: italic; margin: 15px 0 0; opacity: 0.85;">' + current.english + '</p>\n' : '') +
-      (current.source ? '      <p style="font-size: 0.9rem; margin: 15px 0 0; opacity: 0.7;">ที่มา: ' + current.source + '</p>\n' : '') +
+      '      <h3 style="font-size: 2.2rem; margin: 0 0 10px; font-weight: normal; color: #6E1D1A;">' + esc(current.pali) + '</h3>\n' +
+      (current.roman ? '      <p style="font-style: italic; margin: 0 0 20px; opacity: 0.8;">' + esc(current.roman) + '</p>\n' : '') +
+      (current.nice ? '      <div style="border-top: 1px solid #CFCAC0; padding-top: 15px; margin: 15px auto; max-width: 80%; font-size: 1.1rem; line-height: 1.6;">' + esc(current.nice) + '</div>\n' : '') +
+      (current.english ? '      <p style="font-family: Georgia, serif; font-style: italic; margin: 15px 0 0; opacity: 0.85;">' + esc(current.english) + '</p>\n' : '') +
+      (current.source ? '      <p style="font-size: 0.9rem; margin: 15px 0 0; opacity: 0.7;">ที่มา: ' + esc(current.source) + '</p>\n' : '') +
       '    </div>\n';
 
     // เพิ่มส่วนแปลโดยพยัญชนะและอธิบาย
     if (current.literal || current.note) {
       htmlContent += '    <div style="margin-top: 30px; text-align: left;">\n' +
                      '      <h4 style="font-size: 1.2rem; margin: 0 0 10px; border-bottom: 1px solid #CFCAC0; padding-bottom: 5px;">แปลโดยพยัญชนะ</h4>\n' +
-                     (current.literal ? '      <p style="margin: 0 0 10px;">' + current.literal + '</p>\n' : '') +
-                     (current.note ? '      <p style="font-size: 0.95rem; color: #6B625B; margin: 0;">' + current.note + '</p>\n' : '') +
+                     (current.literal ? '      <p style="margin: 0 0 10px;">' + esc(current.literal) + '</p>\n' : '') +
+                     (current.note ? '      <p style="font-size: 0.95rem; color: #6B625B; margin: 0;">' + esc(current.note) + '</p>\n' : '') +
                      '    </div>\n';
     }
 
@@ -419,11 +425,11 @@ textarea:focus-visible, button:focus-visible, a:focus-visible, input:focus-visib
                      '      <ul style="list-style: none; margin: 0; padding: 0;">\n';
       current.words.forEach(function(w) {
         htmlContent += '        <li style="padding: 12px 0; border-bottom: 1px dashed #CFCAC0;">\n' +
-                       '          <div style="font-size: 1.15rem; font-weight: bold; color: #6E1D1A;">' + w.pali +
-                       (w.roman ? ' <span style="font-weight: normal; font-style: italic; font-size: 0.95rem; color: #6B625B;">' + w.roman + '</span>' : '') +
+                       '          <div style="font-size: 1.15rem; font-weight: bold; color: #6E1D1A;">' + esc(w.pali) +
+                       (w.roman ? ' <span style="font-weight: normal; font-style: italic; font-size: 0.95rem; color: #6B625B;">' + esc(w.roman) + '</span>' : '') +
                        '</div>\n' +
-                       '          <div style="margin: 5px 0 0;">' + w.meaning + '</div>\n' +
-                       '          <div style="font-size: 0.9rem; color: #6B625B; margin: 3px 0 0;">' + w.grammar + '</div>\n' +
+                       '          <div style="margin: 5px 0 0;">' + esc(w.meaning) + '</div>\n' +
+                       '          <div style="font-size: 0.9rem; color: #6B625B; margin: 3px 0 0;">' + esc(w.grammar) + '</div>\n' +
                        '        </li>\n';
       });
       htmlContent += '      </ul>\n    </div>\n';

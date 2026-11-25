@@ -59,6 +59,11 @@ let globalDashboardData = []; // ตัวแปรสำหรับเก็�
 let globalWeatherData = {}; // ตัวแปรสำหรับเก็บข้อมูลสภาพอากาศไปให้ AI ประมวลผล
 let globalNasaHotspots = {}; // ตัวแปรเก็บจุดความร้อนจาก NASA ให้ AI ใช้
 
+// กันข้อความจาก Google Sheets / Apps Script / AI ไม่ให้ถูกตีความเป็น HTML เมื่อใส่ใน innerHTML
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 function getAqiClass(value) {
     if (isNaN(value)) return 'bg-gray-300 text-gray-700';
     if (value <= 15) return 'aqi-excellent';
@@ -166,7 +171,7 @@ function renderDashboard(data) {
         const pmToday = isNaN(pmTodayNum) ? "N/A" : pmTodayNum;
 
         // ดึงค่าจุดความร้อนจากชีตมาก่อน (ระหว่างรอโหลด API สดทับ)
-        const hotspotFromSheet = row[3] || 0; 
+        const hotspotFromSheet = parseFloat(String(row[3]).replace(/,/g, '')) || 0;
         globalNasaHotspots[province] = hotspotFromSheet; 
         
         const dayMinus1Num = parseFloat(row[4]);
@@ -512,7 +517,7 @@ function updateDownloadLinkClean() {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
-    const dynamicUrl = `http://air4thai.pcd.go.th/report/HazeTableReportNE_V2003_${formattedDate}_7.pdf`;
+    const dynamicUrl = `https://air4thai.pcd.go.th/report/HazeTableReportNE_V2003_${formattedDate}_7.pdf`;
     document.getElementById('hazeDownloadBtnClean').href = dynamicUrl;
 }
   
@@ -657,7 +662,7 @@ async function fetchWeatherData() {
 
                     // จัดการค่า Live PM₂.₅ ที่ดึงมาแล้ว
                     const rawLivePM = livePMData[prov.name];
-                    let currentLivePMText = rawLivePM || 'N/A';
+                    let currentLivePMText = escapeHtml(rawLivePM || 'N/A');
                     let livePMClass = 'text-gray-500';
                     let livePMIcon = '⚪';
                     const pmNum = parseFloat(rawLivePM);
@@ -732,9 +737,9 @@ async function fetchWeatherData() {
                         ${livePMHtml}
                         <div class="text-sm space-y-2">
                             <div class="flex justify-between"><span>🌤️ สภาพอากาศ:</span> <span class="font-semibold text-blue-700">${condText}</span></div>
-                            <div class="flex justify-between"><span>🌡️ อุณหภูมิ:</span> <span class="font-semibold">${tc} °C</span></div>
-                            <div class="flex justify-between"><span>💧 ความชื้น:</span> <span class="font-semibold">${rh} %</span></div>
-                            <div class="flex justify-between"><span>🌧️ โอกาสเกิดฝน:</span> <span class="font-semibold text-blue-600">${rainChanceDisplay}</span></div>
+                            <div class="flex justify-between"><span>🌡️ อุณหภูมิ:</span> <span class="font-semibold">${escapeHtml(tc)} °C</span></div>
+                            <div class="flex justify-between"><span>💧 ความชื้น:</span> <span class="font-semibold">${escapeHtml(rh)} %</span></div>
+                            <div class="flex justify-between"><span>🌧️ โอกาสเกิดฝน:</span> <span class="font-semibold text-blue-600">${escapeHtml(rainChanceDisplay)}</span></div>
                             <div class="flex justify-between"><span>🌬️ ความเร็วลม:</span> <span class="font-semibold">${windSpeedDisplay}</span></div>
                             <div class="flex justify-between items-center">
                                 <span>🧭 ทิศทางลม:</span> 
@@ -987,7 +992,7 @@ async function runAiAnalysis(password, mode) {
         }
         
         if (data.result) {
-            let cleanText = data.result
+            let cleanText = escapeHtml(data.result)
                 .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
                 .replace(/\n/g, '<br>');
             
@@ -1021,7 +1026,7 @@ async function runAiAnalysis(password, mode) {
             });
 
         } else {
-            resultDiv.innerHTML = '<span class="text-red-600">เกิดข้อผิดพลาด: ' + (data.error || 'ไม่มีการส่งค่าผลลัพธ์กลับมา') + '</span>';
+            resultDiv.innerHTML = '<span class="text-red-600">เกิดข้อผิดพลาด: ' + escapeHtml(data.error || 'ไม่มีการส่งค่าผลลัพธ์กลับมา') + '</span>';
         }
     } catch (error) {
         console.error('Error fetching AI result:', error);

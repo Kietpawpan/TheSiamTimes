@@ -2634,6 +2634,7 @@ $('pBack').addEventListener('click', () => {
 window.addEventListener('message', e => {
   const d = e.data;
   if (!d || typeof d !== 'object' || d.tst !== 'story') return;
+  if (location.protocol !== 'file:' && location.origin !== 'null' && e.origin !== location.origin) return;   // only this site's own game pages (opened from disk, or in the app, there is no origin to check)
   if (playing < 0 || e.source !== $('frame').contentWindow || d.game !== CH[playing].key) return;
   sortWon(playing, d);
 });

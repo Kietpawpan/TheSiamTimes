@@ -29,7 +29,7 @@ Promise/
     └── Cruiser/            Bangkok Cruiser, the final level (opened as GA-cruiser-xx.html?story)
 ```
 
-Eleven of the games in `games/` are copies of the site's games (both language pages where a game has two) with two changes each: a `storyDone` call where a game ends (see *How the games report back*) and the no-zoom guard (see *No zooming*); and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. `Delivery/` (Paper Run) exists only here; it has its own README. `Cruiser/` is the site's Bangkok Cruiser (`../Cruiser/`, see its README), built from the same source: the story opens it with `?story`, which gives it its own save and makes it report back; the only other difference is that its *The Siam Times* link goes two folders up. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
+Eleven of the games in `games/` are copies of the site's games (both language pages where a game has two) with two changes each: a `storyDone` call where a game ends (see *How the games report back*) and the no-zoom guard (see *No zooming*); and, in Old Money, the logo links to this folder's `index.html` instead of the site's front page. The games on the rest of the site are not changed and do not report anything. `Delivery/` (Paper Run) exists only here; it has its own README. `Cruiser/` is the site's Bangkok Cruiser (`../Cruiser/`, see its README), built from the same source: the story opens it with `?story`, which gives it its own save and makes it report back; the only other difference is that its *The Siam Times* link goes two folders up. Like the site's copy, it loads three.js from the site's `js/vendor/three@0.160.0/` (three folders up from its page), so a copy of this folder played away from the site needs that folder copied too, to `../js/vendor/three@0.160.0/` beside this one. Only the Newsreader and Sarabun text fonts come from Google Fonts; without a connection the pages fall back to system fonts. Open the pages from a web server, or straight from disk in a browser that allows a page to show the files next to it in a frame (Chrome, Edge, Firefox and Safari all do).
 
 **When a game is updated on the site**, copy its new file(s) over the one in `games/<Game>/` and put the `storyDone` function and call back in, in the places listed in the table below, and the no-zoom viewport and script (and, for Old Money, the logo link). Until then the story keeps playing the older copy.
 
@@ -108,10 +108,10 @@ Progress (the sort won in each chapter, the watch from the final level, whether 
 Each game in `games/`, when it is running in a frame, posts one message to the page around it when a game ends:
 
 ```js
-window.parent.postMessage({ tst: 'story', game: 'darts', won: true, score: 512, text: '512 points' }, '*');
+window.parent.postMessage({ tst: 'story', game: 'darts', won: true, score: 512, text: '512 points' }, location.protocol === 'file:' || location.origin === 'null' ? '*' : location.origin);
 ```
 
-It is sent by a small function, `storyDone`, defined just above the function that ends a game, and does nothing when the game is opened on its own. The story page accepts the message only from its own frame and only for the chapter being played.
+It is sent by a small function, `storyDone`, defined just above the function that ends a game, and does nothing when the game is opened on its own. The message goes only to a page on the game's own site (any page may receive it only when the files are opened from disk, or in the app, where a page has no site to name). The story page accepts the message only from its own frame, only from its own site (unless it is opened from disk or in the app), and only for the chapter being played.
 
 | Game | Reported from | Fields |
 |---|---|---|

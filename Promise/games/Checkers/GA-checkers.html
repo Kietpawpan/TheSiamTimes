@@ -1725,7 +1725,7 @@ function startTurn(aiDelay) {
 
 /* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
 function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'checkers' }, r), '*'); } catch (e) { /* not in a frame */ }
+  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'checkers' }, r), location.protocol === 'file:' || location.origin === 'null' ? '*' : location.origin); } catch (e) { /* not in a frame */ }
 }
 function endGame(winner, reason) {
   G.over = true; G.result = { winner, reason };
