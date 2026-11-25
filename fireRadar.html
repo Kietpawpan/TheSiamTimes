@@ -987,6 +987,8 @@
         });
 
         osmLayer.addTo(map);
+        // เครดิตชื่อตำบล/อำเภอ/จังหวัดที่หาจากพิกัด (fetchAdminArea)
+        map.attributionControl.addAttribution('เขตการปกครอง: <a href="https://www.gistda.or.th/" target="_blank" rel="noopener">GISTDA</a>');
 
         const baseMaps = {
             "แผนที่ถนน (OSM)": osmLayer,
