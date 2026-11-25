@@ -673,6 +673,8 @@ try {
     for (const k of Object.keys(save)) if (k in s && typeof s[k] === typeof save[k]) save[k] = s[k];
     if (!Array.isArray(save.stars) || save.stars.length !== 5) save.stars = [0, 0, 0, 0, 0];
     if (!Array.isArray(save.best) || save.best.length !== 5) save.best = [0, 0, 0, 0, 0];
+    save.stars = save.stars.map(n => Math.min(3, Math.max(0, Math.round(n) || 0)));   // whole stars, 0–3
+    save.best = save.best.map(n => Number.isFinite(+n) ? Math.max(0, Math.round(n)) : 0);
   }
 } catch (e) { /* storage blocked: play without saving */ }
 function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) { /* ignore */ } }
@@ -2099,7 +2101,7 @@ function setMsg(text, tone = '', lock = 0, key = text) {
   el.textContent = text;
   el.style.color = tone === 'bad' ? 'var(--bad)' : tone === 'good' ? 'var(--good)' : '';
 }
-const starsHTML = s => '★'.repeat(s) + `<span class="off">${'★'.repeat(3 - s)}</span>`;
+const starsHTML = s => { s = Math.min(3, Math.max(0, Math.round(s) || 0)); return '★'.repeat(s) + `<span class="off">${'★'.repeat(3 - s)}</span>`; };
 const totalBest = () => save.best.reduce((a, b) => a + b, 0);
 const clockText = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 

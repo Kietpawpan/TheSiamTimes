@@ -1073,7 +1073,7 @@ function deadJack(news) {
 
 /* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
 function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'petanque' }, r), '*'); } catch (e) { /* not in a frame */ }
+  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'petanque' }, r), location.protocol === 'file:' || location.origin === 'null' ? '*' : location.origin); } catch (e) { /* not in a frame */ }
 }
 function finishEnd(w, p, scorers, text) {
   state.endResult = { w, p, ids: new Set(scorers.map(b => b.id)) };

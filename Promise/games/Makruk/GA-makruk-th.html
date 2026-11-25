@@ -990,7 +990,10 @@ const prefs = Object.assign({
   mode: 'ai', human: WHITE, level: 'normal', sound: true, flip: false, view: 'side',
 }, saved.prefs || {});
 delete prefs.lang;   // an old setting from when one page switched languages; each page now has its own language
-const record = Object.assign({ easy: { w: 0, d: 0, l: 0 }, normal: { w: 0, d: 0, l: 0 }, pro: { w: 0, d: 0, l: 0 } }, saved.record || {});
+// The record is written into the page as markup, so each count comes back as a whole number, and nothing else is kept.
+const wholeIn = v => Number.isFinite(+v) ? Math.max(0, Math.round(v)) : 0;
+const savedRecord = saved.record && typeof saved.record === 'object' ? saved.record : {};
+const record = Object.fromEntries(['easy', 'normal', 'pro'].map(lv => { const r = savedRecord[lv] || {}; return [lv, { w: wholeIn(r.w), d: wholeIn(r.d), l: wholeIn(r.l) }]; }));
 let game = saved.game && Array.isArray(saved.game.moves) ? saved.game
   : { mode: prefs.mode, human: prefs.human, moves: [], recorded: false };
 function save() {
@@ -2376,7 +2379,7 @@ function askHint() {
 }
 /* Story mode: when this page runs inside the Siam Times story (in a frame), tell the story when a game ends. */
 function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'makruk' }, r), '*'); } catch (e) { /* not in a frame */ }
+  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'makruk' }, r), location.protocol === 'file:' || location.origin === 'null' ? '*' : location.origin); } catch (e) { /* not in a frame */ }
 }
 function gameOver() {
   const r = S.result; if (!r) return;
