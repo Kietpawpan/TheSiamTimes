@@ -2010,7 +2010,9 @@
         // หน้าจอ HUD: สแกน ~5 วินาที (SCANNING → ANALYZING → DECODING) ระหว่างนั้นแถวข้อมูลเป็นอักษรต่างดาวสลับเร็ว
         // แล้วถอดรหัสทีละแถวจนหยุดนิ่งเป็นข้อมูลจริง จากนั้นล็อกเป้าจุดความร้อนที่ใกล้ที่สุด และอัปเดตตามตำแหน่งขณะเปิดแว่น
         // เสียงอิเล็กทรอนิกส์แบบเครื่องวัด (เสียงเรดาร์หยุดระหว่างเปิดแว่น) ข้อมูลใต้เรดาร์แสดงหลังสแกนจนล็อกแล้วปิดแว่น
-        const LONGDO_KEY = 'bce812933744d2530d26f0fabb0017cf'; // คีย์เดียวกับ fireRadar.html ใช้หาชื่อตำบล/อำเภอของจุดความร้อน
+        // Longdo place-name lookups go through our Apps Script relay (apps-script/longdo-proxy.gs),
+        // which holds the Longdo key, so the key is not in this page
+        const LONGDO_PROXY_URL = 'https://script.google.com/macros/s/REPLACE_WITH_DEPLOYMENT_ID/exec';
         const VISOR_SCAN_MS = 5000;
         // อักษร "ต่างดาว" สำหรับเอฟเฟกต์ถอดรหัส: สัญลักษณ์ Unicode ทั่วไป (พยางค์แคนาดา + สัญลักษณ์เทคนิค)
         const ALIEN_GLYPHS = Array.from('ᐊᐁᐃᐅᑌᑎᑐᑕᑭᑯᒉᒋᒍᒐᓀᓂᓄᓇᓭᓯᓱᓴᔐᔑᔕᖃᖄᖅᗜᗝᗞᗟ⌬⏃⏚⎅⟒⎎⊑⟟⌰⋔⋏⍜⌿⍀⌇⏁⎍⍙⊬⋉');
@@ -2113,7 +2115,7 @@
             if (known) return Promise.resolve(known);
             if (hsAddrPending.has(key)) return hsAddrPending.get(key);
             if (Date.now() - (hsAddrFailedAt.get(key) || 0) < HS_ADDR_RETRY_MS) return Promise.reject(new Error('ค้นไม่สำเร็จเมื่อครู่ รอก่อนค้นใหม่'));
-            const p = fetch('https://api.longdo.com/map/services/address?lon=' + lon + '&lat=' + lat + '&key=' + LONGDO_KEY)
+            const p = fetch(LONGDO_PROXY_URL + '?action=address&lat=' + lat + '&lon=' + lon)
                 .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
                 .then(d => {
                     const rec = [String((d && d.subdistrict) || '').trim(), String((d && d.district) || '').trim()];
