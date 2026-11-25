@@ -886,26 +886,54 @@
         // ถ้า GISTDA ขัดข้อง (เครือข่าย/เซิร์ฟเวอร์ผิดพลาด/ไม่ตอบใน 8 วินาที) จึงถาม Longdo ผ่าน relay เดิม
         // พิกัดที่ไม่อยู่ในตำบลใด (ทะเล/ต่างประเทศ) ได้ชื่อว่างกลับมา ไม่ถาม Longdo ต่อ
         // คืนค่ารูปแบบเดียวกับ Longdo: { subdistrict: 'ต.…' หรือ 'แขวง…', district: 'อ.…' หรือ 'เขต…', province: 'จ.…' หรือ 'กรุงเทพมหานคร' }
+        // ใส่ระยะ (เมตร) เป็นค่าที่สามเพื่อขอรายชื่อตำบลอื่นที่อยู่ในระยะนั้นด้วย: ได้ nearby: [{ subdistrict, district }]
+        // (ว่างถ้าไม่ใกล้เขตตำบลอื่น) ใช้บอกว่าจุดอยู่ใกล้เส้นแบ่งเขต ถ้าค้นรอบจุดไม่สำเร็จหรือได้ผลจาก Longdo จะไม่มี nearby
         const GISTDA_TAMBON_URL = 'https://gistdaportal.gistda.or.th/arcgis/rest/services/' + encodeURIComponent('ข้อมูลเขตการปกครอง') + '/MapServer/4/query';
-        function fetchAdminArea(lat, lon) {
-            const params = new URLSearchParams({
+        // ระยะที่ถือว่าใกล้เส้นแบ่งเขตตำบล: ดาวเทียม VIIRS ตรวจเป็นช่องกว้าง 375 ม. พิกัดจุดความร้อนจึงคลาดได้ราวนี้
+        // และเส้นขอบเขตของ GISTDA กับ Longdo ต่างกันได้หลายร้อยเมตร จุดในระยะนี้จึงบอกไม่ได้แน่ชัดว่าอยู่ตำบลไหน
+        const NEAR_BORDER_M = 500;
+        function gistdaTambons(lat, lon, extra) {
+            const params = new URLSearchParams(Object.assign({
                 geometry: lon + ',' + lat, geometryType: 'esriGeometryPoint', inSR: '4326',
-                spatialRel: 'esriSpatialRelIntersects', outFields: 'T_Name_T,A_Name_T,P_Name_T',
+                spatialRel: 'esriSpatialRelIntersects', outFields: 'T_Name_T,A_Name_T,P_Name_T,Admin_code',
                 returnGeometry: 'false', f: 'json'
-            });
+            }, extra));
             const signal = typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined;
+            // GISTDA ใช้คำเต็ม (ตำบล/อำเภอ/จังหวัด) ส่วน Longdo ใช้คำย่อ (ต./อ./จ.) จึงแปลงให้เหมือน Longdo
+            // หน้าจอและผลที่จำไว้ในเครื่องจึงแสดงเหมือนเดิม (แขวง/เขต/กรุงเทพมหานคร เหมือนกันอยู่แล้ว)
+            const shorten = (s, full, abbr) => String(s || '').trim().replace(new RegExp('^' + full), abbr);
             return fetch(GISTDA_TAMBON_URL + '?' + params, { signal })
                 .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
                 .then(d => {
                     if (!d || !Array.isArray(d.features)) throw new Error((d && d.error && d.error.message) || 'GISTDA ตอบผิดรูปแบบ');
-                    const a = (d.features[0] && d.features[0].attributes) || {};
-                    // GISTDA ใช้คำเต็ม (ตำบล/อำเภอ/จังหวัด) ส่วน Longdo ใช้คำย่อ (ต./อ./จ.) จึงแปลงให้เหมือน Longdo
-                    // หน้าจอและผลที่จำไว้ในเครื่องจึงแสดงเหมือนเดิม (แขวง/เขต/กรุงเทพมหานคร เหมือนกันอยู่แล้ว)
-                    const shorten = (s, full, abbr) => String(s || '').trim().replace(new RegExp('^' + full), abbr);
-                    return { subdistrict: shorten(a.T_Name_T, 'ตำบล', 'ต.'), district: shorten(a.A_Name_T, 'อำเภอ', 'อ.'), province: shorten(a.P_Name_T, 'จังหวัด', 'จ.') };
+                    return d.features.map(f => {
+                        const a = f.attributes || {};
+                        return { code: a.Admin_code, subdistrict: shorten(a.T_Name_T, 'ตำบล', 'ต.'), district: shorten(a.A_Name_T, 'อำเภอ', 'อ.'), province: shorten(a.P_Name_T, 'จังหวัด', 'จ.') };
+                    });
+                });
+        }
+        function fetchAdminArea(lat, lon, nearbyM) {
+            // ถามสองคำถามพร้อมกัน: จุดนี้อยู่ตำบลไหน และมีตำบลอะไรบ้างในระยะ nearbyM รอบจุด
+            const around = nearbyM ? gistdaTambons(lat, lon, { distance: String(nearbyM), units: 'esriSRUnit_Meter' }).catch(() => null) : null;
+            return gistdaTambons(lat, lon)
+                .then(list => {
+                    const t = list[0];
+                    if (!t) return { subdistrict: '', district: '', province: '' };
+                    const out = { subdistrict: t.subdistrict, district: t.district, province: t.province };
+                    if (!around) return out;
+                    const same = n => t.code ? n.code === t.code : n.subdistrict === t.subdistrict && n.district === t.district;
+                    return around.then(near => {
+                        if (near) out.nearby = near.filter(n => !same(n)).map(n => ({ subdistrict: n.subdistrict, district: n.district }));
+                        return out;
+                    });
                 })
-                .catch(() => fetch(`${LONGDO_PROXY_URL}?action=address&lat=${lat}&lon=${lon}`)
+                .catch(() => fetch(LONGDO_PROXY_URL + '?action=address&lat=' + lat + '&lon=' + lon)
                     .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); }));
+        }
+        // "ใกล้เขต ต.ข, ต.ค อ.ง" จาก nearby ของ fetchAdminArea (ไม่ใส่ชื่ออำเภอซ้ำถ้าเป็นอำเภอเดียวกับจุดนั้น) หรือ '' ถ้าไม่ใกล้เขต
+        function formatNearby(district, nearby) {
+            if (!Array.isArray(nearby) || !nearby.length) return '';
+            return 'ใกล้เขต ' + nearby.map(n => n.district && n.district !== district ? n.subdistrict + ' ' + n.district : n.subdistrict).join(', ');
         }
 
         // ใส่ลิงก์โฟลเดอร์หลักบน GitHub ที่เก็บไฟล์ EPO1 ถึง EPO16
@@ -1562,12 +1590,15 @@ if (primarySource && primarySource.features) {
         // ชื่อตำบล/อำเภอของจุดความร้อน: ค้นจาก GISTDA (สำรองด้วย Longdo) ตอนเปิดป้ายรายละเอียด (ทีละจุด ไม่ค้นทุกจุดล่วงหน้า)
         // ถามครั้งเดียวต่อพิกัด แล้วจำผลไว้ในเครื่อง (localStorage ใช้ร่วมกับ hotspotRadar.html เก็บ 500 พิกัดล่าสุด)
         // เปิดดูจุดเดิมซ้ำหรือเปิดแอพใหม่จึงไม่ต้องถามซ้ำ ค้นไม่สำเร็จ (เครือข่ายขัดข้อง/ถูกปฏิเสธ) จะเว้น 5 นาทีก่อนถามพิกัดนั้นอีก
-        const HS_ADDR_STORE = 'hotspotAddress.v1';
+        // v2: เพิ่มรายชื่อตำบลข้างเคียงเมื่อจุดอยู่ใกล้เส้นแบ่งเขต (ค่าที่สาม) จึงทิ้งผลชุดเก่า v1 ที่ไม่มีข้อมูลนี้
+        const HS_ADDR_STORE = 'hotspotAddress.v2';
+        try { localStorage.removeItem('hotspotAddress.v1'); } catch (e) { /* ลบไม่ได้ก็ไม่เป็นไร */ }
         const HS_ADDR_MAX = 500;
         const HS_ADDR_RETRY_MS = 5 * 60 * 1000;
-        const hsAddrPending = new Map();  // "lat,lon" → Promise<[ตำบล, อำเภอ] | null> ที่กำลังค้น/ค้นแล้วในรอบนี้
+        const hsAddrPending = new Map();  // "lat,lon" → Promise<[ตำบล, อำเภอ, ตำบลข้างเคียง?] | null> ที่กำลังค้น/ค้นแล้วในรอบนี้
         const hsAddrFailedAt = new Map(); // "lat,lon" → เวลาที่ค้นไม่สำเร็จล่าสุด
-        let hsAddrMem = null;             // สำเนาในหน่วยความจำ { "lat,lon": [ตำบล, อำเภอ] }
+        let hsAddrMem = null;             // สำเนาในหน่วยความจำ { "lat,lon": [ตำบล, อำเภอ, ตำบลข้างเคียง?] }
+                                          // ตำบลข้างเคียง = nearby ของ fetchAdminArea ([] ถ้าไม่ใกล้เขต ไม่มีถ้าได้ผลจาก Longdo)
 
         function hsAddrKey(lat, lon) { return Number(lat).toFixed(4) + ',' + Number(lon).toFixed(4); }
         function hsAddrRead() {
@@ -1592,9 +1623,10 @@ if (primarySource && primarySource.features) {
             if (Array.isArray(known)) return Promise.resolve(known);
             if (hsAddrPending.has(key)) return hsAddrPending.get(key);
             if (Date.now() - (hsAddrFailedAt.get(key) || 0) < HS_ADDR_RETRY_MS) return Promise.reject(new Error('ค้นไม่สำเร็จเมื่อครู่ รอก่อนค้นใหม่'));
-            const p = fetchAdminArea(lat, lon)
+            const p = fetchAdminArea(lat, lon, NEAR_BORDER_M)
                 .then(d => {
                     const rec = [String((d && d.subdistrict) || '').trim(), String((d && d.district) || '').trim()];
+                    if (d && Array.isArray(d.nearby)) rec.push(d.nearby);
                     if (!rec[0] && !rec[1]) return null; // ไม่มีชื่อพื้นที่: ไม่บันทึกลงเครื่อง และไม่ถามซ้ำจนกว่าจะเปิดหน้าใหม่
                     hsAddrSave(key, rec);
                     return rec;
@@ -1629,7 +1661,7 @@ if (primarySource && primarySource.features) {
                 if (!rec) return null;
                 const sub = splitThaiAdminName(rec[0], ['ตำบล', 'แขวง']);
                 const dist = splitThaiAdminName(rec[1], ['กิ่งอำเภอ', 'อำเภอ', 'เขต']);
-                return sub || dist ? { sub, dist } : null;
+                return sub || dist ? { sub, dist, near: formatNearby(rec[1], rec[2]) } : null;
             });
         }
 
@@ -1652,6 +1684,12 @@ if (primarySource && primarySource.features) {
                 set('.hs-sub', a.sub ? a.sub.name : '-');
                 set('.hs-dist-label', (a.dist && a.dist.label) || 'อำเภอ');
                 set('.hs-dist', a.dist ? a.dist.name : '-');
+                // จุดอยู่ใกล้เส้นแบ่งเขต: ไฟอาจอยู่ในตำบลข้างเคียง
+                const nearEl = box.querySelector('.hs-near');
+                if (nearEl && a.near) {
+                    nearEl.textContent = '⚠️ ' + a.near + ' (ไม่เกิน ' + NEAR_BORDER_M + ' ม.)';
+                    nearEl.style.display = 'block';
+                }
             }).catch(() => {
                 set('.hs-sub', 'ค้นหาไม่สำเร็จ (ลองใหม่ภายหลัง)', true);
                 set('.hs-dist', '-', true);
@@ -1714,6 +1752,7 @@ if (primarySource && primarySource.features) {
                         <span class='hs-addr'>
                             <b class='hs-sub-label'>ตำบล</b><b>:</b> <span class='hs-sub' style='color:#64748b;'>กำลังค้นหา...</span><br>
                             <b class='hs-dist-label'>อำเภอ</b><b>:</b> <span class='hs-dist' style='color:#64748b;'>กำลังค้นหา...</span><br>
+                            <span class='hs-near' style='display:none; color:#b45309; font-size:13px;'></span>
                         </span>
                         <b>จังหวัด:</b> <span style='color:#0284c7; font-weight:bold;'>${escHtml(prov)}</span><br>
                         <b>พื้นที่รับผิดชอบ:</b> ${epoDisplay}<br>
