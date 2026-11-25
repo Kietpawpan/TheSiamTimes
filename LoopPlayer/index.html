@@ -568,7 +568,7 @@
     'jobCancel', 'jobBar', 'jobBarWrap', 'list', 'libCount', 'libEmpty', 'statSaved', 'storageText', 'persistText',
     'installBtn', 'toast', 'netPill']) els[id] = $(id);
 
-  const MB = 1024 * 1024;
+  const MB = 1000 * 1000; // decimal units, as phones and their Files apps show sizes
   const EXT_MIME = {
     mp3: 'audio/mpeg', m4a: 'audio/mp4', aac: 'audio/aac', wav: 'audio/wav', ogg: 'audio/ogg', oga: 'audio/ogg',
     opus: 'audio/ogg', flac: 'audio/flac', mp4: 'video/mp4', m4v: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm',
@@ -592,7 +592,7 @@
     if (!b) return '0 MB';
     const u = ['B', 'KB', 'MB', 'GB', 'TB'];
     let i = 0;
-    while (b >= 1024 && i < u.length - 1) { b /= 1024; i++; }
+    while (b >= 1000 && i < u.length - 1) { b /= 1000; i++; }
     const d = i < 2 ? 0 : b < 10 ? (i >= 3 ? 2 : 1) : b < 100 ? 1 : 0;
     return b.toFixed(d) + ' ' + u[i];
   };
