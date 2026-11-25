@@ -1,0 +1,1520 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LoopPlayer · เล่นวนซ้ำ ไม่เปลืองเน็ต</title>
+<meta name="description" content="เก็บไฟล์ MP3/MP4 ไว้ในเครื่องครั้งเดียว แล้วเล่นวนซ้ำได้ไม่จำกัดโดยไม่ใช้อินเทอร์เน็ต เปิดใช้ได้แม้ออฟไลน์">
+<meta name="theme-color" content="#0f766e" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1211" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LoopPlayer">
+<style>
+  :root {
+    --bg: #f5f3ee;
+    --surface: #ffffff;
+    --surface-2: #efece5;
+    --ink: #1d1c1a;
+    --muted: #625e56;
+    --line: #e0dcd2;
+    --accent: #0f766e;
+    --accent-hover: #0b5f58;
+    --accent-ink: #ffffff;
+    --accent-soft: #dcf0ec;
+    --ab: #f59e0b;
+    --danger: #b42318;
+    --stage: #0e1312;
+    --raised: #ffffff;
+    --shadow: 0 1px 2px rgba(30, 25, 15, .04), 0 6px 20px rgba(30, 25, 15, .05);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1211;
+      --surface: #181c1b;
+      --surface-2: #222827;
+      --ink: #ebe9e4;
+      --muted: #a39f97;
+      --line: #2d3331;
+      --accent: #2dd4bf;
+      --accent-hover: #5eead4;
+      --accent-ink: #042f2b;
+      --accent-soft: #123430;
+      --ab: #fbbf24;
+      --danger: #f97066;
+      --stage: #080b0a;
+      --raised: #343c3a;
+      --shadow: none;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.55 "Sarabun", "Noto Sans Thai", "Leelawadee UI", "Thonburi", system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: default; opacity: .45; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  .i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .app {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+
+  /* ---------- header ---------- */
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .top .logo { width: 44px; height: 44px; border-radius: 11px; flex: none; }
+  .brand { min-width: 0; flex: 1; }
+  .brand h1 { margin: 0; font-size: 20px; line-height: 1.2; letter-spacing: -.01em; }
+  .brand p { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+  .pill {
+    flex: none; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; padding: 4px 10px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--line); color: var(--muted); white-space: nowrap;
+  }
+  .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .pill[data-state="ready"]::before { background: var(--accent); }
+  .pill[data-state="offline"] { color: var(--ink); }
+  .pill[data-state="offline"]::before { background: var(--ab); }
+
+  /* ---------- layout ---------- */
+  .layout { display: grid; gap: 16px; }
+  .side { display: grid; gap: 16px; align-content: start; }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
+    .player { position: sticky; top: 16px; }
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+    padding: 16px; box-shadow: var(--shadow);
+  }
+  .card > h2, .lib-head h2 { margin: 0 0 12px; font-size: 17px; }
+
+  /* ---------- stage ---------- */
+  .stage {
+    position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden;
+    background: var(--stage); color: #fff; display: grid; place-items: center;
+  }
+  .stage[data-kind="audio"] { background: radial-gradient(120% 120% at 30% 20%, #146b62 0%, #0d3833 55%, #08201d 100%); }
+  .stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: none; background: #000; }
+  .stage[data-kind="video"] video { display: block; }
+  .art, .empty { display: none; }
+  .stage[data-kind="audio"] .art { display: grid; place-items: center; }
+  .stage[data-kind="none"] .empty { display: grid; justify-items: center; gap: 8px; padding: 16px; text-align: center; color: #b9c2bf; font-size: 15px; }
+  .empty > .i { width: 36px; height: 36px; stroke-width: 1.5; opacity: .8; }
+  .empty .btn { margin-top: 4px; }
+  .art { width: min(42%, 170px); aspect-ratio: 1; position: relative; }
+  .art .disc { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .art .ring { transform-origin: 50% 50%; }
+  .stage.playing .art .ring { animation: spin 6s linear infinite; }
+  .art .center { width: 38%; height: 38%; color: #fff; stroke-width: 1.8; position: relative; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .badge {
+    position: absolute; top: 10px; left: 10px; z-index: 2;
+    background: rgba(0, 0, 0, .55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    color: #fff; font-size: 13px; line-height: 1; padding: 7px 11px; border-radius: 999px;
+    font-variant-numeric: tabular-nums;
+  }
+  .badge:empty { display: none; }
+  .stage-acts { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 2; }
+  .stage-acts button {
+    width: 38px; height: 38px; border-radius: 50%; border: 0; display: grid; place-items: center;
+    background: rgba(0, 0, 0, .5); color: #fff; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  .stage-acts button[aria-pressed="true"] { background: #fff; color: #0d3833; }
+  .stage:fullscreen { border-radius: 0; aspect-ratio: auto; }
+
+  /* ---------- now playing ---------- */
+  .now { margin: 14px 2px 6px; min-height: 52px; }
+  .now h2 { margin: 0; font-size: 18px; line-height: 1.35; overflow-wrap: anywhere; }
+  .now p { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+
+  .seek { position: relative; height: 30px; }
+  .track {
+    position: absolute; left: 10px; right: 10px; top: 50%; height: 6px; transform: translateY(-50%);
+    background: var(--surface-2); border-radius: 3px; overflow: hidden;
+  }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--accent); }
+  .abband { position: absolute; left: 10px; right: 10px; top: 50%; height: 18px; transform: translateY(-50%); }
+  .abzone {
+    position: absolute; top: 0; bottom: 0; min-width: 4px; display: none; border-radius: 5px;
+    background: color-mix(in srgb, var(--ab) 30%, transparent); box-shadow: inset 0 0 0 2px var(--ab);
+  }
+  .abzone.on { display: block; }
+  .seek input {
+    position: absolute; inset: 0; width: 100%; height: 100%; margin: 0;
+    background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; touch-action: none;
+  }
+  .seek input:disabled { cursor: default; }
+  .seek input::-webkit-slider-runnable-track { background: transparent; height: 30px; }
+  .seek input::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; margin-top: 5px; border-radius: 50%;
+    background: var(--accent); border: 3px solid var(--surface); box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+  }
+  .seek input::-moz-range-track { background: transparent; }
+  .seek input::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%; background: var(--accent);
+    border: 3px solid var(--surface); box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+  }
+  .seek input:disabled::-webkit-slider-thumb { visibility: hidden; }
+  .seek input:disabled::-moz-range-thumb { visibility: hidden; }
+  .times {
+    display: flex; justify-content: space-between; gap: 8px; padding: 0 4px;
+    font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+
+  .controls { display: flex; justify-content: center; align-items: center; gap: 18px; margin: 10px 0 16px; }
+  .ctl {
+    width: 48px; height: 48px; border-radius: 50%; border: 0; background: transparent;
+    display: grid; place-items: center; color: var(--ink);
+  }
+  .ctl:hover:not(:disabled) { background: var(--surface-2); }
+  .ctl .i { width: 24px; height: 24px; }
+  .ctl.small { font-size: 12px; font-weight: 600; position: relative; }
+  .ctl.small .i { width: 26px; height: 26px; stroke-width: 1.8; }
+  .ctl.small span { position: absolute; font-size: 9.5px; top: 50%; left: 50%; transform: translate(-50%, -38%); }
+  .play {
+    width: 68px; height: 68px; border-radius: 50%; border: 0; display: grid; place-items: center;
+    background: var(--accent); color: var(--accent-ink); box-shadow: 0 6px 18px rgba(15, 118, 110, .28);
+  }
+  .play:hover:not(:disabled) { background: var(--accent-hover); }
+  .play .i { width: 30px; height: 30px; }
+
+  .label { display: block; font-size: 13px; color: var(--muted); margin: 0 2px 6px; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface-2); }
+  .seg button {
+    border: 0; background: transparent; border-radius: 10px; padding: 8px 4px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 14px; color: var(--muted);
+  }
+  .seg button[aria-pressed="true"] { background: var(--raised); color: var(--accent); font-weight: 600; box-shadow: 0 1px 3px rgba(0, 0, 0, .1); }
+  .hint { margin: 6px 2px 0; font-size: 13px; color: var(--muted); }
+
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .field select {
+    width: 100%; min-height: 42px; padding: 8px 10px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--surface); font-size: 15px;
+  }
+
+  .abrow { margin-top: 14px; }
+  .abbtns { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 42px; padding: 8px 14px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--surface); font-size: 15px; white-space: nowrap;
+  }
+  .btn:hover:not(:disabled) { background: var(--surface-2); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+  .btn.primary:hover:not(:disabled) { background: var(--accent-hover); }
+  .btn.set { border-color: var(--ab); box-shadow: inset 0 0 0 1px var(--ab); }
+  .btn .tag { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
+
+  /* ---------- add ---------- */
+  .add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .add-btn {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;
+    padding: 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface);
+  }
+  .add-btn:hover { background: var(--surface-2); }
+  .add-btn[aria-expanded="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .add-btn .i { width: 26px; height: 26px; color: var(--accent); margin-bottom: 6px; }
+  .add-btn strong { font-size: 15px; }
+  .add-btn span { font-size: 13px; color: var(--muted); }
+  .urlform { margin-top: 12px; }
+  .urlform label { display: block; font-size: 14px; margin-bottom: 6px; }
+  .urlrow { display: flex; gap: 8px; }
+  .urlrow input {
+    flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--surface); font-size: 15px;
+  }
+  .urlform .hint { margin-top: 8px; }
+  .job { margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--surface-2); }
+  .job-top { display: flex; align-items: center; gap: 10px; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+  .job-top span { min-width: 0; overflow-wrap: anywhere; }
+  .job-top button { min-height: 34px; padding: 4px 12px; font-size: 14px; }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; position: relative; }
+  .bar div { height: 100%; width: 0; background: var(--accent); transition: width .15s linear; }
+  .bar.indet div { width: 35%; position: absolute; animation: indet 1.1s ease-in-out infinite; }
+  @keyframes indet { from { left: -35%; } to { left: 100%; } }
+
+  /* ---------- library ---------- */
+  .lib-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .lib-head h2 { margin-bottom: 8px; }
+  .lib-head .count { color: var(--muted); font-weight: 400; font-size: 15px; }
+  .list { list-style: none; margin: 0 -6px; padding: 0; }
+  .item { display: flex; align-items: center; gap: 2px; border-radius: 12px; padding: 2px; }
+  .item + .item { margin-top: 2px; }
+  .item[aria-current="true"] { background: var(--accent-soft); }
+  .item-main {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 8px;
+    border: 0; background: transparent; text-align: left; border-radius: 10px;
+  }
+  .item-main:hover { background: var(--surface-2); }
+  .item[aria-current="true"] .item-main:hover { background: transparent; }
+  .kind {
+    flex: none; width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center;
+    background: var(--surface-2); color: var(--accent);
+  }
+  .item[aria-current="true"] .kind { background: var(--accent); color: var(--accent-ink); }
+  .txt { min-width: 0; flex: 1; }
+  .name { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meta { display: block; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .eq { display: none; gap: 2px; align-items: flex-end; height: 14px; flex: none; }
+  .item.playing .eq { display: flex; }
+  .eq i { width: 3px; background: var(--accent); border-radius: 1px; animation: eq .9s ease-in-out infinite; }
+  .eq i:nth-child(2) { animation-delay: -.3s; }
+  .eq i:nth-child(3) { animation-delay: -.6s; }
+  @keyframes eq { 0%, 100% { height: 4px; } 50% { height: 14px; } }
+  .acts { display: flex; flex: none; }
+  .acts button {
+    width: 38px; height: 38px; border: 0; background: transparent; border-radius: 9px;
+    display: grid; place-items: center; color: var(--muted);
+  }
+  .acts button:hover { background: var(--surface-2); color: var(--ink); }
+  .acts button[data-act="delete"]:hover { color: var(--danger); }
+  .acts .i { width: 18px; height: 18px; }
+  .lib-empty { margin: 4px 0; padding: 18px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 12px; font-size: 15px; }
+
+  /* ---------- stats & help ---------- */
+  .stats { display: grid; gap: 10px; font-size: 14px; }
+  .stat { display: flex; gap: 10px; align-items: flex-start; }
+  .stat .i { color: var(--accent); margin-top: 2px; }
+  .stat b { font-variant-numeric: tabular-nums; }
+  .stat p { margin: 0; }
+  .stat .sub { color: var(--muted); font-size: 13px; }
+  .help summary { cursor: pointer; font-weight: 600; font-size: 16px; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .help summary::-webkit-details-marker { display: none; }
+  .help summary::after { content: "+"; font-size: 22px; line-height: 1; color: var(--muted); }
+  .help[open] summary::after { content: "−"; }
+  .help h3 { font-size: 15px; margin: 16px 0 4px; }
+  .help p, .help li { font-size: 14px; color: var(--muted); margin: 4px 0; }
+  .help ul { padding-left: 20px; margin: 4px 0; }
+  .help kbd { font: 12px/1 ui-monospace, monospace; padding: 2px 5px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; color: var(--ink); }
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 24px; }
+  footer a { color: inherit; }
+
+  /* ---------- toast / drop ---------- */
+  .toast {
+    position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px);
+    width: max-content; max-width: min(92vw, 520px); z-index: 20;
+    background: var(--ink); color: var(--bg); padding: 11px 16px; border-radius: 12px; font-size: 14px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .25); opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast.error { box-shadow: inset 4px 0 0 var(--danger), 0 8px 28px rgba(0, 0, 0, .25); padding-left: 20px; }
+  .drop {
+    position: fixed; inset: 10px; z-index: 30; border: 3px dashed var(--accent); border-radius: 22px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent); display: none; place-items: center;
+    font-size: 20px; font-weight: 600; color: var(--accent); pointer-events: none;
+  }
+  body.dragging .drop { display: grid; }
+
+  @media (max-width: 380px) {
+    .controls { gap: 10px; }
+    .add-btn { padding: 12px; }
+    .acts button { width: 34px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stage.playing .art .ring, .eq i, .bar.indet div { animation: none; }
+    .toast { transition: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.6v12.8a1 1 0 0 0 1.53.85l10.2-6.4a1 1 0 0 0 0-1.7L9.53 4.75A1 1 0 0 0 8 5.6z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4.2" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M6 5.5v13" stroke-width="2.4"/><path d="M19 6.3v11.4a.9.9 0 0 1-1.38.76L9.2 12.76a.9.9 0 0 1 0-1.52l8.42-5.7A.9.9 0 0 1 19 6.3z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M18 5.5v13" stroke-width="2.4"/><path d="M5 6.3v11.4a.9.9 0 0 0 1.38.76l8.42-5.7a.9.9 0 0 0 0-1.52L6.38 5.54A.9.9 0 0 0 5 6.3z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8.3"/><path d="M3 3.5v4.8h4.8"/></symbol>
+  <symbol id="i-fwd" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8.3"/><path d="M21 3.5v4.8h-4.8"/></symbol>
+  <symbol id="i-repeat1" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/><path d="M11 10h1v4"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+  <symbol id="i-once" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><path d="m16 13 5.22 3.48a.5.5 0 0 0 .78-.42V7.87a.5.5 0 0 0-.75-.43L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="m9 13 3-3 3 3"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M12 13v8"/><path d="m8 17 4 4 4-4"/><path d="M4.39 15.27A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.44 8.28"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.17 6.81a2.82 2.82 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-full" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><path d="M6 16h.01"/><path d="M10 16h.01"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
+  <symbol id="i-install" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 7v7"/><path d="m9 11 3 3 3-3"/><path d="M10 18h4"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <img class="logo" src="icon.svg" alt="" width="44" height="44">
+    <div class="brand">
+      <h1>LoopPlayer</h1>
+      <p>โหลดครั้งเดียว เล่นวนกี่รอบก็ไม่ใช้เน็ต</p>
+    </div>
+    <span class="pill" id="netPill" data-state="online" role="status">ออนไลน์</span>
+  </header>
+
+  <main class="layout">
+    <section class="card player" aria-label="เครื่องเล่น">
+      <div class="stage" id="stage" data-kind="none">
+        <video id="video" playsinline preload="metadata"></video>
+        <audio id="audio" preload="metadata"></audio>
+        <div class="art" aria-hidden="true">
+          <svg class="disc" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="48" fill="rgba(255,255,255,.06)"/>
+            <g class="ring"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.6" stroke-dasharray="58 11" stroke-linecap="round"/></g>
+            <circle cx="50" cy="50" r="33" fill="rgba(255,255,255,.08)"/>
+          </svg>
+          <svg class="i center"><use href="#i-repeat"/></svg>
+        </div>
+        <div class="empty">
+          <svg class="i"><use href="#i-repeat"/></svg>
+          <div>เพิ่ม MP3 หรือ MP4 เพื่อเริ่มเล่นวนซ้ำ</div>
+          <button class="btn primary" id="emptyPick" type="button"><svg class="i"><use href="#i-folder"/></svg>เลือกไฟล์ในเครื่อง</button>
+        </div>
+        <div class="badge" id="badge" aria-live="polite"></div>
+        <div class="stage-acts">
+          <button id="audioOnlyBtn" type="button" aria-pressed="false" hidden title="ฟังอย่างเดียว (ปิดหน้าจอแล้วเสียงยังเล่นต่อ)" aria-label="ฟังอย่างเดียว"><svg class="i"><use href="#i-headphones"/></svg></button>
+          <button id="fsBtn" type="button" hidden title="เต็มจอ" aria-label="เต็มจอ"><svg class="i"><use href="#i-full"/></svg></button>
+        </div>
+      </div>
+
+      <div class="now">
+        <h2 id="title">ยังไม่ได้เลือกไฟล์</h2>
+        <p id="sub">ไฟล์ที่เพิ่มจะเก็บอยู่ในเครื่องนี้ เล่นได้แม้ไม่มีเน็ต</p>
+      </div>
+
+      <div class="seek">
+        <div class="abband"><div class="abzone" id="abZone"></div></div>
+        <div class="track"><div class="fill" id="fill"></div></div>
+        <input type="range" id="seek" min="0" max="1" step="any" value="0" aria-label="ตำแหน่งที่เล่น" disabled>
+      </div>
+      <div class="times"><span id="tCur">0:00</span><span id="tDur">0:00</span></div>
+
+      <div class="controls">
+        <button class="ctl" id="prevBtn" type="button" aria-label="ไฟล์ก่อนหน้า" title="ไฟล์ก่อนหน้า"><svg class="i"><use href="#i-prev"/></svg></button>
+        <button class="ctl small" id="backBtn" type="button" aria-label="ถอยหลัง 10 วินาที" title="ถอยหลัง 10 วินาที"><svg class="i"><use href="#i-back"/></svg><span>10</span></button>
+        <button class="play" id="playBtn" type="button" aria-label="เล่น"><svg class="i"><use href="#i-play"/></svg></button>
+        <button class="ctl small" id="fwdBtn" type="button" aria-label="เดินหน้า 10 วินาที" title="เดินหน้า 10 วินาที"><svg class="i"><use href="#i-fwd"/></svg><span>10</span></button>
+        <button class="ctl" id="nextBtn" type="button" aria-label="ไฟล์ถัดไป" title="ไฟล์ถัดไป"><svg class="i"><use href="#i-next"/></svg></button>
+      </div>
+
+      <span class="label" id="modeLabel">การวนซ้ำ</span>
+      <div class="seg" role="group" aria-labelledby="modeLabel">
+        <button type="button" data-mode="one" aria-pressed="true"><svg class="i"><use href="#i-repeat1"/></svg>วนไฟล์นี้</button>
+        <button type="button" data-mode="all" aria-pressed="false"><svg class="i"><use href="#i-repeat"/></svg>วนทั้งรายการ</button>
+        <button type="button" data-mode="off" aria-pressed="false"><svg class="i"><use href="#i-once"/></svg>ไม่วน</button>
+      </div>
+      <p class="hint" id="modeHint"></p>
+
+      <div class="opts">
+        <label class="field"><span class="label">จำนวนรอบ</span>
+          <select id="limitSel">
+            <option value="0">ไม่จำกัด</option>
+            <option value="3">3 รอบ</option>
+            <option value="5">5 รอบ</option>
+            <option value="7">7 รอบ</option>
+            <option value="9">9 รอบ</option>
+            <option value="10">10 รอบ</option>
+            <option value="20">20 รอบ</option>
+            <option value="50">50 รอบ</option>
+            <option value="108">108 รอบ</option>
+          </select>
+        </label>
+        <label class="field"><span class="label">ความเร็ว</span>
+          <select id="rateSel">
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="0.9">0.9×</option>
+            <option value="1" selected>ปกติ 1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="abrow">
+        <span class="label">วนเฉพาะช่วง (A–B) — เช่น ท่อนที่อยากฝึกฟังซ้ำ</span>
+        <div class="abbtns">
+          <button class="btn" id="aBtn" type="button" disabled>จุด A <span class="tag" id="aTag"></span></button>
+          <button class="btn" id="bBtn" type="button" disabled>จุด B <span class="tag" id="bTag"></span></button>
+          <button class="btn" id="abClear" type="button" disabled aria-label="ล้างช่วง A–B">ล้าง</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="side">
+      <section class="card" aria-labelledby="addTitle">
+        <h2 id="addTitle">เพิ่มไฟล์</h2>
+        <div class="add-grid">
+          <button class="add-btn" id="pickBtn" type="button">
+            <svg class="i"><use href="#i-folder"/></svg>
+            <strong>เลือกไฟล์ในเครื่อง</strong>
+            <span>ไม่ใช้เน็ตเลย</span>
+          </button>
+          <button class="add-btn" id="showUrl" type="button" aria-expanded="false" aria-controls="urlForm">
+            <svg class="i"><use href="#i-cloud"/></svg>
+            <strong>โหลดจากลิงก์</strong>
+            <span>ใช้เน็ตครั้งเดียว แล้วเก็บไว้</span>
+          </button>
+        </div>
+        <input type="file" id="fileInput" accept="audio/*,video/*,.mp3,.mp4,.m4a,.m4v,.aac,.wav,.ogg,.opus,.webm" multiple hidden>
+
+        <form class="urlform" id="urlForm" hidden>
+          <label for="urlInput">ลิงก์ของไฟล์ MP3 หรือ MP4 โดยตรง</label>
+          <div class="urlrow">
+            <input id="urlInput" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://…/ไฟล์.mp3" required>
+            <button class="btn primary" id="urlSubmit" type="submit">โหลดเก็บไว้</button>
+          </div>
+          <p class="hint">ถ้าลิงก์นี้เคยโหลดแล้ว แอปจะเล่นจากเครื่องทันทีโดยไม่โหลดซ้ำ · ลิงก์ YouTube, Facebook หรือหน้าเว็บใช้ไม่ได้</p>
+        </form>
+
+        <div class="job" id="job" hidden>
+          <div class="job-top"><span id="jobText"></span><button class="btn" id="jobCancel" type="button" hidden>ยกเลิก</button></div>
+          <div class="bar" id="jobBarWrap"><div id="jobBar"></div></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="libTitle">
+        <div class="lib-head"><h2 id="libTitle">ไฟล์ในเครื่อง <span class="count" id="libCount"></span></h2></div>
+        <ul class="list" id="list"></ul>
+        <p class="lib-empty" id="libEmpty">ยังไม่มีไฟล์ — กด “เลือกไฟล์ในเครื่อง” หรือลากไฟล์มาวางที่หน้านี้</p>
+      </section>
+
+      <section class="card stats" aria-label="สถิติและพื้นที่เก็บ">
+        <div class="stat"><svg class="i"><use href="#i-leaf"/></svg><p id="statSaved">ยังไม่ได้เล่น</p></div>
+        <div class="stat"><svg class="i"><use href="#i-disk"/></svg><p><span id="storageText">กำลังตรวจพื้นที่…</span><br><span class="sub" id="persistText"></span></p></div>
+        <button class="btn" id="installBtn" type="button" hidden><svg class="i"><use href="#i-install"/></svg>ติดตั้งเป็นแอปบนเครื่องนี้</button>
+      </section>
+
+      <details class="card help">
+        <summary>วิธีใช้ และทำไมถึงไม่เปลืองเน็ต</summary>
+        <h3>โหลดครั้งเดียว เล่นได้ตลอด</h3>
+        <p>ไฟล์ที่เพิ่มจะถูกเก็บไว้ในพื้นที่ของเบราว์เซอร์บนเครื่องนี้ ตอนเล่นแอปอ่านจากเครื่องโดยตรง ไม่ดึงจากอินเทอร์เน็ตซ้ำ จะวน 1 รอบหรือ 1,000 รอบก็ใช้เน็ตเท่าเดิม (ถ้าเลือกไฟล์จากเครื่อง ไม่ใช้เน็ตเลย)</p>
+        <h3>เปิดแอปได้แม้ไม่มีเน็ต</h3>
+        <p>หลังเปิดครั้งแรกขณะมีเน็ต ตัวแอปจะถูกเก็บไว้ในเครื่องด้วย ครั้งต่อไปเปิดได้แม้อยู่โหมดเครื่องบินหรือเน็ตหมด</p>
+        <h3>ติดตั้งเป็นแอป (แนะนำ)</h3>
+        <ul>
+          <li><b>Android / Chrome:</b> กดปุ่ม “ติดตั้งเป็นแอป” ด้านบน หรือเมนู ⋮ → “ติดตั้งแอป / เพิ่มลงในหน้าจอหลัก”</li>
+          <li><b>iPhone / iPad (Safari):</b> แตะปุ่มแชร์ → “เพิ่มไปยังหน้าจอโฮม” · ไฟล์ที่เพิ่มใน Safari กับในแอปที่ติดตั้งแล้วเก็บแยกกัน ให้เพิ่มไฟล์ในแอปที่ติดตั้งแล้ว</li>
+          <li>การติดตั้งช่วยให้เบราว์เซอร์เก็บไฟล์ไว้นานขึ้น ไม่ลบทิ้งเอง</li>
+        </ul>
+        <h3>เล่นวิดีโอแบบปิดจอ</h3>
+        <p>กดปุ่มหูฟังมุมขวาบนของวิดีโอ เพื่อฟังเฉพาะเสียงของ MP4 แล้วล็อกหน้าจอได้ (ประหยัดแบตด้วย)</p>
+        <h3>โหลดจากลิงก์ไม่ได้?</h3>
+        <p>ลิงก์ต้องชี้ไปที่ไฟล์ .mp3 หรือ .mp4 โดยตรง และเว็บต้นทางต้องยอมให้เว็บอื่นดึงไฟล์ได้ (CORS) ถ้าไม่ได้ ให้ดาวน์โหลดไฟล์ลงเครื่องด้วยเบราว์เซอร์ก่อน แล้วกด “เลือกไฟล์ในเครื่อง”</p>
+        <h3>ความเป็นส่วนตัว</h3>
+        <p>ไฟล์อยู่ในเครื่องนี้เท่านั้น ไม่ถูกอัปโหลดไปที่ใด ถ้าล้างข้อมูลเว็บไซต์ (Clear site data) ในเบราว์เซอร์ ไฟล์จะหายไปด้วย กด <svg class="i" style="width:14px;height:14px;vertical-align:-2px"><use href="#i-save"/></svg> ที่รายการไฟล์เพื่อบันทึกสำเนาออกไปเก็บได้</p>
+        <h3>ปุ่มลัดบนคีย์บอร์ด</h3>
+        <p><kbd>Space</kbd> เล่น/หยุด · <kbd>←</kbd> <kbd>→</kbd> ถอย/เดินหน้า 5 วินาที · <kbd>L</kbd> เปลี่ยนโหมดวน · <kbd>A</kbd> <kbd>B</kbd> ตั้งจุดวนช่วง · <kbd>N</kbd> <kbd>P</kbd> ไฟล์ถัดไป/ก่อนหน้า</p>
+      </details>
+    </div>
+  </main>
+
+  <footer>LoopPlayer · <a href="../">The Siam Times</a></footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="drop" aria-hidden="true">วางไฟล์ MP3 / MP4 เพื่อเก็บไว้ในเครื่อง</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* =========================================================================
+   * Helpers
+   * ======================================================================= */
+  const $ = (id) => document.getElementById(id);
+  const els = {};
+  for (const id of ['stage', 'video', 'audio', 'badge', 'audioOnlyBtn', 'fsBtn', 'title', 'sub', 'seek', 'fill', 'abZone',
+    'tCur', 'tDur', 'prevBtn', 'backBtn', 'playBtn', 'fwdBtn', 'nextBtn', 'modeHint', 'limitSel', 'rateSel', 'aBtn', 'bBtn',
+    'aTag', 'bTag', 'abClear', 'pickBtn', 'showUrl', 'fileInput', 'urlForm', 'urlInput', 'urlSubmit', 'job', 'jobText',
+    'jobCancel', 'jobBar', 'jobBarWrap', 'list', 'libCount', 'libEmpty', 'statSaved', 'storageText', 'persistText',
+    'installBtn', 'toast', 'netPill']) els[id] = $(id);
+
+  const MB = 1024 * 1024;
+  const EXT_MIME = {
+    mp3: 'audio/mpeg', m4a: 'audio/mp4', aac: 'audio/aac', wav: 'audio/wav', ogg: 'audio/ogg', oga: 'audio/ogg',
+    opus: 'audio/ogg', flac: 'audio/flac', mp4: 'video/mp4', m4v: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm',
+  };
+  const MIME_EXT = {
+    'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/aac': 'aac', 'audio/wav': 'wav',
+    'audio/x-wav': 'wav', 'audio/ogg': 'ogg', 'audio/flac': 'flac', 'audio/webm': 'webm', 'video/mp4': 'mp4',
+    'video/quicktime': 'mov', 'video/webm': 'webm',
+  };
+  const MIME_ALIAS = { 'audio/mp3': 'audio/mpeg', 'audio/x-mp3': 'audio/mpeg', 'audio/mpeg3': 'audio/mpeg', 'audio/x-mpeg': 'audio/mpeg', 'audio/m4a': 'audio/mp4' };
+
+  class UserError extends Error {}
+
+  const fmtTime = (s) => {
+    if (!Number.isFinite(s) || s < 0) s = 0;
+    s = Math.floor(s);
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+    return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0');
+  };
+  const fmtBytes = (b) => {
+    if (!b) return '0 MB';
+    const u = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let i = 0;
+    while (b >= 1024 && i < u.length - 1) { b /= 1024; i++; }
+    const d = i < 2 ? 0 : b < 10 ? (i >= 3 ? 2 : 1) : b < 100 ? 1 : 0;
+    return b.toFixed(d) + ' ' + u[i];
+  };
+  const fmtFine = (s) => {
+    if (!Number.isFinite(s) || s < 0) s = 0;
+    const tenths = Math.floor(s * 10) % 10;
+    return fmtTime(s) + '.' + tenths;
+  };
+  const fmtInt = (n) => Math.round(n).toLocaleString('th-TH');
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+  const normMime = (t) => { t = (t || '').split(';')[0].trim().toLowerCase(); return MIME_ALIAS[t] || t; };
+  const splitName = (filename) => {
+    const m = /^(.*?)(?:\.([a-z0-9]{1,5}))?$/i.exec(filename.trim());
+    const base = (m[1] || '').trim(), ext = (m[2] || '').toLowerCase();
+    return base ? { base, ext } : { base: filename.trim() || 'ไม่มีชื่อ', ext: '' };
+  };
+  const isQuota = (e) => !!e && (e.name === 'QuotaExceededError' || /quota/i.test(e.message || ''));
+
+  let toastTimer = 0;
+  function toast(msg, kind = 'info', ms) {
+    const t = els.toast;
+    t.textContent = msg;
+    t.classList.toggle('error', kind === 'error');
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), ms || (kind === 'error' ? 7000 : 3800));
+  }
+
+  const store = {
+    get(key, fallback) { try { const v = JSON.parse(localStorage.getItem('loopplayer:' + key)); return v == null ? fallback : v; } catch { return fallback; } },
+    set(key, val) { try { localStorage.setItem('loopplayer:' + key, JSON.stringify(val)); } catch { /* private mode etc. */ } },
+  };
+
+  /* =========================================================================
+   * IndexedDB: 'items' holds the small metadata records, 'blobs' the files.
+   * ======================================================================= */
+  const DB = (() => {
+    let opening;
+    const open = () => opening || (opening = new Promise((resolve, reject) => {
+      const r = indexedDB.open('loopplayer', 1);
+      r.onupgradeneeded = () => {
+        const db = r.result;
+        if (!db.objectStoreNames.contains('items')) db.createObjectStore('items', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains('blobs')) db.createObjectStore('blobs');
+      };
+      r.onsuccess = () => resolve(r.result);
+      r.onerror = () => { opening = null; reject(r.error); };
+    }));
+    const run = (stores, mode, fn) => open().then((db) => new Promise((resolve, reject) => {
+      let t, out;
+      try { t = db.transaction(stores, mode); } catch (e) { reject(e); return; }
+      t.oncomplete = () => resolve(out);
+      t.onerror = () => reject(t.error);
+      t.onabort = () => reject(t.error || new DOMException('Transaction aborted', 'AbortError'));
+      try { out = fn(t); } catch (e) { try { t.abort(); } catch { /* already finished */ } reject(e); }
+    }));
+    return {
+      all: () => run(['items'], 'readonly', (t) => t.objectStore('items').getAll()).then((r) => r.result || []),
+      blob: (id) => run(['blobs'], 'readonly', (t) => t.objectStore('blobs').get(id)).then((r) => r.result),
+      add: (meta, data) => run(['items', 'blobs'], 'readwrite', (t) => {
+        t.objectStore('blobs').put(data, meta.id);
+        t.objectStore('items').put(meta);
+      }),
+      update: (meta) => run(['items'], 'readwrite', (t) => { t.objectStore('items').put(meta); }),
+      remove: (id) => run(['items', 'blobs'], 'readwrite', (t) => {
+        t.objectStore('items').delete(id);
+        t.objectStore('blobs').delete(id);
+      }),
+    };
+  })();
+
+  async function saveItem(meta, blob) {
+    try {
+      await DB.add(meta, blob);
+    } catch (e) {
+      if (isQuota(e)) throw new UserError('พื้นที่เก็บข้อมูลในเครื่องไม่พอ — ลบไฟล์ที่ไม่ใช้แล้วออกก่อน');
+      // Some Safari versions refuse to store Blobs; fall back to raw bytes.
+      try {
+        await DB.add(meta, { buf: await blob.arrayBuffer(), type: blob.type });
+      } catch (e2) {
+        if (isQuota(e2)) throw new UserError('พื้นที่เก็บข้อมูลในเครื่องไม่พอ — ลบไฟล์ที่ไม่ใช้แล้วออกก่อน');
+        throw e2;
+      }
+    }
+  }
+  async function loadBlob(id) {
+    const v = await DB.blob(id);
+    if (!v) return null;
+    if (v instanceof Blob) return v;
+    if (v.buf) return new Blob([v.buf], { type: v.type || '' });
+    return null;
+  }
+
+  /* =========================================================================
+   * State
+   * ======================================================================= */
+  const settings = Object.assign({ mode: 'one', limit: 0, rate: 1, audioOnly: false, lastId: null, lastTime: 0 }, store.get('settings', {}));
+  const stats = Object.assign({ plays: 0, bytes: 0 }, store.get('stats', {}));
+  const S = {
+    items: [],
+    id: null,          // current item id
+    el: null,          // the <audio> or <video> currently in use
+    url: null,         // its blob: URL
+    count: 0,          // completed passes in this run (of the file, the A–B part, or the whole list)
+    done: false,       // stopped because the round limit was reached
+    a: null, b: null,  // A–B points in seconds
+    lastT: 0,
+    seekAt: -1e9,      // performance.now() of the last seek we made ourselves
+    dragging: false,
+    selToken: 0,
+    raf: 0,
+  };
+  const saveSettings = () => store.set('settings', settings);
+  const current = () => S.items.find((x) => x.id === S.id) || null;
+  const abOn = () => S.a != null && S.b != null && S.b > S.a;
+
+  /* =========================================================================
+   * Adding files
+   * ======================================================================= */
+
+  // Load the file into a throwaway <video> to learn its length, whether it has
+  // a picture, and whether this browser can play it at all.
+  function probe(blob) {
+    return new Promise((resolve) => {
+      const v = document.createElement('video');
+      v.preload = 'metadata';
+      v.muted = true;
+      v.playsInline = true;
+      const url = URL.createObjectURL(blob);
+      let settled = false;
+      const finish = (r) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        v.removeAttribute('src');
+        v.load();
+        URL.revokeObjectURL(url);
+        resolve(r);
+      };
+      const timer = setTimeout(() => finish(null), 10000);
+      v.onloadedmetadata = () => finish({ duration: Number.isFinite(v.duration) ? v.duration : 0, video: v.videoWidth > 0 });
+      v.onerror = () => finish({ error: true });
+      v.src = url;
+    });
+  }
+
+  async function ingest(blob, info) {
+    let type = normMime(blob.type);
+    if (!type || type === 'application/octet-stream' || type === 'binary/octet-stream') type = EXT_MIME[info.ext] || '';
+    if (type !== blob.type) blob = new Blob([blob], { type });
+    const p = await probe(blob);
+    if (p && p.error) throw new UserError(`เบราว์เซอร์นี้เล่นไฟล์ “${info.name}” ไม่ได้ — ลองใช้ MP3 หรือ MP4`);
+    const kind = p ? (p.video ? 'video' : 'audio') : (type.startsWith('video/') ? 'video' : 'audio');
+    const meta = {
+      id: uid(),
+      name: info.name,
+      ext: info.ext || MIME_EXT[type] || (kind === 'video' ? 'mp4' : 'mp3'),
+      type,
+      kind,
+      size: blob.size,
+      duration: p ? p.duration : 0,
+      source: info.source,
+      url: info.url || null,
+      added: Date.now(),
+    };
+    await saveItem(meta, blob);
+    S.items.push(meta);
+    renderList();
+    refreshStorage();
+    askPersist();
+    return meta;
+  }
+
+  async function addFiles(fileList) {
+    const files = [...fileList].filter((f) => f.size > 0);
+    if (!files.length) return;
+    const added = [];
+    let skipped = 0;
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      const { base, ext } = splitName(f.name);
+      if (S.items.some((x) => x.source === 'file' && x.name === base && x.size === f.size)) { skipped++; continue; }
+      showJob(files.length > 1 ? `กำลังเก็บไฟล์ ${i + 1}/${files.length}: ${base}` : `กำลังเก็บ “${base}”`, null);
+      try {
+        added.push(await ingest(f, { name: base, ext, source: 'file' }));
+      } catch (e) {
+        toast(e instanceof UserError ? e.message : 'เก็บไฟล์ไม่สำเร็จ: ' + (e && e.message || e), 'error');
+      }
+    }
+    hideJob();
+    if (added.length) {
+      toast(`เพิ่ม ${added.length} ไฟล์แล้ว — เล่นจากเครื่อง ไม่ใช้เน็ต` + (skipped ? ` (ข้าม ${skipped} ไฟล์ที่มีอยู่แล้ว)` : ''));
+      if (!S.el || S.el.paused) select(added[0].id, { autoplay: true });
+    } else if (skipped) {
+      toast(skipped === 1 ? 'มีไฟล์นี้ในเครื่องแล้ว' : `มีทั้ง ${skipped} ไฟล์นี้ในเครื่องแล้ว`);
+    }
+  }
+
+  function nameFromUrl(url, disposition, type) {
+    let filename = '';
+    if (disposition) {
+      const star = /filename\*\s*=\s*(?:UTF-8|utf-8)''([^;]+)/.exec(disposition);
+      const plain = /filename\s*=\s*"?([^";]+)"?/.exec(disposition);
+      try { filename = star ? decodeURIComponent(star[1]) : plain ? plain[1] : ''; } catch { filename = plain ? plain[1] : ''; }
+    }
+    if (!filename) {
+      const seg = url.pathname.split('/').filter(Boolean).pop() || '';
+      try { filename = decodeURIComponent(seg); } catch { filename = seg; }
+    }
+    let { base, ext } = splitName(filename.replace(/[+_]+/g, ' ') || url.hostname);
+    if (!EXT_MIME[ext]) { if (ext) base = base + '.' + ext; ext = MIME_EXT[type] || ''; }
+    return { base: base || url.hostname, ext };
+  }
+
+  let dl = null; // AbortController of the running download
+  async function downloadUrl(raw) {
+    let url;
+    try { url = new URL(raw.trim()); } catch { toast('ลิงก์ไม่ถูกต้อง', 'error'); return; }
+    if (!/^https?:$/.test(url.protocol)) { toast('ใช้ได้เฉพาะลิงก์ที่ขึ้นต้นด้วย https://', 'error'); return; }
+    if (location.protocol === 'https:' && url.protocol === 'http:') {
+      toast('ลิงก์ต้องขึ้นต้นด้วย https:// — เบราว์เซอร์ไม่ยอมโหลดลิงก์ http บนหน้าที่ปลอดภัย', 'error');
+      return;
+    }
+    const href = url.href;
+    const dup = S.items.find((x) => x.url === href);
+    if (dup) {
+      toast('ไฟล์นี้อยู่ในเครื่องแล้ว — เล่นจากเครื่องเลย ไม่โหลดซ้ำ');
+      select(dup.id, { autoplay: true });
+      return;
+    }
+    if (!navigator.onLine) { toast('ตอนนี้ออฟไลน์ — ต่อเน็ตก่อนแล้วค่อยโหลด', 'error'); return; }
+    if (dl) return;
+
+    dl = new AbortController();
+    els.urlSubmit.disabled = true;
+    showJob('กำลังเชื่อมต่อ…', null, true);
+    try {
+      const res = await fetch(href, { signal: dl.signal, cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' });
+      if (!res.ok) throw new UserError(`โหลดไม่สำเร็จ — เซิร์ฟเวอร์ตอบกลับ ${res.status}${res.status === 404 ? ' (ไม่พบไฟล์)' : ''}`);
+      const type = normMime(res.headers.get('content-type'));
+      if (/^text\/|html|json|xml|javascript/.test(type)) throw new UserError('ลิงก์นี้เป็นหน้าเว็บ ไม่ใช่ไฟล์ MP3/MP4 โดยตรง');
+      const total = Number(res.headers.get('content-length')) || 0;
+      const conn = navigator.connection;
+      if (conn && (conn.type === 'cellular' || conn.saveData) && total > 20 * MB &&
+          !confirm(`ตอนนี้ใช้เน็ตมือถืออยู่ ไฟล์นี้ขนาด ${fmtBytes(total)} — โหลดต่อไหม?`)) {
+        dl.abort();
+        throw new DOMException('cancelled', 'AbortError');
+      }
+      const { base, ext } = nameFromUrl(url, res.headers.get('content-disposition'), type);
+      let blob;
+      if (res.body && res.body.getReader) {
+        const reader = res.body.getReader();
+        const chunks = [];
+        let got = 0, lastPaint = 0;
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          got += value.byteLength;
+          const now = performance.now();
+          if (now - lastPaint > 120) {
+            lastPaint = now;
+            showJob(`กำลังโหลด “${base}” — ${fmtBytes(got)}${total ? ' / ' + fmtBytes(total) : ''}`, total ? got / total : null, true);
+          }
+        }
+        blob = new Blob(chunks, { type });
+      } else {
+        blob = await res.blob();
+      }
+      showJob('กำลังเก็บลงเครื่อง…', 1, false);
+      const meta = await ingest(blob, { name: base, ext, source: 'url', url: href });
+      els.urlInput.value = '';
+      toast(`เก็บ “${meta.name}” ไว้ในเครื่องแล้ว (${fmtBytes(meta.size)}) — ต่อจากนี้เล่นวนได้ไม่ใช้เน็ต`, 'info', 5000);
+      if (!S.el || S.el.paused) select(meta.id, { autoplay: true });
+    } catch (e) {
+      if (e && e.name === 'AbortError') toast('ยกเลิกการโหลดแล้ว');
+      else if (e instanceof UserError) toast(e.message, 'error');
+      else if (e instanceof TypeError) {
+        toast('โหลดไม่ได้ — เว็บต้นทางอาจไม่อนุญาตให้ดึงไฟล์ข้ามเว็บ (CORS) หรือเน็ตหลุด ลองดาวน์โหลดไฟล์ลงเครื่องก่อน แล้วกด “เลือกไฟล์ในเครื่อง”', 'error', 10000);
+      } else toast('โหลดไม่สำเร็จ: ' + (e && e.message || e), 'error');
+    } finally {
+      dl = null;
+      els.urlSubmit.disabled = false;
+      hideJob();
+    }
+  }
+
+  function showJob(text, fraction, cancellable) {
+    els.job.hidden = false;
+    els.jobText.textContent = text;
+    els.jobCancel.hidden = !cancellable;
+    const indet = fraction == null;
+    els.jobBarWrap.classList.toggle('indet', indet);
+    els.jobBar.style.width = indet ? '' : Math.round(Math.min(1, fraction) * 100) + '%';
+  }
+  function hideJob() { els.job.hidden = true; }
+
+  /* =========================================================================
+   * Library list
+   * ======================================================================= */
+  function renderList() {
+    const items = S.items;
+    els.libCount.textContent = items.length ? `(${items.length})` : '';
+    els.libEmpty.hidden = items.length > 0;
+    const playing = S.el && !S.el.paused;
+    els.list.innerHTML = items.map((it) => {
+      const cur = it.id === S.id;
+      const bits = [it.kind === 'video' ? 'วิดีโอ' : 'เสียง'];
+      if (it.duration) bits.push(fmtTime(it.duration));
+      bits.push(fmtBytes(it.size));
+      bits.push(it.source === 'url' ? 'จากลิงก์' : 'จากเครื่อง');
+      return `<li class="item${cur && playing ? ' playing' : ''}" data-id="${esc(it.id)}" aria-current="${cur}">
+        <button class="item-main" type="button" data-act="play">
+          <span class="kind"><svg class="i"><use href="#i-${it.kind === 'video' ? 'video' : 'music'}"/></svg></span>
+          <span class="txt"><span class="name">${esc(it.name)}</span><span class="meta">${bits.join(' · ')}</span></span>
+          <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+        </button>
+        <span class="acts">
+          <button type="button" data-act="rename" title="เปลี่ยนชื่อ" aria-label="เปลี่ยนชื่อ ${esc(it.name)}"><svg class="i"><use href="#i-pencil"/></svg></button>
+          <button type="button" data-act="save" title="บันทึกสำเนาลงเครื่อง" aria-label="บันทึกสำเนา ${esc(it.name)} ลงเครื่อง"><svg class="i"><use href="#i-save"/></svg></button>
+          <button type="button" data-act="delete" title="ลบ" aria-label="ลบ ${esc(it.name)}"><svg class="i"><use href="#i-trash"/></svg></button>
+        </span>
+      </li>`;
+    }).join('');
+  }
+
+  async function onListClick(e) {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const id = btn.closest('.item').dataset.id;
+    const it = S.items.find((x) => x.id === id);
+    if (!it) return;
+    const act = btn.dataset.act;
+    if (act === 'play') {
+      if (id === S.id && S.el) togglePlay();
+      else select(id, { autoplay: true });
+    } else if (act === 'rename') {
+      const name = prompt('ตั้งชื่อใหม่', it.name);
+      if (name == null || !name.trim() || name.trim() === it.name) return;
+      it.name = name.trim().slice(0, 200);
+      await DB.update(it);
+      renderList();
+      if (id === S.id) showNow(it);
+    } else if (act === 'save') {
+      const blob = await loadBlob(id);
+      if (!blob) { toast('ไม่พบข้อมูลไฟล์', 'error'); return; }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = it.name + (it.ext ? '.' + it.ext : '');
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+    } else if (act === 'delete') {
+      if (!confirm(`ลบ “${it.name}” ออกจากเครื่อง?\nถ้าเป็นไฟล์จากลิงก์ ต้องใช้เน็ตโหลดใหม่หากต้องการอีก`)) return;
+      if (id === S.id) clearPlayer();
+      await DB.remove(id);
+      S.items = S.items.filter((x) => x.id !== id);
+      renderList();
+      refreshStorage();
+      toast(`ลบ “${it.name}” แล้ว`);
+    }
+  }
+
+  /* =========================================================================
+   * Player
+   * ======================================================================= */
+  function unload() {
+    for (const el of [els.audio, els.video]) {
+      el.pause();
+      if (el.hasAttribute('src')) { el.removeAttribute('src'); el.load(); }
+    }
+    if (S.url) { URL.revokeObjectURL(S.url); S.url = null; }
+  }
+
+  function clearPlayer() {
+    S.selToken++;
+    unload();
+    S.id = null; S.el = null; S.a = S.b = null; S.count = 0; S.done = false;
+    els.stage.dataset.kind = 'none';
+    els.stage.classList.remove('playing');
+    els.title.textContent = 'ยังไม่ได้เลือกไฟล์';
+    els.sub.textContent = 'ไฟล์ที่เพิ่มจะเก็บอยู่ในเครื่องนี้ เล่นได้แม้ไม่มีเน็ต';
+    els.seek.disabled = true; els.seek.value = 0; els.seek.max = 1;
+    els.fill.style.width = '0';
+    els.tCur.textContent = els.tDur.textContent = '0:00';
+    els.audioOnlyBtn.hidden = els.fsBtn.hidden = true;
+    settings.lastId = null; saveSettings();
+    if ('mediaSession' in navigator) navigator.mediaSession.metadata = null;
+    updatePlayButton(); updateAB(); updateBadge();
+  }
+
+  function showNow(it) {
+    els.title.textContent = it.name;
+    const bits = [it.kind === 'video' ? (settings.audioOnly ? 'วิดีโอ · ฟังเฉพาะเสียง' : 'วิดีโอ') : 'เสียง', fmtBytes(it.size), 'เล่นจากเครื่อง ไม่ใช้เน็ต'];
+    els.sub.textContent = bits.join(' · ');
+  }
+
+  // keep: switching between video and listen-only for the same file; keeps count and A–B.
+  // keepCount: moving on to the next file in "loop the whole list" mode.
+  async function select(id, { autoplay = false, startAt = 0, keep = false, keepCount = false } = {}) {
+    const it = S.items.find((x) => x.id === id);
+    if (!it) return;
+    const token = ++S.selToken;
+    const blob = await loadBlob(id);
+    if (token !== S.selToken) return;
+    if (!blob) { toast('ไม่พบข้อมูลไฟล์ในเครื่อง — อาจถูกเบราว์เซอร์ลบไปแล้ว', 'error'); return; }
+
+    unload();
+    S.id = id;
+    if (!keep) {
+      S.a = S.b = null;
+      if (!keepCount) { S.count = 0; S.done = false; }
+    }
+    const asVideo = it.kind === 'video' && !settings.audioOnly;
+    const el = asVideo ? els.video : els.audio;
+    S.el = el;
+    S.url = URL.createObjectURL(blob);
+    S.lastT = startAt;
+    el.defaultPlaybackRate = settings.rate;
+    el.src = S.url;
+    el.playbackRate = settings.rate;
+    applyLoop();
+    if (startAt > 0) el.addEventListener('loadedmetadata', () => { if (token === S.selToken) seekTo(startAt); }, { once: true });
+
+    els.stage.dataset.kind = asVideo ? 'video' : 'audio';
+    els.audioOnlyBtn.hidden = it.kind !== 'video';
+    els.audioOnlyBtn.setAttribute('aria-pressed', String(!!settings.audioOnly));
+    els.fsBtn.hidden = !asVideo;
+    els.seek.disabled = true;
+    els.tCur.textContent = fmtTime(startAt);
+    els.tDur.textContent = fmtTime(it.duration);
+    showNow(it);
+    setSession(it);
+    settings.lastId = id; settings.lastTime = startAt; saveSettings();
+    renderList(); updateAB(); updateBadge(); updatePlayButton();
+    if (autoplay) play();
+  }
+
+  function play() {
+    if (!S.el) {
+      if (S.items.length) select(S.items[0].id, { autoplay: true });
+      return;
+    }
+    const p = S.el.play();
+    if (p && p.catch) p.catch(() => { /* autoplay blocked: the play button still works */ });
+  }
+  function togglePlay() {
+    if (!S.el) return play();
+    if (S.el.paused) play(); else S.el.pause();
+  }
+  function seekTo(t) {
+    const el = S.el;
+    if (!el) return;
+    const d = el.duration;
+    t = Math.max(0, Number.isFinite(d) ? Math.min(t, Math.max(0, d - 0.05)) : t);
+    S.seekAt = performance.now();
+    el.currentTime = t;
+    S.lastT = t;
+    paintTime();
+  }
+  const seekBy = (dt) => { if (S.el) seekTo(S.el.currentTime + dt); };
+
+  function step(dir) {
+    const n = S.items.length;
+    if (!n) return;
+    if (dir < 0 && S.el && S.el.currentTime > 3) { seekTo(abOn() ? S.a : 0); return; }
+    let i = S.items.findIndex((x) => x.id === S.id);
+    i = i < 0 ? 0 : (i + dir + n) % n;
+    select(S.items[i].id, { autoplay: true });
+  }
+
+  // The browser's own loop attribute repeats without a gap, so use it whenever we
+  // don't need to stop after N rounds or jump back to point A ourselves.
+  function applyLoop() {
+    if (S.el) S.el.loop = settings.mode === 'one' && !settings.limit && !abOn();
+  }
+
+  function addStats(bytes) {
+    stats.plays++;
+    stats.bytes += bytes;
+    store.set('stats', stats);
+    paintStats();
+  }
+
+  // One full pass finished (file, A–B part, or whole list). Returns false when
+  // the round limit has been reached and playback should stop.
+  function passDone(bytes) {
+    S.count++;
+    addStats(bytes);
+    if (settings.limit && S.count >= settings.limit) {
+      S.done = true;
+      updateBadge();
+      toast(`เล่นครบ ${settings.limit} รอบแล้ว`);
+      return false;
+    }
+    updateBadge();
+    return true;
+  }
+
+  const abBytes = () => {
+    const it = current(), d = S.el && S.el.duration;
+    return it && d ? it.size * (S.b - S.a) / d : 0;
+  };
+
+  function checkAB() {
+    if (!abOn() || !S.el || S.el.paused || S.el.seeking) return;
+    if (S.el.currentTime >= S.b) {
+      if (passDone(abBytes())) seekTo(S.a);
+      else { S.el.pause(); seekTo(S.a); }
+    }
+  }
+
+  function onEnded(e) {
+    if (e.target !== S.el) return;
+    const it = current();
+    if (!it) return;
+    if (abOn()) {
+      if (passDone(abBytes())) { seekTo(S.a); play(); }
+      else seekTo(S.a);
+      return;
+    }
+    if (settings.mode === 'one') {
+      if (passDone(it.size)) { seekTo(0); play(); }
+      return;
+    }
+    const i = S.items.findIndex((x) => x.id === S.id);
+    const last = i === S.items.length - 1;
+    if (settings.mode === 'all') {
+      if (!last) { addStats(it.size); select(S.items[i + 1].id, { autoplay: true, keepCount: true }); return; }
+      if (!passDone(it.size)) return;
+      const first = S.items[0];
+      if (first.id === S.id) { seekTo(0); play(); }
+      else select(first.id, { autoplay: true, keepCount: true });
+      return;
+    }
+    // mode 'off': play through the list once
+    addStats(it.size);
+    if (!last) select(S.items[i + 1].id, { autoplay: true });
+  }
+
+  function onTimeUpdate(e) {
+    if (e.target !== S.el) return;
+    const el = S.el, t = el.currentTime;
+    // With the native loop attribute there is no 'ended' event; spot the jump back to the start instead.
+    if (el.loop && t + 0.3 < S.lastT && performance.now() - S.seekAt > 800) {
+      const it = current();
+      if (it) passDone(it.size);
+    }
+    S.lastT = t;
+    checkAB();
+    if (!S.raf) paintTime();
+    savePosition();
+    setPosition();
+  }
+
+  let lastSave = 0;
+  function savePosition(force) {
+    const now = Date.now();
+    if (!S.el || (!force && now - lastSave < 4000)) return;
+    lastSave = now;
+    settings.lastTime = S.el.currentTime || 0;
+    saveSettings();
+  }
+
+  function paintTime() {
+    const el = S.el;
+    if (!el) return;
+    const d = Number.isFinite(el.duration) ? el.duration : 0, t = el.currentTime || 0;
+    if (!S.dragging) els.seek.value = t;
+    els.fill.style.width = d ? Math.min(100, (t / d) * 100) + '%' : '0';
+    const s = fmtTime(t);
+    if (els.tCur.textContent !== s) els.tCur.textContent = s;
+  }
+
+  function frame() {
+    S.raf = 0;
+    if (!S.el || S.el.paused) return;
+    checkAB();
+    paintTime();
+    S.raf = requestAnimationFrame(frame);
+  }
+
+  function onPlayState(e) {
+    if (e.target !== S.el) return;
+    const playing = !S.el.paused;
+    if (playing && S.done) { S.done = false; S.count = 0; updateBadge(); }
+    els.stage.classList.toggle('playing', playing);
+    updatePlayButton();
+    const li = els.list.querySelector('.item[aria-current="true"]');
+    if (li) li.classList.toggle('playing', playing);
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+    if (playing && !S.raf) S.raf = requestAnimationFrame(frame);
+    if (!playing) savePosition(true);
+  }
+
+  function onMeta(e) {
+    if (e.target !== S.el) return;
+    const el = S.el, it = current();
+    const d = Number.isFinite(el.duration) ? el.duration : 0;
+    els.seek.max = d || 1;
+    els.seek.disabled = !d;
+    els.tDur.textContent = fmtTime(d);
+    updateAB();
+    if (it && d && Math.abs((it.duration || 0) - d) > 0.5) {
+      it.duration = d;
+      DB.update(it).catch(() => {});
+      renderList();
+    }
+    setPosition();
+  }
+
+  function onMediaError(e) {
+    if (e.target !== S.el || !S.el.getAttribute('src')) return;
+    toast('เล่นไฟล์นี้ไม่ได้ — ไฟล์อาจเสีย หรือเบราว์เซอร์ไม่รองรับรูปแบบนี้', 'error');
+  }
+
+  function updatePlayButton() {
+    const playing = S.el && !S.el.paused;
+    els.playBtn.innerHTML = `<svg class="i"><use href="#i-${playing ? 'pause' : 'play'}"/></svg>`;
+    els.playBtn.setAttribute('aria-label', playing ? 'หยุดชั่วคราว' : 'เล่น');
+    const none = !S.items.length;
+    els.playBtn.disabled = none;
+    for (const b of [els.prevBtn, els.nextBtn]) b.disabled = S.items.length < 2;
+    for (const b of [els.backBtn, els.fwdBtn]) b.disabled = !S.el;
+  }
+
+  const MODE_HINT = {
+    one: 'เล่นไฟล์นี้ซ้ำไปเรื่อย ๆ',
+    all: 'เล่นทุกไฟล์ต่อกัน จบแล้ววนกลับไฟล์แรก',
+    off: 'เล่นจนจบรายการแล้วหยุด',
+  };
+  function setMode(mode) {
+    settings.mode = mode;
+    saveSettings();
+    S.count = 0; S.done = false;
+    document.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+    els.limitSel.disabled = mode === 'off';
+    els.modeHint.textContent = MODE_HINT[mode] + (mode !== 'off' && settings.limit ? ` · ${settings.limit} รอบแล้วหยุด` : '');
+    applyLoop();
+    updateBadge();
+    if ('mediaSession' in navigator && current()) setSession(current());
+  }
+
+  function updateBadge() {
+    let txt = '';
+    if (S.el) {
+      const lim = settings.limit;
+      if (abOn()) txt = `วนช่วง A–B · รอบที่ ${S.done ? S.count : S.count + 1}${lim ? '/' + lim : ''}`;
+      else if (settings.mode === 'one') txt = `รอบที่ ${S.done ? S.count : S.count + 1}${lim ? '/' + lim : ''}`;
+      else if (settings.mode === 'all') txt = `รอบรายการที่ ${S.done ? S.count : S.count + 1}${lim ? '/' + lim : ''}`;
+      if (S.done) txt = `ครบ ${S.count} รอบแล้ว`;
+    }
+    els.badge.textContent = txt;
+  }
+
+  /* ---------- A–B ---------- */
+  function updateAB() {
+    const has = !!S.el;
+    els.aBtn.disabled = els.bBtn.disabled = !has;
+    els.abClear.disabled = !has || (S.a == null && S.b == null);
+    els.aTag.textContent = S.a != null ? fmtFine(S.a) : '';
+    els.bTag.textContent = S.b != null ? fmtFine(S.b) : '';
+    els.aBtn.classList.toggle('set', S.a != null);
+    els.bBtn.classList.toggle('set', S.b != null);
+    const d = S.el && Number.isFinite(S.el.duration) ? S.el.duration : 0;
+    const z = els.abZone;
+    if (d && S.a != null) {
+      const a = S.a / d * 100, b = S.b != null ? S.b / d * 100 : a + 0.6;
+      z.style.left = a + '%';
+      z.style.width = Math.max(0.6, b - a) + '%';
+      z.classList.add('on');
+    } else z.classList.remove('on');
+  }
+  function setA() {
+    if (!S.el) return;
+    S.a = S.el.currentTime;
+    if (S.b != null && S.b <= S.a + 0.2) S.b = null;
+    S.count = 0; S.done = false;
+    applyLoop(); updateAB(); updateBadge();
+    toast(S.b == null ? `ตั้งจุด A ที่ ${fmtFine(S.a)} แล้ว — เล่นไปถึงจุดที่ต้องการแล้วกด “จุด B”` : `วนช่วง ${fmtFine(S.a)}–${fmtFine(S.b)}`);
+  }
+  function setB() {
+    if (!S.el) return;
+    const t = S.el.currentTime;
+    if (S.a == null) S.a = 0;
+    if (t <= S.a + 0.2) { toast('จุด B ต้องอยู่หลังจุด A', 'error'); return; }
+    S.b = t;
+    S.count = 0; S.done = false;
+    applyLoop(); updateAB(); updateBadge();
+    seekTo(S.a);
+    play();
+    toast(`วนช่วง ${fmtFine(S.a)}–${fmtFine(S.b)}`);
+  }
+  function clearAB() {
+    S.a = S.b = null;
+    S.count = 0; S.done = false;
+    applyLoop(); updateAB(); updateBadge();
+  }
+
+  /* ---------- Media Session (lock screen / headset buttons) ---------- */
+  function setSession(it) {
+    if (!('mediaSession' in navigator) || !window.MediaMetadata) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: it.name,
+      artist: 'LoopPlayer',
+      album: { one: 'วนไฟล์นี้', all: 'วนทั้งรายการ', off: 'เล่นตามรายการ' }[settings.mode],
+      artwork: [
+        { src: new URL('icon-192.png', location.href).href, sizes: '192x192', type: 'image/png' },
+        { src: new URL('icon-512.png', location.href).href, sizes: '512x512', type: 'image/png' },
+      ],
+    });
+  }
+  let lastPos = 0;
+  function setPosition() {
+    const el = S.el;
+    if (!el || !('mediaSession' in navigator) || !navigator.mediaSession.setPositionState) return;
+    const now = performance.now();
+    if (now - lastPos < 1000) return;
+    lastPos = now;
+    const d = el.duration;
+    if (!Number.isFinite(d) || !d) return;
+    try { navigator.mediaSession.setPositionState({ duration: d, position: Math.min(el.currentTime, d), playbackRate: el.playbackRate || 1 }); } catch { /* ignore */ }
+  }
+  if ('mediaSession' in navigator) {
+    const handlers = {
+      play: () => play(),
+      pause: () => S.el && S.el.pause(),
+      previoustrack: () => step(-1),
+      nexttrack: () => step(1),
+      seekbackward: (d) => seekBy(-((d && d.seekOffset) || 10)),
+      seekforward: (d) => seekBy((d && d.seekOffset) || 10),
+      seekto: (d) => d && d.seekTime != null && seekTo(d.seekTime),
+    };
+    for (const [action, fn] of Object.entries(handlers)) {
+      try { navigator.mediaSession.setActionHandler(action, fn); } catch { /* not supported */ }
+    }
+  }
+
+  /* =========================================================================
+   * Storage, stats, network, install
+   * ======================================================================= */
+  function paintStats() {
+    els.statSaved.innerHTML = stats.plays
+      ? `เล่นจากเครื่องครบแล้ว <b>${fmtInt(stats.plays)}</b> รอบ<br><span class="sub">ถ้าสตรีมจากเน็ตทุกรอบ จะใช้เน็ตไปราว <b>${fmtBytes(stats.bytes)}</b> — แอปนี้ไม่ใช้เลย</span>`
+      : 'ยังไม่ได้เล่นครบสักรอบ<br><span class="sub">ทุกรอบที่เล่นซ้ำจากเครื่อง คือเน็ตที่ประหยัดได้</span>';
+  }
+
+  async function refreshStorage() {
+    const total = S.items.reduce((s, x) => s + (x.size || 0), 0);
+    let txt = S.items.length ? `เก็บไว้ ${S.items.length} ไฟล์ ใช้พื้นที่ ${fmtBytes(total)}` : 'ยังไม่ได้เก็บไฟล์';
+    try {
+      if (navigator.storage && navigator.storage.estimate) {
+        const est = await navigator.storage.estimate();
+        if (est.quota) txt += ` · เหลือที่ว่างราว ${fmtBytes(Math.max(0, est.quota - (est.usage || 0)))}`;
+      }
+    } catch { /* ignore */ }
+    els.storageText.textContent = txt;
+    let persisted = null;
+    try { if (navigator.storage && navigator.storage.persisted) persisted = await navigator.storage.persisted(); } catch { /* ignore */ }
+    els.persistText.textContent = persisted === true
+      ? 'เบราว์เซอร์จะเก็บไฟล์ไว้ถาวร ไม่ลบเอง'
+      : persisted === false && S.items.length
+        ? 'เบราว์เซอร์อาจลบไฟล์เองเมื่อเครื่องใกล้เต็ม — ติดตั้งเป็นแอปช่วยให้เก็บได้นานขึ้น'
+        : '';
+  }
+  let askedPersist = false;
+  function askPersist() {
+    if (askedPersist || !navigator.storage || !navigator.storage.persist) return;
+    askedPersist = true;
+    navigator.storage.persist().then(refreshStorage, () => {});
+  }
+
+  let offlineReady = false;
+  function paintNet() {
+    const pill = els.netPill;
+    if (!navigator.onLine) { pill.dataset.state = 'offline'; pill.textContent = 'ออฟไลน์ · เล่นได้'; }
+    else if (offlineReady) { pill.dataset.state = 'ready'; pill.textContent = 'ใช้ออฟไลน์ได้'; }
+    else { pill.dataset.state = 'online'; pill.textContent = 'ออนไลน์'; }
+  }
+  window.addEventListener('online', paintNet);
+  window.addEventListener('offline', paintNet);
+
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(() => {
+      offlineReady = true;
+      paintNet();
+    }).catch(() => {});
+  }
+
+  let installEvt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    installEvt = e;
+    els.installBtn.hidden = false;
+  });
+  window.addEventListener('appinstalled', () => { els.installBtn.hidden = true; installEvt = null; toast('ติดตั้งแล้ว — เปิดจากหน้าจอหลักได้เลย'); });
+  els.installBtn.addEventListener('click', async () => {
+    if (!installEvt) return;
+    installEvt.prompt();
+    try { await installEvt.userChoice; } catch { /* ignore */ }
+    installEvt = null;
+    els.installBtn.hidden = true;
+  });
+
+  /* =========================================================================
+   * Wiring
+   * ======================================================================= */
+  for (const el of [els.audio, els.video]) {
+    el.addEventListener('timeupdate', onTimeUpdate);
+    el.addEventListener('ended', onEnded);
+    el.addEventListener('play', onPlayState);
+    el.addEventListener('pause', onPlayState);
+    el.addEventListener('loadedmetadata', onMeta);
+    el.addEventListener('error', onMediaError);
+    el.addEventListener('seeked', (e) => { if (e.target === S.el) { S.lastT = S.el.currentTime; paintTime(); } });
+  }
+  els.stage.addEventListener('click', (e) => { if (S.el && !e.target.closest('button')) togglePlay(); });
+
+  els.playBtn.addEventListener('click', togglePlay);
+  els.prevBtn.addEventListener('click', () => step(-1));
+  els.nextBtn.addEventListener('click', () => step(1));
+  els.backBtn.addEventListener('click', () => seekBy(-10));
+  els.fwdBtn.addEventListener('click', () => seekBy(10));
+
+  els.seek.addEventListener('pointerdown', () => { S.dragging = true; });
+  const endDrag = () => { S.dragging = false; };
+  els.seek.addEventListener('pointerup', endDrag);
+  els.seek.addEventListener('pointercancel', endDrag);
+  els.seek.addEventListener('change', endDrag);
+  els.seek.addEventListener('input', () => seekTo(Number(els.seek.value)));
+
+  document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  els.limitSel.addEventListener('change', () => {
+    settings.limit = Number(els.limitSel.value) || 0;
+    saveSettings();
+    setMode(settings.mode);
+  });
+  els.rateSel.addEventListener('change', () => {
+    settings.rate = Number(els.rateSel.value) || 1;
+    saveSettings();
+    if (S.el) { S.el.defaultPlaybackRate = settings.rate; S.el.playbackRate = settings.rate; }
+  });
+  els.aBtn.addEventListener('click', setA);
+  els.bBtn.addEventListener('click', setB);
+  els.abClear.addEventListener('click', () => { clearAB(); toast('ล้างช่วง A–B แล้ว'); });
+
+  els.audioOnlyBtn.addEventListener('click', () => {
+    settings.audioOnly = !settings.audioOnly;
+    saveSettings();
+    const it = current();
+    if (!it || !S.el) return;
+    const t = S.el.currentTime, wasPlaying = !S.el.paused;
+    select(it.id, { autoplay: wasPlaying, startAt: t, keep: true });
+    toast(settings.audioOnly ? 'ฟังเฉพาะเสียง — ล็อกหน้าจอได้ เสียงยังเล่นต่อ' : 'กลับมาแสดงวิดีโอ');
+  });
+  els.fsBtn.addEventListener('click', () => {
+    const v = els.video;
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (els.stage.requestFullscreen) els.stage.requestFullscreen().catch(() => {});
+    else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+  });
+
+  els.pickBtn.addEventListener('click', () => els.fileInput.click());
+  $('emptyPick').addEventListener('click', () => els.fileInput.click());
+  els.fileInput.addEventListener('change', () => {
+    const files = els.fileInput.files;
+    addFiles(files).finally(() => { els.fileInput.value = ''; });
+  });
+  els.showUrl.addEventListener('click', () => {
+    const open = els.urlForm.hidden;
+    els.urlForm.hidden = !open;
+    els.showUrl.setAttribute('aria-expanded', String(open));
+    if (open) els.urlInput.focus();
+  });
+  els.urlForm.addEventListener('submit', (e) => { e.preventDefault(); downloadUrl(els.urlInput.value); });
+  els.jobCancel.addEventListener('click', () => { if (dl) dl.abort(); });
+  els.list.addEventListener('click', onListClick);
+
+  // Drag and drop files anywhere on the page.
+  let dragDepth = 0;
+  const hasFiles = (e) => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+  window.addEventListener('dragenter', (e) => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth++; document.body.classList.add('dragging'); });
+  window.addEventListener('dragover', (e) => { if (hasFiles(e)) e.preventDefault(); });
+  window.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dragging'); } });
+  window.addEventListener('drop', (e) => {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    dragDepth = 0;
+    document.body.classList.remove('dragging');
+    addFiles(e.dataTransfer.files);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'select' || tag === 'textarea' || e.target.isContentEditable) return;
+    const k = e.key;
+    if (k === ' ' || k === 'k') {
+      if (tag === 'button' && k === ' ') return; // let Space press the focused button
+      e.preventDefault(); togglePlay();
+    } else if (k === 'ArrowLeft') { e.preventDefault(); seekBy(-5); }
+    else if (k === 'ArrowRight') { e.preventDefault(); seekBy(5); }
+    else if (k === 'l' || k === 'L') { const order = ['one', 'all', 'off']; setMode(order[(order.indexOf(settings.mode) + 1) % 3]); toast(MODE_HINT[settings.mode]); }
+    else if (k === 'a' || k === 'A') setA();
+    else if (k === 'b' || k === 'B') setB();
+    else if (k === 'n' || k === 'N') step(1);
+    else if (k === 'p' || k === 'P') step(-1);
+  });
+
+  window.addEventListener('pagehide', () => savePosition(true));
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') savePosition(true); });
+
+  /* =========================================================================
+   * Start
+   * ======================================================================= */
+  els.limitSel.value = String(settings.limit);
+  if (!els.limitSel.value) { els.limitSel.value = '0'; settings.limit = 0; }
+  els.rateSel.value = String(settings.rate);
+  if (!els.rateSel.value) { els.rateSel.value = '1'; settings.rate = 1; }
+  setMode(settings.mode in MODE_HINT ? settings.mode : 'one');
+  paintNet();
+  paintStats();
+  updatePlayButton();
+  updateAB();
+
+  DB.all().then((items) => {
+    S.items = items.sort((x, y) => x.added - y.added);
+    renderList();
+    updatePlayButton();
+    refreshStorage();
+    if (settings.lastId && S.items.some((x) => x.id === settings.lastId)) {
+      select(settings.lastId, { startAt: settings.lastTime || 0 });
+    }
+  }).catch((e) => {
+    els.libEmpty.textContent = 'เปิดพื้นที่เก็บไฟล์ไม่ได้ — เบราว์เซอร์อาจอยู่ในโหมดส่วนตัว (Private) หรือปิดการเก็บข้อมูลเว็บไซต์ไว้';
+    els.libEmpty.hidden = false;
+    console.error(e);
+  });
+})();
+</script>
+</body>
+</html>
