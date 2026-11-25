@@ -433,8 +433,8 @@ button:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 3px; 
 </div>
 <script type="importmap">
 { "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  "three": "../../../js/vendor/three@0.160.0/build/three.module.js",
+  "three/addons/": "../../../js/vendor/three@0.160.0/examples/jsm/"
 } }
 </script>
 <script type="module">
@@ -582,6 +582,13 @@ const settings = { mode: 'mission', mission: null, nav: true, paint: 0, time: 'g
 try { Object.assign(settings, JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')); } catch (e) { /* storage blocked */ }
 if (!Array.isArray(settings.visited)) settings.visited = [];
 if (STORY) settings.mode = 'mission';
+// A damaged save must not stop the game: a setting that picks from a list, or is a number, goes back to its default.
+for (const k of ['paint', 'outfit']) if (!Number.isInteger(settings[k])) settings[k] = 0;
+if (![0, 1, 2, 3].includes(settings.cam)) settings.cam = 0;
+if (!['day', 'golden', 'dusk', 'night'].includes(settings.time)) settings.time = 'golden';
+if (!['auto', 'high', 'medium', 'low'].includes(settings.quality)) settings.quality = 'auto';
+if (!(typeof settings.volume === 'number' && settings.volume >= 0 && settings.volume <= 1)) settings.volume = 0.8;
+for (const k of ['odo', 'top']) if (!Number.isFinite(settings[k])) settings[k] = 0;
 let saveTimer = 0;
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(settings)); } catch (e) { /* storage blocked */ } }
 
@@ -4119,7 +4126,7 @@ const ENGINES = {
   electric: { th: 'มอเตอร์ไฟฟ้า', en: 'Electric motor', capTh: 'มอเตอร์ไฟฟ้า 80 กิโลวัตต์', capEn: 'Electric, 80 kW', electric: true, idle: 0, red: 10000 },
 };
 const ENGINE_LIST = ['evo', 'evoDrag', 'vtwin', 'vtwinLoud', 'vtwinStraight', 'single', 'ptwin', 'i4', 'v8', 'electric'];
-if (!ENGINES[settings.engine]) settings.engine = 'evo';
+if (!ENGINE_LIST.includes(settings.engine)) settings.engine = 'evo';
 if (!settings.evo) { settings.evo = 1; settings.engine = 'evo'; }   // the 1864 now has the carburetted 1,340 by default, once for everyone
 AUDIO.voice = ENGINES[settings.engine];
 // the bike's physics run on one rev scale; each engine's sound and rev counter use its own
@@ -5260,7 +5267,7 @@ function workMonth() {
   show();
 }
 function storyDone(r) {
-  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'cruiser' }, r), '*'); } catch (e) { /* not in a frame */ }
+  try { if (window.parent !== window) window.parent.postMessage(Object.assign({ tst: 'story', game: 'cruiser' }, r), location.protocol === 'file:' || location.origin === 'null' ? '*' : location.origin); } catch (e) { /* not in a frame */ }
 }
 function missionDone(P) {
   const m = settings.mission; m.done = true; settings.watch = true; save();
@@ -6606,9 +6613,9 @@ function chipsUI() {
   [['mission', MX.modeMission], ['free', MX.modeFree]].forEach(([n, l]) => chip(mr, l, (settings.mode || 'mission') === n, () => { settings.mode = n; save(); chipsUI(); }));
   const pr = $('paintRow'); pr.innerHTML = '';
   PAINTS.forEach((p, i) => chip(pr, T.paints[i], settings.paint === i, () => { setPaint(i); chipsUI(); }, 'swatch', p.css));
-  const nm = document.createElement('span'); nm.className = 'paintname'; nm.textContent = T.paints[settings.paint]; pr.appendChild(nm);
-  const V = ENGINES[settings.engine];
-  $('paintCap').innerHTML = `<b>Chandler 1864</b>${TH ? V.capTh : V.capEn} · ${T.paints[settings.paint]}<br>${TH ? OUTFITS[settings.outfit].th : OUTFITS[settings.outfit].en}`;
+  const nm = document.createElement('span'); nm.className = 'paintname'; nm.textContent = T.paints[settings.paint] || T.paints[0]; pr.appendChild(nm);
+  const V = ENGINES[settings.engine], O = OUTFITS[settings.outfit] || OUTFITS[0];
+  $('paintCap').innerHTML = `<b>Chandler 1864</b>${TH ? V.capTh : V.capEn} · ${T.paints[settings.paint] || T.paints[0]}<br>${TH ? O.th : O.en}`;
   const or = $('outfitRow'); or.innerHTML = '';
   OUTFITS.forEach((o, i) => chip(or, TH ? o.th : o.en, settings.outfit === i, () => { setOutfit(i); chipsUI(); }));
   for (const id of ['engineRow', 'engineRow2']) {
