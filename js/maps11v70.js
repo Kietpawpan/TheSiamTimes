@@ -58,7 +58,7 @@ Chart.register(ChartDataLabels);
 // ==== Apps Script backend ====
 // วาง Web app URL ของสคริปต์ใหม่ (apps-script/pm25-backend.gs) ที่นี่ หน้านี้จะใช้ตัวใหม่ทั้งข้อมูลรายวัน ค่าฝุ่น จุดความร้อน และผู้ช่วย AI (Claude)
 // ถ้ายังว่าง ใช้สคริปต์เดิม: ข้อมูลจากตัวแรก และ AI จากสคริปต์ Gemini ตัวที่สอง
-const NEW_BACKEND_URL = '';
+const NEW_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec'; // โปรเจกต์เดิมที่วางโค้ดใหม่ทับแล้ว (26 พ.ย. 2569)
 const LEGACY_DATA_URL = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec';
 const LEGACY_GEMINI_URL = 'https://script.google.com/macros/s/AKfycby2OvLen-3AxfZH2mJ9f-63DClvUT5RuSbbNDuD1_T6SqStLKDYKVapnPOVj_ir_ogj-Q/exec';
 const DATA_URL = NEW_BACKEND_URL || LEGACY_DATA_URL;
