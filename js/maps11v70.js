@@ -59,6 +59,7 @@ let globalDashboardData = []; // ตัวแปรสำหรับเก็�
 let globalWeatherData = {}; // ตัวแปรสำหรับเก็บข้อมูลสภาพอากาศไปให้ AI ประมวลผล
 let globalNasaHotspots = {}; // ตัวแปรเก็บจุดความร้อนจาก NASA ให้ AI ใช้
 let hotspotsFromNasa = false; // true เมื่อดึงจุดความร้อนสดจาก NASA สำเร็จ (false = ยังเป็นค่าจากชีต)
+let globalHotspotPoints = []; // พิกัดจุดความร้อนทั้งกรอบค้นหาของ Apps Script (รวมจังหวัดข้างเคียงและนอกประเทศ)
 
 // ปีฐานและปีเป้าหมายของคอลัมน์ "วันเกินมาตรฐาน" และ "จุดความร้อนสะสม" ในชีต (คอลัมน์ 8–11)
 // ขึ้นปีใหม่แก้ที่นี่ที่เดียว ทั้งกราฟ การ์ด และข้อมูลที่ส่งให้ AI จะเปลี่ยนตาม
@@ -886,6 +887,7 @@ async function fetchNasaHotspots() {
 
         if (data && data.counts) {
             hotspotsFromNasa = true;
+            globalHotspotPoints = Array.isArray(data.points) ? data.points : [];
             for (const [prov, count] of Object.entries(data.counts)) {
                 globalNasaHotspots[prov] = count;
                 const el = document.getElementById(`hotspot-val-${prov}`);
@@ -933,6 +935,100 @@ async function ensureFreshAiData() {
         Promise.allSettled([freshOrReload(weatherJob, loadWeather), freshOrReload(hotspotJob, loadHotspots)]),
         timeout
     ]);
+}
+
+// ==========================================
+// จุดความร้อนรอบพื้นที่ (แทนภาพแผนที่ NASA ที่ AI อ่านจุดเล็ก ๆ ไม่ออก)
+// ==========================================
+// Apps Script เก็บทุกจุดในกรอบ 100–105°E 13–17.5°N ไว้แล้ว จุดนอก 4 จังหวัดไม่มีชื่อจังหวัด
+// จึงจัดกลุ่มเองด้วยขอบเขตจังหวัด thailand.json (ชุดเดียวกับ fireRadar.html): จังหวัดอื่นของไทย หรือ นอกประเทศไทย
+const HOTSPOT_AREA_CENTER = { lat: 15.1, lon: 102.6 }; // ใจกลางพื้นที่ 4 จังหวัดโดยประมาณ
+let thaiBoundariesPromise = null;
+
+function loadThaiBoundaries() {
+    if (!thaiBoundariesPromise) {
+        thaiBoundariesPromise = fetch('thailand.json')
+            .then(r => r.ok ? r.json() : null)
+            .then(geo => {
+                if (!geo || !Array.isArray(geo.features)) return null;
+                return geo.features.map(f => {
+                    let minX = 180, minY = 90, maxX = -180, maxY = -90;
+                    const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+                    polys.forEach(p => p[0].forEach(([x, y]) => {
+                        minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+                    }));
+                    return { name: f.properties && f.properties.name, polys, box: [minX, minY, maxX, maxY] };
+                });
+            })
+            .catch(() => null);
+    }
+    return thaiBoundariesPromise;
+}
+
+function pointInRing(x, y, ring) {
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const [xi, yi] = ring[i], [xj, yj] = ring[j];
+        if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+    }
+    return inside;
+}
+
+function provinceAt(provinces, lon, lat) {
+    for (const p of provinces) {
+        const [minX, minY, maxX, maxY] = p.box;
+        if (lon < minX || lon > maxX || lat < minY || lat > maxY) continue;
+        if (p.polys.some(poly => pointInRing(lon, lat, poly[0]) && !poly.slice(1).some(h => pointInRing(lon, lat, h)))) return p.name;
+    }
+    return null;
+}
+
+async function summarizeAreaHotspots() {
+    if (!hotspotsFromNasa) return ['ไม่มีข้อมูลจุดความร้อนรอบพื้นที่ (ดึงจากระบบไม่สำเร็จ)'];
+    const pts = (globalHotspotPoints || []).filter(p => !isNaN(parseFloat(p.lat)) && !isNaN(parseFloat(p.lon)));
+    if (pts.length === 0) {
+        return ['ทั้งกรอบค้นหา 100–105°E 13–17.5°N (4 จังหวัด จังหวัดข้างเคียง และแนวชายแดนกัมพูชา) ไม่มีจุดความร้อนเลยแม้แต่จุดเดียว ' +
+                'กรณีนี้พบได้ยากในฤดูแล้ง อาจเป็นเพราะข้อมูลดาวเทียมไม่เข้า จึงยังสรุปไม่ได้ว่าไม่มีการเผา'];
+    }
+
+    const passTimes = pts.map(p => {
+        const d = String(p.date).replace(/'/g, '').slice(0, 10);
+        const t = String(p.time).replace(/'/g, '').padStart(4, '0');
+        return Date.parse(`${d}T${t.slice(0, 2)}:${t.slice(2, 4)}:00Z`); // เวลาใน FIRMS เป็น UTC
+    }).filter(n => !isNaN(n));
+    const lastPass = passTimes.length ? new Date(Math.max(...passTimes)) : null;
+
+    const outside = pts.filter(p => !TARGET_PROVINCES.includes(p.prov));
+    const lines = [`กรอบค้นหา 100–105°E 13–17.5°N มีจุดความร้อนรวม ${pts.length} จุด อยู่ใน 4 จังหวัด ${pts.length - outside.length} จุด นอก 4 จังหวัด ${outside.length} จุด` +
+        (lastPass ? ` (ดาวเทียมผ่านล่าสุด ${lastPass.getDate()} ${THAI_MONTHS_SHORT[lastPass.getMonth()]} เวลา ${thaiTime(lastPass)} น.)` : '')];
+    if (outside.length === 0) return lines;
+
+    const provinces = await Promise.race([loadThaiBoundaries(), new Promise(res => setTimeout(() => res(null), 10000))]);
+    if (provinces) {
+        const byProv = {};
+        let abroad = 0;
+        outside.forEach(p => {
+            const name = provinceAt(provinces, parseFloat(p.lon), parseFloat(p.lat));
+            if (name) byProv[name] = (byProv[name] || 0) + 1;
+            else abroad++;
+        });
+        const top = Object.entries(byProv).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n, c]) => `${n} ${c}`).join(', ');
+        const thaiOther = outside.length - abroad;
+        lines.push(`จังหวัดอื่นของไทยในกรอบ ${thaiOther} จุด${top ? ` (มากสุด: ${top})` : ''}`);
+        lines.push(`นอกประเทศไทยในกรอบ (ส่วนใหญ่เป็นกัมพูชาตอนเหนือตามแนวชายแดน) ${abroad} จุด`);
+    }
+
+    // ตำแหน่งของจุดนอก 4 จังหวัด เทียบกับใจกลางพื้นที่ ใช้คู่กับทิศที่ลมพัดมาเพื่อประเมินโอกาสควันเข้าพื้นที่
+    const byDir = {};
+    outside.forEach(p => {
+        const dLat = parseFloat(p.lat) - HOTSPOT_AREA_CENTER.lat;
+        const dLon = (parseFloat(p.lon) - HOTSPOT_AREA_CENTER.lon) * Math.cos(HOTSPOT_AREA_CENTER.lat * Math.PI / 180);
+        const dir = windDirName(Math.atan2(dLon, dLat) * 180 / Math.PI);
+        byDir[dir] = (byDir[dir] || 0) + 1;
+    });
+    lines.push('ตำแหน่งจุดนอก 4 จังหวัดเทียบกับใจกลางพื้นที่ สคพ.11: ' +
+        Object.entries(byDir).sort((a, b) => b[1] - a[1]).map(([d, c]) => `ทิศ${d} ${c} จุด`).join(' | '));
+    return lines;
 }
 
 // ==========================================
@@ -1000,14 +1096,14 @@ if (btnConfirmPassword) {
 
 // รวบรวมข้อมูลทั้งหมดบนหน้าเป็นข้อความเดียวส่งให้ AI
 // ระบุเวลา แหล่งที่มา และหน่วยของทุกค่า เพื่อไม่ให้ AI ตีความผิดหรือเติมตัวเลขเอง
-function buildAiContext(now) {
+function buildAiContext(now, areaHotspotLines = []) {
     const weatherAt = weatherJob ? thaiTime(weatherJob.startedAt) : '-';
     const hotspotAt = hotspotJob ? thaiTime(hotspotJob.startedAt) : '-';
 
     let text = `ข้อมูลจากหน้าเว็บศูนย์ฯ ณ ${thaiDateTime(now)}\n`;
     text += `เกณฑ์: มาตรฐาน PM₂.₅ เฉลี่ย 24 ชม. ไม่เกิน 37.5 มคก./ลบ.ม. (ใช้ตั้งแต่ 1 มิ.ย. 2566) | ระดับ: 0–15 ดีมาก, 15.1–25 ดี, 25.1–37.5 ปานกลาง, 37.6–75 เริ่มมีผลกระทบต่อสุขภาพ, 75.1 ขึ้นไป มีผลกระทบต่อสุขภาพ\n`;
     text += `เป้าหมายปี ${TARGET_YEAR_BE}: จำนวนวันที่ PM₂.₅ เกินมาตรฐานต้องลดลงอย่างน้อย 5% จากปี ${BASE_YEAR_BE}\n`;
-    text += `สภาพอากาศ ค่าฝุ่น Real-time และพยากรณ์ ดึงเมื่อ ${weatherAt} น. | จุดความร้อนดึงเมื่อ ${hotspotAt} น.`;
+    text += `สภาพอากาศ ค่าฝุ่น Real-time และพยากรณ์ ดึงเมื่อ ${weatherAt} น. | จุดความร้อนดึงเมื่อ ${hotspotAt} น. (ระบบซิงก์จาก NASA วันละ 2 รอบ 07.15 และ 17.00 น. นับย้อนหลัง 24 ชม. จากรอบซิงก์)`;
     if (!hotspotsFromNasa) text += ` (ดึงจาก NASA ไม่สำเร็จ ใช้ค่าจากชีตประจำวันแทน)`;
     text += `\n\n`;
 
@@ -1041,8 +1137,8 @@ function buildAiContext(now) {
         const remainingDays = targetDays - daysOverTarget;
         let quotaText;
         if (remainingDays > 0) quotaText = `เหลือโควต้า ${remainingDays} วัน`;
-        else if (remainingDays === 0) quotaText = `ไม่เหลือโควต้า (ชนเพดานเป้าหมายแล้ว)`;
-        else quotaText = `เกินเป้าหมายแล้ว ${Math.abs(remainingDays)} วัน`;
+        else if (remainingDays === 0) quotaText = `⚠️ หมดโควต้าแล้ว`;
+        else quotaText = `🚨 เกินโควต้า ${Math.abs(remainingDays)} วัน`;
 
         const w = globalWeatherData[province];
         const livePM = w ? w.currentPM25 : 'N/A';
@@ -1094,6 +1190,10 @@ function buildAiContext(now) {
     });
 
     text += `รวมจุดความร้อน 24 ชม. ในพื้นที่ สคพ.11 (4 จังหวัด): ${totalHotspots} จุด\n`;
+    if (areaHotspotLines.length) {
+        text += `\nจุดความร้อนรอบพื้นที่ (รอบซิงก์เดียวกัน):\n`;
+        areaHotspotLines.forEach(line => { text += `  - ${line}\n`; });
+    }
     return text;
 }
 
@@ -1131,7 +1231,7 @@ async function runAiAnalysis(password, mode) {
     resultDiv.innerHTML = `<div class="text-center text-purple-600 animate-pulse"><i>${loadingText} กรุณารอสักครู่ (อาจใช้เวลาถึง 1 นาที)</i></div>`;
 
     const analyzedAt = new Date();
-    const contextData = buildAiContext(analyzedAt);
+    const contextData = buildAiContext(analyzedAt, await summarizeAreaHotspots());
 
     try { 
         const response = await fetchAiWithBackoff(AI_ENDPOINT_URL, {
