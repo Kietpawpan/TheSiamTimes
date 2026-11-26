@@ -55,11 +55,21 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
 // ✨ พระเอกของเราอยู่ตรงนี้ครับ! สั่ง Register ให้ปลั๊กอินทำงาน
 Chart.register(ChartDataLabels);
 
+// ==== Apps Script backend ====
+// วาง Web app URL ของสคริปต์ใหม่ (apps-script/pm25-backend.gs) ที่นี่ หน้านี้จะใช้ตัวใหม่ทั้งข้อมูลรายวัน ค่าฝุ่น จุดความร้อน และผู้ช่วย AI (Claude)
+// ถ้ายังว่าง ใช้สคริปต์เดิม: ข้อมูลจากตัวแรก และ AI จากสคริปต์ Gemini ตัวที่สอง
+const NEW_BACKEND_URL = '';
+const LEGACY_DATA_URL = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec';
+const LEGACY_GEMINI_URL = 'https://script.google.com/macros/s/AKfycby2OvLen-3AxfZH2mJ9f-63DClvUT5RuSbbNDuD1_T6SqStLKDYKVapnPOVj_ir_ogj-Q/exec';
+const DATA_URL = NEW_BACKEND_URL || LEGACY_DATA_URL;
+const AI_ENDPOINT_URL = NEW_BACKEND_URL || LEGACY_GEMINI_URL;
+
 let globalDashboardData = []; // ตัวแปรสำหรับเก็บข้อมูลฝุ่นไปให้ AI ประมวลผล
 let globalWeatherData = {}; // ตัวแปรสำหรับเก็บข้อมูลสภาพอากาศไปให้ AI ประมวลผล
 let globalNasaHotspots = {}; // ตัวแปรเก็บจุดความร้อนจาก NASA ให้ AI ใช้
 let hotspotsFromNasa = false; // true เมื่อดึงจุดความร้อนสดจาก NASA สำเร็จ (false = ยังเป็นค่าจากชีต)
 let globalHotspotPoints = []; // พิกัดจุดความร้อนทั้งกรอบค้นหาของ Apps Script (รวมจังหวัดข้างเคียงและนอกประเทศ)
+let globalHotspotSync = null; // สถานะการซิงก์ NASA ล่าสุด (มีเฉพาะ backend ตัวใหม่)
 
 // ปีฐานและปีเป้าหมายของคอลัมน์ "วันเกินมาตรฐาน" และ "จุดความร้อนสะสม" ในชีต (คอลัมน์ 8–11)
 // ขึ้นปีใหม่แก้ที่นี่ที่เดียว ทั้งกราฟ การ์ด และข้อมูลที่ส่งให้ AI จะเปลี่ยนตาม
@@ -159,7 +169,7 @@ window.onload = function() {
 function startLoadingData() {
     updateDateText();
     
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec';
+    const apiUrl = DATA_URL;
 
     fetch(apiUrl)
         .then(response => {
@@ -650,7 +660,7 @@ function summarizeForecast(meteo) {
     return lines;
 }
 
-const GAS_LIVE_PM25_PROXY = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec';
+const GAS_LIVE_PM25_PROXY = DATA_URL;
 
 async function fetchWeatherData() {
     const weatherContainer = document.getElementById('weather-cards');
@@ -878,7 +888,7 @@ async function fetchWeatherData() {
 
 // ==== ดึงข้อมูล NASA ผ่าน Google Apps Script Proxy (ดึงจาก Cache ระบบที่ 2)
 async function fetchNasaHotspots() {
-    const GAS_NEW_HOTSPOT_PROXY = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec?action=hotspots';
+    const GAS_NEW_HOTSPOT_PROXY = `${DATA_URL}?action=hotspots`;
     
     try {
         const response = await fetch(GAS_NEW_HOTSPOT_PROXY);
@@ -888,6 +898,7 @@ async function fetchNasaHotspots() {
         if (data && data.counts) {
             hotspotsFromNasa = true;
             globalHotspotPoints = Array.isArray(data.points) ? data.points : [];
+            globalHotspotSync = data.sync || null;
             for (const [prov, count] of Object.entries(data.counts)) {
                 globalNasaHotspots[prov] = count;
                 const el = document.getElementById(`hotspot-val-${prov}`);
@@ -1034,15 +1045,11 @@ async function summarizeAreaHotspots() {
 // ==========================================
 // ฟังก์ชันสั่งการ AI (เพิ่มระบบ 2 โหมด)
 // ==========================================
-// URL ของ Apps Script ตัวใหม่ที่เรียก Claude (apps-script/pm25-claude-advisor.gs) วางหลัง Deploy
-// ถ้ายังว่าง ปุ่ม AI จะใช้สคริปต์ Gemini ตัวเดิมไปก่อน (ได้ข้อมูลชุดใหม่ที่แม่นขึ้นเหมือนกัน)
-const CLAUDE_ADVISOR_URL = '';
-const LEGACY_GEMINI_URL = 'https://script.google.com/macros/s/AKfycby2OvLen-3AxfZH2mJ9f-63DClvUT5RuSbbNDuD1_T6SqStLKDYKVapnPOVj_ir_ogj-Q/exec';
-const AI_ENDPOINT_URL = CLAUDE_ADVISOR_URL || LEGACY_GEMINI_URL;
+// URL ของ AI ตั้งที่ NEW_BACKEND_URL ด้านบนของไฟล์ (ยังว่าง = ใช้สคริปต์ Gemini เดิม แต่ได้ข้อมูลชุดใหม่ที่แม่นขึ้นเหมือนกัน)
 
 (function showAiCredit() {
     const el = document.getElementById('ai-credit');
-    if (el) el.textContent = CLAUDE_ADVISOR_URL ? 'Claude API (Anthropic) & Monte Kietpawpan' : 'Google Gemini API & Monte Kietpawpan';
+    if (el) el.textContent = NEW_BACKEND_URL ? 'Claude API (Anthropic) & Monte Kietpawpan' : 'Google Gemini API & Monte Kietpawpan';
 })();
 
 let currentAiMode = 'line_draft'; 
@@ -1105,6 +1112,15 @@ function buildAiContext(now, areaHotspotLines = []) {
     text += `เป้าหมายปี ${TARGET_YEAR_BE}: จำนวนวันที่ PM₂.₅ เกินมาตรฐานต้องลดลงอย่างน้อย 5% จากปี ${BASE_YEAR_BE}\n`;
     text += `สภาพอากาศ ค่าฝุ่น Real-time และพยากรณ์ ดึงเมื่อ ${weatherAt} น. | จุดความร้อนดึงเมื่อ ${hotspotAt} น. (ระบบซิงก์จาก NASA วันละ 2 รอบ 07.15 และ 17.00 น. นับย้อนหลัง 24 ชม. จากรอบซิงก์)`;
     if (!hotspotsFromNasa) text += ` (ดึงจาก NASA ไม่สำเร็จ ใช้ค่าจากชีตประจำวันแทน)`;
+    const sync = globalHotspotSync;
+    if (sync && sync.lastSuccessAt) {
+        const ok = new Date(sync.lastSuccessAt);
+        const satellite = { VIIRS_NOAA20_NRT: 'NOAA-20', VIIRS_NOAA21_NRT: 'NOAA-21', VIIRS_SNPP_NRT: 'Suomi NPP' }[sync.source] || sync.source || 'VIIRS';
+        text += `\nซิงก์จุดความร้อนจาก NASA สำเร็จล่าสุด ${ok.getDate()} ${THAI_MONTHS_SHORT[ok.getMonth()]} ${thaiTime(ok)} น. (ดาวเทียม ${satellite})`;
+        if (sync.lastErrorAt && new Date(sync.lastErrorAt) > ok) text += ` · การซิงก์รอบหลังจากนั้นล้มเหลว จุดความร้อนอาจไม่เป็นปัจจุบัน`;
+    } else if (sync && sync.lastErrorAt) {
+        text += `\nการซิงก์จุดความร้อนจาก NASA ล้มเหลว ข้อมูลจุดความร้อนอาจไม่ครบ`;
+    }
     text += `\n\n`;
 
     if (!globalDashboardData || globalDashboardData.length === 0) {
