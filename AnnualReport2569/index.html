@@ -119,6 +119,23 @@ h4 { font-size: 17px; margin-bottom: 8px; }
 .foreword p { text-indent: 2.2em; }
 .signature { text-align: right; color: var(--ink-2); margin-top: 12px; }
 
+/* Director's message */
+.dm { display: grid; gap: 22px; align-items: start; }
+@media (min-width: 860px) { .dm { grid-template-columns: 250px 1fr; gap: 32px; } .dm-photo { position: sticky; top: 80px; } }
+.dm > * { min-width: 0; }
+.dm-photo img { width: 100%; max-width: 320px; height: auto; aspect-ratio: 1; object-fit: cover; object-position: center 20%; border-radius: 16px; margin: 0 auto; }
+.dm-body p { text-indent: 2.2em; }
+.dm-list { list-style: none; margin: 0 0 1em; padding: 0; display: grid; gap: 8px; }
+.dm-list li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 14px; border-radius: 10px; background: var(--brand-soft); line-height: 1.6; }
+.dm-list.arrow li { background: color-mix(in srgb, var(--c2) 12%, var(--surface)); }
+.dm-list .ic { flex: none; width: 20px; height: 20px; margin-top: 3px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #fff; background: var(--brand-2); }
+.dm-list.arrow .ic { background: var(--c2); }
+.dm-sign { width: max-content; max-width: 100%; margin: 26px 0 0 auto; text-align: center; color: var(--ink-2); line-height: 1.6; }
+.dm-sign img { width: 240px; max-width: 100%; height: auto; margin: 0 auto 2px; }
+.dm-sign .n { color: var(--ink); font-weight: 600; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .dm-sign img { filter: invert(1); } }
+:root[data-theme="dark"] .dm-sign img { filter: invert(1); }
+
 /* Lists */
 ol.results, ul.plain { margin: 0; padding-left: 1.4em; }
 ol.results > li, ul.plain > li { margin: 0 0 .6em; padding-left: .2em; }
@@ -852,8 +869,9 @@ footer.site .row { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: 
       { id: 'operations', label: 'ผลการดำเนินงาน' }
     ];
     var dm = data.directorMessage;
-    var hasDM = dm && dm.paragraphs && dm.paragraphs.length;
-    if (hasDM) sections.splice(1, 0, { id: 'message', label: 'สารจากผู้อำนวยการ' });
+    var dmBody = dm ? (dm.body || dm.paragraphs || []) : [];
+    var hasDM = dmBody.length > 0;
+    if (hasDM) sections.splice(1, 0, { id: 'message', label: 'สารผู้อำนวยการ' });
     var toc = document.getElementById('toc');
     toc.innerHTML = '';
     sections.forEach(function (s) { toc.appendChild(h('a', { href: '#' + s.id, 'data-sec': s.id }, s.label)); });
@@ -893,9 +911,21 @@ footer.site .row { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: 
 
     if (hasDM) {
       var ms = section('message', null, 'สารจากผู้อำนวยการ');
-      ms.appendChild(h('div', { class: 'card director' },
-        dm.photo ? h('img', { src: dm.photo, alt: dm.name, loading: 'lazy' }) : null,
-        h('div', null, paras(dm.paragraphs), h('div', { class: 'signature' }, h('b', null, dm.name), h('br'), dm.position))));
+      ms.appendChild(h('div', { class: 'card dm' },
+        dm.photo ? h('div', { class: 'dm-photo' }, h('img', { src: dm.photo, alt: dm.name, loading: 'lazy', width: 720, height: 715 })) : null,
+        h('div', { class: 'dm-body' },
+          dmBody.map(function (b) {
+            if (typeof b === 'string') return h('p', null, b);
+            var arrow = b.style === 'arrow';
+            return h('ul', { class: 'dm-list' + (arrow ? ' arrow' : '') }, (b.items || []).map(function (it) {
+              return h('li', null, h('span', { class: 'ic', 'aria-hidden': 'true' }, arrow ? '→' : '✓'), h('span', null, it));
+            }));
+          }),
+          h('div', { class: 'dm-sign' },
+            dm.signature ? h('img', { src: dm.signature, alt: 'ลายมือชื่อ ' + dm.name, loading: 'lazy', width: 520, height: 62 }) : null,
+            h('div', { class: 'n' }, '(' + dm.name + ')'),
+            h('div', null, dm.position),
+            dm.date ? h('div', null, dm.date) : null))));
     }
 
     // ----- profile -----
