@@ -55,9 +55,67 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
 // ✨ พระเอกของเราอยู่ตรงนี้ครับ! สั่ง Register ให้ปลั๊กอินทำงาน
 Chart.register(ChartDataLabels);
 
+// ==== Apps Script backend ====
+// วาง Web app URL ของสคริปต์ใหม่ (apps-script/pm25-backend.gs) ที่นี่ หน้านี้จะใช้ตัวใหม่ทั้งข้อมูลรายวัน ค่าฝุ่น จุดความร้อน และผู้ช่วย AI (Claude)
+// ถ้ายังว่าง ใช้สคริปต์เดิม: ข้อมูลจากตัวแรก และ AI จากสคริปต์ Gemini ตัวที่สอง
+const NEW_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec'; // โปรเจกต์เดิมที่วางโค้ดใหม่ทับแล้ว (26 พ.ย. 2569)
+const LEGACY_DATA_URL = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec';
+const LEGACY_GEMINI_URL = 'https://script.google.com/macros/s/AKfycby2OvLen-3AxfZH2mJ9f-63DClvUT5RuSbbNDuD1_T6SqStLKDYKVapnPOVj_ir_ogj-Q/exec';
+const DATA_URL = NEW_BACKEND_URL || LEGACY_DATA_URL;
+const AI_ENDPOINT_URL = NEW_BACKEND_URL || LEGACY_GEMINI_URL;
+
 let globalDashboardData = []; // ตัวแปรสำหรับเก็บข้อมูลฝุ่นไปให้ AI ประมวลผล
 let globalWeatherData = {}; // ตัวแปรสำหรับเก็บข้อมูลสภาพอากาศไปให้ AI ประมวลผล
 let globalNasaHotspots = {}; // ตัวแปรเก็บจุดความร้อนจาก NASA ให้ AI ใช้
+let hotspotsFromNasa = false; // true เมื่อดึงจุดความร้อนสดจาก NASA สำเร็จ (false = ยังเป็นค่าจากชีต)
+let globalHotspotPoints = []; // พิกัดจุดความร้อนทั้งกรอบค้นหาของ Apps Script (รวมจังหวัดข้างเคียงและนอกประเทศ)
+let globalHotspotSync = null; // สถานะการซิงก์ NASA ล่าสุด (มีเฉพาะ backend ตัวใหม่)
+
+// ปีฐานและปีเป้าหมายของคอลัมน์ "วันเกินมาตรฐาน" และ "จุดความร้อนสะสม" ในชีต (คอลัมน์ 8–11)
+// ขึ้นปีใหม่แก้ที่นี่ที่เดียว ทั้งกราฟ การ์ด และข้อมูลที่ส่งให้ AI จะเปลี่ยนตาม
+const BASE_YEAR_BE = 2569;
+const TARGET_YEAR_BE = 2570;
+
+const TARGET_PROVINCES = ["นครราชสีมา", "ชัยภูมิ", "บุรีรัมย์", "สุรินทร์"];
+const THAI_DAYS = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+const THAI_MONTHS = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+function thaiTime(date) {
+    return `${String(date.getHours()).padStart(2, '0')}.${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function thaiDateTime(date) {
+    return `วัน${THAI_DAYS[date.getDay()]}ที่ ${date.getDate()} ${THAI_MONTHS[date.getMonth()]} ${date.getFullYear() + 543} เวลา ${thaiTime(date)} น.`;
+}
+
+function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// ตัวเลขสำหรับส่งให้ AI: ค่าที่ไม่มีเขียนว่า "ไม่มีข้อมูล" แทน NaN
+function fmtNum(value, digits = 1) {
+    const n = parseFloat(value);
+    return isNaN(n) ? 'ไม่มีข้อมูล' : String(Math.round(n * 10 ** digits) / 10 ** digits);
+}
+
+function getAqiLevelName(value) {
+    if (isNaN(value)) return 'ไม่มีข้อมูล';
+    if (value <= 15) return 'ดีมาก';
+    if (value <= 25) return 'ดี';
+    if (value <= 37.5) return 'ปานกลาง';
+    if (value <= 75) return 'เริ่มมีผลกระทบต่อสุขภาพ';
+    return 'มีผลกระทบต่อสุขภาพ';
+}
+
+// เกณฑ์ตามกราฟพยากรณ์อัตราการระบายอากาศของกรมอุตุนิยมวิทยา (ozone.tmd.go.th) เหมือน fireRadar.html
+// Poor < 2,000 · Fair 2,000–3,999 · Good 4,000–7,999 · Very Good ≥ 8,000 ตร.ม./วินาที
+function getVrStatus(vr) {
+    if (vr < 2000) return "แย่ (ฝุ่นสะสมตัว)";
+    if (vr < 4000) return "ปานกลาง";
+    if (vr < 8000) return "ดี";
+    return "ดีมาก (ฝุ่นกระจายตัวดี)";
+}
 
 function getAqiClass(value) {
     if (isNaN(value)) return 'bg-gray-300 text-gray-700';
@@ -111,7 +169,7 @@ window.onload = function() {
 function startLoadingData() {
     updateDateText();
     
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec';
+    const apiUrl = DATA_URL;
 
     fetch(apiUrl)
         .then(response => {
@@ -153,7 +211,7 @@ function renderDashboard(data) {
         "สุรินทร์": "#10B981"    // สีเขียว
     };
 
-    const targetProvinces = ["นครราชสีมา", "ชัยภูมิ", "บุรีรัมย์", "สุรินทร์"];
+    const targetProvinces = TARGET_PROVINCES;
     const seenProvinces = new Set();
 
     data.forEach(row => {
@@ -196,21 +254,21 @@ function renderDashboard(data) {
         if (remainingDays > 0) {
             quotaHtml = `
                 <div class="mt-2 text-xs p-2 bg-blue-100 text-blue-900 rounded-lg w-full text-left border border-blue-300">
-                    📉 <span class="font-bold">เป้าหมายลดฝุ่น 5% จากปี 69:</span> ต้องไม่เกิน ${target69} วัน<br>
+                    📉 <span class="font-bold">เป้าหมายลดฝุ่น 5% จากปี ${BASE_YEAR_BE % 100}:</span> ต้องไม่เกิน ${target69} วัน<br>
                     ⏳ <span class="font-bold text-green-700">เหลือโควต้าอีก: ${remainingDays} วัน</span>
                 </div>
             `;
         } else if (remainingDays === 0) {
             quotaHtml = `
                 <div class="mt-2 text-xs p-2 bg-orange-100 text-orange-900 rounded-lg w-full text-left border border-orange-400">
-                    ⚠️ <span class="font-bold">เป้าหมายลดฝุ่น 5% จากปี 69:</span> ต้องไม่เกิน ${target69} วัน<br>
+                    ⚠️ <span class="font-bold">เป้าหมายลดฝุ่น 5% จากปี ${BASE_YEAR_BE % 100}:</span> ต้องไม่เกิน ${target69} วัน<br>
                     🚨 <span class="font-bold text-orange-700">คำเตือน: วันนี้ฝุ่นเกินมาตรฐานชนเพดานเป้าหมายแล้ว!</span>
                 </div>
             `;
         } else {
             quotaHtml = `
                 <div class="mt-2 text-xs p-2 bg-red-200 text-red-900 rounded-lg w-full text-left border border-red-500 font-bold">
-                    ❌ เป้าหมายลดฝุ่น 5% จากปี 69: ต้องไม่เกิน ${target69} วัน<br>
+                    ❌ เป้าหมายลดฝุ่น 5% จากปี ${BASE_YEAR_BE % 100}: ต้องไม่เกิน ${target69} วัน<br>
                     ทะลุเป้าหมายแล้ว (เกินมา ${Math.abs(remainingDays)} วัน)
                 </div>
             `;
@@ -413,8 +471,8 @@ function renderDashboard(data) {
         data: {
             labels: chartLabels,
             datasets: [
-                { label: 'ปี 2569', data: daysOver68Data, backgroundColor: '#9CA3AF' },
-                { label: 'ปี 2570', data: daysOver69Data, backgroundColor: '#EF4444' }
+                { label: `ปี ${BASE_YEAR_BE}`, data: daysOver68Data, backgroundColor: '#9CA3AF' },
+                { label: `ปี ${TARGET_YEAR_BE}`, data: daysOver69Data, backgroundColor: '#EF4444' }
             ]
         },
         options: { 
@@ -430,8 +488,8 @@ function renderDashboard(data) {
         data: {
             labels: chartLabels,
             datasets: [
-                { label: 'ปี 2569', data: hotspot68Data, backgroundColor: '#9CA3AF' },
-                { label: 'ปี 2570', data: hotspot69Data, backgroundColor: '#F97316' }
+                { label: `ปี ${BASE_YEAR_BE}`, data: hotspot68Data, backgroundColor: '#9CA3AF' },
+                { label: `ปี ${TARGET_YEAR_BE}`, data: hotspot69Data, backgroundColor: '#F97316' }
             ]
         },
         options: { 
@@ -497,8 +555,8 @@ function renderDashboard(data) {
         }
     });
 
-    fetchWeatherData();
-    fetchNasaHotspots(); // เปิดการเรียกใช้ฟังก์ชันดึงจุดความร้อนแล้ว
+    loadWeather();
+    loadHotspots();
 }
 
 function showError(error) {
@@ -538,14 +596,71 @@ function getWeatherCondition(condCode) {
     }
 }
 
-function getWindDirectionThai(degree) {
-    if (degree === undefined || isNaN(degree)) return '-';
+function windDirName(degree) {
     const directions = ["เหนือ", "ตะวันออกเฉียงเหนือ", "ตะวันออก", "ตะวันออกเฉียงใต้", "ใต้", "ตะวันตกเฉียงใต้", "ตะวันตก", "ตะวันตกเฉียงเหนือ"];
-    const index = Math.round(((degree %= 360) < 0 ? degree + 360 : degree) / 45) % 8;
-    return directions[index] + ' (' + degree + '°)';
+    const d = ((degree % 360) + 360) % 360;
+    return directions[Math.round(d / 45) % 8];
 }
 
-const GAS_LIVE_PM25_PROXY = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec';
+function getWindDirectionThai(degree) {
+    if (degree === undefined || isNaN(degree)) return '-';
+    return windDirName(degree) + ' (' + (((degree % 360) + 360) % 360) + '°)';
+}
+
+// สรุปพยากรณ์รายชั่วโมงของ Open-Meteo (3 วัน) เป็นบรรทัดสั้น ๆ วันละบรรทัด ให้ AI ประเมินความเสี่ยง 24–48 ชม. จากข้อมูลจริง
+// VR = BLH × ความเร็วลม 10 ม. (สูตรเดียวกับการ์ดสภาพอากาศ) · ทิศลม = ทิศที่ลมพัดมา
+function summarizeForecast(meteo) {
+    const h = meteo && meteo.hourly;
+    if (!h || !Array.isArray(h.time)) return [];
+    const blh = h.boundary_layer_height || [];
+    const ws = h.wind_speed_10m || [];
+    const wd = h.wind_direction_10m || [];
+    const pop = h.precipitation_probability || [];
+    const rain = h.precipitation || [];
+    const isNum = v => typeof v === 'number' && !isNaN(v);
+    const hours = (base, from, to) => Array.from({ length: to - from + 1 }, (_, k) => base + from + k);
+    const mean = arr => { const v = arr.filter(isNum); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+    const vrAt = i => (isNum(blh[i]) && isNum(ws[i])) ? blh[i] * ws[i] : null;
+    const fmtVr = v => v === null ? 'ไม่มีข้อมูล' : `${Math.round(v).toLocaleString('en-US')} ระดับ${getVrStatus(v)}`;
+    const dayNames = ['วันนี้', 'พรุ่งนี้', 'มะรืนนี้'];
+
+    const lines = [];
+    for (let d = 0; d < 3; d++) {
+        const base = d * 24;
+        if (h.time.length < base + 24) break;
+        const [, m, dd] = h.time[base].slice(0, 10).split('-').map(Number);
+        const dateLabel = `${dayNames[d]} (${dd} ${THAI_MONTHS_SHORT[m - 1]})`;
+
+        const morningVr = mean(hours(base, 6, 9).map(vrAt));
+        let peak = null;
+        hours(base, 10, 17).forEach(i => { const v = vrAt(i); if (v !== null && (!peak || v > peak.v)) peak = { v, i }; });
+        const nightBlh = hours(base, 0, 8).map(i => blh[i]).filter(isNum);
+        const wsMean = mean(hours(base, 0, 23).map(i => ws[i]));
+
+        // ทิศลมเด่นช่วง 06–18 น.: เฉลี่ยแบบเวกเตอร์ถ่วงด้วยความเร็วลม
+        let sx = 0, sy = 0;
+        hours(base, 6, 18).forEach(i => {
+            if (isNum(wd[i]) && isNum(ws[i])) {
+                sx += Math.sin(wd[i] * Math.PI / 180) * ws[i];
+                sy += Math.cos(wd[i] * Math.PI / 180) * ws[i];
+            }
+        });
+        const dirText = (sx || sy) ? `พัดมาจากทิศ${windDirName(Math.atan2(sx, sy) * 180 / Math.PI)}` : 'ไม่มีข้อมูลทิศลม';
+
+        const pops = hours(base, 0, 23).map(i => pop[i]).filter(isNum);
+        const rains = hours(base, 0, 23).map(i => rain[i]).filter(isNum);
+
+        lines.push(`${dateLabel}: VR ช่วงเช้า 06–09 น. ${fmtVr(morningVr)}` +
+            ` | VR สูงสุดช่วงกลางวัน ${peak ? `${fmtVr(peak.v)} เวลา ${h.time[peak.i].slice(11, 13)}.00 น.` : 'ไม่มีข้อมูล'}` +
+            ` | BLH ต่ำสุด 00–08 น. ${nightBlh.length ? Math.round(Math.min(...nightBlh)) + ' ม.' : 'ไม่มีข้อมูล'}` +
+            ` | ลมเฉลี่ย ${wsMean === null ? 'ไม่มีข้อมูล' : (wsMean * 3.6).toFixed(1) + ' กม./ชม.'} ${dirText}` +
+            ` | โอกาสฝนสูงสุด ${pops.length ? Math.max(...pops) + '%' : 'ไม่มีข้อมูล'}` +
+            ` | ฝนรวม ${rains.length ? rains.reduce((a, b) => a + b, 0).toFixed(1) + ' มม.' : 'ไม่มีข้อมูล'}`);
+    }
+    return lines;
+}
+
+const GAS_LIVE_PM25_PROXY = DATA_URL;
 
 async function fetchWeatherData() {
     const weatherContainer = document.getElementById('weather-cards');
@@ -580,16 +695,24 @@ async function fetchWeatherData() {
     }
 
     const fetchPromises = provinces.map(async (prov) => {
+        let forecastLines = [];
         try {
-            const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${prov.lat}&longitude=${prov.lon}&hourly=boundary_layer_height,precipitation_probability&timezone=Asia%2FBangkok&forecast_days=1`;
+            // 3 วัน: ชั่วโมงของวันนี้ยังอยู่ที่ตำแหน่ง 0–23 เหมือนเดิม ส่วน 24–71 คือพรุ่งนี้และมะรืน (ใช้สรุปพยากรณ์ให้ AI)
+            const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${prov.lat}&longitude=${prov.lon}&hourly=boundary_layer_height,precipitation_probability,precipitation,wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=Asia%2FBangkok&forecast_days=3`;
             const [weatherResponse, meteoResponse] = await Promise.all([
                 fetchWithRetry(`${GAS_WEATHER_PROXY}?lat=${prov.lat}&lon=${prov.lon}`, 3, 1000).catch(() => null),
                 fetchWithRetry(meteoUrl, 3, 1000).catch(() => null)
             ]);
 
+            let meteoData = null;
+            if (meteoResponse && meteoResponse.ok) {
+                try { meteoData = await meteoResponse.json(); } catch (e) {}
+            }
+            forecastLines = summarizeForecast(meteoData);
+
             if (weatherResponse && weatherResponse.ok) {
                 const data = await weatherResponse.json();
-                
+
                 if (data && data.WeatherForecasts && data.WeatherForecasts.length > 0) {
                     const forecastObj = data.WeatherForecasts[0].forecasts[0]; 
                     const weatherData = forecastObj.data;
@@ -620,11 +743,10 @@ async function fetchWeatherData() {
                     let vrDisplay = '-';
                     let currentBlhVal = 0;
                     
-                    if (meteoResponse && meteoResponse.ok) {
+                    if (meteoData) {
                         try {
-                            const meteoData = await meteoResponse.json();
                             const currentHour = new Date().getHours();
-        
+
                             const currentBlh = meteoData.hourly.boundary_layer_height[currentHour];
                             if (currentBlh !== null && currentBlh !== undefined) {
                                 currentBlhVal = Math.round(currentBlh);
@@ -643,16 +765,7 @@ async function fetchWeatherData() {
                     if (weatherData.ws10m !== undefined && currentBlhVal > 0) {
                         const ws_ms = weatherData.ws10m;
                         const vrValue = Math.round(currentBlhVal * ws_ms);
-                        
-                        // เกณฑ์ตามกราฟพยากรณ์อัตราการระบายอากาศของกรมอุตุนิยมวิทยา (ozone.tmd.go.th) เหมือน fireRadar.html
-                        // Poor < 2,000 · Fair 2,000–3,999 · Good 4,000–7,999 · Very Good ≥ 8,000 ตร.ม./วินาที
-                        let vrStatus = "";
-                        if (vrValue < 2000) vrStatus = "แย่ (ฝุ่นสะสมตัว)";
-                        else if (vrValue < 4000) vrStatus = "ปานกลาง";
-                        else if (vrValue < 8000) vrStatus = "ดี";
-                        else vrStatus = "ดีมาก (ฝุ่นกระจายตัวดี)";
-
-                        vrDisplay = `${vrValue} ตร.ม./วินาที (${vrStatus})`;
+                        vrDisplay = `${vrValue} ตร.ม./วินาที (${getVrStatus(vrValue)})`;
                     }
 
                     // จัดการค่า Live PM₂.₅ ที่ดึงมาแล้ว
@@ -715,7 +828,9 @@ async function fetchWeatherData() {
                         rainChance: rainChanceDisplay,
                         blh: blhDisplay,
                         vr: vrDisplay,
-                        currentPM25: rawLivePM || 'N/A' 
+                        currentPM25: rawLivePM || 'N/A',
+                        tmdTime: displayTime,
+                        forecast: forecastLines
                     };
 
                     let windArrowHtml = '';
@@ -746,13 +861,21 @@ async function fetchWeatherData() {
                                 <span class="font-bold text-purple-800">📏 เพดานการระบายอากาศ:</span>
                                 <span class="font-bold text-purple-600">${blhDisplay}</span>
                             </div>
-                        </div>                  
+                        </div>
                     `;
+                } else {
+                    throw new Error("TMD returned no forecast");
                 }
             } else {
                 throw new Error("Failed to load TMD");
             }
         } catch (error) {
+            // ข้อมูลกรมอุตุฯ ใช้ไม่ได้ แต่ยังส่งค่าฝุ่นล่าสุดและพยากรณ์ Open-Meteo (ถ้ามี) ให้ AI ได้
+            globalWeatherData[prov.name] = {
+                unavailable: true,
+                currentPM25: livePMData[prov.name] || 'N/A',
+                forecast: forecastLines
+            };
             document.getElementById(`weather-${prov.name}`).innerHTML = `
                 <h4 class="font-bold text-blue-800 text-center border-b pb-2 mb-2">จ.${prov.name}</h4>
                 <div class="text-sm text-red-500 text-center py-4">ไม่สามารถดึงข้อมูลสภาพอากาศได้</div>
@@ -765,7 +888,7 @@ async function fetchWeatherData() {
 
 // ==== ดึงข้อมูล NASA ผ่าน Google Apps Script Proxy (ดึงจาก Cache ระบบที่ 2)
 async function fetchNasaHotspots() {
-    const GAS_NEW_HOTSPOT_PROXY = 'https://script.google.com/macros/s/AKfycbxuZ2j2Cuoy6xUEFO7N0wxV2O47ZqAV3eOOtkrRWdAk7C6Fz_mlvP6O5sAplBOH9HG4IA/exec?action=hotspots';
+    const GAS_NEW_HOTSPOT_PROXY = `${DATA_URL}?action=hotspots`;
     
     try {
         const response = await fetch(GAS_NEW_HOTSPOT_PROXY);
@@ -773,6 +896,9 @@ async function fetchNasaHotspots() {
         const data = await response.json();
 
         if (data && data.counts) {
+            hotspotsFromNasa = true;
+            globalHotspotPoints = Array.isArray(data.points) ? data.points : [];
+            globalHotspotSync = data.sync || null;
             for (const [prov, count] of Object.entries(data.counts)) {
                 globalNasaHotspots[prov] = count;
                 const el = document.getElementById(`hotspot-val-${prov}`);
@@ -790,8 +916,142 @@ async function fetchNasaHotspots() {
 }
 
 // ==========================================
+// ความสดของข้อมูลที่ส่งให้ AI
+// ==========================================
+// สภาพอากาศ ฝุ่น Real-time และจุดความร้อนดึงครั้งเดียวตอนเปิดหน้า ถ้าเปิดหน้าทิ้งไว้แล้วค่อยกดปุ่ม AI
+// ข้อมูลจะเก่า (เช่น BLH ตอนเช้าถูกใช้ตอนบ่าย) จึงดึงใหม่ก่อนวิเคราะห์ถ้าเก่ากว่ากำหนด
+const AI_DATA_MAX_AGE_MS = 20 * 60 * 1000;
+const PAGE_LOADED_DAY = new Date().toDateString();
+let weatherJob = null;  // { startedAt, promise }
+let hotspotJob = null;
+
+function loadWeather() {
+    weatherJob = { startedAt: new Date(), promise: fetchWeatherData().catch(err => console.error(err)) };
+    return weatherJob.promise;
+}
+
+function loadHotspots() {
+    hotspotJob = { startedAt: new Date(), promise: fetchNasaHotspots() };
+    return hotspotJob.promise;
+}
+
+function freshOrReload(job, loader) {
+    if (job && Date.now() - job.startedAt.getTime() < AI_DATA_MAX_AGE_MS) return job.promise; // กำลังดึงอยู่ หรือเพิ่งดึง
+    return loader();
+}
+
+async function ensureFreshAiData() {
+    const timeout = new Promise(res => setTimeout(res, 30000)); // ไม่รอเกิน 30 วินาที ใช้เท่าที่ได้
+    await Promise.race([
+        Promise.allSettled([freshOrReload(weatherJob, loadWeather), freshOrReload(hotspotJob, loadHotspots)]),
+        timeout
+    ]);
+}
+
+// ==========================================
+// จุดความร้อนรอบพื้นที่ (แทนภาพแผนที่ NASA ที่ AI อ่านจุดเล็ก ๆ ไม่ออก)
+// ==========================================
+// Apps Script เก็บทุกจุดในกรอบ 100–105°E 13–17.5°N ไว้แล้ว จุดนอก 4 จังหวัดไม่มีชื่อจังหวัด
+// จึงจัดกลุ่มเองด้วยขอบเขตจังหวัด thailand.json (ชุดเดียวกับ fireRadar.html): จังหวัดอื่นของไทย หรือ นอกประเทศไทย
+const HOTSPOT_AREA_CENTER = { lat: 15.1, lon: 102.6 }; // ใจกลางพื้นที่ 4 จังหวัดโดยประมาณ
+let thaiBoundariesPromise = null;
+
+function loadThaiBoundaries() {
+    if (!thaiBoundariesPromise) {
+        thaiBoundariesPromise = fetch('thailand.json')
+            .then(r => r.ok ? r.json() : null)
+            .then(geo => {
+                if (!geo || !Array.isArray(geo.features)) return null;
+                return geo.features.map(f => {
+                    let minX = 180, minY = 90, maxX = -180, maxY = -90;
+                    const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+                    polys.forEach(p => p[0].forEach(([x, y]) => {
+                        minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+                    }));
+                    return { name: f.properties && f.properties.name, polys, box: [minX, minY, maxX, maxY] };
+                });
+            })
+            .catch(() => null);
+    }
+    return thaiBoundariesPromise;
+}
+
+function pointInRing(x, y, ring) {
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const [xi, yi] = ring[i], [xj, yj] = ring[j];
+        if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+    }
+    return inside;
+}
+
+function provinceAt(provinces, lon, lat) {
+    for (const p of provinces) {
+        const [minX, minY, maxX, maxY] = p.box;
+        if (lon < minX || lon > maxX || lat < minY || lat > maxY) continue;
+        if (p.polys.some(poly => pointInRing(lon, lat, poly[0]) && !poly.slice(1).some(h => pointInRing(lon, lat, h)))) return p.name;
+    }
+    return null;
+}
+
+async function summarizeAreaHotspots() {
+    if (!hotspotsFromNasa) return ['ไม่มีข้อมูลจุดความร้อนรอบพื้นที่ (ดึงจากระบบไม่สำเร็จ)'];
+    const pts = (globalHotspotPoints || []).filter(p => !isNaN(parseFloat(p.lat)) && !isNaN(parseFloat(p.lon)));
+    if (pts.length === 0) {
+        return ['ทั้งกรอบค้นหา 100–105°E 13–17.5°N (4 จังหวัด จังหวัดข้างเคียง และแนวชายแดนกัมพูชา) ไม่มีจุดความร้อนเลยแม้แต่จุดเดียว ' +
+                'กรณีนี้พบได้ยากในฤดูแล้ง อาจเป็นเพราะข้อมูลดาวเทียมไม่เข้า จึงยังสรุปไม่ได้ว่าไม่มีการเผา'];
+    }
+
+    const passTimes = pts.map(p => {
+        const d = String(p.date).replace(/'/g, '').slice(0, 10);
+        const t = String(p.time).replace(/'/g, '').padStart(4, '0');
+        return Date.parse(`${d}T${t.slice(0, 2)}:${t.slice(2, 4)}:00Z`); // เวลาใน FIRMS เป็น UTC
+    }).filter(n => !isNaN(n));
+    const lastPass = passTimes.length ? new Date(Math.max(...passTimes)) : null;
+
+    const outside = pts.filter(p => !TARGET_PROVINCES.includes(p.prov));
+    const lines = [`กรอบค้นหา 100–105°E 13–17.5°N มีจุดความร้อนรวม ${pts.length} จุด อยู่ใน 4 จังหวัด ${pts.length - outside.length} จุด นอก 4 จังหวัด ${outside.length} จุด` +
+        (lastPass ? ` (ดาวเทียมผ่านล่าสุด ${lastPass.getDate()} ${THAI_MONTHS_SHORT[lastPass.getMonth()]} เวลา ${thaiTime(lastPass)} น.)` : '')];
+    if (outside.length === 0) return lines;
+
+    const provinces = await Promise.race([loadThaiBoundaries(), new Promise(res => setTimeout(() => res(null), 10000))]);
+    if (provinces) {
+        const byProv = {};
+        let abroad = 0;
+        outside.forEach(p => {
+            const name = provinceAt(provinces, parseFloat(p.lon), parseFloat(p.lat));
+            if (name) byProv[name] = (byProv[name] || 0) + 1;
+            else abroad++;
+        });
+        const top = Object.entries(byProv).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n, c]) => `${n} ${c}`).join(', ');
+        const thaiOther = outside.length - abroad;
+        lines.push(`จังหวัดอื่นของไทยในกรอบ ${thaiOther} จุด${top ? ` (มากสุด: ${top})` : ''}`);
+        lines.push(`นอกประเทศไทยในกรอบ (ส่วนใหญ่เป็นกัมพูชาตอนเหนือตามแนวชายแดน) ${abroad} จุด`);
+    }
+
+    // ตำแหน่งของจุดนอก 4 จังหวัด เทียบกับใจกลางพื้นที่ ใช้คู่กับทิศที่ลมพัดมาเพื่อประเมินโอกาสควันเข้าพื้นที่
+    const byDir = {};
+    outside.forEach(p => {
+        const dLat = parseFloat(p.lat) - HOTSPOT_AREA_CENTER.lat;
+        const dLon = (parseFloat(p.lon) - HOTSPOT_AREA_CENTER.lon) * Math.cos(HOTSPOT_AREA_CENTER.lat * Math.PI / 180);
+        const dir = windDirName(Math.atan2(dLon, dLat) * 180 / Math.PI);
+        byDir[dir] = (byDir[dir] || 0) + 1;
+    });
+    lines.push('ตำแหน่งจุดนอก 4 จังหวัดเทียบกับใจกลางพื้นที่ สคพ.11: ' +
+        Object.entries(byDir).sort((a, b) => b[1] - a[1]).map(([d, c]) => `ทิศ${d} ${c} จุด`).join(' | '));
+    return lines;
+}
+
+// ==========================================
 // ฟังก์ชันสั่งการ AI (เพิ่มระบบ 2 โหมด)
 // ==========================================
+// URL ของ AI ตั้งที่ NEW_BACKEND_URL ด้านบนของไฟล์ (ยังว่าง = ใช้สคริปต์ Gemini เดิม แต่ได้ข้อมูลชุดใหม่ที่แม่นขึ้นเหมือนกัน)
+
+(function showAiCredit() {
+    const el = document.getElementById('ai-credit');
+    if (el) el.textContent = NEW_BACKEND_URL ? 'Claude API (Anthropic) & Monte Kietpawpan' : 'Google Gemini API & Monte Kietpawpan';
+})();
+
 let currentAiMode = 'line_draft'; 
 
 function openAiPasswordModal(mode) {
@@ -841,116 +1101,156 @@ if (btnConfirmPassword) {
     });
 }
 
+// รวบรวมข้อมูลทั้งหมดบนหน้าเป็นข้อความเดียวส่งให้ AI
+// ระบุเวลา แหล่งที่มา และหน่วยของทุกค่า เพื่อไม่ให้ AI ตีความผิดหรือเติมตัวเลขเอง
+function buildAiContext(now, areaHotspotLines = []) {
+    const weatherAt = weatherJob ? thaiTime(weatherJob.startedAt) : '-';
+    const hotspotAt = hotspotJob ? thaiTime(hotspotJob.startedAt) : '-';
+
+    let text = `ข้อมูลจากหน้าเว็บศูนย์ฯ ณ ${thaiDateTime(now)}\n`;
+    text += `เกณฑ์: มาตรฐาน PM₂.₅ เฉลี่ย 24 ชม. ไม่เกิน 37.5 มคก./ลบ.ม. (ใช้ตั้งแต่ 1 มิ.ย. 2566) | ระดับ: 0–15 ดีมาก, 15.1–25 ดี, 25.1–37.5 ปานกลาง, 37.6–75 เริ่มมีผลกระทบต่อสุขภาพ, 75.1 ขึ้นไป มีผลกระทบต่อสุขภาพ\n`;
+    text += `เป้าหมายปี ${TARGET_YEAR_BE}: จำนวนวันที่ PM₂.₅ เกินมาตรฐานต้องลดลงอย่างน้อย 5% จากปี ${BASE_YEAR_BE}\n`;
+    text += `สภาพอากาศ ค่าฝุ่น Real-time และพยากรณ์ ดึงเมื่อ ${weatherAt} น. | จุดความร้อนดึงเมื่อ ${hotspotAt} น. (ระบบซิงก์จาก NASA วันละ 2 รอบ 07.15 และ 17.00 น. นับย้อนหลัง 24 ชม. จากรอบซิงก์)`;
+    if (!hotspotsFromNasa) text += ` (ดึงจาก NASA ไม่สำเร็จ ใช้ค่าจากชีตประจำวันแทน)`;
+    const sync = globalHotspotSync;
+    if (sync && sync.lastSuccessAt) {
+        const ok = new Date(sync.lastSuccessAt);
+        const satellite = { VIIRS_NOAA20_NRT: 'NOAA-20', VIIRS_NOAA21_NRT: 'NOAA-21', VIIRS_SNPP_NRT: 'Suomi NPP' }[sync.source] || sync.source || 'VIIRS';
+        text += `\nซิงก์จุดความร้อนจาก NASA สำเร็จล่าสุด ${ok.getDate()} ${THAI_MONTHS_SHORT[ok.getMonth()]} ${thaiTime(ok)} น. (ดาวเทียม ${satellite})`;
+        if (sync.lastErrorAt && new Date(sync.lastErrorAt) > ok) text += ` · การซิงก์รอบหลังจากนั้นล้มเหลว จุดความร้อนอาจไม่เป็นปัจจุบัน`;
+    } else if (sync && sync.lastErrorAt) {
+        text += `\nการซิงก์จุดความร้อนจาก NASA ล้มเหลว ข้อมูลจุดความร้อนอาจไม่ครบ`;
+    }
+    text += `\n\n`;
+
+    if (!globalDashboardData || globalDashboardData.length === 0) {
+        return text + 'ไม่มีข้อมูลฝุ่นรายจังหวัด (โหลดจาก Google Sheets ไม่สำเร็จ)\n';
+    }
+
+    let totalHotspots = 0;
+    const currentHour = now.getHours();
+
+    TARGET_PROVINCES.forEach(province => {
+        const row = globalDashboardData.find(r => r[1] === province);
+        if (!row) {
+            text += `* ${province}: ไม่มีข้อมูลในชีต\n\n`;
+            return;
+        }
+
+        const pmVal = parseFloat(row[2]);
+        const dayMinus1Num = parseFloat(row[4]);
+        const dayMinus2Num = parseFloat(row[5]);
+        const dayMinus3Num = parseFloat(row[6]);
+        const dayMinus4Num = parseFloat(row[7]);
+        const daysOverBase = parseFloat(row[8]) || 0;
+        const daysOverTarget = parseFloat(row[9]) || 0;
+        const hotspotAccBase = parseFloat(row[10]) || 0;
+        const hotspotAccTarget = parseFloat(row[11]) || 0;
+        const hotspot = parseInt(globalNasaHotspots[province]) || 0;
+        totalHotspots += hotspot;
+
+        const targetDays = Math.floor(daysOverBase * 0.95);
+        const remainingDays = targetDays - daysOverTarget;
+        let quotaText;
+        if (remainingDays > 0) quotaText = `เหลือโควต้า ${remainingDays} วัน`;
+        else if (remainingDays === 0) quotaText = `⚠️ หมดโควต้าแล้ว`;
+        else quotaText = `🚨 เกินโควต้า ${Math.abs(remainingDays)} วัน`;
+
+        const w = globalWeatherData[province];
+        const livePM = w ? w.currentPM25 : 'N/A';
+
+        let policyAdv;
+        if (pmVal >= 75.1) {
+            policyAdv = "มาตรการสีแดง (มีผลกระทบ): งดกิจกรรมกลางแจ้ง พิจารณา WFH และปิดสถานศึกษา แจ้งเตือน SMS บังคับใช้กฎหมายกับโรงงานและรถควันดำอย่างเด็ดขาด ห้ามเผาในพื้นที่เกษตรและป่าไม้เด็ดขาด";
+        } else if (pmVal >= 37.6) {
+            policyAdv = "มาตรการสีส้ม (เริ่มมีผลกระทบ): แจ้งเตือนกลุ่มเสี่ยง ควบคุมการเผาทางการเกษตรอย่างเคร่งครัด ตั้งจุดตรวจจับควันดำ และเฝ้าระวังการเกิดไฟป่า";
+        } else if (pmVal >= 25.1) {
+            policyAdv = "เฝ้าระวัง: ให้กลุ่มเสี่ยงระวังป้องกันตนเอง สวมหน้ากากอนามัย และเตรียมยกระดับมาตรการหากค่าฝุ่นสูงขึ้น";
+        } else if (!isNaN(pmVal)) {
+            policyAdv = "สถานการณ์ปกติ: ดำเนินมาตรการเฝ้าระวังตามปกติ";
+        } else {
+            policyAdv = "ไม่มีค่ารอบ 07.00 น. จึงยังกำหนดระดับมาตรการไม่ได้";
+        }
+
+        let trendWarning = "";
+        const currentPMNum = parseFloat(livePM) || pmVal;
+        if (currentHour >= 16 && currentPMNum > pmVal && currentPMNum >= 37.6) {
+            trendWarning = "ค่าฝุ่นช่วงบ่าย/เย็นสูงกว่าช่วงเช้า แสดงถึงการสะสมตัวเกินความสามารถในการระบายอากาศของวันนี้ หากกลางคืนเพดานอากาศ (BLH) ต่ำลง พรุ่งนี้เช้าสถานการณ์อาจแย่ลง ควรแจ้ง ทสจ. เตรียมประชาสัมพันธ์กลุ่มเสี่ยงล่วงหน้า";
+        } else if (dayMinus2Num > 25.0 && dayMinus1Num > 25.0 && currentPMNum >= 30.0 && dayMinus2Num < dayMinus1Num && dayMinus1Num < currentPMNum) {
+            trendWarning = "แนวโน้มฝุ่นสูงขึ้นต่อเนื่อง ควรพิจารณายกระดับมาตรการป้องกันก่อนเริ่มมีผลกระทบต่อสุขภาพ";
+        }
+
+        text += `* ${province}\n`;
+        text += `  - PM₂.₅ รอบ 07.00 น. วันนี้: ${fmtNum(pmVal)} มคก./ลบ.ม. (${getAqiLevelName(pmVal)})\n`;
+        text += `  - PM₂.₅ Real-time รายชั่วโมงล่าสุด (ดึงเมื่อ ${weatherAt} น.): ${fmtNum(livePM)} มคก./ลบ.ม.\n`;
+        text += `  - PM₂.₅ รอบ 07.00 น. ย้อนหลัง 4 วันก่อน → 3 วันก่อน → 2 วันก่อน → เมื่อวาน: ${fmtNum(dayMinus4Num)} → ${fmtNum(dayMinus3Num)} → ${fmtNum(dayMinus2Num)} → ${fmtNum(dayMinus1Num)}\n`;
+        text += `  - วันเกินมาตรฐาน: ปี ${BASE_YEAR_BE} รวม ${daysOverBase} วัน → เป้าหมายปี ${TARGET_YEAR_BE} ไม่เกิน ${targetDays} วัน | ปี ${TARGET_YEAR_BE} เกินแล้ว ${daysOverTarget} วัน | ${quotaText}\n`;
+        text += `  - จุดความร้อน 24 ชม. ล่าสุด (NASA FIRMS VIIRS): ${hotspot} จุด | สะสมปี ${BASE_YEAR_BE}: ${hotspotAccBase} จุด | สะสมปี ${TARGET_YEAR_BE}: ${hotspotAccTarget} จุด\n`;
+
+        if (w && !w.unavailable) {
+            text += `  - สภาพอากาศ (กรมอุตุนิยมวิทยา ข้อมูล ${w.tmdTime}): ${w.cond} | อุณหภูมิ ${w.temp} °C | ความชื้น ${w.rh} % | โอกาสเกิดฝน ${w.rainChance} | ลมพัดมาจากทิศ${w.windDir} ความเร็ว ${w.windSpeed}\n`;
+            text += `  - การระบายอากาศชั่วโมงปัจจุบัน (ณ ${weatherAt} น.): BLH ${w.blh} | VR ${w.vr}\n`;
+        } else {
+            text += `  - สภาพอากาศ: ไม่มีข้อมูลจากกรมอุตุนิยมวิทยาในรอบนี้\n`;
+        }
+        if (w && w.forecast && w.forecast.length) {
+            text += `  - พยากรณ์รายวัน (Open-Meteo, ค่าประมาณ):\n`;
+            w.forecast.forEach(line => { text += `      ${line}\n`; });
+        } else {
+            text += `  - พยากรณ์: ไม่มีข้อมูล\n`;
+        }
+        text += `  - คำแนะนำสุขภาพตามระดับ: ${getHealthAdvice(pmVal)}\n`;
+        text += `  - มาตรการตามระดับวันนี้: ${policyAdv}\n`;
+        if (trendWarning) text += `  - ข้อควรระวังจากระบบ: ${trendWarning}\n`;
+        text += `\n`;
+    });
+
+    text += `รวมจุดความร้อน 24 ชม. ในพื้นที่ สคพ.11 (4 จังหวัด): ${totalHotspots} จุด\n`;
+    if (areaHotspotLines.length) {
+        text += `\nจุดความร้อนรอบพื้นที่ (รอบซิงก์เดียวกัน):\n`;
+        areaHotspotLines.forEach(line => { text += `  - ${line}\n`; });
+    }
+    return text;
+}
+
+function setAiButtonsDisabled(disabled) {
+    ['btnAnalyze', 'btnFreeAdvice'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.disabled = disabled;
+        el.classList.toggle('opacity-50', disabled);
+        el.classList.toggle('cursor-not-allowed', disabled);
+    });
+}
+
 async function runAiAnalysis(password, mode) {
     const resultDiv = document.getElementById('aiResult');
-    const btnAnalyzeEl = document.getElementById('btnAnalyze');
-    const btnFreeAdviceEl = document.getElementById('btnFreeAdvice');
     
     resultDiv.style.display = 'block';
     resultDiv.classList.remove('hidden');
-    
-    let loadingText = mode === 'line_draft' ? 'กำลังร่างข้อความสำหรับ LINE...' : 'กำลังวิเคราะห์ข้อมูลเชิงลึก...';
-    resultDiv.innerHTML = `<div class="text-center text-purple-600 animate-pulse"><i>${loadingText} กรุณารอสักครู่</i></div>`;
-    
-    if (btnAnalyzeEl) {
-        btnAnalyzeEl.disabled = true;
-        btnAnalyzeEl.classList.add('opacity-50', 'cursor-not-allowed');
-    }
-    if (btnFreeAdviceEl) {
-        btnFreeAdviceEl.disabled = true;
-        btnFreeAdviceEl.classList.add('opacity-50', 'cursor-not-allowed');
+
+    // เปิดหน้าทิ้งไว้ข้ามวัน: ค่ารอบ 07.00 น. ในหน้าเป็นของเมื่อวาน ต้องโหลดหน้าใหม่ก่อน
+    if (new Date().toDateString() !== PAGE_LOADED_DAY) {
+        resultDiv.innerHTML = `
+            <div class="text-center text-orange-700">
+                ข้อมูลบนหน้านี้เป็นของวันก่อน กรุณาโหลดหน้าใหม่เพื่อดึงข้อมูลของวันนี้ก่อนให้ AI วิเคราะห์
+                <button onclick="location.reload()" class="mt-3 block mx-auto bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded-lg">🔄 โหลดหน้าใหม่</button>
+            </div>`;
+        return;
     }
 
-    const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycby2OvLen-3AxfZH2mJ9f-63DClvUT5RuSbbNDuD1_T6SqStLKDYKVapnPOVj_ir_ogj-Q/exec';
+    setAiButtonsDisabled(true);
+    resultDiv.innerHTML = `<div class="text-center text-purple-600 animate-pulse"><i>กำลังอัปเดตข้อมูลล่าสุด...</i></div>`;
+    await ensureFreshAiData();
 
-    let contextData = "ข้อมูลสถานการณ์รายจังหวัด:\n";
-    let totalHotspots = 0;
+    const loadingText = mode === 'line_draft' ? 'กำลังร่างข้อความสำหรับ LINE...' : 'กำลังวิเคราะห์ข้อมูลเชิงลึก...';
+    resultDiv.innerHTML = `<div class="text-center text-purple-600 animate-pulse"><i>${loadingText} กรุณารอสักครู่ (อาจใช้เวลาถึง 1 นาที)</i></div>`;
 
-    if (globalDashboardData && globalDashboardData.length > 1) {
-        globalDashboardData.forEach((row, index) => {
-            if (index > 0 && row[0]) { 
-                const province = row[1]; 
-                const pmToday = row[2];
-                const hotspot = globalNasaHotspots[province] !== undefined ? globalNasaHotspots[province] : 0;
-                const daysOver68 = parseFloat(row[8]) || 0; 
-                const daysOver69 = parseFloat(row[9]) || 0; 
-                
-                if (["นครราชสีมา", "ชัยภูมิ", "บุรีรัมย์", "สุรินทร์"].includes(province)) {
-                    totalHotspots += parseInt(hotspot) || 0;
-
-                    const target69 = Math.floor(daysOver68 * 0.95);
-                    const remainingDays = target69 - daysOver69;
-                    
-                    let quotaText = "";
-                    if (remainingDays > 0) {
-                        quotaText = `เหลือโควต้าอีก ${remainingDays} วัน`;
-                    } else if (remainingDays === 0) {
-                        quotaText = `ไม่มีโควต้าเหลือแล้ว ชนเพดานเป้าหมาย`;
-                    } else {
-                        quotaText = `เกินเป้าหมายแล้ว ${Math.abs(remainingDays)} วัน`;
-                    }
-
-                    let weatherText = "ไม่มีข้อมูลสภาพอากาศ";
-                    let livePMText = "ไม่มีข้อมูลเรียลไทม์";
-                    if (globalWeatherData[province]) {
-                        const w = globalWeatherData[province];
-                        weatherText = `สภาพอากาศ: ${w.cond} | อุณหภูมิ ${w.temp} °C | ความชื้น ${w.rh} % | โอกาสเกิดฝน ${w.rainChance} | ลม${w.windDir} ความเร็ว ${w.windSpeed} | เพดานการระบายอากาศ (BLH) ${w.blh} | อัตราการระบายอากาศ (VR) ${w.vr}`;
-                        livePMText = `PM₂.₅ ปัจจุบัน (Real-time): ${w.currentPM25} มคก./ลบ.ม.`;
-                    }
-
-                    const pmVal = parseFloat(pmToday); 
-                    const dayMinus1Num = parseFloat(row[4]);
-                    const dayMinus2Num = parseFloat(row[5]);
-                    const dayMinus3Num = parseFloat(row[6]); 
-                    const dayMinus4Num = parseFloat(row[7]); 
-
-                    let healthAdv = getHealthAdvice(pmVal);
-                    let policyAdv = "";
-                    
-                    if (pmVal >= 75.1) {
-                        policyAdv = "มาตรการสีแดง (มีผลกระทบ): งดกิจกรรมกลางแจ้ง พิจารณา WFH และปิดสถานศึกษา แจ้งเตือน SMS บังคับใช้กฎหมายกับโรงงานและรถควันดำอย่างเด็ดขาด ห้ามเผาในพื้นที่เกษตรและป่าไม้เด็ดขาด";
-                    } else if (pmVal >= 37.6) {
-                        policyAdv = "มาตรการสีส้ม (เริ่มมีผลกระทบ): แจ้งเตือนกลุ่มเสี่ยง ควบคุมการเผาทางการเกษตรอย่างเคร่งครัด ตั้งจุดตรวจจับควันดำ และเฝ้าระวังการเกิดไฟป่า";
-                    } else if (pmVal >= 25.1) {
-                        policyAdv = "เฝ้าระวัง: ให้กลุ่มเสี่ยงระวังป้องกันตนเอง สวมหน้ากากอนามัย และเตรียมยกระดับมาตรการหากค่าฝุ่นสูงขึ้น";
-                    } else {
-                        policyAdv = "สถานการณ์ปกติ: ดำเนินมาตรการเฝ้าระวังตามปกติ";
-                    }
-
-                    let trendWarning = "";
-                    let currentPMNum = parseFloat(globalWeatherData[province]?.currentPM25) || pmVal;
-                    const currentHour = new Date().getHours();
-                    
-                    if (currentHour >= 16 && currentPMNum > pmVal && currentPMNum >= 37.6) {
-                        trendWarning = "⚠️ ข้อควรระวังเพิ่มเติม: ค่าฝุ่นช่วงบ่าย/เย็นสูงกว่าช่วงเช้า แสดงถึงภาวะสะสมตัวรุนแรงเกินขีดความสามารถในการระบายอากาศของวันนี้ หากเข้าสู่ช่วงกลางคืนที่เพดานอากาศ (BLH) ปิด จะส่งผลให้พรุ่งนี้เช้าสถานการณ์ยิ่งวิกฤตลง ขอแจ้งให้ ทสจ. เตรียมประชาสัมพันธ์กลุ่มเสี่ยงรับมือล่วงหน้า";
-                    } 
-                    else if (dayMinus2Num > 25.0 && dayMinus1Num > 25.0 && currentPMNum >= 30.0 && dayMinus2Num < dayMinus1Num && dayMinus1Num < currentPMNum) {
-                        trendWarning = "⚠️ แจ้งเตือนพิเศษ: แนวโน้มฝุ่นสูงขึ้นอย่างต่อเนื่อง ควรพิจารณายกระดับมาตรการป้องกันปัญหาฝุ่น PM₂.₅ ก่อนจะเริ่มมีผลกระทบต่อสุขภาพ";
-                    }
-
-                    contextData += `* ${province}:\n`;
-                    contextData += `  - ${livePMText}\n`;
-                    contextData += `  - PM₂.₅ รอบ 07.00 น. เช้านี้: ${pmToday} มคก./ลบ.ม.\n`;
-                    contextData += `  - PM₂.₅ ย้อนหลัง 4 วัน: (เมื่อวาน: ${dayMinus1Num} | 2 วันก่อน: ${dayMinus2Num} | 3 วันก่อน: ${dayMinus3Num} | 4 วันก่อน: ${dayMinus4Num})\n`;
-                    contextData += `  - สถานะเป้าหมายปี 2569: ${quotaText} | พบจุดความร้อน ${hotspot} จุด\n`;
-                    contextData += `  - ${weatherText}\n`;
-                    contextData += `  - คำแนะนำสุขภาพ: ${healthAdv}\n`;
-                    contextData += `  - แนวทาง/มาตรการ: ${policyAdv}\n`;
-                    
-                    if (trendWarning !== "") {
-                        contextData += `  - ข้อควรระวัง: ${trendWarning}\n`;
-                    }
-                    contextData += `\n`;
-                }
-            }
-        });
-        contextData += `ยอดรวมจุดความร้อนทั้งหมดในพื้นที่ สคพ.11 (4 จังหวัด) วันนี้ ${totalHotspots} จุด\n`;
-    } else {
-        contextData += "- ไม่มีข้อมูลหรือรอการอัปเดต\n";
-    }
+    const analyzedAt = new Date();
+    const contextData = buildAiContext(analyzedAt, await summarizeAreaHotspots());
 
     try { 
-        const response = await fetchAiWithBackoff(gasWebAppUrl, {
+        const response = await fetchAiWithBackoff(AI_ENDPOINT_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8'
@@ -973,33 +1273,24 @@ async function runAiAnalysis(password, mode) {
             document.getElementById('passwordError').innerText = 'รหัสผ่านไม่ถูกต้อง โปรดลองอีกครั้ง';
             document.getElementById('aiPasswordInput').value = '';
             document.getElementById('aiPasswordInput').focus();
-            
-            if (btnAnalyzeEl) {
-                btnAnalyzeEl.disabled = false;
-                btnAnalyzeEl.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-            if (btnFreeAdviceEl) {
-                btnFreeAdviceEl.disabled = false;
-                btnFreeAdviceEl.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-            
             return;
         }
         
         if (data.result) {
-            let cleanText = data.result
+            // escape ก่อน แล้วค่อยแปลง **ตัวหนา** กับขึ้นบรรทัดใหม่ กันโค้ด HTML แปลกปลอมในคำตอบ
+            const cleanText = escapeHtml(data.result)
                 .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
                 .replace(/\n/g, '<br>');
-            
-            resultDiv.innerHTML = cleanText;
-            
-            resultDiv.innerHTML += `
+
+            const engine = data.model ? `Claude (${escapeHtml(data.model)})` : 'AI';
+            resultDiv.innerHTML = cleanText + `
+                <div class="mt-3 text-xs text-gray-500">ประมวลผลโดย ${engine} เมื่อ ${thaiTime(analyzedAt)} น. จากข้อมูลบนหน้านี้ · โปรดตรวจทานตัวเลขก่อนส่งต่อ</div>
                 <button id="copyToLineBtn" class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-md flex justify-center items-center gap-2">
                     📋 คัดลอกข้อความไปที่ LINE
                 </button>
             `;
 
-            let clipboardText = data.result.replace(/\*\*(.*?)\*\*/g, '$1');
+            const clipboardText = data.result.replace(/\*\*(.*?)\*\*/g, '$1');
 
             const copyBtn = document.getElementById('copyToLineBtn');
             copyBtn.addEventListener('click', function() {
@@ -1021,21 +1312,12 @@ async function runAiAnalysis(password, mode) {
             });
 
         } else {
-            resultDiv.innerHTML = '<span class="text-red-600">เกิดข้อผิดพลาด: ' + (data.error || 'ไม่มีการส่งค่าผลลัพธ์กลับมา') + '</span>';
+            resultDiv.innerHTML = '<span class="text-red-600">เกิดข้อผิดพลาด: ' + escapeHtml(data.error || 'ไม่มีการส่งค่าผลลัพธ์กลับมา') + '</span>';
         }
     } catch (error) {
         console.error('Error fetching AI result:', error);
-        resultDiv.innerHTML = '<span class="text-red-600">ไม่สามารถเชื่อมต่อระบบประมวลผล AI ได้ โปรดตรวจสอบว่าท่านได้ใส่ URL ของ Apps Script ให้ถูกต้อง</span>';
+        resultDiv.innerHTML = '<span class="text-red-600">ไม่สามารถเชื่อมต่อระบบประมวลผล AI ได้ โปรดลองใหม่อีกครั้ง หรือตรวจสอบ URL ของ Apps Script</span>';
     } finally {
-        if (document.getElementById('passwordModal').classList.contains('hidden')) {
-            if (btnAnalyzeEl) {
-                btnAnalyzeEl.disabled = false;
-                btnAnalyzeEl.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-            if (btnFreeAdviceEl) {
-                btnFreeAdviceEl.disabled = false;
-                btnFreeAdviceEl.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        }
+        setAiButtonsDisabled(false);
     }
 }
