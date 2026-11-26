@@ -1110,6 +1110,7 @@ function buildAiContext(now, areaHotspotLines = []) {
     let text = `ข้อมูลจากหน้าเว็บศูนย์ฯ ณ ${thaiDateTime(now)}\n`;
     text += `เกณฑ์: มาตรฐาน PM₂.₅ เฉลี่ย 24 ชม. ไม่เกิน 37.5 มคก./ลบ.ม. (ใช้ตั้งแต่ 1 มิ.ย. 2566) | ระดับ: 0–15 ดีมาก, 15.1–25 ดี, 25.1–37.5 ปานกลาง, 37.6–75 เริ่มมีผลกระทบต่อสุขภาพ, 75.1 ขึ้นไป มีผลกระทบต่อสุขภาพ\n`;
     text += `เป้าหมายปี ${TARGET_YEAR_BE}: จำนวนวันที่ PM₂.₅ เกินมาตรฐานต้องลดลงอย่างน้อย 5% จากปี ${BASE_YEAR_BE}\n`;
+    text += `การอ่านโควต้า: ดูจากสัดส่วนที่ใช้ไปแล้ว จังหวัดที่ใช้ไป 0% ยังไม่ถือว่าโควต้าเหลือน้อย ตัวเลขโควต้าที่น้อยกว่าจังหวัดอื่นมาจากปีฐานมีวันเกินน้อย (อากาศดีกว่า) ไม่ได้แปลว่าใช้ไปมาก\n`;
     text += `สภาพอากาศ ค่าฝุ่น Real-time และพยากรณ์ ดึงเมื่อ ${weatherAt} น. | จุดความร้อนดึงเมื่อ ${hotspotAt} น. (ระบบซิงก์จาก NASA วันละ 2 รอบ 07.15 และ 17.00 น. นับย้อนหลัง 24 ชม. จากรอบซิงก์)`;
     if (!hotspotsFromNasa) text += ` (ดึงจาก NASA ไม่สำเร็จ ใช้ค่าจากชีตประจำวันแทน)`;
     const sync = globalHotspotSync;
@@ -1184,7 +1185,10 @@ function buildAiContext(now, areaHotspotLines = []) {
         text += `  - PM₂.₅ รอบ 07.00 น. วันนี้: ${fmtNum(pmVal)} มคก./ลบ.ม. (${getAqiLevelName(pmVal)})\n`;
         text += `  - PM₂.₅ Real-time รายชั่วโมงล่าสุด (ดึงเมื่อ ${weatherAt} น.): ${fmtNum(livePM)} มคก./ลบ.ม.\n`;
         text += `  - PM₂.₅ รอบ 07.00 น. ย้อนหลัง 4 วันก่อน → 3 วันก่อน → 2 วันก่อน → เมื่อวาน: ${fmtNum(dayMinus4Num)} → ${fmtNum(dayMinus3Num)} → ${fmtNum(dayMinus2Num)} → ${fmtNum(dayMinus1Num)}\n`;
-        text += `  - วันเกินมาตรฐาน: ปี ${BASE_YEAR_BE} รวม ${daysOverBase} วัน → เป้าหมายปี ${TARGET_YEAR_BE} ไม่เกิน ${targetDays} วัน | ปี ${TARGET_YEAR_BE} เกินแล้ว ${daysOverTarget} วัน | ${quotaText}\n`;
+        // สัดส่วนที่ใช้ไป ช่วยให้ AI ไม่ตีความว่าโควต้าน้อย (เพราะปีฐานอากาศดี) เท่ากับใกล้หมด
+        const usedText = targetDays > 0 ? ` (ใช้ไป ${Math.round(daysOverTarget / targetDays * 100)}% ของโควต้า)` : '';
+        const perDayText = targetDays > 0 && remainingDays > 0 ? ` · เกิน 1 วันเท่ากับ ${Math.round(100 / targetDays)}% ของโควต้าทั้งปี` : '';
+        text += `  - วันเกินมาตรฐาน: ปี ${BASE_YEAR_BE} รวม ${daysOverBase} วัน → เป้าหมายปี ${TARGET_YEAR_BE} ไม่เกิน ${targetDays} วัน | ปี ${TARGET_YEAR_BE} เกินแล้ว ${daysOverTarget} วัน${usedText} | ${quotaText}${perDayText}\n`;
         text += `  - จุดความร้อน 24 ชม. ล่าสุด (NASA FIRMS VIIRS): ${hotspot} จุด | สะสมปี ${BASE_YEAR_BE}: ${hotspotAccBase} จุด | สะสมปี ${TARGET_YEAR_BE}: ${hotspotAccTarget} จุด\n`;
 
         if (w && !w.unavailable) {
