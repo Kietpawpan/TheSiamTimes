@@ -569,7 +569,7 @@
         </div>
 
         <div class="panel" id="listPanel" hidden>
-            <h2>จุดความร้อนใกล้คุณ (เรียงตามระยะทาง)</h2>
+            <h2>จุดความร้อนใกล้คุณ (เรียงตามระยะทาง)<span id="hsCount"></span></h2>
             <ul class="hs-list" id="hsList"><li class="empty">ยังไม่มีข้อมูล</li></ul>
         </div>
 
@@ -1723,19 +1723,27 @@
             if (visor.open && visor.locked) renderVisor(); // แว่นสแกน: อัปเดตระยะ/ทิศ/เป้าตามตำแหน่งล่าสุด
         }
 
+        // แสดงจุดความร้อนในรัศมีครบทุกจุด (ไม่ตัดเหลือ 10 จุดแรก)
+        // GPS อัปเดตถี่ จึงเขียน DOM ใหม่เฉพาะเมื่อเนื้อหาเปลี่ยนจริง
+        let listHtml = '';
+        function setList(html, count) {
+            $('hsCount').textContent = count ? ' · ' + count.toLocaleString('th-TH') + ' จุด' : '';
+            if (html === listHtml) return;
+            listHtml = html;
+            $('hsList').innerHTML = html;
+        }
         function renderList() {
-            const ul = $('hsList');
-            if (!state.pos) { ul.innerHTML = '<li class="empty">รอตำแหน่งของคุณ…</li>'; return; }
-            if (state.dataStatus !== 'ok') { ul.innerHTML = '<li class="empty">ยังไม่มีข้อมูลจุดความร้อน</li>'; return; }
-            const items = state.hits.slice(0, 10);
+            if (!state.pos) { setList('<li class="empty">รอตำแหน่งของคุณ…</li>', 0); return; }
+            if (state.dataStatus !== 'ok') { setList('<li class="empty">ยังไม่มีข้อมูลจุดความร้อน</li>', 0); return; }
+            const items = state.hits;
             if (!items.length) {
                 const na = state.nearestAny;
-                ul.innerHTML = '<li class="empty">ไม่พบจุดความร้อนในรัศมี ' + esc(fmtRange(rangeKm())) +
+                setList('<li class="empty">ไม่พบจุดความร้อนในรัศมี ' + esc(fmtRange(rangeKm())) +
                     (na ? ' · จุดใกล้สุดอยู่ห่าง ' + esc(fmtDist(na.d)) + ' ทิศ' + esc(dirName(na.brg)) +
-                        (na.pt.sat ? ' ตรวจพบโดย<span class="nw">ดาวเทียม ' + esc(na.pt.sat) + '</span>' : '') : '') + '</li>';
+                        (na.pt.sat ? ' ตรวจพบโดย<span class="nw">ดาวเทียม ' + esc(na.pt.sat) + '</span>' : '') : '') + '</li>', 0);
                 return;
             }
-            ul.innerHTML = items.map(h => {
+            setList(items.map(h => {
                 const p = h.pt;
                 const nav = 'https://www.google.com/maps/dir/?api=1&destination=' + p.lat.toFixed(6) + ',' + p.lon.toFixed(6);
                 const when = p.time ? 'พบเมื่อ ' + fmtThai(p.time) : '';
@@ -1748,7 +1756,7 @@
                     '<div class="sub">' + sub + '</div></div>' +
                     '<a href="' + esc(nav) + '" target="_blank" rel="noopener">นำทาง</a>' +
                     '</li>';
-            }).join('') + (state.hits.length > items.length ? '<li class="empty">และอีก ' + (state.hits.length - items.length) + ' จุด</li>' : '');
+            }).join(''), items.length);
         }
 
         // ===================== รัศมีสแกน =====================
