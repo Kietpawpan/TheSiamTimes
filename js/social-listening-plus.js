@@ -11,6 +11,8 @@
  *  - Scores relevance: words like ประชุม or อบรม on their own no longer make a story count.
  *  - Groups the same story from several outlets, marks news that is new since the last scan,
  *    and shows live PM2.5 from the Pollution Control Department's Air4Thai stations.
+ *  - Nationwide scan (ทั่วประเทศ): also searches the keywords with no place, keeps stories
+ *    from any of the 77 provinces, and files ones naming no province as national news.
  *
  * The pure logic lives in SocialListeningPlus (tested in test/social-listening.test.js,
  * run with `node --test test/social-listening.test.js`); the part at the bottom connects it to the page and is
@@ -72,6 +74,70 @@
     "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย",
     "สุพรรณบุรี", "สุราษฎร์ธานี", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี",
     "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"];
+
+  /** All 77 provinces by region (the 6-region system), for the nationwide scan. */
+  var REGIONS = [
+    { name: "ภาคเหนือ", provinces: ["เชียงราย", "เชียงใหม่", "น่าน", "พะเยา", "แพร่", "แม่ฮ่องสอน", "ลำปาง",
+      "ลำพูน", "อุตรดิตถ์"] },
+    { name: "ภาคตะวันออกเฉียงเหนือ", provinces: ["นครราชสีมา", "ชัยภูมิ", "บุรีรัมย์", "สุรินทร์", "กาฬสินธุ์",
+      "ขอนแก่น", "นครพนม", "บึงกาฬ", "มหาสารคาม", "มุกดาหาร", "ยโสธร", "ร้อยเอ็ด", "เลย", "ศรีสะเกษ",
+      "สกลนคร", "หนองคาย", "หนองบัวลำภู", "อำนาจเจริญ", "อุดรธานี", "อุบลราชธานี"] },
+    { name: "ภาคกลาง", provinces: ["กรุงเทพมหานคร", "กำแพงเพชร", "ชัยนาท", "นครนายก", "นครปฐม", "นครสวรรค์",
+      "นนทบุรี", "ปทุมธานี", "พระนครศรีอยุธยา", "พิจิตร", "พิษณุโลก", "เพชรบูรณ์", "ลพบุรี", "สมุทรปราการ",
+      "สมุทรสงคราม", "สมุทรสาคร", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สระบุรี", "อ่างทอง", "อุทัยธานี"] },
+    { name: "ภาคตะวันออก", provinces: ["จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ตราด", "ปราจีนบุรี", "ระยอง", "สระแก้ว"] },
+    { name: "ภาคตะวันตก", provinces: ["กาญจนบุรี", "ตาก", "ประจวบคีรีขันธ์", "เพชรบุรี", "ราชบุรี"] },
+    { name: "ภาคใต้", provinces: ["กระบี่", "ชุมพร", "ตรัง", "นครศรีธรรมราช", "นราธิวาส", "ปัตตานี", "พังงา",
+      "พัทลุง", "ภูเก็ต", "ระนอง", "สตูล", "สงขลา", "สุราษฎร์ธานี", "ยะลา"] }
+  ];
+  var ALL_PROVINCES = [];
+  var REGION_OF = Object.create(null);
+  REGIONS.forEach(function (r) { r.provinces.forEach(function (p) { ALL_PROVINCES.push(p); REGION_OF[p] = r.name; }); });
+
+  /** Where a story has no province: national news, or a province we couldn't tell. */
+  var UNSPECIFIED = "ไม่ระบุจังหวัด";
+
+  /** Other names the news uses for a province. */
+  var PROVINCE_ALIASES = { "กรุงเทพมหานคร": ["กรุงเทพ", "กทม"], "พระนครศรีอยุธยา": ["อยุธยา"] };
+
+  /** Province names that are also everyday words: they only count as จ./จังหวัด. */
+  var NEEDS_PROVINCE_PREFIX = ["ตาก", "เลย", "แพร่"];
+
+  /** Places outside the 4 provinces that stories often name without the province. */
+  var NATIONAL_PLACES = {
+    "ระยอง": ["มาบตาพุด", "ปลวกแดง", "บ้านฉาง", "เกาะเสม็ด"],
+    "ชลบุรี": ["พัทยา", "ศรีราชา", "แหลมฉบัง", "สัตหีบ", "บางแสน"],
+    "ลำปาง": ["แม่เมาะ"],
+    "เชียงราย": ["แม่สาย", "เชียงแสน", "เชียงของ"],
+    "เชียงใหม่": ["ดอยสุเทพ", "ดอยอินทนนท์", "เชียงดาว", "แม่แจ่ม", "อมก๋อย"],
+    "ตาก": ["แม่สอด", "อุ้มผาง"],
+    "เลย": ["ภูกระดึง", "เชียงคาน", "วังสะพุง"],
+    "สงขลา": ["หาดใหญ่"],
+    "สุราษฎร์ธานี": ["เกาะสมุย", "สมุย", "เกาะพะงัน", "เกาะเต่า"],
+    "กระบี่": ["เกาะพีพี", "เกาะลันตา"],
+    "ประจวบคีรีขันธ์": ["หัวหิน", "บางสะพาน", "สามร้อยยอด"],
+    "กาญจนบุรี": ["คลิตี้"],
+    "เพชรบุรี": ["แก่งกระจาน"],
+    "นครศรีธรรมราช": ["ร่อนพิบูลย์", "ทุ่งสง"],
+    "ยะลา": ["เบตง"],
+    "เพชรบูรณ์": ["เขาค้อ", "ภูทับเบิก"],
+    "ฉะเชิงเทรา": ["บางปะกง"],
+    "สมุทรปราการ": ["บางพลี", "พระประแดง", "บางปู"],
+    "นนทบุรี": ["บางบัวทอง", "ปากเกร็ด"],
+    "ปทุมธานี": ["รังสิต"],
+    "ตราด": ["เกาะช้าง"]
+  };
+
+  /** Outlet names that contain a province name and say nothing about where a story is. */
+  var OUTLET_NAMES = [/กรุงเทพธุรกิจ/g];
+
+  /** Foreign places: a headline about one of them with no Thai province is foreign news.
+   *  Neighbours (กัมพูชา, เมียนมา, ลาว...) and จีน are left out: haze from across the border
+   *  and Chinese-owned factories in Thailand are local news. */
+  var FOREIGN_PLACES = ["อินเดีย", "ปากีสถาน", "บังกลาเทศ", "สหรัฐ", "อเมริกา", "แคลิฟอร์เนีย",
+    "ลอสแอนเจลิส", "ลอสแองเจลิส", "แคนาดา", "เม็กซิโก", "บราซิล", "ชิลี", "ยุโรป", "สหราชอาณาจักร", "ลอนดอน", "ฝรั่งเศส",
+    "เยอรมนี", "อิตาลี", "สเปน", "กรีซ", "ตุรกี", "รัสเซีย", "ยูเครน", "ออสเตรเลีย", "นิวซีแลนด์",
+    "ญี่ปุ่น", "เกาหลี", "ไต้หวัน", "ฮ่องกง", "ปักกิ่ง", "โตเกียว", "อินโดนีเซีย", "ฟิลิปปินส์", "แอฟริกา"];
 
   // ----------------------------------------------------------------------------------
   // Relevance
@@ -246,6 +312,64 @@
     return results.map(function (r) { return { province: r.province, how: r.how, position: r.rank }; });
   }
 
+  /** The story's text without outlet names, which would otherwise read as a place
+   *  (Google News puts the outlet's name at the end of each summary). */
+  function withoutOutletNames(article) {
+    var source = String(article.source || "").trim();
+    function clean(text) {
+      text = String(text || "");
+      if (source.length >= 3) text = text.split(source).join(" ");
+      OUTLET_NAMES.forEach(function (re) { text = text.replace(re, " "); });
+      return text;
+    }
+    return { title: clean(article.title), description: clean(article.description), source: source };
+  }
+
+  /**
+   * Which provinces anywhere in Thailand a story is about, best match first:
+   * [{ province, how: "province"|"district"|"place", position }]. The 4 provinces are matched
+   * by matchLocations (districts and all); the other 73 by name, alias or a well-known place.
+   */
+  function matchProvincesNationwide(article) {
+    var art = withoutOutletNames(article);
+    var title = art.title, full = title + " \n " + art.description;
+    var results = matchLocations(art);
+    var home = Object.create(null);
+    results.forEach(function (r) { home[r.province] = 1; });
+    ALL_PROVINCES.forEach(function (prov) {
+      if (home[prov] || LOCATIONS[prov]) return;
+      var best = null;
+      function consider(pos, how, inTitle) {
+        if (pos < 0) return;
+        var rank = (inTitle ? 0 : 100000) + pos;
+        if (!best || rank < best.position) best = { province: prov, how: how, position: rank };
+      }
+      function find(name, how) {
+        consider(placeIndex(title, name), how, true);
+        consider(placeIndex(full, name), how, false);
+      }
+      if (NEEDS_PROVINCE_PREFIX.indexOf(prov) >= 0) {
+        ["จ." + prov, "จ. " + prov, "จังหวัด" + prov].forEach(function (n) { find(n, "province"); });
+      } else {
+        [prov].concat(PROVINCE_ALIASES[prov] || []).forEach(function (n) { find(n, "province"); });
+      }
+      (NATIONAL_PLACES[prov] || []).forEach(function (n) { find(n, "place"); });
+      if (best) results.push(best);
+    });
+    results.sort(function (a, b) { return a.position - b.position; });
+    return results;
+  }
+
+  /** A headline about a foreign place that names no Thai province and not ไทย itself. */
+  function isForeignStory(article) {
+    var title = String(article.title || "");
+    if (title.indexOf("ไทย") >= 0) return false;
+    if (!FOREIGN_PLACES.some(function (p) { return title.indexOf(p) >= 0; })) return false;
+    return matchProvincesNationwide(article).length === 0;
+  }
+
+  function regionOf(province) { return REGION_OF[province] || ""; }
+
   // ----------------------------------------------------------------------------------
   // Search plan
   // ----------------------------------------------------------------------------------
@@ -298,6 +422,28 @@
   }
 
   /**
+   * Searches with no place in them, for the nationwide scan: the topic keywords alone, in
+   * small groups because each search returns at most 100 stories from the whole country.
+   * River and place names from the 4 provinces are left out (buildSearchPlan covers them).
+   * Takes the same options as buildSearchPlan, without provinces.
+   */
+  function buildNationalPlan(options) {
+    var deep = options.mode === "deep";
+    var groupSize = 4;
+    var skip = placeNames();
+    var groups = [];
+    if (options.custom && options.custom.length) groups = groups.concat(chunk(unique(options.custom), groupSize));
+    options.topics.forEach(function (terms) {
+      var list = unique(terms).filter(function (t) { return !skip[lower(t)]; });
+      groups = groups.concat(chunk(deep ? list : list.slice(0, 16), groupSize));
+    });
+    return groups.map(function (terms) {
+      return { query: (orGroup(terms) + " " + (options.when || "")).trim(),
+               province: null, kind: "national", terms: terms, places: [] };
+    });
+  }
+
+  /**
    * Google News date limit for a period. Google accepts "when:<days>d" up to a year and
    * "after:YYYY-MM-DD" for longer. ("when:1m", which the page used for 30 days, returns
    * nothing at all, and no limit returns stories from any year.)
@@ -315,7 +461,8 @@
     if (search.terms.length < 2) return [];
     var half = Math.ceil(search.terms.length / 2);
     return [search.terms.slice(0, half), search.terms.slice(half)].map(function (terms) {
-      return { query: (orGroup(search.places) + " " + orGroup(terms) + " " + (when || "")).trim(),
+      var where = search.places && search.places.length ? orGroup(search.places) + " " : "";
+      return { query: (where + orGroup(terms) + " " + (when || "")).trim(),
                province: search.province, kind: search.kind, terms: terms, places: search.places, isSplit: true };
     });
   }
@@ -422,6 +569,13 @@
   global.SocialListeningPlus = {
     LOCATIONS: LOCATIONS,
     OTHER_PROVINCES: OTHER_PROVINCES,
+    REGIONS: REGIONS,
+    ALL_PROVINCES: ALL_PROVINCES,
+    UNSPECIFIED: UNSPECIFIED,
+    regionOf: regionOf,
+    matchProvincesNationwide: matchProvincesNationwide,
+    isForeignStory: isForeignStory,
+    buildNationalPlan: buildNationalPlan,
     WEAK_TERMS: WEAK_TERMS,
     CONTEXT_TERMS: CONTEXT_TERMS,
     similarity: function (a, b) { return similarity(bigrams(normalizeTitle(a)), bigrams(normalizeTitle(b))); },
@@ -489,8 +643,17 @@
       if (SLP.isNoise(art)) return;
       var score = SLP.relevanceScore(art, settings.vocab);
       if (score < 2) return;
-      var places = SLP.matchLocations(art).filter(function (m) { return selected.indexOf(m.province) >= 0; });
-      if (!places.length) return;
+      var places;
+      if (settings.nationwide) {
+        // Keep stories from anywhere in Thailand; ones naming no province are national news.
+        places = SLP.matchProvincesNationwide(art);
+        if (!places.length && SLP.isForeignStory(art)) return;
+        art.matchedProvinces = places.map(function (m) { return m.province; });
+        if (!places.length) places = [{ province: SLP.UNSPECIFIED, how: "none" }];
+      } else {
+        places = SLP.matchLocations(art).filter(function (m) { return selected.indexOf(m.province) >= 0; });
+        if (!places.length) return;
+      }
       art.matchedProvince = places[0].province;
       art.matchedBy = places[0].how;
       art.relevance = score;
@@ -500,6 +663,7 @@
     var stories = SLP.groupStories(kept);
     return stories.map(function (story, i) {
       var item = classifySingleNewsItem(story, i, story.matchedProvince);
+      if (story.matchedProvinces && story.matchedProvinces.length) item.provinces = story.matchedProvinces.slice();
       item.outlets = story.outlets;
       item.outletCount = story.outletCount;
       item.matchedBy = story.matchedBy;
@@ -534,28 +698,32 @@
       .filter(function (l) { return l.length; });
 
     var when = SLP.whenOperator(tf.hours);
-    var queue = SLP.buildSearchPlan({ provinces: currentState.selectedProvinces, topics: topics, custom: custom,
-                                      mode: mode, when: when });
-    var settings = { vocab: SLP.buildVocabulary(TOPIC_CONFIG, custom), cutoff: Date.now() - tf.hours * 3600 * 1000 };
+    var nationwide = currentState.searchScope === "nation";
+    var queue = searchPlan({ topics: topics, custom: custom, mode: mode, when: when });
+    var settings = { vocab: SLP.buildVocabulary(TOPIC_CONFIG, custom), cutoff: Date.now() - tf.hours * 3600 * 1000,
+                     nationwide: nationwide };
     var seen = loadSeen();
     var raw = [], rawLinks = Object.create(null);
     var total = queue.length, done = 0, failed = 0, splits = 0, aborted = false;
     var lastRender = 0, renderTimer = null;
     // If the fetch service is down, keep what was on screen rather than replacing it with nothing.
     var previous = { items: currentState.newsItems, ai: currentState.aiExecutiveSummaryHtml,
-                     aiData: currentState.aiData, timeframe: currentState.dataTimeframe };
+                     aiData: currentState.aiData, timeframe: currentState.dataTimeframe, scope: currentState.dataScope };
 
     banner.classList.remove("hidden");
     btn.disabled = true;
     btn.classList.add("opacity-75");
     titleEl.textContent = "กำลังค้นหาข่าว" + (mode === "deep" ? "แบบละเอียด" : "แบบเร็ว") + " (" + tf.label + ")...";
-    subEl.textContent = "ค้นทั้งชื่อจังหวัด อำเภอ และสถานที่สำคัญ ใน " + currentState.selectedProvinces.join(" • ");
+    subEl.textContent = nationwide
+      ? "ค้นข่าวทั่วประเทศโดยไม่จำกัดจังหวัด และค้นละเอียดถึงระดับอำเภอใน 4 จังหวัดของ สคพ.11"
+      : "ค้นทั้งชื่อจังหวัด อำเภอ และสถานที่สำคัญ ใน " + currentState.selectedProvinces.join(" • ");
 
     function render(final) {
       lastRender = Date.now();
       var items = buildItems(raw, settings, seen);
       currentState.newsItems = items;
       currentState.dataTimeframe = currentState.timeframe;
+      currentState.dataScope = nationwide ? "nation" : "region";
       currentState.aiExecutiveSummaryHtml = null;
       currentState.aiData = null;
       renderDashboard();
@@ -611,6 +779,7 @@
         currentState.aiExecutiveSummaryHtml = previous.ai;
         currentState.aiData = previous.aiData;
         currentState.dataTimeframe = previous.timeframe;
+        currentState.dataScope = previous.scope;
         renderDashboard();
         showToast("เชื่อมต่อบริการดึงข่าวไม่สำเร็จ (" + failed + " ชุดคำค้น) ยังแสดงข่าวชุดเดิมอยู่ " +
                   "กรุณาลองใหม่ภายหลัง หรือเปิด Google News แล้วก๊อปปี้มาวางแทน", "error");
@@ -625,7 +794,7 @@
                   (failed ? " • ค้นไม่สำเร็จ " + failed + " ชุด" : ""), "success");
         document.getElementById("dashboardSection").scrollIntoView({ behavior: "smooth", block: "start" });
       } else {
-        showToast("ไม่พบข่าวสิ่งแวดล้อมในพื้นที่ช่วงนี้ ลองขยายห้วงเวลาหรือใช้การค้นหาแบบละเอียด" +
+        showToast("ไม่พบข่าวสิ่งแวดล้อม" + (nationwide ? "" : "ในพื้นที่") + "ช่วงนี้ ลองขยายห้วงเวลาหรือใช้การค้นหาแบบละเอียด" +
                   (failed ? " (ค้นไม่สำเร็จ " + failed + " ชุด)" : ""), "warning");
       }
     } catch (err) {
@@ -636,6 +805,15 @@
       btn.disabled = false;
       btn.classList.remove("opacity-75");
     }
+  }
+
+  /** The searches for the current settings. Nationwide: the keywords with no place at all,
+   *  plus the usual province and district searches for all 4 provinces. */
+  function searchPlan(options) {
+    var nationwide = currentState.searchScope === "nation";
+    var plan = SLP.buildSearchPlan({ provinces: nationwide ? Object.keys(SLP.LOCATIONS) : currentState.selectedProvinces,
+                                     topics: options.topics, custom: options.custom, mode: options.mode, when: options.when });
+    return nationwide ? SLP.buildNationalPlan(options).concat(plan) : plan;
   }
 
   // ---- Scan mode buttons -----------------------------------------------------------------
@@ -660,9 +838,10 @@
     var topics = currentState.selectedTopics.map(function (k) { return (TOPIC_CONFIG[k] || {}).searchTerms || []; })
       .filter(function (l) { return l.length; });
     var count = function (mode) {
-      return SLP.buildSearchPlan({ provinces: currentState.selectedProvinces, topics: topics, custom: [], mode: mode, when: "" }).length;
+      return searchPlan({ topics: topics, custom: [], mode: mode, when: "" }).length;
     };
-    el.textContent = "เร็ว ≈ " + count("quick") + " ชุดคำค้น • ละเอียด ≈ " + count("deep") + " ชุดคำค้น (รวมทุกอำเภอ)";
+    el.textContent = "เร็ว ≈ " + count("quick") + " ชุดคำค้น • ละเอียด ≈ " + count("deep") + " ชุดคำค้น" +
+      (currentState.searchScope === "nation" ? " (ทั่วประเทศ + ทุกอำเภอใน 4 จังหวัด)" : " (รวมทุกอำเภอ)");
   }
 
   // ---- PM2.5 panel ------------------------------------------------------------------------
@@ -744,9 +923,10 @@
 
   window.fetchGoogleNewsAndAnalyze = scanNews;
   window.selectScanMode = selectScanMode;
+  window.updateScanEstimate = updateScanEstimate;
   window.loadPm25 = loadPm25;
 
-  ["toggleProvince", "selectAllProvinces", "toggleTopic", "selectAllTopics"].forEach(function (name) {
+  ["toggleProvince", "selectAllProvinces", "toggleTopic", "selectAllTopics", "selectSearchScope"].forEach(function (name) {
     var original = window[name];
     if (typeof original !== "function") return;
     window[name] = function () { var r = original.apply(this, arguments); updateScanEstimate(); return r; };
