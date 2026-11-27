@@ -75,3 +75,48 @@ test("PM2.5 bands follow Air4Thai", () => {
   assert.equal(SLP.pm25Level(80).color, "rose");
   assert.equal(SLP.pm25Level(-1).label, "ไม่มีข้อมูล");
 });
+
+// ---- Nationwide scan (ทั่วประเทศ) ----
+
+const anywhere = (title, description = "", source = "") =>
+  SLP.matchProvincesNationwide({ title, description, source }).map((m) => m.province);
+
+test("nationwide: finds any of the 77 provinces, by name, alias or well-known place", () => {
+  assert.equal(SLP.ALL_PROVINCES.length, 77);
+  assert.deepEqual(anywhere("ฝุ่น PM2.5 เชียงใหม่ วิกฤตหนัก"), ["เชียงใหม่"]);
+  assert.deepEqual(anywhere("ค่าฝุ่น กทม. เกินมาตรฐาน"), ["กรุงเทพมหานคร"]);
+  assert.deepEqual(anywhere("ชาวบ้านมาบตาพุดร้องกลิ่นเหม็นจากนิคม"), ["ระยอง"]);
+  assert.deepEqual(anywhere("น้ำเสียจาก อ.พิมาย ไหลถึง จ.ขอนแก่น"), ["นครราชสีมา", "ขอนแก่น"]);
+});
+
+test("nationwide: province names that are everyday words need จ./จังหวัด", () => {
+  assert.deepEqual(anywhere("ตากผ้าไม่แห้ง ฝุ่นเกาะ"), []);
+  assert.deepEqual(anywhere("เผยแพร่ข้อมูลน้ำเสีย"), []);
+  assert.deepEqual(anywhere("ไฟป่า จ.ตาก ลุกลาม"), ["ตาก"]);
+});
+
+test("nationwide: an outlet's name is not where the story is", () => {
+  assert.deepEqual(anywhere("ค่าฝุ่นพุ่ง 40 จังหวัด", "ค่าฝุ่นพุ่ง 40 จังหวัด  กรุงเทพธุรกิจ", "กรุงเทพธุรกิจ"), []);
+});
+
+test("nationwide: foreign news is dropped, haze from neighbours and Thai stories are not", () => {
+  assert.equal(SLP.isForeignStory({ title: "ไฟป่าลอสแองเจลิสลุกลาม" }), true);
+  assert.equal(SLP.isForeignStory({ title: "ฝุ่นจากกัมพูชาพัดเข้าอีสาน" }), false);
+  assert.equal(SLP.isForeignStory({ title: "ญี่ปุ่นมอบเครื่องวัดฝุ่นให้ไทย" }), false);
+  assert.equal(SLP.isForeignStory({ title: "โรงงานทุนจีนลักลอบทิ้งกาก จ.ระยอง" }), false);
+});
+
+test("nationwide: searches have no place, skip regional river names, and split cleanly", () => {
+  const plan = SLP.buildNationalPlan({ topics: [["น้ำเสีย", "ปลาตาย", "ลำตะคอง", "แม่น้ำมูล", "น้ำเน่า"]], custom: [], mode: "deep", when: "when:7d" });
+  assert.deepEqual(plan.map((p) => p.query), ["(น้ำเสีย OR ปลาตาย OR น้ำเน่า) when:7d"]);
+  assert.ok(plan.every((p) => p.kind === "national" && p.province === null));
+  const parts = SLP.splitSearch(plan[0], "when:7d");
+  assert.deepEqual(parts.map((p) => p.query), ["(น้ำเสีย OR ปลาตาย) when:7d", "(น้ำเน่า) when:7d"]);
+});
+
+test("nationwide: every province belongs to one region", () => {
+  assert.equal(SLP.regionOf("นครราชสีมา"), "ภาคตะวันออกเฉียงเหนือ");
+  assert.equal(SLP.regionOf("ระยอง"), "ภาคตะวันออก");
+  assert.equal(new Set(SLP.ALL_PROVINCES).size, 77);
+  assert.ok(SLP.ALL_PROVINCES.every((p) => SLP.regionOf(p)));
+});
