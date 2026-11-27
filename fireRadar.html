@@ -474,7 +474,7 @@
                 </label>
                 <div style="display: flex; gap: 15px; align-items: center; font-size: 15px; margin-top: 10px; flex-wrap: wrap;">
                     <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="radio" name="timeFilter" value="12-all" class="time-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;" checked> 12 ชม. ล่าสุด
+                        <input type="radio" name="timeFilter" value="12-all" class="time-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> 12 ชม. ล่าสุด
                     </label>
                     <label style="display: flex; align-items: center; cursor: pointer;">
                         <input type="radio" name="timeFilter" value="24-all" class="time-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> 24 ชม.
@@ -490,10 +490,10 @@
                 <div id="satFilterGroup" style="display: flex; gap: 15px; align-items: center; font-size: 15px; margin-top: 12px; flex-wrap: wrap;">
                     <b style="color: #334155;">🛰️ ดาวเทียม:</b>
                     <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="radio" name="satFilter" value="all" class="sat-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;" checked> รวมทั้ง 2 ดวง <span class="sat-count" data-sat="all" style="margin-left: 4px; color: #64748b; font-size: 14px;"></span>
+                        <input type="radio" name="satFilter" value="all" class="sat-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> รวมทั้ง 2 ดวง <span class="sat-count" data-sat="all" style="margin-left: 4px; color: #64748b; font-size: 14px;"></span>
                     </label>
                     <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="radio" name="satFilter" value="N20" class="sat-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> NOAA-20 <span class="sat-count" data-sat="N20" style="margin-left: 4px; color: #64748b; font-size: 14px;"></span>
+                        <input type="radio" name="satFilter" value="N20" class="sat-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;" checked> NOAA-20 <span class="sat-count" data-sat="N20" style="margin-left: 4px; color: #64748b; font-size: 14px;"></span>
                     </label>
                     <label style="display: flex; align-items: center; cursor: pointer;">
                         <input type="radio" name="satFilter" value="N21" class="sat-radio" style="margin-right: 5px; width: 16px; height: 16px; accent-color: #4a148c;"> NOAA-21 <span class="sat-count" data-sat="N21" style="margin-left: 4px; color: #64748b; font-size: 14px;"></span>
@@ -1105,9 +1105,11 @@
         let currentRisks = [];       // บ่อขยะที่พบจุดความร้อนในรัศมีเฝ้าระวัง (ใช้ในรายงาน PDF)
         let landfillCounts = { size1: 0, size2: 0, size3: 0, size4: 0, size5: 0, risk: 0, closed: 0 };
 
-        let currentTimeframe = 12;   // ค่าเริ่มต้น: 12 ชม. ล่าสุด (ทุกช่วงเวลา)
+        // ค่าเริ่มต้นเมื่อเปิดหน้า: 12 ชม. รอบเช้าหรือรอบบ่ายตามเวลาไทยขณะเปิด (ตั้งใน initTimeFilter) และดาวเทียม NOAA-20
+        let currentTimeframe = 12;
         let currentTimeOfDay = 'all';
-        let currentSatellite = 'all';  // 'all' = รวมทุกดวง, 'N20' = NOAA-20, 'N21' = NOAA-21 (เปิดด้วย ?sat=N20 ได้)
+        const DEFAULT_SATELLITE = 'N20';
+        let currentSatellite = DEFAULT_SATELLITE;  // 'all' = รวมทุกดวง, 'N20' = NOAA-20, 'N21' = NOAA-21 (เปิดด้วย ?sat=all / N21 ได้)
         let satelliteCounts = {};      // จำนวนจุดต่อดวงในพื้นที่และช่วงเวลาที่เลือก (ก่อนกรองดาวเทียม) เช่น { 'NOAA-21': 102 }
         const RISK_RADIUS_KM = 0.5;
 
@@ -2250,26 +2252,34 @@ if (primarySource && primarySource.features) {
                 }
             });
         });
-        // บางเบราว์เซอร์ (เช่น Firefox) จำตัวเลือกที่ติ๊กไว้เมื่อรีเฟรชหน้า ให้ค่าที่ใช้กรองตรงกับที่แสดงบนจอเสมอ
-        const initialTimeRadio = document.querySelector('.time-radio:checked');
-        if (initialTimeRadio) readTimeRadio(initialTimeRadio);
+        // ค่าเริ่มต้นเมื่อเปิดหน้า: เปิดช่วงเช้า (00:00–11:59 น. เวลาไทย) เลือก "12 ชม. รอบเช้า" เปิดช่วงบ่าย (12:00–23:59 น.) เลือก "12 ชม. รอบบ่าย"
+        // ตั้งค่าทุกครั้งที่เปิด (บางเบราว์เซอร์ เช่น Firefox จำตัวเลือกเดิมไว้เมื่อรีเฟรช) ให้ค่าที่ใช้กรองตรงกับที่แสดงบนจอเสมอ
+        (function initTimeFilter() {
+            const thaiHour = (new Date().getUTCHours() + 7) % 24;   // ใช้เวลาไทยแบบเดียวกับตัวกรองรอบเช้า/บ่ายใน applyTimeFilter
+            const value = thaiHour < 12 ? '12-morning' : '12-afternoon';
+            const radio = document.querySelector(`.time-radio[value="${value}"]`);
+            if (!radio) return;
+            radio.checked = true;
+            readTimeRadio(radio);
+        })();
 
-        // ตัวเลือกดาวเทียม: ค่าเริ่มต้นจาก ?sat=N20 / N21 (ถ้ามี) ไม่เช่นนั้นตามที่ติ๊กอยู่
+        // ตัวเลือกดาวเทียม: ค่าเริ่มต้น NOAA-20 เปลี่ยนได้ด้วย ?sat=all (รวมทั้ง 2 ดวง) หรือ ?sat=N21
         document.querySelectorAll('.sat-radio').forEach(radio => {
             radio.addEventListener('change', function () {
                 if (!this.checked) return;
                 currentSatellite = this.value;
-                setUrlParam('sat', currentSatellite === 'all' ? null : currentSatellite);
+                setUrlParam('sat', currentSatellite === DEFAULT_SATELLITE ? null : currentSatellite);
                 applyTimeFilter();
             });
         });
         (function initSatelliteFilter() {
-            const fromUrl = String(urlParams.get('sat') || '').toUpperCase();
-            const byUrl = Array.from(document.querySelectorAll('.sat-radio')).find(r => r.value === fromUrl);
-            if (byUrl) byUrl.checked = true;
-            const checked = document.querySelector('.sat-radio:checked');
-            currentSatellite = checked ? checked.value : 'all';
-            setUrlParam('sat', currentSatellite === 'all' ? null : currentSatellite);
+            const fromUrl = String(urlParams.get('sat') || '').trim().toUpperCase();
+            const radios = Array.from(document.querySelectorAll('.sat-radio'));
+            const chosen = radios.find(r => r.value.toUpperCase() === fromUrl)
+                || radios.find(r => r.value === DEFAULT_SATELLITE);
+            if (chosen) chosen.checked = true;
+            currentSatellite = chosen ? chosen.value : DEFAULT_SATELLITE;
+            setUrlParam('sat', currentSatellite === DEFAULT_SATELLITE ? null : currentSatellite);
         })();
 
         // ระบบเรดาร์คำนวณและแจ้งเตือนภัยไฟไหม้บ่อขยะอัตโนมัติ
