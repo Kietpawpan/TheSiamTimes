@@ -132,7 +132,7 @@
         <!-- Print-Only Report Header -->
         <div class="hidden print:block border-b-2 border-emerald-800 pb-4 mb-6">
             <h1 class="text-2xl font-bold text-emerald-900">รายงานสรุปสถานการณ์ข่าวสิ่งแวดล้อมและมลพิษ (Social Listening)</h1>
-            <p class="text-sm text-slate-600">พื้นที่ติดตาม: นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์ | พิมพ์เมื่อ: <span id="printTimestamp"></span></p>
+            <p class="text-sm text-slate-600">พื้นที่ติดตาม: <span id="printAreaLabel">นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์</span> | พิมพ์เมื่อ: <span id="printTimestamp"></span></p>
         </div>
 
         <!-- STEP 1: Search & Filter Control Panel -->
@@ -210,12 +210,29 @@
                 <!-- 1.2 Province Selection -->
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2 border-t border-slate-100">
                     <div class="lg:col-span-5">
+                        <div class="text-sm font-bold text-slate-700 flex items-center gap-1.5 mb-2.5">
+                            <i data-lucide="map" class="w-4 h-4 text-emerald-600"></i>
+                            <span>ขอบเขตพื้นที่ที่กวาดข่าว:</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5 mb-2" role="group" aria-label="ขอบเขตพื้นที่ที่กวาดข่าว">
+                            <button type="button" onclick="selectSearchScope('region')" data-scope="region" class="scope-btn px-3.5 py-2.5 rounded-xl border text-left transition">
+                                <div class="font-bold text-sm">📍 เฉพาะเขต สคพ.11</div>
+                                <div class="text-[11px] opacity-80">เฉพาะจังหวัดที่เลือกด้านล่าง</div>
+                            </button>
+                            <button type="button" onclick="selectSearchScope('nation')" data-scope="nation" class="scope-btn px-3.5 py-2.5 rounded-xl border text-left transition">
+                                <div class="font-bold text-sm">🗺️ ทั่วประเทศ</div>
+                                <div class="text-[11px] opacity-80">ไม่จำกัดจังหวัด (77 จังหวัด)</div>
+                            </button>
+                        </div>
+                        <p id="scopeNationNote" class="hidden mb-3 text-[11px] leading-relaxed text-indigo-900 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2">
+                            กวาดข่าวสิ่งแวดล้อมจากทุกจังหวัด และยังค้นละเอียดถึงระดับอำเภอครบทั้ง 4 จังหวัดของ สคพ.11 • ข่าวที่ไม่ระบุจังหวัดจะจัดเป็น "ไม่ระบุจังหวัด (ระดับประเทศ)" • Google News ให้ผลสูงสุด 100 ข่าวต่อชุดคำค้น ห้วงเวลายาวจึงได้เฉพาะข่าวเด่นและล่าสุด
+                        </p>
                         <div class="flex items-center justify-between mb-2.5">
                             <label class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
                                 <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600"></i>
-                                <span>พื้นที่จังหวัดเป้าหมาย (เลือกได้มากกว่า 1):</span>
+                                <span id="provinceSelectorLabel">พื้นที่จังหวัดเป้าหมาย (เลือกได้มากกว่า 1):</span>
                             </label>
-                            <button type="button" onclick="selectAllProvinces()" class="text-xs text-emerald-600 hover:text-emerald-800 font-semibold underline">เลือกครบ 4 จังหวัด</button>
+                            <button type="button" id="selectAllProvincesBtn" onclick="selectAllProvinces()" class="text-xs text-emerald-600 hover:text-emerald-800 font-semibold underline">เลือกครบ 4 จังหวัด</button>
                         </div>
                         <div class="grid grid-cols-2 gap-2.5" id="provinceSelector">
                             <button type="button" onclick="toggleProvince('นครราชสีมา')" data-prov="นครราชสีมา" class="prov-btn active px-3.5 py-2.5 rounded-xl border text-left transition flex items-center justify-between">
@@ -342,7 +359,7 @@
                         </div>
                         <div>
                             <div class="font-heading font-bold text-base">ดึงข่าวจริง & วิเคราะห์ทันที</div>
-                            <div class="text-xs text-emerald-100 mt-0.5">ส่งชุดคำค้นทุกหมวดมลพิษกวาดข่าวจริงจาก Google News ทั้ง 4 จังหวัดพร้อมคัดกรอง</div>
+                            <div id="autoFetchDesc" class="text-xs text-emerald-100 mt-0.5">ส่งชุดคำค้นทุกหมวดมลพิษกวาดข่าวจริงจาก Google News ในจังหวัดที่เลือกพร้อมคัดกรอง</div>
                         </div>
                     </button>
 
@@ -615,6 +632,28 @@
                 </div>
             </div>
 
+            <!-- 3.1b Nationwide overview (shown when the news covers the whole country) -->
+            <div id="nationwidePanel" class="hidden bg-white rounded-2xl shadow-sm border border-indigo-100 p-5 sm:p-6 print-shadow-none">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="map" class="w-5 h-5 text-indigo-600"></i>
+                        <span>ภาพรวมสถานการณ์ทั่วประเทศ</span>
+                    </h3>
+                    <span class="text-xs text-slate-400 no-print">คลิกที่ภาคหรือจังหวัดเพื่อกรองข่าว</span>
+                </div>
+                <div id="nationwideSummaryChips" class="flex flex-wrap gap-2 mb-5"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-5">
+                        <h4 class="text-xs sm:text-sm font-bold text-slate-700 mb-2">แยกตามภาค</h4>
+                        <div id="regionBreakdownList" class="space-y-1"></div>
+                    </div>
+                    <div class="lg:col-span-7">
+                        <h4 class="text-xs sm:text-sm font-bold text-slate-700 mb-2">จังหวัดที่พบข่าวมากที่สุด</h4>
+                        <div id="topProvincesList" class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 3.2 Category Breakdown & Cross-Province Matrix -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Left: 6 Pollution Categories Visual Breakdown -->
@@ -652,6 +691,7 @@
                                         <th class="py-2.5 px-2 text-center font-bold">ชัยภูมิ</th>
                                         <th class="py-2.5 px-2 text-center font-bold">บุรีรัมย์</th>
                                         <th class="py-2.5 px-2 text-center font-bold">สุรินทร์</th>
+                                        <th id="matrixOutsideHeader" class="hidden py-2.5 px-2 text-center font-bold text-indigo-800">นอกเขต</th>
                                         <th class="py-2.5 px-2 text-center font-bold bg-emerald-50 text-emerald-900">รวม</th>
                                     </tr>
                                 </thead>
@@ -663,7 +703,7 @@
                     </div>
 
                     <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                        <span>* นับตามจังหวัดหลักที่เกิดเหตุหรือปรากฏลำดับแรกในข่าว</span>
+                        <span id="matrixFootnote">* นับตามจังหวัดหลักที่เกิดเหตุหรือปรากฏลำดับแรกในข่าว</span>
                         <button type="button" onclick="copyMatrixTable()" class="text-emerald-600 hover:text-emerald-800 font-semibold flex items-center gap-1 no-print" title="คัดลอกเป็นตาราง วางใน Excel / Google Sheets / Word ได้ทันที">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                             <span>คัดลอกตารางสรุป</span>
@@ -679,7 +719,7 @@
                         <i data-lucide="sparkles" class="w-5 h-5 text-amber-300"></i>
                         <div>
                             <h3 class="text-base sm:text-lg font-bold">บทสรุปผู้บริหารและการสังเคราะห์สถานการณ์ (Executive Summary)</h3>
-                            <p class="text-xs text-emerald-200">สรุปประเด็นสำคัญ แนวโน้มความรุนแรง และข้อเสนอแนะเพื่อการเฝ้าระวังในพื้นที่ 4 จังหวัด</p>
+                            <p id="execSummarySubtitle" class="text-xs text-emerald-200">สรุปประเด็นสำคัญ แนวโน้มความรุนแรง และข้อเสนอแนะเพื่อการเฝ้าระวังในพื้นที่ 4 จังหวัด</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 no-print">
@@ -723,7 +763,7 @@
                     <!-- Filters & Search within results -->
                     <div class="flex flex-wrap items-center gap-2 no-print">
                         <select id="filterProvinceSelect" onchange="applyNewsListFilters()" aria-label="กรองตามจังหวัด" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-emerald-500">
-                            <option value="ALL">ทุกจังหวัด (4 จังหวัด)</option>
+                            <option value="ALL">ทุกจังหวัด</option>
                             <option value="นครราชสีมา">นครราชสีมา (โคราช)</option>
                             <option value="ชัยภูมิ">ชัยภูมิ</option>
                             <option value="บุรีรัมย์">บุรีรัมย์</option>
@@ -1067,14 +1107,48 @@
             }
         ];
 
+        const HOME_PROVINCES = ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'];
+        // ข่าวทั่วประเทศที่ไม่ระบุจังหวัด (ตรงกับ SocialListeningPlus.UNSPECIFIED)
+        const UNSPECIFIED_PROVINCE = 'ไม่ระบุจังหวัด';
+        // ค่าพิเศษของตัวกรองจังหวัดในรายการข่าว
+        const HOME_FILTER = '__HOME__';      // เฉพาะ 4 จังหวัดในเขต
+        const OTHER_FILTER = '__OTHER__';    // จังหวัดอื่นนอกเขต (ไม่รวมไม่ระบุจังหวัด)
+        const REGION_FILTER_PREFIX = 'region:';
+
+        /** ชื่อจังหวัดที่ใช้เป็นจังหวัดของข่าวได้: 4 จังหวัดในเขต จังหวัดอื่นทั่วประเทศ หรือ "ไม่ระบุจังหวัด" */
+        function isKnownProvince(p) {
+            if (PROVINCE_CONFIG[p] || p === UNSPECIFIED_PROVINCE) return true;
+            const all = window.SocialListeningPlus && SocialListeningPlus.ALL_PROVINCES;
+            return !!(all && all.includes(p));
+        }
+
+        function isHomeProvince(p) {
+            return !!PROVINCE_CONFIG[p];
+        }
+
+        function regionOfProvince(p) {
+            return (window.SocialListeningPlus && SocialListeningPlus.regionOf) ? SocialListeningPlus.regionOf(p) : '';
+        }
+
+        function provinceLabel(p) {
+            return p === UNSPECIFIED_PROVINCE ? 'ไม่ระบุจังหวัด (ระดับประเทศ)' : p;
+        }
+
+        function provinceBadgeClass(p) {
+            if (PROVINCE_CONFIG[p]) return PROVINCE_CONFIG[p].badgeClass;
+            return p === UNSPECIFIED_PROVINCE ? 'bg-slate-100 text-slate-700 border-slate-300' : 'bg-indigo-50 text-indigo-800 border-indigo-200';
+        }
+
         // App State
         let currentState = {
             timeframe: '1d',
+            searchScope: 'region',      // 'region' (เฉพาะจังหวัดที่เลือก) หรือ 'nation' (ทั่วประเทศ ไม่จำกัดจังหวัด)
             selectedProvinces: ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'],
             selectedTopics: ['water', 'air', 'waste', 'complaint', 'general'],
             queryCapacityMode: 'max32', // 'max32' (เต็มเพดาน Google 32 คำ) หรือ 'all' (รวมครบทุกคำ 160+ คำ)
             newsItems: [],
             dataTimeframe: null,        // ห้วงเวลาตอนที่ดึง/วางข่าวชุดปัจจุบัน (อาจต่างจากปุ่มที่เลือกอยู่ตอนนี้)
+            dataScope: null,            // ขอบเขตพื้นที่ตอนที่ดึง/วางข่าวชุดปัจจุบัน ('region' | 'nation')
             aiExecutiveSummaryHtml: null,
             aiData: null
         };
@@ -1092,6 +1166,11 @@
             return (TIMEFRAMES[key] || TIMEFRAMES['1d']).label;
         }
 
+        /** ข่าวชุดปัจจุบันครอบคลุมทั่วประเทศ (ดึงแบบทั่วประเทศ หรือมีข่าวนอก 4 จังหวัด) */
+        function isNationData() {
+            return currentState.dataScope === 'nation' || currentState.newsItems.some(i => !isHomeProvince(i.primaryProvince));
+        }
+
         function saveSession() {
             try {
                 const items = currentState.newsItems;
@@ -1102,6 +1181,7 @@
                 const session = {
                     savedAt: Date.now(),
                     dataTimeframe: currentState.dataTimeframe,
+                    dataScope: currentState.dataScope,
                     aiData: currentState.aiExecutiveSummaryHtml ? currentState.aiData : null,
                     newsItems: items
                 };
@@ -1121,6 +1201,7 @@
                 if (!session || !Array.isArray(session.newsItems) || !session.newsItems.length) return null;
                 currentState.newsItems = session.newsItems.filter(i => i && i.title && i.id);
                 currentState.dataTimeframe = TIMEFRAMES[session.dataTimeframe] ? session.dataTimeframe : null;
+                currentState.dataScope = session.dataScope === 'nation' ? 'nation' : 'region';
                 if (session.aiData) {
                     currentState.aiData = session.aiData;
                     currentState.aiExecutiveSummaryHtml = buildAiSummaryHtml(session.aiData);
@@ -1135,6 +1216,7 @@
             try {
                 localStorage.setItem(PREFS_KEY, JSON.stringify({
                     timeframe: currentState.timeframe,
+                    searchScope: currentState.searchScope,
                     selectedProvinces: currentState.selectedProvinces,
                     selectedTopics: currentState.selectedTopics,
                     queryCapacityMode: currentState.queryCapacityMode,
@@ -1148,6 +1230,7 @@
                 const p = JSON.parse(localStorage.getItem(PREFS_KEY) || 'null');
                 if (!p) return;
                 if (TIMEFRAMES[p.timeframe]) currentState.timeframe = p.timeframe;
+                if (p.searchScope === 'nation' || p.searchScope === 'region') currentState.searchScope = p.searchScope;
                 const provs = (p.selectedProvinces || []).filter(x => PROVINCE_CONFIG[x]);
                 if (provs.length) currentState.selectedProvinces = provs;
                 const topics = (p.selectedTopics || []).filter(x => TOPIC_CONFIG[x]);
@@ -1304,6 +1387,12 @@
             updateQueryPreview();
         }
 
+        function selectSearchScope(scope) {
+            currentState.searchScope = scope === 'nation' ? 'nation' : 'region';
+            updateControlStyles();
+            updateQueryPreview();
+        }
+
         function toggleTopic(topicKey) {
             const idx = currentState.selectedTopics.indexOf(topicKey);
             if (idx > -1) {
@@ -1347,11 +1436,32 @@
                 }
             });
 
+            const nation = currentState.searchScope === 'nation';
+            document.querySelectorAll('.scope-btn').forEach(btn => {
+                const on = btn.getAttribute('data-scope') === currentState.searchScope;
+                btn.className = on
+                    ? `scope-btn px-3.5 py-2.5 rounded-xl border-2 text-left transition shadow-sm ${btn.getAttribute('data-scope') === 'nation' ? 'border-indigo-600 bg-indigo-50 text-indigo-950' : 'border-emerald-600 bg-emerald-50/90 text-emerald-950'}`
+                    : 'scope-btn px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-500 hover:text-slate-700 text-left transition';
+                btn.setAttribute('aria-pressed', String(on));
+            });
+            document.getElementById('scopeNationNote')?.classList.toggle('hidden', !nation);
+            document.getElementById('selectAllProvincesBtn')?.classList.toggle('invisible', nation);
+            const provLabel = document.getElementById('provinceSelectorLabel');
+            if (provLabel) provLabel.textContent = nation
+                ? 'ทั่วประเทศ: ค้นละเอียดถึงระดับอำเภอครบ 4 จังหวัดในเขต'
+                : 'พื้นที่จังหวัดเป้าหมาย (เลือกได้มากกว่า 1):';
+            const fetchDesc = document.getElementById('autoFetchDesc');
+            if (fetchDesc) fetchDesc.textContent = nation
+                ? 'ส่งชุดคำค้นทุกหมวดมลพิษกวาดข่าวจริงจาก Google News ทั่วประเทศ (ไม่จำกัดจังหวัด) พร้อมคัดกรอง'
+                : 'ส่งชุดคำค้นทุกหมวดมลพิษกวาดข่าวจริงจาก Google News ในจังหวัดที่เลือกพร้อมคัดกรอง';
+
             document.querySelectorAll('.prov-btn').forEach(btn => {
                 const prov = btn.getAttribute('data-prov');
-                const active = currentState.selectedProvinces.includes(prov);
+                // ทั่วประเทศ: ค้นครบ 4 จังหวัดเสมอ (การเลือกจังหวัดเก็บไว้ใช้เมื่อกลับมาโหมดเฉพาะเขต)
+                const active = nation || currentState.selectedProvinces.includes(prov);
+                btn.disabled = nation;
                 if (active) {
-                    btn.className = 'prov-btn px-3.5 py-2.5 rounded-xl border-2 border-emerald-600 bg-emerald-50/90 text-emerald-950 text-left transition flex items-center justify-between shadow-sm';
+                    btn.className = `prov-btn px-3.5 py-2.5 rounded-xl border-2 border-emerald-600 bg-emerald-50/90 text-emerald-950 text-left transition flex items-center justify-between shadow-sm${nation ? ' opacity-60 cursor-not-allowed' : ''}`;
                 } else {
                     btn.className = 'prov-btn px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-500 hover:text-slate-700 text-left transition flex items-center justify-between';
                 }
@@ -1368,7 +1478,7 @@
             });
 
             document.querySelectorAll('.tf-btn').forEach(b => b.setAttribute('aria-pressed', String(b.getAttribute('data-tf') === currentState.timeframe)));
-            document.querySelectorAll('.prov-btn').forEach(b => b.setAttribute('aria-pressed', String(currentState.selectedProvinces.includes(b.getAttribute('data-prov')))));
+            document.querySelectorAll('.prov-btn').forEach(b => b.setAttribute('aria-pressed', String(nation || currentState.selectedProvinces.includes(b.getAttribute('data-prov')))));
             document.querySelectorAll('.topic-btn').forEach(b => b.setAttribute('aria-pressed', String(currentState.selectedTopics.includes(b.getAttribute('data-topic')))));
         }
 
@@ -1391,6 +1501,9 @@
             let provTerms = [];
             if (overrideProvince && PROVINCE_CONFIG[overrideProvince]) {
                 provTerms = [...PROVINCE_CONFIG[overrideProvince].searchTerms];
+            } else if (currentState.searchScope === 'nation') {
+                // ทั่วประเทศ: ไม่ใส่ชื่อจังหวัด ใช้โควตาคำค้นทั้งหมดกับคำมลพิษ
+                provTerms = [];
             } else {
                 currentState.selectedProvinces.forEach(p => {
                     if (PROVINCE_CONFIG[p]) {
@@ -1468,7 +1581,7 @@
             }
 
             // ใช้เครื่องหมาย | (Pipe) แทน OR เพื่อไม่ให้เสียโควตาจำนวนคำของ Google Search
-            const provQuery = `(${formattedProvTerms.join('|')})`;
+            const provQuery = formattedProvTerms.length > 0 ? `(${formattedProvTerms.join('|')})` : '';
             const topicQuery = selectedTopicTerms.length > 0 ? `(${selectedTopicTerms.join('|')})` : '';
             const socialQuery = socialTerms.length > 0 ? `(${socialTerms.join('|')})` : '';
 
@@ -1494,10 +1607,11 @@
 
             const capBadge = document.getElementById('queryCapacityBadge');
             if (capBadge) {
+                const area = details.provCount > 0 ? `จังหวัด ${details.provCount}` : 'ทั่วประเทศ ไม่จำกัดจังหวัด';
                 if (currentState.queryCapacityMode === 'max32') {
-                    capBadge.textContent = `ความจุคำค้น: ${details.totalWords}/${GOOGLE_MAX_WORD_LIMIT} คำ (จังหวัด ${details.provCount} + มลพิษ ${details.topicTermCount} คำ • เต็มเพดาน Google Search)`;
+                    capBadge.textContent = `ความจุคำค้น: ${details.totalWords}/${GOOGLE_MAX_WORD_LIMIT} คำ (${area} + มลพิษ ${details.topicTermCount} คำ • เต็มเพดาน Google Search)`;
                 } else {
-                    capBadge.textContent = `ความจุคำค้น: รวมครบทั้งหมด ${details.totalWords} คำ (จังหวัด ${details.provCount} + มลพิษ ${details.topicTermCount} คำ • 100% ของคลังคำค้น)`;
+                    capBadge.textContent = `ความจุคำค้น: รวมครบทั้งหมด ${details.totalWords} คำ (${area} + มลพิษ ${details.topicTermCount} คำ • 100% ของคลังคำค้น)`;
                 }
             }
             // รายการลิงก์แยกหมวดที่เปิดไว้ อาจไม่ตรงกับการตั้งค่าใหม่แล้ว
@@ -1549,10 +1663,12 @@
          */
         function buildTopicBatches() {
             const provTerms = [];
-            currentState.selectedProvinces.forEach(p => {
-                if (PROVINCE_CONFIG[p]) provTerms.push(...PROVINCE_CONFIG[p].searchTerms);
-            });
-            const provQuery = `(${provTerms.map(formatSearchTerm).join('|')})`;
+            if (currentState.searchScope !== 'nation') {
+                currentState.selectedProvinces.forEach(p => {
+                    if (PROVINCE_CONFIG[p]) provTerms.push(...PROVINCE_CONFIG[p].searchTerms);
+                });
+            }
+            const provQuery = provTerms.length ? `(${provTerms.map(formatSearchTerm).join('|')}) ` : '';
             const provWords = provTerms.reduce((n, t) => n + countSearchWords(t), 0);
             const budget = Math.max(5, GOOGLE_MAX_WORD_LIMIT - provWords);
 
@@ -1577,7 +1693,7 @@
                 parts.forEach((terms, i) => batches.push({
                     label: parts.length > 1 ? `${g.name} (${i + 1}/${parts.length})` : g.name,
                     termCount: terms.length,
-                    query: `${provQuery} (${terms.join('|')})`
+                    query: `${provQuery}(${terms.join('|')})`
                 }));
             });
             return batches;
@@ -1850,6 +1966,7 @@
                     classified.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
                     currentState.newsItems = classified;
                     currentState.dataTimeframe = currentState.timeframe;
+                    currentState.dataScope = 'region';
                     currentState.aiExecutiveSummaryHtml = null;
                     renderDashboard();
                     showToast(`ดึงและกรองข่าวเฉพาะพื้นที่สำเร็จ ${classified.length} ข่าว!`, 'success');
@@ -1888,6 +2005,14 @@
         function detectProvinces(rawItem) {
             if (window.SocialListeningPlus && SocialListeningPlus.matchLocations) {
                 return SocialListeningPlus.matchLocations(rawItem).map(m => m.province);
+            }
+            return detectProvincesBasic(rawItem);
+        }
+
+        /** จังหวัดใดก็ได้ทั่วประเทศที่ข่าวพูดถึง (ใช้ในโหมดทั่วประเทศ) */
+        function detectProvincesNationwide(rawItem) {
+            if (window.SocialListeningPlus && SocialListeningPlus.matchProvincesNationwide) {
+                return SocialListeningPlus.matchProvincesNationwide(rawItem).map(m => m.province);
             }
             return detectProvincesBasic(rawItem);
         }
@@ -1963,7 +2088,7 @@
 
             let matchedProvinces = detectProvinces(rawItem);
 
-            if (forceProvince && forceProvince !== 'AUTO' && PROVINCE_CONFIG[forceProvince]) {
+            if (forceProvince && forceProvince !== 'AUTO' && isKnownProvince(forceProvince)) {
                 matchedProvinces = [forceProvince, ...matchedProvinces.filter(p => p !== forceProvince)];
             } else if (matchedProvinces.length === 0) {
                 if (rawItem.sourceProvince && PROVINCE_CONFIG[rawItem.sourceProvince]) {
@@ -2265,11 +2390,20 @@
             }
 
             // เก็บเฉพาะข่าวที่ระบุจังหวัด/อำเภอ/สถานที่ในพื้นที่ที่เลือก (ยกเว้นเลือกบังคับจังหวัดไว้)
+            // โหมดทั่วประเทศ: เก็บทุกข่าว จังหวัดใดก็ได้ ข่าวที่ไม่ระบุจังหวัดจัดเป็น "ไม่ระบุจังหวัด"
+            const nation = currentState.searchScope === 'nation';
             const selected = currentState.selectedProvinces;
             const newItems = [];
             parsedArticles.forEach((art, idx) => {
                 if (forceProv !== 'AUTO') {
                     newItems.push(classifySingleNewsItem(art, idx, forceProv));
+                    return;
+                }
+                if (nation) {
+                    const provs = detectProvincesNationwide(art);
+                    const item = classifySingleNewsItem(art, idx, provs[0] || UNSPECIFIED_PROVINCE);
+                    if (provs.length) item.provinces = provs;
+                    newItems.push(item);
                     return;
                 }
                 const inArea = detectProvinces(art).filter(p => selected.includes(p));
@@ -2295,6 +2429,8 @@
 
             currentState.newsItems = [...uniqueNew, ...existing];
             currentState.dataTimeframe = currentState.timeframe;
+            // รวมกับข่าวทั่วประเทศชุดเดิม: ยังถือเป็นข้อมูลทั่วประเทศ
+            currentState.dataScope = (nation || (existing.length && currentState.dataScope === 'nation')) ? 'nation' : 'region';
             currentState.aiExecutiveSummaryHtml = null;
             renderDashboard();
 
@@ -2317,14 +2453,14 @@
 
         function updateSingleItemProvince(id, newProvince) {
             const item = currentState.newsItems.find(i => i.id === id);
-            if (item && PROVINCE_CONFIG[newProvince]) {
+            if (item && isKnownProvince(newProvince)) {
                 item.primaryProvince = newProvince;
                 if (!item.provinces.includes(newProvince)) {
                     item.provinces.unshift(newProvince);
                 }
                 currentState.aiExecutiveSummaryHtml = null;
                 renderDashboard();
-                showToast(`ย้ายข่าวไปยัง จ.${newProvince} และคำนวณยอดใหม่แล้ว`, 'success');
+                showToast(`ย้ายข่าวไปยัง ${newProvince === UNSPECIFIED_PROVINCE ? provinceLabel(newProvince) : 'จ.' + newProvince} และคำนวณยอดใหม่แล้ว`, 'success');
             }
         }
 
@@ -2343,6 +2479,8 @@
                     'บุรีรัมย์': 0,
                     'สุรินทร์': 0
                 },
+                outsideCount: 0,          // ข่าวนอก 4 จังหวัด (จังหวัดอื่น + ไม่ระบุจังหวัด)
+                byOtherProvince: {},      // จังหวัดอื่นทั่วประเทศ -> จำนวนข่าว
                 byCategory: {
                     water: 0,
                     air: 0,
@@ -2360,6 +2498,7 @@
                     'ชัยภูมิ': 0,
                     'บุรีรัมย์': 0,
                     'สุรินทร์': 0,
+                    outside: 0,
                     total: 0
                 };
             });
@@ -2373,9 +2512,16 @@
                 stats.byCategory[catKey]++;
                 stats.matrix[catKey].total++;
 
-                const prov = stats.byProvince.hasOwnProperty(item.primaryProvince) ? item.primaryProvince : 'นครราชสีมา';
-                stats.byProvince[prov]++;
-                stats.matrix[catKey][prov]++;
+                const prov = item.primaryProvince;
+                if (stats.byProvince.hasOwnProperty(prov)) {
+                    stats.byProvince[prov]++;
+                    stats.matrix[catKey][prov]++;
+                } else {
+                    const other = prov || UNSPECIFIED_PROVINCE;
+                    stats.outsideCount++;
+                    stats.matrix[catKey].outside++;
+                    stats.byOtherProvince[other] = (stats.byOtherProvince[other] || 0) + 1;
+                }
             });
 
             return stats;
@@ -2385,10 +2531,19 @@
             const items = currentState.newsItems;
             const stats = computeStatistics(items);
 
+            const nation = isNationData();
             document.getElementById('printTimestamp').textContent = new Date().toLocaleString('th-TH');
+            document.getElementById('printAreaLabel').textContent = nation
+                ? 'ทั่วประเทศ (เน้นเขต สคพ.11: นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์)'
+                : 'นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์';
+            document.getElementById('execSummarySubtitle').textContent = nation
+                ? 'สรุปประเด็นสำคัญ แนวโน้มความรุนแรง และข้อเสนอแนะ ทั้งในเขต 4 จังหวัดและภาพรวมทั่วประเทศ'
+                : 'สรุปประเด็นสำคัญ แนวโน้มความรุนแรง และข้อเสนอแนะเพื่อการเฝ้าระวังในพื้นที่ 4 จังหวัด';
 
             document.getElementById('kpiTotal').textContent = stats.total;
-            document.getElementById('kpiTimeframeLabel').textContent = items.length ? dataTimeframeLabel() : 'คลิกเพื่อดูทั้งหมด';
+            document.getElementById('kpiTimeframeLabel').textContent = items.length
+                ? `${dataTimeframeLabel()}${nation ? ' • ทั่วประเทศ' : ''}`
+                : 'คลิกเพื่อดูทั้งหมด';
             document.getElementById('kpiUrgent').textContent = stats.urgentCount;
             document.getElementById('kpiUrgentDot').classList.toggle('animate-ping', stats.urgentCount > 0);
             document.getElementById('kpiUrgentDot').classList.toggle('opacity-30', stats.urgentCount === 0);
@@ -2454,6 +2609,7 @@
                     <td class="py-2.5 px-2 text-center ${mRow['ชัยภูมิ'] > 0 ? 'font-bold text-teal-700' : 'text-slate-300'}">${mRow['ชัยภูมิ']}</td>
                     <td class="py-2.5 px-2 text-center ${mRow['บุรีรัมย์'] > 0 ? 'font-bold text-cyan-700' : 'text-slate-300'}">${mRow['บุรีรัมย์']}</td>
                     <td class="py-2.5 px-2 text-center ${mRow['สุรินทร์'] > 0 ? 'font-bold text-amber-700' : 'text-slate-300'}">${mRow['สุรินทร์']}</td>
+                    ${nation ? `<td class="py-2.5 px-2 text-center ${mRow.outside > 0 ? 'font-bold text-indigo-700' : 'text-slate-300'}">${mRow.outside}</td>` : ''}
                     <td class="py-2.5 px-2 text-center font-bold bg-emerald-50/60 text-emerald-950">${mRow.total}</td>
                 `;
                 matrixBody.appendChild(tr);
@@ -2467,13 +2623,124 @@
                 <td class="py-2.5 px-2 text-center text-teal-800">${stats.byProvince['ชัยภูมิ']}</td>
                 <td class="py-2.5 px-2 text-center text-cyan-800">${stats.byProvince['บุรีรัมย์']}</td>
                 <td class="py-2.5 px-2 text-center text-amber-800">${stats.byProvince['สุรินทร์']}</td>
+                ${nation ? `<td class="py-2.5 px-2 text-center text-indigo-800">${stats.outsideCount}</td>` : ''}
                 <td class="py-2.5 px-2 text-center bg-emerald-600 text-white rounded-br-lg">${stats.total}</td>
             `;
             matrixBody.appendChild(totalTr);
+            document.getElementById('matrixOutsideHeader').classList.toggle('hidden', !nation);
+            document.getElementById('matrixFootnote').textContent = nation
+                ? '* นับตามจังหวัดหลักของข่าว • นอกเขต = จังหวัดอื่นทั่วประเทศและข่าวที่ไม่ระบุจังหวัด'
+                : '* นับตามจังหวัดหลักที่เกิดเหตุหรือปรากฏลำดับแรกในข่าว';
+
+            renderNationwidePanel(stats, nation);
+            renderProvinceFilterOptions(stats);
 
             renderExecutiveSummary(stats);
             applyNewsListFilters();
             saveSession();
+        }
+
+        /** ภาพรวมทั่วประเทศ: แยกภาค และจังหวัดที่พบข่าวมากที่สุด */
+        function renderNationwidePanel(stats, nation) {
+            const panel = document.getElementById('nationwidePanel');
+            const show = nation && stats.total > 0;
+            panel.classList.toggle('hidden', !show);
+            if (!show) return;
+
+            const unspecified = stats.byOtherProvince[UNSPECIFIED_PROVINCE] || 0;
+            const homeCount = stats.total - stats.outsideCount;
+            const otherCount = stats.outsideCount - unspecified;
+            const provCounts = { ...stats.byOtherProvince };
+            delete provCounts[UNSPECIFIED_PROVINCE];
+            HOME_PROVINCES.forEach(p => { if (stats.byProvince[p]) provCounts[p] = stats.byProvince[p]; });
+            const otherProvCount = Object.keys(provCounts).filter(p => !isHomeProvince(p)).length;
+
+            const chip = (filter, label, count, cls) => `
+                <button type="button" data-prov-filter="${escapeHtml(filter)}" class="px-3 py-1.5 rounded-xl border text-xs font-semibold transition hover:shadow-sm ${cls}">
+                    ${label}: <span class="font-heading text-sm">${count}</span> ข่าว
+                </button>`;
+            document.getElementById('nationwideSummaryChips').innerHTML = [
+                chip('ALL', `ทั้งประเทศ (${Object.keys(provCounts).length} จังหวัด)`, stats.total, 'bg-slate-800 text-white border-slate-800'),
+                chip(HOME_FILTER, 'ในเขต สคพ.11 (4 จังหวัด)', homeCount, 'bg-emerald-50 text-emerald-900 border-emerald-200'),
+                chip(OTHER_FILTER, `จังหวัดอื่น (${otherProvCount} จังหวัด)`, otherCount, 'bg-indigo-50 text-indigo-900 border-indigo-200'),
+                chip(UNSPECIFIED_PROVINCE, 'ไม่ระบุจังหวัด/ระดับประเทศ', unspecified, 'bg-slate-50 text-slate-700 border-slate-200')
+            ].join('');
+
+            const regions = (window.SocialListeningPlus && SocialListeningPlus.REGIONS) || [];
+            const regionRows = regions.map((r, i) => ({
+                name: r.name, order: i,
+                count: r.provinces.reduce((n, p) => n + (provCounts[p] || 0), 0),
+                hasHome: r.provinces.some(isHomeProvince)
+            })).sort((a, b) => b.count - a.count || a.order - b.order);
+            const row = (filter, label, count, pct, barCls) => `
+                <button type="button" data-prov-filter="${escapeHtml(filter)}" class="w-full text-left p-2 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition">
+                    <div class="flex items-center justify-between text-xs sm:text-sm mb-1">
+                        <span class="font-semibold text-slate-700">${label}</span>
+                        <span class="font-heading font-bold text-slate-900">${count} <span class="text-[11px] font-sans font-normal text-slate-500">ข่าว (${pct}%)</span></span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div class="${barCls} h-full rounded-full" style="width: ${pct}%"></div>
+                    </div>
+                </button>`;
+            const pctOf = n => stats.total > 0 ? Math.round((n / stats.total) * 100) : 0;
+            document.getElementById('regionBreakdownList').innerHTML = regionRows.map(r =>
+                row(REGION_FILTER_PREFIX + r.name, `${escapeHtml(r.name)}${r.hasHome ? ' <span class="text-[11px] font-normal text-emerald-700">(รวมเขต สคพ.11)</span>' : ''}`, r.count, pctOf(r.count), r.hasHome ? 'bg-emerald-600' : 'bg-indigo-500')
+            ).join('') + (unspecified ? row(UNSPECIFIED_PROVINCE, 'ไม่ระบุจังหวัด (ระดับประเทศ)', unspecified, pctOf(unspecified), 'bg-slate-400') : '');
+
+            const top = Object.entries(provCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'th')).slice(0, 12);
+            const max = top.length ? top[0][1] : 1;
+            document.getElementById('topProvincesList').innerHTML = top.length ? top.map(([p, n], i) => `
+                <button type="button" data-prov-filter="${escapeHtml(p)}" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-slate-50 transition flex items-center gap-2">
+                    <span class="w-5 text-right text-[11px] font-bold text-slate-400 shrink-0">${i + 1}</span>
+                    <span class="flex-1 min-w-0">
+                        <span class="flex items-center justify-between gap-2 text-xs sm:text-sm">
+                            <span class="truncate font-semibold ${isHomeProvince(p) ? 'text-emerald-800' : 'text-slate-700'}">${escapeHtml(p)}${isHomeProvince(p) ? ' <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">เขต สคพ.11</span>' : ''}</span>
+                            <span class="font-heading font-bold text-slate-900 shrink-0">${n}</span>
+                        </span>
+                        <span class="block w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1">
+                            <span class="block ${isHomeProvince(p) ? 'bg-emerald-600' : 'bg-indigo-500'} h-full rounded-full" style="width: ${Math.round((n / max) * 100)}%"></span>
+                        </span>
+                    </span>
+                </button>`).join('')
+                : '<p class="text-xs text-slate-400 sm:col-span-2">ข่าวทั้งหมดไม่ระบุจังหวัด</p>';
+
+            panel.querySelectorAll('[data-prov-filter]').forEach(el => {
+                el.onclick = () => el.dataset.provFilter === 'ALL' ? resetNewsListFilters() : filterNewsByProvince(el.dataset.provFilter);
+            });
+        }
+
+        /** ตัวเลือกกรองจังหวัด: ทั่วประเทศเพิ่มกลุ่มในเขต/นอกเขต ภาค และจังหวัดอื่นที่พบข่าว */
+        function renderProvinceFilterOptions(stats) {
+            const sel = document.getElementById('filterProvinceSelect');
+            const current = sel.value || 'ALL';
+            const nation = isNationData();
+            const opt = (value, label) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`;
+            const homeOpts = HOME_PROVINCES.map(p => opt(p, p === 'นครราชสีมา' ? 'นครราชสีมา (โคราช)' : p)).join('');
+            let html = opt('ALL', nation ? 'ทุกจังหวัด (ทั่วประเทศ)' : 'ทุกจังหวัด');
+            if (!nation) {
+                html += homeOpts;
+            } else {
+                html += opt(HOME_FILTER, 'เฉพาะเขต สคพ.11 (4 จังหวัด)') + opt(OTHER_FILTER, 'จังหวัดอื่นนอกเขต') + opt(UNSPECIFIED_PROVINCE, provinceLabel(UNSPECIFIED_PROVINCE));
+                html += `<optgroup label="เขต สคพ.11">${homeOpts}</optgroup>`;
+                const regions = (window.SocialListeningPlus && SocialListeningPlus.REGIONS) || [];
+                html += `<optgroup label="แยกตามภาค">${regions.map(r => opt(REGION_FILTER_PREFIX + r.name, r.name)).join('')}</optgroup>`;
+                const others = Object.entries(stats.byOtherProvince)
+                    .filter(([p]) => p !== UNSPECIFIED_PROVINCE)
+                    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'th'));
+                if (others.length) html += `<optgroup label="จังหวัดอื่นที่พบข่าว">${others.map(([p, n]) => opt(p, `${p} (${n})`)).join('')}</optgroup>`;
+            }
+            sel.innerHTML = html;
+            sel.value = current;
+            if (sel.value !== current) sel.value = 'ALL';
+        }
+
+        function matchesProvinceFilter(item, filter) {
+            const p = item.primaryProvince;
+            if (filter === 'ALL') return true;
+            if (filter === HOME_FILTER) return isHomeProvince(p);
+            if (filter === OTHER_FILTER) return !isHomeProvince(p) && p !== UNSPECIFIED_PROVINCE;
+            if (filter.startsWith(REGION_FILTER_PREFIX)) return regionOfProvince(p) === filter.slice(REGION_FILTER_PREFIX.length);
+            return p === filter;
         }
 
         function renderExecutiveSummary(stats) {
@@ -2503,7 +2770,12 @@
             });
             const topCatObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === topCatKey);
 
-            const urgentItems = currentState.newsItems.filter(i => i.urgency === 'เร่งด่วนมาก');
+            const nation = isNationData();
+            // ข่าวในเขต 4 จังหวัดขึ้นก่อน
+            const urgentItems = currentState.newsItems.filter(i => i.urgency === 'เร่งด่วนมาก')
+                .sort((a, b) => (isHomeProvince(a.primaryProvince) ? 0 : 1) - (isHomeProvince(b.primaryProvince) ? 0 : 1));
+            const URGENT_SHOWN = 15;
+            const urgencyRank = { 'เร่งด่วนมาก': 0, 'เฝ้าระวัง': 1, 'ทั่วไป': 2 };
 
             const provCardsHtml = ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'].map(prov => {
                 const provItems = currentState.newsItems.filter(i => i.primaryProvince === prov);
@@ -2538,19 +2810,50 @@
             }).join('');
 
             const urgentAlertsHtml = urgentItems.length > 0
-                ? urgentItems.map(u => `
+                ? urgentItems.slice(0, URGENT_SHOWN).map(u => `
                     <li class="text-xs sm:text-sm text-rose-900 flex items-start gap-2">
-                        <span class="px-2 py-0.5 rounded bg-rose-600 text-white text-[11px] font-bold shrink-0 mt-0.5">${u.primaryProvince}</span>
+                        <span class="px-2 py-0.5 rounded ${isHomeProvince(u.primaryProvince) ? 'bg-rose-600 text-white' : 'bg-rose-100 text-rose-800 border border-rose-300'} text-[11px] font-bold shrink-0 mt-0.5">${escapeHtml(u.primaryProvince)}</span>
                         <span><strong>${escapeHtml(u.title)}</strong> <span class="text-rose-700/80">(${escapeHtml(u.source)})</span></span>
                     </li>
-                `).join('')
+                `).join('') + (urgentItems.length > URGENT_SHOWN
+                    ? `<li class="text-xs text-rose-800">... และอีก ${urgentItems.length - URGENT_SHOWN} เรื่อง (กดการ์ด "ประเด็นเร่งด่วนสูง" ด้านบนเพื่อดูทั้งหมด)</li>` : '')
                 : `<li class="text-xs sm:text-sm text-emerald-800">ไม่พบเหตุการณ์วิกฤตหรือมลพิษรุนแรงเฉียบพลันในห้วงเวลานี้ ส่วนใหญ่เป็นการเฝ้าระวังตามปกติ</li>`;
+
+            // ทั่วประเทศ: การ์ดข่าวนอกเขต สคพ.11 (เรื่องเร่งด่วนก่อน)
+            let outsideCardHtml = '';
+            if (nation) {
+                const outsideItems = currentState.newsItems.filter(i => !isHomeProvince(i.primaryProvince))
+                    .slice().sort((a, b) => (urgencyRank[a.urgency] ?? 3) - (urgencyRank[b.urgency] ?? 3) || new Date(b.pubDate) - new Date(a.pubDate));
+                const bullets = outsideItems.slice(0, 6).map(item => {
+                    const catObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === item.category) || CATEGORY_DISPLAY_ORDER[5];
+                    const where = item.primaryProvince === UNSPECIFIED_PROVINCE ? 'ระดับประเทศ' : 'จ.' + item.primaryProvince;
+                    return `<li class="text-xs text-slate-700 leading-relaxed"><span class="font-semibold text-indigo-800">[${escapeHtml(where)}]</span> <span class="text-slate-500">${catObj.shortName}</span> ${escapeHtml(item.title)}</li>`;
+                }).join('');
+                outsideCardHtml = `
+                    <div class="p-4 rounded-xl bg-indigo-50/40 border border-indigo-100 md:col-span-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-bold text-sm text-indigo-950 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                                นอกเขต สคพ.11 (จังหวัดอื่นทั่วประเทศ)
+                            </span>
+                            <span class="px-2 py-0.5 text-xs rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200 font-bold">${outsideItems.length} ข่าว</span>
+                        </div>
+                        ${bullets ? `<ul class="list-disc list-inside space-y-1">${bullets}</ul>` : '<p class="text-xs text-slate-400">ไม่พบข่าวนอกเขตในห้วงเวลานี้</p>'}
+                    </div>`;
+            }
+
+            const outsideProvCount = Object.keys(stats.byOtherProvince).filter(p => p !== UNSPECIFIED_PROVINCE).length;
+            const unspecifiedCount = stats.byOtherProvince[UNSPECIFIED_PROVINCE] || 0;
+            const areaSentence = nation
+                ? `จากการกวาดข้อมูลข่าวสารด้านสิ่งแวดล้อมและมลพิษ<strong>ทั่วประเทศ</strong> พบข่าวที่เกี่ยวข้องรวมทั้งสิ้น <strong>${stats.total} ข่าว</strong>
+                   (ในเขต สคพ.11 4 จังหวัด <strong>${stats.total - stats.outsideCount} ข่าว</strong> • จังหวัดอื่น <strong>${stats.outsideCount - unspecifiedCount} ข่าว</strong> จาก ${outsideProvCount} จังหวัด • ไม่ระบุจังหวัด/ระดับประเทศ <strong>${unspecifiedCount} ข่าว</strong>)`
+                : `จากการกวาดข้อมูลข่าวสารด้านสิ่งแวดล้อมและมลพิษในเขตพื้นที่ 4 จังหวัด (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์)
+                   พบข่าวที่เกี่ยวข้องรวมทั้งสิ้น <strong>${stats.total} ข่าว</strong>`;
 
             container.innerHTML = `
                 <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 text-xs sm:text-sm text-slate-700 leading-relaxed">
                     <strong>📊 สรุปภาพรวมสถานการณ์ (${dataTimeframeLabel()}):</strong> 
-                    จากการกวาดข้อมูลข่าวสารด้านสิ่งแวดล้อมและมลพิษในเขตพื้นที่ 4 จังหวัด (นครราชสีมา ชัยภูมิ บุรีรัมย์ สุรินทร์) 
-                    พบข่าวที่เกี่ยวข้องรวมทั้งสิ้น <strong>${stats.total} ข่าว</strong> แบ่งเป็นประเด็นเร่งด่วนสูง <strong>${stats.urgentCount} ข่าว</strong> 
+                    ${areaSentence} แบ่งเป็นประเด็นเร่งด่วนสูง <strong>${stats.urgentCount} ข่าว</strong> 
                     ประเด็นเฝ้าระวัง <strong>${stats.watchCount} ข่าว</strong> และข่าวสารทั่วไป/รณรงค์ <strong>${stats.normalCount} ข่าว</strong> 
                     โดยประเด็นที่พบมากที่สุดคือ <strong>${topCatObj ? topCatObj.name : '-'} (${topCatCount} ข่าว)</strong>
                 </div>
@@ -2565,9 +2868,10 @@
                 </div>
 
                 <div>
-                    <h4 class="text-xs sm:text-sm font-bold text-slate-700 mb-3">📍 สรุปประเด็นสำคัญแยกรายจังหวัด (4 จังหวัดนครชัยบุรินทร์):</h4>
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-700 mb-3">📍 สรุปประเด็นสำคัญแยกรายจังหวัด (4 จังหวัดนครชัยบุรินทร์${nation ? ' และนอกเขต' : ''}):</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                         ${provCardsHtml}
+                        ${outsideCardHtml}
                     </div>
                 </div>
             `;
@@ -2654,6 +2958,7 @@
                     ${provCard('ชัยภูมิ', ps.chaiyaphum, 'bg-teal-50/50 border border-teal-200')}
                     ${provCard('บุรีรัมย์', ps.buriram, 'bg-cyan-50/50 border border-cyan-200')}
                     ${provCard('สุรินทร์', ps.surin, 'bg-amber-50/50 border border-amber-200')}
+                    ${aiData.nationwide_summary ? provCard('ภาพรวมทั่วประเทศ (นอกเขต สคพ.11)', aiData.nationwide_summary, 'bg-indigo-50/50 border border-indigo-200 md:col-span-2') : ''}
                 </div>
             `;
         }
@@ -2678,17 +2983,19 @@
             btn.disabled = true;
 
             try {
-                // ส่งเรื่องเร่งด่วนก่อน เพื่อให้เรื่องสำคัญไม่หลุดเมื่อข่าวเกิน 60 เรื่อง
+                // ส่งเรื่องเร่งด่วนก่อน เพื่อให้เรื่องสำคัญไม่หลุดเมื่อข่าวเกินจำนวนที่ส่งได้
+                const nation = isNationData();
                 const rank = { 'เร่งด่วนมาก': 0, 'เฝ้าระวัง': 1 };
                 const forAi = currentState.newsItems.filter(i => !i.isDemo || currentState.newsItems.every(x => x.isDemo))
                     .slice().sort((a, b) => (rank[a.urgency] ?? 2) - (rank[b.urgency] ?? 2))
-                    .slice(0, 60);
+                    .slice(0, nation ? 80 : 60);
                 const newsListText = forAi.map((item, i) => {
                     const outlets = item.outletCount > 1 ? ` [${item.outletCount} สำนักข่าว]` : '';
-                    return `${i + 1}. [จังหวัด${item.primaryProvince}] [${item.urgency}] ${item.title} (${item.source})${outlets} - ${(item.description || '').slice(0, 300)}`;
+                    const where = item.primaryProvince === UNSPECIFIED_PROVINCE ? 'ไม่ระบุจังหวัด/ระดับประเทศ' : `จังหวัด${item.primaryProvince}${isHomeProvince(item.primaryProvince) ? '' : ' (นอกเขต)'}`;
+                    return `${i + 1}. [${where}] [${item.urgency}] ${item.title} (${item.source})${outlets} - ${(item.description || '').slice(0, 300)}`;
                 }).join('\n');
 
-                const systemInstruction = `คุณคือผู้เชี่ยวชาญด้านการวิเคราะห์ข่าวสิ่งแวดล้อมและมลพิษ (Environmental Social Listening Analyst) ของสำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 11 (สคพ.11 นครราชสีมา) รับผิดชอบพื้นที่ 4 จังหวัด: นครราชสีมา (โคราช) ชัยภูมิ บุรีรัมย์ และสุรินทร์ หน้าที่ของคุณคือตรวจสอบระดับความเร่งด่วน และเขียนบทสรุปผู้บริหารจากรายการข่าวที่ได้รับ ตอบเป็นภาษาไทยที่กระชับ ใช้เฉพาะข้อเท็จจริงที่อยู่ในรายการข่าว ห้ามเพิ่มตัวเลขหรือเหตุการณ์ที่ไม่มีในข่าว`;
+                const systemInstruction = `คุณคือผู้เชี่ยวชาญด้านการวิเคราะห์ข่าวสิ่งแวดล้อมและมลพิษ (Environmental Social Listening Analyst) ของสำนักงานสิ่งแวดล้อมและควบคุมมลพิษที่ 11 (สคพ.11 นครราชสีมา) รับผิดชอบพื้นที่ 4 จังหวัด: นครราชสีมา (โคราช) ชัยภูมิ บุรีรัมย์ และสุรินทร์ หน้าที่ของคุณคือตรวจสอบระดับความเร่งด่วน และเขียนบทสรุปผู้บริหารจากรายการข่าวที่ได้รับ ตอบเป็นภาษาไทยที่กระชับ ใช้เฉพาะข้อเท็จจริงที่อยู่ในรายการข่าว ห้ามเพิ่มตัวเลขหรือเหตุการณ์ที่ไม่มีในข่าว${nation ? ' ข่าวชุดนี้กวาดจากทั่วประเทศ: ให้สรุปสถานการณ์ระดับประเทศนอกเขต 4 จังหวัดไว้ใน nationwide_summary (ภาคหรือจังหวัดที่มีปัญหาเด่น และประเด็นที่อาจส่งผลหรือเกิดซ้ำในเขต สคพ.11)' : ''}`;
 
                 const userPrompt = `กรุณาวิเคราะห์รายการข่าวสิ่งแวดล้อมและมลพิษต่อไปนี้ (ห้วงเวลา: ${dataTimeframeLabel()}, ทั้งหมด ${currentState.newsItems.length} เรื่อง แสดง ${forAi.length} เรื่อง):
 ${newsListText}
@@ -2703,7 +3010,7 @@ ${newsListText}
                         responseSchema: {
                             type: "OBJECT",
                             properties: {
-                                executive_overview: { type: "STRING", description: "สรุปภาพรวมสถานการณ์และแนวโน้มสำคัญใน 4 จังหวัด" },
+                                executive_overview: { type: "STRING", description: nation ? "สรุปภาพรวมสถานการณ์และแนวโน้มสำคัญทั่วประเทศ โดยเน้น 4 จังหวัดในเขต สคพ.11" : "สรุปภาพรวมสถานการณ์และแนวโน้มสำคัญใน 4 จังหวัด" },
                                 urgent_alerts: {
                                     type: "ARRAY",
                                     items: { type: "STRING" },
@@ -2717,9 +3024,10 @@ ${newsListText}
                                         buriram: { type: "STRING" },
                                         surin: { type: "STRING" }
                                     }
-                                }
+                                },
+                                ...(nation ? { nationwide_summary: { type: "STRING", description: "สรุปสถานการณ์ทั่วประเทศนอกเขต 4 จังหวัด" } } : {})
                             },
-                            required: ["executive_overview", "urgent_alerts", "province_summaries"]
+                            required: ["executive_overview", "urgent_alerts", "province_summaries", ...(nation ? ["nationwide_summary"] : [])]
                         }
                     }
                 };
@@ -2781,7 +3089,7 @@ ${newsListText}
             const searchKw = document.getElementById('searchInNewsInput').value.trim().toLowerCase();
 
             const filtered = currentState.newsItems.filter(item => {
-                if (provFilter !== 'ALL' && item.primaryProvince !== provFilter) return false;
+                if (!matchesProvinceFilter(item, provFilter)) return false;
                 if (catFilter !== 'ALL' && item.category !== catFilter) return false;
                 if (urgFilter !== 'ALL' && item.urgency !== urgFilter) return false;
                 if (searchKw && !(`${item.title} ${item.description} ${item.source}`.toLowerCase().includes(searchKw))) return false;
@@ -2802,13 +3110,20 @@ ${newsListText}
                 return;
             }
 
+            const nation = isNationData();
             filtered.forEach((item) => {
                 const catObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === item.category) || CATEGORY_DISPLAY_ORDER[5];
-                const provObj = PROVINCE_CONFIG[item.primaryProvince] || PROVINCE_CONFIG['นครราชสีมา'];
+                const provBadgeClass = provinceBadgeClass(item.primaryProvince);
+                // จังหวัดของข่าว: 4 จังหวัดในเขต + จังหวัดปัจจุบัน (ถ้าอยู่นอกเขต) + ไม่ระบุจังหวัด (ข้อมูลทั่วประเทศ)
+                const provChoices = [...HOME_PROVINCES];
+                if (!isHomeProvince(item.primaryProvince) && item.primaryProvince !== UNSPECIFIED_PROVINCE) provChoices.push(item.primaryProvince);
+                if (nation || item.primaryProvince === UNSPECIFIED_PROVINCE) provChoices.push(UNSPECIFIED_PROVINCE);
+                const provOptionsHtml = provChoices.map(p =>
+                    `<option value="${escapeHtml(p)}" ${item.primaryProvince === p ? 'selected' : ''}>${p === UNSPECIFIED_PROVINCE ? 'ไม่ระบุจังหวัด' : 'จ.' + escapeHtml(p)}</option>`).join('');
 
                 const extraProvincesHtml = (item.provinces || [])
                     .filter(p => p !== item.primaryProvince)
-                    .map(p => `<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">+ ${p}</span>`)
+                    .map(p => `<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">+ ${escapeHtml(p)}</span>`)
                     .join('');
 
                 let urgencyBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">🟢 ทั่วไป</span>`;
@@ -2826,7 +3141,7 @@ ${newsListText}
                 card.innerHTML = `
                     <div class="space-y-2 flex-1">
                         <div class="flex flex-wrap items-center gap-1.5">
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${provObj.badgeClass}">📍 ${item.primaryProvince}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${provBadgeClass}">${item.primaryProvince === UNSPECIFIED_PROVINCE ? '🗺️' : '📍'} ${escapeHtml(provinceLabel(item.primaryProvince))}</span>
                             ${extraProvincesHtml}
                             <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold border ${catObj.badgeClass}">${catObj.shortName}</span>
                             ${urgencyBadge}
@@ -2844,10 +3159,7 @@ ${newsListText}
                         <div class="pt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500 no-print">
                             <span>ปรับหมวดหมู่ทันที:</span>
                             <select onchange="updateSingleItemProvince('${item.id}', this.value)" aria-label="จังหวัดของข่าวนี้" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-700 font-medium outline-none focus:border-emerald-500">
-                                <option value="นครราชสีมา" ${item.primaryProvince === 'นครราชสีมา' ? 'selected' : ''}>จ.นครราชสีมา</option>
-                                <option value="ชัยภูมิ" ${item.primaryProvince === 'ชัยภูมิ' ? 'selected' : ''}>จ.ชัยภูมิ</option>
-                                <option value="บุรีรัมย์" ${item.primaryProvince === 'บุรีรัมย์' ? 'selected' : ''}>จ.บุรีรัมย์</option>
-                                <option value="สุรินทร์" ${item.primaryProvince === 'สุรินทร์' ? 'selected' : ''}>จ.สุรินทร์</option>
+                                ${provOptionsHtml}
                             </select>
                             <select onchange="updateSingleItemCategory('${item.id}', this.value)" aria-label="ประเภทปัญหาของข่าวนี้" class="px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-700 font-medium outline-none focus:border-emerald-500">
                                 <option value="water" ${item.category === 'water' ? 'selected' : ''}>💧 มลพิษทางน้ำ</option>
@@ -2896,6 +3208,7 @@ ${newsListText}
                 const realCount = currentState.newsItems.filter(i => !i.isDemo).length;
                 if (realCount && !confirm(`ล้างรายการข่าวทั้งหมด ${realCount} ข่าว? (ลบผลการค้นหาที่บันทึกไว้ด้วย)`)) return;
                 currentState.newsItems = [];
+                currentState.dataScope = null;
             }
             currentState.aiExecutiveSummaryHtml = null;
             currentState.aiData = null;
@@ -2940,8 +3253,11 @@ ${newsListText}
             if (currentState.newsItems.some(i => i.isDemo)) {
                 lines.push(`⚠️ [ข้อมูลตัวอย่าง ไม่ใช่ข่าวจริง ห้ามส่งต่อ]`);
             }
+            const nation = isNationData();
             lines.push(`🌿 สรุปสถานการณ์ข่าวสิ่งแวดล้อมและมลพิษ (สคพ.11)`);
-            lines.push(`📍 พื้นที่: นครราชสีมา • ชัยภูมิ • บุรีรัมย์ • สุรินทร์`);
+            lines.push(nation
+                ? `📍 พื้นที่: ทั่วประเทศ (เน้นเขต สคพ.11: นครราชสีมา • ชัยภูมิ • บุรีรัมย์ • สุรินทร์)`
+                : `📍 พื้นที่: นครราชสีมา • ชัยภูมิ • บุรีรัมย์ • สุรินทร์`);
             lines.push(`🗓️ ประจำวันที่: ${dateStr}`);
             lines.push(`⏱️ ห้วงเวลาที่กวาดข้อมูล: ${dataTimeframeLabel()}`);
             lines.push(`━━━━━━━━━━━━━━━━━━`);
@@ -2955,6 +3271,19 @@ ${newsListText}
             lines.push(`• ชัยภูมิ: ${stats.byProvince['ชัยภูมิ']} ข่าว`);
             lines.push(`• บุรีรัมย์: ${stats.byProvince['บุรีรัมย์']} ข่าว`);
             lines.push(`• สุรินทร์: ${stats.byProvince['สุรินทร์']} ข่าว`);
+            if (nation) {
+                const unspecified = stats.byOtherProvince[UNSPECIFIED_PROVINCE] || 0;
+                const others = Object.entries(stats.byOtherProvince).filter(([p]) => p !== UNSPECIFIED_PROVINCE)
+                    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'th'));
+                lines.push(`• นอกเขต สคพ.11: ${stats.outsideCount} ข่าว (จังหวัดอื่น ${stats.outsideCount - unspecified} ข่าว จาก ${others.length} จังหวัด • ไม่ระบุจังหวัด ${unspecified} ข่าว)`);
+                if (others.length) {
+                    lines.push(`🗺️ จังหวัดอื่นที่พบข่าวมากที่สุด: ${others.slice(0, 8).map(([p, n]) => `${p} ${n}`).join(' • ')}`);
+                }
+                const regions = (window.SocialListeningPlus && SocialListeningPlus.REGIONS) || [];
+                const byRegion = regions.map(r => [r.name, currentState.newsItems.filter(i => r.provinces.includes(i.primaryProvince)).length])
+                    .filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+                if (byRegion.length) lines.push(`🧭 แยกตามภาค: ${byRegion.map(([r, n]) => `${r} ${n}`).join(' • ')}`);
+            }
             lines.push(`━━━━━━━━━━━━━━━━━━`);
             lines.push(`🗂️ แยกตามประเภทปัญหาสิ่งแวดล้อม:`);
             CATEGORY_DISPLAY_ORDER.forEach(cat => {
@@ -2980,6 +3309,22 @@ ${newsListText}
                     if (provItems.length > 8) lines.push(`  ... และอีก ${provItems.length - 8} ข่าว`);
                 }
             });
+            if (nation) {
+                const outsideItems = currentState.newsItems
+                    .filter(i => !isHomeProvince(i.primaryProvince))
+                    .sort((a, b) => (urgencyRank[a.urgency] ?? 3) - (urgencyRank[b.urgency] ?? 3) || new Date(b.pubDate) - new Date(a.pubDate));
+                lines.push(`\n▶️ นอกเขต สคพ.11 / ทั่วประเทศ (${outsideItems.length} ข่าว):`);
+                if (outsideItems.length === 0) {
+                    lines.push(`  - ไม่พบรายงานข่าวนอกเขตในห้วงเวลานี้`);
+                } else {
+                    outsideItems.slice(0, 10).forEach((item, idx) => {
+                        const catObj = CATEGORY_DISPLAY_ORDER.find(c => c.key === item.category);
+                        const where = item.primaryProvince === UNSPECIFIED_PROVINCE ? 'ระดับประเทศ' : 'จ.' + item.primaryProvince;
+                        lines.push(`  ${idx + 1}) [${where}] [${item.urgency}] ${item.title} (${catObj ? catObj.shortName : ''})`);
+                    });
+                    if (outsideItems.length > 10) lines.push(`  ... และอีก ${outsideItems.length - 10} ข่าว`);
+                }
+            }
 
             const ai = currentState.aiExecutiveSummaryHtml ? currentState.aiData : null;
             if (ai) {
@@ -2987,6 +3332,7 @@ ${newsListText}
                 lines.push(`🤖 บทวิเคราะห์โดย Gemini AI:`);
                 if (ai.executive_overview) lines.push(ai.executive_overview);
                 (ai.urgent_alerts || []).forEach(a => lines.push(`• ${a}`));
+                if (ai.nationwide_summary) lines.push(`🗺️ ภาพรวมทั่วประเทศ: ${ai.nationwide_summary}`);
             }
 
             return lines.join('\n');
@@ -3009,12 +3355,13 @@ ${newsListText}
         function copyMatrixTable() {
             const stats = computeStatistics(currentState.newsItems);
             const provs = ['นครราชสีมา', 'ชัยภูมิ', 'บุรีรัมย์', 'สุรินทร์'];
-            const rows = [['ประเภทปัญหา / มลพิษ', ...provs, 'รวม']];
+            const nation = isNationData();
+            const rows = [['ประเภทปัญหา / มลพิษ', ...provs, ...(nation ? ['นอกเขต สคพ.11'] : []), 'รวม']];
             CATEGORY_DISPLAY_ORDER.forEach(cat => {
                 const m = stats.matrix[cat.key];
-                rows.push([cat.name, ...provs.map(p => m[p]), m.total]);
+                rows.push([cat.name, ...provs.map(p => m[p]), ...(nation ? [m.outside] : []), m.total]);
             });
-            rows.push(['รวมทั้งหมด', ...provs.map(p => stats.byProvince[p]), stats.total]);
+            rows.push(['รวมทั้งหมด', ...provs.map(p => stats.byProvince[p]), ...(nation ? [stats.outsideCount] : []), stats.total]);
             const text = `ตารางสรุปจำนวนข่าว (${dataTimeframeLabel()})\n` + rows.map(r => r.join('\t')).join('\n');
             copyTextToClipboard(text, 'คัดลอกตารางสรุปแล้ว วางใน Excel / Google Sheets ได้ทันที');
         }
@@ -3060,7 +3407,7 @@ ${newsListText}
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `รายงานข่าวสิ่งแวดล้อม_สคพ11_${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = `รายงานข่าวสิ่งแวดล้อม_สคพ11${isNationData() ? '_ทั่วประเทศ' : ''}_${new Date().toISOString().slice(0,10)}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -3181,6 +3528,7 @@ ${newsListText}
                 return classified;
             });
             currentState.dataTimeframe = '1d';
+            currentState.dataScope = 'region';
             currentState.aiExecutiveSummaryHtml = null;
             currentState.aiData = null;
             renderDashboard();
