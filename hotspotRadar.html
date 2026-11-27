@@ -304,6 +304,8 @@
             white-space: nowrap;
         }
         .empty { color: var(--muted); font-size: 14px; padding: 4px 0; }
+        .hs-more { padding: 10px 0 2px; }
+        .hs-more .btn { width: 100%; font-size: 14px; min-height: 44px; }
 
         footer {
             text-align: center;
@@ -569,7 +571,7 @@
         </div>
 
         <div class="panel" id="listPanel" hidden>
-            <h2>จุดความร้อนใกล้คุณ (เรียงตามระยะทาง)</h2>
+            <h2>จุดความร้อนใกล้คุณ (เรียงตามระยะทาง)<span id="hsCount"></span></h2>
             <ul class="hs-list" id="hsList"><li class="empty">ยังไม่มีข้อมูล</li></ul>
         </div>
 
@@ -1723,19 +1725,33 @@
             if (visor.open && visor.locked) renderVisor(); // แว่นสแกน: อัปเดตระยะ/ทิศ/เป้าตามตำแหน่งล่าสุด
         }
 
+        // แสดงจุดความร้อนในรัศมีครบทุกจุด ยกเว้นรัศมีกว้าง (500 กม. ขึ้นไป) ที่อาจมีเป็นพันจุด:
+        // แสดงจุดใกล้สุดก่อน แล้วมีปุ่ม "แสดงทั้งหมด" (เปลี่ยนรัศมีแล้วกลับเป็นแบบย่อ)
+        // GPS อัปเดตถี่ จึงเขียน DOM ใหม่เฉพาะเมื่อเนื้อหาเปลี่ยนจริง
+        const LIST_COLLAPSE_MIN_KM = 500;
+        const LIST_COLLAPSED_ROWS = 10;
+        let listExpanded = false;
+        let listHtml = '';
+        function setList(html, count) {
+            $('hsCount').textContent = count ? ' · ' + count.toLocaleString('th-TH') + ' จุด' : '';
+            if (html === listHtml) return;
+            listHtml = html;
+            $('hsList').innerHTML = html;
+        }
         function renderList() {
-            const ul = $('hsList');
-            if (!state.pos) { ul.innerHTML = '<li class="empty">รอตำแหน่งของคุณ…</li>'; return; }
-            if (state.dataStatus !== 'ok') { ul.innerHTML = '<li class="empty">ยังไม่มีข้อมูลจุดความร้อน</li>'; return; }
-            const items = state.hits.slice(0, 10);
+            if (!state.pos) { setList('<li class="empty">รอตำแหน่งของคุณ…</li>', 0); return; }
+            if (state.dataStatus !== 'ok') { setList('<li class="empty">ยังไม่มีข้อมูลจุดความร้อน</li>', 0); return; }
+            const all = state.hits;
+            const collapsible = rangeKm() >= LIST_COLLAPSE_MIN_KM && all.length > LIST_COLLAPSED_ROWS;
+            const items = collapsible && !listExpanded ? all.slice(0, LIST_COLLAPSED_ROWS) : all;
             if (!items.length) {
                 const na = state.nearestAny;
-                ul.innerHTML = '<li class="empty">ไม่พบจุดความร้อนในรัศมี ' + esc(fmtRange(rangeKm())) +
+                setList('<li class="empty">ไม่พบจุดความร้อนในรัศมี ' + esc(fmtRange(rangeKm())) +
                     (na ? ' · จุดใกล้สุดอยู่ห่าง ' + esc(fmtDist(na.d)) + ' ทิศ' + esc(dirName(na.brg)) +
-                        (na.pt.sat ? ' ตรวจพบโดย<span class="nw">ดาวเทียม ' + esc(na.pt.sat) + '</span>' : '') : '') + '</li>';
+                        (na.pt.sat ? ' ตรวจพบโดย<span class="nw">ดาวเทียม ' + esc(na.pt.sat) + '</span>' : '') : '') + '</li>', 0);
                 return;
             }
-            ul.innerHTML = items.map(h => {
+            setList(items.map(h => {
                 const p = h.pt;
                 const nav = 'https://www.google.com/maps/dir/?api=1&destination=' + p.lat.toFixed(6) + ',' + p.lon.toFixed(6);
                 const when = p.time ? 'พบเมื่อ ' + fmtThai(p.time) : '';
@@ -1748,8 +1764,22 @@
                     '<div class="sub">' + sub + '</div></div>' +
                     '<a href="' + esc(nav) + '" target="_blank" rel="noopener">นำทาง</a>' +
                     '</li>';
-            }).join('') + (state.hits.length > items.length ? '<li class="empty">และอีก ' + (state.hits.length - items.length) + ' จุด</li>' : '');
+            }).join('') + (collapsible
+                ? '<li class="hs-more"><button type="button" class="btn" data-act="toggle-list" aria-expanded="' + listExpanded + '">' +
+                    (listExpanded ? 'แสดงน้อยลง (' + LIST_COLLAPSED_ROWS + ' จุดใกล้สุด)'
+                        : 'แสดงทั้งหมด (อีก ' + (all.length - items.length).toLocaleString('th-TH') + ' จุด)') +
+                    '</button></li>'
+                : ''), all.length);
         }
+        $('hsList').addEventListener('click', e => {
+            if (!e.target.closest('[data-act="toggle-list"]')) return;
+            listExpanded = !listExpanded;
+            renderList();
+            const btn = $('hsList').querySelector('[data-act="toggle-list"]');
+            if (btn) btn.focus({ preventScroll: true });
+            // ย่อรายการยาวแล้ว ปุ่มจะเลื่อนขึ้นไปไกล: เลื่อนกลับมาที่หัวรายการ
+            if (!listExpanded) $('listPanel').scrollIntoView({ block: 'start', behavior: reducedMotion() ? 'auto' : 'smooth' });
+        });
 
         // ===================== รัศมีสแกน =====================
         function updateRangeUI() {
@@ -1762,6 +1792,7 @@
             idx = Math.max(0, Math.min(RANGES_KM.length - 1, idx));
             if (idx === state.rangeIdx) return;
             state.rangeIdx = idx;
+            listExpanded = false;
             savePrefs();
             updateRangeUI();
             click();
