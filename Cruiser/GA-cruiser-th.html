@@ -1203,7 +1203,7 @@ function buildBillboard() {
   const [c, x] = makeCanvas(512, 256);
   BOARD.canvas = c; BOARD.ctx = x; BOARD.tex = tex(c, { repeat: false });
   BOARD.slides = [
-    () => { x.fillStyle = '#0c131b'; x.fillRect(0, 0, 512, 256); x.fillStyle = '#efe7d4'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '400 64px "Chomsky", serif'; x.fillText('The Siam Times', 256, 105); x.fillStyle = '#d6ad5f'; x.font = `600 30px ${FONT_TH}`; x.fillText(TH ? 'ข่าวดี ส่งต่อได้ทุกวัน' : 'All the news that’s nice to post', 256, 180); },
+    () => { x.fillStyle = '#0c131b'; x.fillRect(0, 0, 512, 256); x.fillStyle = '#efe7d4'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '400 64px "Chomsky", serif'; x.fillText('The Siam Times', 256, 105); x.fillStyle = '#d6ad5f'; x.font = `600 30px ${FONT_TH}`; x.fillText('Keeping Siam’s Time', 256, 180); },
     () => { const g = x.createLinearGradient(0, 0, 512, 256); g.addColorStop(0, '#e2582a'); g.addColorStop(1, '#f2b134'); x.fillStyle = g; x.fillRect(0, 0, 512, 256); x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = `700 74px ${FONT_TH}`; x.fillText('ชาไทยเย็น', 256, 110); x.font = `500 30px ${FONT_TH}`; x.fillText('หวานน้อย ใส่น้ำแข็งเยอะ', 256, 185); },
     () => { x.fillStyle = '#101820'; x.fillRect(0, 0, 512, 256); x.fillStyle = '#ff3b3b'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = `700 70px ${FONT_TH}`; x.fillText('มวยไทย', 256, 100); x.fillStyle = '#fff'; x.font = `600 32px ${FONT_TH}`; x.fillText('ศึกคืนวันศุกร์ 20:00 น.', 256, 180); },
     () => { x.fillStyle = '#1b5e20'; x.fillRect(0, 0, 512, 256); x.fillStyle = '#ffe082'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = `700 66px ${FONT_TH}`; x.fillText('ทุเรียนหมอนทอง', 256, 108); x.fillStyle = '#fff'; x.font = `500 30px ${FONT_TH}`; x.fillText('ห้ามนำขึ้นรถไฟฟ้า', 256, 182); },
@@ -3606,8 +3606,7 @@ function vehicleDecals() {
   fitText(x2, 'The Siam Times', 860, 92, '400', 'Chomsky, serif'); x2.fillText('The Siam Times', 485, 58);
   x2.fillStyle = '#b8862e'; x2.fillRect(960, 22, 3, 56);
   x2.fillStyle = '#8a5a1a'; x2.textAlign = 'left';
-  if (TH) { fitText(x2, 'ข่าวดี ส่งต่อได้ทุกวัน', 280, 30, '600', FONT_TH); x2.fillText('ข่าวดี ส่งต่อได้ทุกวัน', 982, 52); }
-  else { x2.font = '600 24px Kanit, sans-serif'; x2.fillText('All the news', 982, 38); x2.fillText('that’s nice to post', 982, 66); }
+  x2.font = '600 24px Kanit, sans-serif'; x2.fillText('Keeping', 982, 38); x2.fillText('Siam’s Time', 982, 66);
   const mk = (map, alpha) => new THREE.MeshStandardMaterial({ map, roughness: alpha ? 0.35 : 0.45, metalness: alpha ? 0.4 : 0, alphaTest: alpha ? 0.4 : 0, polygonOffset: true, polygonOffsetFactor: -2 });
   const planes = list => { const g = new GB(); for (const [w, h, m] of list) g.geo(new THREE.PlaneGeometry(w, h), m); return g.build(); };
   VKINDS.tuktuk.decal = { geo: planes([[1.5, 0.28, mat(0.684, 0.64, 0.38, Math.PI / 2)], [1.5, 0.28, mat(-0.684, 0.64, 0.38, -Math.PI / 2)], [0.9, 0.17, mat(0, 1.76, 1.516)]]), mat: mk(tex(c1, { repeat: false }), true) };
