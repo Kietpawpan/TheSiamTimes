@@ -1,7 +1,8 @@
 # The Siam Times
-_A 19th-Century Voice Returns to Siam, Now Advocating for the Earth_\
-![IMG](IMG_0046.jpeg)\
-Chao Phraya River, Bangkok, the Kingdom of Siam in 1864. Facebook | SEA HERITAGE & HISTORY
+_A 19th-Century Voice Returns to Siam, Now Advocating for the Earth_
+
+![Bangkok, c. 1862–64, watercolour by Eduard Hildebrandt](img/hildebrandt-bangkok-1862.jpg)\
+Bangkok and the Chao Phraya River, c. 1862–64. Watercolour by Eduard Hildebrandt (1818–1868). Public domain, via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Eduard_Hildebrandt_Blick_auf_Bangkok.jpg).
 
 After a 160-year silence sparked by a legal dispute, Thailand’s first English-language newspaper has been reborn as a digital hub for environmental sustainability. The masthead of **The Siam Times**, once a relic of 19th-century journalism, has been reimagined as a digital production platform for the climate era.
 
